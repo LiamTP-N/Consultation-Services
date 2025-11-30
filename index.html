@@ -179,41 +179,12 @@
                     </nav>
 
                     {/* --- MAIN CONTENT / HERO / ABOUT SECTION --- */}
-                    {/* The entire top block now acts as the combined Hero/About introduction */}
                     <header id="about" className="pt-32 pb-20 md:pt-48 md:pb-32 px-4 bg-gradient-to-br from-white to-slate-100">
                         <div className="max-w-6xl mx-auto grid md:grid-cols-12 gap-10">
                             
-                            {/* LEFT COLUMN: Credentials, Main Title, and CTA */}
-                            <div className="md:col-span-6 lg:col-span-8 md:text-left text-center">
-                                {/* Credentials */}
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider mb-6">
-                                    PhD • Senior Fellow (SFHEA) • Distinguished Teaching Fellow • Applied Physiologist • Data Scientist • Olympic Weightlifting Coach • Personal Trainer • Sports Massage Therapist
-                                </div>
-
-                                {/* Main Title */}
-                                <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-6 leading-tight">
-                                    Optimising Human Performance through <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Data & Physiology</span>
-                                </h1>
-
-                                {/* Hero Description */}
-                                <p className="text-xl text-slate-600 mb-10 max-w-2xl md:mx-0 mx-auto leading-relaxed">
-                                    Bridging the gap between academic rigour and practical application. Specialising in minimal-dose resistance training, older adult health, and elite weightlifting analysis.
-                                </p>
-                                
-                                {/* CTAs */}
-                                <div className="flex flex-col sm:flex-row md:justify-start justify-center gap-4">
-                                    <a href="#services" className="inline-flex items-center justify-center gap-2 bg-slate-900 text-white px-8 py-3.5 rounded-xl font-medium hover:bg-slate-800 transition-all hover:scale-105">
-                                        View Services <Icon path={icons.chevron} />
-                                    </a>
-                                    <a href="#research" className="inline-flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-200 px-8 py-3.5 rounded-xl font-medium hover:bg-slate-50 transition-all">
-                                        Read Publications
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            {/* RIGHT COLUMN: About Text and Image */}
-                            <div className="md:col-span-6 lg:col-span-4 mt-8 md:mt-0">
-                                <h2 className="text-3xl font-bold mb-6 text-slate-900">About Me</h2>
+                            {/* LEFT COLUMN (NOW ABOUT ME & IMAGE) */}
+                            <div className="md:col-span-6 lg:col-span-4 order-2 md:order-1 mt-8 md:mt-0">
+                                {/* H2 REMOVED: <h2 className="text-3xl font-bold mb-6 text-slate-900">About Me</h2> */}
 
                                 {/* Image Block */}
                                 <div className="w-full h-auto mb-6">
@@ -236,6 +207,35 @@
                                     </p>
                                 </div>
                             </div>
+
+                            {/* RIGHT COLUMN (NOW CREDENTIALS & MAIN PITCH) */}
+                            <div className="md:col-span-6 lg:col-span-8 order-1 md:order-2 md:text-left text-center">
+                                {/* Credentials */}
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider mb-6">
+                                    PhD • Senior Fellow (SFHEA) • Distinguished Teaching Fellow • Applied Physiologist • Data Scientist • Olympic Weightlifting Coach • Personal Trainer • Sports Massage Therapist
+                                </div>
+
+                                {/* Main Title */}
+                                <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight">
+                                    Optimising Human Performance through <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Data & Physiology</span>
+                                </h1>
+
+                                {/* Hero Description */}
+                                <p className="text-xl text-slate-600 mb-10 max-w-2xl md:mx-0 mx-auto leading-relaxed">
+                                    Bridging the gap between academic rigour and practical application. Specialising in minimal-dose resistance training, older adult health, and elite weightlifting analysis.
+                                </p>
+                                
+                                {/* CTAs */}
+                                <div className="flex flex-col sm:flex-row md:justify-start justify-center gap-4">
+                                    <a href="#services" className="inline-flex items-center justify-center gap-2 bg-slate-900 text-white px-8 py-3.5 rounded-xl font-medium hover:bg-slate-800 transition-all hover:scale-105">
+                                        View Services <Icon path={icons.chevron} />
+                                    </a>
+                                    <a href="#research" className="inline-flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-200 px-8 py-3.5 rounded-xl font-medium hover:bg-slate-50 transition-all">
+                                        Read Publications
+                                    </a>
+                                </div>
+                            </div>
+                            
                         </div>
                     </header>
                     {/* --- END MAIN CONTENT / HERO / ABOUT SECTION --- */}
@@ -402,4 +402,3 @@
 </body>
 
 </html>
-
