@@ -21,7 +21,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Navigation Scroll Effect
             const nav = document.querySelector('nav');
             const handleScroll = () => {
                 if (window.scrollY > 50) {
@@ -33,15 +32,12 @@
             window.addEventListener('scroll', handleScroll);
             handleScroll();
 
-            // Simple Tab Switching (for Services)
             const tabButtons = document.querySelectorAll('[data-tab-target]');
             const tabContents = document.querySelectorAll('[data-tab-content]');
 
             tabButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const targetId = button.getAttribute('data-tab-target');
-                    
-                    // Deactivate all
                     tabButtons.forEach(btn => {
                         btn.className = 'flex items-center px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 bg-slate-800 text-slate-400 hover:bg-slate-700 border border-slate-700';
                     });
@@ -49,10 +45,7 @@
                         content.classList.remove('animate-fade-in', 'loaded');
                         content.style.display = 'none';
                     });
-
-                    // Activate selected
                     button.className = 'flex items-center px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 bg-blue-600 text-white shadow-lg scale-105';
-                    
                     const targetContent = document.getElementById(targetId);
                     if (targetContent) {
                         targetContent.style.display = 'grid';
@@ -61,11 +54,9 @@
                 });
             });
 
-            // Trigger the initial tab load (default to 'training')
             const defaultTab = document.querySelector('[data-tab-target="training-content"]');
             if (defaultTab) defaultTab.click(); 
 
-            // Initial Content Fade-in
             document.querySelectorAll('.animate-fade-in').forEach((el, index) => {
                 setTimeout(() => {
                     el.classList.add('loaded');
@@ -73,7 +64,6 @@
             });
         });
     </script>
-
 
     <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-6">
         <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
@@ -83,6 +73,7 @@
             <div class="hidden md:flex gap-8 text-sm font-medium text-slate-400">
                 <a href="#about" class="hover:text-blue-400 transition-colors">About</a>
                 <a href="#services" class="hover:text-blue-400 transition-colors">Services</a>
+                <a href="#credentials" class="hover:text-blue-400 transition-colors">CV & Credentials</a>
                 <a href="#research" class="hover:text-blue-400 transition-colors">Publications</a>
             </div>
             <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
@@ -92,11 +83,10 @@
     </nav>
 
     <header id="about" class="pt-32 pb-20 md:pt-48 md:pb-32 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
-        <div class="max-w-6xl mx-auto grid md:grid-cols-12 gap-10">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-12 gap-10 items-center">
             
             <div class="md:col-span-4 lg:col-span-4 order-2 md:order-1 mt-8 md:mt-0">
-                
-                <div class="w-full h-auto mb-8 animate-fade-in">
+                <div class="w-full h-auto animate-fade-in">
                     <div class="aspect-[4/5] rounded-2xl bg-slate-700 overflow-hidden relative border border-slate-700 shadow-xl">
                         <img 
                             src="https://github.com/LiamTP-N/Consultation-Services/blob/main/NorthumbriaUniHeadhots_270623-330.png?raw=true" 
@@ -105,100 +95,8 @@
                         />
                     </div>
                 </div>
-
-                <div class="p-6 rounded-xl border border-slate-700 bg-slate-800 animate-fade-in">
-                    
-                    <h3 class="text-sm font-bold text-slate-300 mb-3 uppercase tracking-wider text-center">
-                        RELEVANT QUALIFICATIONS
-                    </h3>
-
-                    <p class="mb-4 text-sm text-blue-400 font-bold border-b border-slate-700 pb-3 text-center">
-                        Awarded the Queen's Award in 2015 for services to sport and health.
-                    </p>
-                    
-                    <div class="space-y-5 text-sm text-slate-400">
-                        
-                        <div>
-                            <h4 class="font-bold text-slate-300 mb-1 border-b border-slate-700/50 pb-1">Academic Qualifications:</h4>
-                            <ul class="space-y-1 list-none pl-0 pt-1">
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>PhD Applied Health & Exercise Science</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>MRes Sport Science</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>BSc Applied Sports Science with Coaching</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Higher National Diploma, Sports Studies</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>National Diploma, Sport, Exercise & Coaching</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Diploma, Exercise & Fitness Instructing</span></li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h4 class="font-bold text-slate-300 mb-1 border-b border-slate-700/50 pb-1">Academic & Professional Status:</h4>
-                            <ul class="space-y-1 list-none pl-0 pt-1">
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Distinguished Teaching Fellow</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Senior Fellow (SFHEA)</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L4 Internal Quality Assurance</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L3 Assessor</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L3 Tutor</span></li>
-                            </ul>
-                        </div>
-                        
-                        <div>
-                            <h4 class="font-bold text-slate-300 mb-1 border-b border-slate-700/50 pb-1">Vocational Qualifications:</h4>
-                            <ul class="space-y-1 list-none pl-0 pt-1">
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Phlebotomist</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L3 Olympic Weightlifting Coach</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L3 Personal Trainer</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Sports Massage Therapist</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L2 Nutrition</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Kettlebell Instructor</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Spinning/Indoor Cycling</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Les Mills BodyPump</span></li>
-                            </ul>
-                        </div>
-                        
-                        <div>
-                            <h4 class="font-bold text-slate-300 mb-1 border-b border-slate-700/50 pb-1">Technical & Data Analysis:</h4>
-                            <p class="text-slate-400 pt-1">Statistical programming in **R** and **Python**; **MATLAB**; Isokinetic II – Advanced Interpretation; Wattbike Workshop; Gas Cylinder Safety.</p>
-                        </div>
-                        
-                        <div>
-                            <h4 class="font-bold text-slate-300 mb-1 border-b border-slate-700/50 pb-1">Safety & Compliance:</h4>
-                            <p class="text-slate-400 pt-1">L2 Safeguarding, L2 Equality & Diversity, L2 GDPR, L2 Prevent, L2 Food Safety, Emergency First Aid, Pool Lifeguard & Spine Board.</p>
-                        </div>
-                        
-                        <div>
-                            <h4 class="font-bold text-slate-300 mb-1 border-b border-slate-700/50 pb-1">Management & Leadership:</h4>
-                            <p class="text-slate-400 pt-1">Centre Manager, L2 Sports Leader.</p>
-                        </div>
-
-                        <div>
-                            <h4 class="text-sm font-bold text-slate-300 mb-2 uppercase tracking-wider border-b border-slate-700/50 pb-1">EMPLOYMENT & EXPERTISE:</h4>
-                            <ul class="space-y-1 list-none pl-0 pt-1">
-                                <li class="flex items-start"><span class="text-blue-400 mr-1.5">•</span> <span>2025 - Reviewing Editor, **Spring Nature**</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-1.5">•</span> <span>2021 - Senior Laboratory Technician, **Northumbria University**</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-1.5">•</span> <span>2021 - Non-Executive Director, **Power Through Sport CIC**</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-1.5">•</span> <span>2021 - Consulting Biomechanist, **Newcastle Eagles WBBL**</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-1.5">•</span> <span>2018 - NEET Tutor, **The Rugby Football Union (RFU)**</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-1.5">•</span> <span>2018 - Lecturer, **Newcastle College, Newcastle Falcons & SCL**</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-1.5">•</span> <span>2017 - Head of Teaching & Internal Quality Assurance, **Acacia Training**</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-1.5">•</span> <span>2017 - Founder & CEO, **BWL North East Open**</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-1.5">•</span> <span>2016 - Tutor, Assessor & Internal Verifier, **British Weight Lifting, 1st4Sport, ActiveIQ, NCFE, & Freelance**</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-1.5">•</span> <span>2015 - Founder & Head Coach, **Northumbria Olympic Weightlifting Club**</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-1.5">•</span> <span>2014 - Strength & Conditioning Coach, **Sport Northumbria**</span></li>
-                                <li class="flex items-start"><span class="text-blue-400 mr-1.5">•</span> <span>2010 - Personal Trainer, **Sport Central**</span></li>
-                            </ul>
-                        </div>
-                        
-                        <div>
-                            <h4 class="text-sm font-bold text-slate-300 mb-2 uppercase tracking-wider border-b border-slate-700/50 pb-1">PHD SUPERVISION:</h4>
-                            <ul class="space-y-1 list-none pl-0 pt-1">
-                                <li class="flex items-start"><span class="text-blue-400 mr-1.5">•</span> <span class="text-slate-200">Alejandro De La Rosa; Northumbria University</span> - Understanding Perceived Intimidation Through Kinematic Cues in Human Gait, Observer Context, and Crowd-Simulation Prediction</li>
-                            </ul>
-                        </div>
-                        
-                    </div>
-                    </div>
             </div>
-            
+
             <div class="md:col-span-8 lg:col-span-8 order-1 md:order-2 md:text-left text-center animate-fade-in"> 
                 
                 <h1 class="text-4xl md:text-7xl font-extrabold text-slate-100 tracking-tight mb-8 leading-tight">
@@ -209,6 +107,15 @@
                     From the gym floor to doctoral research, for the past 15 years, I've been dedicated to merging high-level Sport, Health & Fitness expertise with scientific rigour to challenge and influence health guidelines for elite athletes and older adults alike.
                 </p>
                 
+                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 inline-block md:block mb-6">
+                    <h3 class="text-sm font-bold text-slate-400 mb-2 uppercase tracking-wider">AT A GLANCE:</h3>
+                    <ul class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-300 list-none pl-0">
+                        <li class="flex items-center font-medium"><span class="text-blue-400 mr-1.5">•</span> 16+ Years Experience</li>
+                        <li class="flex items-center font-medium"><span class="text-blue-400 mr-1.5">•</span> PhD in Applied Health & Exercise Science</li>
+                        <li class="flex items-center font-medium"><span class="text-blue-400 mr-1.5">•</span> Distinguished Teaching Fellow</li>
+                        <li class="flex items-center font-medium"><span class="text-blue-400 mr-1.5">•</span> Awarded Queen's Award (2015)</li>
+                    </ul>
+                </div>
             </div>
             
         </div>
@@ -233,7 +140,6 @@
             </div>
 
             <div id="training-content" data-tab-content class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in" style="display:none;">
-                
                 <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
                     <h3 class="text-xl font-bold text-slate-100 mb-2">Minimal-Dose Resistance Training</h3>
                     <p class="text-slate-400 mb-4 leading-relaxed">Evidence-based protocols for busy professionals. Achieve significant physiological adaptations with as little as one session per week.</p>
@@ -243,7 +149,6 @@
                         <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Strength</span>
                     </div>
                 </div>
-
                 <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
                     <h3 class="text-xl font-bold text-slate-100 mb-2">Older Adult Independence</h3>
                     <p class="text-slate-400 mb-4 leading-relaxed">Specialised plans focusing on functional capacity, sarcopenia prevention, and quality of life for the >60 demographic.</p>
@@ -253,7 +158,6 @@
                         <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">QoL</span>
                     </div>
                 </div>
-                
                 <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
                     <h3 class="text-xl font-bold text-slate-100 mb-2">LTAD & S&C/Weightlifting</h3>
                     <p class="text-slate-400 mb-4 leading-relaxed">Long-Term Athlete Development pathways and elite Olympic Weightlifting programming based on my extensive experience, qualifications, and over 25 years of performance data.</p>
@@ -263,7 +167,6 @@
                         <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Technique</span>
                     </div>
                 </div>
-
                 <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
                     <h3 class="text-xl font-bold text-slate-100 mb-2">Olympic Weightlifting</h3>
                     <p class="text-slate-400 mb-4 leading-relaxed">Using my 10+ years of experience, plus previous role with British Weight Lifting, to support the development of your Olympic Weightlifting, from program design to video analysis.</p>
@@ -273,11 +176,9 @@
                         <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Technique</span>
                     </div>
                 </div>
-
             </div>
 
             <div id="academic-content" data-tab-content class="grid md:grid-cols-2 gap-6 animate-fade-in" style="display:none;">
-                
                 <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
                     <h3 class="text-xl font-bold text-slate-100 mb-2">Data Science & Analysis</h3>
                     <p class="text-slate-400 mb-4 leading-relaxed">Advanced statistical analysis using Python & R. Specialising in longitudinal datasets, biomechanics, and physiological modelling.</p>
@@ -287,7 +188,6 @@
                         <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Big Data</span>
                     </div>
                 </div>
-
                 <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
                     <h3 class="text-xl font-bold text-slate-100 mb-2">Research Consulting</h3>
                     <p class="text-slate-400 mb-4 leading-relaxed">Support with experimental design, ethics applications, and manuscript preparation in Sport & Exercise Science.</p>
@@ -297,12 +197,101 @@
                         <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Publication</span>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
 
+    <section id="credentials" class="py-12 md:py-20 px-4 bg-slate-800 border-t border-slate-700">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4 text-slate-100">Experience & Credentials</h2>
+                <p class="text-slate-400 max-w-xl mx-auto">
+                    A comprehensive overview of my academic background, professional history, and technical expertise.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                
+                <div class="space-y-8">
+                    <div>
+                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-600 pb-2">Employment & Expertise</h4>
+                        <ul class="space-y-3 text-sm text-slate-400 list-none pl-0">
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2025 - Reviewing Editor, <span class="text-slate-200 font-medium">Spring Nature</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2021 - Senior Laboratory Technician, <span class="text-slate-200 font-medium">Northumbria University</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2021 - Non-Executive Director, <span class="text-slate-200 font-medium">Power Through Sport CIC</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2021 - Consulting Biomechanist, <span class="text-slate-200 font-medium">Newcastle Eagles WBBL</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2018 - NEET Tutor, <span class="text-slate-200 font-medium">The Rugby Football Union (RFU)</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2018 - Lecturer, <span class="text-slate-200 font-medium">Newcastle College, Newcastle Falcons & SCL</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2017 - Head of Teaching & Internal Quality Assurance, <span class="text-slate-200 font-medium">Acacia Training</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2017 - Founder & CEO, <span class="text-slate-200 font-medium">BWL North East Open</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2016 - Tutor, Assessor & Internal Verifier, <span class="text-slate-200 font-medium">British Weight Lifting, 1st4Sport, ActiveIQ, NCFE</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2015 - Founder & Head Coach, <span class="text-slate-200 font-medium">Northumbria Olympic Weightlifting Club</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2014 - Strength & Conditioning Coach, <span class="text-slate-200 font-medium">Sport Northumbria</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2010 - Personal Trainer, <span class="text-slate-200 font-medium">Sport Central</span></span></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-600 pb-2">PhD Supervision</h4>
+                        <ul class="space-y-3 text-sm text-slate-400 list-none pl-0">
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span><span class="text-slate-200 font-medium">Alejandro De La Rosa; Northumbria University</span> - Understanding Perceived Intimidation Through Kinematic Cues in Human Gait, Observer Context, and Crowd-Simulation Prediction</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="space-y-8">
+                    <div>
+                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-600 pb-2">Academic Qualifications</h4>
+                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>PhD Applied Health & Exercise Science</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>MRes Sport Science</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>BSc Applied Sports Science with Coaching</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Higher National Diploma, Sports Studies</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>National Diploma, Sport, Exercise & Coaching</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Diploma, Exercise & Fitness Instructing</span></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-600 pb-2">Professional Status</h4>
+                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Distinguished Teaching Fellow</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Senior Fellow (SFHEA)</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L4 Internal Quality Assurance</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L3 Assessor</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L3 Tutor</span></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-600 pb-2">Vocational Qualifications</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full">Phlebotomist</span>
+                            <span class="bg-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full">L3 Olympic Weightlifting Coach</span>
+                            <span class="bg-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full">L3 Personal Trainer</span>
+                            <span class="bg-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full">Sports Massage Therapist</span>
+                            <span class="bg-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full">L2 Nutrition</span>
+                            <span class="bg-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full">Kettlebell Instructor</span>
+                            <span class="bg-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full">Spinning/Indoor Cycling</span>
+                            <span class="bg-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full">Les Mills BodyPump</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-600 pb-2">Technical Skills & Safety</h4>
+                        <p class="text-sm text-slate-400 mb-3">
+                            <strong class="text-slate-300">Analysis:</strong> R, Python, MATLAB, Isokinetic II, Wattbike Workshop.
+                        </p>
+                        <p class="text-sm text-slate-400">
+                            <strong class="text-slate-300">Safety:</strong> L2 Safeguarding, Equality & Diversity, GDPR, Prevent, Food Safety, Emergency First Aid, Pool Lifeguard & Spine Board.
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
     
-    <section id="research" class="py-12 md:py-20 px-4 bg-slate-900 border-t border-slate-800">
+    <section id="research" class="py-12 md:py-20 px-4 bg-slate-900 border-t border-slate-700">
         <div class="max-w-6xl mx-auto">
             <div class="grid md:grid-cols-12 gap-12">
                 <div class="md:col-span-4 animate-fade-in">
@@ -325,10 +314,9 @@
                             <div class="text-xs text-slate-500 font-medium uppercase tracking-wide">Sector Experience</div>
                         </div>
                     </div>
-                    </div>
+                </div>
                 
                 <div class="md:col-span-8 animate-fade-in" style="animation-delay: 0.1s;">
-
                     <a href="https://scholar.google.com/citations?user=vXjhLEsAAAAJ&hl=en&oi=ao" target="_blank" rel="noreferrer" class="mb-6 inline-flex items-center text-blue-400 hover:text-blue-200 transition-colors font-medium border-b border-blue-400/50 pb-0.5">
                         View my full Google Scholar profile here
                     </a>
@@ -372,7 +360,6 @@
                         <p class="text-slate-400 text-sm mb-2 italic">Sports Medicine</p>
                         <p class="text-slate-500 text-sm leading-relaxed">Meta-analysis confirming the efficacy of minimal-dose protocols in maintaining muscle mass and strength across various populations.</p>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -385,7 +372,6 @@
                 <p class="text-slate-200 mb-10 text-lg">
                     Whether you are looking for a sustainable training plan, academic data consulting, or manuscript review, I'd love to hear from you.
                 </p>
-                
                 <div class="flex flex-col sm:flex-row gap-6 justify-center">
                     <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-medium transition-all">
                         Email Me
@@ -394,7 +380,6 @@
                         Connect on LinkedIn
                     </a>
                 </div>
-                
                 <div class="mt-16 pt-8 border-t border-slate-600 text-slate-400 text-sm">
                     © 2025 Dr. Liam T. Pearson-Noseworthy. All rights reserved.
                 </div>
