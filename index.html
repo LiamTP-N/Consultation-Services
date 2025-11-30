@@ -85,7 +85,7 @@
         // --- Components ---
 
         const Section = ({ children, id, className = "" }) => (
-            <section id={id} className={`py-12 md:py-20 px-4 ${className}`}> {/* REDUCED VERTICAL PADDING HERE */}
+            <section id={id} className={`py-12 md:py-20 px-4 ${className}`}>
                 <div className="max-w-6xl mx-auto">
                     {children}
                 </div>
@@ -192,17 +192,33 @@
                         </div>
                     </header>
                     
-                    {/* About - MOVED TO THE FRONT */}
+                    {/* About */}
                     <Section id="about" className="bg-white border-t border-slate-100">
                         <div className="flex flex-col md:flex-row gap-12 items-center">
-                            <div className="w-full md:w-1/3">
-                                <div className="aspect-square rounded-2xl bg-slate-100 overflow-hidden relative flex items-center justify-center border border-slate-200">
+                            
+                            {/* NEW DUAL-IMAGE CONTAINER */}
+                            <div className="w-full md:w-1/3 flex flex-row gap-4"> 
+                                
+                                {/* Image 1: Academic/Professional */}
+                                <div className="w-1/2 aspect-[3/4] rounded-xl bg-slate-100 overflow-hidden relative flex items-center justify-center border border-slate-200 shadow-lg">
                                     <div className="text-slate-400 flex flex-col items-center">
-                                        <Icon path={icons.user} />
-                                        <span className="text-sm mt-2">Dr. Pearson-Noseworthy</span>
+                                        {/* Use a placeholder image tag and description here */}
+                                        <img src="YOUR_ACADEMIC_PHOTO_URL_HERE" alt="Dr. Pearson-Noseworthy in lab coat or speaking at a conference" className="w-full h-full object-cover"/>
+                                        <span className="text-sm mt-2 absolute bottom-2 bg-white/70 px-2 rounded">Academic Focus</span>
+                                    </div>
+                                </div>
+
+                                {/* Image 2: Personal/Training/Lifestyle */}
+                                <div className="w-1/2 aspect-[3/4] rounded-xl rounded-tl-[40px] bg-blue-100 overflow-hidden relative flex items-center justify-center border border-blue-200 shadow-lg mt-8">
+                                    <div className="text-blue-400 flex flex-col items-center">
+                                        {/* Use a placeholder image tag and description here */}
+                                        <img src="YOUR_PERSONAL_PHOTO_URL_HERE" alt="Dr. Pearson-Noseworthy coaching or training" className="w-full h-full object-cover"/>
+                                        <span className="text-sm mt-2 absolute bottom-2 bg-white/70 px-2 rounded">Practical Application</span>
                                     </div>
                                 </div>
                             </div>
+                            {/* END NEW DUAL-IMAGE CONTAINER */}
+
                             <div className="w-full md:w-2/3">
                                 <h2 className="text-3xl font-bold mb-6">About Me</h2>
                                 <div className="prose prose-slate text-slate-600 leading-loose">
