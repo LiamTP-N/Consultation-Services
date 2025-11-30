@@ -24,9 +24,9 @@
             const nav = document.querySelector('nav');
             const handleScroll = () => {
                 if (window.scrollY > 50) {
-                    nav.className = 'fixed w-full z-50 transition-all duration-300 bg-slate-900/95 backdrop-blur-sm shadow-md py-4 border-b border-slate-700';
+                    nav.className = 'fixed w-full z-50 transition-all duration-300 bg-slate-900/95 backdrop-blur-sm shadow-md py-3 border-b border-slate-700';
                 } else {
-                    nav.className = 'fixed w-full z-50 transition-all duration-300 bg-transparent py-6';
+                    nav.className = 'fixed w-full z-50 transition-all duration-300 bg-transparent py-4';
                 }
             };
             window.addEventListener('scroll', handleScroll);
@@ -65,7 +65,7 @@
         });
     </script>
 
-    <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-6">
+    <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-4">
         <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
             <div class="font-bold text-xl tracking-tight text-slate-100">
                 Dr. Liam T. Pearson-Noseworthy
@@ -82,11 +82,11 @@
         </div>
     </nav>
 
-    <header id="about" class="pt-32 pb-20 md:pt-48 md:pb-32 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
-        <div class="max-w-6xl mx-auto grid md:grid-cols-12 gap-10 items-center">
+    <header id="about" class="pt-24 pb-12 md:pt-36 md:pb-24 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-12 gap-8 md:gap-10 items-center">
             
-            <div class="md:col-span-4 lg:col-span-4 order-2 md:order-1 mt-8 md:mt-0">
-                <div class="w-full h-auto animate-fade-in">
+            <div class="md:col-span-4 lg:col-span-4 order-1 md:order-1">
+                <div class="w-48 md:w-full mx-auto h-auto animate-fade-in">
                     <div class="aspect-[4/5] rounded-2xl bg-slate-700 overflow-hidden relative border border-slate-700 shadow-xl">
                         <img 
                             src="https://github.com/LiamTP-N/Consultation-Services/blob/main/NorthumbriaUniHeadhots_270623-330.png?raw=true" 
@@ -97,7 +97,7 @@
                 </div>
             </div>
 
-            <div class="md:col-span-8 lg:col-span-8 order-1 md:order-2 md:text-left text-center animate-fade-in"> 
+            <div class="md:col-span-8 lg:col-span-8 order-2 md:order-2 md:text-left text-center animate-fade-in"> 
                 
                 <h1 class="text-3xl md:text-5xl font-extrabold text-slate-100 tracking-tight mb-8 leading-tight">
                     Optimising performance, reducing injury risk & fatigue, and improving quality of life.
@@ -107,30 +107,31 @@
                     From the gym floor to doctoral research, for over 15 years, I've been dedicated to merging Sport, Health & Fitness expertise with scientific rigour to challenge and influence health guidelines for elite athletes and older adults alike.
                 </p>
                 
-<div class="bg-slate-800 p-6 rounded-xl border border-slate-700 w-full mb-6 text-left">
-    <h3 class="text-sm font-bold text-slate-400 mb-4 uppercase tracking-wider">AT A GLANCE:</h3>
-    
-    <ul class="flex flex-wrap gap-x-8 gap-y-2 text-sm text-slate-300 list-none pl-0 mb-2">
-        <li class="flex items-center font-medium"><span class="text-blue-400 mr-1.5">•</span> 15+ Years Experience, 10+ Peer-Reviewed Research Papers</li>
-    </ul>
-    <ul class="flex flex-wrap gap-x-8 gap-y-2 text-sm text-slate-300 list-none pl-0 mb-2">
-        <li class="flex items-center font-medium"><span class="text-blue-400 mr-1.5">•</span> PhD in Applied Health & Exercise Science, MSc & BSc (Hons) in Sport Science</li>
-    </ul>
-    <ul class="flex flex-wrap gap-x-8 gap-y-2 text-sm text-slate-300 list-none pl-0 mb-4">
-        <li class="flex items-center font-medium"><span class="text-blue-400 mr-1.5">•</span> Distinguished Teaching Fellow, Senior Fellow (SFHEA), and Reviewing Editor (Springer Nature)</li>
-    </ul>
+                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 w-full mb-6 text-left">
+                    <h3 class="text-sm font-bold text-slate-400 mb-4 uppercase tracking-wider">AT A GLANCE:</h3>
+                    
+                    <ul class="flex flex-wrap gap-x-8 gap-y-2 text-sm text-slate-300 list-none pl-0 mb-2">
+                        <li class="flex items-center font-medium"><span class="text-blue-400 mr-1.5">•</span> 15+ Years Experience, 10+ Peer-Reviewed Research Papers</li>
+                    </ul>
+                    <ul class="flex flex-wrap gap-x-8 gap-y-2 text-sm text-slate-300 list-none pl-0 mb-2">
+                        <li class="flex items-center font-medium"><span class="text-blue-400 mr-1.5">•</span> PhD in Applied Health & Exercise Science, MSc & BSc (Hons) in Sport Science</li>
+                    </ul>
+                    <ul class="flex flex-wrap gap-x-8 gap-y-2 text-sm text-slate-300 list-none pl-0 mb-4">
+                        <li class="flex items-center font-medium"><span class="text-blue-400 mr-1.5">•</span> Distinguished Teaching Fellow, Senior Fellow (SFHEA), and Reviewing Editor (Springer Nature)</li>
+                    </ul>
 
-    <div class="pt-4 border-t border-slate-700 text-center">
-        <p class="text-sm font-bold text-blue-400 leading-relaxed">
-            Awarded for services to Health and Fitness by HM The Queen, including an invitation to Her Majesty’s Garden Party (2015)
-        </p>
-    </div>
-</div>
+                    <div class="pt-4 border-t border-slate-700 text-center">
+                        <p class="text-sm font-bold text-blue-400 leading-relaxed">
+                            Awarded for services to Health and Fitness by HM The Queen, including an invitation to Her Majesty’s Garden Party (2015)
+                        </p>
+                    </div>
+                </div>
             
+            </div>
         </div>
     </header>
 
-    <section id="services" class="py-12 md:py-20 px-4 bg-slate-900 border-t border-slate-800">
+    <section id="services" class="py-10 md:py-16 px-4 bg-slate-900 border-t border-slate-800">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-bold mb-4 text-slate-100">How I Can Help</h2>
@@ -222,7 +223,7 @@
         </div>
     </section>
 
-    <section id="credentials" class="py-12 md:py-20 px-4 bg-slate-800 border-t border-slate-700">
+    <section id="credentials" class="py-10 md:py-16 px-4 bg-slate-800 border-t border-slate-700">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-bold mb-4 text-slate-100">Experience & Credentials</h2>
@@ -315,7 +316,7 @@
         </div>
     </section>
     
-    <section id="research" class="py-12 md:py-20 px-4 bg-slate-900 border-t border-slate-700">
+    <section id="research" class="py-10 md:py-16 px-4 bg-slate-900 border-t border-slate-700">
         <div class="max-w-6xl mx-auto">
             <div class="grid md:grid-cols-12 gap-12">
                 <div class="md:col-span-4 animate-fade-in">
@@ -389,7 +390,7 @@
         </div>
     </section>
 
-    <section id="contact" class="py-12 md:py-20 px-4 bg-slate-700 text-white rounded-t-3xl mt-12 pb-12">
+    <section id="contact" class="py-10 md:py-16 px-4 bg-slate-700 text-white rounded-t-3xl mt-12 pb-12">
         <div class="max-w-6xl mx-auto">
             <div class="max-w-3xl mx-auto text-center animate-fade-in">
                 <h2 class="text-3xl font-bold mb-6">Ready to optimise your training or research?</h2>
@@ -413,5 +414,3 @@
 
 </body>
 </html>
-
-
