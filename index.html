@@ -83,7 +83,6 @@
         ];
 
         // Placeholder for Portfolio Images
-        // REMEMBER TO REPLACE THESE 'src' VALUES with the actual paths to your images in the /images folder.
         const portfolioImages = [
             { id: 1, src: "/Consultation-Services/images/data_viz.jpg", alt: "Example of a physiological data visualisation using Python" },
             { id: 2, src: "/Consultation-Services/images/lab_work.jpg", alt: "Dr. Pearson-Noseworthy in the university wet-lab" },
@@ -170,7 +169,7 @@
                             <div className="hidden md:flex gap-8 text-sm font-medium text-slate-600">
                                 <a href="#about" className="hover:text-blue-600 transition-colors">About</a>
                                 <a href="#services" className="hover:text-blue-600 transition-colors">Services</a>
-                                <a href="#portfolio" className="hover:text-blue-600 transition-colors">Portfolio</a> {/* New link */}
+                                <a href="#portfolio" className="hover:text-blue-600 transition-colors">Portfolio</a>
                                 <a href="#research" className="hover:text-blue-600 transition-colors">Publications</a>
                             </div>
                             <a href="#contact" className="bg-slate-900 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
@@ -203,7 +202,7 @@
                         </div>
                     </header>
                     
-                    {/* About - Reverted to Single Image */}
+                    {/* About - Single Image */}
                     <Section id="about" className="bg-white border-t border-slate-100">
                         <div className="flex flex-col md:flex-row gap-12 items-center">
                             
@@ -222,7 +221,7 @@
                                 <h2 className="text-3xl font-bold mb-6">About Me</h2>
                                 <div className="prose prose-slate text-slate-600 leading-loose">
                                     <p className="mb-4">
-                                        I am a <strong>Senior Fellow (SFHEA)</strong> and <strong>Distinguished Teaching Fellow</strong> with a PhD in Applied Health & Exercise Science. Currently serving as a Senior Lab Technician at Northumbria University and a Non-Executive Director for Power Through Sport CIC.
+                                        I am a <strong>Senior Fellow (SFHEA)</strong> and <strong>Distinguished Teaching Fellow</strong> with a PhD in Applied Health & Exercise Science. Currently serving as a Senior Lab Technician at Northumbria University and a Non-Executive Director for <a href="https://www.powerthroughsport.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 font-semibold underline">Power Through Sport CIC</a>.
                                     </p>
                                     <p className="mb-4">
                                         My professional philosophy is grounded in making high-level physiology accessible. Whether I am engineering automated pipelines to process 300,000+ lift outcomes in Python, or designing "minimal-dose" training plans for older adults to maintain independence, the goal is always <strong>efficiency</strong> and <strong>efficacy</strong>.
@@ -285,7 +284,7 @@
                                 <div className="grid md:grid-cols-2 gap-6">
                                     <Card 
                                         title="Data Science & Analysis"
-                                        description="Advanced statistical analysis using Python & R. Specializing in longitudinal datasets, biomechanics, and physiological modelling."
+                                        description="Advanced statistical analysis using Python & R. Specialising in longitudinal datasets, biomechanics, and physiological modelling."
                                         iconName="chart"
                                         tags={["Python", "R", "Big Data"]}
                                     />
@@ -300,7 +299,7 @@
                         </div>
                     </Section>
 
-                    {/* --- NEW PORTFOLIO / GALLERY SECTION --- */}
+                    {/* --- PORTFOLIO / GALLERY SECTION --- */}
                     <Section id="portfolio" className="bg-white border-t border-slate-100">
                         <div className="text-center mb-12">
                             <h2 className="text-3xl font-bold mb-4">Portfolio of Applied Work</h2>
@@ -339,7 +338,7 @@
                                 </p>
                                 <div className="p-6 bg-white rounded-xl shadow-sm border border-slate-100">
                                     <div className="text-4xl font-bold text-blue-600 mb-1">59k+</div>
-                                    <div className="text-sm text-slate-500 font-medium uppercase tracking-wide">Performances Analysed</div>
+                                    <div className="text-sm text-slate-500 font-medium uppercase tracking-wide">Performances Analysed</div> {/* British spelling now correct */}
                                 </div>
                             </div>
                             
@@ -396,5 +395,3 @@
 </body>
 
 </html>
-
-
