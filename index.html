@@ -15,6 +15,41 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* * FIX: Ensure the qualifications box is scrollable internally 
+         * when its content exceeds the screen height, and hides 
+         * any content overflow above the sticky nav bar.
+         */
+        .qualifications-sidebar {
+            /* Set max height to screen height minus nav height, allowing for scrollable content */
+            max-height: 100vh; 
+            overflow-y: auto;
+            padding-top: 10rem; /* Push content down past the fixed navbar space */
+        }
+
+        /* * CSS for the main scrolling content wrap 
+         * to start just below the hero on the left 
+         * but be offset by the right-hand column.
+         */
+        #main-scroll-content {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr); /* Default for mobile */
+        }
+        @media (min-width: 768px) {
+            #main-scroll-content {
+                /* Create two columns: Left (33%) for padding, Right (67%) for content */
+                grid-template-columns: repeat(12, minmax(0, 1fr));
+                
+                /* Start the services/portfolio sections immediately after the header */
+                margin-top: 0; 
+                padding-left: 0; 
+            }
+            .content-col {
+                /* Occupy 8 columns, aligning it visually with the right-hand Hero column */
+                grid-column: span 8 / span 8;
+                padding-left: 2.5rem; /* Equivalent of px-10 */
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
@@ -92,13 +127,13 @@
         </div>
     </nav>
 
-    <header id="about" class="pt-32 pb-20 md:pt-48 md:pb-32 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
+    <header id="about" class="px-4 bg-gradient-to-br from-slate-900 to-slate-800">
         <div class="max-w-6xl mx-auto grid md:grid-cols-12 gap-10">
             
-            <div class="md:col-span-4 lg:col-span-4 order-2 md:order-1 mt-8 md:mt-0">
+            <div class="md:col-span-4 lg:col-span-4 order-2 md:order-1 mt-8 md:mt-0 md:sticky md:top-0 qualifications-sidebar z-10 bg-slate-900">
                 
                 <div class="w-full h-auto mb-8 animate-fade-in">
-                    <div class="aspect-[4/5] rounded-2xl bg-slate-700 overflow-hidden relative border border-slate-700 shadow-xl">
+                    <div class="aspect-[4/5] rounded-2xl bg-slate-700 overflow-hidden relative border border-slate-700 shadow-xl pt-[5rem]"> 
                         <img 
                             src="https://github.com/LiamTP-N/Consultation-Services/blob/main/NorthumbriaUniHeadhots_270623-330.png?raw=true" 
                             alt="Dr. Pearson-Noseworthy professional academic photo" 
@@ -107,7 +142,7 @@
                     </div>
                 </div>
 
-                <div class="p-6 rounded-xl border border-slate-700 bg-slate-800 animate-fade-in">
+                <div class="p-6 rounded-xl border border-slate-700 bg-slate-800 animate-fade-in mb-8">
                     <h3 class="text-sm font-bold text-slate-300 mb-3 uppercase tracking-wider text-center">
                         RELEVANT QUALIFICATIONS
                     </h3>
@@ -154,7 +189,7 @@
                                 <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Les Mills BodyPump</span></li>
                             </ul>
                         </div>
-                        
+
                         <div>
                             <h4 class="font-bold text-slate-300 mb-1">Technical & Data Analysis:</h4>
                             <p class="text-slate-400">Statistical programming in **R** and **Python**; **MATLAB**; Isokinetic II – Advanced Interpretation; Wattbike Workshop; Gas Cylinder Safety.</p>
@@ -174,7 +209,7 @@
                     </div>
             </div>
             
-            <div class="md:col-span-8 lg:col-span-8 order-1 md:order-2 md:text-left text-center animate-fade-in"> 
+            <div class="md:col-span-8 lg:col-span-8 order-1 md:order-2 md:text-left text-center animate-fade-in pt-32 pb-20 md:pt-48 md:pb-32"> 
                 
                 <h1 class="text-5xl md:text-7xl font-extrabold text-slate-100 tracking-tight mb-8 leading-tight">
                     Optimising Potential, Reducing Injury & Fatigue, Improving Quality of Life.
@@ -196,226 +231,227 @@
             
         </div>
     </header>
+    <div id="main-scroll-content" class="max-w-6xl mx-auto">
 
-    <section id="services" class="py-12 md:py-20 px-4 bg-slate-900 border-t border-slate-800">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold mb-4 text-slate-100">How I Can Help</h2>
-                <p class="text-slate-400 max-w-xl mx-auto">
-                    Leveraging a dual-competency in physiology and data science to provide actionable insights and sustainable training solutions.
-                </p>
+        <section id="services" class="py-12 md:py-20 px-4 bg-slate-900 border-t border-slate-800 content-col">
+            <div class="max-w-6xl">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-4 text-slate-100">How I Can Help</h2>
+                    <p class="text-slate-400 max-w-xl mx-auto">
+                        Leveraging a dual-competency in physiology and data science to provide actionable insights and sustainable training solutions.
+                    </p>
+                </div>
+
+                <div class="flex justify-center gap-4 mb-10 flex-wrap">
+                    <button data-tab-target="training-content" class="flex items-center px-6 py-3 rounded-full text-sm font-medium transition-all duration-300">
+                        Training & Programming
+                    </button>
+                    <button data-tab-target="academic-content" class="flex items-center px-6 py-3 rounded-full text-sm font-medium transition-all duration-300">
+                        Academic & Data Services
+                    </button>
+                </div>
+
+                <div id="training-content" data-tab-content class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in" style="display:none;">
+                    
+                    <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                        <h3 class="text-xl font-bold text-slate-100 mb-2">Minimal-Dose Resistance Training</h3>
+                        <p class="text-slate-400 mb-4 leading-relaxed">Evidence-based protocols for busy professionals. Achieve significant physiological adaptations with as little as one session per week.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Efficiency</span>
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Health</span>
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Strength</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                        <h3 class="text-xl font-bold text-slate-100 mb-2">Older Adult Independence</h3>
+                        <p class="text-slate-400 mb-4 leading-relaxed">Specialised plans focusing on functional capacity, sarcopenia prevention, and quality of life for the >60 demographic.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Falls Prevention</span>
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Mobility</span>
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">QoL</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                        <h3 class="text-xl font-bold text-slate-100 mb-2">LTAD & S&C/Weightlifting</h3>
+                        <p class="text-slate-400 mb-4 leading-relaxed">Long-Term Athlete Development pathways and elite Olympic Weightlifting programming based on my extensive experience, qualifications, and over 25 years of performance data.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Performance</span>
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Youth</span>
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Technique</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                        <h3 class="text-xl font-bold text-slate-100 mb-2">Olympic Weightlifting</h3>
+                        <p class="text-slate-400 mb-4 leading-relaxed">Using my 10+ years of experience, plus previous role with British Weight Lifting, to support the development of your Olympic Weightlifting, from program design to video analysis.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Performance</span>
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Youth</span>
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Technique</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div id="academic-content" data-tab-content class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in" style="display:none;">
+                    
+                    <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                        <h3 class="text-xl font-bold text-slate-100 mb-2">Data Science & Analysis</h3>
+                        <p class="text-slate-400 mb-4 leading-relaxed">Advanced statistical analysis using Python & R. Specialising in longitudinal datasets, biomechanics, and physiological modelling.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Python</span>
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">R</span>
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Big Data</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                        <h3 class="text-xl font-bold text-slate-100 mb-2">Research Consulting</h3>
+                        <p class="text-slate-400 mb-4 leading-relaxed">Support with experimental design, ethics applications, and manuscript preparation in Sport & Exercise Science.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Methodology</span>
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Review</span>
+                            <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Publication</span>
+                        </div>
+                    </div>
+
+                </div>
             </div>
+        </section>
+        
+        <section id="portfolio" class="py-12 md:py-20 px-4 bg-slate-800 border-t border-slate-700 content-col">
+            <div class="max-w-6xl">
+                <div class="text-center mb-12 animate-fade-in">
+                    <h2 class="text-3xl font-bold mb-4 text-slate-100">Portfolio</h2>
+                    <p class="text-slate-400 max-w-xl mx-auto">
+                        Visual examples of my data analysis outputs, coaching methods, and lab work—bridging theory and practice.
+                    </p>
+                </div>
 
-            <div class="flex justify-center gap-4 mb-10 flex-wrap">
-                <button data-tab-target="training-content" class="flex items-center px-6 py-3 rounded-full text-sm font-medium transition-all duration-300">
-                    Training & Programming
-                </button>
-                <button data-tab-target="academic-content" class="flex items-center px-6 py-3 rounded-full text-sm font-medium transition-all duration-300">
-                    Academic & Data Services
-                </button>
-            </div>
-
-            <div id="training-content" data-tab-content class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in" style="display:none;">
-                
-                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <h3 class="text-xl font-bold text-slate-100 mb-2">Minimal-Dose Resistance Training</h3>
-                    <p class="text-slate-400 mb-4 leading-relaxed">Evidence-based protocols for busy professionals. Achieve significant physiological adaptations with as little as one session per week.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Efficiency</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Health</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Strength</span>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="aspect-[4/3] bg-slate-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in">
+                        <img src="images/data_viz.jpg" alt="Example of a physiological data visualisation using Python" class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]"/>
+                    </div>
+                    <div class="aspect-[4/3] bg-slate-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in" style="animation-delay: 0.1s;">
+                        <img src="images/lab_work.jpg" alt="Dr. Pearson-Noseworthy in the university wet-lab" class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]"/>
+                    </div>
+                    <div class="aspect-[4/3] bg-slate-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in" style="animation-delay: 0.2s;">
+                        <img src="images/coaching.jpg" alt="Coaching a weightlifting athlete in a practical session" class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]"/>
+                    </div>
+                    <div class="aspect-[4/3] bg-slate-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in" style="animation-delay: 0.3s;">
+                        <img src="images/athlete_testing.jpg" alt="Athlete strength testing session with scientific equipment" class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]"/>
                     </div>
                 </div>
 
-                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <h3 class="text-xl font-bold text-slate-100 mb-2">Older Adult Independence</h3>
-                    <p class="text-slate-400 mb-4 leading-relaxed">Specialised plans focusing on functional capacity, sarcopenia prevention, and quality of life for the >60 demographic.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Falls Prevention</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Mobility</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">QoL</span>
-                    </div>
-                </div>
-                
-                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <h3 class="text-xl font-bold text-slate-100 mb-2">LTAD & S&C/Weightlifting</h3>
-                    <p class="text-slate-400 mb-4 leading-relaxed">Long-Term Athlete Development pathways and elite Olympic Weightlifting programming based on my extensive experience, qualifications, and over 25 years of performance data.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Performance</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Youth</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Technique</span>
-                    </div>
-                </div>
-
-                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <h3 class="text-xl font-bold text-slate-100 mb-2">Olympic Weightlifting</h3>
-                    <p class="text-slate-400 mb-4 leading-relaxed">Using my 10+ years of experience, plus previous role with British Weight Lifting, to support the development of your Olympic Weightlifting, from program design to video analysis.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Performance</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Youth</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Technique</span>
-                    </div>
-                </div>
-
-            </div>
-
-            <div id="academic-content" data-tab-content class="grid md:grid-cols-2 gap-6 animate-fade-in" style="display:none;">
-                
-                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <h3 class="text-xl font-bold text-slate-100 mb-2">Data Science & Analysis</h3>
-                    <p class="text-slate-400 mb-4 leading-relaxed">Advanced statistical analysis using Python & R. Specialising in longitudinal datasets, biomechanics, and physiological modelling.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Python</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">R</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Big Data</span>
-                    </div>
-                </div>
-
-                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <h3 class="text-xl font-bold text-slate-100 mb-2">Research Consulting</h3>
-                    <p class="text-slate-400 mb-4 leading-relaxed">Support with experimental design, ethics applications, and manuscript preparation in Sport & Exercise Science.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Methodology</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Review</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Publication</span>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-    
-    <section id="portfolio" class="py-12 md:py-20 px-4 bg-slate-800 border-t border-slate-700">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-12 animate-fade-in">
-                <h2 class="text-3xl font-bold mb-4 text-slate-100">Portfolio</h2>
-                <p class="text-slate-400 max-w-xl mx-auto">
-                    Visual examples of my data analysis outputs, coaching methods, and lab work—bridging theory and practice.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div class="aspect-[4/3] bg-slate-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in">
-                    <img src="images/data_viz.jpg" alt="Example of a physiological data visualisation using Python" class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]"/>
-                </div>
-                <div class="aspect-[4/3] bg-slate-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in" style="animation-delay: 0.1s;">
-                    <img src="images/lab_work.jpg" alt="Dr. Pearson-Noseworthy in the university wet-lab" class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]"/>
-                </div>
-                <div class="aspect-[4/3] bg-slate-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in" style="animation-delay: 0.2s;">
-                    <img src="images/coaching.jpg" alt="Coaching a weightlifting athlete in a practical session" class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]"/>
-                </div>
-                <div class="aspect-[4/3] bg-slate-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in" style="animation-delay: 0.3s;">
-                    <img src="images/athlete_testing.jpg" alt="Athlete strength testing session with scientific equipment" class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]"/>
+                <div class="text-center mt-10 animate-fade-in">
+                    <p class="text-sm text-slate-500">
+                        Tip: Ensure your images are in an `images` folder in the same directory as this file (e.g., `images/data_viz.jpg`) for the paths to work correctly.
+                    </p>
                 </div>
             </div>
+        </section>
+        
+        <section id="research" class="py-12 md:py-20 px-4 bg-slate-900 border-t border-slate-800 content-col">
+            <div class="max-w-6xl">
+                <div class="grid md:grid-cols-12 gap-12">
+                    <div class="md:col-span-4 animate-fade-in order-2 md:order-1">
+                        <h2 class="text-3xl font-bold mb-6 text-slate-100">Published Peer-Reviewed Research</h2>
+                        <p class="text-slate-400 mb-6 leading-relaxed">
+                            My academic work focuses on the efficacy of minimal-dose resistance training for quality of life in older adults, and large-scale data analysis of elite Olympic Weightlifting performance.
+                        </p>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-4 bg-slate-800 rounded-xl shadow-md border border-slate-700">
+                                <div class="text-3xl font-bold text-blue-400 mb-1">59k+</div>
+                                <div class="text-xs text-slate-500 font-medium uppercase tracking-wide">Performances Analysed</div>
+                            </div>
+                            <div class="p-4 bg-slate-800 rounded-xl shadow-md border border-slate-700">
+                                <div class="text-3xl font-bold text-blue-400 mb-1">3k+</div>
+                                <div class="text-xs text-slate-500 font-medium uppercase tracking-wide">Participants Engaged</div>
+                            </div>
+                            <div class="p-4 bg-slate-800 rounded-xl shadow-md border border-slate-700 md:col-span-2">
+                                <div class="text-3xl font-bold text-blue-400 mb-1">16+ Years</div>
+                                <div class="text-xs text-slate-500 font-medium uppercase tracking-wide">Sector Experience</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:col-span-8 animate-fade-in order-1 md:order-2" style="animation-delay: 0.1s;">
 
-            <div class="text-center mt-10 animate-fade-in">
-                <p class="text-sm text-slate-500">
-                    Tip: Ensure your images are in an `images` folder in the same directory as this file (e.g., `images/data_viz.jpg`) for the paths to work correctly.
-                </p>
+                        <a href="https://scholar.google.com/citations?user=vXjhLEsAAAAJ&hl=en&oi=ao" target="_blank" rel="noreferrer" class="mb-6 inline-flex items-center text-blue-400 hover:text-blue-200 transition-colors font-medium border-b border-blue-400/50 pb-0.5">
+                            View my full Google Scholar profile here
+                        </a>
+                        
+                        <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-800 transition-colors rounded-r-lg p-4 -ml-4">
+                            <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
+                                <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">Manuscript</span>
+                                <span>2025</span>
+                            </div>
+                            <h4 class="text-lg font-bold text-slate-100 mb-2">Pathways to the Podium: Explaining a Quarter-Century of Performance</h4>
+                            <p class="text-slate-400 text-sm mb-2 italic">In Review</p>
+                            <p class="text-slate-500 text-sm leading-relaxed">An explanatory analysis using machine learning (Gradient Boosting/Random Forest) to model talent identification pathways and strategic evolution in elite weightlifting.</p>
+                        </div>
+
+                        <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-800 transition-colors rounded-r-lg p-4 -ml-4">
+                            <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
+                                <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">PhD Thesis</span>
+                                <span>2024</span>
+                            </div>
+                            <h4 class="text-lg font-bold text-slate-100 mb-2">Minimal-Dose Resistance Training & Quality of Life</h4>
+                            <p class="text-slate-400 text-sm mb-2 italic">Northumbria University, UK</p>
+                            <p class="text-slate-500 text-sm leading-relaxed">Investigating the minimal effective dose of RT required to achieve meaningful improvements in functional capacity and strength in older adults (60+).</p>
+                        </div>
+                        
+                        <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-800 transition-colors rounded-r-lg p-4 -ml-4">
+                            <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
+                                <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">Published</span>
+                                <span>2024</span>
+                            </div>
+                            <h4 class="text-lg font-bold text-slate-100 mb-2">Comparison of low-dose maximal-intent versus controlled-tempo</h4>
+                            <p class="text-slate-400 text-sm mb-2 italic">BMC Sports Science, Medicine and Rehabilitation</p>
+                            <p class="text-slate-500 text-sm leading-relaxed">A comparative effectiveness study exploring different modalities of resistance training in healthy adults.</p>
+                        </div>
+
+                        <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-800 transition-colors rounded-r-lg p-4 -ml-4">
+                            <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
+                                <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">Published</span>
+                                <span>2023</span>
+                            </div>
+                            <h4 class="text-lg font-bold text-slate-100 mb-2">Systematic Review of Low-Volume Strength Training and Physiological Outcomes</h4>
+                            <p class="text-slate-400 text-sm mb-2 italic">Sports Medicine</p>
+                            <p class="text-slate-500 text-sm leading-relaxed">Meta-analysis confirming the efficacy of minimal-dose protocols in maintaining muscle mass and strength across various populations.</p>
+                        </div>
+
+                    </div>
+                </div>
             </div>
-        </div>
-    </section>
-    
-    <section id="research" class="py-12 md:py-20 px-4 bg-slate-900 border-t border-slate-800">
-        <div class="max-w-6xl mx-auto">
-            <div class="grid md:grid-cols-12 gap-12">
-                <div class="md:col-span-4 animate-fade-in">
-                    <h2 class="text-3xl font-bold mb-6 text-slate-100">Published Peer-Reviewed Research</h2>
-                    <p class="text-slate-400 mb-6 leading-relaxed">
-                        My academic work focuses on the efficacy of minimal-dose resistance training for quality of life in older adults, and large-scale data analysis of elite Olympic Weightlifting performance.
+        </section>
+
+        <section id="contact" class="py-12 md:py-20 px-4 bg-slate-700 text-white rounded-t-3xl mt-12 pb-12 content-col">
+            <div class="max-w-6xl">
+                <div class="max-w-3xl mx-auto text-center animate-fade-in">
+                    <h2 class="text-3xl font-bold mb-6">Ready to optimise your training or research?</h2>
+                    <p class="text-slate-200 mb-10 text-lg">
+                        Whether you are looking for a sustainable training plan, academic data consulting, or manuscript review, I'd love to hear from you.
                     </p>
                     
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="p-4 bg-slate-800 rounded-xl shadow-md border border-slate-700">
-                            <div class="text-3xl font-bold text-blue-400 mb-1">59k+</div>
-                            <div class="text-xs text-slate-500 font-medium uppercase tracking-wide">Performances Analysed</div>
-                        </div>
-                        <div class="p-4 bg-slate-800 rounded-xl shadow-md border border-slate-700">
-                            <div class="text-3xl font-bold text-blue-400 mb-1">3k+</div>
-                            <div class="text-xs text-slate-500 font-medium uppercase tracking-wide">Participants Engaged</div>
-                        </div>
-                        <div class="p-4 bg-slate-800 rounded-xl shadow-md border border-slate-700 md:col-span-2">
-                            <div class="text-3xl font-bold text-blue-400 mb-1">16+ Years</div>
-                            <div class="text-xs text-slate-500 font-medium uppercase tracking-wide">Sector Experience</div>
-                        </div>
-                    </div>
-                    </div>
-                
-                <div class="md:col-span-8 animate-fade-in" style="animation-delay: 0.1s;">
-
-                    <a href="https://scholar.google.com/citations?user=vXjhLEsAAAAJ&hl=en&oi=ao" target="_blank" rel="noreferrer" class="mb-6 inline-flex items-center text-blue-400 hover:text-blue-200 transition-colors font-medium border-b border-blue-400/50 pb-0.5">
-                        View my full Google Scholar profile here
-                    </a>
-                    
-                    <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-800 transition-colors rounded-r-lg p-4 -ml-4">
-                        <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
-                            <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">Manuscript</span>
-                            <span>2025</span>
-                        </div>
-                        <h4 class="text-lg font-bold text-slate-100 mb-2">Pathways to the Podium: Explaining a Quarter-Century of Performance</h4>
-                        <p class="text-slate-400 text-sm mb-2 italic">In Review</p>
-                        <p class="text-slate-500 text-sm leading-relaxed">An explanatory analysis using machine learning (Gradient Boosting/Random Forest) to model talent identification pathways and strategic evolution in elite weightlifting.</p>
-                    </div>
-
-                    <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-800 transition-colors rounded-r-lg p-4 -ml-4">
-                        <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
-                            <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">PhD Thesis</span>
-                            <span>2024</span>
-                        </div>
-                        <h4 class="text-lg font-bold text-slate-100 mb-2">Minimal-Dose Resistance Training & Quality of Life</h4>
-                        <p class="text-slate-400 text-sm mb-2 italic">Northumbria University, UK</p>
-                        <p class="text-slate-500 text-sm leading-relaxed">Investigating the minimal effective dose of RT required to achieve meaningful improvements in functional capacity and strength in older adults (60+).</p>
+                    <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                        <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-medium transition-all">
+                            Email Me
+                        </a>
+                        <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" rel="noreferrer" class="flex items-center justify-center bg-slate-800 hover:bg-slate-900 text-white px-8 py-4 rounded-xl font-medium transition-all">
+                            Connect on LinkedIn
+                        </a>
                     </div>
                     
-                    <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-800 transition-colors rounded-r-lg p-4 -ml-4">
-                        <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
-                            <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">Published</span>
-                            <span>2024</span>
-                        </div>
-                        <h4 class="text-lg font-bold text-slate-100 mb-2">Comparison of low-dose maximal-intent versus controlled-tempo</h4>
-                        <p class="text-slate-400 text-sm mb-2 italic">BMC Sports Science, Medicine and Rehabilitation</p>
-                        <p class="text-slate-500 text-sm leading-relaxed">A comparative effectiveness study exploring different modalities of resistance training in healthy adults.</p>
+                    <div class="mt-16 pt-8 border-t border-slate-600 text-slate-400 text-sm">
+                        © 2025 Dr. Liam T. Pearson-Noseworthy. All rights reserved.
                     </div>
-
-                    <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-800 transition-colors rounded-r-lg p-4 -ml-4">
-                        <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
-                            <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">Published</span>
-                            <span>2023</span>
-                        </div>
-                        <h4 class="text-lg font-bold text-slate-100 mb-2">Systematic Review of Low-Volume Strength Training and Physiological Outcomes</h4>
-                        <p class="text-slate-400 text-sm mb-2 italic">Sports Medicine</p>
-                        <p class="text-slate-500 text-sm leading-relaxed">Meta-analysis confirming the efficacy of minimal-dose protocols in maintaining muscle mass and strength across various populations.</p>
-                    </div>
-
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section id="contact" class="py-12 md:py-20 px-4 bg-slate-700 text-white rounded-t-3xl mt-12 pb-12">
-        <div class="max-w-6xl mx-auto">
-            <div class="max-w-3xl mx-auto text-center animate-fade-in">
-                <h2 class="text-3xl font-bold mb-6">Ready to optimise your training or research?</h2>
-                <p class="text-slate-200 mb-10 text-lg">
-                    Whether you are looking for a sustainable training plan, academic data consulting, or manuscript review, I'd love to hear from you.
-                </p>
-                
-                <div class="flex flex-col sm:flex-row gap-6 justify-center">
-                    <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-medium transition-all">
-                        Email Me
-                    </a>
-                    <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" rel="noreferrer" class="flex items-center justify-center bg-slate-800 hover:bg-slate-900 text-white px-8 py-4 rounded-xl font-medium transition-all">
-                        Connect on LinkedIn
-                    </a>
-                </div>
-                
-                <div class="mt-16 pt-8 border-t border-slate-600 text-slate-400 text-sm">
-                    © 2025 Dr. Liam T. Pearson-Noseworthy. All rights reserved.
-                </div>
-            </div>
-        </div>
-    </section>
-
-</body>
+    </div>
+    </body>
 </html>
