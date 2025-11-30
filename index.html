@@ -85,7 +85,7 @@
         // --- Components ---
 
         const Section = ({ children, id, className = "" }) => (
-            <section id={id} className={`py-16 md:py-24 px-4 ${className}`}>
+            <section id={id} className={`py-12 md:py-20 px-4 ${className}`}> {/* REDUCED VERTICAL PADDING HERE */}
                 <div className="max-w-6xl mx-auto">
                     {children}
                 </div>
@@ -155,12 +155,12 @@
                     <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'}`}>
                         <div className="max-w-6xl mx-auto px-4 flex justify-between items-center">
                             <div className="font-bold text-xl tracking-tight text-slate-900">
-                                Dr. Pearson-Noseworthy<span className="text-blue-600"></span>
+                                Dr. Pearson-Noseworthy<span className="text-blue-600">.</span>
                             </div>
                             <div className="hidden md:flex gap-8 text-sm font-medium text-slate-600">
                                 <a href="#about" className="hover:text-blue-600 transition-colors">About</a>
                                 <a href="#services" className="hover:text-blue-600 transition-colors">Services</a>
-                                <a href="#research" className="hover:text-blue-600 transition-colors">Publications</a> {/* Renamed link text */}
+                                <a href="#research" className="hover:text-blue-600 transition-colors">Publications</a>
                             </div>
                             <a href="#contact" className="bg-slate-900 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
                                 Get in Touch
@@ -176,7 +176,7 @@
                                 PhD • SFHEA • Data Scientist
                             </div>
                             <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight">
-                                Optimising Human Performance<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600"></span>
+                                Optimising Human Performance through <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Data & Physiology</span>
                             </h1>
                             <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
                                 Bridging the gap between academic rigour and practical application. Specialising in minimal-dose resistance training, older adult health, and elite weightlifting analysis.
@@ -221,7 +221,7 @@
                     </Section>
 
                     {/* Services */}
-                    <Section id="services" className="bg-slate-50 border-t border-slate-100"> {/* Adjusted background for visual separation */}
+                    <Section id="services" className="bg-slate-50 border-t border-slate-100">
                         <div className="text-center mb-12">
                             <h2 className="text-3xl font-bold mb-4">How I Can Help</h2>
                             <p className="text-slate-600 max-w-xl mx-auto">
@@ -286,10 +286,10 @@
                     </Section>
 
                     {/* Research / Publications */}
-                    <Section id="research" className="bg-white"> {/* Adjusted background for visual separation */}
+                    <Section id="research" className="bg-white">
                         <div className="grid md:grid-cols-12 gap-12">
                             <div className="md:col-span-4">
-                                <h2 className="text-3xl font-bold mb-6">Published Peer-Reviewed Research</h2> {/* Renamed title */}
+                                <h2 className="text-3xl font-bold mb-6">Published Peer-Reviewed Research</h2>
                                 <p className="text-slate-600 mb-6 leading-relaxed">
                                     My academic work focuses on the efficacy of minimal-dose resistance training for quality of life in older adults, and large-scale data analysis of elite Olympic Weightlifting performance.
                                 </p>
@@ -352,5 +352,3 @@
 </body>
 
 </html>
-
-
