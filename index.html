@@ -30,7 +30,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans min-h-screen">
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -38,7 +38,7 @@
             const nav = document.querySelector('nav');
             const handleScroll = () => {
                 if (window.scrollY > 50) {
-                    nav.className = 'fixed w-full z-50 transition-all duration-300 bg-white/95 backdrop-blur-sm shadow-md py-4';
+                    nav.className = 'fixed w-full z-50 transition-all duration-300 bg-slate-900/95 backdrop-blur-sm shadow-md py-4 border-b border-slate-700'; // Dark mode nav
                 } else {
                     nav.className = 'fixed w-full z-50 transition-all duration-300 bg-transparent py-6';
                 }
@@ -54,17 +54,17 @@
                 button.addEventListener('click', () => {
                     const targetId = button.getAttribute('data-tab-target');
                     
-                    // Deactivate all
+                    // Deactivate all (Dark Mode Classes)
                     tabButtons.forEach(btn => {
-                        btn.className = 'flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 bg-white text-slate-600 hover:bg-slate-100 border border-slate-200';
+                        btn.className = 'flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 bg-slate-800 text-slate-400 hover:bg-slate-700 border border-slate-700';
                     });
                     tabContents.forEach(content => {
                         content.classList.remove('animate-fade-in', 'loaded');
                         content.style.display = 'none';
                     });
 
-                    // Activate selected
-                    button.className = 'flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 bg-slate-900 text-white shadow-lg scale-105';
+                    // Activate selected (Dark Mode Classes)
+                    button.className = 'flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 bg-blue-600 text-white shadow-lg scale-105';
                     
                     const targetContent = document.getElementById(targetId);
                     if (targetContent) {
@@ -86,7 +86,7 @@
             });
         });
 
-        // Function to replace icons with SVG (only works with Tailwind if the SVG paths are defined)
+        // Function to replace icons with SVG (only used for clarity)
         function getIcon(iconName, className = "") {
             const icons = {
                 award: "M6 9H4.5a2.5 2.5 0 0 1 0-5H6a2.5 2.5 0 0 1 0 5zM6 9h6m-6 0v11m6-11v11m0-11h1.5a2.5 2.5 0 0 0 0-5H12a2.5 2.5 0 0 0 0 5z",
@@ -100,8 +100,6 @@
                 chevron: "M9 18l6-6-6-6"
             };
             
-            // Only used for ServiceTabs in the simplified version, but a cleaner way to handle SVG icons is to use a dedicated library or pre-defined SVG sprites/images. For simplicity, we'll embed the SVG directly as a string or use a simplified visual helper. 
-            // We'll rely on pure HTML/CSS for the rest.
             return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"><path d="${icons[iconName]}" /></svg>`;
         }
     </script>
@@ -109,28 +107,28 @@
 
     <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-6">
         <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
-            <div class="font-bold text-xl tracking-tight text-slate-900">
-                Dr. Pearson-Noseworthy<span class="text-blue-600">.</span>
+            <div class="font-bold text-xl tracking-tight text-slate-100">
+                Dr. Pearson-Noseworthy<span class="text-blue-400">.</span>
             </div>
-            <div class="hidden md:flex gap-8 text-sm font-medium text-slate-600">
-                <a href="#about" class="hover:text-blue-600 transition-colors">About</a>
-                <a href="#services" class="hover:text-blue-600 transition-colors">Services</a>
-                <a href="#portfolio" class="hover:text-blue-600 transition-colors">Portfolio</a>
-                <a href="#research" class="hover:text-blue-600 transition-colors">Publications</a>
+            <div class="hidden md:flex gap-8 text-sm font-medium text-slate-400">
+                <a href="#about" class="hover:text-blue-400 transition-colors">About</a>
+                <a href="#services" class="hover:text-blue-400 transition-colors">Services</a>
+                <a href="#portfolio" class="hover:text-blue-400 transition-colors">Portfolio</a>
+                <a href="#research" class="hover:text-blue-400 transition-colors">Publications</a>
             </div>
-            <a href="#contact" class="bg-slate-900 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-slate-700 transition-colors">
+            <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
                 Get in Touch
             </a>
         </div>
     </nav>
 
-    <header id="about" class="pt-32 pb-20 md:pt-48 md:pb-32 px-4 bg-gradient-to-br from-white to-slate-100">
+    <header id="about" class="pt-32 pb-20 md:pt-48 md:pb-32 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
         <div class="max-w-6xl mx-auto grid md:grid-cols-12 gap-10">
             
             <div class="md:col-span-4 lg:col-span-4 order-2 md:order-1 mt-8 md:mt-0">
                 
                 <div class="w-full h-auto mb-8 animate-fade-in">
-                    <div class="aspect-[4/5] rounded-2xl bg-slate-200 overflow-hidden relative border border-slate-300 shadow-xl">
+                    <div class="aspect-[4/5] rounded-2xl bg-slate-700 overflow-hidden relative border border-slate-700 shadow-xl">
                         <img 
                             src="images/academic.jpg" 
                             alt="Dr. Pearson-Noseworthy professional academic photo" 
@@ -139,21 +137,21 @@
                     </div>
                 </div>
 
-                <div class="p-6 rounded-xl border border-slate-200 bg-white animate-fade-in">
-                    <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2 uppercase tracking-wider">
-                        <span class="w-5 h-5 inline-block text-blue-600">🏆</span> Academic & Professional Roles
+                <div class="p-6 rounded-xl border border-slate-700 bg-slate-800 animate-fade-in">
+                    <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2 uppercase tracking-wider">
+                        <span class="w-5 h-5 inline-block text-blue-400">🏆</span> Academic & Professional Roles
                     </h3>
-                    <ul class="space-y-2 text-sm text-slate-600 list-none pl-0">
-                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> <span>PhD Applied Health & Exercise Science</span></li>
-                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> <span>Senior Fellow (SFHEA) - Higher Education Academy</span></li>
-                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> <span>MRes Sport Science</span></li>
-                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> <span>BSc Applied Sports Science with Coaching</span></li>
-                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> <span>Olympic Weightlifting Coach (Level 3/4)</span></li>
-                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> <span>Certified Personal Trainer (REPS/CIMSPA)</span></li>
-                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> <span>Sports Massage Therapist</span></li>
-                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> <span>Distinguished Teaching Fellow, Northumbria University</span></li>
+                    <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
+                        <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>PhD Applied Health & Exercise Science</span></li>
+                        <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Senior Fellow (SFHEA) - Higher Education Academy</span></li>
+                        <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>MRes Sport Science</span></li>
+                        <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>BSc Applied Sports Science with Coaching</span></li>
+                        <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Olympic Weightlifting Coach (Level 3/4)</span></li>
+                        <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Certified Personal Trainer (REPS/CIMSPA)</span></li>
+                        <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Sports Massage Therapist</span></li>
+                        <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Distinguished Teaching Fellow, Northumbria University</span></li>
                     </ul>
-                    <p class="mt-4 text-xs text-blue-600 font-medium border-t pt-3 border-slate-100">
+                    <p class="mt-4 text-xs text-blue-400 font-medium border-t pt-3 border-slate-700">
                         Awarded the Queen's Award in 2015 for services to sport and health.
                     </p>
                 </div>
@@ -161,32 +159,32 @@
 
             <div class="md:col-span-8 lg:col-span-8 order-1 md:order-2 md:text-left text-center animate-fade-in"> 
                 
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold tracking-wider mb-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-700/30 text-blue-300 text-xs font-bold tracking-wider mb-6">
                     From PT to PhD Graduate • Applied Physiologist • Data Scientist
                 </div>
 
-                <h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight">
-                    Optimising Human Performance <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">through Data & Physiology</span>
+                <h1 class="text-5xl md:text-7xl font-extrabold text-slate-100 tracking-tight mb-8 leading-tight">
+                    Optimising Human Performance 
                 </h1>
 
-                <p class="text-xl text-slate-600 mb-10 max-w-3xl md:mx-0 mx-auto leading-relaxed">
+                <p class="text-xl text-slate-400 mb-10 max-w-3xl md:mx-0 mx-auto leading-relaxed">
                     My career, spanning from the gym floor to **groundbreaking doctoral research**, has been dedicated to merging high-level **Sport, Health & Fitness** expertise with scientific rigour to challenge and influence health guidelines for elite athletes and older adults alike.
                 </p>
                 
-                <div class="bg-white p-4 rounded-xl border border-slate-200 inline-block md:block mb-10">
-                    <h3 class="text-sm font-bold text-slate-600 mb-2 uppercase tracking-wider">Professional Highlights:</h3>
-                    <ul class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-700 list-none pl-0">
-                        <li class="flex items-center font-medium"><span class="text-blue-500 mr-1.5">•</span> PhD Applied Health & Exercise Science</li>
-                        <li class="flex items-center font-medium"><span class="text-blue-500 mr-1.5">•</span> Senior Fellow (SFHEA) - Higher Education Academy</li>
-                        <li class="flex items-center font-medium"><span class="text-blue-500 mr-1.5">•</span> MRes Sport Science</li>
+                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 inline-block md:block mb-10">
+                    <h3 class="text-sm font-bold text-slate-400 mb-2 uppercase tracking-wider">Professional Highlights:</h3>
+                    <ul class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-300 list-none pl-0">
+                        <li class="flex items-center font-medium"><span class="text-blue-400 mr-1.5">•</span> PhD Applied Health & Exercise Science</li>
+                        <li class="flex items-center font-medium"><span class="text-blue-400 mr-1.5">•</span> Senior Fellow (SFHEA) - Higher Education Academy</li>
+                        <li class="flex items-center font-medium"><span class="text-blue-400 mr-1.5">•</span> MRes Sport Science</li>
                     </ul>
                 </div>
 
                 <div class="flex flex-col sm:flex-row md:justify-start justify-center gap-4">
-                    <a href="#services" class="inline-flex items-center justify-center bg-slate-900 text-white px-8 py-3.5 rounded-xl font-medium hover:bg-slate-700 transition-all hover:scale-[1.01] icon-chevron">
+                    <a href="#services" class="inline-flex items-center justify-center bg-blue-600 text-white px-8 py-3.5 rounded-xl font-medium hover:bg-blue-700 transition-all hover:scale-[1.01] icon-chevron">
                         View Services 
                     </a>
-                    <a href="#research" class="inline-flex items-center justify-center bg-white text-slate-700 border border-slate-200 px-8 py-3.5 rounded-xl font-medium hover:bg-slate-100 transition-all">
+                    <a href="#research" class="inline-flex items-center justify-center bg-slate-800 text-slate-300 border border-slate-700 px-8 py-3.5 rounded-xl font-medium hover:bg-slate-700 transition-all">
                         Read Publications
                     </a>
                 </div>
@@ -195,75 +193,75 @@
         </div>
     </header>
 
-    <section id="services" class="py-12 md:py-20 px-4 bg-slate-50 border-t border-slate-100">
+    <section id="services" class="py-12 md:py-20 px-4 bg-slate-900 border-t border-slate-800">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold mb-4">How I Can Help</h2>
-                <p class="text-slate-600 max-w-xl mx-auto">
+                <h2 class="text-3xl font-bold mb-4 text-slate-100">How I Can Help</h2>
+                <p class="text-slate-400 max-w-xl mx-auto">
                     Leveraging a dual-competency in physiology and data science to provide actionable insights and sustainable training solutions.
                 </p>
             </div>
 
             <div class="flex justify-center gap-4 mb-10 flex-wrap">
                 <button data-tab-target="training-content" class="flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300">
-                    <span class="w-5 h-5 inline-block text-blue-600">🏋️</span> Training & Programming
+                    <span class="w-5 h-5 inline-block text-blue-400">🏋️</span> Training & Programming
                 </button>
                 <button data-tab-target="academic-content" class="flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300">
-                    <span class="w-5 h-5 inline-block text-blue-600">📚</span> Academic & Data Services
+                    <span class="w-5 h-5 inline-block text-blue-400">📚</span> Academic & Data Services
                 </button>
             </div>
 
             <div id="training-content" data-tab-content class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in" style="display:none;">
                 
-                <div class="bg-white p-6 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-4 text-blue-700">
+                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center mb-4 text-blue-400">
                         <span class="text-xl">⏱️</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">Minimal-Dose Resistance Training</h3>
-                    <p class="text-slate-600 mb-4 leading-relaxed">Evidence-based protocols for busy professionals. Achieve significant physiological adaptations with as little as one session per week.</p>
+                    <h3 class="text-xl font-bold text-slate-100 mb-2">Minimal-Dose Resistance Training</h3>
+                    <p class="text-slate-400 mb-4 leading-relaxed">Evidence-based protocols for busy professionals. Achieve significant physiological adaptations with as little as one session per week.</p>
                     <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Efficiency</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Health</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Strength</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Efficiency</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Health</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Strength</span>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-4 text-blue-700">
+                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center mb-4 text-blue-400">
                         <span class="text-xl">🏃</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">Older Adult Independence</h3>
-                    <p class="text-slate-600 mb-4 leading-relaxed">Specialised plans focusing on functional capacity, sarcopenia prevention, and quality of life for the >60 demographic.</p>
+                    <h3 class="text-xl font-bold text-slate-100 mb-2">Older Adult Independence</h3>
+                    <p class="text-slate-400 mb-4 leading-relaxed">Specialised plans focusing on functional capacity, sarcopenia prevention, and quality of life for the >60 demographic.</p>
                     <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Falls Prevention</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Mobility</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">QoL</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Falls Prevention</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Mobility</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">QoL</span>
                     </div>
                 </div>
                 
-                <div class="bg-white p-6 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-4 text-blue-700">
+                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center mb-4 text-blue-400">
                         <span class="text-xl">🏅</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">LTAD & S&C/Weightlifting</h3>
-                    <p class="text-slate-600 mb-4 leading-relaxed">Long-Term Athlete Development pathways and elite Olympic Weightlifting programming based on my extensive experience, qualifications, and over 25 years of performance data.</p>
+                    <h3 class="text-xl font-bold text-slate-100 mb-2">LTAD & S&C/Weightlifting</h3>
+                    <p class="text-slate-400 mb-4 leading-relaxed">Long-Term Athlete Development pathways and elite Olympic Weightlifting programming based on my extensive experience, qualifications, and over 25 years of performance data.</p>
                     <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Performance</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Youth</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Technique</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Performance</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Youth</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Technique</span>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-4 text-blue-700">
+                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center mb-4 text-blue-400">
                         <span class="text-xl">🏋️‍♂️</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">Olympic Weightlifting</h3>
-                    <p class="text-slate-600 mb-4 leading-relaxed">Using my 10+ years of experience, plus previous role with British Weight Lifting, to support the development of your Olympic Weightlifting, from program design to video analysis.</p>
+                    <h3 class="text-xl font-bold text-slate-100 mb-2">Olympic Weightlifting</h3>
+                    <p class="text-slate-400 mb-4 leading-relaxed">Using my 10+ years of experience, plus previous role with British Weight Lifting, to support the development of your Olympic Weightlifting, from program design to video analysis.</p>
                     <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Performance</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Youth</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Technique</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Performance</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Youth</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Technique</span>
                     </div>
                 </div>
 
@@ -271,29 +269,29 @@
 
             <div id="academic-content" data-tab-content class="grid md:grid-cols-2 gap-6 animate-fade-in" style="display:none;">
                 
-                <div class="bg-white p-6 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-4 text-blue-700">
+                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center mb-4 text-blue-400">
                         <span class="text-xl">📊</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">Data Science & Analysis</h3>
-                    <p class="text-slate-600 mb-4 leading-relaxed">Advanced statistical analysis using Python & R. Specializing in longitudinal datasets, biomechanics, and physiological modelling.</p>
+                    <h3 class="text-xl font-bold text-slate-100 mb-2">Data Science & Analysis</h3>
+                    <p class="text-slate-400 mb-4 leading-relaxed">Advanced statistical analysis using Python & R. Specializing in longitudinal datasets, biomechanics, and physiological modelling.</p>
                     <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Python</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">R</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Big Data</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Python</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">R</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Big Data</span>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-4 text-blue-700">
+                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center mb-4 text-blue-400">
                         <span class="text-xl">📝</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">Research Consulting</h3>
-                    <p class="text-slate-600 mb-4 leading-relaxed">Support with experimental design, ethics applications, and manuscript preparation in Sport & Exercise Science.</p>
+                    <h3 class="text-xl font-bold text-slate-100 mb-2">Research Consulting</h3>
+                    <p class="text-slate-400 mb-4 leading-relaxed">Support with experimental design, ethics applications, and manuscript preparation in Sport & Exercise Science.</p>
                     <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Methodology</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Review</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">Publication</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Methodology</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Review</span>
+                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Publication</span>
                     </div>
                 </div>
 
@@ -301,43 +299,27 @@
         </div>
     </section>
     
-    <section id="portfolio" class="py-12 md:py-20 px-4 bg-white border-t border-slate-100">
+    <section id="portfolio" class="py-12 md:py-20 px-4 bg-slate-800 border-t border-slate-700">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-12 animate-fade-in">
-                <h2 class="text-3xl font-bold mb-4">Portfolio</h2>
-                <p class="text-slate-600 max-w-xl mx-auto">
+                <h2 class="text-3xl font-bold mb-4 text-slate-100">Portfolio</h2>
+                <p class="text-slate-400 max-w-xl mx-auto">
                     Visual examples of my data analysis outputs, coaching methods, and lab work—bridging theory and practice.
                 </p>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div class="aspect-[4/3] bg-slate-100 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in">
-                    <img 
-                        src="images/data_viz.jpg" 
-                        alt="Example of a physiological data visualisation using Python" 
-                        class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]" 
-                    />
+                <div class="aspect-[4/3] bg-slate-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in">
+                    <img src="images/data_viz.jpg" alt="Example of a physiological data visualisation using Python" class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]"/>
                 </div>
-                <div class="aspect-[4/3] bg-slate-100 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in" style="animation-delay: 0.1s;">
-                    <img 
-                        src="images/lab_work.jpg" 
-                        alt="Dr. Pearson-Noseworthy in the university wet-lab" 
-                        class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]" 
-                    />
+                <div class="aspect-[4/3] bg-slate-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in" style="animation-delay: 0.1s;">
+                    <img src="images/lab_work.jpg" alt="Dr. Pearson-Noseworthy in the university wet-lab" class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]"/>
                 </div>
-                <div class="aspect-[4/3] bg-slate-100 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in" style="animation-delay: 0.2s;">
-                    <img 
-                        src="images/coaching.jpg" 
-                        alt="Coaching a weightlifting athlete in a practical session" 
-                        class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]" 
-                    />
+                <div class="aspect-[4/3] bg-slate-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in" style="animation-delay: 0.2s;">
+                    <img src="images/coaching.jpg" alt="Coaching a weightlifting athlete in a practical session" class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]"/>
                 </div>
-                <div class="aspect-[4/3] bg-slate-100 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in" style="animation-delay: 0.3s;">
-                    <img 
-                        src="images/athlete_testing.jpg" 
-                        alt="Athlete strength testing session with scientific equipment" 
-                        class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]" 
-                    />
+                <div class="aspect-[4/3] bg-slate-700 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 animate-fade-in" style="animation-delay: 0.3s;">
+                    <img src="images/athlete_testing.jpg" alt="Athlete strength testing session with scientific equipment" class="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]"/>
                 </div>
             </div>
 
@@ -349,64 +331,64 @@
         </div>
     </section>
     
-    <section id="research" class="py-12 md:py-20 px-4 bg-slate-50 border-t border-slate-100">
+    <section id="research" class="py-12 md:py-20 px-4 bg-slate-900 border-t border-slate-800">
         <div class="max-w-6xl mx-auto">
             <div class="grid md:grid-cols-12 gap-12">
                 <div class="md:col-span-4 animate-fade-in">
-                    <h2 class="text-3xl font-bold mb-6">Published Peer-Reviewed Research</h2>
-                    <p class="text-slate-600 mb-6 leading-relaxed">
+                    <h2 class="text-3xl font-bold mb-6 text-slate-100">Published Peer-Reviewed Research</h2>
+                    <p class="text-slate-400 mb-6 leading-relaxed">
                         My academic work focuses on the efficacy of minimal-dose resistance training for quality of life in older adults, and large-scale data analysis of elite Olympic Weightlifting performance.
                     </p>
-                    <div class="p-6 bg-white rounded-xl shadow-md border border-slate-100">
-                        <div class="text-4xl font-bold text-blue-600 mb-1">59k+</div>
+                    <div class="p-6 bg-slate-800 rounded-xl shadow-md border border-slate-700">
+                        <div class="text-4xl font-bold text-blue-400 mb-1">59k+</div>
                         <div class="text-sm text-slate-500 font-medium uppercase tracking-wide">Performances Analysed</div>
                     </div>
                 </div>
                 
                 <div class="md:col-span-8 animate-fade-in" style="animation-delay: 0.1s;">
                     
-                    <div class="border-l-4 border-blue-600 pl-6 py-2 mb-8 hover:bg-white transition-colors rounded-r-lg p-4 -ml-4">
-                        <div class="flex items-center gap-3 text-sm text-blue-600 font-semibold mb-1">
-                            <span class="bg-blue-100 px-2 py-0.5 rounded text-xs">Manuscript</span>
+                    <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-800 transition-colors rounded-r-lg p-4 -ml-4">
+                        <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
+                            <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">Manuscript</span>
                             <span>2025</span>
                         </div>
-                        <h4 class="text-lg font-bold text-slate-900 mb-2">Pathways to the Podium: Explaining a Quarter-Century of Performance</h4>
-                        <p class="text-slate-600 text-sm mb-2 italic">In Review</p>
+                        <h4 class="text-lg font-bold text-slate-100 mb-2">Pathways to the Podium: Explaining a Quarter-Century of Performance</h4>
+                        <p class="text-slate-400 text-sm mb-2 italic">In Review</p>
                         <p class="text-slate-500 text-sm leading-relaxed">An explanatory analysis using machine learning (Gradient Boosting/Random Forest) to model talent identification pathways and strategic evolution in elite weightlifting.</p>
                     </div>
 
-                    <div class="border-l-4 border-blue-600 pl-6 py-2 mb-8 hover:bg-white transition-colors rounded-r-lg p-4 -ml-4">
-                        <div class="flex items-center gap-3 text-sm text-blue-600 font-semibold mb-1">
-                            <span class="bg-blue-100 px-2 py-0.5 rounded text-xs">PhD Thesis</span>
+                    <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-800 transition-colors rounded-r-lg p-4 -ml-4">
+                        <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
+                            <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">PhD Thesis</span>
                             <span>2024</span>
                         </div>
-                        <h4 class="text-lg font-bold text-slate-900 mb-2">Minimal-Dose Resistance Training & Quality of Life</h4>
-                        <p class="text-slate-600 text-sm mb-2 italic">Northumbria University, UK</p>
+                        <h4 class="text-lg font-bold text-slate-100 mb-2">Minimal-Dose Resistance Training & Quality of Life</h4>
+                        <p class="text-slate-400 text-sm mb-2 italic">Northumbria University, UK</p>
                         <p class="text-slate-500 text-sm leading-relaxed">Investigating the minimal effective dose of RT required to achieve meaningful improvements in functional capacity and strength in older adults (60+).</p>
                     </div>
                     
-                    <div class="border-l-4 border-blue-600 pl-6 py-2 mb-8 hover:bg-white transition-colors rounded-r-lg p-4 -ml-4">
-                        <div class="flex items-center gap-3 text-sm text-blue-600 font-semibold mb-1">
-                            <span class="bg-blue-100 px-2 py-0.5 rounded text-xs">Published</span>
+                    <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-800 transition-colors rounded-r-lg p-4 -ml-4">
+                        <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
+                            <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">Published</span>
                             <span>2024</span>
                         </div>
-                        <h4 class="text-lg font-bold text-slate-900 mb-2">Comparison of low-dose maximal-intent versus controlled-tempo</h4>
-                        <p class="text-slate-600 text-sm mb-2 italic">BMC Sports Science, Medicine and Rehabilitation</p>
+                        <h4 class="text-lg font-bold text-slate-100 mb-2">Comparison of low-dose maximal-intent versus controlled-tempo</h4>
+                        <p class="text-slate-400 text-sm mb-2 italic">BMC Sports Science, Medicine and Rehabilitation</p>
                         <p class="text-slate-500 text-sm leading-relaxed">A comparative effectiveness study exploring different modalities of resistance training in healthy adults.</p>
                     </div>
 
-                    <div class="border-l-4 border-blue-600 pl-6 py-2 mb-8 hover:bg-white transition-colors rounded-r-lg p-4 -ml-4">
-                        <div class="flex items-center gap-3 text-sm text-blue-600 font-semibold mb-1">
-                            <span class="bg-blue-100 px-2 py-0.5 rounded text-xs">Published</span>
+                    <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-800 transition-colors rounded-r-lg p-4 -ml-4">
+                        <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
+                            <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">Published</span>
                             <span>2023</span>
                         </div>
-                        <h4 class="text-lg font-bold text-slate-900 mb-2">Systematic Review of Low-Volume Strength Training and Physiological Outcomes</h4>
-                        <p class="text-slate-600 text-sm mb-2 italic">Sports Medicine</p>
+                        <h4 class="text-lg font-bold text-slate-100 mb-2">Systematic Review of Low-Volume Strength Training and Physiological Outcomes</h4>
+                        <p class="text-slate-400 text-sm mb-2 italic">Sports Medicine</p>
                         <p class="text-slate-500 text-sm leading-relaxed">Meta-analysis confirming the efficacy of minimal-dose protocols in maintaining muscle mass and strength across various populations.</p>
                     </div>
 
 
-                    <a href="https://scholar.google.com/citations?user=vXjhLEsAAAAJ&hl=en&oi=ao" target="_blank" rel="noreferrer" class="mt-4 inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors font-medium icon-chevron">
+                    <a href="https://scholar.google.com/citations?user=vXjhLEsAAAAJ&hl=en&oi=ao" target="_blank" rel="noreferrer" class="mt-4 inline-flex items-center text-blue-400 hover:text-blue-200 transition-colors font-medium icon-chevron">
                         View full Google Scholar profile
                     </a>
                 </div>
@@ -414,24 +396,24 @@
         </div>
     </section>
 
-    <section id="contact" class="py-12 md:py-20 px-4 bg-slate-900 text-white rounded-t-3xl mt-12 pb-12">
+    <section id="contact" class="py-12 md:py-20 px-4 bg-slate-700 text-white rounded-t-3xl mt-12 pb-12">
         <div class="max-w-6xl mx-auto">
             <div class="max-w-3xl mx-auto text-center animate-fade-in">
                 <h2 class="text-3xl font-bold mb-6">Ready to optimise your training or research?</h2>
-                <p class="text-slate-300 mb-10 text-lg">
+                <p class="text-slate-200 mb-10 text-lg">
                     Whether you are looking for a sustainable training plan, academic data consulting, or manuscript review, I'd love to hear from you.
                 </p>
                 
                 <div class="flex flex-col sm:flex-row gap-6 justify-center">
-                    <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-medium transition-all">
+                    <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center gap-3 bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-medium transition-all">
                         <span class="w-5 h-5 inline-block">📧</span> Email Me directly
                     </a>
-                    <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" rel="noreferrer" class="flex items-center justify-center gap-3 bg-slate-800 hover:bg-slate-700 text-white px-8 py-4 rounded-xl font-medium transition-all">
+                    <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" rel="noreferrer" class="flex items-center justify-center gap-3 bg-slate-800 hover:bg-slate-900 text-white px-8 py-4 rounded-xl font-medium transition-all">
                         <span class="w-5 h-5 inline-block">👤</span> Connect on LinkedIn
                     </a>
                 </div>
                 
-                <div class="mt-16 pt-8 border-t border-slate-800 text-slate-500 text-sm">
+                <div class="mt-16 pt-8 border-t border-slate-600 text-slate-400 text-sm">
                     © 2025 Dr. Liam T. Pearson-Noseworthy. All rights reserved.
                 </div>
             </div>
