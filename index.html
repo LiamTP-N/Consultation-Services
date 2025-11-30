@@ -10,13 +10,13 @@
     <style>
         html { scroll-behavior: smooth; }
         .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
-        .animate-fade-in.loaded { opacity: 1; } /* Class added by JS below */
+        .animate-fade-in.loaded { opacity: 1; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Utility for the chevron icon (simplified SVG path) */
+        /* Utility for the chevron icon */
         .icon-chevron::after {
             content: '';
             display: inline-block;
@@ -33,6 +33,23 @@
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
 
     <script>
+        // Icon Paths (Used for injecting SVGs into the tab buttons/cards)
+        const icons = {
+            award: "M6 9H4.5a2.5 2.5 0 0 1 0-5H6a2.5 2.5 0 0 1 0 5zM6 9h6m-6 0v11m6-11v11m0-11h1.5a2.5 2.5 0 0 0 0-5H12a2.5 2.5 0 0 0 0 5z", // award/trophy
+            activity: "M22 12h-4l-3 9L9 3l-3 9H2", // activity/running
+            book: "M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z", // book/research
+            chart: "M18 20V10 M12 20V4 M6 20v6", // chart/data
+            clock: "M12 2v20 M2 12h20", // clock/time
+            mail: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6", // mail
+            user: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8", // user
+            file: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8" // file
+        };
+
+        function getIconSVG(iconName, classes = "w-5 h-5") {
+            const path = icons[iconName] || icons.award; // Default to award if not found
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${classes}"><path d="${path}" /></svg>`;
+        }
+        
         document.addEventListener('DOMContentLoaded', () => {
             // Navigation Scroll Effect
             const nav = document.querySelector('nav');
@@ -49,6 +66,11 @@
             // Simple Tab Switching (for Services)
             const tabButtons = document.querySelectorAll('[data-tab-target]');
             const tabContents = document.querySelectorAll('[data-tab-content]');
+            
+            // Inject Icons into Service Tabs
+            document.getElementById('tab-training-icon').innerHTML = getIconSVG('activity');
+            document.getElementById('tab-academic-icon').innerHTML = getIconSVG('book');
+
 
             tabButtons.forEach(button => {
                 button.addEventListener('click', () => {
@@ -85,6 +107,14 @@
                 }, 50 * (index + 1));
             });
         });
+        
+        // --- Helper for Card Icons (Used below in HTML) ---
+        // NOTE: Since we cannot run complex JS/React inside the HTML body, we are limited to basic text/CSS for card headers. 
+        // We will stick to the generic 'Award' icon path which is simpler to handle as text.
+        function getIconHTML(iconName) {
+            const svg = getIconSVG(iconName, "w-6 h-6");
+            return `<div class="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center mb-4 text-blue-400">${svg}</div>`;
+        }
     </script>
 
 
@@ -122,7 +152,8 @@
 
                 <div class="p-6 rounded-xl border border-slate-700 bg-slate-800 animate-fade-in">
                     <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2 uppercase tracking-wider">
-                        <span class="w-5 h-5 inline-block text-blue-400">🏆</span> Academic & Professional Roles
+                        <span id="hero-award-icon" class="w-5 h-5 inline-block text-blue-400"></span> Academic & Professional Roles
+                        <script>document.getElementById('hero-award-icon').innerHTML = getIconSVG('award');</script>
                     </h3>
                     <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
                         <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>PhD Applied Health & Exercise Science</span></li>
@@ -183,19 +214,18 @@
 
             <div class="flex justify-center gap-4 mb-10 flex-wrap">
                 <button data-tab-target="training-content" class="flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300">
-                    <span class="w-5 h-5 inline-block text-blue-400">🏋️</span> Training & Programming
+                    <span id="tab-training-icon" class="w-5 h-5 inline-block text-blue-400"></span> Training & Programming
                 </button>
                 <button data-tab-target="academic-content" class="flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300">
-                    <span class="w-5 h-5 inline-block text-blue-400">📚</span> Academic & Data Services
+                    <span id="tab-academic-icon" class="w-5 h-5 inline-block text-blue-400"></span> Academic & Data Services
                 </button>
             </div>
 
             <div id="training-content" data-tab-content class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in" style="display:none;">
                 
                 <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <div class="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center mb-4 text-blue-400">
-                        <span class="text-xl">⏱️</span>
-                    </div>
+                    <span id="card-1-icon"></span>
+                    <script>document.getElementById('card-1-icon').innerHTML = getIconHTML('clock');</script>
                     <h3 class="text-xl font-bold text-slate-100 mb-2">Minimal-Dose Resistance Training</h3>
                     <p class="text-slate-400 mb-4 leading-relaxed">Evidence-based protocols for busy professionals. Achieve significant physiological adaptations with as little as one session per week.</p>
                     <div class="flex flex-wrap gap-2">
@@ -206,9 +236,8 @@
                 </div>
 
                 <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <div class="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center mb-4 text-blue-400">
-                        <span class="text-xl">🏃</span>
-                    </div>
+                    <span id="card-2-icon"></span>
+                    <script>document.getElementById('card-2-icon').innerHTML = getIconHTML('activity');</script>
                     <h3 class="text-xl font-bold text-slate-100 mb-2">Older Adult Independence</h3>
                     <p class="text-slate-400 mb-4 leading-relaxed">Specialised plans focusing on functional capacity, sarcopenia prevention, and quality of life for the >60 demographic.</p>
                     <div class="flex flex-wrap gap-2">
@@ -219,9 +248,8 @@
                 </div>
                 
                 <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <div class="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center mb-4 text-blue-400">
-                        <span class="text-xl">🏅</span>
-                    </div>
+                    <span id="card-3-icon"></span>
+                    <script>document.getElementById('card-3-icon').innerHTML = getIconHTML('award');</script>
                     <h3 class="text-xl font-bold text-slate-100 mb-2">LTAD & S&C/Weightlifting</h3>
                     <p class="text-slate-400 mb-4 leading-relaxed">Long-Term Athlete Development pathways and elite Olympic Weightlifting programming based on my extensive experience, qualifications, and over 25 years of performance data.</p>
                     <div class="flex flex-wrap gap-2">
@@ -232,9 +260,8 @@
                 </div>
 
                 <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <div class="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center mb-4 text-blue-400">
-                        <span class="text-xl">🏋️‍♂️</span>
-                    </div>
+                    <span id="card-4-icon"></span>
+                    <script>document.getElementById('card-4-icon').innerHTML = getIconHTML('award');</script>
                     <h3 class="text-xl font-bold text-slate-100 mb-2">Olympic Weightlifting</h3>
                     <p class="text-slate-400 mb-4 leading-relaxed">Using my 10+ years of experience, plus previous role with British Weight Lifting, to support the development of your Olympic Weightlifting, from program design to video analysis.</p>
                     <div class="flex flex-wrap gap-2">
@@ -249,9 +276,8 @@
             <div id="academic-content" data-tab-content class="grid md:grid-cols-2 gap-6 animate-fade-in" style="display:none;">
                 
                 <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <div class="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center mb-4 text-blue-400">
-                        <span class="text-xl">📊</span>
-                    </div>
+                    <span id="card-5-icon"></span>
+                    <script>document.getElementById('card-5-icon').innerHTML = getIconHTML('chart');</script>
                     <h3 class="text-xl font-bold text-slate-100 mb-2">Data Science & Analysis</h3>
                     <p class="text-slate-400 mb-4 leading-relaxed">Advanced statistical analysis using Python & R. Specializing in longitudinal datasets, biomechanics, and physiological modelling.</p>
                     <div class="flex flex-wrap gap-2">
@@ -262,9 +288,8 @@
                 </div>
 
                 <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <div class="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center mb-4 text-blue-400">
-                        <span class="text-xl">📝</span>
-                    </div>
+                    <span id="card-6-icon"></span>
+                    <script>document.getElementById('card-6-icon').innerHTML = getIconHTML('file');</script>
                     <h3 class="text-xl font-bold text-slate-100 mb-2">Research Consulting</h3>
                     <p class="text-slate-400 mb-4 leading-relaxed">Support with experimental design, ethics applications, and manuscript preparation in Sport & Exercise Science.</p>
                     <div class="flex flex-wrap gap-2">
@@ -385,10 +410,12 @@
                 
                 <div class="flex flex-col sm:flex-row gap-6 justify-center">
                     <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center gap-3 bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-medium transition-all">
-                        <span class="w-5 h-5 inline-block">📧</span> Email Me directly
+                        <span id="mail-icon" class="w-5 h-5 inline-block"></span> Email Me directly
+                        <script>document.getElementById('mail-icon').innerHTML = getIconSVG('mail', 'w-5 h-5');</script>
                     </a>
                     <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" rel="noreferrer" class="flex items-center justify-center gap-3 bg-slate-800 hover:bg-slate-900 text-white px-8 py-4 rounded-xl font-medium transition-all">
-                        <span class="w-5 h-5 inline-block">👤</span> Connect on LinkedIn
+                        <span id="user-icon" class="w-5 h-5 inline-block"></span> Connect on LinkedIn
+                        <script>document.getElementById('user-icon').innerHTML = getIconSVG('user', 'w-5 h-5');</script>
                     </a>
                 </div>
                 
