@@ -82,6 +82,16 @@
             },
         ];
 
+        // Placeholder for Portfolio Images
+        // REMEMBER TO REPLACE THESE 'src' VALUES with the actual paths to your images in the /images folder.
+        const portfolioImages = [
+            { id: 1, src: "/Consultation-Services/images/data_viz.jpg", alt: "Example of a physiological data visualisation using Python" },
+            { id: 2, src: "/Consultation-Services/images/lab_work.jpg", alt: "Dr. Pearson-Noseworthy in the university wet-lab" },
+            { id: 3, src: "/Consultation-Services/images/coaching.jpg", alt: "Coaching a weightlifting athlete in a practical session" },
+            { id: 4, src: "/Consultation-Services/images/athlete_testing.jpg", alt: "Athlete strength testing session with scientific equipment" },
+        ];
+
+
         // --- Components ---
 
         const Section = ({ children, id, className = "" }) => (
@@ -140,7 +150,7 @@
         function App() {
             const [activeService, setActiveService] = React.useState('training');
             const [scrolled, setScrolled] = React.useState(false);
-            const [publications, setPublications] = React.useState(initialPublications); // Using state for publications
+            const [publications, setPublications] = React.useState(initialPublications); 
 
             React.useEffect(() => {
                 const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -160,6 +170,7 @@
                             <div className="hidden md:flex gap-8 text-sm font-medium text-slate-600">
                                 <a href="#about" className="hover:text-blue-600 transition-colors">About</a>
                                 <a href="#services" className="hover:text-blue-600 transition-colors">Services</a>
+                                <a href="#portfolio" className="hover:text-blue-600 transition-colors">Portfolio</a> {/* New link */}
                                 <a href="#research" className="hover:text-blue-600 transition-colors">Publications</a>
                             </div>
                             <a href="#contact" className="bg-slate-900 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
@@ -192,32 +203,20 @@
                         </div>
                     </header>
                     
-                    {/* About */}
+                    {/* About - Reverted to Single Image */}
                     <Section id="about" className="bg-white border-t border-slate-100">
                         <div className="flex flex-col md:flex-row gap-12 items-center">
                             
-                            {/* NEW DUAL-IMAGE CONTAINER */}
-                            <div className="w-full md:w-1/3 flex flex-row gap-4"> 
-                                
-                                {/* Image 1: Academic/Professional */}
-                                <div className="w-1/2 aspect-[3/4] rounded-xl bg-slate-100 overflow-hidden relative flex items-center justify-center border border-slate-200 shadow-lg">
-                                    <div className="text-slate-400 flex flex-col items-center">
-                                        {/* Use a placeholder image tag and description here */}
-                                        <img src="YOUR_ACADEMIC_PHOTO_URL_HERE" alt="Dr. Pearson-Noseworthy in lab coat or speaking at a conference" className="w-full h-full object-cover"/>
-                                        <span className="text-sm mt-2 absolute bottom-2 bg-white/70 px-2 rounded">Academic Focus</span>
-                                    </div>
-                                </div>
-
-                                {/* Image 2: Personal/Training/Lifestyle */}
-                                <div className="w-1/2 aspect-[3/4] rounded-xl rounded-tl-[40px] bg-blue-100 overflow-hidden relative flex items-center justify-center border border-blue-200 shadow-lg mt-8">
-                                    <div className="text-blue-400 flex flex-col items-center">
-                                        {/* Use a placeholder image tag and description here */}
-                                        <img src="YOUR_PERSONAL_PHOTO_URL_HERE" alt="Dr. Pearson-Noseworthy coaching or training" className="w-full h-full object-cover"/>
-                                        <span className="text-sm mt-2 absolute bottom-2 bg-white/70 px-2 rounded">Practical Application</span>
-                                    </div>
+                            <div className="w-full md:w-1/3">
+                                <div className="aspect-square rounded-2xl bg-slate-100 overflow-hidden relative border border-slate-200 shadow-xl">
+                                    {/* --- Academic Photo Placeholder --- */}
+                                    <img 
+                                        src="/Consultation-Services/images/academic.jpg" 
+                                        alt="Dr. Pearson-Noseworthy professional academic photo" 
+                                        className="w-full h-full object-cover" 
+                                    />
                                 </div>
                             </div>
-                            {/* END NEW DUAL-IMAGE CONTAINER */}
 
                             <div className="w-full md:w-2/3">
                                 <h2 className="text-3xl font-bold mb-6">About Me</h2>
@@ -301,15 +300,44 @@
                         </div>
                     </Section>
 
+                    {/* --- NEW PORTFOLIO / GALLERY SECTION --- */}
+                    <Section id="portfolio" className="bg-white border-t border-slate-100">
+                        <div className="text-center mb-12">
+                            <h2 className="text-3xl font-bold mb-4">Portfolio of Applied Work</h2>
+                            <p className="text-slate-600 max-w-xl mx-auto">
+                                Visual examples of my data analysis outputs, coaching methods, and lab work—bridging theory and practice.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            {portfolioImages.map(img => (
+                                <div key={img.id} className="aspect-[4/3] bg-slate-100 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                                    <img 
+                                        src={img.src} 
+                                        alt={img.alt} 
+                                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-[1.02]" 
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                        <div className="text-center mt-10">
+                            <p className="text-sm text-slate-500">
+                                Tip: Upload your images to the <code className="bg-slate-100 p-1 rounded text-slate-700">/images</code> folder in your GitHub repository and update the paths in the <code className="bg-slate-100 p-1 rounded text-slate-700">portfolioImages</code> array.
+                            </p>
+                        </div>
+                    </Section>
+                    {/* --- END PORTFOLIO SECTION --- */}
+
+
                     {/* Research / Publications */}
-                    <Section id="research" className="bg-white">
+                    <Section id="research" className="bg-slate-50 border-t border-slate-100">
                         <div className="grid md:grid-cols-12 gap-12">
                             <div className="md:col-span-4">
                                 <h2 className="text-3xl font-bold mb-6">Published Peer-Reviewed Research</h2>
                                 <p className="text-slate-600 mb-6 leading-relaxed">
                                     My academic work focuses on the efficacy of minimal-dose resistance training for quality of life in older adults, and large-scale data analysis of elite Olympic Weightlifting performance.
                                 </p>
-                                <div className="p-6 bg-slate-50 rounded-xl shadow-sm border border-slate-100">
+                                <div className="p-6 bg-white rounded-xl shadow-sm border border-slate-100">
                                     <div className="text-4xl font-bold text-blue-600 mb-1">59k+</div>
                                     <div className="text-sm text-slate-500 font-medium uppercase tracking-wide">Performances Analyzed</div>
                                 </div>
