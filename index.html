@@ -46,6 +46,42 @@
             chevron: "M9 18l6-6-6-6"
         };
 
+        // Initial Data (Preloaded for performance, but structured for easy future API integration)
+        const initialPublications = [
+            {
+                id: 1,
+                year: "2025",
+                type: "Manuscript",
+                title: "Pathways to the Podium: Explaining a Quarter-Century of Performance",
+                journal: "In Review",
+                summary: "An explanatory analysis using machine learning (Gradient Boosting/Random Forest) to model talent identification pathways and strategic evolution in elite weightlifting."
+            },
+            {
+                id: 2,
+                year: "2024",
+                type: "Thesis",
+                title: "Minimal-Dose Resistance Training & Quality of Life",
+                journal: "PhD Thesis",
+                summary: "Investigating the minimal effective dose of RT required to achieve meaningful improvements in functional capacity and strength in older adults (60+)."
+            },
+            {
+                id: 3,
+                year: "2024",
+                type: "Published",
+                title: "Comparison of low-dose maximal-intent versus controlled-tempo",
+                journal: "BMC Sports Science, Medicine and Rehabilitation",
+                summary: "A comparative effectiveness study exploring different modalities of resistance training in healthy adults."
+            },
+            {
+                id: 4,
+                year: "2023",
+                type: "Published",
+                title: "Systematic Review of Low-Volume Strength Training and Physiological Outcomes",
+                journal: "Sports Medicine",
+                summary: "Meta-analysis confirming the efficacy of minimal-dose protocols in maintaining muscle mass and strength across various populations."
+            },
+        ];
+
         // --- Components ---
 
         const Section = ({ children, id, className = "" }) => (
@@ -104,6 +140,7 @@
         function App() {
             const [activeService, setActiveService] = React.useState('training');
             const [scrolled, setScrolled] = React.useState(false);
+            const [publications, setPublications] = React.useState(initialPublications); // Using state for publications
 
             React.useEffect(() => {
                 const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -123,7 +160,7 @@
                             <div className="hidden md:flex gap-8 text-sm font-medium text-slate-600">
                                 <a href="#about" className="hover:text-blue-600 transition-colors">About</a>
                                 <a href="#services" className="hover:text-blue-600 transition-colors">Services</a>
-                                <a href="#research" className="hover:text-blue-600 transition-colors">Research</a>
+                                <a href="#research" className="hover:text-blue-600 transition-colors">Publications</a> {/* Renamed link text */}
                             </div>
                             <a href="#contact" className="bg-slate-900 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
                                 Get in Touch
@@ -154,9 +191,37 @@
                             </div>
                         </div>
                     </header>
+                    
+                    {/* About - MOVED TO THE FRONT */}
+                    <Section id="about" className="bg-white border-t border-slate-100">
+                        <div className="flex flex-col md:flex-row gap-12 items-center">
+                            <div className="w-full md:w-1/3">
+                                <div className="aspect-square rounded-2xl bg-slate-100 overflow-hidden relative flex items-center justify-center border border-slate-200">
+                                    <div className="text-slate-400 flex flex-col items-center">
+                                        <Icon path={icons.user} />
+                                        <span className="text-sm mt-2">Dr. Pearson-Noseworthy</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="w-full md:w-2/3">
+                                <h2 className="text-3xl font-bold mb-6">About Me</h2>
+                                <div className="prose prose-slate text-slate-600 leading-loose">
+                                    <p className="mb-4">
+                                        I am a <strong>Senior Fellow (SFHEA)</strong> and <strong>Distinguished Teaching Fellow</strong> with a PhD in Applied Health & Exercise Science. Currently serving as a Senior Lab Technician at Northumbria University and a Non-Executive Director for Power Through Sport CIC.
+                                    </p>
+                                    <p className="mb-4">
+                                        My professional philosophy is grounded in making high-level physiology accessible. Whether I am engineering automated pipelines to process 300,000+ lift outcomes in Python, or designing "minimal-dose" training plans for older adults to maintain independence, the goal is always <strong>efficiency</strong> and <strong>efficacy</strong>.
+                                    </p>
+                                    <p>
+                                        I possess a unique dual-competency in wet-lab physiology and data science, allowing me to not only collect rigorous data but to model it in ways that provide genuine insight into human performance.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </Section>
 
                     {/* Services */}
-                    <Section id="services" className="bg-white">
+                    <Section id="services" className="bg-slate-50 border-t border-slate-100"> {/* Adjusted background for visual separation */}
                         <div className="text-center mb-12">
                             <h2 className="text-3xl font-bold mb-4">How I Can Help</h2>
                             <p className="text-slate-600 max-w-xl mx-auto">
@@ -220,70 +285,35 @@
                         </div>
                     </Section>
 
-                    {/* Research */}
-                    <Section id="research" className="bg-slate-50">
+                    {/* Research / Publications */}
+                    <Section id="research" className="bg-white"> {/* Adjusted background for visual separation */}
                         <div className="grid md:grid-cols-12 gap-12">
                             <div className="md:col-span-4">
-                                <h2 className="text-3xl font-bold mb-6">Research Highlights</h2>
+                                <h2 className="text-3xl font-bold mb-6">Published Peer-Reviewed Research</h2> {/* Renamed title */}
                                 <p className="text-slate-600 mb-6 leading-relaxed">
                                     My academic work focuses on the efficacy of minimal-dose resistance training for quality of life in older adults, and large-scale data analysis of elite Olympic Weightlifting performance.
                                 </p>
-                                <div className="p-6 bg-white rounded-xl shadow-sm border border-slate-100">
+                                <div className="p-6 bg-slate-50 rounded-xl shadow-sm border border-slate-100">
                                     <div className="text-4xl font-bold text-blue-600 mb-1">59k+</div>
                                     <div className="text-sm text-slate-500 font-medium uppercase tracking-wide">Performances Analyzed</div>
                                 </div>
                             </div>
                             
                             <div className="md:col-span-8">
-                                <PublicationCard 
-                                    year="2025"
-                                    type="Manuscript"
-                                    title="Pathways to the Podium: Explaining a Quarter-Century of Performance"
-                                    journal="In Review"
-                                    summary="An explanatory analysis using machine learning (Gradient Boosting/Random Forest) to model talent identification pathways and strategic evolution in elite weightlifting."
-                                />
-                                <PublicationCard 
-                                    year="2024"
-                                    type="Thesis"
-                                    title="Minimal-Dose Resistance Training & Quality of Life"
-                                    journal="PhD Thesis"
-                                    summary="Investigating the minimal effective dose of RT required to achieve meaningful improvements in functional capacity and strength in older adults (60+)."
-                                />
-                                <PublicationCard 
-                                    year="2024"
-                                    type="Published"
-                                    title="Comparison of low-dose maximal-intent versus controlled-tempo"
-                                    journal="BMC Sports Science, Medicine and Rehabilitation"
-                                    summary="A comparative effectiveness study exploring different modalities of resistance training in healthy adults."
-                                />
-                            </div>
-                        </div>
-                    </Section>
-
-                    {/* About */}
-                    <Section id="about" className="bg-white border-t border-slate-100">
-                        <div className="flex flex-col md:flex-row gap-12 items-center">
-                            <div className="w-full md:w-1/3">
-                                <div className="aspect-square rounded-2xl bg-slate-100 overflow-hidden relative flex items-center justify-center border border-slate-200">
-                                    <div className="text-slate-400 flex flex-col items-center">
-                                        <Icon path={icons.user} />
-                                        <span className="text-sm mt-2">Dr. Pearson-Noseworthy</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="w-full md:w-2/3">
-                                <h2 className="text-3xl font-bold mb-6">About Me</h2>
-                                <div className="prose prose-slate text-slate-600 leading-loose">
-                                    <p className="mb-4">
-                                        I am a <strong>Senior Fellow (SFHEA)</strong> and <strong>Distinguished Teaching Fellow</strong> with a PhD in Applied Health & Exercise Science. Currently serving as a Senior Lab Technician at Northumbria University and a Non-Executive Director for Power Through Sport CIC.
-                                    </p>
-                                    <p className="mb-4">
-                                        My professional philosophy is grounded in making high-level physiology accessible. Whether I am engineering automated pipelines to process 300,000+ lift outcomes in Python, or designing "minimal-dose" training plans for older adults to maintain independence, the goal is always <strong>efficiency</strong> and <strong>efficacy</strong>.
-                                    </p>
-                                    <p>
-                                        I possess a unique dual-competency in wet-lab physiology and data science, allowing me to not only collect rigorous data but to model it in ways that provide genuine insight into human performance.
-                                    </p>
-                                </div>
+                                {/* Publications rendered dynamically from state */}
+                                {publications.map(pub => (
+                                    <PublicationCard 
+                                        key={pub.id}
+                                        year={pub.year}
+                                        type={pub.type}
+                                        title={pub.title}
+                                        journal={pub.journal}
+                                        summary={pub.summary}
+                                    />
+                                ))}
+                                <a href="https://scholar.google.com/citations?user=vXjhLEsAAAAJ&hl=en&oi=ao" target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors font-medium">
+                                    View full Google Scholar profile <Icon path={icons.chevron} />
+                                </a>
                             </div>
                         </div>
                     </Section>
@@ -322,4 +352,3 @@
 </body>
 
 </html>
-
