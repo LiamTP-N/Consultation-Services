@@ -109,8 +109,6 @@
         });
         
         // --- Helper for Card Icons (Used below in HTML) ---
-        // NOTE: Since we cannot run complex JS/React inside the HTML body, we are limited to basic text/CSS for card headers. 
-        // We will stick to the generic 'Award' icon path which is simpler to handle as text.
         function getIconHTML(iconName) {
             const svg = getIconSVG(iconName, "w-6 h-6");
             return `<div class="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center mb-4 text-blue-400">${svg}</div>`;
@@ -279,7 +277,7 @@
                     <span id="card-5-icon"></span>
                     <script>document.getElementById('card-5-icon').innerHTML = getIconHTML('chart');</script>
                     <h3 class="text-xl font-bold text-slate-100 mb-2">Data Science & Analysis</h3>
-                    <p class="text-slate-400 mb-4 leading-relaxed">Advanced statistical analysis using Python & R. Specializing in longitudinal datasets, biomechanics, and physiological modelling.</p>
+                    <p class="text-slate-400 mb-4 leading-relaxed">Advanced statistical analysis using Python & R. **Specialising** in longitudinal datasets, biomechanics, and physiological modelling.</p>
                     <div class="flex flex-wrap gap-2">
                         <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Python</span>
                         <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">R</span>
