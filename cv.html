@@ -19,16 +19,31 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // 1. Scroll Effect
             const nav = document.querySelector('nav');
             const handleScroll = () => {
                 if (window.scrollY > 50) {
-                    nav.className = 'fixed w-full z-50 transition-all duration-300 bg-slate-900/95 backdrop-blur-sm shadow-md py-3 border-b border-slate-700';
+                    nav.classList.remove('bg-transparent', 'py-4');
+                    nav.classList.add('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
                 } else {
-                    nav.className = 'fixed w-full z-50 transition-all duration-300 bg-transparent py-4';
+                    nav.classList.add('bg-transparent', 'py-4');
+                    nav.classList.remove('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
                 }
             };
             window.addEventListener('scroll', handleScroll);
             handleScroll();
+
+            // 2. Mobile Menu Toggle
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-menu');
+
+            if(btn && menu){
+                btn.addEventListener('click', () => {
+                    menu.classList.toggle('hidden');
+                });
+            }
+
+            // 3. Animation Trigger
             document.querySelectorAll('.animate-fade-in').forEach((el, index) => {
                 setTimeout(() => { el.classList.add('loaded'); }, 50 * (index + 1));
             });
@@ -36,20 +51,40 @@
     </script>
 
     <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-4">
-        <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
-            <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
-                Dr. Liam T. Pearson-Noseworthy
-            </a>
-            <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
-                <a href="index.html" class="hover:text-blue-400 transition-colors">Home</a>
-                <a href="services.html" class="hover:text-blue-400 transition-colors">Services / Consultation</a>
-                <a href="live-research.html" class="text-green-500 font-bold hover:text-green-400 transition-colors">LIVE Research</a>
-                <a href="portfolio.html" class="hover:text-blue-400 transition-colors">Portfolio</a>
-                <a href="cv.html" class="text-white">CV</a>
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center">
+                <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
+                    Dr. Pearson-Noseworthy
+                </a>
+
+                <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
+                    <a href="index.html" class="hover:text-blue-400 transition-colors">Home</a>
+                    <a href="services.html" class="hover:text-blue-400 transition-colors">Services / Consultation</a>
+                    <a href="live-research.html" class="text-green-500 font-bold hover:text-green-400 transition-colors">LIVE Research</a>
+                    <a href="portfolio.html" class="hover:text-blue-400 transition-colors">Portfolio</a>
+                    <a href="cv.html" class="text-white">CV</a>
+                    <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                        Get in Touch
+                    </a>
+                </div>
+
+                <button id="mobile-menu-btn" class="md:hidden text-slate-300 hover:text-white focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
             </div>
-            <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                Get in Touch
-            </a>
+
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 bg-slate-900/95 backdrop-blur-xl border-t border-slate-700 rounded-b-xl animate-fade-in">
+                <div class="flex flex-col space-y-4 pt-4 px-2 text-center">
+                    <a href="index.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Home</a>
+                    <a href="services.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Services / Consultation</a>
+                    <a href="live-research.html" class="text-green-500 font-bold hover:bg-slate-800 py-2 rounded-lg transition-colors">LIVE Research</a>
+                    <a href="portfolio.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Portfolio</a>
+                    <a href="cv.html" class="text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">CV</a>
+                    <a href="#contact" class="bg-blue-600 text-white py-3 rounded-lg font-bold mx-4 shadow-lg">Get in Touch</a>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -96,12 +131,12 @@
                     <div>
                         <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Academic Qualifications</h4>
                         <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2025 - PhD Applied Health & Exercise Science</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2019 - MRes Sport Science</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2018 - BSc Applied Sports Science with Coaching</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2015 - Access to HE, Sports Studies</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2010 - Higher National Diploma, Sport Science</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2009 - National Diploma, Sport, Exercise & Coaching</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>PhD Applied Health & Exercise Science</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>MRes Sport Science</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>BSc Applied Sports Science with Coaching</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Access to HE, Sports Studies</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Higher National Diploma, Sport Science</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>National Diploma, Sport, Exercise & Coaching</span></li>
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Diploma, Exercise & Fitness Instructing</span></li>
                         </ul>
                     </div>
@@ -149,7 +184,7 @@
         </div>
     </section>
 
-<section id="contact" class="py-6 px-4 bg-slate-700 text-white mt-auto border-t border-slate-600">
+    <section id="contact" class="py-6 px-4 bg-slate-700 text-white mt-auto border-t border-slate-600">
         <div class="max-w-6xl mx-auto text-center animate-fade-in">
             <h2 class="text-xl md:text-xl font-bold mb-4">Ready to optimise your training or research?</h2>
             
