@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dr. Liam T. Pearson-Noseworthy</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <style>
         html { scroll-behavior: smooth; }
         .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
@@ -17,7 +15,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -31,55 +29,25 @@
             };
             window.addEventListener('scroll', handleScroll);
             handleScroll();
-
-            const tabButtons = document.querySelectorAll('[data-tab-target]');
-            const tabContents = document.querySelectorAll('[data-tab-content]');
-
-            tabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const targetId = button.getAttribute('data-tab-target');
-                    tabButtons.forEach(btn => {
-                        btn.className = 'flex items-center px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 bg-slate-800 text-slate-400 hover:bg-slate-700 border border-slate-700';
-                    });
-                    tabContents.forEach(content => {
-                        content.classList.remove('animate-fade-in', 'loaded');
-                        content.style.display = 'none';
-                    });
-                    button.className = 'flex items-center px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 bg-blue-600 text-white shadow-lg scale-105';
-                    const targetContent = document.getElementById(targetId);
-                    if (targetContent) {
-                        targetContent.style.display = 'grid';
-                        setTimeout(() => targetContent.classList.add('animate-fade-in', 'loaded'), 50);
-                    }
-                });
-            });
-
-            const defaultTab = document.querySelector('[data-tab-target="training-content"]');
-            if (defaultTab) defaultTab.click(); 
-
+            
+            // Animation trigger
             document.querySelectorAll('.animate-fade-in').forEach((el, index) => {
-                setTimeout(() => {
-                    el.classList.add('loaded');
-                }, 50 * (index + 1));
+                setTimeout(() => { el.classList.add('loaded'); }, 50 * (index + 1));
             });
         });
     </script>
 
     <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-4">
         <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
-            <div class="font-bold text-xl tracking-tight text-slate-100">
-                Dr. Liam T. Pearson-Noseworthy
-            </div>
-            <div class="hidden md:flex gap-8 text-sm font-medium text-slate-400 items-center">
-                <a href="#about" class="hover:text-blue-400 transition-colors">Home</a>
-                <a href="#challenges" class="hover:text-blue-400 transition-colors">Is This You?</a>
-                <a href="#services" class="hover:text-blue-400 transition-colors">Services</a>
-                
-                <a href="#live-research" class="text-green-500 font-bold hover:text-green-400 transition-colors animate-pulse">LIVE Research</a>
-                
-                <a href="#impact" class="hover:text-blue-400 transition-colors">Impact</a>
-                <a href="#credentials" class="hover:text-blue-400 transition-colors">CV</a>
-                <a href="#research" class="hover:text-blue-400 transition-colors">Portfolio</a>
+            <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
+                Dr. Pearson-Noseworthy
+            </a>
+            <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
+                <a href="index.html" class="text-white">Home</a>
+                <a href="services.html" class="hover:text-blue-400 transition-colors">Services / Consultation</a>
+                <a href="live-research.html" class="text-green-500 font-bold hover:text-green-400 transition-colors">LIVE Research</a>
+                <a href="portfolio.html" class="hover:text-blue-400 transition-colors">Portfolio</a>
+                <a href="cv.html" class="hover:text-blue-400 transition-colors">CV</a>
             </div>
             <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
                 Get in Touch
@@ -89,65 +57,40 @@
 
     <header id="about" class="pt-24 pb-8 md:pt-28 md:pb-12 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
         <div class="max-w-6xl mx-auto grid md:grid-cols-12 gap-8 md:gap-10 items-start">
-            
-            <div class="md:col-span-8 lg:col-span-8 order-2 md:order-1 md:text-left text-center animate-fade-in"> 
-                
+            <div class="md:col-span-8 lg:col-span-8 order-2 md:order-1 md:text-left text-center animate-fade-in">  
                 <h1 class="text-3xl md:text-5xl font-extrabold text-slate-100 tracking-tight mb-4 leading-tight">
                     Optimising human performance.<br>
                     <span class="text-blue-500">Engineering data precision.</span>
                 </h1>
-
                 <p class="text-xl text-slate-400 mb-6 max-w-3xl md:mx-0 mx-auto leading-relaxed">
                     I provide <strong>specialised consultancy</strong> for two distinct needs: delivering evidence-based training protocols, and offering rigorous data science and academic support.
                 </p>
-                
                 <div class="flex flex-wrap gap-4 justify-center md:justify-start mb-8">
-                    <a href="#services" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition shadow-lg hover:shadow-blue-600/30">
+                    <a href="services.html" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition shadow-lg hover:shadow-blue-600/30">
                         View Consultancy Services
                     </a>
-                    
-                    <a href="#live-research" class="bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition shadow-lg hover:shadow-green-600/30 animate-pulse hover:animate-none">
+                    <a href="live-research.html" class="bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition shadow-lg hover:shadow-green-600/30 animate-pulse hover:animate-none">
                         View LIVE Research
                     </a>
-
-                    <a href="#credentials" class="px-8 py-3 rounded-full font-medium text-slate-300 border border-slate-600 hover:bg-slate-800 transition">
-                        View Full CV
-                    </a>
                 </div>
-
                 <div class="pt-6 border-t border-slate-700/50">
                     <p class="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Overview:</p>
                     <div class="flex flex-col gap-y-2 text-xs text-slate-400">
-                        
                         <div class="flex flex-wrap gap-x-6 gap-y-2 justify-center md:justify-start">
                             <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> 15+ Years Applied Experience</span>
                             <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> 10+ Peer-Reviewed Published Papers</span>
-                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> Awardee from HM The Queen for Services to Sport, Health and Fitness</span>
                         </div>
-
                         <div class="flex flex-wrap gap-x-6 gap-y-2 justify-center md:justify-start">
                             <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> PhD in Applied Health & Exercise Science</span>
                             <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> MRes in Exercise Science</span>
-                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> BSc (Hons) in Sport Science</span>
                         </div>
-
-                        <div class="flex flex-wrap gap-x-6 gap-y-2 justify-center md:justify-start">
-                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> Senior Lab Tech (Northumbria University)</span>
-                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> Reviewing Editor (Springer Nature)</span>
-                        </div>
-
                     </div>
                 </div>
             </div>
-
             <div class="md:col-span-4 lg:col-span-4 order-1 md:order-2">
                 <div class="w-48 md:w-64 mx-auto h-auto animate-fade-in mt-2">
                     <div class="aspect-[4/5] rounded-2xl bg-slate-700 overflow-hidden relative border border-slate-700 shadow-xl">
-                        <img 
-                            src="https://raw.githubusercontent.com/LiamTP-N/Consultation-Services/639c36c1a9431f4b2d37011f4e736a28e70dc9a3/pic.jpg" 
-                            alt="Dr. Pearson-Noseworthy" 
-                            class="w-full h-full object-cover block" 
-                        />
+                        <img src="https://raw.githubusercontent.com/LiamTP-N/Consultation-Services/639c36c1a9431f4b2d37011f4e736a28e70dc9a3/pic.jpg" alt="Dr. Pearson-Noseworthy" class="w-full h-full object-cover block" />
                     </div>
                 </div>
             </div>
@@ -160,540 +103,41 @@
                 <h2 class="text-2xl font-bold text-slate-200">Expertise Applied Where It Matters</h2>
             </div>
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                
                 <div class="bg-slate-900/50 p-6 rounded-lg border border-slate-700/50 hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
                     <div class="text-blue-400 text-2xl mb-3">⏱️</div>
                     <h3 class="text-white font-bold mb-2">The Busy Professional</h3>
-                    <p class="text-slate-400 text-sm ">
-                        You want elite physiological results but cannot spare 10 hours a week. You require a <strong>minimal-dose strategy</strong> backed by doctoral research.
-                    </p>
+                    <p class="text-slate-400 text-sm ">You want elite physiological results but cannot spare 10 hours a week.</p>
                 </div>
-
                 <div class="bg-slate-900/50 p-6 rounded-lg border border-slate-700/50 hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
                     <div class="text-blue-400 text-2xl mb-3">🧬</div>
                     <h3 class="text-white font-bold mb-2">The Researcher</h3>
-                    <p class="text-slate-400 text-sm ">
-                        You have complex datasets or a manuscript that requires rigour. You need a data scientist proficient in <strong>R, Python & Machine Learning</strong> to build automated pipelines.
-                    </p>
+                    <p class="text-slate-400 text-sm ">You have complex datasets. You need a data scientist proficient in <strong>R, Python & Machine Learning</strong>.</p>
                 </div>
-
                 <div class="bg-slate-900/50 p-6 rounded-lg border border-slate-700/50 hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
                     <div class="text-blue-400 text-2xl mb-3">🏋️</div>
                     <h3 class="text-white font-bold mb-2">The Athlete</h3>
-                    <p class="text-slate-400 text-sm ">
-                        Aiming for the podium or a PB? You need advanced <strong>biomechanical analysis</strong> and programming that optimises output while reducing injury risk.
-                    </p>
+                    <p class="text-slate-400 text-sm ">Aiming for the podium? You need advanced <strong>biomechanical analysis</strong>.</p>
                 </div>
-
                 <div class="bg-slate-900/50 p-6 rounded-lg border border-slate-700/50 hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
                     <div class="text-blue-400 text-2xl mb-3">🔋</div>
                     <h3 class="text-white font-bold mb-2">The Older Adult</h3>
-                    <p class="text-slate-400 text-sm ">
-                        You prioritise independence and longevity. You need a specialised plan (60+) to combat sarcopenia, improve mobility, and <strong>prevent falls</strong>.
-                    </p>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <section id="services" class="py-10 px-4 bg-slate-900">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-8">
-                <h2 class="text-3xl font-bold mb-3 text-slate-100">Consultancy & Solutions</h2>
-                <p class="text-slate-400 max-w-3xl mx-auto">
-                    Leveraging dual-competency in physiology and data science to provide actionable insights for individuals and institutions.
-                </p>
-            </div>
-
-            <div class="flex justify-center gap-4 mb-8 flex-wrap">
-                <button data-tab-target="training-content" class="flex items-center px-6 py-3 rounded-full text-sm font-medium transition-all duration-300">
-                    Performance & Health Consulting
-                </button>
-                <button data-tab-target="academic-content" class="flex items-center px-6 py-3 rounded-full text-sm font-medium transition-all duration-300">
-                    Academic & Data Services
-                </button>
-            </div>
-
-            <div id="training-content" data-tab-content class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in" style="display:none;">
-                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1 flex flex-col">
-                    <h3 class="text-xl font-bold text-slate-100 mb-2">Minimal-Dose Resistance Training</h3>
-                    <p class="text-xs font-bold text-blue-400 uppercase mb-2 tracking-wide">Efficiency & Health</p>
-                    <p class="text-slate-400 mb-4 leading-relaxed text-sm flex-grow ">Achieve significant physiological adaptations with as little as one session per week, based on my PhD research.</p>
-                    <div class="flex flex-wrap gap-2 mt-auto">
-                        <span class="text-xs font-medium px-2 py-1 bg-slate-700 text-slate-300 rounded">Evidence-Based</span>
-                        <span class="text-xs font-medium px-2 py-1 bg-slate-700 text-slate-300 rounded">Time-Efficient</span>
-                    </div>
-                </div>
-
-                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1 flex flex-col">
-                    <h3 class="text-xl font-bold text-slate-100 mb-2">Healthy Ageing (60+)</h3>
-                    <p class="text-xs font-bold text-blue-400 uppercase mb-2 tracking-wide">Sarcopenia Prevention</p>
-                    <p class="text-slate-400 mb-4 leading-relaxed text-sm flex-grow ">Specialised plans focusing on functional capacity and independence, directly applying my comparative effectiveness trial findings.</p>
-                    <div class="flex flex-wrap gap-2 mt-auto">
-                        <span class="text-xs font-medium px-2 py-1 bg-slate-700 text-slate-300 rounded">Mobility</span>
-                        <span class="text-xs font-medium px-2 py-1 bg-slate-700 text-slate-300 rounded">Falls Prevention</span>
-                    </div>
-                </div>
-
-                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1 flex flex-col">
-                    <h3 class="text-xl font-bold text-slate-100 mb-2">Elite Weightlifting</h3>
-                    <p class="text-xs font-bold text-blue-400 uppercase mb-2 tracking-wide">Performance & Technique</p>
-                    <p class="text-slate-400 mb-4 leading-relaxed text-sm flex-grow ">Advanced programming and video analysis supported by my role as a BWL Technical Official and 15+ years of data analysis.</p>
-                    <div class="flex flex-wrap gap-2 mt-auto">
-                        <span class="text-xs font-medium px-2 py-1 bg-slate-700 text-slate-300 rounded">Competition</span>
-                        <span class="text-xs font-medium px-2 py-1 bg-slate-700 text-slate-300 rounded">Technical Analysis</span>
-                    </div>
-                </div>
-                
-                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1 flex flex-col justify-center text-center border-2 border-dashed border-slate-700">
-                    <h3 class="text-lg font-bold text-slate-300 mb-2">Bespoke Consulting</h3>
-                    <p class="text-slate-500 text-sm mb-4 ">Have a specific question?</p>
-                    <a href="#contact" class="text-blue-400 font-bold hover:text-white transition">Let's Discuss &rarr;</a>
-                </div>
-            </div>
-            
-             <div id="academic-content" data-tab-content class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in" style="display:none;">
-                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <h3 class="text-xl font-bold text-slate-100 mb-2">Data Pipeline Engineering</h3>
-                    <p class="text-slate-400 mb-4 leading-relaxed text-sm">Automated processing of large-scale datasets. Experience includes processing >329,000 lift outcomes using Python/R pipelines.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Python</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">R</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Automation</span>
-                    </div>
-                </div>
-                
-                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <h3 class="text-xl font-bold text-slate-100 mb-2">Machine Learning & Modelling</h3>
-                    <p class="text-slate-400 mb-4 leading-relaxed text-sm">Deployment of Gradient Boosting and Random Forest algorithms (AUC >0.90) for talent identification and physiological modelling.</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Predictive Modelling</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Classification</span>
-                    </div>
-                </div>
-
-                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <h3 class="text-xl font-bold text-slate-100 mb-2">Systematic Reviews</h3>
-                    <p class="text-xs font-bold text-blue-400 uppercase mb-2 tracking-wide">Market Evaluation & Scoping</p>
-                    <p class="text-slate-400 mb-4 leading-relaxed text-sm">
-                        Do you have a product concept or intervention in mind? I conduct rigorous systematic reviews to identify exactly "what is already out there," evaluating the scientific landscape to validate your market position.
-                    </p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Evidence Synthesis</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Feasibility</span>
-                    </div>
-                </div>
-
-                <div class="bg-slate-800 p-6 rounded-xl hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <h3 class="text-xl font-bold text-slate-100 mb-2">Academic Consultancy</h3>
-                    <p class="text-slate-400 mb-4 leading-relaxed text-sm">
-                        Support with experimental design, statistical analysis, and grant writing (e.g., BBSRC, UKRI).
-                        <br><br>
-                        <span class="text-slate-500 text-xs italic">
-                            *Note: Services are strictly limited to analytical and methodological support. I do not guarantee manuscript acceptance, leverage editorial positions, or consult on ethics applications intended for Northumbria University.
-                        </span>
-                    </p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Grants</span>
-                        <span class="text-xs font-medium px-2.5 py-1 bg-slate-700 text-slate-400 rounded-full">Analysis</span>
-                    </div>
-                </div>
-
-                <div class="col-span-full mt-6 text-center">
-                    <a href="#contact" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition shadow-lg hover:shadow-blue-600/30">
-                        Enquire About Academic Services
-                    </a>
+                    <p class="text-slate-400 text-sm ">Specialised plans (60+) to combat sarcopenia, improve mobility, and <strong>prevent falls</strong>.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="live-research" class="py-12 px-4 bg-gradient-to-br from-slate-900 via-green-950 to-slate-900 border-y border-green-900/50">
-        <div class="max-w-6xl mx-auto">
-            <div class="mb-12 text-center">
-                <span class="bg-green-900/30 text-green-400 border border-green-800/50 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide mb-3 inline-block">Active Data Collection</span>
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-100">
-                    <span class="text-green-500">LIVE Research:</span> Current Studies
-                </h2>
+    <section id="contact" class="py-10 px-4 bg-slate-700 text-white mt-auto">
+        <div class="max-w-6xl mx-auto text-center animate-fade-in">
+            <h2 class="text-3xl font-bold mb-6">Ready to optimise your training or research?</h2>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-medium transition-all">Email Me</a>
+                <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" class="bg-slate-800 hover:bg-slate-900 text-white px-8 py-4 rounded-xl font-medium transition-all">Connect on LinkedIn</a>
             </div>
-            
-            <div class="grid md:grid-cols-12 gap-10 items-center mb-16">
-                
-                <div class="md:col-span-5 order-2 md:order-1">
-                    <div class="rounded-xl overflow-hidden border border-green-800 shadow-2xl hover:shadow-green-900/20 transition-all bg-slate-900 relative group">
-                        <img 
-                            src="https://raw.githubusercontent.com/LiamTP-N/Consultation-Services/5821e7c843f8781763625893a06688a117c37ec9/Recruitment%20Poster(1).png" 
-                            alt="Cycling Research Recruitment Poster" 
-                            class="w-full h-auto object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-                        />
-                    </div>
-                </div>
-
-                <div class="md:col-span-7 order-1 md:order-2 space-y-6">
-                    <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Study 01</span>
-                            <span class="h-px w-8 bg-slate-700"></span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-4">Can AI help you cycle pain-free?</h3>
-                        <p class="text-slate-300 leading-relaxed mb-4">
-                            Cycling is fantastic for health and wellbeing, but discomfort often stops older adults from riding. While expert "bike fitting" exists, it can be expensive and hard to access. 
-                        </p>
-                        <p class="text-slate-300 leading-relaxed">
-                            We are conducting a study at <strong>Northumbria University</strong> to see if modern AI apps can set up a bike as effectively as a human expert.
-                        </p>
-                    </div>
-
-                    <div class="bg-slate-900/50 p-6 rounded-xl border border-green-900/30">
-                        <h4 class="text-white font-bold mb-3 border-b border-green-900/30 pb-2">We are looking for volunteers who are:</h4>
-                        <ul class="space-y-2 text-sm text-slate-300">
-                            <li class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span> Over 60 years old</li>
-                            <li class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span> <strong>Novice cyclists</strong> (you do not cycle regularly or competitively)</li>
-                            <li class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span> Injury-free and able to cycle at low intensity</li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <p class="text-sm text-slate-400 italic mb-6">
-                            Participants will attend two sessions at Northumbria University. Your data will directly contribute to developing accessible tools for healthy ageing.
-                        </p>
-                        
-                        <a href="https://forms.cloud.microsoft/pages/responsepage.aspx?id=3c9X5zUfV0Svj3ycaxQ34-RQD5bJewhHn4jOZ0ewg9NUQ09BRE5VSlJVS0RFRDlHWEhaNlQ3SzFVNy4u&route=shorturl" target="_blank" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg shadow-green-900/30 hover:shadow-green-500/30 hover:-translate-y-1 transition-all w-full md:w-auto">
-                            Sign Up Here
-                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </a>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="w-full h-px bg-gradient-to-r from-transparent via-green-900/50 to-transparent my-12"></div>
-
-            <div class="grid md:grid-cols-12 gap-10 items-center">
-                
-                <div class="md:col-span-7 space-y-6">
-                    <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Study 02</span>
-                            <span class="h-px w-8 bg-slate-700"></span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-4">Defining the Next Era of Powerlifting Research</h3>
-                        <p class="text-slate-300 leading-relaxed mb-4">
-                            Following a 25-year analysis of 60,000+ Olympic Weightlifting performances, I am applying a <strong>'Big Data' approach</strong> to Powerlifting.
-                        </p>
-                        <p class="text-slate-300 leading-relaxed">
-                            To ensure this research delivers genuine, practical value, I am surveying the community to identify the questions that matter most to coaches and athletes, from "bomb-out" risks to the junior-to-senior transition.
-                        </p>
-                    </div>
-
-                    <div class="bg-slate-900/50 p-6 rounded-xl border border-green-900/30">
-                        <h4 class="text-white font-bold mb-3 border-b border-green-900/30 pb-2">Help shape the analysis on:</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="flex items-start">
-                                <span class="text-green-500 mr-2 text-xl">📊</span>
-                                <span class="text-sm text-slate-300"><strong>Strategic Risk:</strong> Attempt selection and failure probability.</span>
-                            </div>
-                            <div class="flex items-start">
-                                <span class="text-green-500 mr-2 text-xl">🧬</span>
-                                <span class="text-sm text-slate-300"><strong>Talent Pathways:</strong> Avoiding burnout in junior lifters.</span>
-                            </div>
-                            <div class="flex items-start">
-                                <span class="text-green-500 mr-2 text-xl">📈</span>
-                                <span class="text-sm text-slate-300"><strong>Performance Ceilings:</strong> Long-term trends in Raw vs Equipped.</span>
-                            </div>
-                            <div class="flex items-start">
-                                <span class="text-green-500 mr-2 text-xl">🗣️</span>
-                                <span class="text-sm text-slate-300"><strong>Myth Busting:</strong> Testing coaching intuition against data.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <a href="https://forms.gle/PHwb5UnwF2WpvjcW6" target="_blank" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg shadow-green-900/30 hover:shadow-green-500/30 hover:-translate-y-1 transition-all w-full md:w-auto">
-                            Take the 2-Minute Survey
-                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="md:col-span-5">
-                    <div class="rounded-xl overflow-hidden border border-green-800 shadow-2xl hover:shadow-green-900/20 transition-all bg-slate-900 relative group">
-                        <img 
-                            src="https://raw.githubusercontent.com/LiamTP-N/Consultation-Services/6b8401f949469398c4238d392f7e6fbe505c8394/Powerlifting_Survey.png" 
-                            alt="Powerlifting Research Recruitment Poster" 
-                            class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-                        />
-                    </div>
-                    <p class="text-center text-xs text-slate-500 mt-3">Help define the parameters of this analysis.</p>
-                </div>
-
+            <div class="mt-12 pt-8 border-t border-slate-600 text-slate-400 text-sm">
+                © 2025 Dr. Liam T. Pearson-Noseworthy. All rights reserved.
             </div>
         </div>
     </section>
-
-    <section id="impact" class="py-10 px-4 bg-slate-800 border-y border-slate-700">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-8">
-                <h2 class="text-3xl font-bold mb-3 text-slate-100">Proven Impact</h2>
-                <p class="text-slate-400 max-w-2xl mx-auto">
-                    Real-world examples of how I apply academic rigour to deliver measurable results in sport, health, and business.
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-8">
-                <div class="bg-slate-900 p-8 rounded-2xl border border-slate-700 relative overflow-hidden group hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <div class="absolute top-0 right-0 p-4 opacity-10 text-9xl font-bold text-slate-600 group-hover:scale-110 transition-transform select-none">£</div>
-                    <div class="relative z-10">
-                        <span class="text-blue-400 font-bold tracking-wider text-xs uppercase mb-2 block">Strategic Growth & Governance</span>
-                        <h3 class="text-2xl font-bold text-white mb-4">Power Through Sport CIC</h3>
-                        <p class="text-slate-400 mb-6 leading-relaxed">
-                            As Non-Executive Director, I steered strategic governance to transform the organisation's trajectory. By implementing data-driven health initiatives, we scaled operations and impact significantly.
-                        </p>
-
-                        <div class="grid grid-cols-2 gap-4 border-t border-slate-700 pt-6">
-                            <div>
-                                <div class="text-2xl font-bold text-white">£3.7m</div>
-                                <div class="text-xs text-slate-500 uppercase">Social Value Secured</div>
-                            </div>
-                            <div>
-                                <div class="text-2xl font-bold text-white">350%</div>
-                                <div class="text-xs text-slate-500 uppercase">Turnover Increase</div>
-                            </div>
-                            <div class="col-span-2">
-                                <div class="text-2xl font-bold text-white">2,800+</div>
-                                <div class="text-xs text-slate-500 uppercase">Participants Engaged</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900 p-8 rounded-2xl border border-slate-700 relative overflow-hidden group hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <div class="absolute top-0 right-0 p-4 opacity-10 text-9xl font-bold text-slate-600 group-hover:scale-110 transition-transform select-none">AI</div>
-                    <div class="relative z-10">
-                        <span class="text-blue-400 font-bold tracking-wider text-xs uppercase mb-2 block">Innovation in Healthy Ageing</span>
-                        <h3 class="text-2xl font-bold text-white mb-4">Blue Zone Consortium</h3>
-                        <p class="text-slate-400 mb-6 leading-relaxed">
-                            Secured competitive BBSRC funding to co-investigate and develop an AI-based bike fitting tool specifically for older adults. This project bridges advanced biomechanics with accessible technology to promote safe physical activity in later life.
-                        </p>
-
-                        <div class="space-y-3 border-t border-slate-700 pt-6">
-                            <div class="flex items-start">
-                                <span class="text-blue-500 mr-2 mt-1">✓</span>
-                                <span class="text-slate-300 text-sm"><strong>Grant Success:</strong> Secured BBSRC funding (#845818)</span>
-                            </div>
-                            <div class="flex items-start">
-                                <span class="text-blue-500 mr-2 mt-1">✓</span>
-                                <span class="text-slate-300 text-sm"><strong>Technology:</strong> Integrated AI with biomechanical analysis</span>
-                            </div>
-                            <div class="flex items-start">
-                                <span class="text-blue-500 mr-2 mt-1">✓</span>
-                                <span class="text-slate-300 text-sm"><strong>Outcome:</strong> Enhanced accessibility for older cyclists</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="credentials" class="py-10 px-4 bg-slate-900">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-8">
-                <h2 class="text-3xl font-bold mb-3 text-slate-100">CV & Credentials</h2>
-                <p class="text-slate-400 max-w-2xl mx-auto">
-                    A brief overview of my academic background, professional history, and technical expertise.
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-8">
-                
-                <div class="space-y-8">
-                    <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Employment & Expertise</h4>
-                        <ul class="space-y-3 text-sm text-slate-400 list-none pl-0">
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2025 - Reviewing Editor, <span class="text-slate-200 font-medium">Springer Nature</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2022 - Non-Executive Director, <span class="text-slate-200 font-medium">Power Through Sport CIC</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2021 - Senior Laboratory Technician, <span class="text-slate-200 font-medium">Northumbria University</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2021 - Consulting Biomechanist, <span class="text-slate-200 font-medium">Newcastle Eagles WBBL</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2019 - NEET Tutor, <span class="text-slate-200 font-medium">The Rugby Football Union (RFU)</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2018 - Lecturer, <span class="text-slate-200 font-medium">Newcastle College, Newcastle Falcons & SCL</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2017 - Head of Teaching & Internal Quality Assurance, <span class="text-slate-200 font-medium">Acacia Training</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2017 - Founder & CEO, <span class="text-slate-200 font-medium">BWL North East Open</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2016 - Tutor, Assessor & Internal Verifier, <span class="text-slate-200 font-medium">British Weight Lifting, 1st4Sport, ActiveIQ, NCFE</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2015 - Founder & Head Coach, <span class="text-slate-200 font-medium">Northumbria Olympic Weightlifting Club</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2014 - Strength & Conditioning Coach, <span class="text-slate-200 font-medium">Sport Northumbria</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2010 - Personal Trainer, <span class="text-slate-200 font-medium">Sport Central, Northumbria University</span></span></li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">PhD Supervision</h4>
-                        <ul class="space-y-3 text-sm text-slate-400 list-none pl-0">
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span><span class="text-slate-200 font-medium">Alejandro De La Rosa; Northumbria University</span> - Understanding Perceived Intimidation Through Kinematic Cues in Human Gait, Observer Context, and Crowd-Simulation Prediction</span></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="space-y-8">
-                    <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Academic Qualifications</h4>
-                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>PhD Applied Health & Exercise Science</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>MRes Sport Science</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>BSc Applied Sports Science with Coaching</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Access to HE, Sports Studies</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Higher National Diploma, Sport Science</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>National Diploma, Sport, Exercise & Coaching</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Diploma, Exercise & Fitness Instructing</span></li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Professional Status</h4>
-                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Awardee from HM The Queen for Services to Sport, Health and Fitness</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Distinguished Teaching Fellow</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Senior Fellow (SFHEA)</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L4 Internal Quality Assurance</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L3 Assessor</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L3 Tutor</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>UKAD Anti-Doping Advisor</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>UKSCA Associate Member</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>BWL Coach & Technical Official</span></li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Vocational Qualifications</h4>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Phlebotomist</span>
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">L3 Olympic Weightlifting Coach</span>
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">L3 Personal Trainer</span>
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Sports Massage Therapist</span>
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">L2 Nutrition</span>
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Kettlebell Instructor</span>
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Spinning/Indoor Cycling</span>
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Les Mills BodyPump</span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Technical Skills & Safety</h4>
-                        <p class="text-sm text-slate-400 mb-3">
-                            <strong class="text-slate-300">Analysis:</strong> R, Python, MATLAB, Isokinetic II, Wattbike Workshop.
-                        </p>
-                        <p class="text-sm text-slate-400">
-                            <strong class="text-slate-300">Safety:</strong> L2 Safeguarding, Equality & Diversity, GDPR, Prevent, Food Safety, Emergency First Aid, Pool Lifeguard & Spine Board.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <section id="research" class="py-10 px-4 bg-slate-800 border-t border-slate-700">
-        <div class="max-w-6xl mx-auto">
-            <div class="grid md:grid-cols-12 gap-8">
-                <div class="md:col-span-4 animate-fade-in">
-                    <h2 class="text-3xl font-bold mb-4 text-slate-100">Published Peer-Reviewed Research</h2>
-                    <p class="text-slate-400 mb-6 leading-relaxed">
-                        My PhD focused on the efficacy of minimal-dose resistance training for quality of life in older adults. My broader research spans biomechanics, S&C, and large-scale data analysis of elite Olympic Weightlifting performance.
-                    </p>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="p-4 bg-slate-900 rounded-xl border border-slate-700 hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1 cursor-default">
-                            <div class="text-3xl font-bold text-blue-400 mb-1">59k+</div>
-                            <div class="text-xs text-slate-500 font-medium uppercase tracking-wide">Performances Analysed</div>
-                        </div>
-                        <div class="p-4 bg-slate-900 rounded-xl border border-slate-700 hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1 cursor-default">
-                            <div class="text-3xl font-bold text-blue-400 mb-1">3k+</div>
-                            <div class="text-xs text-slate-500 font-medium uppercase tracking-wide">Participants Engaged</div>
-                        </div>
-                        <div class="p-4 bg-slate-900 rounded-xl border border-slate-700 md:col-span-2 hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1 cursor-default">
-                            <div class="text-3xl font-bold text-blue-400 mb-1">15+ Years</div>
-                            <div class="text-xs text-slate-500 font-medium uppercase tracking-wide">Sector Experience</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="md:col-span-8 animate-fade-in" style="animation-delay: 0.1s;">
-                    <a href="https://scholar.google.com/citations?user=vXjhLEsAAAAJ&hl=en&oi=ao" target="_blank" rel="noreferrer" class="mb-6 inline-flex items-center text-blue-400 hover:text-blue-200 transition-colors font-medium border-b border-blue-400/50 pb-0.5">
-    View my full Google Scholar profile here
-</a>
-                    
-                    <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-700/50 transition-colors rounded-r-lg p-4 -ml-4">
-                        <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
-                            <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">Manuscript</span>
-                            <span>2025</span>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-100 mb-2">Pathways to the Podium: Explaining a Quarter-Century of Performance</h3>
-                        <p class="text-slate-400 text-sm mb-2 italic">In Review</p>
-                        <p class="text-slate-500 text-sm leading-relaxed">An explanatory analysis using machine learning (Gradient Boosting/Random Forest) to model talent identification pathways and strategic evolution in elite weightlifting.</p>
-                    </div>
-
-                    <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-700/50 transition-colors rounded-r-lg p-4 -ml-4">
-                        <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
-                            <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">PhD Thesis</span>
-                            <span>2024</span>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-100 mb-2">Minimal-Dose Resistance Training & Quality of Life</h3>
-                        <p class="text-slate-400 text-sm mb-2 italic">Northumbria University, UK</p>
-                        <p class="text-slate-500 text-sm leading-relaxed">Investigating the minimal effective dose of RT required to achieve meaningful improvements in functional capacity and strength in older adults (60+).</p>
-                    </div>
-                    
-                    <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-700/50 transition-colors rounded-r-lg p-4 -ml-4">
-                        <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
-                            <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">Published</span>
-                            <span>2024</span>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-100 mb-2">Comparison of low-dose maximal-intent versus controlled-tempo</h3>
-                        <p class="text-slate-400 text-sm mb-2 italic">BMC Sports Science, Medicine and Rehabilitation</p>
-                        <p class="text-slate-500 text-sm leading-relaxed">A comparative effectiveness study exploring different modalities of resistance training in healthy adults.</p>
-                    </div>
-
-                    <div class="border-l-4 border-blue-400 pl-6 py-2 mb-8 hover:bg-slate-700/50 transition-colors rounded-r-lg p-4 -ml-4">
-                        <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1">
-                            <span class="bg-blue-900/50 px-2 py-0.5 rounded text-xs">Published</span>
-                            <span>2023</span>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-100 mb-2">Systematic Review of Low-Volume Strength Training and Physiological Outcomes</h3>
-                        <p class="text-slate-400 text-sm mb-2 italic">Sports Medicine</p>
-                        <p class="text-slate-500 text-sm leading-relaxed">Meta-analysis confirming the efficacy of minimal-dose protocols in maintaining muscle mass and strength across various populations.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="contact" class="py-10 px-4 bg-slate-700 text-white rounded-t-3xl pb-10">
-        <div class="max-w-6xl mx-auto">
-            <div class="max-w-3xl mx-auto text-center animate-fade-in">
-                <h2 class="text-3xl font-bold mb-6">Ready to optimise your training or research?</h2>
-                
-                <div class="mb-10 text-slate-300 text-lg leading-relaxed space-y-4">
-                    <p>
-                        I bridge the gap between complex data and practical application. With over 15 years of experience and a PhD in Applied Health & Exercise Science, I specialise in stripping away the 'noise' of the fitness industry to focus on what actually works.
-                    </p>
-                    <p>
-                        Whether I am using machine learning to analyse elite weightlifting pathways or designing minimal-dose protocols for healthy ageing, my objective remains the same: to provide time-efficient, evidence-based strategies that improve your quality of life.
-                    </p>
-                </div>
-
-                <div class="flex flex-col sm:flex-row gap-6 justify-center">
-                    <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-medium transition-all">
-                        Email Me
-                    </a>
-                    <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" rel="noreferrer" class="flex items-center justify-center bg-slate-800 hover:bg-slate-900 text-white px-8 py-4 rounded-xl font-medium transition-all">
-                        Connect on LinkedIn
-                    </a>
-                </div>
-                <div class="mt-12 pt-8 border-t border-slate-600 text-slate-400 text-sm">
-                    © 2025 Dr. Liam T. Pearson-Noseworthy. All rights reserved.
-                </div>
-            </div>
-        </div>
-    </section>
-
 </body>
 </html>
