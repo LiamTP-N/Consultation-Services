@@ -1,15 +1,72 @@
-<section class="pt-32 pb-20 px-4 bg-slate-900 min-h-screen">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio | Dr. Liam T. Pearson-Noseworthy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
+        .animate-fade-in.loaded { opacity: 1; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const nav = document.querySelector('nav');
+            const handleScroll = () => {
+                if (window.scrollY > 50) {
+                    nav.className = 'fixed w-full z-50 transition-all duration-300 bg-slate-900/95 backdrop-blur-sm shadow-md py-3 border-b border-slate-700';
+                } else {
+                    nav.className = 'fixed w-full z-50 transition-all duration-300 bg-transparent py-4';
+                }
+            };
+            window.addEventListener('scroll', handleScroll);
+            handleScroll();
+            document.querySelectorAll('.animate-fade-in').forEach((el, index) => {
+                setTimeout(() => { el.classList.add('loaded'); }, 50 * (index + 1));
+            });
+        });
+    </script>
+
+    <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-4">
+        <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
+            <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
+                Dr. Pearson-Noseworthy
+            </a>
+            <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
+                <a href="index.html" class="hover:text-blue-400 transition-colors">Home</a>
+                <a href="services.html" class="hover:text-blue-400 transition-colors">Services / Consultation</a>
+                <a href="live-research.html" class="text-green-500 font-bold hover:text-green-400 transition-colors">LIVE Research</a>
+                <a href="portfolio.html" class="text-white">Portfolio</a>
+                <a href="cv.html" class="hover:text-blue-400 transition-colors">CV</a>
+            </div>
+            <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                Get in Touch
+            </a>
+        </div>
+    </nav>
+
+    <section class="pt-32 pb-20 px-4 bg-slate-900 min-h-screen">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-12 animate-fade-in">
                 <h1 class="text-4xl md:text-5xl font-bold mb-4 text-slate-100">Portfolio & Impact</h1>
-                <p class="text-slate-400 max-w-2xl mx-auto">Real-world application of academic rigour.</p>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg">Real-world application of academic rigour.</p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-8 mb-16 animate-fade-in">
                 <div class="bg-slate-900 p-8 rounded-2xl border border-slate-700 relative overflow-hidden group hover:shadow-2xl transition-all">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-9xl font-bold text-slate-600 group-hover:scale-110 transition-transform select-none">£</div>
                     <div class="relative z-10">
                         <span class="text-blue-400 font-bold text-xs uppercase mb-2 block">Strategic Growth</span>
                         <h3 class="text-2xl font-bold text-white mb-4">Power Through Sport CIC</h3>
+                        <p class="text-slate-400 mb-6 leading-relaxed">As Non-Executive Director, I steered strategic governance to transform the organisation's trajectory.</p>
                         <div class="grid grid-cols-2 gap-4 border-t border-slate-700 pt-6">
                             <div><div class="text-2xl font-bold text-white">£3.7m</div><div class="text-xs text-slate-500 uppercase">Social Value</div></div>
                             <div><div class="text-2xl font-bold text-white">350%</div><div class="text-xs text-slate-500 uppercase">Turnover Inc.</div></div>
@@ -17,29 +74,56 @@
                     </div>
                 </div>
                 <div class="bg-slate-900 p-8 rounded-2xl border border-slate-700 relative overflow-hidden group hover:shadow-2xl transition-all">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-9xl font-bold text-slate-600 group-hover:scale-110 transition-transform select-none">AI</div>
                     <div class="relative z-10">
                         <span class="text-blue-400 font-bold text-xs uppercase mb-2 block">Innovation</span>
                         <h3 class="text-2xl font-bold text-white mb-4">Blue Zone Consortium</h3>
-                        <p class="text-slate-400 mb-4 text-sm">Secured BBSRC funding (#845818) to develop an AI-based bike fitting tool.</p>
+                        <p class="text-slate-400 mb-6 leading-relaxed">Secured BBSRC funding to co-investigate and develop an AI-based bike fitting tool for older adults.</p>
+                        <div class="space-y-3 border-t border-slate-700 pt-6">
+                            <div class="flex items-start"><span class="text-blue-500 mr-2">✓</span><span class="text-slate-300 text-sm">Grant Success: Secured BBSRC funding (#845818)</span></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <h2 class="text-2xl font-bold mb-6 text-slate-100 border-t border-slate-700 pt-8">Published Research</h2>
+            <h2 class="text-2xl font-bold mb-6 text-slate-100 border-t border-slate-700 pt-8 animate-fade-in">Published Research</h2>
             <div class="grid gap-6 animate-fade-in">
-                 <div class="border-l-4 border-blue-400 pl-6 py-4 bg-slate-800/50 rounded-r-lg">
+                 <div class="border-l-4 border-blue-400 pl-6 py-4 bg-slate-800/50 rounded-r-lg hover:bg-slate-800 transition">
                     <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1"><span>Manuscript</span><span>2025</span></div>
                     <h3 class="text-lg font-bold text-slate-100">Pathways to the Podium: Explaining a Quarter-Century of Performance</h3>
-                    <p class="text-slate-500 text-sm">Gradient Boosting/Random Forest analysis of elite weightlifting data.</p>
+                    <p class="text-slate-500 text-sm mt-1">Gradient Boosting/Random Forest analysis of elite weightlifting data.</p>
                 </div>
-                <div class="border-l-4 border-blue-400 pl-6 py-4 bg-slate-800/50 rounded-r-lg">
+                <div class="border-l-4 border-blue-400 pl-6 py-4 bg-slate-800/50 rounded-r-lg hover:bg-slate-800 transition">
                     <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1"><span>PhD Thesis</span><span>2024</span></div>
                     <h3 class="text-lg font-bold text-slate-100">Minimal-Dose Resistance Training & Quality of Life</h3>
                 </div>
+                 <div class="border-l-4 border-blue-400 pl-6 py-4 bg-slate-800/50 rounded-r-lg hover:bg-slate-800 transition">
+                    <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1"><span>Published</span><span>2024</span></div>
+                    <h3 class="text-lg font-bold text-slate-100">Comparison of low-dose maximal-intent versus controlled-tempo</h3>
+                </div>
+                 <div class="border-l-4 border-blue-400 pl-6 py-4 bg-slate-800/50 rounded-r-lg hover:bg-slate-800 transition">
+                    <div class="flex items-center gap-3 text-sm text-blue-400 font-semibold mb-1"><span>Published</span><span>2023</span></div>
+                    <h3 class="text-lg font-bold text-slate-100">Systematic Review of Low-Volume Strength Training</h3>
+                </div>
             </div>
             
-            <div class="mt-8 text-center">
-                <a href="https://scholar.google.com/citations?user=vXjhLEsAAAAJ&hl=en&oi=ao" target="_blank" class="text-blue-400 hover:text-white border-b border-blue-400">View Full Google Scholar Profile</a>
+            <div class="mt-8 text-center animate-fade-in">
+                <a href="https://scholar.google.com/citations?user=vXjhLEsAAAAJ&hl=en&oi=ao" target="_blank" class="text-blue-400 hover:text-white border-b border-blue-400 transition-colors">View Full Google Scholar Profile</a>
             </div>
         </div>
     </section>
+
+    <section id="contact" class="py-10 px-4 bg-slate-700 text-white mt-auto">
+        <div class="max-w-6xl mx-auto text-center animate-fade-in">
+            <h2 class="text-3xl font-bold mb-6">Ready to optimise your training or research?</h2>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-medium transition-all">Email Me</a>
+                <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" class="bg-slate-800 hover:bg-slate-900 text-white px-8 py-4 rounded-xl font-medium transition-all">Connect on LinkedIn</a>
+            </div>
+            <div class="mt-12 pt-8 border-t border-slate-600 text-slate-400 text-sm">
+                © 2025 Dr. Liam T. Pearson-Noseworthy. All rights reserved.
+            </div>
+        </div>
+    </section>
+</body>
+</html>
