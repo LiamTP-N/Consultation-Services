@@ -1,192 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LIVE Research & Studies | Cycling Biomechanics & Powerlifting Data Analysis</title>
-    <meta name="description" content="View Dr. Pearson-Noseworthy's LIVE research studies, including cycling biomechanics trials at Northumbria University and big data analysis projects in competitive powerlifting. Participate now.">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        html { scroll-behavior: smooth; }
-        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
-        .animate-fade-in.loaded { opacity: 1; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIVE Research & Studies | Cycling Biomechanics & Powerlifting Data Analysis</title>
+    <meta name="description" content="View Dr. Pearson-Noseworthy's LIVE research studies, including cycling biomechanics trials at Northumbria University and big data analysis projects in competitive powerlifting. Participate now.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
+        .animate-fade-in.loaded { opacity: 1; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Scroll Effect
+            const nav = document.querySelector('nav');
+            const handleScroll = () => {
+                if (window.scrollY > 50) {
+                    nav.classList.remove('bg-transparent', 'py-4');
+                    nav.classList.add('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
+                } else {
+                    nav.classList.add('bg-transparent', 'py-4');
+                    nav.classList.remove('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
+                }
+            };
+            window.addEventListener('scroll', handleScroll);
+            handleScroll();
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. Scroll Effect
-            const nav = document.querySelector('nav');
-            const handleScroll = () => {
-                if (window.scrollY > 50) {
-                    nav.classList.remove('bg-transparent', 'py-4');
-                    nav.classList.add('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
-                } else {
-                    nav.classList.add('bg-transparent', 'py-4');
-                    nav.classList.remove('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
-                }
-            };
-            window.addEventListener('scroll', handleScroll);
-            handleScroll();
+            // 2. Mobile Menu Toggle
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-menu');
 
-            // 2. Mobile Menu Toggle
-            const btn = document.getElementById('mobile-menu-btn');
-            const menu = document.getElementById('mobile-menu');
+            if(btn && menu){
+                btn.addEventListener('click', () => {
+                    menu.classList.toggle('hidden');
+                });
+            }
 
-            if(btn && menu){
-                btn.addEventListener('click', () => {
-                    menu.classList.toggle('hidden');
-                });
-            }
+            // 3. Animation Trigger
+            document.querySelectorAll('.animate-fade-in').forEach((el, index) => {
+                setTimeout(() => { el.classList.add('loaded'); }, 50 * (index + 1));
+            });
+        });
+    </script>
+    <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-4">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center">
+                <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
+                    Dr. Liam T. Pearson-Noseworthy
+                </a>
+                <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
+                    <a href="index.html" class="hover:text-blue-400 transition-colors">Home</a>
+                    <a href="services.html" class="hover:text-blue-400 transition-colors">Services / Consultation</a>
+                    <a href="live-research.html" class="text-green-500 font-bold hover:text-green-400 transition-colors">LIVE Research</a>
+                    <a href="portfolio.html" class="hover:text-blue-400 transition-colors">Portfolio</a>
+                    <a href="cv.html" class="hover:text-blue-400 transition-colors">CV</a>
+                    <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                        Get in Touch
+                    </a>
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden text-slate-300 hover:text-white focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 bg-slate-900/95 backdrop-blur-xl border-t border-slate-700 rounded-b-xl animate-fade-in">
+                <div class="flex flex-col space-y-4 pt-4 px-2 text-center">
+                    <a href="index.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Home</a>
+                    <a href="services.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Services / Consultation</a>
+                    <a href="live-research.html" class="text-green-500 font-bold hover:bg-slate-800 py-2 rounded-lg transition-colors">LIVE Research</a>
+                    <a href="portfolio.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Portfolio</a>
+                    <a href="cv.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">CV</a>
+                    <a href="#contact" class="bg-blue-600 text-white py-3 rounded-lg font-bold mx-4 shadow-lg">Get in Touch</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <section class="pt-32 pb-20 px-4 bg-gradient-to-br from-slate-900 via-green-950 to-slate-900 min-h-screen">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-12 text-center animate-fade-in">
+                <span class="bg-green-900/30 text-green-400 border border-green-800/50 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide mb-3 inline-block">Active Data Collection</span>
+                <h1 class="text-4xl md:text-5xl font-bold text-slate-100">
+                    <span class="text-green-500">LIVE Research:</span> Current Studies
+                </h1>
+            </div>
+            
+            <div class="grid md:grid-cols-12 gap-10 items-center mb-16 animate-fade-in">
+                <div class="md:col-span-5 order-2 md:order-1">
+                    <div class="rounded-xl overflow-hidden border border-green-800 shadow-2xl hover:shadow-green-900/20 transition-all bg-slate-900 relative group">
+                        <img src="https://raw.githubusercontent.com/LiamTP-N/Consultation-Services/5821e7c843f8781763625893a06688a117c37ec9/Recruitment%20Poster(1).png" alt="Cycling Research Recruitment Poster" class="w-full h-auto object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                </div>
+                <div class="md:col-span-7 order-1 md:order-2 space-y-6">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Study 01</span>
+                            <span class="h-px w-8 bg-slate-700"></span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">Can AI help you cycle pain-free?</h3>
+                        <p class="text-slate-300 leading-relaxed mb-4">Cycling is fantastic for health and wellbeing, but discomfort often stops older adults from riding. While expert "bike fitting" exists, it can be expensive and hard to access.</p>
+                        <p class="text-slate-300 leading-relaxed">We are conducting a study at <strong>Northumbria University</strong> to see if modern AI apps can set up a bike as effectively as a human expert.</p>
+                    </div>
+                    <div class="bg-slate-900/50 p-6 rounded-xl border border-green-900/30">
+                        <h4 class="text-white font-bold mb-3 border-b border-green-900/30 pb-2">We are looking for volunteers who are:</h4>
+                        <ul class="space-y-2 text-sm text-slate-300">
+                            <li class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span> Over 60 years old</li>
+                            <li class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span> <strong>Novice cyclists</strong> (you do not cycle regularly or competitively)</li>
+                            <li class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span> Injury-free and able to cycle at low intensity</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-400 italic mb-6">Participants will attend two sessions at Northumbria University. Your data will directly contribute to developing accessible tools for healthy ageing.</p>
+                        <a href="https://forms.cloud.microsoft/pages/responsepage.aspx?id=3c9X5zUfV0Svj3ycaxQ34-RQD5bJewhHn4jOZ0ewg9NUQ09BRE5VSlJVS0RFRDlHWEhaNlQ3SzFVNy4u&route=shorturl" target="_blank" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg shadow-green-900/30 hover:shadow-green-500/30 hover:-translate-y-1 transition-all w-full md:w-auto">
+                            Sign Up Here
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
 
-            // 3. Animation Trigger
-            document.querySelectorAll('.animate-fade-in').forEach((el, index) => {
-                setTimeout(() => { el.classList.add('loaded'); }, 50 * (index + 1));
-            });
-        });
-    </script>
+            <div class="w-full h-px bg-gradient-to-r from-transparent via-green-900/50 to-transparent my-12"></div>
 
-    <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-4">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="flex justify-between items-center">
-                <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
-                    Dr. Liam T. Pearson-Noseworthy
-                </a>
-
-                <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
-                    <a href="index.html" class="hover:text-blue-400 transition-colors">Home</a>
-                    <a href="services.html" class="hover:text-blue-400 transition-colors">Services / Consultation</a>
-                    <a href="live-research.html" class="text-green-500 font-bold hover:text-green-400 transition-colors">LIVE Research</a>
-                    <a href="portfolio.html" class="hover:text-blue-400 transition-colors">Portfolio</a>
-                    <a href="cv.html" class="hover:text-blue-400 transition-colors">CV</a>
-                    <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                        Get in Touch
-                    </a>
-                </div>
-
-                <button id="mobile-menu-btn" class="md:hidden text-slate-300 hover:text-white focus:outline-none">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-            </div>
-
-            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 bg-slate-900/95 backdrop-blur-xl border-t border-slate-700 rounded-b-xl animate-fade-in">
-                <div class="flex flex-col space-y-4 pt-4 px-2 text-center">
-                    <a href="index.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Home</a>
-                    <a href="services.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Services / Consultation</a>
-                    <a href="live-research.html" class="text-green-500 font-bold hover:bg-slate-800 py-2 rounded-lg transition-colors">LIVE Research</a>
-                    <a href="portfolio.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Portfolio</a>
-                    <a href="cv.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">CV</a>
-                    <a href="#contact" class="bg-blue-600 text-white py-3 rounded-lg font-bold mx-4 shadow-lg">Get in Touch</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <section class="pt-32 pb-20 px-4 bg-gradient-to-br from-slate-900 via-green-950 to-slate-900 min-h-screen">
-        <div class="max-w-6xl mx-auto">
-            <div class="mb-12 text-center animate-fade-in">
-                <span class="bg-green-900/30 text-green-400 border border-green-800/50 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide mb-3 inline-block">Active Data Collection</span>
-                <h1 class="text-4xl md:text-5xl font-bold text-slate-100">
-                    <span class="text-green-500">LIVE Research:</span> Current Studies
-                </h1>
-            </div>
-            
-            <div class="grid md:grid-cols-12 gap-10 items-center mb-16 animate-fade-in">
-                <div class="md:col-span-5 order-2 md:order-1">
-                    <div class="rounded-xl overflow-hidden border border-green-800 shadow-2xl hover:shadow-green-900/20 transition-all bg-slate-900 relative group">
-                        <img src="https://raw.githubusercontent.com/LiamTP-N/Consultation-Services/5821e7c843f8781763625893a06688a117c37ec9/Recruitment%20Poster(1).png" alt="Cycling Research Recruitment Poster" class="w-full h-auto object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                </div>
-                <div class="md:col-span-7 order-1 md:order-2 space-y-6">
-                    <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Study 01</span>
-                            <span class="h-px w-8 bg-slate-700"></span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-4">Can AI help you cycle pain-free?</h3>
-                        <p class="text-slate-300 leading-relaxed mb-4">Cycling is fantastic for health and wellbeing, but discomfort often stops older adults from riding. While expert "bike fitting" exists, it can be expensive and hard to access.</p>
-                        <p class="text-slate-300 leading-relaxed">We are conducting a study at <strong>Northumbria University</strong> to see if modern AI apps can set up a bike as effectively as a human expert.</p>
-                    </div>
-                    <div class="bg-slate-900/50 p-6 rounded-xl border border-green-900/30">
-                        <h4 class="text-white font-bold mb-3 border-b border-green-900/30 pb-2">We are looking for volunteers who are:</h4>
-                        <ul class="space-y-2 text-sm text-slate-300">
-                            <li class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span> Over 60 years old</li>
-                            <li class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span> <strong>Novice cyclists</strong> (you do not cycle regularly or competitively)</li>
-                            <li class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span> Injury-free and able to cycle at low intensity</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <p class="text-sm text-slate-400 italic mb-6">Participants will attend two sessions at Northumbria University. Your data will directly contribute to developing accessible tools for healthy ageing.</p>
-                        <a href="https://forms.cloud.microsoft/pages/responsepage.aspx?id=3c9X5zUfV0Svj3ycaxQ34-RQD5bJewhHn4jOZ0ewg9NUQ09BRE5VSlJVS0RFRDlHWEhaNlQ3SzFVNy4u&route=shorturl" target="_blank" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg shadow-green-900/30 hover:shadow-green-500/30 hover:-translate-y-1 transition-all w-full md:w-auto">
-                            Sign Up Here
-                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </a>
-                    </div>
-                </div>
-
-            <div class="w-full h-px bg-gradient-to-r from-transparent via-green-900/50 to-transparent my-12"></div>
-
-            <div class="grid md:grid-cols-12 gap-10 items-center animate-fade-in">
-                <div class="md:col-span-7 space-y-6">
-                    <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Study 02</span>
-                            <span class="h-px w-8 bg-slate-700"></span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-4">Defining the Next Era of Powerlifting Research</h3>
-                        <p class="text-slate-300 leading-relaxed mb-4">Following a 25-year analysis of 60,000+ Olympic Weightlifting performances, I am applying a <strong>'Big Data' approach</strong> to Powerlifting.</p>
-                        <p class="text-slate-300 leading-relaxed">To ensure this research delivers genuine, practical value, I am surveying the community to identify the questions that matter most to coaches and athletes, from "bomb-out" risks to the junior-to-senior transition.</p>
-                    </div>
-                    <div class="bg-slate-900/50 p-6 rounded-xl border border-green-900/30">
-                        <h4 class="text-white font-bold mb-3 border-b border-green-900/30 pb-2">Help shape the analysis on:</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="flex items-start"><span class="text-green-500 mr-2 text-xl">📊</span><span class="text-sm text-slate-300"><strong>Strategic Risk:</strong> Attempt selection and failure probability.</span></div>
-                            <div class="flex items-start"><span class="text-green-500 mr-2 text-xl">🧬</span><span class="text-sm text-slate-300"><strong>Talent Pathways:</strong> Avoiding burnout in junior lifters.</span></div>
-                            <div class="flex items-start"><span class="text-green-500 mr-2 text-xl">📈</span><span class="text-sm text-slate-300"><strong>Performance Ceilings:</strong> Long-term trends in Raw vs Equipped.</span></div>
-                            <div class="flex items-start"><span class="text-green-500 mr-2 text-xl">🗣️</span><span class="text-sm text-slate-300"><strong>Myth Busting:</strong> Testing coaching intuition against data.</span></div>
-                        </div>
-                    </div>
-                    <div>
-                        <a href="https://forms.gle/PHwb5UnwF2WpvjcW6" target="_blank" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg shadow-green-900/30 hover:shadow-green-500/30 hover:-translate-y-1 transition-all w-full md:w-auto">
-                            Take the 2-Minute Survey
-                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                        </a>
-                    </div>
-                </div>
-                <div class="md:col-span-5">
-                    <div class="rounded-xl overflow-hidden border border-green-800 shadow-2xl hover:shadow-green-900/20 transition-all bg-slate-900 relative group">
-                        <img src="https://raw.githubusercontent.com/LiamTP-N/Consultation-Services/6b8401f949469398c4238d392f7e6fbe505c8394/Powerlifting_Survey.png" alt="Powerlifting Research Recruitment Poster" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <p class="text-center text-xs text-slate-500 mt-3">Help define the parameters of this analysis.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="contact" class="py-6 px-4 bg-slate-700 text-white mt-auto border-t border-slate-600">
-        <div class="max-w-6xl mx-auto text-center animate-fade-in">
-            <h2 class="text-xl md:text-xl font-bold mb-4">Ready to optimise your training or research?</h2>
-            
-            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-                <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md hover:shadow-blue-500/20">
-                    Email Me
-                </a>
-                <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" class="flex items-center justify-center bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md border border-slate-600">
-                    Connect on LinkedIn
-                </a>
-            </div>
-
-            <div class="pt-4 border-t border-slate-600/50 text-slate-400 text-xs">
-                © 2025 Dr. Liam T. Pearson-Noseworthy. All rights reserved.
-            </div>
-        </div>
-    </section>
+            <div class="grid md:grid-cols-12 gap-10 items-center animate-fade-in">
+                <div class="md:col-span-7 space-y-6">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Study 02</span>
+                            <span class="h-px w-8 bg-slate-700"></span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">Defining the Next Era of Powerlifting Research</h3>
+                        <p class="text-slate-300 leading-relaxed mb-4">Following a 25-year analysis of 60,000+ Olympic Weightlifting performances, I am applying a <strong>'Big Data' approach</strong> to Powerlifting.</p>
+                        <p class="text-slate-300 leading-relaxed">To ensure this research delivers genuine, practical value, I am surveying the community to identify the questions that matter most to coaches and athletes, from "bomb-out" risks to the junior-to-senior transition.</p>
+                    </div>
+                    <div class="bg-slate-900/50 p-6 rounded-xl border border-green-900/30">
+                        <h4 class="text-white font-bold mb-3 border-b border-green-900/30 pb-2">Help shape the analysis on:</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="flex items-start"><span class="text-green-500 mr-2 text-xl">📊</span><span class="text-sm text-slate-300"><strong>Strategic Risk:</strong> Attempt selection and failure probability.</span></div>
+                            <div class="flex items-start"><span class="text-green-500 mr-2 text-xl">🧬</span><span class="text-sm text-slate-300"><strong>Talent Pathways:</strong> Avoiding burnout in junior lifters.</span></div>
+                            <div class="flex items-start"><span class="text-green-500 mr-2 text-xl">📈</span><span class="text-sm text-slate-300"><strong>Performance Ceilings:</strong> Long-term trends in Raw vs Equipped.</span></div>
+                            <div class="flex items-start"><span class="text-green-500 mr-2 text-xl">🗣️</span><span class="text-sm text-slate-300"><strong>Myth Busting:</strong> Testing coaching intuition against data.</span></div>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="https://forms.gle/PHwb5UnwF2WpvjcW6" target="_blank" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg shadow-green-900/30 hover:shadow-green-500/30 hover:-translate-y-1 transition-all w-full md:w-auto">
+                            Take the 2-Minute Survey
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="md:col-span-5">
+                    <div class="rounded-xl overflow-hidden border border-green-800 shadow-2xl hover:shadow-green-900/20 transition-all bg-slate-900 relative group">
+                        <img src="https://raw.githubusercontent.com/LiamTP-N/Consultation-Services/6b8401f949469398c4238d392f7e6fbe505c8394/Powerlifting_Survey.png" alt="Powerlifting Research Recruitment Poster" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <p class="text-center text-xs text-slate-500 mt-3">Help define the parameters of this analysis.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="contact" class="py-6 px-4 bg-slate-700 text-white mt-auto border-t border-slate-600">
+        <div class="max-w-6xl mx-auto text-center animate-fade-in">
+            <h2 class="text-xl md:text-xl font-bold mb-4">Ready to optimise your training or research?</h2>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+                <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md hover:shadow-blue-500/20">
+                    Email Me
+                </a>
+                <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" class="flex items-center justify-center bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md border border-slate-600">
+                    Connect on LinkedIn
+                </a>
+            </div>
+            <div class="pt-4 border-t border-slate-600/50 text-slate-400 text-xs">
+                © 2025 Dr. Liam T. Pearson-Noseworthy. All rights reserved.
+            </div>
+        </div>
+    </section>
 </body>
 </html>
