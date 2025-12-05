@@ -1,200 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Applied Health & Data Science Consulting | Dr. Liam T. Pearson-Noseworthy</title>
-    <meta name="description" content="Specialist consultancy by Dr. Liam T. Pearson-Noseworthy for high-performance training, rigorous data science, and academic research support. PhD-level expertise in Exercise Science, R, and Python.">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        html { scroll-behavior: smooth; }
-        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
-        .animate-fade-in.loaded { opacity: 1; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applied Health & Data Science Consulting | Dr. Liam T. Pearson-Noseworthy</title>
+    <meta name="description" content="Specialist consultancy by Dr. Liam T. Pearson-Noseworthy for high-performance training, rigorous data science, and academic research support. PhD-level expertise in Exercise Science, R, and Python.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
+        .animate-fade-in.loaded { opacity: 1; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Scroll Effect
+            const nav = document.querySelector('nav');
+            const handleScroll = () => {
+                if (window.scrollY > 50) {
+                    nav.classList.remove('bg-transparent', 'py-4');
+                    nav.classList.add('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
+                } else {
+                    nav.classList.add('bg-transparent', 'py-4');
+                    nav.classList.remove('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
+                }
+            };
+            window.addEventListener('scroll', handleScroll);
+            handleScroll();
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. Scroll Effect
-            const nav = document.querySelector('nav');
-            const handleScroll = () => {
-                if (window.scrollY > 50) {
-                    nav.classList.remove('bg-transparent', 'py-4');
-                    nav.classList.add('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
-                } else {
-                    nav.classList.add('bg-transparent', 'py-4');
-                    nav.classList.remove('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
-                }
-            };
-            window.addEventListener('scroll', handleScroll);
-            handleScroll();
+            // 2. Mobile Menu Toggle
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-menu');
 
-            // 2. Mobile Menu Toggle
-            const btn = document.getElementById('mobile-menu-btn');
-            const menu = document.getElementById('mobile-menu');
+            if(btn && menu){
+                btn.addEventListener('click', () => {
+                    menu.classList.toggle('hidden');
+                });
+            }
 
-            if(btn && menu){
-                btn.addEventListener('click', () => {
-                    menu.classList.toggle('hidden');
-                });
-            }
-
-            // 3. Animation Trigger
-            document.querySelectorAll('.animate-fade-in').forEach((el, index) => {
-                setTimeout(() => { el.classList.add('loaded'); }, 50 * (index + 1));
-            });
-        });
-    </script>
-
-    <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-4">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="flex justify-between items-center">
-                <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
-                    Dr. Liam T. Pearson-Noseworthy
-                </a>
-
-                <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
-                    <a href="index.html" class="text-white">Home</a>
-                    <a href="services.html" class="hover:text-blue-400 transition-colors">Services / Consultation</a>
-                    <a href="live-research.html" class="text-green-500 font-bold hover:text-green-400 transition-colors">LIVE Research</a>
-                    <a href="portfolio.html" class="hover:text-blue-400 transition-colors">Portfolio</a>
-                    <a href="cv.html" class="hover:text-blue-400 transition-colors">CV</a>
-                    <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                        Get in Touch
-                    </a>
-                </div>
-
-                <button id="mobile-menu-btn" class="md:hidden text-slate-300 hover:text-white focus:outline-none">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-            </div>
-
-            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 bg-slate-900/95 backdrop-blur-xl border-t border-slate-700 rounded-b-xl animate-fade-in">
-                <div class="flex flex-col space-y-4 pt-4 px-2 text-center">
-                    <a href="index.html" class="text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Home</a>
-                    <a href="services.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Services / Consultation</a>
-                    <a href="live-research.html" class="text-green-500 font-bold hover:bg-slate-800 py-2 rounded-lg transition-colors">LIVE Research</a>
-                    <a href="portfolio.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Portfolio</a>
-                    <a href="cv.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">CV</a>
-                    <a href="#contact" class="bg-blue-600 text-white py-3 rounded-lg font-bold mx-4 shadow-lg">Get in Touch</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <header class="pt-24 pb-8 md:pt-28 md:pb-12 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
-        <div class="max-w-6xl mx-auto grid md:grid-cols-12 gap-8 md:gap-10 items-start">
-            <div class="md:col-span-8 lg:col-span-8 order-2 md:order-1 md:text-left text-center animate-fade-in">  
-                <h1 class="text-3xl md:text-5xl font-extrabold text-slate-100 tracking-tight mb-4 leading-tight">
-                    Optimising human performance.<br>
-                    <span class="text-blue-500">Engineering data precision.</span>
-                </h1>
-                <p class="text-xl text-slate-400 mb-6 max-w-3xl md:mx-0 mx-auto leading-relaxed">
-                    I provide <strong>specialised consultancy</strong> for two distinct needs: delivering evidence-based training protocols, and offering rigorous data science and academic support.
-                </p>
-                <div class="flex flex-wrap gap-4 justify-center md:justify-start mb-8">
-                    <a href="services.html" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition shadow-lg hover:shadow-blue-600/30">
-                        View Consultancy Services
-                    </a>
-                    <a href="live-research.html" class="bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition shadow-lg hover:shadow-green-600/30 animate-pulse hover:animate-none">
-                        View LIVE Research
-                    </a>
-                    <a href="cv.html" class="px-8 py-3 rounded-full font-medium text-slate-300 border border-slate-600 hover:bg-slate-800 transition">
-                        View Full CV
-                    </a>
-                </div>
-
-                <div class="pt-6 border-t border-slate-700/50">
-                    <p class="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Overview:</p>
-                    <div class="flex flex-col gap-y-2 text-xs text-slate-400">
-                        
-                        <div class="flex flex-wrap gap-x-6 gap-y-2 justify-center md:justify-start">
-                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> 15+ Years Applied Experience</span>
-                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> 10+ Peer-Reviewed Published Papers</span>
-                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> Awardee from HM The Queen for Services to Sport, Health and Fitness</span>
-                        </div>
-
-                        <div class="flex flex-wrap gap-x-6 gap-y-2 justify-center md:justify-start">
-                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> PhD in Applied Health & Exercise Science</span>
-                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> MRes in Exercise Science</span>
-                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> BSc (Hons) in Sport Science</span>
-                        </div>
-
-                        <div class="flex flex-wrap gap-x-6 gap-y-2 justify-center md:justify-start">
-                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> Senior Lab Tech (Northumbria University)</span>
-                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> Reviewing Editor (Springer Nature)</span>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            
-            <div class="md:col-span-4 lg:col-span-4 order-1 md:order-2">
-                <div class="w-48 md:w-64 mx-auto h-auto animate-fade-in mt-2">
-                    <div class="aspect-[4/5] rounded-2xl bg-slate-700 overflow-hidden relative border border-slate-700 shadow-xl">
-                        <img src="https://raw.githubusercontent.com/LiamTP-N/Consultation-Services/639c36c1a9431f4b2d37011f4e736a28e70dc9a3/pic.jpg" alt="Dr. Pearson-Noseworthy" class="w-full h-full object-cover block" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <section class="py-12 bg-slate-800 border-y border-slate-700">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="text-center mb-8">
-                <h2 class="text-2xl font-bold text-slate-200">Expertise Applied Where It Matters</h2>
-            </div>
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-slate-900/50 p-6 rounded-lg border border-slate-700/50 hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <div class="text-blue-400 text-2xl mb-3">⏱️</div>
-                    <h3 class="text-white font-bold mb-2">The Busy Professional</h3>
-                    <p class="text-slate-400 text-sm ">You want elite physiological results but cannot spare 10 hours a week. You require a <strong>minimal-dose strategy</strong> backed by doctoral research.</p>
-                </div>
-                <div class="bg-slate-900/50 p-6 rounded-lg border border-slate-700/50 hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <div class="text-blue-400 text-2xl mb-3">🧬</div>
-                    <h3 class="text-white font-bold mb-2">The Researcher</h3>
-                    <p class="text-slate-400 text-sm ">You have complex datasets or a manuscript that requires rigour. You need a data scientist proficient in <strong>R, Python & Machine Learning</strong> to build automated pipelines.</p>
-                </div>
-                <div class="bg-slate-900/50 p-6 rounded-lg border border-slate-700/50 hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <div class="text-blue-400 text-2xl mb-3">🏋️</div>
-                    <h3 class="text-white font-bold mb-2">The Athlete</h3>
-                    <p class="text-slate-400 text-sm ">Aiming for the podium or a PB? You need advanced <strong>biomechanical analysis</strong> and programming that optimises output while reducing injury risk.</p>
-                </div>
-                <div class="bg-slate-900/50 p-6 rounded-lg border border-slate-700/50 hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
-                    <div class="text-blue-400 text-2xl mb-3">🔋</div>
-                    <h3 class="text-white font-bold mb-2">The Older Adult</h3>
-                    <p class="text-slate-400 text-sm ">You prioritise independence and longevity. You need a specialised plan (60+) to combat sarcopenia, improve mobility, and <strong>prevent falls</strong>.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="contact" class="py-6 px-4 bg-slate-700 text-white mt-auto border-t border-slate-600">
-        <div class="max-w-6xl mx-auto text-center animate-fade-in">
-            <h2 class="text-xl md:text-xl font-bold mb-4">Ready to optimise your training or research?</h2>
-            
-            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-                <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md hover:shadow-blue-500/20">
-                    Email Me
-                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.8 5.2a2 2 0 002.4 0L21 8"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2"></path></svg>
-                </a>
-                <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" class="flex items-center justify-center bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md border border-slate-600">
-                    Connect on LinkedIn
-                    <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.75s.784-1.75 1.75-1.75 1.75.79 1.75 1.75-.783 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.535-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.766 7 2.062v7.173z"/></svg>
-                </a>
-            </div>
-
-            <div class="pt-4 border-t border-slate-600/50 text-slate-400 text-xs">
-                © 2025 Dr. Liam T. Pearson-Noseworthy. All rights reserved.
-            </div>
-        </div>
-    </section>
+            // 3. Animation Trigger
+            document.querySelectorAll('.animate-fade-in').forEach((el, index) => {
+                setTimeout(() => { el.classList.add('loaded'); }, 50 * (index + 1));
+            });
+        });
+    </script>
+    <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-4">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center">
+                <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
+                    Dr. Liam T. Pearson-Noseworthy
+                </a>
+                <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
+                    <a href="index.html" class="text-white">Home</a>
+                    <a href="services.html" class="hover:text-blue-400 transition-colors">Services / Consultation</a>
+                    <a href="live-research.html" class="text-green-500 font-bold hover:text-green-400 transition-colors">LIVE Research</a>
+                    <a href="portfolio.html" class="hover:text-blue-400 transition-colors">Portfolio</a>
+                    <a href="cv.html" class="hover:text-blue-400 transition-colors">CV</a>
+                    <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                        Get in Touch
+                    </a>
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden text-slate-300 hover:text-white focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 bg-slate-900/95 backdrop-blur-xl border-t border-slate-700 rounded-b-xl animate-fade-in">
+                <div class="flex flex-col space-y-4 pt-4 px-2 text-center">
+                    <a href="index.html" class="text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Home</a>
+                    <a href="services.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Services / Consultation</a>
+                    <a href="live-research.html" class="text-green-500 font-bold hover:bg-slate-800 py-2 rounded-lg transition-colors">LIVE Research</a>
+                    <a href="portfolio.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Portfolio</a>
+                    <a href="cv.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">CV</a>
+                    <a href="#contact" class="bg-blue-600 text-white py-3 rounded-lg font-bold mx-4 shadow-lg">Get in Touch</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <header class="pt-24 pb-8 md:pt-28 md:pb-12 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-12 gap-8 md:gap-10 items-start">
+            <div class="md:col-span-8 lg:col-span-8 order-2 md:order-1 md:text-left text-center animate-fade-in">  
+                <h1 class="text-3xl md:text-5xl font-extrabold text-slate-100 tracking-tight mb-4 leading-tight">
+                    Optimising human performance.<br>
+                    <span class="text-blue-500">Engineering data precision.</span>
+                </h1>
+                <p class="text-xl text-slate-400 mb-6 max-w-3xl md:mx-0 mx-auto leading-relaxed">
+                    I provide <strong>specialised consultancy</strong> for two distinct needs: delivering evidence-based training protocols, and offering rigorous data science and academic support.
+                </p>
+                <div class="flex flex-wrap gap-4 justify-center md:justify-start mb-8">
+                    <a href="services.html" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition shadow-lg hover:shadow-blue-600/30">
+                        View Consultancy Services
+                    </a>
+                    <a href="live-research.html" class="bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition shadow-lg hover:shadow-green-600/30 animate-pulse hover:animate-none">
+                        View LIVE Research
+                    </a>
+                    <a href="cv.html" class="px-8 py-3 rounded-full font-medium text-slate-300 border border-slate-600 hover:bg-slate-800 transition">
+                        View Full CV
+                    </a>
+                </div>
+                <div class="pt-6 border-t border-slate-700/50">
+                    <p class="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Overview:</p>
+                    <div class="flex flex-col gap-y-2 text-xs text-slate-400">
+                        <div class="flex flex-wrap gap-x-6 gap-y-2 justify-center md:justify-start">
+                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> 15+ Years Applied Experience</span>
+                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> 10+ Peer-Reviewed Published Papers</span>
+                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> Awardee from HM The Queen for Services to Sport, Health and Fitness</span>
+                        </div>
+                        <div class="flex flex-wrap gap-x-6 gap-y-2 justify-center md:justify-start">
+                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> PhD in Applied Health & Exercise Science</span>
+                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> MRes in Exercise Science</span>
+                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> BSc (Hons) in Sport Science</span>
+                        </div>
+                        <div class="flex flex-wrap gap-x-6 gap-y-2 justify-center md:justify-start">
+                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> Senior Lab Tech (Northumbria University)</span>
+                            <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> Reviewing Editor (Springer Nature)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="md:col-span-4 lg:col-span-4 order-1 md:order-2">
+                <div class="w-48 md:w-64 mx-auto h-auto animate-fade-in mt-2">
+                    <div class="aspect-[4/5] rounded-2xl bg-slate-700 overflow-hidden relative border border-slate-700 shadow-xl">
+                        <img src="https://raw.githubusercontent.com/LiamTP-N/Consultation-Services/639c36c1a9431f4b2d37011f4e736a28e70dc9a3/pic.jpg" alt="Dr. Pearson-Noseworthy" class="w-full h-full object-cover block" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <section class="py-12 bg-slate-800 border-y border-slate-700">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-slate-200">Expertise Applied Where It Matters</h2>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-slate-900/50 p-6 rounded-lg border border-slate-700/50 hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                    <div class="text-blue-400 text-2xl mb-3">⏱️</div>
+                    <h3 class="text-white font-bold mb-2">The Busy Professional</h3>
+                    <p class="text-slate-400 text-sm ">You want elite physiological results but cannot spare 10 hours a week. You require a <strong>minimal-dose strategy</strong> backed by doctoral research.</p>
+                </div>
+                <div class="bg-slate-900/50 p-6 rounded-lg border border-slate-700/50 hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                    <div class="text-blue-400 text-2xl mb-3">🧬</div>
+                    <h3 class="text-white font-bold mb-2">The Researcher</h3>
+                    <p class="text-slate-400 text-sm ">You have complex datasets or a manuscript that requires rigour. You need a data scientist proficient in <strong>R, Python & Machine Learning</strong> to build automated pipelines.</p>
+                </div>
+                <div class="bg-slate-900/50 p-6 rounded-lg border border-slate-700/50 hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                    <div class="text-blue-400 text-2xl mb-3">🏋️</div>
+                    <h3 class="text-white font-bold mb-2">The Athlete</h3>
+                    <p class="text-slate-400 text-sm ">Aiming for the podium or a PB? You need advanced <strong>biomechanical analysis</strong> and programming that optimises output while reducing injury risk.</p>
+                </div>
+                <div class="bg-slate-900/50 p-6 rounded-lg border border-slate-700/50 hover:shadow-2xl hover:shadow-blue-900/50 transition-all duration-300 hover:-translate-y-1">
+                    <div class="text-blue-400 text-2xl mb-3">🔋</div>
+                    <h3 class="text-white font-bold mb-2">The Older Adult</h3>
+                    <p class="text-slate-400 text-sm ">You prioritise independence and longevity. You need a specialised plan (60+) to combat sarcopenia, improve mobility, and <strong>prevent falls</strong>.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="contact" class="py-6 px-4 bg-slate-700 text-white mt-auto border-t border-slate-600">
+        <div class="max-w-6xl mx-auto text-center animate-fade-in">
+            <h2 class="text-xl md:text-xl font-bold mb-4">Ready to optimise your training or research?</h2>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+                <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md hover:shadow-blue-500/20">
+                    Email Me
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.8 5.2a2 2 0 002.4 0L21 8"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2"></path></svg>
+                </a>
+                <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" class="flex items-center justify-center bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md border border-slate-600">
+                    Connect on LinkedIn
+                    <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.75s.784-1.75 1.75-1.75 1.75.79 1.75 1.75-.783 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.535-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.766 7 2.062v7.173z"/></svg>
+                </a>
+            </div>
+            <div class="pt-4 border-t border-slate-600/50 text-slate-400 text-xs">
+                © 2025 Dr. Liam T. Pearson-Noseworthy. All rights reserved.
+            </div>
+        </div>
+    </section>
 </body>
 </html>
