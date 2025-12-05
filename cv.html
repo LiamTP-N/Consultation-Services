@@ -1,207 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional CV & Credentials | Dr. Liam T. Pearson-Noseworthy, PhD</title>
-    <meta name="description" content="View the full professional CV of Dr. Liam T. Pearson-Noseworthy, PhD. Featuring expertise in Applied Health & Exercise Science, Data Analysis (R, Python, MATLAB), University Lecturing, and Sports Consultancy.">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        html { scroll-behavior: smooth; }
-        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
-        .animate-fade-in.loaded { opacity: 1; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional CV & Credentials | Dr. Liam T. Pearson-Noseworthy, PhD</title>
+    <meta name="description" content="View the full professional CV of Dr. Liam T. Pearson-Noseworthy, PhD. Featuring expertise in Applied Health & Exercise Science, Data Analysis (R, Python, MATLAB), University Lecturing, and Sports Consultancy.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
+        .animate-fade-in.loaded { opacity: 1; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Scroll Effect
+            const nav = document.querySelector('nav');
+            const handleScroll = () => {
+                if (window.scrollY > 50) {
+                    nav.classList.remove('bg-transparent', 'py-4');
+                    nav.classList.add('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
+                } else {
+                    nav.classList.add('bg-transparent', 'py-4');
+                    nav.classList.remove('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
+                }
+            };
+            window.addEventListener('scroll', handleScroll);
+            handleScroll();
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. Scroll Effect
-            const nav = document.querySelector('nav');
-            const handleScroll = () => {
-                if (window.scrollY > 50) {
-                    nav.classList.remove('bg-transparent', 'py-4');
-                    nav.classList.add('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
-                } else {
-                    nav.classList.add('bg-transparent', 'py-4');
-                    nav.classList.remove('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
-                }
-            };
-            window.addEventListener('scroll', handleScroll);
-            handleScroll();
+            // 2. Mobile Menu Toggle
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-menu');
 
-            // 2. Mobile Menu Toggle
-            const btn = document.getElementById('mobile-menu-btn');
-            const menu = document.getElementById('mobile-menu');
+            if(btn && menu){
+                btn.addEventListener('click', () => {
+                    menu.classList.toggle('hidden');
+                });
+            }
 
-            if(btn && menu){
-                btn.addEventListener('click', () => {
-                    menu.classList.toggle('hidden');
-                });
-            }
-
-            // 3. Animation Trigger
-            document.querySelectorAll('.animate-fade-in').forEach((el, index) => {
-                setTimeout(() => { el.classList.add('loaded'); }, 50 * (index + 1));
-            });
-        });
-    </script>
-
-    <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-4">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="flex justify-between items-center">
-                <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
-                    Dr. Liam T. Pearson-Noseworthy
-                </a>
-
-                <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
-                    <a href="index.html" class="hover:text-blue-400 transition-colors">Home</a>
-                    <a href="services.html" class="hover:text-blue-400 transition-colors">Services / Consultation</a>
-                    <a href="live-research.html" class="text-green-500 font-bold hover:text-green-400 transition-colors">LIVE Research</a>
-                    <a href="portfolio.html" class="hover:text-blue-400 transition-colors">Portfolio</a>
-                    <a href="cv.html" class="text-white">CV</a>
-                    <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                        Get in Touch
-                    </a>
-                </div>
-
-                <button id="mobile-menu-btn" class="md:hidden text-slate-300 hover:text-white focus:outline-none">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-            </div>
-
-            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 bg-slate-900/95 backdrop-blur-xl border-t border-slate-700 rounded-b-xl animate-fade-in">
-                <div class="flex flex-col space-y-4 pt-4 px-2 text-center">
-                    <a href="index.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Home</a>
-                    <a href="services.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Services / Consultation</a>
-                    <a href="live-research.html" class="text-green-500 font-bold hover:bg-slate-800 py-2 rounded-lg transition-colors">LIVE Research</a>
-                    <a href="portfolio.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Portfolio</a>
-                    <a href="cv.html" class="text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">CV</a>
-                    <a href="#contact" class="bg-blue-600 text-white py-3 rounded-lg font-bold mx-4 shadow-lg">Get in Touch</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <section class="pt-32 pb-20 px-4 bg-slate-900 min-h-screen">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-12 animate-fade-in">
-                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-slate-100">CV & Credentials</h1>
-                <p class="text-slate-400 max-w-2xl mx-auto">
-                    A brief overview of my academic background, professional history, and technical expertise.
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-8 animate-fade-in">
-                
-                <div class="space-y-8">
-                    <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Employment & Expertise</h4>
-                        <ul class="space-y-3 text-sm text-slate-400 list-none pl-0">
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2025 - Reviewing Editor, <span class="text-slate-200 font-medium">Springer Nature</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2022 - Non-Executive Director, <span class="text-slate-200 font-medium">Power Through Sport CIC</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2021 - Senior Laboratory Technician, <span class="text-slate-200 font-medium">Northumbria University</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2021 - Consulting Biomechanist, <span class="text-slate-200 font-medium">Newcastle Eagles WBBL</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2019 - NEET Tutor, <span class="text-slate-200 font-medium">The Rugby Football Union (RFU)</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2018 - Lecturer, <span class="text-slate-200 font-medium">Newcastle College, Newcastle Falcons & SCL</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2017 - Head of Teaching & Internal Quality Assurance, <span class="text-slate-200 font-medium">Acacia Training</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2017 - Founder & CEO, <span class="text-slate-200 font-medium">BWL North East Open</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2016 - Tutor, Assessor & Internal Verifier, <span class="text-slate-200 font-medium">British Weight Lifting, 1st4Sport, ActiveIQ, NCFE</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2015 - Founder & Head Coach, <span class="text-slate-200 font-medium">Northumbria Olympic Weightlifting Club</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2014 - Strength & Conditioning Coach, <span class="text-slate-200 font-medium">Sport Northumbria</span></span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2010 - Personal Trainer, <span class="text-slate-200 font-medium">Sport Central, Northumbria University</span></span></li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">PhD Supervision</h4>
-                        <ul class="space-y-3 text-sm text-slate-400 list-none pl-0">
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span><span class="text-slate-200 font-medium">Alejandro De La Rosa; Northumbria University</span> - Understanding Perceived Intimidation Through Kinematic Cues in Human Gait, Observer Context, and Crowd-Simulation Prediction</span></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="space-y-8">
-                    
-                    <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Academic Qualifications</h4>
-                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2025 - PhD Applied Health & Exercise Science</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2019 - MRes Sport Science</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2018 - BSc Applied Sports Science with Coaching</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2015 - Access to HE, Sports Studies</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2011 - Higher National Diploma, Sport Science</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2010 - National Diploma, Sport, Exercise & Coaching</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2009 - Diploma, Exercise & Fitness Instructing</span></li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Professional Status</h4>
-                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Awardee from HM The Queen for Services to Sport, Health and Fitness</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Distinguished Teaching Fellow</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Senior Fellow (SFHEA)</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L4 Internal Quality Assurance</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L3 Assessor</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L3 Tutor</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>UKAD Anti-Doping Advisor</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>UKSCA Associate Member</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>BWL Coach & Technical Official</span></li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Vocational Qualifications</h4>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Phlebotomist</span>
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">L3 Olympic Weightlifting Coach</span>
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">L3 Personal Trainer</span>
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Sports Massage Therapist</span>
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">L2 Nutrition</span>
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Kettlebell Instructor</span>
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Spinning/Indoor Cycling</span>
-                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Les Mills BodyPump</span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Technical Skills & Safety</h4>
-                        <p class="text-sm text-slate-400 mb-3">
-                            <strong class="text-slate-300">Analysis:</strong> R, Python, MATLAB, Isokinetic II, Wattbike Workshop.
-                        </p>
-                        <p class="text-sm text-slate-400">
-                            <strong class="text-slate-300">Safety:</strong> L2 Safeguarding, Equality & Diversity, GDPR, Prevent, Food Safety, Emergency First Aid, Pool Lifeguard & Spine Board.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="contact" class="py-6 px-4 bg-slate-700 text-white mt-auto border-t border-slate-600">
-        <div class="max-w-6xl mx-auto text-center animate-fade-in">
-            <h2 class="text-xl md:text-xl font-bold mb-4">Ready to optimise your training or research?</h2>
-            
-            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-                <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md hover:shadow-blue-500/20">
-                    Email Me
-                </a>
-                <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" class="flex items-center justify-center bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md border border-slate-600">
-                    Connect on LinkedIn
-                </a>
-            </div>
-
-            <div class="pt-4 border-t border-slate-600/50 text-slate-400 text-xs">
-                © 2025 Dr. Liam T. Pearson-Noseworthy. All rights reserved.
-            </div>
-        </div>
-    </section>
+            // 3. Animation Trigger
+            document.querySelectorAll('.animate-fade-in').forEach((el, index) => {
+                setTimeout(() => { el.classList.add('loaded'); }, 50 * (index + 1));
+            });
+        });
+    </script>
+    <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-4">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center">
+                <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
+                    Dr. Liam T. Pearson-Noseworthy
+                </a>
+                <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
+                    <a href="index.html" class="hover:text-blue-400 transition-colors">Home</a>
+                    <a href="services.html" class="hover:text-blue-400 transition-colors">Services / Consultation</a>
+                    <a href="live-research.html" class="text-green-500 font-bold hover:text-green-400 transition-colors">LIVE Research</a>
+                    <a href="portfolio.html" class="hover:text-blue-400 transition-colors">Portfolio</a>
+                    <a href="cv.html" class="text-white">CV</a>
+                    <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                        Get in Touch
+                    </a>
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden text-slate-300 hover:text-white focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 bg-slate-900/95 backdrop-blur-xl border-t border-slate-700 rounded-b-xl animate-fade-in">
+                <div class="flex flex-col space-y-4 pt-4 px-2 text-center">
+                    <a href="index.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Home</a>
+                    <a href="services.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Services / Consultation</a>
+                    <a href="live-research.html" class="text-green-500 font-bold hover:bg-slate-800 py-2 rounded-lg transition-colors">LIVE Research</a>
+                    <a href="portfolio.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Portfolio</a>
+                    <a href="cv.html" class="text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">CV</a>
+                    <a href="#contact" class="bg-blue-600 text-white py-3 rounded-lg font-bold mx-4 shadow-lg">Get in Touch</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <section class="pt-32 pb-20 px-4 bg-slate-900 min-h-screen">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12 animate-fade-in">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-slate-100">CV & Credentials</h1>
+                <p class="text-slate-400 max-w-2xl mx-auto">
+                    A brief overview of my academic background, professional history, and technical expertise.
+                </p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 animate-fade-in">
+                <div class="space-y-8">
+                    <div>
+                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Employment & Expertise</h4>
+                        <ul class="space-y-3 text-sm text-slate-400 list-none pl-0">
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2025 - Reviewing Editor, <span class="text-slate-200 font-medium">Springer Nature</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2022 - Non-Executive Director, <span class="text-slate-200 font-medium">Power Through Sport CIC</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2021 - Senior Laboratory Technician, <span class="text-slate-200 font-medium">Northumbria University</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2021 - Consulting Biomechanist, <span class="text-slate-200 font-medium">Newcastle Eagles WBBL</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2019 - NEET Tutor, <span class="text-slate-200 font-medium">The Rugby Football Union (RFU)</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2018 - Lecturer, <span class="text-slate-200 font-medium">Newcastle College, Newcastle Falcons & SCL</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2017 - Head of Teaching & Internal Quality Assurance, <span class="text-slate-200 font-medium">Acacia Training</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2017 - Founder & CEO, <span class="text-slate-200 font-medium">BWL North East Open</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2016 - Tutor, Assessor & Internal Verifier, <span class="text-slate-200 font-medium">British Weight Lifting, 1st4Sport, ActiveIQ, NCFE</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2015 - Founder & Head Coach, <span class="text-slate-200 font-medium">Northumbria Olympic Weightlifting Club</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2014 - Strength & Conditioning Coach, <span class="text-slate-200 font-medium">Sport Northumbria</span></span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2010 - Personal Trainer, <span class="text-slate-200 font-medium">Sport Central, Northumbria University</span></span></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">PhD Supervision</h4>
+                        <ul class="space-y-3 text-sm text-slate-400 list-none pl-0">
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span><span class="text-slate-200 font-medium">Alejandro De La Rosa; Northumbria University</span> - Understanding Perceived Intimidation Through Kinematic Cues in Human Gait, Observer Context, and Crowd-Simulation Prediction</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="space-y-8">
+                    <div>
+                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Academic Qualifications</h4>
+                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2025 - PhD Applied Health & Exercise Science</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2019 - MRes Sport Science</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2018 - BSc Applied Sports Science with Coaching</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2015 - Access to HE, Sports Studies</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2011 - Higher National Diploma, Sport Science</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2010 - National Diploma, Sport, Exercise & Coaching</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2009 - Diploma, Exercise & Fitness Instructing</span></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Professional Status</h4>
+                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Awardee from HM The Queen for Services to Sport, Health and Fitness</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Distinguished Teaching Fellow</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Senior Fellow (SFHEA)</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L4 Internal Quality Assurance</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L3 Assessor</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>L3 Tutor</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>UKAD Anti-Doping Advisor</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>UKSCA Associate Member</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>BWL Coach & Technical Official</span></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Vocational Qualifications</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Phlebotomist</span>
+                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">L3 Olympic Weightlifting Coach</span>
+                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">L3 Personal Trainer</span>
+                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Sports Massage Therapist</span>
+                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">L2 Nutrition</span>
+                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Kettlebell Instructor</span>
+                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Spinning/Indoor Cycling</span>
+                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Les Mills BodyPump</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Technical Skills & Safety</h4>
+                        <p class="text-sm text-slate-400 mb-3">
+                            <strong class="text-slate-300">Analysis:</strong> R, Python, MATLAB, Isokinetic II, Wattbike Workshop.
+                        </p>
+                        <p class="text-sm text-slate-400">
+                            <strong class="text-slate-300">Safety:</strong> L2 Safeguarding, Equality & Diversity, GDPR, Prevent, Food Safety, Emergency First Aid, Pool Lifeguard & Spine Board.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="contact" class="py-6 px-4 bg-slate-700 text-white mt-auto border-t border-slate-600">
+        <div class="max-w-6xl mx-auto text-center animate-fade-in">
+            <h2 class="text-xl md:text-xl font-bold mb-4">Ready to optimise your training or research?</h2>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+                <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md hover:shadow-blue-500/20">
+                    Email Me
+                </a>
+                <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" class="flex items-center justify-center bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md border border-slate-600">
+                    Connect on LinkedIn
+                </a>
+            </div>
+            <div class="pt-4 border-t border-slate-600/50 text-slate-400 text-xs">
+                © 2025 Dr. Liam T. Pearson-Noseworthy. All rights reserved.
+            </div>
+        </div>
+    </section>
 </body>
 </html>
