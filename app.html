@@ -152,8 +152,8 @@
             const instrText = document.getElementById('instructionText');
 
             // Initial feedback
-            instrTitle.innerText = "Starting Camera...";
-            instrText.innerText = "Please wait a moment.";
+            instrTitle.innerText = "Warming Up...";
+            instrText.innerText = "Please allow the camera access in your browser.";
             startBtn.style.display = 'none';
 
             const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
@@ -163,8 +163,8 @@
                 // Once we get ANY result, we know the camera is working
                 if (!firstFrameDetected) {
                     firstFrameDetected = true;
-                    instrTitle.innerText = "Scanning...";
-                    instrText.innerText = "I can see you. Looking for legs...";
+                    instrTitle.innerText = "Looking for you...";
+                    instrText.innerText = "I can see the room. Now looking for your body.";
                 }
 
                 canvasElement.width = videoElement.videoWidth;
@@ -195,16 +195,16 @@
                             if (angle > 165) {
                                 // Perfect Standing Pose
                                 if(repCount === 0) {
-                                    instrTitle.innerText = "Ready";
+                                    instrTitle.innerText = "Perfect Position";
                                     instrTitle.className = "text-3xl font-bold text-green-400 mb-2";
-                                    instrText.innerText = "Turn sideways & Squat down.";
+                                    instrText.innerText = "I can see you clearly. Turn sideways, then squat when ready.";
                                 }
                             } else {
                                 // Legs visible but bent (Sitting?)
                                 if(repCount === 0) {
-                                    instrTitle.innerText = "Stand Up";
+                                    instrTitle.innerText = "Please Stand Tall";
                                     instrTitle.className = "text-3xl font-bold text-yellow-400 mb-2";
-                                    instrText.innerText = "Please stand tall to begin.";
+                                    instrText.innerText = "I need to see your legs straight to begin.";
                                 }
                             }
                         } else if (angle < 130) {
@@ -212,6 +212,7 @@
                             if (angle < currentSquatMin) currentSquatMin = angle;
                             instrTitle.innerText = "Squatting...";
                             instrTitle.className = "text-3xl font-bold text-blue-400 mb-2";
+                            instrText.innerText = "Go as low as feels comfortable.";
                         }
 
                         // FINISH REP
@@ -233,13 +234,14 @@
                             currentSquatMin = 180;
                             instrTitle.innerText = "Good Job!";
                             instrTitle.className = "text-3xl font-bold text-green-400 mb-2";
+                            instrText.innerText = "Take a breath. Squat again when ready.";
                         }
                     } else {
                         // Skeleton found, but legs hidden (e.g. sitting at desk close up)
                         if(firstFrameDetected && repCount === 0) {
-                            instrTitle.innerText = "Step Back";
+                            instrTitle.innerText = "Please Step Back";
                             instrTitle.className = "text-3xl font-bold text-red-400 mb-2";
-                            instrText.innerText = "I cannot see your legs.";
+                            instrText.innerText = "I need to see your whole body from head to toe.";
                         }
                     }
                 }
