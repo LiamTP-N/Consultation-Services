@@ -13,8 +13,20 @@
     <style>
         body { font-size: 18px; }
         .high-vis-border { border: 4px solid #FCD34D; }
-        .canvas-container { position: relative; width: 100%; max-width: 700px; margin: 0 auto; border-radius: 20px; overflow: hidden; }
-        .output_canvas { width: 100%; height: 100%; display: block; object-fit: cover; }
+        
+        /* UPDATED: Container is now flexible, not fixed to landscape */
+        .canvas-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 600px; /* Slightly narrower to look better on phones */
+            margin: 0 auto; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            background-color: black;
+            /* No fixed aspect ratio - it adapts to the camera feed */
+        }
+        
+        .output_canvas { width: 100%; height: auto; display: block; }
         video { display: none; }
         #app-screen { display: none; }
         input[type=checkbox] { transform: scale(1.5); }
@@ -22,10 +34,10 @@
         .progress-bar-container { width: 100%; height: 20px; background-color: #374151; border-radius: 10px; margin-top: 10px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background-color: #3B82F6; width: 0%; transition: width 0.5s ease-in-out; }
 
-        .stat-card { background-color: #1F2937; border: 2px solid #374151; border-radius: 1rem; padding: 1.5rem; text-align: center; }
-        .stat-value { font-size: 2.5rem; font-weight: bold; color: white; }
-        .stat-label { font-size: 0.9rem; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.5rem; }
-        .stat-icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+        .stat-card { background-color: #1F2937; border: 2px solid #374151; border-radius: 1rem; padding: 1rem; text-align: center; }
+        .stat-value { font-size: 2rem; font-weight: bold; color: white; }
+        .stat-label { font-size: 0.8rem; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.5rem; }
+        .stat-icon { font-size: 1.5rem; margin-bottom: 0.25rem; display: block; }
         .rom-card { border-color: #10B981; background-color: #064E3B; } 
     </style>
 </head>
@@ -33,7 +45,7 @@
 
     <nav class="bg-slate-800 py-6 text-center border-b border-slate-700">
         <h1 class="text-2xl md:text-3xl font-bold text-yellow-400">Dr. Pearson-Noseworthy's</h1>
-        <p class="text-slate-300 text-lg mt-1 font-medium">Daily Mobility Check-In!</p>
+        <p class="text-slate-300 text-lg mt-1 font-medium">Daily Mobility Check... you can do it!!</p>
     </nav>
 
     <section id="login-screen" class="flex-grow flex flex-col items-center justify-center p-4">
@@ -81,7 +93,7 @@
 
         <div class="grid lg:grid-cols-2 gap-8 w-full max-w-6xl items-start mb-8">
             <div class="col-span-1">
-                <div class="canvas-container bg-black high-vis-border shadow-2xl aspect-video relative">
+                <div class="canvas-container high-vis-border shadow-2xl relative">
                     <video class="input_video"></video>
                     <canvas class="output_canvas"></canvas>
                     
@@ -149,7 +161,7 @@
                     <div class="stat-label">Days Active</div>
                 </div>
             </div>
-            <p class="text-center text-slate-500 text-xl mt-6">Lower Score = Deeper Squat = Better Mobility!</p>
+            <p class="text-center text-slate-500 text-sm mt-6">Lower Score = Deeper Squat = Better Mobility!</p>
         </div>
 
     </section>
@@ -336,7 +348,6 @@
         const progressBar = document.getElementById('progressBar');
         const progressFill = document.getElementById('progressFill');
 
-        // AUDIO PHRASES FOR SUPPORT
         const encouragements = [
             "Great start!", 
             "Looking strong!", 
@@ -438,6 +449,7 @@
                     instrText.innerText = "The camera sees the room. Now step into view.";
                 }
 
+                // UPDATED: Dynamic Canvas Sizing to prevent stretching/zooming
                 canvasElement.width = videoElement.videoWidth;
                 canvasElement.height = videoElement.videoHeight;
                 canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -514,7 +526,6 @@
                                 }
                             }
                             else if (currentPhase === 3) {
-                                // SAVE TEST DATA TO DB
                                 if (window.saveSessionToDatabase) {
                                     window.saveSessionToDatabase(1, currentSquatMin); 
                                 }
@@ -545,11 +556,10 @@
                 }
             });
 
-            // ZOOM FIX: Request 1280x720 to force Wide Angle on Mobile
+            // UPDATED: Removed Fixed Width to allow Vertical/Portrait Video
             cameraInstance = new Camera(videoElement, {
-                onFrame: async () => { await pose.send({image: videoElement}); },
-                width: 1280,
-                height: 720
+                onFrame: async () => { await pose.send({image: videoElement}); }
+                // Width/Height Removed to allow browser auto-negotiation
             });
             cameraInstance.start();
         }
