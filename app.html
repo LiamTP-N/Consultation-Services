@@ -14,7 +14,7 @@
         body { font-size: 18px; }
         .high-vis-border { border: 4px solid #FCD34D; }
         .canvas-container { position: relative; width: 100%; max-width: 700px; margin: 0 auto; border-radius: 20px; overflow: hidden; }
-        .output_canvas { width: 100%; height: 100%; display: block; }
+        .output_canvas { width: 100%; height: 100%; display: block; object-fit: cover; }
         video { display: none; }
         #app-screen { display: none; }
         input[type=checkbox] { transform: scale(1.5); }
@@ -22,13 +22,10 @@
         .progress-bar-container { width: 100%; height: 20px; background-color: #374151; border-radius: 10px; margin-top: 10px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background-color: #3B82F6; width: 0%; transition: width 0.5s ease-in-out; }
 
-        /* Dashboard Card Styling */
         .stat-card { background-color: #1F2937; border: 2px solid #374151; border-radius: 1rem; padding: 1.5rem; text-align: center; }
         .stat-value { font-size: 2.5rem; font-weight: bold; color: white; }
         .stat-label { font-size: 0.9rem; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.5rem; }
         .stat-icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
-        
-        /* Highlight the ROM cards */
         .rom-card { border-color: #10B981; background-color: #064E3B; } 
     </style>
 </head>
@@ -88,7 +85,7 @@
                     <video class="input_video"></video>
                     <canvas class="output_canvas"></canvas>
                     
-                    <div class="absolute top-4 left-4 bg-slate-900/90 p-4 rounded-xl border-2 border-white">
+                    <div class="hidden absolute top-4 left-4 bg-slate-900/90 p-4 rounded-xl border-2 border-white">
                         <p class="text-slate-300 text-sm uppercase font-bold tracking-widest">Knee Angle</p>
                         <p class="text-5xl font-bold text-white" id="angleDisplay">--</p>
                     </div>
@@ -129,34 +126,28 @@
 
         <div class="w-full max-w-6xl mt-8">
             <h3 class="text-2xl font-bold text-white mb-4 pl-2 border-l-4 border-green-500">&nbsp;Mobility & Health Tracker</h3>
-            
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                
                 <div class="stat-card rom-card">
                     <span class="stat-icon">🏆</span>
                     <div class="stat-value text-white" id="statRom">--</div>
                     <div class="stat-label text-green-200 font-bold">Best Score Ever</div>
                 </div>
-
                 <div class="stat-card rom-card bg-opacity-50">
                     <span class="stat-icon">📊</span>
                     <div class="stat-value text-green-100" id="statAvg">--</div>
                     <div class="stat-label text-green-200">My Average Score</div>
                 </div>
-
                 <div class="stat-card">
                     <span class="stat-icon">🔥</span>
                     <div class="stat-value" id="statReps">0</div>
                     <div class="stat-label">Total Squats</div>
                     <div class="text-xs text-slate-500 mt-1"><span id="statCals">0</span> kcals burned</div>
                 </div>
-
                 <div class="stat-card">
                     <span class="stat-icon">📅</span>
                     <div class="stat-value" id="statDays">0</div>
                     <div class="stat-label">Days Active</div>
                 </div>
-
             </div>
             <p class="text-center text-slate-500 text-sm mt-6">Lower Score = Deeper Squat = Better Mobility!</p>
         </div>
@@ -166,7 +157,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        // Added arrayUnion for history tracking
         import { getFirestore, doc, getDoc, updateDoc, setDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -187,11 +177,11 @@
         const errorMsg = document.getElementById('loginError');
         const rememberMe = document.getElementById('rememberMe');
 
-        // STATS ELEMENTS
+        // STATS
         const statReps = document.getElementById('statReps');
         const statCals = document.getElementById('statCals');
-        const statRom = document.getElementById('statRom'); // Best
-        const statAvg = document.getElementById('statAvg'); // Average
+        const statRom = document.getElementById('statRom');
+        const statAvg = document.getElementById('statAvg');
         const statDays = document.getElementById('statDays');
 
         let currentUserData = null;
@@ -236,7 +226,6 @@
             statRom.innerText = data.bestRom ? data.bestRom + "°" : "--";
             statDays.innerText = data.daysActive || 1;
             
-            // Calculate Average from History
             if (data.romHistory && data.romHistory.length > 0) {
                 const sum = data.romHistory.reduce((a, b) => a + b, 0);
                 const avg = Math.round(sum / data.romHistory.length);
@@ -258,7 +247,6 @@
             }
         }
 
-        // EXPOSED FUNCTION: Save Workout Data
         window.saveSessionToDatabase = async function(sessionReps, sessionBestDepth) {
             if (!currentUserId || !currentUserData) return;
 
@@ -271,36 +259,31 @@
             const newTotalReps = currentTotalReps + sessionReps;
             const newCals = currentCals + (sessionReps * 0.4); 
             
-            // Logic for "Best" score (Lowest angle = Deepest squat)
             let newBestRom = currentBestRom;
             if (sessionBestDepth < currentBestRom && sessionBestDepth > 40) {
                 newBestRom = sessionBestDepth;
             }
 
-            // Update Database
             await updateDoc(docRef, {
                 totalReps: newTotalReps,
                 totalCalories: newCals,
                 bestRom: newBestRom,
                 lastActivity: serverTimestamp(),
-                // Add this specific test result to history
                 romHistory: arrayUnion(sessionBestDepth) 
             });
 
-            // Update UI
             statReps.innerText = newTotalReps;
             statCals.innerText = Math.round(newCals);
             statRom.innerText = newBestRom + "°";
             
-            // Update Average UI manually for instant feedback
             if (currentUserData.romHistory) {
                 const newHistory = [...currentUserData.romHistory, sessionBestDepth];
                 const sum = newHistory.reduce((a, b) => a + b, 0);
                 const avg = Math.round(sum / newHistory.length);
                 statAvg.innerText = avg + "°";
-                currentUserData.romHistory = newHistory; // Local update
+                currentUserData.romHistory = newHistory; 
             } else {
-                statAvg.innerText = sessionBestDepth + "°"; // First ever entry
+                statAvg.innerText = sessionBestDepth + "°"; 
                 currentUserData.romHistory = [sessionBestDepth];
             }
             
@@ -327,19 +310,15 @@
     </script>
 
     <script>
-        // GLOBAL STATE
         let isSquatting = false;
         let currentSquatMin = 180;
         let firstFrameDetected = false;
         let cameraInstance = null;
         let isCameraRunning = false;
-        
-        // PROTOCOL STATE
         let currentPhase = 0; 
         let warmupReps = 0;
         const TARGET_WARMUP_REPS = 5;
 
-        // UI ELEMENTS
         const videoElement = document.getElementsByClassName('input_video')[0];
         const canvasElement = document.getElementsByClassName('output_canvas')[0];
         const canvasCtx = canvasElement.getContext('2d');
@@ -356,6 +335,15 @@
         const phaseStep = document.getElementById('phaseStep');
         const progressBar = document.getElementById('progressBar');
         const progressFill = document.getElementById('progressFill');
+
+        // AUDIO PHRASES FOR SUPPORT
+        const encouragements = [
+            "Great start!", 
+            "Looking strong!", 
+            "Keep breathing!", 
+            "Nice control!", 
+            "Looking stable!"
+        ];
 
         function speak(text) {
             window.speechSynthesis.cancel();
@@ -385,9 +373,7 @@
         }
 
         function startRestTimer() {
-            // SAVE WARMUP DATA TO DB
             if (window.saveSessionToDatabase) {
-                // We record 5 reps for volume, but we send '180' as depth so it ignores the warmup depth for stats
                 window.saveSessionToDatabase(5, 180); 
             }
 
@@ -515,7 +501,9 @@
                                 entry.innerHTML = `<span class="text-white text-lg">Warmup ${warmupReps}/5</span><span class="text-white font-bold">${currentSquatMin}°</span>`;
                                 logContainer.prepend(entry);
                                 
-                                speak(`${warmupReps}`);
+                                // Random Encouragement + Rep Count
+                                let msg = encouragements[Math.floor(Math.random() * encouragements.length)];
+                                speak(`${msg} Rep ${warmupReps}`);
 
                                 if (warmupReps >= TARGET_WARMUP_REPS) {
                                     startRestTimer();
@@ -528,7 +516,6 @@
                             else if (currentPhase === 3) {
                                 // SAVE TEST DATA TO DB
                                 if (window.saveSessionToDatabase) {
-                                    // 1 rep, specific depth for Stats
                                     window.saveSessionToDatabase(1, currentSquatMin); 
                                 }
 
@@ -558,10 +545,11 @@
                 }
             });
 
+            // ZOOM FIX: Request 1280x720 to force Wide Angle on Mobile
             cameraInstance = new Camera(videoElement, {
                 onFrame: async () => { await pose.send({image: videoElement}); },
-                width: 640,
-                height: 480
+                width: 1280,
+                height: 720
             });
             cameraInstance.start();
         }
