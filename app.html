@@ -18,6 +18,18 @@
         video { display: none; }
         #app-screen { display: none; }
         input[type=checkbox] { transform: scale(1.5); }
+        
+        .progress-bar-container { width: 100%; height: 20px; background-color: #374151; border-radius: 10px; margin-top: 10px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background-color: #3B82F6; width: 0%; transition: width 0.5s ease-in-out; }
+
+        /* Dashboard Card Styling */
+        .stat-card { background-color: #1F2937; border: 2px solid #374151; border-radius: 1rem; padding: 1.5rem; text-align: center; }
+        .stat-value { font-size: 2.5rem; font-weight: bold; color: white; }
+        .stat-label { font-size: 0.9rem; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.5rem; }
+        .stat-icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+        
+        /* Highlight the ROM cards */
+        .rom-card { border-color: #10B981; background-color: #064E3B; } 
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col">
@@ -56,12 +68,21 @@
     </section>
 
     <section id="app-screen" class="flex-grow flex flex-col items-center justify-start pt-8 px-4 pb-8">
-        <div class="bg-slate-800 p-6 rounded-2xl border-2 border-slate-600 text-center max-w-2xl w-full mb-8 shadow-xl">
+        
+        <div class="bg-slate-800 p-6 rounded-2xl border-2 border-slate-600 text-center max-w-3xl w-full mb-6 shadow-xl">
+            <div class="flex justify-between items-center mb-2">
+                <span id="phaseLabel" class="text-blue-400 font-bold uppercase tracking-widest text-sm">Welcome</span>
+                <span id="phaseStep" class="text-slate-400 text-sm">Step 0/3</span>
+            </div>
             <h2 id="instructionTitle" class="text-3xl font-bold text-white mb-2">Welcome Back</h2>
             <p id="instructionText" class="text-xl text-yellow-200">Click the large green button to begin.</p>
+            
+            <div id="progressBar" class="progress-bar-container hidden">
+                <div id="progressFill" class="progress-bar-fill"></div>
+            </div>
         </div>
 
-        <div class="grid lg:grid-cols-2 gap-8 w-full max-w-6xl items-start">
+        <div class="grid lg:grid-cols-2 gap-8 w-full max-w-6xl items-start mb-8">
             <div class="col-span-1">
                 <div class="canvas-container bg-black high-vis-border shadow-2xl aspect-video relative">
                     <video class="input_video"></video>
@@ -72,9 +93,15 @@
                         <p class="text-5xl font-bold text-white" id="angleDisplay">--</p>
                     </div>
 
-                    <div id="pausedOverlay" class="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center hidden">
+                    <div id="pausedOverlay" class="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center hidden z-20">
                         <p class="text-3xl font-bold text-yellow-400 mb-2">CAMERA PAUSED</p>
                         <p class="text-slate-300 text-lg">The camera is off.</p>
+                    </div>
+
+                    <div id="restOverlay" class="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center hidden z-30">
+                        <p class="text-2xl text-blue-300 mb-4">Rest & Recover</p>
+                        <p id="timerDisplay" class="text-8xl font-bold text-white">30</p>
+                        <p class="text-slate-400 mt-4 px-8 text-center">Take a deep breath. We will start the main test soon.</p>
                     </div>
                 </div>
 
@@ -91,20 +118,56 @@
 
             <div class="col-span-1 bg-slate-800 rounded-2xl border-2 border-slate-600 p-6 h-full min-h-[400px]">
                 <div class="flex justify-between items-center mb-6 border-b-2 border-slate-600 pb-4">
-                    <h2 class="text-3xl font-bold text-white">Your Reps</h2>
+                    <h2 class="text-3xl font-bold text-white">Session Log</h2>
                     <span class="bg-blue-600 text-xl font-bold px-4 py-2 rounded-lg text-white">Live</span>
                 </div>
                 <div id="logContainer" class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
-                    <p class="text-slate-400 text-xl italic text-center mt-12">Results appear here.</p>
+                    <p class="text-slate-400 text-xl italic text-center mt-12">Follow the instructions on the left to begin.</p>
                 </div>
             </div>
         </div>
+
+        <div class="w-full max-w-6xl mt-8">
+            <h3 class="text-2xl font-bold text-white mb-4 pl-2 border-l-4 border-green-500">&nbsp;Mobility & Health Tracker</h3>
+            
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <div class="stat-card rom-card">
+                    <span class="stat-icon">🏆</span>
+                    <div class="stat-value text-white" id="statRom">--</div>
+                    <div class="stat-label text-green-200 font-bold">Best Score Ever</div>
+                </div>
+
+                <div class="stat-card rom-card bg-opacity-50">
+                    <span class="stat-icon">📊</span>
+                    <div class="stat-value text-green-100" id="statAvg">--</div>
+                    <div class="stat-label text-green-200">My Average Score</div>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-icon">🔥</span>
+                    <div class="stat-value" id="statReps">0</div>
+                    <div class="stat-label">Total Squats</div>
+                    <div class="text-xs text-slate-500 mt-1"><span id="statCals">0</span> kcals burned</div>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-icon">📅</span>
+                    <div class="stat-value" id="statDays">0</div>
+                    <div class="stat-label">Days Active</div>
+                </div>
+
+            </div>
+            <p class="text-center text-slate-500 text-sm mt-6">Lower Score = Deeper Squat = Better Mobility!</p>
+        </div>
+
     </section>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        // Added arrayUnion for history tracking
+        import { getFirestore, doc, getDoc, updateDoc, setDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBYpFeeBu8r1GYBjMzZEuf264pCEU6-6zU",
@@ -124,8 +187,19 @@
         const errorMsg = document.getElementById('loginError');
         const rememberMe = document.getElementById('rememberMe');
 
+        // STATS ELEMENTS
+        const statReps = document.getElementById('statReps');
+        const statCals = document.getElementById('statCals');
+        const statRom = document.getElementById('statRom'); // Best
+        const statAvg = document.getElementById('statAvg'); // Average
+        const statDays = document.getElementById('statDays');
+
+        let currentUserData = null;
+        let currentUserId = null;
+
         auth.onAuthStateChanged(async (user) => {
             if (user) {
+                currentUserId = user.uid;
                 checkSubscription(user);
             }
         });
@@ -136,6 +210,10 @@
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists() && docSnap.data().paid === true) {
+                    currentUserData = docSnap.data();
+                    loadStatsToUI(currentUserData);
+                    handleDailyLogin(docRef, currentUserData);
+
                     document.getElementById('login-screen').style.display = 'none';
                     document.getElementById('app-screen').style.display = 'flex';
                 } else {
@@ -150,6 +228,85 @@
                     errorMsg.classList.remove('hidden');
                 }
             }
+        }
+
+        function loadStatsToUI(data) {
+            statReps.innerText = data.totalReps || 0;
+            statCals.innerText = data.totalCalories ? Math.round(data.totalCalories) : 0;
+            statRom.innerText = data.bestRom ? data.bestRom + "°" : "--";
+            statDays.innerText = data.daysActive || 1;
+            
+            // Calculate Average from History
+            if (data.romHistory && data.romHistory.length > 0) {
+                const sum = data.romHistory.reduce((a, b) => a + b, 0);
+                const avg = Math.round(sum / data.romHistory.length);
+                statAvg.innerText = avg + "°";
+            } else {
+                statAvg.innerText = "--";
+            }
+        }
+
+        async function handleDailyLogin(docRef, data) {
+            const today = new Date().toDateString();
+            if (data.lastLoginDate !== today) {
+                const newDays = (data.daysActive || 0) + 1;
+                await updateDoc(docRef, {
+                    lastLoginDate: today,
+                    daysActive: newDays
+                });
+                statDays.innerText = newDays;
+            }
+        }
+
+        // EXPOSED FUNCTION: Save Workout Data
+        window.saveSessionToDatabase = async function(sessionReps, sessionBestDepth) {
+            if (!currentUserId || !currentUserData) return;
+
+            const docRef = doc(db, "users", currentUserId);
+            
+            const currentTotalReps = currentUserData.totalReps || 0;
+            const currentCals = currentUserData.totalCalories || 0;
+            const currentBestRom = currentUserData.bestRom || 180; 
+
+            const newTotalReps = currentTotalReps + sessionReps;
+            const newCals = currentCals + (sessionReps * 0.4); 
+            
+            // Logic for "Best" score (Lowest angle = Deepest squat)
+            let newBestRom = currentBestRom;
+            if (sessionBestDepth < currentBestRom && sessionBestDepth > 40) {
+                newBestRom = sessionBestDepth;
+            }
+
+            // Update Database
+            await updateDoc(docRef, {
+                totalReps: newTotalReps,
+                totalCalories: newCals,
+                bestRom: newBestRom,
+                lastActivity: serverTimestamp(),
+                // Add this specific test result to history
+                romHistory: arrayUnion(sessionBestDepth) 
+            });
+
+            // Update UI
+            statReps.innerText = newTotalReps;
+            statCals.innerText = Math.round(newCals);
+            statRom.innerText = newBestRom + "°";
+            
+            // Update Average UI manually for instant feedback
+            if (currentUserData.romHistory) {
+                const newHistory = [...currentUserData.romHistory, sessionBestDepth];
+                const sum = newHistory.reduce((a, b) => a + b, 0);
+                const avg = Math.round(sum / newHistory.length);
+                statAvg.innerText = avg + "°";
+                currentUserData.romHistory = newHistory; // Local update
+            } else {
+                statAvg.innerText = sessionBestDepth + "°"; // First ever entry
+                currentUserData.romHistory = [sessionBestDepth];
+            }
+            
+            currentUserData.totalReps = newTotalReps;
+            currentUserData.totalCalories = newCals;
+            currentUserData.bestRom = newBestRom;
         }
 
         loginForm.addEventListener('submit', async (e) => {
@@ -173,10 +330,14 @@
         // GLOBAL STATE
         let isSquatting = false;
         let currentSquatMin = 180;
-        let repCount = 0;
         let firstFrameDetected = false;
-        let cameraInstance = null; // We store the camera here so we can stop it later
+        let cameraInstance = null;
         let isCameraRunning = false;
+        
+        // PROTOCOL STATE
+        let currentPhase = 0; 
+        let warmupReps = 0;
+        const TARGET_WARMUP_REPS = 5;
 
         // UI ELEMENTS
         const videoElement = document.getElementsByClassName('input_video')[0];
@@ -189,44 +350,97 @@
         const instrTitle = document.getElementById('instructionTitle');
         const instrText = document.getElementById('instructionText');
         const pausedOverlay = document.getElementById('pausedOverlay');
+        const restOverlay = document.getElementById('restOverlay');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const phaseLabel = document.getElementById('phaseLabel');
+        const phaseStep = document.getElementById('phaseStep');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            let u = new SpeechSynthesisUtterance(text);
+            u.rate = 0.9;
+            window.speechSynthesis.speak(u);
+        }
 
         function toggleCamera() {
             if (isCameraRunning) {
-                // STOP
                 cameraInstance.stop();
                 isCameraRunning = false;
-                
-                // Update UI
                 toggleBtn.innerText = "RESUME CAMERA";
                 toggleBtn.className = "w-full bg-green-600 hover:bg-green-500 text-white font-bold text-3xl py-6 px-8 rounded-2xl shadow-xl border-b-8 border-green-800 active:border-b-0 active:translate-y-2 transition-all";
-                
                 instrTitle.innerText = "Camera Paused";
                 instrText.innerText = "The camera is off. Click Resume when you are ready.";
                 pausedOverlay.classList.remove('hidden');
-                
             } else {
-                // START (Resume)
                 cameraInstance.start();
                 isCameraRunning = true;
-                
-                // Update UI
                 toggleBtn.innerText = "STOP CAMERA";
                 toggleBtn.className = "w-full bg-red-600 hover:bg-red-500 text-white font-bold text-3xl py-6 px-8 rounded-2xl shadow-xl border-b-8 border-red-800 active:border-b-0 active:translate-y-2 transition-all";
-                
                 instrTitle.innerText = "Warming Up...";
                 instrText.innerText = "Starting camera again...";
                 pausedOverlay.classList.add('hidden');
             }
         }
+
+        function startRestTimer() {
+            // SAVE WARMUP DATA TO DB
+            if (window.saveSessionToDatabase) {
+                // We record 5 reps for volume, but we send '180' as depth so it ignores the warmup depth for stats
+                window.saveSessionToDatabase(5, 180); 
+            }
+
+            currentPhase = 2; // REST
+            restOverlay.classList.remove('hidden');
+            phaseLabel.innerText = "PHASE 2: RECOVER";
+            phaseStep.innerText = "Step 2/3";
+            instrTitle.innerText = "Resting...";
+            instrText.innerText = "Please wait for the timer.";
+            
+            speak("Warm up complete. Please rest for 30 seconds.");
+
+            let timeLeft = 30;
+            const timer = setInterval(() => {
+                timeLeft--;
+                timerDisplay.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    restOverlay.classList.add('hidden');
+                    startMainTest();
+                }
+            }, 1000);
+        }
+
+        function startMainTest() {
+            currentPhase = 3; // MAIN TEST
+            phaseLabel.innerText = "PHASE 3: ASSESSMENT";
+            phaseStep.innerText = "Step 3/3";
+            phaseLabel.classList.add("text-green-400");
+            
+            logContainer.innerHTML = "";
+            const div = document.createElement("div");
+            div.className = "text-center text-yellow-400 font-bold text-lg mb-4 border-b border-slate-600 pb-2";
+            div.innerText = "--- OFFICIAL TEST ---";
+            logContainer.appendChild(div);
+
+            instrTitle.innerText = "Ready for Assessment";
+            instrTitle.className = "text-3xl font-bold text-green-400 mb-2";
+            instrText.innerText = "Turn sideways. Hold onto a chair if you need to. Squat as low as you safely can.";
+            speak("Ready for assessment. Squat as low as you safely can.");
+        }
         
         function initCamera() {
             instrTitle.innerText = "Warming Up...";
-            instrText.innerText = "Please allow the camera access on your device.";
-            
-            // Swap Buttons
+            instrText.innerText = "Please allow camera access on your device.";
             startBtn.style.display = 'none';
             toggleBtn.classList.remove('hidden');
             isCameraRunning = true;
+            
+            currentPhase = 1; 
+            phaseLabel.innerText = "PHASE 1: WARM UP";
+            phaseStep.innerText = "Step 1/3";
+            progressBar.classList.remove('hidden');
 
             const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
             pose.setOptions({modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5});
@@ -257,16 +471,22 @@
                         if (angle > 180.0) angle = 360 - angle;
                         angle = Math.round(angle);
                         angleDisplay.innerText = angle + "°";
-
+                        
+                        if (currentPhase === 2) return;
+                        
                         if (!isSquatting) {
                             if (angle > 165) {
-                                if(repCount === 0) {
+                                if (currentPhase === 1 && warmupReps === 0 && !isSquatting) {
                                     instrTitle.innerText = "Perfect Position";
                                     instrTitle.className = "text-3xl font-bold text-green-400 mb-2";
-                                    instrText.innerText = "The camera sees you clearly. Turn sideways, then squat when ready.";
+                                    instrText.innerText = "Turn sideways. Perform 5 gentle squats to warm up.";
+                                } else if (currentPhase === 3 && !isSquatting) {
+                                     instrTitle.innerText = "Assessment Mode";
+                                     instrTitle.className = "text-3xl font-bold text-green-400 mb-2";
+                                     instrText.innerText = "Perform your best squat when ready.";
                                 }
                             } else {
-                                if(repCount === 0) {
+                                if (!isSquatting) {
                                     instrTitle.innerText = "Please Stand Tall";
                                     instrTitle.className = "text-3xl font-bold text-yellow-400 mb-2";
                                     instrText.innerText = "The camera needs to see your legs straight to begin.";
@@ -275,31 +495,61 @@
                         } else if (angle < 130) {
                             isSquatting = true;
                             if (angle < currentSquatMin) currentSquatMin = angle;
+                            
                             instrTitle.innerText = "Squatting...";
                             instrTitle.className = "text-3xl font-bold text-blue-400 mb-2";
-                            instrText.innerText = "Go as low as feels comfortable.";
+                            
+                            if (currentPhase === 1) instrText.innerText = "Gentle movement. Don't push too hard yet.";
+                            if (currentPhase === 3) instrText.innerText = "Go as low as you safely can.";
                         }
 
                         if (isSquatting && angle > 165) {
-                            repCount++;
-                            if(repCount===1) logContainer.innerHTML = "";
-                            const entry = document.createElement("div");
-                            entry.className = "flex justify-between items-center bg-slate-700 p-4 rounded-xl border-l-8 border-green-500 mb-2 animate-pulse";
-                            entry.innerHTML = `<span class="font-bold text-white text-xl">Rep ${repCount}</span><span class="text-white font-bold text-2xl">${currentSquatMin}°</span>`;
-                            logContainer.prepend(entry);
-                            
-                            window.speechSynthesis.cancel();
-                            let u = new SpeechSynthesisUtterance(`${currentSquatMin} degrees`);
-                            window.speechSynthesis.speak(u);
+                            if (currentPhase === 1) {
+                                warmupReps++;
+                                let percentage = (warmupReps / TARGET_WARMUP_REPS) * 100;
+                                progressFill.style.width = percentage + "%";
+
+                                if(warmupReps === 1) logContainer.innerHTML = "";
+                                const entry = document.createElement("div");
+                                entry.className = "flex justify-between items-center bg-slate-700 p-4 rounded-xl border-l-8 border-blue-400 mb-2 opacity-75";
+                                entry.innerHTML = `<span class="text-white text-lg">Warmup ${warmupReps}/5</span><span class="text-white font-bold">${currentSquatMin}°</span>`;
+                                logContainer.prepend(entry);
+                                
+                                speak(`${warmupReps}`);
+
+                                if (warmupReps >= TARGET_WARMUP_REPS) {
+                                    startRestTimer();
+                                } else {
+                                    instrTitle.innerText = `Rep ${warmupReps} Complete`;
+                                    instrTitle.className = "text-3xl font-bold text-blue-400 mb-2";
+                                    instrText.innerText = "Good. Stand tall, then go again.";
+                                }
+                            }
+                            else if (currentPhase === 3) {
+                                // SAVE TEST DATA TO DB
+                                if (window.saveSessionToDatabase) {
+                                    // 1 rep, specific depth for Stats
+                                    window.saveSessionToDatabase(1, currentSquatMin); 
+                                }
+
+                                const entry = document.createElement("div");
+                                entry.className = "flex justify-between items-center bg-green-900 p-4 rounded-xl border-l-8 border-green-400 mb-2 shadow-lg scale-105";
+                                entry.innerHTML = `<span class="font-bold text-white text-xl">TEST RESULT</span><span class="text-white font-bold text-3xl">${currentSquatMin}°</span>`;
+                                logContainer.prepend(entry);
+                                
+                                speak(`Assessment Complete. ${currentSquatMin} degrees.`);
+                                
+                                instrTitle.innerText = "Test Complete!";
+                                instrTitle.className = "text-3xl font-bold text-green-400 mb-2";
+                                instrText.innerText = "Excellent work. You can stop the camera now.";
+                                currentPhase = 4;
+                            }
 
                             isSquatting = false;
                             currentSquatMin = 180;
-                            instrTitle.innerText = "Good Job!";
-                            instrTitle.className = "text-3xl font-bold text-green-400 mb-2";
-                            instrText.innerText = "Take a breath. Squat again when ready.";
                         }
                     } else {
-                        if(firstFrameDetected && repCount === 0) {
+                        if(firstFrameDetected && !isSquatting && currentPhase !== 2) {
                             instrTitle.innerText = "Please Step Back";
                             instrTitle.className = "text-3xl font-bold text-red-400 mb-2";
                             instrText.innerText = "The camera needs to see your whole body, from head to toe.";
