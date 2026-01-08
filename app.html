@@ -9,7 +9,7 @@
     <style>
         .canvas-container { position: relative; width: 100%; max-width: 640px; margin: 0 auto; }
         .output_canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
-        video { display: none; } /* Hide the raw video, we only show the canvas with lines */
+        video { display: none; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
@@ -29,12 +29,17 @@
         
         <div class="text-center mb-6">
             <h1 class="text-3xl font-bold text-white mb-2">Motion Assessment</h1>
-            <p class="text-slate-400">Please ensure your whole body is visible in the camera.</p>
+            <p class="text-slate-400">Turn sideways to the camera for the best accuracy.</p>
         </div>
 
-        <div class="canvas-container rounded-xl overflow-hidden shadow-2xl border-2 border-slate-700 bg-black aspect-video">
+        <div class="canvas-container rounded-xl overflow-hidden shadow-2xl border-2 border-slate-700 bg-black aspect-video relative">
             <video class="input_video"></video>
             <canvas class="output_canvas"></canvas>
+            
+            <div class="absolute top-4 left-4 bg-slate-900/80 p-3 rounded-lg border border-slate-600">
+                <p class="text-slate-400 text-xs uppercase font-bold">Right Knee Angle</p>
+                <p class="text-4xl font-bold text-white" id="angleDisplay">0°</p>
+            </div>
         </div>
 
         <button id="startBtn" onclick="init()" class="mt-8 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all hover:scale-105">
@@ -46,7 +51,7 @@
     </main>
 
     <footer class="py-6 border-t border-slate-700 text-center text-slate-500 text-xs">
-        © 2025 Dr. Liam T. Pearson-Noseworthy. System: <span id="fps">0</span> FPS
+        © 2025 Dr. Liam T. Pearson-Noseworthy.
     </footer>
 
     <script>
@@ -55,55 +60,75 @@
         const canvasCtx = canvasElement.getContext('2d');
         const statusText = document.getElementById('status');
         const startBtn = document.getElementById('startBtn');
+        const angleDisplay = document.getElementById('angleDisplay');
+
+        // MATHEMATICS: Calculate angle between three points (A, B, C)
+        function calculateAngle(a, b, c) {
+            // ArcTan2 calculates the angle of the lines in radians
+            let radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
+            let angle = Math.abs(radians * 180.0 / Math.PI); // Convert to Degrees
+            
+            if (angle > 180.0) {
+                angle = 360 - angle;
+            }
+            return Math.round(angle);
+        }
 
         function onResults(results) {
-            // This runs 30 times a second when the camera is on
-            
-            // 1. Prepare the canvas
             canvasElement.width = videoElement.videoWidth;
             canvasElement.height = videoElement.videoHeight;
             canvasCtx.save();
             canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-
-            // 2. Draw the video frame
             canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
-            // 3. Draw the Skeleton (Landmarks)
             if (results.poseLandmarks) {
-                drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS,
-                               {color: '#00FF00', lineWidth: 4});
-                drawLandmarks(canvasCtx, results.poseLandmarks,
-                              {color: '#FF0000', lineWidth: 2});
-                
+                // 1. Draw Skeleton
+                drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: '#ffffff', lineWidth: 2});
+                drawLandmarks(canvasCtx, results.poseLandmarks, {color: '#3b82f6', lineWidth: 1});
+
+                // 2. Extract Key Landmarks (Right Side)
+                // Map: 24=Hip, 26=Knee, 28=Ankle (MediaPipe Standard)
+                const hip = results.poseLandmarks[24];
+                const knee = results.poseLandmarks[26];
+                const ankle = results.poseLandmarks[28];
+
+                // 3. Calculate & Display Angle if visibility is good
+                if (hip && knee && ankle && hip.visibility > 0.5 && knee.visibility > 0.5 && ankle.visibility > 0.5) {
+                    const angle = calculateAngle(hip, knee, ankle);
+                    
+                    // Update the text on screen
+                    angleDisplay.innerText = angle + "°";
+
+                    // Visual Feedback: Turn Green if deep squat (< 100 degrees)
+                    if(angle < 100) {
+                        angleDisplay.classList.add("text-green-400");
+                        angleDisplay.classList.remove("text-white");
+                    } else {
+                        angleDisplay.classList.add("text-white");
+                        angleDisplay.classList.remove("text-green-400");
+                    }
+                }
+
                 statusText.innerText = "Status: Tracking Active";
                 statusText.className = "mt-4 text-green-400 text-sm font-bold";
             }
             canvasCtx.restore();
         }
 
-        // Setup MediaPipe Pose
-        const pose = new Pose({locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
-        }});
-
+        const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
         pose.setOptions({
-            modelComplexity: 1, // 0=Fast, 1=Medium, 2=Accurate
+            modelComplexity: 1,
             smoothLandmarks: true,
             minDetectionConfidence: 0.5,
             minTrackingConfidence: 0.5
         });
-
         pose.onResults(onResults);
 
-        // Start Camera Function
         function init() {
-            statusText.innerText = "Status: Requesting Camera Access...";
-            startBtn.style.display = 'none'; // Hide button after clicking
-            
+            statusText.innerText = "Status: Loading AI Model...";
+            startBtn.style.display = 'none'; 
             const camera = new Camera(videoElement, {
-                onFrame: async () => {
-                    await pose.send({image: videoElement});
-                },
+                onFrame: async () => { await pose.send({image: videoElement}); },
                 width: 640,
                 height: 480
             });
