@@ -46,8 +46,6 @@
                     LOG IN
                 </button>
             </div>
-            
-            <div id="debug-log" class="mt-4 p-2 bg-black text-red-500 font-mono text-xs hidden"></div>
         </div>
     </section>
 
@@ -102,72 +100,47 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // UI ELEMENTS
         const loginBtn = document.getElementById('loginBtn');
         const errorMsg = document.getElementById('loginError');
-        const debugLog = document.getElementById('debug-log');
 
-        // LOGIN CLICK HANDLER
         loginBtn.addEventListener('click', async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
-            // UI Feedback: Button changes to show it's working
             loginBtn.innerText = "Checking...";
-            loginBtn.classList.add("opacity-50", "cursor-not-allowed");
             errorMsg.classList.add('hidden');
-            debugLog.classList.add('hidden');
 
             try {
-                // 1. Authenticate
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
-                console.log("Auth successful, UID:", user.uid);
-
-                // 2. Check Database for Payment
                 const docRef = doc(db, "users", user.uid);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists() && docSnap.data().paid === true) {
-                    // SUCCESS
                     document.getElementById('login-screen').style.display = 'none';
                     document.getElementById('app-screen').style.display = 'flex';
                 } else {
                     throw new Error("Subscription inactive");
                 }
-
             } catch (error) {
                 console.error("Login Failed:", error);
-                
-                // Reset Button
                 loginBtn.innerText = "LOG IN";
-                loginBtn.classList.remove("opacity-50", "cursor-not-allowed");
-                
-                // Show Error Message
                 errorMsg.classList.remove('hidden');
-                
-                // Specific Error Handling
                 if(error.message.includes("Subscription")) {
                     errorMsg.innerText = "Account Found, but Subscription is Inactive.";
-                } else if (error.code === 'auth/invalid-credential') {
-                    errorMsg.innerText = "Incorrect Email or Password.";
                 } else {
-                    // Show technical error if it's something weird
-                    errorMsg.innerText = "System Error. See debug below.";
-                    debugLog.innerText = error.message;
-                    debugLog.classList.remove('hidden');
+                    errorMsg.innerText = "Incorrect Email or Password.";
                 }
             }
         });
     </script>
 
     <script>
-        // Global variables for the app logic
         let isSquatting = false;
         let currentSquatMin = 180;
         let repCount = 0;
+        let firstFrameDetected = false;
         
-        // This function is called by the START CAMERA button
         function initCamera() {
             const videoElement = document.getElementsByClassName('input_video')[0];
             const canvasElement = document.getElementsByClassName('output_canvas')[0];
@@ -178,15 +151,22 @@
             const instrTitle = document.getElementById('instructionTitle');
             const instrText = document.getElementById('instructionText');
 
-            instrTitle.innerText = "Starting...";
-            instrText.innerText = "Please allow camera access.";
+            // Initial feedback
+            instrTitle.innerText = "Starting Camera...";
+            instrText.innerText = "Please wait a moment.";
             startBtn.style.display = 'none';
 
-            // Motion Logic
             const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
             pose.setOptions({modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5});
 
             pose.onResults((results) => {
+                // Once we get ANY result, we know the camera is working
+                if (!firstFrameDetected) {
+                    firstFrameDetected = true;
+                    instrTitle.innerText = "Scanning...";
+                    instrText.innerText = "I can see you. Looking for legs...";
+                }
+
                 canvasElement.width = videoElement.videoWidth;
                 canvasElement.height = videoElement.videoHeight;
                 canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -200,7 +180,9 @@
                     const knee = results.poseLandmarks[26];
                     const ankle = results.poseLandmarks[28];
 
+                    // Check if we can see the leg clearly
                     if (hip && knee && ankle && hip.visibility > 0.5) {
+                        
                         // Calculate Angle
                         let radians = Math.atan2(ankle.y - knee.y, ankle.x - knee.x) - Math.atan2(hip.y - knee.y, hip.x - knee.x);
                         let angle = Math.abs(radians * 180.0 / Math.PI);
@@ -208,15 +190,31 @@
                         angle = Math.round(angle);
                         angleDisplay.innerText = angle + "°";
 
-                        // Squat Logic
-                        if (!isSquatting && angle > 165) {
-                             if(repCount === 0) { instrTitle.innerText = "Ready"; instrText.innerText = "Turn sideways & Squat."; }
+                        // UX: Give specific feedback based on posture
+                        if (!isSquatting) {
+                            if (angle > 165) {
+                                // Perfect Standing Pose
+                                if(repCount === 0) {
+                                    instrTitle.innerText = "Ready";
+                                    instrTitle.className = "text-3xl font-bold text-green-400 mb-2";
+                                    instrText.innerText = "Turn sideways & Squat down.";
+                                }
+                            } else {
+                                // Legs visible but bent (Sitting?)
+                                if(repCount === 0) {
+                                    instrTitle.innerText = "Stand Up";
+                                    instrTitle.className = "text-3xl font-bold text-yellow-400 mb-2";
+                                    instrText.innerText = "Please stand tall to begin.";
+                                }
+                            }
                         } else if (angle < 130) {
                             isSquatting = true;
                             if (angle < currentSquatMin) currentSquatMin = angle;
                             instrTitle.innerText = "Squatting...";
+                            instrTitle.className = "text-3xl font-bold text-blue-400 mb-2";
                         }
 
+                        // FINISH REP
                         if (isSquatting && angle > 165) {
                             repCount++;
                             if(repCount===1) logContainer.innerHTML = "";
@@ -226,7 +224,7 @@
                             entry.innerHTML = `<span class="font-bold text-white text-xl">Rep ${repCount}</span><span class="text-white font-bold text-2xl">${currentSquatMin}°</span>`;
                             logContainer.prepend(entry);
                             
-                            // Audio Feedback
+                            // Audio
                             window.speechSynthesis.cancel();
                             let u = new SpeechSynthesisUtterance(`${currentSquatMin} degrees`);
                             window.speechSynthesis.speak(u);
@@ -234,6 +232,14 @@
                             isSquatting = false;
                             currentSquatMin = 180;
                             instrTitle.innerText = "Good Job!";
+                            instrTitle.className = "text-3xl font-bold text-green-400 mb-2";
+                        }
+                    } else {
+                        // Skeleton found, but legs hidden (e.g. sitting at desk close up)
+                        if(firstFrameDetected && repCount === 0) {
+                            instrTitle.innerText = "Step Back";
+                            instrTitle.className = "text-3xl font-bold text-red-400 mb-2";
+                            instrText.innerText = "I cannot see your legs.";
                         }
                     }
                 }
