@@ -5,13 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Daily Motion | Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+
     <style>
         body { font-size: 18px; }
         .high-vis-border { border: 4px solid #FCD34D; }
         .canvas-container { position: relative; width: 100%; max-width: 700px; margin: 0 auto; border-radius: 20px; overflow: hidden; }
         .output_canvas { width: 100%; height: 100%; display: block; }
         video { display: none; }
-        /* Hide app initially */
         #app-screen { display: none; }
     </style>
 </head>
@@ -42,7 +46,8 @@
                     LOG IN
                 </button>
             </div>
-            <p class="mt-6 text-slate-500 text-center text-sm">Strictly for private clients only.</p>
+            
+            <div id="debug-log" class="mt-4 p-2 bg-black text-red-500 font-mono text-xs hidden"></div>
         </div>
     </section>
 
@@ -79,17 +84,11 @@
     </section>
 
     <script type="module">
-        // 1. Import Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // 2. Import MediaPipe (Motion)
-        import { Pose } from "https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js";
-        import { Camera } from "https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js";
-        import { drawConnectors, drawLandmarks } from "https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js";
-
-        // 3. Your Configuration
+        // CONFIG (Your keys)
         const firebaseConfig = {
             apiKey: "AIzaSyBYpFeeBu8r1GYBjMzZEuf264pCEU6-6zU",
             authDomain: "rom-tracker-app.firebaseapp.com",
@@ -99,112 +98,145 @@
             appId: "1:133680237142:web:1a846a2f3a240aca4a09f7"
         };
 
-        // 4. Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // 5. Login Logic
+        // UI ELEMENTS
         const loginBtn = document.getElementById('loginBtn');
         const errorMsg = document.getElementById('loginError');
+        const debugLog = document.getElementById('debug-log');
 
+        // LOGIN CLICK HANDLER
         loginBtn.addEventListener('click', async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
+            // UI Feedback: Button changes to show it's working
             loginBtn.innerText = "Checking...";
+            loginBtn.classList.add("opacity-50", "cursor-not-allowed");
             errorMsg.classList.add('hidden');
+            debugLog.classList.add('hidden');
 
             try {
-                // A. Check Password
+                // 1. Authenticate
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
+                console.log("Auth successful, UID:", user.uid);
 
-                // B. Check 'Paid' Status in Database
+                // 2. Check Database for Payment
                 const docRef = doc(db, "users", user.uid);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists() && docSnap.data().paid === true) {
-                    // SUCCESS: Unlock App
+                    // SUCCESS
                     document.getElementById('login-screen').style.display = 'none';
                     document.getElementById('app-screen').style.display = 'flex';
                 } else {
-                    // FAILED: Not paid
                     throw new Error("Subscription inactive");
                 }
+
             } catch (error) {
-                console.error(error);
+                console.error("Login Failed:", error);
+                
+                // Reset Button
                 loginBtn.innerText = "LOG IN";
-                errorMsg.innerText = error.message === "Subscription inactive" ? "Access Denied: No Active Subscription" : "Incorrect Email or Password";
+                loginBtn.classList.remove("opacity-50", "cursor-not-allowed");
+                
+                // Show Error Message
                 errorMsg.classList.remove('hidden');
+                
+                // Specific Error Handling
+                if(error.message.includes("Subscription")) {
+                    errorMsg.innerText = "Account Found, but Subscription is Inactive.";
+                } else if (error.code === 'auth/invalid-credential') {
+                    errorMsg.innerText = "Incorrect Email or Password.";
+                } else {
+                    // Show technical error if it's something weird
+                    errorMsg.innerText = "System Error. See debug below.";
+                    debugLog.innerText = error.message;
+                    debugLog.classList.remove('hidden');
+                }
             }
         });
+    </script>
 
-        // 6. Motion Logic (Exposed to Window so HTML buttons can see it)
-        window.initCamera = function() {
+    <script>
+        // Global variables for the app logic
+        let isSquatting = false;
+        let currentSquatMin = 180;
+        let repCount = 0;
+        
+        // This function is called by the START CAMERA button
+        function initCamera() {
             const videoElement = document.getElementsByClassName('input_video')[0];
             const canvasElement = document.getElementsByClassName('output_canvas')[0];
             const canvasCtx = canvasElement.getContext('2d');
             const angleDisplay = document.getElementById('angleDisplay');
             const logContainer = document.getElementById('logContainer');
-            
-            let isSquatting = false;
-            let currentSquatMin = 180;
-            let repCount = 0;
+            const startBtn = document.getElementById('startBtn');
+            const instrTitle = document.getElementById('instructionTitle');
+            const instrText = document.getElementById('instructionText');
 
+            instrTitle.innerText = "Starting...";
+            instrText.innerText = "Please allow camera access.";
+            startBtn.style.display = 'none';
+
+            // Motion Logic
             const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
             pose.setOptions({modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5});
-            
+
             pose.onResults((results) => {
                 canvasElement.width = videoElement.videoWidth;
                 canvasElement.height = videoElement.videoHeight;
-                canvasCtx.save();
                 canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
                 canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
                 if (results.poseLandmarks) {
-                    // Draw Skeleton
-                    // Note: We access global drawing utils via window because modules are scoped
-                    // But here we rely on the loaded scripts. 
-                    // To simplify, we'll implement simple drawing manually or rely on Global CDN fallbacks
-                    // For this version, let's assume the Global scripts loaded in previous steps work, 
-                    // but since we are in module, we need to be careful.
-                    // Actually, let's keep it simple: Drawing might fail if we mix module/non-module.
-                    // For now, we focus on the logic working.
-                    
+                    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: '#ffffff', lineWidth: 4});
+                    drawLandmarks(canvasCtx, results.poseLandmarks, {color: '#FCD34D', lineWidth: 2, radius: 4});
+
                     const hip = results.poseLandmarks[24];
                     const knee = results.poseLandmarks[26];
                     const ankle = results.poseLandmarks[28];
 
                     if (hip && knee && ankle && hip.visibility > 0.5) {
-                         let radians = Math.atan2(ankle.y - knee.y, ankle.x - knee.x) - Math.atan2(hip.y - knee.y, hip.x - knee.x);
-                         let angle = Math.abs(radians * 180.0 / Math.PI);
-                         if (angle > 180.0) angle = 360 - angle;
-                         angle = Math.round(angle);
-                         
-                         angleDisplay.innerText = angle + "°";
-                         
-                         // Logic
-                         if (!isSquatting && angle > 165) {
-                            // Standing
-                         } else if (angle < 130) {
+                        // Calculate Angle
+                        let radians = Math.atan2(ankle.y - knee.y, ankle.x - knee.x) - Math.atan2(hip.y - knee.y, hip.x - knee.x);
+                        let angle = Math.abs(radians * 180.0 / Math.PI);
+                        if (angle > 180.0) angle = 360 - angle;
+                        angle = Math.round(angle);
+                        angleDisplay.innerText = angle + "°";
+
+                        // Squat Logic
+                        if (!isSquatting && angle > 165) {
+                             if(repCount === 0) { instrTitle.innerText = "Ready"; instrText.innerText = "Turn sideways & Squat."; }
+                        } else if (angle < 130) {
                             isSquatting = true;
                             if (angle < currentSquatMin) currentSquatMin = angle;
-                         }
+                            instrTitle.innerText = "Squatting...";
+                        }
 
-                         if (isSquatting && angle > 165) {
+                        if (isSquatting && angle > 165) {
                             repCount++;
                             if(repCount===1) logContainer.innerHTML = "";
+                            
                             const entry = document.createElement("div");
-                            entry.className = "flex justify-between items-center bg-slate-700 p-4 rounded-xl border-l-8 border-green-500 mb-2";
-                            entry.innerHTML = `<span class="font-bold text-white">Rep ${repCount}</span><span class="text-white font-bold">${currentSquatMin}°</span>`;
+                            entry.className = "flex justify-between items-center bg-slate-700 p-4 rounded-xl border-l-8 border-green-500 mb-2 animate-pulse";
+                            entry.innerHTML = `<span class="font-bold text-white text-xl">Rep ${repCount}</span><span class="text-white font-bold text-2xl">${currentSquatMin}°</span>`;
                             logContainer.prepend(entry);
+                            
+                            // Audio Feedback
+                            window.speechSynthesis.cancel();
+                            let u = new SpeechSynthesisUtterance(`${currentSquatMin} degrees`);
+                            window.speechSynthesis.speak(u);
+
                             isSquatting = false;
                             currentSquatMin = 180;
-                         }
+                            instrTitle.innerText = "Good Job!";
+                        }
                     }
                 }
-                canvasCtx.restore();
             });
 
             const camera = new Camera(videoElement, {
@@ -213,7 +245,6 @@
                 height: 480
             });
             camera.start();
-            document.getElementById('startBtn').style.display = 'none';
         }
     </script>
 </body>
