@@ -17,35 +17,41 @@
         .output_canvas { width: 100%; height: 100%; display: block; }
         video { display: none; }
         #app-screen { display: none; }
+        input[type=checkbox] { transform: scale(1.5); }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col">
 
     <nav class="bg-slate-800 py-6 text-center border-b border-slate-700">
-        <h1 class="text-2xl md:text-3xl font-bold text-yellow-400">Dr. Pearson-Noseworthy</h1>
-        <p class="text-slate-300 text-lg mt-1">Daily Mobility Check</p>
+        <h1 class="text-2xl md:text-3xl font-bold text-yellow-400">Dr. Pearson-Noseworthy's</h1>
+        <p class="text-slate-300 text-lg mt-1 font-medium">Daily Mobility Check... you can do it!!</p>
     </nav>
 
     <section id="login-screen" class="flex-grow flex flex-col items-center justify-center p-4">
         <div class="bg-slate-800 p-8 rounded-2xl border-2 border-slate-600 w-full max-w-md shadow-2xl">
             <h2 class="text-3xl font-bold text-white mb-6 text-center">Member Login</h2>
             
-            <div class="space-y-6">
+            <form id="loginForm" class="space-y-6">
                 <div>
                     <label class="block text-slate-400 text-sm font-bold mb-2 uppercase">Email Address</label>
-                    <input type="email" id="email" class="w-full p-4 rounded-lg bg-slate-900 border border-slate-600 text-white text-xl focus:border-yellow-400 focus:outline-none" placeholder="name@email.com">
+                    <input type="email" id="email" autocomplete="username" class="w-full p-4 rounded-lg bg-slate-900 border border-slate-600 text-white text-xl focus:border-yellow-400 focus:outline-none" placeholder="name@email.com">
                 </div>
                 <div>
                     <label class="block text-slate-400 text-sm font-bold mb-2 uppercase">Password</label>
-                    <input type="password" id="password" class="w-full p-4 rounded-lg bg-slate-900 border border-slate-600 text-white text-xl focus:border-yellow-400 focus:outline-none" placeholder="******">
+                    <input type="password" id="password" autocomplete="current-password" class="w-full p-4 rounded-lg bg-slate-900 border border-slate-600 text-white text-xl focus:border-yellow-400 focus:outline-none" placeholder="******">
                 </div>
                 
+                <div class="flex items-center py-2">
+                    <input id="rememberMe" type="checkbox" class="w-6 h-6 text-blue-600 bg-slate-900 border-slate-600 rounded focus:ring-blue-600" checked>
+                    <label for="rememberMe" class="ml-4 text-lg text-slate-300 font-medium cursor-pointer">Keep me logged in</label>
+                </div>
+
                 <p id="loginError" class="text-red-400 font-bold text-center hidden">Incorrect Details</p>
 
-                <button id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-2xl py-4 rounded-xl shadow-lg transition-all">
+                <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-2xl py-4 rounded-xl shadow-lg transition-all">
                     LOG IN
                 </button>
-            </div>
+            </form>
         </div>
     </section>
 
@@ -60,15 +66,29 @@
                 <div class="canvas-container bg-black high-vis-border shadow-2xl aspect-video relative">
                     <video class="input_video"></video>
                     <canvas class="output_canvas"></canvas>
+                    
                     <div class="absolute top-4 left-4 bg-slate-900/90 p-4 rounded-xl border-2 border-white">
                         <p class="text-slate-300 text-sm uppercase font-bold tracking-widest">Knee Angle</p>
                         <p class="text-5xl font-bold text-white" id="angleDisplay">--</p>
                     </div>
+
+                    <div id="pausedOverlay" class="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center hidden">
+                        <p class="text-3xl font-bold text-yellow-400 mb-2">CAMERA PAUSED</p>
+                        <p class="text-slate-300 text-lg">The camera is off.</p>
+                    </div>
                 </div>
-                <button id="startBtn" onclick="initCamera()" class="mt-6 w-full bg-green-600 hover:bg-green-500 text-white font-bold text-3xl py-8 px-8 rounded-2xl shadow-xl border-b-8 border-green-800 active:border-b-0 active:translate-y-2 transition-all">
-                    START CAMERA
-                </button>
+
+                <div class="mt-6 space-y-4">
+                    <button id="startBtn" onclick="initCamera()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold text-3xl py-8 px-8 rounded-2xl shadow-xl border-b-8 border-green-800 active:border-b-0 active:translate-y-2 transition-all">
+                        START CAMERA
+                    </button>
+
+                    <button id="toggleBtn" onclick="toggleCamera()" class="hidden w-full bg-red-600 hover:bg-red-500 text-white font-bold text-3xl py-6 px-8 rounded-2xl shadow-xl border-b-8 border-red-800 active:border-b-0 active:translate-y-2 transition-all">
+                        STOP CAMERA
+                    </button>
+                </div>
             </div>
+
             <div class="col-span-1 bg-slate-800 rounded-2xl border-2 border-slate-600 p-6 h-full min-h-[400px]">
                 <div class="flex justify-between items-center mb-6 border-b-2 border-slate-600 pb-4">
                     <h2 class="text-3xl font-bold text-white">Your Reps</h2>
@@ -83,10 +103,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // CONFIG (Your keys)
         const firebaseConfig = {
             apiKey: "AIzaSyBYpFeeBu8r1GYBjMzZEuf264pCEU6-6zU",
             authDomain: "rom-tracker-app.firebaseapp.com",
@@ -100,19 +119,19 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        const loginForm = document.getElementById('loginForm');
         const loginBtn = document.getElementById('loginBtn');
         const errorMsg = document.getElementById('loginError');
+        const rememberMe = document.getElementById('rememberMe');
 
-        loginBtn.addEventListener('click', async () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            loginBtn.innerText = "Checking...";
-            errorMsg.classList.add('hidden');
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                checkSubscription(user);
+            }
+        });
 
+        async function checkSubscription(user) {
             try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
                 const docRef = doc(db, "users", user.uid);
                 const docSnap = await getDoc(docRef);
 
@@ -123,48 +142,100 @@
                     throw new Error("Subscription inactive");
                 }
             } catch (error) {
-                console.error("Login Failed:", error);
+                auth.signOut();
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('app-screen').style.display = 'none';
+                if(error.message.includes("Subscription")) {
+                    errorMsg.innerText = "Subscription Inactive.";
+                    errorMsg.classList.remove('hidden');
+                }
+            }
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loginBtn.innerText = "Checking...";
+            errorMsg.classList.add('hidden');
+            try {
+                const mode = rememberMe.checked ? browserLocalPersistence : browserSessionPersistence;
+                await setPersistence(auth, mode);
+                const userCredential = await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
+                await checkSubscription(userCredential.user);
+            } catch (error) {
                 loginBtn.innerText = "LOG IN";
                 errorMsg.classList.remove('hidden');
-                if(error.message.includes("Subscription")) {
-                    errorMsg.innerText = "Account Found, but Subscription is Inactive.";
-                } else {
-                    errorMsg.innerText = "Incorrect Email or Password.";
-                }
+                errorMsg.innerText = error.message.includes("Subscription") ? "Account Found, but Subscription is Inactive." : "Incorrect Email or Password.";
             }
         });
     </script>
 
     <script>
+        // GLOBAL STATE
         let isSquatting = false;
         let currentSquatMin = 180;
         let repCount = 0;
         let firstFrameDetected = false;
+        let cameraInstance = null; // We store the camera here so we can stop it later
+        let isCameraRunning = false;
+
+        // UI ELEMENTS
+        const videoElement = document.getElementsByClassName('input_video')[0];
+        const canvasElement = document.getElementsByClassName('output_canvas')[0];
+        const canvasCtx = canvasElement.getContext('2d');
+        const angleDisplay = document.getElementById('angleDisplay');
+        const logContainer = document.getElementById('logContainer');
+        const startBtn = document.getElementById('startBtn');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const instrTitle = document.getElementById('instructionTitle');
+        const instrText = document.getElementById('instructionText');
+        const pausedOverlay = document.getElementById('pausedOverlay');
+
+        function toggleCamera() {
+            if (isCameraRunning) {
+                // STOP
+                cameraInstance.stop();
+                isCameraRunning = false;
+                
+                // Update UI
+                toggleBtn.innerText = "RESUME CAMERA";
+                toggleBtn.className = "w-full bg-green-600 hover:bg-green-500 text-white font-bold text-3xl py-6 px-8 rounded-2xl shadow-xl border-b-8 border-green-800 active:border-b-0 active:translate-y-2 transition-all";
+                
+                instrTitle.innerText = "Camera Paused";
+                instrText.innerText = "The camera is off. Click Resume when you are ready.";
+                pausedOverlay.classList.remove('hidden');
+                
+            } else {
+                // START (Resume)
+                cameraInstance.start();
+                isCameraRunning = true;
+                
+                // Update UI
+                toggleBtn.innerText = "STOP CAMERA";
+                toggleBtn.className = "w-full bg-red-600 hover:bg-red-500 text-white font-bold text-3xl py-6 px-8 rounded-2xl shadow-xl border-b-8 border-red-800 active:border-b-0 active:translate-y-2 transition-all";
+                
+                instrTitle.innerText = "Warming Up...";
+                instrText.innerText = "Starting camera again...";
+                pausedOverlay.classList.add('hidden');
+            }
+        }
         
         function initCamera() {
-            const videoElement = document.getElementsByClassName('input_video')[0];
-            const canvasElement = document.getElementsByClassName('output_canvas')[0];
-            const canvasCtx = canvasElement.getContext('2d');
-            const angleDisplay = document.getElementById('angleDisplay');
-            const logContainer = document.getElementById('logContainer');
-            const startBtn = document.getElementById('startBtn');
-            const instrTitle = document.getElementById('instructionTitle');
-            const instrText = document.getElementById('instructionText');
-
-            // Initial feedback
             instrTitle.innerText = "Warming Up...";
             instrText.innerText = "Please allow the camera access in your browser.";
+            
+            // Swap Buttons
             startBtn.style.display = 'none';
+            toggleBtn.classList.remove('hidden');
+            isCameraRunning = true;
 
             const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
             pose.setOptions({modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5});
 
             pose.onResults((results) => {
-                // Once we get ANY result, we know the camera is working
                 if (!firstFrameDetected) {
                     firstFrameDetected = true;
-                    instrTitle.innerText = "Looking for you...";
-                    instrText.innerText = "I can see the room. Now looking for your body.";
+                    instrTitle.innerText = "Searching...";
+                    instrText.innerText = "The camera sees the room. Now step into view.";
                 }
 
                 canvasElement.width = videoElement.videoWidth;
@@ -180,31 +251,25 @@
                     const knee = results.poseLandmarks[26];
                     const ankle = results.poseLandmarks[28];
 
-                    // Check if we can see the leg clearly
                     if (hip && knee && ankle && hip.visibility > 0.5) {
-                        
-                        // Calculate Angle
                         let radians = Math.atan2(ankle.y - knee.y, ankle.x - knee.x) - Math.atan2(hip.y - knee.y, hip.x - knee.x);
                         let angle = Math.abs(radians * 180.0 / Math.PI);
                         if (angle > 180.0) angle = 360 - angle;
                         angle = Math.round(angle);
                         angleDisplay.innerText = angle + "°";
 
-                        // UX: Give specific feedback based on posture
                         if (!isSquatting) {
                             if (angle > 165) {
-                                // Perfect Standing Pose
                                 if(repCount === 0) {
                                     instrTitle.innerText = "Perfect Position";
                                     instrTitle.className = "text-3xl font-bold text-green-400 mb-2";
-                                    instrText.innerText = "I can see you clearly. Turn sideways, then squat when ready.";
+                                    instrText.innerText = "The camera sees you clearly. Turn sideways, then squat when ready.";
                                 }
                             } else {
-                                // Legs visible but bent (Sitting?)
                                 if(repCount === 0) {
                                     instrTitle.innerText = "Please Stand Tall";
                                     instrTitle.className = "text-3xl font-bold text-yellow-400 mb-2";
-                                    instrText.innerText = "I need to see your legs straight to begin.";
+                                    instrText.innerText = "The camera needs to see your legs straight to begin.";
                                 }
                             }
                         } else if (angle < 130) {
@@ -215,17 +280,14 @@
                             instrText.innerText = "Go as low as feels comfortable.";
                         }
 
-                        // FINISH REP
                         if (isSquatting && angle > 165) {
                             repCount++;
                             if(repCount===1) logContainer.innerHTML = "";
-                            
                             const entry = document.createElement("div");
                             entry.className = "flex justify-between items-center bg-slate-700 p-4 rounded-xl border-l-8 border-green-500 mb-2 animate-pulse";
                             entry.innerHTML = `<span class="font-bold text-white text-xl">Rep ${repCount}</span><span class="text-white font-bold text-2xl">${currentSquatMin}°</span>`;
                             logContainer.prepend(entry);
                             
-                            // Audio
                             window.speechSynthesis.cancel();
                             let u = new SpeechSynthesisUtterance(`${currentSquatMin} degrees`);
                             window.speechSynthesis.speak(u);
@@ -237,22 +299,21 @@
                             instrText.innerText = "Take a breath. Squat again when ready.";
                         }
                     } else {
-                        // Skeleton found, but legs hidden (e.g. sitting at desk close up)
                         if(firstFrameDetected && repCount === 0) {
                             instrTitle.innerText = "Please Step Back";
                             instrTitle.className = "text-3xl font-bold text-red-400 mb-2";
-                            instrText.innerText = "I need to see your whole body from head to toe.";
+                            instrText.innerText = "The camera needs to see your whole body, from head to toe.";
                         }
                     }
                 }
             });
 
-            const camera = new Camera(videoElement, {
+            cameraInstance = new Camera(videoElement, {
                 onFrame: async () => { await pose.send({image: videoElement}); },
                 width: 640,
                 height: 480
             });
-            camera.start();
+            cameraInstance.start();
         }
     </script>
 </body>
