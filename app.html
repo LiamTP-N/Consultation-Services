@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Daily Motion | Login</title>
+    <title>My Health Portal | Dr. Pearson-Noseworthy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
@@ -13,163 +13,208 @@
     <style>
         body { font-size: 18px; }
         .high-vis-border { border: 4px solid #FCD34D; }
-        
-        /* UPDATED: Container is now flexible, not fixed to landscape */
-        .canvas-container { 
-            position: relative; 
-            width: 100%; 
-            max-width: 600px; /* Slightly narrower to look better on phones */
-            margin: 0 auto; 
-            border-radius: 20px; 
-            overflow: hidden; 
-            background-color: black;
-            /* No fixed aspect ratio - it adapts to the camera feed */
-        }
-        
+        .canvas-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; border-radius: 20px; overflow: hidden; background-color: black; }
         .output_canvas { width: 100%; height: auto; display: block; }
         video { display: none; }
-        #app-screen { display: none; }
-        input[type=checkbox] { transform: scale(1.5); }
         
-        .progress-bar-container { width: 100%; height: 20px; background-color: #374151; border-radius: 10px; margin-top: 10px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background-color: #3B82F6; width: 0%; transition: width 0.5s ease-in-out; }
+        /* Navigation & Views */
+        .view-section { display: none; } /* Hide all sections by default */
+        .view-section.active { display: flex; } /* Show only active one */
+        
+        .nav-btn { opacity: 0.6; transition: all 0.3s; }
+        .nav-btn.active { opacity: 1; color: #FCD34D; border-top: 4px solid #FCD34D; }
 
+        input[type=checkbox] { transform: scale(1.5); }
         .stat-card { background-color: #1F2937; border: 2px solid #374151; border-radius: 1rem; padding: 1rem; text-align: center; }
         .stat-value { font-size: 2rem; font-weight: bold; color: white; }
         .stat-label { font-size: 0.8rem; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.5rem; }
-        .stat-icon { font-size: 1.5rem; margin-bottom: 0.25rem; display: block; }
-        .rom-card { border-color: #10B981; background-color: #064E3B; } 
     </style>
 </head>
-<body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col">
+<body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col pb-24">
 
-    <nav class="bg-slate-800 py-6 text-center border-b border-slate-700">
+    <nav class="bg-slate-800 py-6 text-center border-b border-slate-700 sticky top-0 z-50">
         <h1 class="text-2xl md:text-3xl font-bold text-yellow-400">Dr. Pearson-Noseworthy's</h1>
-        <p class="text-slate-300 text-lg mt-1 font-medium">Daily Mobility Check... you can do it!!</p>
+        <p class="text-slate-300 text-lg mt-1 font-medium">Daily Health Portal</p>
     </nav>
 
     <section id="login-screen" class="flex-grow flex flex-col items-center justify-center p-4">
         <div class="bg-slate-800 p-8 rounded-2xl border-2 border-slate-600 w-full max-w-md shadow-2xl">
             <h2 class="text-3xl font-bold text-white mb-6 text-center">Member Login</h2>
-            
             <form id="loginForm" class="space-y-6">
                 <div>
-                    <label class="block text-slate-400 text-sm font-bold mb-2 uppercase">Email Address</label>
-                    <input type="email" id="email" autocomplete="username" class="w-full p-4 rounded-lg bg-slate-900 border border-slate-600 text-white text-xl focus:border-yellow-400 focus:outline-none" placeholder="name@email.com">
+                    <label class="block text-slate-400 text-sm font-bold mb-2 uppercase">Email</label>
+                    <input type="email" id="email" autocomplete="username" class="w-full p-4 rounded-lg bg-slate-900 border border-slate-600 text-white text-xl focus:border-yellow-400" placeholder="name@email.com">
                 </div>
                 <div>
                     <label class="block text-slate-400 text-sm font-bold mb-2 uppercase">Password</label>
-                    <input type="password" id="password" autocomplete="current-password" class="w-full p-4 rounded-lg bg-slate-900 border border-slate-600 text-white text-xl focus:border-yellow-400 focus:outline-none" placeholder="******">
+                    <input type="password" id="password" autocomplete="current-password" class="w-full p-4 rounded-lg bg-slate-900 border border-slate-600 text-white text-xl focus:border-yellow-400" placeholder="******">
                 </div>
-                
                 <div class="flex items-center py-2">
-                    <input id="rememberMe" type="checkbox" class="w-6 h-6 text-blue-600 bg-slate-900 border-slate-600 rounded focus:ring-blue-600" checked>
+                    <input id="rememberMe" type="checkbox" class="w-6 h-6 text-blue-600 bg-slate-900 border-slate-600 rounded" checked>
                     <label for="rememberMe" class="ml-4 text-lg text-slate-300 font-medium cursor-pointer">Keep me logged in</label>
                 </div>
-
                 <p id="loginError" class="text-red-400 font-bold text-center hidden">Incorrect Details</p>
-
-                <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-2xl py-4 rounded-xl shadow-lg transition-all">
-                    LOG IN
-                </button>
+                <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-2xl py-4 rounded-xl shadow-lg transition-all">LOG IN</button>
             </form>
         </div>
     </section>
 
-    <section id="app-screen" class="flex-grow flex flex-col items-center justify-start pt-8 px-4 pb-8">
-        
-        <div class="bg-slate-800 p-6 rounded-2xl border-2 border-slate-600 text-center max-w-3xl w-full mb-6 shadow-xl">
-            <div class="flex justify-between items-center mb-2">
-                <span id="phaseLabel" class="text-blue-400 font-bold uppercase tracking-widest text-sm">Welcome</span>
-                <span id="phaseStep" class="text-slate-400 text-sm">Step 0/3</span>
-            </div>
-            <h2 id="instructionTitle" class="text-3xl font-bold text-white mb-2">Welcome Back</h2>
-            <p id="instructionText" class="text-xl text-yellow-200">Click the large green button to begin.</p>
+    <div id="app-container" class="hidden w-full max-w-4xl mx-auto p-4">
+
+        <section id="view-home" class="view-section active flex-col gap-6">
             
-            <div id="progressBar" class="progress-bar-container hidden">
-                <div id="progressFill" class="progress-bar-fill"></div>
-            </div>
-        </div>
-
-        <div class="grid lg:grid-cols-2 gap-8 w-full max-w-6xl items-start mb-8">
-            <div class="col-span-1">
-                <div class="canvas-container high-vis-border shadow-2xl relative">
-                    <video class="input_video"></video>
-                    <canvas class="output_canvas"></canvas>
-                    
-                    <div class="hidden absolute top-4 left-4 bg-slate-900/90 p-4 rounded-xl border-2 border-white">
-                        <p class="text-slate-300 text-sm uppercase font-bold tracking-widest">Knee Angle</p>
-                        <p class="text-5xl font-bold text-white" id="angleDisplay">--</p>
-                    </div>
-
-                    <div id="pausedOverlay" class="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center hidden z-20">
-                        <p class="text-3xl font-bold text-yellow-400 mb-2">CAMERA PAUSED</p>
-                        <p class="text-slate-300 text-lg">The camera is off.</p>
-                    </div>
-
-                    <div id="restOverlay" class="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center hidden z-30">
-                        <p class="text-2xl text-blue-300 mb-4">Rest & Recover</p>
-                        <p id="timerDisplay" class="text-8xl font-bold text-white">30</p>
-                        <p class="text-slate-400 mt-4 px-8 text-center">Take a deep breath. We will start the main test soon.</p>
-                    </div>
-                </div>
-
-                <div class="mt-6 space-y-4">
-                    <button id="startBtn" onclick="initCamera()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold text-3xl py-8 px-8 rounded-2xl shadow-xl border-b-8 border-green-800 active:border-b-0 active:translate-y-2 transition-all">
-                        START CAMERA
-                    </button>
-
-                    <button id="toggleBtn" onclick="toggleCamera()" class="hidden w-full bg-red-600 hover:bg-red-500 text-white font-bold text-3xl py-6 px-8 rounded-2xl shadow-xl border-b-8 border-red-800 active:border-b-0 active:translate-y-2 transition-all">
-                        STOP CAMERA
-                    </button>
-                </div>
+            <div class="bg-blue-900/30 border-l-4 border-blue-500 p-6 rounded-r-xl">
+                <h3 class="text-blue-400 font-bold uppercase tracking-widest text-sm mb-2">Science Tip of the Day</h3>
+                <p class="text-xl text-white italic">"Resistance training is the most potent non-pharmaceutical intervention for sarcopenia."</p>
+                <p class="text-slate-400 text-sm mt-2 text-right">— Law et al. (2016), *Journal of Cachexia*</p>
             </div>
 
-            <div class="col-span-1 bg-slate-800 rounded-2xl border-2 border-slate-600 p-6 h-full min-h-[400px]">
-                <div class="flex justify-between items-center mb-6 border-b-2 border-slate-600 pb-4">
-                    <h2 class="text-3xl font-bold text-white">Session Log</h2>
-                    <span class="bg-blue-600 text-xl font-bold px-4 py-2 rounded-lg text-white">Live</span>
-                </div>
-                <div id="logContainer" class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
-                    <p class="text-slate-400 text-xl italic text-center mt-12">Follow the instructions on the left to begin.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="w-full max-w-6xl mt-8">
-            <h3 class="text-2xl font-bold text-white mb-4 pl-2 border-l-4 border-green-500">&nbsp;Mobility & Health Tracker</h3>
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="stat-card rom-card">
-                    <span class="stat-icon">🏆</span>
-                    <div class="stat-value text-white" id="statRom">--</div>
-                    <div class="stat-label text-green-200 font-bold">Best Score Ever</div>
-                </div>
-                <div class="stat-card rom-card bg-opacity-50">
-                    <span class="stat-icon">📊</span>
-                    <div class="stat-value text-green-100" id="statAvg">--</div>
-                    <div class="stat-label text-green-200">My Average Score</div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="stat-card border-green-500 bg-green-900/20">
+                    <span class="text-3xl">🏆</span>
+                    <div class="stat-value text-green-400" id="statRom">--</div>
+                    <div class="stat-label">Best Mobility</div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-icon">🔥</span>
+                    <span class="text-3xl">🏋️</span>
                     <div class="stat-value" id="statReps">0</div>
-                    <div class="stat-label">Total Squats</div>
-                    <div class="text-xs text-slate-500 mt-1"><span id="statCals">0</span> kcals burned</div>
+                    <div class="stat-label">Total Reps</div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-icon">📅</span>
+                    <span class="text-3xl">🔥</span>
+                    <div class="stat-value" id="statCals">0</div>
+                    <div class="stat-label">Kcals Burned</div>
+                </div>
+                <div class="stat-card">
+                    <span class="text-3xl">📅</span>
                     <div class="stat-value" id="statDays">0</div>
-                    <div class="stat-label">Days Active</div>
+                    <div class="stat-label">Streak</div>
                 </div>
             </div>
-            <p class="text-center text-slate-500 text-sm mt-6">Lower Score = Deeper Squat = Better Mobility!</p>
-        </div>
 
-    </section>
+            <div class="text-center mt-4">
+                <p class="text-slate-400">Select a tab below to begin.</p>
+            </div>
+        </section>
+
+        <section id="view-assess" class="view-section flex-col items-center">
+            
+            <div class="bg-slate-800 p-4 rounded-xl border-2 border-slate-600 text-center w-full mb-4">
+                <h2 id="instructionTitle" class="text-2xl font-bold text-white mb-1">Ready to Test?</h2>
+                <p id="instructionText" class="text-lg text-yellow-200">Click Start Camera when you are ready.</p>
+            </div>
+
+            <div class="canvas-container high-vis-border shadow-2xl relative mb-6">
+                <video class="input_video"></video>
+                <canvas class="output_canvas"></canvas>
+                <div class="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center hidden z-20" id="pausedOverlay">
+                    <p class="text-2xl font-bold text-yellow-400">CAMERA PAUSED</p>
+                </div>
+            </div>
+
+            <button id="startBtn" onclick="initCamera()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold text-2xl py-6 rounded-xl shadow-lg mb-4">
+                START CAMERA
+            </button>
+            <button id="toggleBtn" onclick="toggleCamera()" class="hidden w-full bg-red-600 hover:bg-red-500 text-white font-bold text-2xl py-6 rounded-xl shadow-lg mb-4">
+                STOP CAMERA
+            </button>
+
+            <div class="w-full bg-slate-800 rounded-xl border border-slate-700 p-4">
+                <h3 class="text-lg font-bold text-white mb-2">Today's Results</h3>
+                <div id="logContainer" class="space-y-2 max-h-40 overflow-y-auto">
+                    <p class="text-slate-500 text-sm italic">No reps yet.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-workout" class="view-section flex-col gap-6">
+            <h2 class="text-3xl font-bold text-white">Daily Prescription</h2>
+            
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-600">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-xl font-bold text-white">1. Chair Squats</h3>
+                    <span class="bg-blue-600 text-xs px-2 py-1 rounded">Strength</span>
+                </div>
+                <p class="text-slate-300 mb-4">3 Sets of 8 Reps. Use a sturdy chair.</p>
+                
+                <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 text-sm text-slate-400">
+                    <strong class="text-blue-400 block mb-1">Why this?</strong>
+                    "Sit-to-stand performance is a primary predictor of independence in later life." (Alcazar et al., 2018)
+                </div>
+                
+                <button class="w-full mt-4 bg-slate-700 hover:bg-green-600 text-white py-3 rounded-lg font-bold transition-colors">Mark Complete</button>
+            </div>
+
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-600">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-xl font-bold text-white">2. Single Leg Stance</h3>
+                    <span class="bg-green-600 text-xs px-2 py-1 rounded">Balance</span>
+                </div>
+                <p class="text-slate-300 mb-4">Hold for 20s each leg. Use a wall for support.</p>
+                <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 text-sm text-slate-400">
+                    <strong class="text-blue-400 block mb-1">Why this?</strong>
+                    "Static balance training significantly reduces fall risk in adults over 65." (Sherrington et al., 2017)
+                </div>
+                <button class="w-full mt-4 bg-slate-700 hover:bg-green-600 text-white py-3 rounded-lg font-bold transition-colors">Mark Complete</button>
+            </div>
+        </section>
+
+        <section id="view-food" class="view-section flex-col gap-6">
+            <h2 class="text-3xl font-bold text-white">Nutrition Log</h2>
+            <p class="text-slate-400">Don't worry about counting calories. Just tick the boxes.</p>
+
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-600">
+                <h3 class="text-xl font-bold text-white mb-4">Protein Check</h3>
+                
+                <div class="space-y-4">
+                    <label class="flex items-center space-x-4 p-4 bg-slate-900 rounded-lg">
+                        <input type="checkbox" class="w-6 h-6 text-green-500 rounded focus:ring-green-500">
+                        <span class="text-lg">I had protein at Breakfast</span>
+                    </label>
+                    <label class="flex items-center space-x-4 p-4 bg-slate-900 rounded-lg">
+                        <input type="checkbox" class="w-6 h-6 text-green-500 rounded focus:ring-green-500">
+                        <span class="text-lg">I had protein at Lunch</span>
+                    </label>
+                    <label class="flex items-center space-x-4 p-4 bg-slate-900 rounded-lg">
+                        <input type="checkbox" class="w-6 h-6 text-green-500 rounded focus:ring-green-500">
+                        <span class="text-lg">I had protein at Dinner</span>
+                    </label>
+                </div>
+
+                <div class="mt-6 bg-slate-900 p-4 rounded-lg border border-slate-700 text-sm text-slate-400">
+                    <strong class="text-yellow-400 block mb-1">Scientific Note:</strong>
+                    Older muscle is less sensitive to protein. You need ~25g-30g per meal (e.g. a chicken breast or 3 eggs) to trigger muscle repair.
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-slate-800 border-t border-slate-700 pb-safe pt-2">
+        <div class="grid grid-cols-4 h-16">
+            <button onclick="switchView('home')" class="nav-btn active flex flex-col items-center justify-center text-white" id="nav-home">
+                <span class="text-2xl">🏠</span>
+                <span class="text-xs font-bold mt-1">Home</span>
+            </button>
+            <button onclick="switchView('workout')" class="nav-btn flex flex-col items-center justify-center text-white" id="nav-workout">
+                <span class="text-2xl">💪</span>
+                <span class="text-xs font-bold mt-1">Workouts</span>
+            </button>
+            <button onclick="switchView('assess')" class="nav-btn flex flex-col items-center justify-center text-white" id="nav-assess">
+                <span class="text-2xl">📸</span>
+                <span class="text-xs font-bold mt-1">Assess</span>
+            </button>
+            <button onclick="switchView('food')" class="nav-btn flex flex-col items-center justify-center text-white" id="nav-food">
+                <span class="text-2xl">🍎</span>
+                <span class="text-xs font-bold mt-1">Food</span>
+            </button>
+        </div>
+    </nav>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, updateDoc, setDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBYpFeeBu8r1GYBjMzZEuf264pCEU6-6zU",
@@ -184,385 +229,212 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const loginForm = document.getElementById('loginForm');
-        const loginBtn = document.getElementById('loginBtn');
-        const errorMsg = document.getElementById('loginError');
-        const rememberMe = document.getElementById('rememberMe');
-
-        // STATS
-        const statReps = document.getElementById('statReps');
-        const statCals = document.getElementById('statCals');
-        const statRom = document.getElementById('statRom');
-        const statAvg = document.getElementById('statAvg');
-        const statDays = document.getElementById('statDays');
-
-        let currentUserData = null;
+        // GLOBAL USER DATA
         let currentUserId = null;
+        let userData = null;
 
+        // AUTH LISTENER
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                currentUserId = user.uid;
-                checkSubscription(user);
+                try {
+                    const docRef = doc(db, "users", user.uid);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists() && docSnap.data().paid === true) {
+                        currentUserId = user.uid;
+                        userData = docSnap.data();
+                        
+                        // LOAD UI
+                        document.getElementById('login-screen').style.display = 'none';
+                        document.getElementById('app-container').style.display = 'block';
+                        document.getElementById('bottom-nav').style.display = 'block';
+                        
+                        loadStats(userData);
+                        
+                    } else {
+                        throw new Error("Inactive");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    auth.signOut();
+                    document.getElementById('login-screen').style.display = 'flex';
+                }
             }
         });
 
-        async function checkSubscription(user) {
+        // LOGIN HANDLER
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.innerText = "Checking...";
             try {
-                const docRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists() && docSnap.data().paid === true) {
-                    currentUserData = docSnap.data();
-                    loadStatsToUI(currentUserData);
-                    handleDailyLogin(docRef, currentUserData);
-
-                    document.getElementById('login-screen').style.display = 'none';
-                    document.getElementById('app-screen').style.display = 'flex';
-                } else {
-                    throw new Error("Subscription inactive");
-                }
+                await setPersistence(auth, browserLocalPersistence);
+                await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
             } catch (error) {
-                auth.signOut();
-                document.getElementById('login-screen').style.display = 'flex';
-                document.getElementById('app-screen').style.display = 'none';
-                if(error.message.includes("Subscription")) {
-                    errorMsg.innerText = "Subscription Inactive.";
-                    errorMsg.classList.remove('hidden');
-                }
+                btn.innerText = "LOG IN";
+                const err = document.getElementById('loginError');
+                err.classList.remove('hidden');
+                err.innerText = "Incorrect Details";
             }
+        });
+
+        function loadStats(data) {
+            document.getElementById('statReps').innerText = data.totalReps || 0;
+            document.getElementById('statCals').innerText = data.totalCalories ? Math.round(data.totalCalories) : 0;
+            document.getElementById('statRom').innerText = data.bestRom ? data.bestRom + "°" : "--";
+            document.getElementById('statDays').innerText = data.daysActive || 1;
         }
 
-        function loadStatsToUI(data) {
-            statReps.innerText = data.totalReps || 0;
-            statCals.innerText = data.totalCalories ? Math.round(data.totalCalories) : 0;
-            statRom.innerText = data.bestRom ? data.bestRom + "°" : "--";
-            statDays.innerText = data.daysActive || 1;
-            
-            if (data.romHistory && data.romHistory.length > 0) {
-                const sum = data.romHistory.reduce((a, b) => a + b, 0);
-                const avg = Math.round(sum / data.romHistory.length);
-                statAvg.innerText = avg + "°";
-            } else {
-                statAvg.innerText = "--";
-            }
-        }
-
-        async function handleDailyLogin(docRef, data) {
-            const today = new Date().toDateString();
-            if (data.lastLoginDate !== today) {
-                const newDays = (data.daysActive || 0) + 1;
-                await updateDoc(docRef, {
-                    lastLoginDate: today,
-                    daysActive: newDays
-                });
-                statDays.innerText = newDays;
-            }
-        }
-
-        window.saveSessionToDatabase = async function(sessionReps, sessionBestDepth) {
-            if (!currentUserId || !currentUserData) return;
-
+        // EXPOSED SAVE FUNCTION
+        window.saveSession = async function(reps, depth) {
+            if(!currentUserId) return;
             const docRef = doc(db, "users", currentUserId);
             
-            const currentTotalReps = currentUserData.totalReps || 0;
-            const currentCals = currentUserData.totalCalories || 0;
-            const currentBestRom = currentUserData.bestRom || 180; 
-
-            const newTotalReps = currentTotalReps + sessionReps;
-            const newCals = currentCals + (sessionReps * 0.4); 
-            
-            let newBestRom = currentBestRom;
-            if (sessionBestDepth < currentBestRom && sessionBestDepth > 40) {
-                newBestRom = sessionBestDepth;
-            }
+            const newTotalReps = (userData.totalReps || 0) + reps;
+            const newCals = (userData.totalCalories || 0) + (reps * 0.4);
+            let newBestRom = userData.bestRom || 180;
+            if (depth < newBestRom && depth > 40) newBestRom = depth;
 
             await updateDoc(docRef, {
                 totalReps: newTotalReps,
                 totalCalories: newCals,
                 bestRom: newBestRom,
                 lastActivity: serverTimestamp(),
-                romHistory: arrayUnion(sessionBestDepth) 
+                romHistory: arrayUnion(depth)
             });
 
-            statReps.innerText = newTotalReps;
-            statCals.innerText = Math.round(newCals);
-            statRom.innerText = newBestRom + "°";
-            
-            if (currentUserData.romHistory) {
-                const newHistory = [...currentUserData.romHistory, sessionBestDepth];
-                const sum = newHistory.reduce((a, b) => a + b, 0);
-                const avg = Math.round(sum / newHistory.length);
-                statAvg.innerText = avg + "°";
-                currentUserData.romHistory = newHistory; 
-            } else {
-                statAvg.innerText = sessionBestDepth + "°"; 
-                currentUserData.romHistory = [sessionBestDepth];
-            }
-            
-            currentUserData.totalReps = newTotalReps;
-            currentUserData.totalCalories = newCals;
-            currentUserData.bestRom = newBestRom;
+            // Update Local
+            userData.totalReps = newTotalReps;
+            userData.totalCalories = newCals;
+            userData.bestRom = newBestRom;
+            loadStats(userData);
         }
-
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            loginBtn.innerText = "Checking...";
-            errorMsg.classList.add('hidden');
-            try {
-                const mode = rememberMe.checked ? browserLocalPersistence : browserSessionPersistence;
-                await setPersistence(auth, mode);
-                const userCredential = await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-                await checkSubscription(userCredential.user);
-            } catch (error) {
-                loginBtn.innerText = "LOG IN";
-                errorMsg.classList.remove('hidden');
-                errorMsg.innerText = error.message.includes("Subscription") ? "Account Found, but Subscription is Inactive." : "Incorrect Email or Password.";
-            }
-        });
     </script>
 
     <script>
-        let isSquatting = false;
-        let currentSquatMin = 180;
-        let firstFrameDetected = false;
+        // NAVIGATION
+        function switchView(viewName) {
+            // 1. Hide all views
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+            // 2. Show selected view
+            document.getElementById(`view-${viewName}`).classList.add('active');
+            document.getElementById(`nav-${viewName}`).classList.add('active');
+
+            // 3. SPECIAL LOGIC: Only allow camera in 'assess' view
+            if (viewName !== 'assess') {
+                stopCameraLogic();
+            }
+        }
+
+        // CAMERA LOGIC
         let cameraInstance = null;
         let isCameraRunning = false;
-        let currentPhase = 0; 
-        let warmupReps = 0;
-        const TARGET_WARMUP_REPS = 5;
-
+        let isSquatting = false;
+        let currentSquatMin = 180;
+        let repCount = 0;
         const videoElement = document.getElementsByClassName('input_video')[0];
         const canvasElement = document.getElementsByClassName('output_canvas')[0];
         const canvasCtx = canvasElement.getContext('2d');
-        const angleDisplay = document.getElementById('angleDisplay');
-        const logContainer = document.getElementById('logContainer');
-        const startBtn = document.getElementById('startBtn');
-        const toggleBtn = document.getElementById('toggleBtn');
-        const instrTitle = document.getElementById('instructionTitle');
-        const instrText = document.getElementById('instructionText');
-        const pausedOverlay = document.getElementById('pausedOverlay');
-        const restOverlay = document.getElementById('restOverlay');
-        const timerDisplay = document.getElementById('timerDisplay');
-        const phaseLabel = document.getElementById('phaseLabel');
-        const phaseStep = document.getElementById('phaseStep');
-        const progressBar = document.getElementById('progressBar');
-        const progressFill = document.getElementById('progressFill');
+        const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
+        
+        pose.setOptions({modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5});
+        pose.onResults(onResults);
 
-        const encouragements = [
-            "Great start!", 
-            "Looking strong!", 
-            "Keep breathing!", 
-            "Nice control!", 
-            "Looking stable!"
-        ];
+        function stopCameraLogic() {
+            if (cameraInstance) {
+                cameraInstance.stop();
+                isCameraRunning = false;
+            }
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('toggleBtn').classList.add('hidden');
+            document.getElementById('instructionTitle').innerText = "Ready to Test?";
+            document.getElementById('instructionText').innerText = "Click Start Camera when you are ready.";
+        }
 
-        function speak(text) {
-            window.speechSynthesis.cancel();
-            let u = new SpeechSynthesisUtterance(text);
-            u.rate = 0.9;
-            window.speechSynthesis.speak(u);
+        function initCamera() {
+            document.getElementById('instructionTitle').innerText = "Warming Up...";
+            document.getElementById('instructionText').innerText = "Please allow camera access.";
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('toggleBtn').classList.remove('hidden');
+            
+            cameraInstance = new Camera(videoElement, {
+                onFrame: async () => { await pose.send({image: videoElement}); },
+                width: 1280, height: 720 // Portrait friendly
+            });
+            cameraInstance.start();
+            isCameraRunning = true;
         }
 
         function toggleCamera() {
-            if (isCameraRunning) {
-                cameraInstance.stop();
-                isCameraRunning = false;
-                toggleBtn.innerText = "RESUME CAMERA";
-                toggleBtn.className = "w-full bg-green-600 hover:bg-green-500 text-white font-bold text-3xl py-6 px-8 rounded-2xl shadow-xl border-b-8 border-green-800 active:border-b-0 active:translate-y-2 transition-all";
-                instrTitle.innerText = "Camera Paused";
-                instrText.innerText = "The camera is off. Click Resume when you are ready.";
-                pausedOverlay.classList.remove('hidden');
-            } else {
-                cameraInstance.start();
-                isCameraRunning = true;
-                toggleBtn.innerText = "STOP CAMERA";
-                toggleBtn.className = "w-full bg-red-600 hover:bg-red-500 text-white font-bold text-3xl py-6 px-8 rounded-2xl shadow-xl border-b-8 border-red-800 active:border-b-0 active:translate-y-2 transition-all";
-                instrTitle.innerText = "Warming Up...";
-                instrText.innerText = "Starting camera again...";
-                pausedOverlay.classList.add('hidden');
-            }
+            stopCameraLogic();
         }
 
-        function startRestTimer() {
-            if (window.saveSessionToDatabase) {
-                window.saveSessionToDatabase(5, 180); 
-            }
+        function onResults(results) {
+            if(!isCameraRunning) return;
 
-            currentPhase = 2; // REST
-            restOverlay.classList.remove('hidden');
-            phaseLabel.innerText = "PHASE 2: RECOVER";
-            phaseStep.innerText = "Step 2/3";
-            instrTitle.innerText = "Resting...";
-            instrText.innerText = "Please wait for the timer.";
-            
-            speak("Warm up complete. Please rest for 30 seconds.");
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
-            let timeLeft = 30;
-            const timer = setInterval(() => {
-                timeLeft--;
-                timerDisplay.innerText = timeLeft;
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    restOverlay.classList.add('hidden');
-                    startMainTest();
-                }
-            }, 1000);
-        }
+            if (results.poseLandmarks) {
+                drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: '#ffffff', lineWidth: 4});
+                drawLandmarks(canvasCtx, results.poseLandmarks, {color: '#FCD34D', lineWidth: 2, radius: 4});
 
-        function startMainTest() {
-            currentPhase = 3; // MAIN TEST
-            phaseLabel.innerText = "PHASE 3: ASSESSMENT";
-            phaseStep.innerText = "Step 3/3";
-            phaseLabel.classList.add("text-green-400");
-            
-            logContainer.innerHTML = "";
-            const div = document.createElement("div");
-            div.className = "text-center text-yellow-400 font-bold text-lg mb-4 border-b border-slate-600 pb-2";
-            div.innerText = "--- OFFICIAL TEST ---";
-            logContainer.appendChild(div);
+                const hip = results.poseLandmarks[24];
+                const knee = results.poseLandmarks[26];
+                const ankle = results.poseLandmarks[28];
 
-            instrTitle.innerText = "Ready for Assessment";
-            instrTitle.className = "text-3xl font-bold text-green-400 mb-2";
-            instrText.innerText = "Turn sideways. Hold onto a chair if you need to. Squat as low as you safely can.";
-            speak("Ready for assessment. Squat as low as you safely can.");
-        }
-        
-        function initCamera() {
-            instrTitle.innerText = "Warming Up...";
-            instrText.innerText = "Please allow camera access on your device.";
-            startBtn.style.display = 'none';
-            toggleBtn.classList.remove('hidden');
-            isCameraRunning = true;
-            
-            currentPhase = 1; 
-            phaseLabel.innerText = "PHASE 1: WARM UP";
-            phaseStep.innerText = "Step 1/3";
-            progressBar.classList.remove('hidden');
+                if (hip && knee && ankle && hip.visibility > 0.5) {
+                    let radians = Math.atan2(ankle.y - knee.y, ankle.x - knee.x) - Math.atan2(hip.y - knee.y, hip.x - knee.x);
+                    let angle = Math.abs(radians * 180.0 / Math.PI);
+                    if (angle > 180.0) angle = 360 - angle;
+                    angle = Math.round(angle);
 
-            const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
-            pose.setOptions({modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5});
+                    if (!isSquatting) {
+                        if (angle > 165) {
+                            document.getElementById('instructionTitle').innerText = "Perfect Position";
+                            document.getElementById('instructionTitle').className = "text-2xl font-bold text-green-400 mb-1";
+                            document.getElementById('instructionText').innerText = "Turn sideways and squat.";
+                        } else {
+                            document.getElementById('instructionTitle').innerText = "Please Stand Tall";
+                            document.getElementById('instructionTitle').className = "text-2xl font-bold text-yellow-400 mb-1";
+                        }
+                    } else if (angle < 130) {
+                        isSquatting = true;
+                        if (angle < currentSquatMin) currentSquatMin = angle;
+                        document.getElementById('instructionTitle').innerText = "Squatting...";
+                        document.getElementById('instructionTitle').className = "text-2xl font-bold text-blue-400 mb-1";
+                    }
 
-            pose.onResults((results) => {
-                if (!firstFrameDetected) {
-                    firstFrameDetected = true;
-                    instrTitle.innerText = "Searching...";
-                    instrText.innerText = "The camera sees the room. Now step into view.";
-                }
-
-                // UPDATED: Dynamic Canvas Sizing to prevent stretching/zooming
-                canvasElement.width = videoElement.videoWidth;
-                canvasElement.height = videoElement.videoHeight;
-                canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-                canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-
-                if (results.poseLandmarks) {
-                    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: '#ffffff', lineWidth: 4});
-                    drawLandmarks(canvasCtx, results.poseLandmarks, {color: '#FCD34D', lineWidth: 2, radius: 4});
-
-                    const hip = results.poseLandmarks[24];
-                    const knee = results.poseLandmarks[26];
-                    const ankle = results.poseLandmarks[28];
-
-                    if (hip && knee && ankle && hip.visibility > 0.5) {
-                        let radians = Math.atan2(ankle.y - knee.y, ankle.x - knee.x) - Math.atan2(hip.y - knee.y, hip.x - knee.x);
-                        let angle = Math.abs(radians * 180.0 / Math.PI);
-                        if (angle > 180.0) angle = 360 - angle;
-                        angle = Math.round(angle);
-                        angleDisplay.innerText = angle + "°";
+                    if (isSquatting && angle > 165) {
+                        // REP COMPLETE
+                        repCount++;
+                        if (window.saveSession) window.saveSession(1, currentSquatMin);
                         
-                        if (currentPhase === 2) return;
-                        
-                        if (!isSquatting) {
-                            if (angle > 165) {
-                                if (currentPhase === 1 && warmupReps === 0 && !isSquatting) {
-                                    instrTitle.innerText = "Perfect Position";
-                                    instrTitle.className = "text-3xl font-bold text-green-400 mb-2";
-                                    instrText.innerText = "Turn sideways. Perform 5 gentle squats to warm up.";
-                                } else if (currentPhase === 3 && !isSquatting) {
-                                     instrTitle.innerText = "Assessment Mode";
-                                     instrTitle.className = "text-3xl font-bold text-green-400 mb-2";
-                                     instrText.innerText = "Perform your best squat when ready.";
-                                }
-                            } else {
-                                if (!isSquatting) {
-                                    instrTitle.innerText = "Please Stand Tall";
-                                    instrTitle.className = "text-3xl font-bold text-yellow-400 mb-2";
-                                    instrText.innerText = "The camera needs to see your legs straight to begin.";
-                                }
-                            }
-                        } else if (angle < 130) {
-                            isSquatting = true;
-                            if (angle < currentSquatMin) currentSquatMin = angle;
-                            
-                            instrTitle.innerText = "Squatting...";
-                            instrTitle.className = "text-3xl font-bold text-blue-400 mb-2";
-                            
-                            if (currentPhase === 1) instrText.innerText = "Gentle movement. Don't push too hard yet.";
-                            if (currentPhase === 3) instrText.innerText = "Go as low as you safely can.";
-                        }
+                        const log = document.getElementById('logContainer');
+                        const entry = document.createElement("p");
+                        entry.className = "text-white font-bold border-l-4 border-green-500 pl-2 mb-1";
+                        entry.innerText = `Rep ${repCount}: ${currentSquatMin}°`;
+                        log.prepend(entry);
 
-                        if (isSquatting && angle > 165) {
-                            if (currentPhase === 1) {
-                                warmupReps++;
-                                let percentage = (warmupReps / TARGET_WARMUP_REPS) * 100;
-                                progressFill.style.width = percentage + "%";
+                        window.speechSynthesis.cancel();
+                        let u = new SpeechSynthesisUtterance(`${currentSquatMin} degrees`);
+                        window.speechSynthesis.speak(u);
 
-                                if(warmupReps === 1) logContainer.innerHTML = "";
-                                const entry = document.createElement("div");
-                                entry.className = "flex justify-between items-center bg-slate-700 p-4 rounded-xl border-l-8 border-blue-400 mb-2 opacity-75";
-                                entry.innerHTML = `<span class="text-white text-lg">Warmup ${warmupReps}/5</span><span class="text-white font-bold">${currentSquatMin}°</span>`;
-                                logContainer.prepend(entry);
-                                
-                                // Random Encouragement + Rep Count
-                                let msg = encouragements[Math.floor(Math.random() * encouragements.length)];
-                                speak(`${msg} Rep ${warmupReps}`);
-
-                                if (warmupReps >= TARGET_WARMUP_REPS) {
-                                    startRestTimer();
-                                } else {
-                                    instrTitle.innerText = `Rep ${warmupReps} Complete`;
-                                    instrTitle.className = "text-3xl font-bold text-blue-400 mb-2";
-                                    instrText.innerText = "Good. Stand tall, then go again.";
-                                }
-                            }
-                            else if (currentPhase === 3) {
-                                if (window.saveSessionToDatabase) {
-                                    window.saveSessionToDatabase(1, currentSquatMin); 
-                                }
-
-                                const entry = document.createElement("div");
-                                entry.className = "flex justify-between items-center bg-green-900 p-4 rounded-xl border-l-8 border-green-400 mb-2 shadow-lg scale-105";
-                                entry.innerHTML = `<span class="font-bold text-white text-xl">TEST RESULT</span><span class="text-white font-bold text-3xl">${currentSquatMin}°</span>`;
-                                logContainer.prepend(entry);
-                                
-                                speak(`Assessment Complete. ${currentSquatMin} degrees.`);
-                                
-                                instrTitle.innerText = "Test Complete!";
-                                instrTitle.className = "text-3xl font-bold text-green-400 mb-2";
-                                instrText.innerText = "Excellent work. You can stop the camera now.";
-                                currentPhase = 4;
-                            }
-
-                            isSquatting = false;
-                            currentSquatMin = 180;
-                        }
-                    } else {
-                        if(firstFrameDetected && !isSquatting && currentPhase !== 2) {
-                            instrTitle.innerText = "Please Step Back";
-                            instrTitle.className = "text-3xl font-bold text-red-400 mb-2";
-                            instrText.innerText = "The camera needs to see your whole body, from head to toe.";
-                        }
+                        isSquatting = false;
+                        currentSquatMin = 180;
+                        document.getElementById('instructionTitle').innerText = "Good Job!";
                     }
                 }
-            });
-
-            // UPDATED: Removed Fixed Width to allow Vertical/Portrait Video
-            cameraInstance = new Camera(videoElement, {
-                onFrame: async () => { await pose.send({image: videoElement}); }
-                // Width/Height Removed to allow browser auto-negotiation
-            });
-            cameraInstance.start();
+            }
         }
+        
+        // Expose switchView to window
+        window.switchView = switchView;
+        window.initCamera = initCamera;
+        window.toggleCamera = toggleCamera;
     </script>
 </body>
 </html>
