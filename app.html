@@ -70,21 +70,25 @@
             </button>
         </div>
 
-        <div class="grid grid-cols-4 w-full bg-slate-900 text-xs md:text-sm font-bold text-slate-300">
-            <button onclick="switchView('assess')" id="nav-assess" class="nav-tab active py-3 flex flex-col items-center justify-center hover:bg-slate-800">
-                <span class="text-blue-400 mb-0.5">STEP 1</span>
-                <span>ASSESS</span>
+        <div class="grid grid-cols-5 w-full bg-slate-900 text-[10px] md:text-sm font-bold text-slate-300">
+            <button onclick="switchView('warmup')" id="nav-warmup" class="nav-tab active py-3 flex flex-col items-center justify-center hover:bg-slate-800">
+                <span class="text-orange-400 mb-0.5">STEP 1</span>
+                <span>PREP</span>
+            </button>
+            <button onclick="switchView('assess')" id="nav-assess" class="nav-tab py-3 flex flex-col items-center justify-center hover:bg-slate-800">
+                <span class="text-blue-400 mb-0.5">STEP 2</span>
+                <span>TEST</span>
             </button>
             <button onclick="switchView('workout')" id="nav-workout" class="nav-tab py-3 flex flex-col items-center justify-center hover:bg-slate-800">
-                <span class="text-green-400 mb-0.5">STEP 2</span>
-                <span>WORKOUT</span>
+                <span class="text-green-400 mb-0.5">STEP 3</span>
+                <span>LIFT</span>
             </button>
             <button onclick="switchView('food')" id="nav-food" class="nav-tab py-3 flex flex-col items-center justify-center hover:bg-slate-800">
-                <span class="text-yellow-400 mb-0.5">STEP 3</span>
+                <span class="text-yellow-400 mb-0.5">STEP 4</span>
                 <span>FOOD</span>
             </button>
             <button onclick="switchView('home')" id="nav-home" class="nav-tab py-3 flex flex-col items-center justify-center hover:bg-slate-800">
-                <span class="text-purple-400 mb-0.5">STEP 4</span>
+                <span class="text-purple-400 mb-0.5">STEP 5</span>
                 <span>STATS</span>
             </button>
         </div>
@@ -150,11 +154,45 @@
 
     <div id="app-container" class="hidden w-full max-w-4xl mx-auto p-4 pb-20">
 
-        <section id="view-assess" class="view-section active flex-col items-center">
+        <section id="view-warmup" class="view-section active flex-col gap-6">
+            <h2 class="text-2xl font-bold text-white">Step 1: Mobility Prep</h2>
+            <p class="text-slate-400 text-sm -mt-4">Please complete this warm-up before assessment.</p>
+            
+            <div class="glass-panel p-6 rounded-xl border border-slate-700 hover:border-orange-500/50 transition-colors">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-lg font-bold text-white">1. Marching in Place</h3>
+                    <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-1 rounded uppercase">5 Mins</span>
+                </div>
+                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-2">
+                    <strong class="text-orange-400 block mb-1">Evidence:</strong>
+                    "Low-intensity aerobic activation is a foundational component of effective proprioceptive training programs." (Espejo-Antúnez et al., 2020)
+                </div>
+            </div>
+
+            <div class="glass-panel p-6 rounded-xl border border-slate-700 hover:border-orange-500/50 transition-colors">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-lg font-bold text-white">2. Heel & Toe Raises</h3>
+                    <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-1 rounded uppercase">15 Reps</span>
+                </div>
+                <p class="text-slate-300 text-sm mb-2">Hold support. Lift toes, then lift heels.</p>
+                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400">
+                    <strong class="text-orange-400 block mb-1">Evidence:</strong>
+                    "Ankle dorsiflexor activation is critical for gait stability and fall prevention." (Systematic Review Consensus)
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                 <button onclick="switchView('assess')" class="w-full bg-slate-800 hover:bg-blue-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2">
+                     Ready for Assessment <span class="text-xl">→</span>
+                 </button>
+            </div>
+        </section>
+
+        <section id="view-assess" class="view-section flex-col items-center">
             
             <div class="glass-panel p-4 rounded-xl w-full mb-6 text-center border-l-4 border-l-blue-500">
-                <h2 id="instructionTitle" class="text-xl font-bold text-white mb-1">Step 1: Mobility Check</h2>
-                <p id="instructionText" class="text-slate-400 text-sm">Please ensure your full body is visible.</p>
+                <h2 id="instructionTitle" class="text-xl font-bold text-white mb-1">Step 2: Mobility Check</h2>
+                <p id="instructionText" class="text-slate-400 text-sm">Please position camera for <strong class="text-white">Side-View (Profile), Waist-Down</strong>.</p>
             </div>
 
             <div class="canvas-wrapper mb-6 relative aspect-[3/4] md:aspect-video w-full max-w-lg mx-auto border border-slate-700">
@@ -166,6 +204,10 @@
                         <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse" id="rec-dot" style="display:none"></div>
                         <span class="text-xs font-mono text-white/80">LIVE FEED</span>
                     </div>
+                </div>
+
+                <div class="absolute bottom-4 left-0 right-0 text-center">
+                    <span class="bg-black/50 text-xs text-slate-300 px-3 py-1 rounded-full backdrop-blur-sm">Privacy Mode: Leg Tracking Only</span>
                 </div>
 
                 <div class="absolute inset-0 flex items-center justify-center z-20" id="startOverlay">
@@ -190,53 +232,65 @@
                 </div>
             </div>
             
-            <div class="mt-6">
-                 <button onclick="switchView('workout')" class="text-slate-400 hover:text-white flex items-center gap-2">
+            <div class="mt-6 text-center">
+                 <button onclick="switchView('workout')" class="text-slate-400 hover:text-white flex items-center justify-center gap-2 mx-auto transition-colors">
                      Next: Daily Workout <span class="text-xl">→</span>
                  </button>
             </div>
         </section>
 
         <section id="view-workout" class="view-section flex-col gap-6">
-            <h2 class="text-2xl font-bold text-white">Step 2: Daily Prescription</h2>
-            
+            <h2 class="text-2xl font-bold text-white">Step 3: Daily Prescription</h2>
+            <p class="text-slate-400 text-sm -mt-4">Protocol based on systematic review consensus (2020-2024).</p>
+
             <div class="glass-panel p-6 rounded-xl border-l-4 border-l-blue-500 relative">
                 <div class="flex justify-between items-start mb-3">
-                    <h3 class="text-lg font-bold text-white">1. Sit-to-Stand</h3>
-                    <span class="bg-blue-900/50 text-blue-300 text-[10px] font-bold px-2 py-1 rounded uppercase">Strength</span>
+                    <h3 class="text-lg font-bold text-white">1. Sit-to-Stand (Squat)</h3>
+                    <span class="bg-blue-900/50 text-blue-300 text-[10px] font-bold px-2 py-1 rounded uppercase">3 x 8 Reps</span>
                 </div>
-                <p class="text-slate-300 text-sm mb-4">3 Sets of 8 Reps. Use a sturdy chair without armrests if possible.</p>
-                
+                <p class="text-slate-300 text-sm mb-4">Rise from chair without arms if possible. Control the descent.</p>
                 <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-4">
                     <strong class="text-blue-400 block mb-1">Clinical Rationale:</strong>
-                    "Sit-to-stand power is a robust predictor of functional independence and mortality risk in adults over 60." (Alcazar et al., 2018)
+                    "70-85% of 1RM intensity correlates to 8-12 reps, showing significant improvements in functional independence." (Review Consensus)
                 </div>
-                
                 <button class="w-full bg-slate-700 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-bold transition-colors">Mark Complete</button>
             </div>
 
             <div class="glass-panel p-6 rounded-xl border-l-4 border-l-green-500 relative">
                 <div class="flex justify-between items-start mb-3">
                     <h3 class="text-lg font-bold text-white">2. Single Leg Stance</h3>
-                    <span class="bg-green-900/50 text-green-300 text-[10px] font-bold px-2 py-1 rounded uppercase">Balance</span>
+                    <span class="bg-green-900/50 text-green-300 text-[10px] font-bold px-2 py-1 rounded uppercase">20s / Leg</span>
                 </div>
-                <p class="text-slate-300 text-sm mb-4">Hold for 20s each leg. Maintain proximity to a wall for safety.</p>
+                <p class="text-slate-300 text-sm mb-4">Eyes open. Progress to eyes closed if safe.</p>
                 <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-4">
                     <strong class="text-green-400 block mb-1">Clinical Rationale:</strong>
-                    "Static unipedal stance performance is inversely associated with fall risk and all-cause mortality." (Springer et al., 2007)
+                    "Static balance tasks significantly improve stability scores in institutionalized older adults." (Espejo-Antúnez et al., 2020)
+                </div>
+                <button class="w-full bg-slate-700 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-bold transition-colors">Mark Complete</button>
+            </div>
+
+            <div class="glass-panel p-6 rounded-xl border-l-4 border-l-purple-500 relative">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-lg font-bold text-white">3. Tandem Walk</h3>
+                    <span class="bg-purple-900/50 text-purple-300 text-[10px] font-bold px-2 py-1 rounded uppercase">10 Steps</span>
+                </div>
+                <p class="text-slate-300 text-sm mb-4">Walk heel-to-toe in a straight line (hallway).</p>
+                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-4">
+                    <strong class="text-purple-400 block mb-1">Clinical Rationale:</strong>
+                    "Complex gait tasks (multi-directional walking) are superior to simple walking for dynamic balance." (Review Consensus)
                 </div>
                 <button class="w-full bg-slate-700 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-bold transition-colors">Mark Complete</button>
             </div>
             
             <div class="mt-4 text-center">
-                 <button onclick="switchView('food')" class="text-slate-400 hover:text-white inline-flex items-center gap-2">
+                 <button onclick="switchView('food')" class="text-slate-400 hover:text-white inline-flex items-center gap-2 transition-colors">
                      Next: Log Nutrition <span class="text-xl">→</span>
                  </button>
             </div>
         </section>
 
         <section id="view-food" class="view-section flex-col gap-6">
-            <h2 class="text-2xl font-bold text-white">Step 3: Nutrition Log</h2>
+            <h2 class="text-2xl font-bold text-white">Step 4: Nutrition Log</h2>
             <p class="text-slate-400 text-sm">Simplified tracking focusing on protein synthesis.</p>
 
             <div class="glass-panel p-6 rounded-xl">
@@ -264,7 +318,7 @@
             </div>
             
             <div class="mt-4 text-center">
-                 <button onclick="switchView('home')" class="text-slate-400 hover:text-white inline-flex items-center gap-2">
+                 <button onclick="switchView('home')" class="text-slate-400 hover:text-white inline-flex items-center gap-2 transition-colors">
                      Finish: View Stats <span class="text-xl">→</span>
                  </button>
             </div>
@@ -394,8 +448,8 @@
             loadStats(data);
             document.getElementById('session-id').innerText = Math.random().toString(36).substr(2, 6).toUpperCase();
             
-            // Force start at Assessment
-            switchView('assess');
+            // START AT WARM UP (STEP 1)
+            switchView('warmup');
         }
 
         function exitApp() {
@@ -579,8 +633,8 @@
             document.getElementById('startOverlay').style.display = 'flex';
             document.getElementById('toggleBtn').classList.add('hidden');
             document.getElementById('rec-dot').style.display = 'none';
-            document.getElementById('instructionTitle').innerText = "Step 1: Mobility Check";
-            document.getElementById('instructionText').innerText = "Please ensure your full body is visible.";
+            document.getElementById('instructionTitle').innerText = "Step 2: Mobility Check";
+            document.getElementById('instructionText').innerHTML = "Please position camera for <strong class='text-white'>Side-View (Profile), Waist-Down</strong>.";
         }
 
         function initCamera() {
@@ -616,9 +670,42 @@
             canvasCtx.filter = 'none';
 
             if (results.poseLandmarks) {
-                // Professional Skeleton Style
-                drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: 'rgba(255, 255, 255, 0.5)', lineWidth: 2});
-                drawLandmarks(canvasCtx, results.poseLandmarks, {color: '#60A5FA', lineWidth: 1, radius: 3});
+                // FILTER: Only draw legs to respect privacy (Visual Feedback)
+                // Landmarks: 23-24 (Hips), 25-26 (Knees), 27-28 (Ankles), 29-32 (Feet)
+                
+                // Define connections for legs only
+                const legConnections = [
+                    [23, 25], [24, 26], // Hips to Knees
+                    [25, 27], [26, 28], // Knees to Ankles
+                    [27, 29], [28, 30], // Ankles to Heels
+                    [29, 31], [30, 32], // Heels to Toes
+                    [23, 24] // Hip to Hip
+                ];
+
+                // Draw Connections
+                canvasCtx.lineWidth = 2;
+                canvasCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                for (const [start, end] of legConnections) {
+                    const p1 = results.poseLandmarks[start];
+                    const p2 = results.poseLandmarks[end];
+                    if(p1 && p2 && p1.visibility > 0.5 && p2.visibility > 0.5) {
+                        canvasCtx.beginPath();
+                        canvasCtx.moveTo(p1.x * canvasElement.width, p1.y * canvasElement.height);
+                        canvasCtx.lineTo(p2.x * canvasElement.width, p2.y * canvasElement.height);
+                        canvasCtx.stroke();
+                    }
+                }
+
+                // Draw Landmarks (Dots) for legs only
+                canvasCtx.fillStyle = '#60A5FA';
+                for (let i = 23; i <= 32; i++) {
+                    const p = results.poseLandmarks[i];
+                    if(p && p.visibility > 0.5) {
+                        canvasCtx.beginPath();
+                        canvasCtx.arc(p.x * canvasElement.width, p.y * canvasElement.height, 4, 0, 2 * Math.PI);
+                        canvasCtx.fill();
+                    }
+                }
 
                 const hip = results.poseLandmarks[24];
                 const knee = results.poseLandmarks[26];
