@@ -39,18 +39,17 @@
         /* Navigation Transitions */
         .view-section { 
             display: none; 
-            opacity: 0; /* Default to hidden */
+            opacity: 0; 
         }
         
         .view-section.active { 
             display: flex; 
-            /* Added 'forwards' here to keep it visible after animation ends */
             animation: fadeIn 0.4s ease-out forwards; 
         }
         
-        .nav-item { transition: all 0.3s ease; position: relative; }
-        .nav-item.active { color: #60A5FA; }
-        .nav-item.active::after { content: ''; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background-color: #60A5FA; border-radius: 50%; }
+        /* Tab Styling */
+        .nav-tab { transition: all 0.2s ease; border-bottom: 4px solid transparent; opacity: 0.6; }
+        .nav-tab.active { border-bottom: 4px solid #60A5FA; opacity: 1; background-color: rgba(30, 41, 59, 0.5); }
 
         /* Scrollbar for log */
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
@@ -60,17 +59,36 @@
 </head>
 <body class="bg-slate-950 text-slate-200 min-h-screen flex flex-col">
 
-    <nav id="app-nav" class="hidden sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 px-4 py-4">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
+    <header id="app-nav" class="hidden flex-col sticky top-0 z-50 bg-slate-950 shadow-xl border-b border-slate-800">
+        <div class="flex justify-between items-center p-4">
             <div>
                 <h1 class="text-lg font-bold text-white tracking-tight">Health Portal</h1>
                 <p class="text-xs text-slate-400">Dr. Pearson-Noseworthy</p>
             </div>
-            <button id="logoutBtn" class="text-xs font-medium text-slate-500 hover:text-white transition-colors">
+            <button id="logoutBtn" class="bg-red-600 hover:bg-red-500 text-white font-bold px-6 py-2 rounded-lg shadow-lg shadow-red-900/20 transition-all active:scale-95 border border-red-500">
                 LOG OUT
             </button>
         </div>
-    </nav>
+
+        <div class="grid grid-cols-4 w-full bg-slate-900 text-xs md:text-sm font-bold text-slate-300">
+            <button onclick="switchView('assess')" id="nav-assess" class="nav-tab active py-3 flex flex-col items-center justify-center hover:bg-slate-800">
+                <span class="text-blue-400 mb-0.5">STEP 1</span>
+                <span>ASSESS</span>
+            </button>
+            <button onclick="switchView('workout')" id="nav-workout" class="nav-tab py-3 flex flex-col items-center justify-center hover:bg-slate-800">
+                <span class="text-green-400 mb-0.5">STEP 2</span>
+                <span>WORKOUT</span>
+            </button>
+            <button onclick="switchView('food')" id="nav-food" class="nav-tab py-3 flex flex-col items-center justify-center hover:bg-slate-800">
+                <span class="text-yellow-400 mb-0.5">STEP 3</span>
+                <span>FOOD</span>
+            </button>
+            <button onclick="switchView('home')" id="nav-home" class="nav-tab py-3 flex flex-col items-center justify-center hover:bg-slate-800">
+                <span class="text-purple-400 mb-0.5">STEP 4</span>
+                <span>STATS</span>
+            </button>
+        </div>
+    </header>
 
     <section id="auth-screen" class="flex-grow flex flex-col items-center justify-center p-4 min-h-screen">
         <div class="w-full max-w-md animate-fade-in" style="animation-delay: 0.1s;">
@@ -130,47 +148,12 @@
         </div>
     </section>
 
-    <div id="app-container" class="hidden w-full max-w-4xl mx-auto p-4 pb-28">
+    <div id="app-container" class="hidden w-full max-w-4xl mx-auto p-4 pb-20">
 
-        <section id="view-home" class="view-section active flex-col gap-6 animate-fade-in" style="animation-delay: 0.1s;">
-            
-            <div class="bg-gradient-to-br from-blue-900/40 to-slate-900/40 border border-blue-500/30 p-6 rounded-2xl relative overflow-hidden">
-                <div class="relative z-10">
-                    <h3 class="text-blue-400 font-bold uppercase tracking-widest text-xs mb-2">Evidence-Based Insight</h3>
-                    <p class="text-lg md:text-xl text-slate-100 italic font-serif leading-relaxed">"Resistance training is the most potent non-pharmaceutical intervention for sarcopenia."</p>
-                    <p class="text-slate-500 text-xs mt-3">— Law et al. (2016), <span class="text-slate-400">Journal of Cachexia</span></p>
-                </div>
-                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl"></div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div class="glass-panel p-5 rounded-2xl text-center hover:border-green-500/30 transition-colors">
-                    <div class="text-2xl mb-2">📐</div>
-                    <div class="text-2xl font-bold text-white" id="statRom">--</div>
-                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Best Mobility</div>
-                </div>
-                <div class="glass-panel p-5 rounded-2xl text-center hover:border-blue-500/30 transition-colors">
-                    <div class="text-2xl mb-2">🏋️</div>
-                    <div class="text-2xl font-bold text-white" id="statReps">0</div>
-                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Total Reps</div>
-                </div>
-                <div class="glass-panel p-5 rounded-2xl text-center hover:border-orange-500/30 transition-colors">
-                    <div class="text-2xl mb-2">🔥</div>
-                    <div class="text-2xl font-bold text-white" id="statCals">0</div>
-                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Est. Kcals</div>
-                </div>
-                <div class="glass-panel p-5 rounded-2xl text-center hover:border-purple-500/30 transition-colors">
-                    <div class="text-2xl mb-2">📅</div>
-                    <div class="text-2xl font-bold text-white" id="statDays">0</div>
-                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Day Streak</div>
-                </div>
-            </div>
-        </section>
-
-        <section id="view-assess" class="view-section flex-col items-center animate-fade-in">
+        <section id="view-assess" class="view-section active flex-col items-center">
             
             <div class="glass-panel p-4 rounded-xl w-full mb-6 text-center border-l-4 border-l-blue-500">
-                <h2 id="instructionTitle" class="text-xl font-bold text-white mb-1">Mobility Assessment</h2>
+                <h2 id="instructionTitle" class="text-xl font-bold text-white mb-1">Step 1: Mobility Check</h2>
                 <p id="instructionText" class="text-slate-400 text-sm">Please ensure your full body is visible.</p>
             </div>
 
@@ -206,10 +189,16 @@
                     <p class="text-slate-600 text-xs italic text-center py-2">Waiting for repetitions...</p>
                 </div>
             </div>
+            
+            <div class="mt-6">
+                 <button onclick="switchView('workout')" class="text-slate-400 hover:text-white flex items-center gap-2">
+                     Next: Daily Workout <span class="text-xl">→</span>
+                 </button>
+            </div>
         </section>
 
-        <section id="view-workout" class="view-section flex-col gap-6 animate-fade-in">
-            <h2 class="text-2xl font-bold text-white">Daily Prescription</h2>
+        <section id="view-workout" class="view-section flex-col gap-6">
+            <h2 class="text-2xl font-bold text-white">Step 2: Daily Prescription</h2>
             
             <div class="glass-panel p-6 rounded-xl border-l-4 border-l-blue-500 relative">
                 <div class="flex justify-between items-start mb-3">
@@ -238,10 +227,16 @@
                 </div>
                 <button class="w-full bg-slate-700 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-bold transition-colors">Mark Complete</button>
             </div>
+            
+            <div class="mt-4 text-center">
+                 <button onclick="switchView('food')" class="text-slate-400 hover:text-white inline-flex items-center gap-2">
+                     Next: Log Nutrition <span class="text-xl">→</span>
+                 </button>
+            </div>
         </section>
 
-        <section id="view-food" class="view-section flex-col gap-6 animate-fade-in">
-            <h2 class="text-2xl font-bold text-white">Nutrition Log</h2>
+        <section id="view-food" class="view-section flex-col gap-6">
+            <h2 class="text-2xl font-bold text-white">Step 3: Nutrition Log</h2>
             <p class="text-slate-400 text-sm">Simplified tracking focusing on protein synthesis.</p>
 
             <div class="glass-panel p-6 rounded-xl">
@@ -267,32 +262,55 @@
                     Anabolic resistance in older muscle requires ~25g-30g of protein per sitting (e.g., a chicken breast or 3 eggs) to effectively trigger muscle protein synthesis.
                 </div>
             </div>
+            
+            <div class="mt-4 text-center">
+                 <button onclick="switchView('home')" class="text-slate-400 hover:text-white inline-flex items-center gap-2">
+                     Finish: View Stats <span class="text-xl">→</span>
+                 </button>
+            </div>
+        </section>
+
+        <section id="view-home" class="view-section flex-col gap-6">
+            
+            <div class="bg-gradient-to-br from-blue-900/40 to-slate-900/40 border border-blue-500/30 p-6 rounded-2xl relative overflow-hidden">
+                <div class="relative z-10">
+                    <h3 class="text-blue-400 font-bold uppercase tracking-widest text-xs mb-2">Evidence-Based Insight</h3>
+                    <p class="text-lg md:text-xl text-slate-100 italic font-serif leading-relaxed">"Resistance training is the most potent non-pharmaceutical intervention for sarcopenia."</p>
+                    <p class="text-slate-500 text-xs mt-3">— Law et al. (2016), <span class="text-slate-400">Journal of Cachexia</span></p>
+                </div>
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl"></div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass-panel p-5 rounded-2xl text-center hover:border-green-500/30 transition-colors">
+                    <div class="text-2xl mb-2">📐</div>
+                    <div class="text-2xl font-bold text-white" id="statRom">--</div>
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Best Mobility</div>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl text-center hover:border-blue-500/30 transition-colors">
+                    <div class="text-2xl mb-2">🏋️</div>
+                    <div class="text-2xl font-bold text-white" id="statReps">0</div>
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Total Reps</div>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl text-center hover:border-orange-500/30 transition-colors">
+                    <div class="text-2xl mb-2">🔥</div>
+                    <div class="text-2xl font-bold text-white" id="statCals">0</div>
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Est. Kcals</div>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl text-center hover:border-purple-500/30 transition-colors">
+                    <div class="text-2xl mb-2">📅</div>
+                    <div class="text-2xl font-bold text-white" id="statDays">0</div>
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Day Streak</div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8 p-4 bg-slate-900 rounded-lg">
+                <p class="text-white font-bold">You are all caught up for today!</p>
+                <p class="text-slate-400 text-sm mt-1">See you tomorrow.</p>
+            </div>
         </section>
 
     </div>
-
-    <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-slate-900/90 backdrop-blur-lg border-t border-slate-800 pb-safe pt-2 z-40">
-        <div class="grid grid-cols-4 h-16 max-w-2xl mx-auto">
-            <button onclick="switchView('home')" class="nav-item active flex flex-col items-center justify-center text-slate-500 hover:text-white" id="nav-home">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                <span class="text-[10px] font-bold">Home</span>
-            </button>
-            <button onclick="switchView('workout')" class="nav-item flex flex-col items-center justify-center text-slate-500 hover:text-white" id="nav-workout">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                <span class="text-[10px] font-bold">Rx</span>
-            </button>
-            <button onclick="switchView('assess')" class="nav-item flex flex-col items-center justify-center text-slate-500 hover:text-white" id="nav-assess">
-                <div class="bg-blue-600 rounded-full p-2 -mt-4 shadow-lg shadow-blue-600/30 border-4 border-slate-900">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                </div>
-                <span class="text-[10px] font-bold mt-1">Assess</span>
-            </button>
-            <button onclick="switchView('food')" class="nav-item flex flex-col items-center justify-center text-slate-500 hover:text-white" id="nav-food">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                <span class="text-[10px] font-bold">Log</span>
-            </button>
-        </div>
-    </nav>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -372,16 +390,17 @@
         function enterApp(data) {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-container').style.display = 'block';
-            document.getElementById('bottom-nav').style.display = 'block';
             document.getElementById('app-nav').style.display = 'flex';
             loadStats(data);
             document.getElementById('session-id').innerText = Math.random().toString(36).substr(2, 6).toUpperCase();
+            
+            // Force start at Assessment
+            switchView('assess');
         }
 
         function exitApp() {
             document.getElementById('auth-screen').style.display = 'flex';
             document.getElementById('app-container').style.display = 'none';
-            document.getElementById('bottom-nav').style.display = 'none';
             document.getElementById('app-nav').style.display = 'none';
             stopCameraLogic();
         }
@@ -527,7 +546,7 @@
         // NAVIGATION
         function switchView(viewName) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
 
             document.getElementById(`view-${viewName}`).classList.add('active');
             document.getElementById(`nav-${viewName}`).classList.add('active');
@@ -560,7 +579,7 @@
             document.getElementById('startOverlay').style.display = 'flex';
             document.getElementById('toggleBtn').classList.add('hidden');
             document.getElementById('rec-dot').style.display = 'none';
-            document.getElementById('instructionTitle').innerText = "Mobility Assessment";
+            document.getElementById('instructionTitle').innerText = "Step 1: Mobility Check";
             document.getElementById('instructionText').innerText = "Please ensure your full body is visible.";
         }
 
