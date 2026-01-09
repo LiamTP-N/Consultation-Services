@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Health Portal | Dr. Pearson-Noseworthy</title>
+    <title>Functional Calibration | Dr. Pearson-Noseworthy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
@@ -11,7 +11,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
 
     <style>
-        /* Custom Animations & Base Styles */
         body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
         .glass-panel {
             background: rgba(30, 41, 59, 0.7);
@@ -20,38 +19,31 @@
             border: 1px solid rgba(51, 65, 85, 0.5);
         }
         
-        /* Animation Classes */
-        .animate-fade-in { 
-            animation: fadeIn 0.5s ease-out forwards; 
-            opacity: 0; 
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* Animations */
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         /* Camera & Canvas */
-        .canvas-wrapper { position: relative; width: 100%; border-radius: 1rem; overflow: hidden; background-color: #0f172a; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .canvas-wrapper { position: relative; width: 100%; border-radius: 1rem; overflow: hidden; background-color: #0f172a; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
         .output_canvas { width: 100%; height: auto; display: block; }
         video { display: none; }
 
-        /* Navigation Transitions */
-        .view-section { 
-            display: none; 
-            opacity: 0; 
-        }
+        /* Navigation */
+        .view-section { display: none; opacity: 0; }
+        .view-section.active { display: flex; animation: fadeIn 0.4s ease-out forwards; }
         
-        .view-section.active { 
-            display: flex; 
-            animation: fadeIn 0.4s ease-out forwards; 
-        }
-        
-        /* Tab Styling */
         .nav-tab { transition: all 0.2s ease; border-bottom: 4px solid transparent; opacity: 0.6; }
         .nav-tab.active { border-bottom: 4px solid #60A5FA; opacity: 1; background-color: rgba(30, 41, 59, 0.5); }
 
-        /* Scrollbar for log */
+        /* Protocol Selector Buttons */
+        .protocol-btn { border: 1px solid #475569; transition: all 0.3s; }
+        .protocol-btn.selected { background-color: #2563EB; border-color: #3B82F6; color: white; box-shadow: 0 0 15px rgba(37, 99, 235, 0.5); }
+
+        /* Depth Gauge */
+        .depth-meter { height: 10px; width: 100%; background: #334155; border-radius: 5px; overflow: hidden; margin-top: 10px; }
+        .depth-fill { height: 100%; width: 0%; background: #EF4444; transition: width 0.1s, background 0.3s; }
+
+        /* Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
@@ -62,11 +54,11 @@
     <header id="app-nav" class="hidden flex-col sticky top-0 z-50 bg-slate-950 shadow-xl border-b border-slate-800">
         <div class="flex justify-between items-center p-4">
             <div>
-                <h1 class="text-lg font-bold text-white tracking-tight">Health Portal</h1>
-                <p class="text-xs text-slate-400">Dr. Pearson-Noseworthy</p>
+                <h1 class="text-lg font-bold text-white tracking-tight">Functional Calibration</h1>
+                <p class="text-xs text-slate-400">Dr. Pearson-Noseworthy (PhD)</p>
             </div>
-            <button id="logoutBtn" class="bg-red-600 hover:bg-red-500 text-white font-bold px-6 py-2 rounded-lg shadow-lg shadow-red-900/20 transition-all active:scale-95 border border-red-500">
-                LOG OUT
+            <button id="logoutBtn" class="bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-lg transition-all active:scale-95 border border-red-500">
+                EXIT
             </button>
         </div>
 
@@ -77,11 +69,11 @@
             </button>
             <button onclick="switchView('assess')" id="nav-assess" class="nav-tab py-3 flex flex-col items-center justify-center hover:bg-slate-800">
                 <span class="text-blue-400 mb-0.5">STEP 2</span>
-                <span>TEST</span>
+                <span>BASELINE</span>
             </button>
             <button onclick="switchView('workout')" id="nav-workout" class="nav-tab py-3 flex flex-col items-center justify-center hover:bg-slate-800">
                 <span class="text-green-400 mb-0.5">STEP 3</span>
-                <span>EXERCISE</span>
+                <span>TRAINING</span>
             </button>
             <button onclick="switchView('food')" id="nav-food" class="nav-tab py-3 flex flex-col items-center justify-center hover:bg-slate-800">
                 <span class="text-yellow-400 mb-0.5">STEP 4</span>
@@ -89,64 +81,41 @@
             </button>
             <button onclick="switchView('home')" id="nav-home" class="nav-tab py-3 flex flex-col items-center justify-center hover:bg-slate-800">
                 <span class="text-purple-400 mb-0.5">STEP 5</span>
-                <span>STATS</span>
+                <span>PROGRESS</span>
             </button>
         </div>
     </header>
 
     <section id="auth-screen" class="flex-grow flex flex-col items-center justify-center p-4 min-h-screen">
-        <div class="w-full max-w-md animate-fade-in" style="animation-delay: 0.1s;">
+        <div class="w-full max-w-md animate-fade-in">
             <div class="text-center mb-8">
-                <h1 class="text-2xl md:text-3xl font-bold text-white mb-2">Dr. Pearson-Noseworthy</h1>
-                <p class="text-slate-400 text-sm">Clinical Performance & Research Portal</p>
+                <h1 class="text-3xl font-bold text-white mb-2">My Health Portal</h1>
+                <p class="text-slate-400">Scientific Mobility & Strength for Over 60s.</p>
             </div>
 
             <div class="glass-panel rounded-2xl p-8 shadow-2xl">
-                <div class="flex bg-slate-900/50 p-1 rounded-lg mb-8 border border-slate-700/50">
-                    <button onclick="toggleAuthMode('login')" id="tab-login" class="flex-1 py-2 text-sm font-bold rounded-md text-white bg-slate-700 shadow-sm transition-all">Log In</button>
-                    <button onclick="toggleAuthMode('register')" id="tab-register" class="flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all">Free Register</button>
+                <div class="flex bg-slate-900/50 p-1 rounded-lg mb-6 border border-slate-700/50">
+                    <button onclick="toggleAuthMode('login')" id="tab-login" class="flex-1 py-2 text-sm font-bold rounded-md text-white bg-slate-700 shadow-sm transition-all">Return User</button>
+                    <button onclick="toggleAuthMode('register')" id="tab-register" class="flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all">New User</button>
                 </div>
 
-                <form id="authForm" class="space-y-5">
-                    <div id="register-fields" class="hidden space-y-5">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Full Name</label>
-                            <input type="text" id="reg-name" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder-slate-600" placeholder="John Doe">
-                        </div>
+                <form id="authForm" class="space-y-4">
+                    <div id="register-fields" class="hidden space-y-4">
+                        <input type="text" id="reg-name" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 placeholder-slate-600" placeholder="Full Name">
                     </div>
+                    <input type="email" id="email" autocomplete="username" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 placeholder-slate-600" placeholder="Email Address">
+                    <input type="password" id="password" autocomplete="current-password" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 placeholder-slate-600" placeholder="Password">
 
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Email Address</label>
-                        <input type="email" id="email" autocomplete="username" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder-slate-600" placeholder="name@example.com">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Password</label>
-                        <input type="password" id="password" autocomplete="current-password" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder-slate-600" placeholder="••••••••">
-                    </div>
+                    <p id="authError" class="text-red-400 text-xs text-center hidden">Error Message</p>
 
-                    <div id="login-options" class="flex items-center justify-between text-sm">
-                        <label class="flex items-center cursor-pointer">
-                            <input id="rememberMe" type="checkbox" class="w-4 h-4 rounded border-slate-600 bg-slate-800 text-blue-600 focus:ring-offset-slate-900" checked>
-                            <span class="ml-2 text-slate-400">Remember me</span>
-                        </label>
-                    </div>
-
-                    <p id="authError" class="text-red-400 text-sm font-medium text-center hidden bg-red-900/20 py-2 rounded border border-red-900/50">
-                        Error Message
-                    </p>
-
-                    <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-900/20 transition-all transform hover:-translate-y-0.5">
-                        LOG IN
+                    <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg transition-all mt-2">
+                        ENTER PORTAL
                     </button>
                     
                     <p class="text-xs text-slate-500 text-center leading-relaxed mt-4">
-                        By using this portal, you agree to the research consent terms.
+                        By entering, you agree to the research consent terms.
                     </p>
                 </form>
-            </div>
-            
-            <div class="mt-8 text-center">
-                <a href="index.html" class="text-sm text-slate-500 hover:text-white transition-colors">← Back to Main Website</a>
             </div>
         </div>
     </section>
@@ -155,167 +124,166 @@
 
         <section id="view-warmup" class="view-section active flex-col gap-6">
             <h2 class="text-2xl font-bold text-white">Step 1: Mobility Prep</h2>
-            <p class="text-slate-400 text-sm -mt-4">Please complete this warm-up before assessment.</p>
+            <p class="text-slate-400 text-sm -mt-4">Safety first. Prepare the joints.</p>
             
-            <div class="glass-panel p-6 rounded-xl border border-slate-700 hover:border-orange-500/50 transition-colors">
-                <div class="flex justify-between items-start mb-2">
+            <div class="glass-panel p-5 rounded-xl border border-slate-700">
+                <div class="flex justify-between items-center mb-2">
                     <h3 class="text-lg font-bold text-white">1. Marching in Place</h3>
-                    <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-1 rounded uppercase">5 Mins</span>
+                    <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-1 rounded">2 MINS</span>
                 </div>
                 <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-2">
                     <strong class="text-orange-400 block mb-1">Evidence:</strong>
-                    "Low-intensity aerobic activation is a foundational component of effective proprioceptive training programs." (Espejo-Antúnez et al., 2020)
+                    "Low-intensity aerobic activation is foundational." (Espejo-Antúnez et al., 2020)
                 </div>
                 <button class="w-full bg-slate-700 hover:bg-orange-600 text-white py-2 rounded-lg text-sm font-bold transition-colors">Mark Complete</button>
             </div>
 
-            <div class="glass-panel p-6 rounded-xl border border-slate-700 hover:border-orange-500/50 transition-colors">
-                <div class="flex justify-between items-start mb-2">
+            <div class="glass-panel p-5 rounded-xl border border-slate-700">
+                <div class="flex justify-between items-center mb-2">
                     <h3 class="text-lg font-bold text-white">2. Heel & Toe Raises</h3>
-                    <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-1 rounded uppercase">15 Reps</span>
+                    <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-1 rounded">15 REPS</span>
                 </div>
-                <p class="text-slate-300 text-sm mb-2">Hold support. Lift toes, then lift heels.</p>
-                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400">
+                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-2">
                     <strong class="text-orange-400 block mb-1">Evidence:</strong>
-                    "Ankle dorsiflexor activation is critical for gait stability and fall prevention." (Systematic Review Consensus)
+                    "Ankle dorsiflexor activation is critical for gait stability." (Review Consensus)
                 </div>
                 <button class="w-full bg-slate-700 hover:bg-orange-600 text-white py-2 rounded-lg text-sm font-bold transition-colors">Mark Complete</button>
             </div>
 
-            <div class="mt-4 text-center">
-                 <button onclick="switchView('assess')" class="w-full bg-slate-800 hover:bg-blue-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2">
-                     Ready for Assessment <span class="text-xl">→</span>
-                 </button>
-            </div>
+            <button onclick="switchView('assess')" class="w-full bg-slate-800 hover:bg-blue-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 mt-4">
+                Next: Establish Baseline <span class="text-xl">→</span>
+            </button>
         </section>
 
         <section id="view-assess" class="view-section flex-col items-center">
             
             <div class="glass-panel p-4 rounded-xl w-full mb-6 text-center border-l-4 border-l-blue-500">
-                <h2 id="instructionTitle" class="text-xl font-bold text-white mb-1">Step 2: Mobility Check</h2>
-                <p id="instructionText" class="text-slate-400 text-sm">Please position camera for <strong class="text-white">Side-View (Profile), Waist-Down</strong>.</p>
+                <h2 class="text-xl font-bold text-white mb-1">Step 2: Baseline Assessment</h2>
+                <p class="text-slate-400 text-sm">Perform your deepest comfortable squat. This sets your target.</p>
             </div>
 
-            <div class="canvas-wrapper mb-6 relative aspect-[3/4] md:aspect-video w-full max-w-lg mx-auto border border-slate-700">
+            <div class="canvas-wrapper mb-4 relative aspect-[4/3] md:aspect-video w-full max-w-lg mx-auto border border-slate-700">
                 <video class="input_video"></video>
                 <canvas class="output_canvas"></canvas>
                 
                 <div class="absolute top-4 left-4 bg-black/60 backdrop-blur px-3 py-1 rounded-full border border-white/10">
                     <div class="flex items-center gap-2">
-                        <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse" id="rec-dot" style="display:none"></div>
-                        <span class="text-xs font-mono text-white/80">LIVE FEED</span>
+                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse hidden" id="assess-dot"></div>
+                        <span class="text-xs font-mono text-white/80">ASSESSMENT MODE</span>
                     </div>
                 </div>
 
                 <div class="absolute bottom-4 left-0 right-0 text-center">
-                    <span class="bg-black/50 text-xs text-slate-300 px-3 py-1 rounded-full backdrop-blur-sm">Privacy Mode: Leg Tracking Only</span>
+                    <span class="bg-black/50 text-xs text-slate-300 px-3 py-1 rounded-full backdrop-blur-sm">Side View | Waist-Down Only</span>
                 </div>
 
-                <div class="absolute inset-0 flex items-center justify-center z-20" id="startOverlay">
-                    <button id="startBtn" onclick="initCamera()" class="group relative inline-flex items-center justify-center px-8 py-3 font-bold text-white transition-all duration-200 bg-blue-600 font-lg rounded-full hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 ring-offset-slate-900">
-                        <span>Activate Sensor</span>
-                        <svg class="w-5 h-5 ml-2 -mr-1 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div class="absolute inset-0 flex items-center justify-center z-20" id="assessOverlay">
+                    <button onclick="initCamera('assess')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all">
+                        Start Assessment
                     </button>
                 </div>
             </div>
 
-            <button id="toggleBtn" onclick="toggleCamera()" class="hidden w-full max-w-lg bg-slate-800 hover:bg-slate-700 text-red-400 border border-slate-700 font-bold py-3 rounded-xl transition-all mb-6">
-                Deactivate Camera
-            </button>
-
-            <div class="w-full max-w-lg glass-panel rounded-xl p-4">
-                <div class="flex justify-between items-center mb-3 border-b border-slate-700 pb-2">
-                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wide">Session Data</h3>
-                    <span class="text-xs text-slate-500 font-mono">ID: <span id="session-id">...</span></span>
-                </div>
-                <div id="logContainer" class="space-y-1 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
-                    <p class="text-slate-600 text-xs italic text-center py-2">Waiting for repetitions...</p>
-                </div>
+            <div class="w-full max-w-lg glass-panel rounded-xl p-4 text-center">
+                <p class="text-xs text-slate-500 uppercase mb-1">Current Depth</p>
+                <div class="text-4xl font-bold text-white mb-2" id="assess-val">--</div>
+                <button onclick="saveAssessment()" id="saveAssessBtn" class="hidden w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-lg mt-2">
+                    SAVE BASELINE
+                </button>
             </div>
             
-            <div class="mt-6 text-center">
-                 <button onclick="switchView('workout')" class="text-slate-400 hover:text-white flex items-center justify-center gap-2 mx-auto transition-colors">
-                     Next: Daily Workout <span class="text-xl">→</span>
+            <div class="mt-4">
+                 <button onclick="switchView('workout')" class="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+                     Next: Training <span class="text-xl">→</span>
                  </button>
             </div>
         </section>
 
-        <section id="view-workout" class="view-section flex-col gap-6">
-            <h2 class="text-2xl font-bold text-white">Step 3: Daily Exercise</h2>
-            <p class="text-slate-400 text-sm -mt-4">Protocol based on systematic review consensus (2020-2024).</p>
+        <section id="view-workout" class="view-section flex-col items-center">
+            
+            <div class="w-full mb-4">
+                <h2 class="text-xl font-bold text-white mb-2">Step 3: Smart Training</h2>
+                
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center mb-4">
+                    <div>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Today's Target</p>
+                        <p class="text-2xl font-bold text-green-400" id="daily-target-display">--°</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Strictness</p>
+                        <p class="text-lg font-bold text-white" id="strictness-display">50%</p>
+                    </div>
+                </div>
 
-            <div class="glass-panel p-6 rounded-xl border-l-4 border-l-blue-500 relative">
-                <div class="flex justify-between items-start mb-3">
-                    <h3 class="text-lg font-bold text-white">1. Sit-to-Stand (Squat)</h3>
-                    <span class="bg-blue-900/50 text-blue-300 text-[10px] font-bold px-2 py-1 rounded uppercase">3 x 8 Reps</span>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <button onclick="setProtocol('power')" id="btn-power" class="protocol-btn selected p-3 rounded-xl flex flex-col items-center justify-center bg-slate-800/50">
+                        <svg class="w-6 h-6 mb-1 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <span class="font-bold text-sm">MAX POWER</span>
+                        <span class="text-[10px] text-slate-400">Fast Up</span>
+                    </button>
+                    <button onclick="setProtocol('capacity')" id="btn-capacity" class="protocol-btn p-3 rounded-xl flex flex-col items-center justify-center bg-slate-800/50">
+                        <svg class="w-6 h-6 mb-1 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold text-sm">CAPACITY</span>
+                        <span class="text-[10px] text-slate-400">30s Test</span>
+                    </button>
                 </div>
-                <p class="text-slate-300 text-sm mb-4">Rise from chair without arms if possible. Control the descent.</p>
-                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-4">
-                    <strong class="text-blue-400 block mb-1">Clinical Rationale:</strong>
-                    "70-85% of 1RM intensity correlates to 8-12 reps, showing significant improvements in functional independence." (Review Consensus)
-                </div>
-                <button class="w-full bg-slate-700 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-bold transition-colors">Mark Complete</button>
             </div>
 
-            <div class="glass-panel p-6 rounded-xl border-l-4 border-l-green-500 relative">
-                <div class="flex justify-between items-start mb-3">
-                    <h3 class="text-lg font-bold text-white">2. Single Leg Stance</h3>
-                    <span class="bg-green-900/50 text-green-300 text-[10px] font-bold px-2 py-1 rounded uppercase">20s / Leg</span>
+            <div class="canvas-wrapper mb-4 relative aspect-[4/3] md:aspect-video w-full max-w-lg mx-auto border border-slate-700">
+                <video class="input_video_train" style="display:none"></video>
+                <canvas class="output_canvas_train"></canvas>
+                
+                <div class="absolute inset-0 flex items-center justify-center z-20" id="trainOverlay">
+                    <button onclick="initCamera('train')" class="bg-green-600 hover:bg-green-500 text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all">
+                        Start Session
+                    </button>
                 </div>
-                <p class="text-slate-300 text-sm mb-4">Eyes open. Progress to eyes closed if safe.</p>
-                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-4">
-                    <strong class="text-green-400 block mb-1">Clinical Rationale:</strong>
-                    "Static balance tasks significantly improve stability scores in institutionalized older adults." (Espejo-Antúnez et al., 2020)
+                
+                <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
+                    <div class="flex justify-between text-xs font-bold text-white mb-1">
+                        <span>DEPTH</span>
+                        <span id="rep-feedback">WAITING</span>
+                    </div>
+                    <div class="depth-meter">
+                        <div class="depth-fill" id="depth-bar"></div>
+                    </div>
                 </div>
-                <button class="w-full bg-slate-700 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-bold transition-colors">Mark Complete</button>
             </div>
 
-            <div class="glass-panel p-6 rounded-xl border-l-4 border-l-purple-500 relative">
-                <div class="flex justify-between items-start mb-3">
-                    <h3 class="text-lg font-bold text-white">3. Tandem Walk</h3>
-                    <span class="bg-purple-900/50 text-purple-300 text-[10px] font-bold px-2 py-1 rounded uppercase">10 Steps</span>
+            <div class="w-full max-w-lg glass-panel rounded-xl p-4 flex justify-between items-center">
+                <div>
+                    <span class="text-xs text-slate-500 uppercase">Reps</span>
+                    <div class="text-3xl font-bold text-white" id="train-reps">0</div>
                 </div>
-                <p class="text-slate-300 text-sm mb-4">Walk heel-to-toe in a straight line (hallway).</p>
-                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-4">
-                    <strong class="text-purple-400 block mb-1">Clinical Rationale:</strong>
-                    "Complex gait tasks (multi-directional walking) are superior to simple walking for dynamic balance." (Review Consensus)
-                </div>
-                <button class="w-full bg-slate-700 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-bold transition-colors">Mark Complete</button>
+                <button onclick="finishSession()" id="finishBtn" class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-lg font-bold text-sm">
+                    FINISH
+                </button>
             </div>
             
-            <div class="mt-4 text-center">
-                 <button onclick="switchView('food')" class="text-slate-400 hover:text-white inline-flex items-center gap-2 transition-colors">
+            <div class="mt-4">
+                 <button onclick="switchView('food')" class="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
                      Next: Log Nutrition <span class="text-xl">→</span>
                  </button>
             </div>
         </section>
 
         <section id="view-food" class="view-section flex-col gap-6">
-            <h2 class="text-2xl font-bold text-white">Step 4: Nutrition Log</h2>
-            <p class="text-slate-400 text-sm">Simplified tracking focusing on protein synthesis.</p>
+            <h2 class="text-2xl font-bold text-white">Step 4: Protein Check</h2>
+            <p class="text-slate-400 text-sm -mt-4">Anabolic resistance requires higher protein intake (25-30g/meal).</p>
 
-            <div class="glass-panel p-6 rounded-xl">
-                <h3 class="text-lg font-bold text-white mb-4">Protein Frequency</h3>
-                
-                <div class="space-y-3">
-                    <label class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 cursor-pointer hover:bg-slate-800 transition">
-                        <input type="checkbox" class="w-5 h-5 text-green-500 rounded focus:ring-green-500 bg-slate-700 border-slate-600">
-                        <span class="text-slate-200">Protein at Breakfast</span>
-                    </label>
-                    <label class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 cursor-pointer hover:bg-slate-800 transition">
-                        <input type="checkbox" class="w-5 h-5 text-green-500 rounded focus:ring-green-500 bg-slate-700 border-slate-600">
-                        <span class="text-slate-200">Protein at Lunch</span>
-                    </label>
-                    <label class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 cursor-pointer hover:bg-slate-800 transition">
-                        <input type="checkbox" class="w-5 h-5 text-green-500 rounded focus:ring-green-500 bg-slate-700 border-slate-600">
-                        <span class="text-slate-200">Protein at Dinner</span>
-                    </label>
-                </div>
-
-                <div class="mt-6 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30 text-xs text-slate-300">
-                    <strong class="text-yellow-500 block mb-1">Scientific Note:</strong>
-                    Anabolic resistance in older muscle requires ~25g-30g of protein per sitting (e.g., a chicken breast or 3 eggs) to effectively trigger muscle protein synthesis.
-                </div>
+            <div class="glass-panel p-6 rounded-xl space-y-4">
+                <label class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 cursor-pointer">
+                    <input type="checkbox" class="w-5 h-5 text-green-500 rounded bg-slate-700 border-slate-600" onchange="saveFood()">
+                    <span class="text-slate-200">Breakfast Protein</span>
+                </label>
+                <label class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 cursor-pointer">
+                    <input type="checkbox" class="w-5 h-5 text-green-500 rounded bg-slate-700 border-slate-600" onchange="saveFood()">
+                    <span class="text-slate-200">Lunch Protein</span>
+                </label>
+                <label class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 cursor-pointer">
+                    <input type="checkbox" class="w-5 h-5 text-green-500 rounded bg-slate-700 border-slate-600" onchange="saveFood()">
+                    <span class="text-slate-200">Dinner Protein</span>
+                </label>
             </div>
             
             <div class="mt-4 text-center">
@@ -326,42 +294,22 @@
         </section>
 
         <section id="view-home" class="view-section flex-col gap-6">
-            
-            <div class="bg-gradient-to-br from-blue-900/40 to-slate-900/40 border border-blue-500/30 p-6 rounded-2xl relative overflow-hidden">
-                <div class="relative z-10">
-                    <h3 class="text-blue-400 font-bold uppercase tracking-widest text-xs mb-2">Evidence-Based Insight</h3>
-                    <p class="text-lg md:text-xl text-slate-100 italic font-serif leading-relaxed">"Resistance training is the most potent non-pharmaceutical intervention for sarcopenia."</p>
-                    <p class="text-slate-500 text-xs mt-3">— Law et al. (2016), <span class="text-slate-400">Journal of Cachexia</span></p>
-                </div>
-                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl"></div>
+            <div class="bg-gradient-to-br from-blue-900/40 to-slate-900/40 border border-blue-500/30 p-6 rounded-2xl">
+                <h3 class="text-blue-400 font-bold uppercase tracking-widest text-xs mb-2">Smart Progression</h3>
+                <p class="text-slate-300 text-sm">Your target depth becomes 1% stricter every session. You are currently training at <span id="stat-strictness" class="text-white font-bold">50%</span> of your assessed range.</p>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <div class="glass-panel p-5 rounded-2xl text-center hover:border-green-500/30 transition-colors">
-                    <div class="text-2xl mb-2">📐</div>
-                    <div class="text-2xl font-bold text-white" id="statRom">--</div>
-                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Best Mobility</div>
-                </div>
-                <div class="glass-panel p-5 rounded-2xl text-center hover:border-blue-500/30 transition-colors">
-                    <div class="text-2xl mb-2">🏋️</div>
+                <div class="glass-panel p-5 rounded-2xl text-center border-t-2 border-green-500">
+                    <div class="text-2xl mb-1 text-slate-400">⚡</div>
                     <div class="text-2xl font-bold text-white" id="statReps">0</div>
-                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Total Reps</div>
+                    <div class="text-[10px] font-bold text-slate-500 uppercase">Total Reps</div>
                 </div>
-                <div class="glass-panel p-5 rounded-2xl text-center hover:border-orange-500/30 transition-colors">
-                    <div class="text-2xl mb-2">🔥</div>
-                    <div class="text-2xl font-bold text-white" id="statCals">0</div>
-                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Est. Kcals</div>
+                <div class="glass-panel p-5 rounded-2xl text-center border-t-2 border-blue-500">
+                    <div class="text-2xl mb-1 text-slate-400">📏</div>
+                    <div class="text-2xl font-bold text-white" id="statBaseline">--</div>
+                    <div class="text-[10px] font-bold text-slate-500 uppercase">Baseline Depth</div>
                 </div>
-                <div class="glass-panel p-5 rounded-2xl text-center hover:border-purple-500/30 transition-colors">
-                    <div class="text-2xl mb-2">📅</div>
-                    <div class="text-2xl font-bold text-white" id="statDays">0</div>
-                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Day Streak</div>
-                </div>
-            </div>
-            
-            <div class="text-center mt-8 p-4 bg-slate-900 rounded-lg">
-                <p class="text-white font-bold">You are all caught up for today!</p>
-                <p class="text-slate-400 text-sm mt-1">See you tomorrow.</p>
             </div>
         </section>
 
@@ -370,9 +318,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyBYpFeeBu8r1GYBjMzZEuf264pCEU6-6zU",
             authDomain: "rom-tracker-app.firebaseapp.com",
@@ -386,60 +333,38 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // GLOBAL STATE
         let currentUserId = null;
-        let userData = null;
+        window.userData = null; // Exposed for logic
         let isRegistering = false;
 
-        // --- AUTH LISTENER ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                try {
-                    const docRef = doc(db, "users", user.uid);
-                    const docSnap = await getDoc(docRef);
-                    
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        
-                        // FREE ACCESS (No Paid Check)
-                        currentUserId = user.uid;
-                        userData = data;
-                        enterApp(userData);
-                        
-                    } else {
-                        // Edge case: User in Auth but not Firestore
-                        // Create their profile now to fix it
-                        const newProfile = {
-                            email: user.email,
-                            fullName: "User",
-                            totalReps: 0,
-                            totalCalories: 0,
-                            bestRom: 0,
-                            joinedDate: serverTimestamp()
-                        };
-                        await setDoc(docRef, newProfile);
-                        currentUserId = user.uid;
-                        userData = newProfile;
-                        enterApp(userData);
-                    }
-                } catch (e) {
-                    console.error(e);
-                    showAuthError("Connection Error");
-                    signOut(auth);
+                currentUserId = user.uid;
+                const docRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    window.userData = docSnap.data();
+                } else {
+                    window.userData = { 
+                        email: user.email, 
+                        totalReps: 0, 
+                        baselineRom: 0, 
+                        sessionsCompleted: 0 
+                    };
+                    await setDoc(docRef, window.userData);
                 }
+                enterApp();
             } else {
                 exitApp();
             }
         });
 
-        function enterApp(data) {
+        function enterApp() {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-container').style.display = 'block';
             document.getElementById('app-nav').style.display = 'flex';
-            loadStats(data);
-            document.getElementById('session-id').innerText = Math.random().toString(36).substr(2, 6).toUpperCase();
-            
-            // START AT WARM UP (STEP 1)
+            loadStats();
             switchView('warmup');
         }
 
@@ -447,308 +372,283 @@
             document.getElementById('auth-screen').style.display = 'flex';
             document.getElementById('app-container').style.display = 'none';
             document.getElementById('app-nav').style.display = 'none';
-            stopCameraLogic();
         }
 
-        // --- AUTH HANDLER ---
-        window.toggleAuthMode = function(mode) {
-            const loginTab = document.getElementById('tab-login');
-            const regTab = document.getElementById('tab-register');
-            const regFields = document.getElementById('register-fields');
-            const btn = document.getElementById('submitBtn');
-            const loginOpts = document.getElementById('login-options');
-
-            if (mode === 'register') {
-                isRegistering = true;
-                loginTab.className = "flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all";
-                regTab.className = "flex-1 py-2 text-sm font-bold rounded-md text-white bg-slate-700 shadow-sm transition-all";
-                regFields.classList.remove('hidden');
-                btn.innerText = "CREATE ACCOUNT";
-                loginOpts.classList.add('hidden');
-            } else {
-                isRegistering = false;
-                regTab.className = "flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all";
-                loginTab.className = "flex-1 py-2 text-sm font-bold rounded-md text-white bg-slate-700 shadow-sm transition-all";
-                regFields.classList.add('hidden');
-                btn.innerText = "LOG IN";
-                loginOpts.classList.remove('hidden');
-            }
-        }
+        window.toggleAuthMode = (mode) => {
+            isRegistering = (mode === 'register');
+            document.getElementById('tab-register').className = isRegistering ? "flex-1 py-2 text-sm font-bold rounded-md text-white bg-slate-700 shadow-sm transition-all" : "flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all";
+            document.getElementById('tab-login').className = !isRegistering ? "flex-1 py-2 text-sm font-bold rounded-md text-white bg-slate-700 shadow-sm transition-all" : "flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all";
+            document.getElementById('register-fields').classList.toggle('hidden', !isRegistering);
+            document.getElementById('submitBtn').innerText = isRegistering ? "CREATE ACCOUNT" : "LOG IN";
+        };
 
         document.getElementById('authForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('submitBtn');
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
             const name = document.getElementById('reg-name').value;
-            const err = document.getElementById('authError');
             
-            err.classList.add('hidden');
-            btn.innerText = "Processing...";
-            btn.disabled = true;
-            btn.classList.add('opacity-50');
-
             try {
                 await setPersistence(auth, browserLocalPersistence);
-                
                 if (isRegistering) {
-                    // REGISTER FLOW
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-                    const user = userCredential.user;
-                    
-                    // Create Firestore Profile (FREE ACCOUNT)
-                    const newProfile = {
-                        email: email,
-                        fullName: name,
-                        totalReps: 0,
-                        totalCalories: 0,
-                        bestRom: 0,
-                        joinedDate: serverTimestamp()
-                    };
-                    
-                    await setDoc(doc(db, "users", user.uid), newProfile);
-                    
-                    // Enter app directly
-                    currentUserId = user.uid;
-                    userData = newProfile;
-                    enterApp(userData);
-
+                    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                    await setDoc(doc(db, "users", cred.user.uid), {
+                        email, fullName: name, totalReps: 0, baselineRom: 0, sessionsCompleted: 0, joined: serverTimestamp()
+                    });
                 } else {
-                    // LOGIN FLOW
                     await signInWithEmailAndPassword(auth, email, pass);
                 }
-
-            } catch (error) {
-                console.error(error);
-                let msg = "Incorrect Details";
-                if (error.code === 'auth/email-already-in-use') msg = "Email already registered.";
-                if (error.code === 'auth/weak-password') msg = "Password too weak.";
-                showAuthError(msg);
-            } finally {
-                btn.disabled = false;
-                btn.classList.remove('opacity-50');
-                if(!isRegistering) btn.innerText = "LOG IN";
-                else btn.innerText = "CREATE ACCOUNT";
+            } catch (err) {
+                document.getElementById('authError').innerText = err.message;
+                document.getElementById('authError').classList.remove('hidden');
             }
         });
-        
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            signOut(auth);
-        });
 
-        function showAuthError(msg) {
-            const err = document.getElementById('authError');
-            err.classList.remove('hidden');
-            err.innerText = msg;
-        }
+        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
-        // --- STATS LOGIC ---
-        function loadStats(data) {
-            document.getElementById('statReps').innerText = data.totalReps || 0;
-            document.getElementById('statCals').innerText = data.totalCalories ? Math.round(data.totalCalories) : 0;
-            document.getElementById('statRom').innerText = data.bestRom ? data.bestRom + "°" : "--";
-            document.getElementById('statDays').innerText = data.daysActive || 1;
-        }
-
-        // --- SAVE DATA (Camera) ---
-        window.saveSession = async function(reps, depth) {
-            if(!currentUserId) return;
-            const docRef = doc(db, "users", currentUserId);
+        function loadStats() {
+            if(!window.userData) return;
+            document.getElementById('statReps').innerText = window.userData.totalReps || 0;
+            document.getElementById('statBaseline').innerText = window.userData.baselineRom ? window.userData.baselineRom + "°" : "Not Set";
             
-            const newTotalReps = (userData.totalReps || 0) + reps;
-            const newCals = (userData.totalCalories || 0) + (reps * 0.4);
-            let newBestRom = userData.bestRom || 180;
-            if (depth < newBestRom && depth > 40) newBestRom = depth;
-
-            // Optimistic UI Update
-            userData.totalReps = newTotalReps;
-            userData.totalCalories = newCals;
-            userData.bestRom = newBestRom;
-            loadStats(userData);
-
-            await updateDoc(docRef, {
-                totalReps: newTotalReps,
-                totalCalories: newCals,
-                bestRom: newBestRom,
-                lastActivity: serverTimestamp(),
-                romHistory: arrayUnion(depth)
-            });
+            const strictness = Math.min(100, 50 + ((window.userData.sessionsCompleted || 0) * 1));
+            document.getElementById('stat-strictness').innerText = strictness + "%";
         }
+
+        window.updateBaseline = async (rom) => {
+            if(!currentUserId) return;
+            await updateDoc(doc(db, "users", currentUserId), { baselineRom: rom });
+            window.userData.baselineRom = rom;
+            loadStats();
+        };
+
+        window.logSessionComplete = async (reps) => {
+            if(!currentUserId) return;
+            await updateDoc(doc(db, "users", currentUserId), { 
+                totalReps: increment(reps),
+                sessionsCompleted: increment(1)
+            });
+            window.userData.totalReps += reps;
+            window.userData.sessionsCompleted += 1;
+            loadStats();
+        };
     </script>
 
     <script>
-        // NAVIGATION
-        function switchView(viewName) {
+        let currentProtocol = 'power';
+        let currentMode = 'none'; // 'assess' or 'train'
+        let assessBest = 180;
+        let trainRepCount = 0;
+        let isSquatting = false;
+        let dailyTarget = 180; // Defaults to standing until calc
+
+        window.switchView = (view) => {
+            // Gatekeeper: Can't train without baseline
+            if (view === 'workout' && (!window.userData || !window.userData.baselineRom)) {
+                alert("Please complete Step 2: Baseline Assessment first.");
+                switchView('assess');
+                return;
+            }
+
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-
-            document.getElementById(`view-${viewName}`).classList.add('active');
-            document.getElementById(`nav-${viewName}`).classList.add('active');
-
-            if (viewName !== 'assess') {
-                stopCameraLogic();
+            document.getElementById(`view-${view}`).classList.add('active');
+            document.getElementById(`nav-${view}`).classList.add('active');
+            
+            stopCameraLogic(); // Stop previous camera
+            
+            // Calculate Daily Target if entering workout
+            if (view === 'workout') {
+                calculateSmartTarget();
             }
         }
 
-        // CAMERA LOGIC
+        function calculateSmartTarget() {
+            const baseline = window.userData.baselineRom;
+            const sessions = window.userData.sessionsCompleted || 0;
+            
+            // MATH: 
+            // Standing = 170deg (approx). Baseline = e.g. 100deg.
+            // Range = 70deg.
+            // Strictness = 50% + (sessions * 1%). Max 100%.
+            // Buffer = Range * (1 - strictness).
+            // Target = Baseline + Buffer.
+            
+            const standing = 170;
+            const range = standing - baseline;
+            const strictnessPercent = Math.min(100, 50 + sessions) / 100;
+            const buffer = range * (1 - strictnessPercent);
+            
+            dailyTarget = Math.round(baseline + buffer);
+            
+            document.getElementById('daily-target-display').innerText = dailyTarget + "°";
+            document.getElementById('strictness-display').innerText = Math.round(strictnessPercent * 100) + "%";
+        }
+
+        window.setProtocol = (type) => {
+            currentProtocol = type;
+            document.getElementById('btn-power').classList.toggle('selected', type === 'power');
+            document.getElementById('btn-capacity').classList.toggle('selected', type === 'capacity');
+            document.getElementById('btn-power').classList.toggle('bg-slate-800/50', type !== 'power');
+            document.getElementById('btn-capacity').classList.toggle('bg-slate-800/50', type !== 'capacity');
+        }
+
+        // Camera Logic
         let cameraInstance = null;
-        let isCameraRunning = false;
-        let isSquatting = false;
-        let currentSquatMin = 180;
-        let repCount = 0;
-        
-        const videoElement = document.getElementsByClassName('input_video')[0];
-        const canvasElement = document.getElementsByClassName('output_canvas')[0];
-        const canvasCtx = canvasElement.getContext('2d');
+        const videoElement = document.getElementsByClassName('input_video')[0]; // Use unified video element? No, keeping separate for safety
         const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
-        
         pose.setOptions({modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5});
         pose.onResults(onResults);
 
-        function stopCameraLogic() {
-            if (cameraInstance) {
-                cameraInstance.stop();
-                isCameraRunning = false;
-            }
-            document.getElementById('startOverlay').style.display = 'flex';
-            document.getElementById('toggleBtn').classList.add('hidden');
-            document.getElementById('rec-dot').style.display = 'none';
-            document.getElementById('instructionTitle').innerText = "Step 2: Mobility Check";
-            document.getElementById('instructionText').innerHTML = "Please position camera for <strong class='text-white'>Side-View (Profile), Waist-Down</strong>.";
-        }
-
-        function initCamera() {
-            document.getElementById('instructionTitle').innerText = "Initialising Sensor...";
-            document.getElementById('instructionText').innerText = "Please allow camera access.";
-            document.getElementById('startOverlay').style.display = 'none';
-            document.getElementById('toggleBtn').classList.remove('hidden');
-            document.getElementById('rec-dot').style.display = 'block';
+        window.initCamera = (mode) => {
+            currentMode = mode;
+            let videoEl, canvasEl;
             
-            cameraInstance = new Camera(videoElement, {
-                onFrame: async () => { await pose.send({image: videoElement}); },
+            if (mode === 'assess') {
+                videoEl = document.querySelector('#view-assess video');
+                document.getElementById('assessOverlay').style.display = 'none';
+                document.getElementById('assess-dot').classList.remove('hidden');
+            } else {
+                videoEl = document.querySelector('#view-workout video');
+                document.querySelector('#view-workout .input_video_train').style.display = 'block'; // Ensure visible
+                document.getElementById('trainOverlay').style.display = 'none';
+            }
+
+            cameraInstance = new Camera(videoEl, {
+                onFrame: async () => { await pose.send({image: videoEl}); },
                 width: 1280, height: 720
             });
             cameraInstance.start();
-            isCameraRunning = true;
         }
 
-        function toggleCamera() {
-            stopCameraLogic();
+        window.stopCameraLogic = () => {
+            if(cameraInstance) cameraInstance.stop();
+            document.getElementById('assessOverlay').style.display = 'flex';
+            document.getElementById('trainOverlay').style.display = 'flex';
+            currentMode = 'none';
         }
+
+        // Assessment Functions
+        window.saveAssessment = () => {
+            if(assessBest < 170) {
+                window.updateBaseline(assessBest);
+                alert("Baseline Saved: " + assessBest + " degrees");
+                stopCameraLogic();
+                switchView('workout');
+            }
+        };
+
+        // Training Functions
+        window.finishSession = () => {
+            window.logSessionComplete(trainRepCount);
+            alert("Great job! Session logged.");
+            stopCameraLogic();
+            switchView('home');
+        };
 
         function onResults(results) {
-            if(!isCameraRunning) return;
-
-            canvasElement.width = videoElement.videoWidth;
-            canvasElement.height = videoElement.videoHeight;
-            canvasCtx.save();
-            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            // Determine active canvas
+            let canvasCtx, canvasEl;
+            if (currentMode === 'assess') {
+                canvasEl = document.querySelector('#view-assess canvas');
+            } else if (currentMode === 'train') {
+                canvasEl = document.querySelector('#view-workout canvas');
+            } else {
+                return;
+            }
             
-            // Draw image with slight darken filter for better skeleton visibility
+            canvasCtx = canvasEl.getContext('2d');
+            canvasEl.width = 1280;
+            canvasEl.height = 720;
+
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
             canvasCtx.filter = 'brightness(0.8)';
-            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(results.image, 0, 0, canvasEl.width, canvasEl.height);
             canvasCtx.filter = 'none';
 
             if (results.poseLandmarks) {
-                // FILTER: Only draw legs to respect privacy (Visual Feedback)
-                // Landmarks: 23-24 (Hips), 25-26 (Knees), 27-28 (Ankles), 29-32 (Feet)
-                
-                // Define connections for legs only
-                const legConnections = [
-                    [23, 25], [24, 26], // Hips to Knees
-                    [25, 27], [26, 28], // Knees to Ankles
-                    [27, 29], [28, 30], // Ankles to Heels
-                    [29, 31], [30, 32], // Heels to Toes
-                    [23, 24] // Hip to Hip
-                ];
-
-                // Draw Connections
-                canvasCtx.lineWidth = 2;
-                canvasCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-                for (const [start, end] of legConnections) {
-                    const p1 = results.poseLandmarks[start];
-                    const p2 = results.poseLandmarks[end];
-                    if(p1 && p2 && p1.visibility > 0.5 && p2.visibility > 0.5) {
-                        canvasCtx.beginPath();
-                        canvasCtx.moveTo(p1.x * canvasElement.width, p1.y * canvasElement.height);
-                        canvasCtx.lineTo(p2.x * canvasElement.width, p2.y * canvasElement.height);
-                        canvasCtx.stroke();
-                    }
-                }
-
-                // Draw Landmarks (Dots) for legs only
-                canvasCtx.fillStyle = '#60A5FA';
-                for (let i = 23; i <= 32; i++) {
-                    const p = results.poseLandmarks[i];
-                    if(p && p.visibility > 0.5) {
-                        canvasCtx.beginPath();
-                        canvasCtx.arc(p.x * canvasElement.width, p.y * canvasElement.height, 4, 0, 2 * Math.PI);
-                        canvasCtx.fill();
-                    }
-                }
-
+                const legIndices = [23, 24, 25, 26, 27, 28];
                 const hip = results.poseLandmarks[24];
                 const knee = results.poseLandmarks[26];
                 const ankle = results.poseLandmarks[28];
 
-                if (hip && knee && ankle && hip.visibility > 0.5) {
+                // Draw Legs Only
+                if(hip && knee && ankle && hip.visibility > 0.5) {
+                    canvasCtx.lineWidth = 3;
+                    canvasCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                    
+                    // Simple leg lines
+                    const drawLine = (i, j) => {
+                        const p1 = results.poseLandmarks[i];
+                        const p2 = results.poseLandmarks[j];
+                        canvasCtx.beginPath();
+                        canvasCtx.moveTo(p1.x * canvasEl.width, p1.y * canvasEl.height);
+                        canvasCtx.lineTo(p2.x * canvasEl.width, p2.y * canvasEl.height);
+                        canvasCtx.stroke();
+                    };
+                    drawLine(23, 25); drawLine(24, 26); drawLine(25, 27); drawLine(26, 28);
+
+                    // Angle Math
                     let radians = Math.atan2(ankle.y - knee.y, ankle.x - knee.x) - Math.atan2(hip.y - knee.y, hip.x - knee.x);
                     let angle = Math.abs(radians * 180.0 / Math.PI);
                     if (angle > 180.0) angle = 360 - angle;
                     angle = Math.round(angle);
 
-                    // Logic & UI Feedback
-                    const title = document.getElementById('instructionTitle');
-                    const text = document.getElementById('instructionText');
-
-                    if (!isSquatting) {
-                        if (angle > 165) {
-                            title.innerText = "System Ready";
-                            title.className = "text-xl font-bold text-green-400 mb-1";
-                            text.innerText = "Perform a squat when ready.";
-                        } else {
-                            title.innerText = "Stand Tall";
-                            title.className = "text-xl font-bold text-yellow-400 mb-1";
+                    // --- ASSESSMENT LOGIC ---
+                    if (currentMode === 'assess') {
+                        if (angle < assessBest && angle > 40) {
+                            assessBest = angle;
+                            document.getElementById('assess-val').innerText = assessBest + "°";
+                            document.getElementById('saveAssessBtn').classList.remove('hidden');
                         }
-                    } else if (angle < 130) {
-                        isSquatting = true;
-                        if (angle < currentSquatMin) currentSquatMin = angle;
-                        title.innerText = "Recording Depth...";
-                        title.className = "text-xl font-bold text-blue-400 mb-1";
-                        text.innerText = `Current: ${angle}°`;
                     }
 
-                    if (isSquatting && angle > 165) {
-                        // REP COMPLETE
-                        repCount++;
-                        if (window.saveSession) window.saveSession(1, currentSquatMin);
+                    // --- TRAINING LOGIC (Smart Target) ---
+                    if (currentMode === 'train') {
+                        // Visual Gauge Logic
+                        // Range is roughly 180 (standing) to dailyTarget (goal)
+                        // If angle is 180, 0% fill. If angle is dailyTarget, 100% fill.
+                        let percentage = 0;
+                        if (angle < 170) {
+                            const totalDist = 170 - dailyTarget;
+                            const currentDist = 170 - angle;
+                            percentage = Math.min(100, Math.max(0, (currentDist / totalDist) * 100));
+                        }
                         
-                        // Add to log
-                        const log = document.getElementById('logContainer');
-                        const entry = document.createElement("div");
-                        entry.className = "flex justify-between items-center text-xs p-2 bg-slate-800/50 rounded border-l-2 border-green-500 mb-1 animate-fade-in";
-                        entry.innerHTML = `<span class="font-bold text-white">Rep ${repCount}</span><span class="font-mono text-green-400">${currentSquatMin}°</span>`;
-                        log.prepend(entry);
+                        const bar = document.getElementById('depth-bar');
+                        const label = document.getElementById('rep-feedback');
+                        
+                        bar.style.width = percentage + "%";
+                        
+                        if (angle <= dailyTarget) {
+                            bar.style.backgroundColor = "#22c55e"; // Green
+                            label.innerText = "GOOD DEPTH";
+                            label.className = "text-green-400 font-bold";
+                        } else {
+                            bar.style.backgroundColor = "#EF4444"; // Red
+                            label.innerText = "GO DEEPER";
+                            label.className = "text-red-400 font-bold";
+                        }
 
-                        // Audio Feedback
-                        window.speechSynthesis.cancel();
-                        let u = new SpeechSynthesisUtterance(`${currentSquatMin}`);
-                        window.speechSynthesis.speak(u);
-
-                        isSquatting = false;
-                        currentSquatMin = 180;
-                        title.innerText = "Repetition Recorded";
-                        title.className = "text-xl font-bold text-white mb-1";
+                        // Rep Counting
+                        if (!isSquatting && angle <= dailyTarget) {
+                            isSquatting = true;
+                        } else if (isSquatting && angle > 165) {
+                            trainRepCount++;
+                            document.getElementById('train-reps').innerText = trainRepCount;
+                            isSquatting = false;
+                            
+                            // Audio
+                            window.speechSynthesis.cancel();
+                            let u = new SpeechSynthesisUtterance(trainRepCount.toString());
+                            window.speechSynthesis.speak(u);
+                        }
                     }
                 }
             }
             canvasCtx.restore();
         }
-        
-        // Expose to window
-        window.switchView = switchView;
-        window.initCamera = initCamera;
-        window.toggleCamera = toggleCamera;
     </script>
 </body>
 </html>
