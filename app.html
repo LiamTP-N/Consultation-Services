@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Portal | Dr. Pearson-Noseworthy</title>
+    <title>My Health Portal | Dr. Pearson-Noseworthy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
@@ -104,7 +104,7 @@
             <div class="glass-panel rounded-2xl p-8 shadow-2xl">
                 <div class="flex bg-slate-900/50 p-1 rounded-lg mb-8 border border-slate-700/50">
                     <button onclick="toggleAuthMode('login')" id="tab-login" class="flex-1 py-2 text-sm font-bold rounded-md text-white bg-slate-700 shadow-sm transition-all">Log In</button>
-                    <button onclick="toggleAuthMode('register')" id="tab-register" class="flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all">Register</button>
+                    <button onclick="toggleAuthMode('register')" id="tab-register" class="flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all">Free Register</button>
                 </div>
 
                 <form id="authForm" class="space-y-5">
@@ -139,9 +139,8 @@
                         LOG IN
                     </button>
                     
-                    <p id="reg-note" class="hidden text-xs text-slate-500 text-center leading-relaxed mt-4">
-                        By registering, you agree to the research consent form. <br>
-                        <span class="text-blue-400">Note: Paid membership features will be locked until payment is verified.</span>
+                    <p class="text-xs text-slate-500 text-center leading-relaxed mt-4">
+                        By using this portal, you agree to the research consent terms.
                     </p>
                 </form>
             </div>
@@ -163,7 +162,7 @@
                     <h3 class="text-lg font-bold text-white">1. Marching in Place</h3>
                     <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-1 rounded uppercase">5 Mins</span>
                 </div>
-                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-4">
+                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-2">
                     <strong class="text-orange-400 block mb-1">Evidence:</strong>
                     "Low-intensity aerobic activation is a foundational component of effective proprioceptive training programs." (Espejo-Antúnez et al., 2020)
                 </div>
@@ -175,8 +174,8 @@
                     <h3 class="text-lg font-bold text-white">2. Heel & Toe Raises</h3>
                     <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-1 rounded uppercase">15 Reps</span>
                 </div>
-                <p class="text-slate-300 text-sm mb-4">Hold support. Lift toes, then lift heels.</p>
-                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-4">
+                <p class="text-slate-300 text-sm mb-2">Hold support. Lift toes, then lift heels.</p>
+                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400">
                     <strong class="text-orange-400 block mb-1">Evidence:</strong>
                     "Ankle dorsiflexor activation is critical for gait stability and fall prevention." (Systematic Review Consensus)
                 </div>
@@ -214,7 +213,7 @@
 
                 <div class="absolute inset-0 flex items-center justify-center z-20" id="startOverlay">
                     <button id="startBtn" onclick="initCamera()" class="group relative inline-flex items-center justify-center px-8 py-3 font-bold text-white transition-all duration-200 bg-blue-600 font-lg rounded-full hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 ring-offset-slate-900">
-                        <span>Activate Camera</span>
+                        <span>Activate Sensor</span>
                         <svg class="w-5 h-5 ml-2 -mr-1 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </button>
                 </div>
@@ -392,24 +391,6 @@
         let userData = null;
         let isRegistering = false;
 
-        // --- HELPER: Get URL Parameter for Voucher Code ---
-        function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
-        }
-
-        // --- CHECK VOUCHER ---
-        // Usage: Share link as app.html?voucher=VIP_ACCESS_2025
-        const voucherCode = getQueryParam('voucher');
-        if (voucherCode === 'VIP_ACCESS_2025') { 
-            setTimeout(() => {
-                const note = document.getElementById('reg-note');
-                note.innerHTML = `<span class="text-green-400 font-bold">✓ VIP Access Code Detected.</span><br>Membership fee waived.`;
-                note.classList.remove('hidden');
-                toggleAuthMode('register'); 
-            }, 500);
-        }
-
         // --- AUTH LISTENER ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -420,18 +401,26 @@
                     if (docSnap.exists()) {
                         const data = docSnap.data();
                         
-                        // GATEKEEPER: Check if Paid
-                        if (data.paid === true) {
-                            currentUserId = user.uid;
-                            userData = data;
-                            enterApp(userData);
-                        } else {
-                            showAuthError("Account inactive. Membership required.");
-                            signOut(auth);
-                        }
+                        // FREE ACCESS (No Paid Check)
+                        currentUserId = user.uid;
+                        userData = data;
+                        enterApp(userData);
+                        
                     } else {
-                        showAuthError("Profile not found.");
-                        signOut(auth);
+                        // Edge case: User in Auth but not Firestore
+                        // Create their profile now to fix it
+                        const newProfile = {
+                            email: user.email,
+                            fullName: "User",
+                            totalReps: 0,
+                            totalCalories: 0,
+                            bestRom: 0,
+                            joinedDate: serverTimestamp()
+                        };
+                        await setDoc(docRef, newProfile);
+                        currentUserId = user.uid;
+                        userData = newProfile;
+                        enterApp(userData);
                     }
                 } catch (e) {
                     console.error(e);
@@ -467,7 +456,6 @@
             const regTab = document.getElementById('tab-register');
             const regFields = document.getElementById('register-fields');
             const btn = document.getElementById('submitBtn');
-            const note = document.getElementById('reg-note');
             const loginOpts = document.getElementById('login-options');
 
             if (mode === 'register') {
@@ -476,7 +464,6 @@
                 regTab.className = "flex-1 py-2 text-sm font-bold rounded-md text-white bg-slate-700 shadow-sm transition-all";
                 regFields.classList.remove('hidden');
                 btn.innerText = "CREATE ACCOUNT";
-                note.classList.remove('hidden');
                 loginOpts.classList.add('hidden');
             } else {
                 isRegistering = false;
@@ -484,7 +471,6 @@
                 loginTab.className = "flex-1 py-2 text-sm font-bold rounded-md text-white bg-slate-700 shadow-sm transition-all";
                 regFields.classList.add('hidden');
                 btn.innerText = "LOG IN";
-                note.classList.add('hidden');
                 loginOpts.classList.remove('hidden');
             }
         }
@@ -510,30 +496,22 @@
                     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
                     const user = userCredential.user;
                     
-                    // CHECK VOUCHER for VIP status
-                    const isVip = (voucherCode === 'VIP_ACCESS_2025'); 
-
-                    // Create Firestore Profile
-                    await setDoc(doc(db, "users", user.uid), {
+                    // Create Firestore Profile (FREE ACCOUNT)
+                    const newProfile = {
                         email: email,
                         fullName: name,
-                        paid: isVip, // <--- Auto-activate if VIP
                         totalReps: 0,
                         totalCalories: 0,
                         bestRom: 0,
                         joinedDate: serverTimestamp()
-                    });
+                    };
                     
-                    if (isVip) {
-                        // Enter immediately
-                        currentUserId = user.uid;
-                        userData = { email, fullName: name, paid: true, totalReps: 0, bestRom: 0 };
-                        enterApp(userData);
-                    } else {
-                        // Kick out standard users pending manual payment
-                        await signOut(auth);
-                        showAuthError("Account created. Pending membership verification.");
-                    }
+                    await setDoc(doc(db, "users", user.uid), newProfile);
+                    
+                    // Enter app directly
+                    currentUserId = user.uid;
+                    userData = newProfile;
+                    enterApp(userData);
 
                 } else {
                     // LOGIN FLOW
