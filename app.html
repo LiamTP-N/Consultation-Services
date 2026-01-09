@@ -38,8 +38,10 @@
         .nav-item.active { color: #60A5FA; }
         .nav-item.active::after { content: ''; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background-color: #60A5FA; border-radius: 50%; }
 
-        /* Checkbox Styling */
-        .custom-checkbox:checked { background-color: #22c55e; border-color: #22c55e; }
+        /* Scrollbar for log */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200 min-h-screen flex flex-col">
@@ -101,7 +103,7 @@
                         LOG IN
                     </button>
                     
-                    <p id="reg-note" class="hidden text-xs text-slate-500 text-center leading-relaxed">
+                    <p id="reg-note" class="hidden text-xs text-slate-500 text-center leading-relaxed mt-4">
                         By registering, you agree to the research consent form. <br>
                         <span class="text-blue-400">Note: Paid membership features will be locked until payment is verified.</span>
                     </p>
@@ -204,7 +206,7 @@
                 
                 <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-4">
                     <strong class="text-blue-400 block mb-1">Clinical Rationale:</strong>
-                    "Performance in this movement is a primary predictor of independence in later life." (Alcazar et al., 2018)
+                    "Sit-to-stand power is a robust predictor of functional independence and mortality risk in adults over 60." (Alcazar et al., 2018)
                 </div>
                 
                 <button class="w-full bg-slate-700 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-bold transition-colors">Mark Complete</button>
@@ -218,7 +220,7 @@
                 <p class="text-slate-300 text-sm mb-4">Hold for 20s each leg. Maintain proximity to a wall for safety.</p>
                 <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-4">
                     <strong class="text-green-400 block mb-1">Clinical Rationale:</strong>
-                    "Static balance training significantly reduces fall risk in adults over 65." (Sherrington et al., 2017)
+                    "Static unipedal stance performance is inversely associated with fall risk and all-cause mortality." (Springer et al., 2007)
                 </div>
                 <button class="w-full bg-slate-700 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-bold transition-colors">Mark Complete</button>
             </div>
@@ -283,7 +285,7 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // CONFIG (Using your provided keys - in production, lock down Firestore rules)
+        // CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyBYpFeeBu8r1GYBjMzZEuf264pCEU6-6zU",
             authDomain: "rom-tracker-app.firebaseapp.com",
@@ -302,30 +304,44 @@
         let userData = null;
         let isRegistering = false;
 
-        // AUTH LISTENER
+        // --- HELPER: Get URL Parameter for Voucher Code ---
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // --- CHECK VOUCHER ---
+        // Usage: Share link as app.html?voucher=VIP_ACCESS_2025
+        const voucherCode = getQueryParam('voucher');
+        if (voucherCode === 'VIP_ACCESS_2025') { 
+            setTimeout(() => {
+                const note = document.getElementById('reg-note');
+                note.innerHTML = `<span class="text-green-400 font-bold">✓ VIP Access Code Detected.</span><br>Membership fee waived.`;
+                note.classList.remove('hidden');
+                toggleAuthMode('register'); 
+            }, 500);
+        }
+
+        // --- AUTH LISTENER ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
-                    // Check DB for user profile
                     const docRef = doc(db, "users", user.uid);
                     const docSnap = await getDoc(docRef);
                     
                     if (docSnap.exists()) {
-                        // User exists in DB
                         const data = docSnap.data();
                         
-                        // Check if Paid (Simple boolean gate)
+                        // GATEKEEPER: Check if Paid
                         if (data.paid === true) {
                             currentUserId = user.uid;
                             userData = data;
                             enterApp(userData);
                         } else {
-                            // Account exists but not paid
                             showAuthError("Account inactive. Membership required.");
                             signOut(auth);
                         }
                     } else {
-                        // Edge case: Auth exists but no DB doc (shouldn't happen with correct flow)
                         showAuthError("Profile not found.");
                         signOut(auth);
                     }
@@ -335,7 +351,6 @@
                     signOut(auth);
                 }
             } else {
-                // No User
                 exitApp();
             }
         });
@@ -357,7 +372,7 @@
             stopCameraLogic();
         }
 
-        // AUTH HANDLER (Login & Register)
+        // --- AUTH HANDLER ---
         window.toggleAuthMode = function(mode) {
             const loginTab = document.getElementById('tab-login');
             const regTab = document.getElementById('tab-register');
@@ -406,23 +421,30 @@
                     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
                     const user = userCredential.user;
                     
+                    // CHECK VOUCHER for VIP status
+                    const isVip = (voucherCode === 'VIP_ACCESS_2025'); 
+
                     // Create Firestore Profile
-                    // NOTE: Defaulting 'paid' to FALSE. You must manually change this in Firebase Console
-                    // or implement a Stripe Webhook to flip this to TRUE.
                     await setDoc(doc(db, "users", user.uid), {
                         email: email,
                         fullName: name,
-                        paid: false, // <--- CRITICAL: Gates access
+                        paid: isVip, // <--- Auto-activate if VIP
                         totalReps: 0,
                         totalCalories: 0,
                         bestRom: 0,
                         joinedDate: serverTimestamp()
                     });
                     
-                    // Force logout so they can't enter until paid is true (or allow them in with limited view if you prefer)
-                    // For this logic: We kick them out with a message.
-                    await signOut(auth);
-                    showAuthError("Account created. Pending membership verification.");
+                    if (isVip) {
+                        // Enter immediately
+                        currentUserId = user.uid;
+                        userData = { email, fullName: name, paid: true, totalReps: 0, bestRom: 0 };
+                        enterApp(userData);
+                    } else {
+                        // Kick out standard users pending manual payment
+                        await signOut(auth);
+                        showAuthError("Account created. Pending membership verification.");
+                    }
 
                 } else {
                     // LOGIN FLOW
@@ -453,7 +475,7 @@
             err.innerText = msg;
         }
 
-        // STATS LOGIC
+        // --- STATS LOGIC ---
         function loadStats(data) {
             document.getElementById('statReps').innerText = data.totalReps || 0;
             document.getElementById('statCals').innerText = data.totalCalories ? Math.round(data.totalCalories) : 0;
@@ -461,7 +483,7 @@
             document.getElementById('statDays').innerText = data.daysActive || 1;
         }
 
-        // EXPOSED SAVE FUNCTION (For Camera Logic)
+        // --- SAVE DATA (Camera) ---
         window.saveSession = async function(reps, depth) {
             if(!currentUserId) return;
             const docRef = doc(db, "users", currentUserId);
