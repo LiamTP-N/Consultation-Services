@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Health Portal | Dr. Pearson-Noseworthy</title>
+    <title>Member Portal | Dr. Pearson-Noseworthy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
@@ -11,211 +11,279 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
 
     <style>
-        body { font-size: 18px; }
-        .high-vis-border { border: 4px solid #FCD34D; }
-        .canvas-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; border-radius: 20px; overflow: hidden; background-color: black; }
+        /* Custom Animations & Base Styles */
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Camera & Canvas */
+        .canvas-wrapper { position: relative; width: 100%; border-radius: 1rem; overflow: hidden; background-color: #0f172a; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
         .output_canvas { width: 100%; height: auto; display: block; }
         video { display: none; }
-        
-        /* Navigation & Views */
-        .view-section { display: none; } /* Hide all sections by default */
-        .view-section.active { display: flex; } /* Show only active one */
-        
-        .nav-btn { opacity: 0.6; transition: all 0.3s; }
-        .nav-btn.active { opacity: 1; color: #FCD34D; border-top: 4px solid #FCD34D; }
 
-        input[type=checkbox] { transform: scale(1.5); }
-        .stat-card { background-color: #1F2937; border: 2px solid #374151; border-radius: 1rem; padding: 1rem; text-align: center; }
-        .stat-value { font-size: 2rem; font-weight: bold; color: white; }
-        .stat-label { font-size: 0.8rem; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.5rem; }
+        /* Navigation Transitions */
+        .view-section { display: none; }
+        .view-section.active { display: flex; animation: fadeIn 0.4s ease-out; }
+        
+        .nav-item { transition: all 0.3s ease; position: relative; }
+        .nav-item.active { color: #60A5FA; }
+        .nav-item.active::after { content: ''; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background-color: #60A5FA; border-radius: 50%; }
+
+        /* Checkbox Styling */
+        .custom-checkbox:checked { background-color: #22c55e; border-color: #22c55e; }
     </style>
 </head>
-<body class="bg-slate-900 text-white font-sans min-h-screen flex flex-col pb-24">
+<body class="bg-slate-950 text-slate-200 min-h-screen flex flex-col">
 
-    <nav class="bg-slate-800 py-6 text-center border-b border-slate-700 sticky top-0 z-50">
-        <h1 class="text-2xl md:text-3xl font-bold text-yellow-400">Dr. Pearson-Noseworthy's</h1>
-        <p class="text-slate-300 text-lg mt-1 font-medium">Daily Health Portal</p>
+    <nav id="app-nav" class="hidden sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 px-4 py-4">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-lg font-bold text-white tracking-tight">Health Portal</h1>
+                <p class="text-xs text-slate-400">Dr. Pearson-Noseworthy</p>
+            </div>
+            <button id="logoutBtn" class="text-xs font-medium text-slate-500 hover:text-white transition-colors">
+                LOG OUT
+            </button>
+        </div>
     </nav>
 
-    <section id="login-screen" class="flex-grow flex flex-col items-center justify-center p-4">
-        <div class="bg-slate-800 p-8 rounded-2xl border-2 border-slate-600 w-full max-w-md shadow-2xl">
-            <h2 class="text-3xl font-bold text-white mb-6 text-center">Member Login</h2>
-            <form id="loginForm" class="space-y-6">
-                <div>
-                    <label class="block text-slate-400 text-sm font-bold mb-2 uppercase">Email</label>
-                    <input type="email" id="email" autocomplete="username" class="w-full p-4 rounded-lg bg-slate-900 border border-slate-600 text-white text-xl focus:border-yellow-400" placeholder="name@email.com">
+    <section id="auth-screen" class="flex-grow flex flex-col items-center justify-center p-4 min-h-screen">
+        <div class="w-full max-w-md animate-fade-in" style="animation-delay: 0.1s;">
+            <div class="text-center mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold text-white mb-2">Dr. Pearson-Noseworthy</h1>
+                <p class="text-slate-400 text-sm">Clinical Performance & Research Portal</p>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-8 shadow-2xl">
+                <div class="flex bg-slate-900/50 p-1 rounded-lg mb-8 border border-slate-700/50">
+                    <button onclick="toggleAuthMode('login')" id="tab-login" class="flex-1 py-2 text-sm font-bold rounded-md text-white bg-slate-700 shadow-sm transition-all">Log In</button>
+                    <button onclick="toggleAuthMode('register')" id="tab-register" class="flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all">Register</button>
                 </div>
-                <div>
-                    <label class="block text-slate-400 text-sm font-bold mb-2 uppercase">Password</label>
-                    <input type="password" id="password" autocomplete="current-password" class="w-full p-4 rounded-lg bg-slate-900 border border-slate-600 text-white text-xl focus:border-yellow-400" placeholder="******">
-                </div>
-                <div class="flex items-center py-2">
-                    <input id="rememberMe" type="checkbox" class="w-6 h-6 text-blue-600 bg-slate-900 border-slate-600 rounded" checked>
-                    <label for="rememberMe" class="ml-4 text-lg text-slate-300 font-medium cursor-pointer">Keep me logged in</label>
-                </div>
-                <p id="loginError" class="text-red-400 font-bold text-center hidden">Incorrect Details</p>
-                <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-2xl py-4 rounded-xl shadow-lg transition-all">LOG IN</button>
-            </form>
+
+                <form id="authForm" class="space-y-5">
+                    <div id="register-fields" class="hidden space-y-5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Full Name</label>
+                            <input type="text" id="reg-name" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder-slate-600" placeholder="John Doe">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Email Address</label>
+                        <input type="email" id="email" autocomplete="username" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder-slate-600" placeholder="name@example.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Password</label>
+                        <input type="password" id="password" autocomplete="current-password" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder-slate-600" placeholder="••••••••">
+                    </div>
+
+                    <div id="login-options" class="flex items-center justify-between text-sm">
+                        <label class="flex items-center cursor-pointer">
+                            <input id="rememberMe" type="checkbox" class="w-4 h-4 rounded border-slate-600 bg-slate-800 text-blue-600 focus:ring-offset-slate-900" checked>
+                            <span class="ml-2 text-slate-400">Remember me</span>
+                        </label>
+                    </div>
+
+                    <p id="authError" class="text-red-400 text-sm font-medium text-center hidden bg-red-900/20 py-2 rounded border border-red-900/50">
+                        Error Message
+                    </p>
+
+                    <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-900/20 transition-all transform hover:-translate-y-0.5">
+                        LOG IN
+                    </button>
+                    
+                    <p id="reg-note" class="hidden text-xs text-slate-500 text-center leading-relaxed">
+                        By registering, you agree to the research consent form. <br>
+                        <span class="text-blue-400">Note: Paid membership features will be locked until payment is verified.</span>
+                    </p>
+                </form>
+            </div>
+            
+            <div class="mt-8 text-center">
+                <a href="index.html" class="text-sm text-slate-500 hover:text-white transition-colors">← Back to Main Website</a>
+            </div>
         </div>
     </section>
 
-    <div id="app-container" class="hidden w-full max-w-4xl mx-auto p-4">
+    <div id="app-container" class="hidden w-full max-w-4xl mx-auto p-4 pb-28">
 
-        <section id="view-home" class="view-section active flex-col gap-6">
+        <section id="view-home" class="view-section active flex-col gap-6 animate-fade-in" style="animation-delay: 0.1s;">
             
-            <div class="bg-blue-900/30 border-l-4 border-blue-500 p-6 rounded-r-xl">
-                <h3 class="text-blue-400 font-bold uppercase tracking-widest text-sm mb-2">Science Tip of the Day</h3>
-                <p class="text-xl text-white italic">"Resistance training is the most potent non-pharmaceutical intervention for sarcopenia."</p>
-                <p class="text-slate-400 text-sm mt-2 text-right">— Law et al. (2016), *Journal of Cachexia*</p>
+            <div class="bg-gradient-to-br from-blue-900/40 to-slate-900/40 border border-blue-500/30 p-6 rounded-2xl relative overflow-hidden">
+                <div class="relative z-10">
+                    <h3 class="text-blue-400 font-bold uppercase tracking-widest text-xs mb-2">Evidence-Based Insight</h3>
+                    <p class="text-lg md:text-xl text-slate-100 italic font-serif leading-relaxed">"Resistance training is the most potent non-pharmaceutical intervention for sarcopenia."</p>
+                    <p class="text-slate-500 text-xs mt-3">— Law et al. (2016), <span class="text-slate-400">Journal of Cachexia</span></p>
+                </div>
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl"></div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <div class="stat-card border-green-500 bg-green-900/20">
-                    <span class="text-3xl">🏆</span>
-                    <div class="stat-value text-green-400" id="statRom">--</div>
-                    <div class="stat-label">Best Mobility</div>
+                <div class="glass-panel p-5 rounded-2xl text-center hover:border-green-500/30 transition-colors">
+                    <div class="text-2xl mb-2">📐</div>
+                    <div class="text-2xl font-bold text-white" id="statRom">--</div>
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Best Mobility</div>
                 </div>
-                <div class="stat-card">
-                    <span class="text-3xl">🏋️</span>
-                    <div class="stat-value" id="statReps">0</div>
-                    <div class="stat-label">Total Reps</div>
+                <div class="glass-panel p-5 rounded-2xl text-center hover:border-blue-500/30 transition-colors">
+                    <div class="text-2xl mb-2">🏋️</div>
+                    <div class="text-2xl font-bold text-white" id="statReps">0</div>
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Total Reps</div>
                 </div>
-                <div class="stat-card">
-                    <span class="text-3xl">🔥</span>
-                    <div class="stat-value" id="statCals">0</div>
-                    <div class="stat-label">Kcals Burned</div>
+                <div class="glass-panel p-5 rounded-2xl text-center hover:border-orange-500/30 transition-colors">
+                    <div class="text-2xl mb-2">🔥</div>
+                    <div class="text-2xl font-bold text-white" id="statCals">0</div>
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Est. Kcals</div>
                 </div>
-                <div class="stat-card">
-                    <span class="text-3xl">📅</span>
-                    <div class="stat-value" id="statDays">0</div>
-                    <div class="stat-label">Streak</div>
+                <div class="glass-panel p-5 rounded-2xl text-center hover:border-purple-500/30 transition-colors">
+                    <div class="text-2xl mb-2">📅</div>
+                    <div class="text-2xl font-bold text-white" id="statDays">0</div>
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Day Streak</div>
                 </div>
-            </div>
-
-            <div class="text-center mt-4">
-                <p class="text-slate-400">Select a tab below to begin.</p>
             </div>
         </section>
 
-        <section id="view-assess" class="view-section flex-col items-center">
+        <section id="view-assess" class="view-section flex-col items-center animate-fade-in">
             
-            <div class="bg-slate-800 p-4 rounded-xl border-2 border-slate-600 text-center w-full mb-4">
-                <h2 id="instructionTitle" class="text-2xl font-bold text-white mb-1">Ready to Test?</h2>
-                <p id="instructionText" class="text-lg text-yellow-200">Click Start Camera when you are ready.</p>
+            <div class="glass-panel p-4 rounded-xl w-full mb-6 text-center border-l-4 border-l-blue-500">
+                <h2 id="instructionTitle" class="text-xl font-bold text-white mb-1">Mobility Assessment</h2>
+                <p id="instructionText" class="text-slate-400 text-sm">Please ensure your full body is visible.</p>
             </div>
 
-            <div class="canvas-container high-vis-border shadow-2xl relative mb-6">
+            <div class="canvas-wrapper mb-6 relative aspect-[3/4] md:aspect-video w-full max-w-lg mx-auto border border-slate-700">
                 <video class="input_video"></video>
                 <canvas class="output_canvas"></canvas>
-                <div class="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center hidden z-20" id="pausedOverlay">
-                    <p class="text-2xl font-bold text-yellow-400">CAMERA PAUSED</p>
+                
+                <div class="absolute top-4 left-4 bg-black/60 backdrop-blur px-3 py-1 rounded-full border border-white/10">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse" id="rec-dot" style="display:none"></div>
+                        <span class="text-xs font-mono text-white/80">LIVE FEED</span>
+                    </div>
+                </div>
+
+                <div class="absolute inset-0 flex items-center justify-center z-20" id="startOverlay">
+                    <button id="startBtn" onclick="initCamera()" class="group relative inline-flex items-center justify-center px-8 py-3 font-bold text-white transition-all duration-200 bg-blue-600 font-lg rounded-full hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 ring-offset-slate-900">
+                        <span>Activate Sensor</span>
+                        <svg class="w-5 h-5 ml-2 -mr-1 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </button>
                 </div>
             </div>
 
-            <button id="startBtn" onclick="initCamera()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold text-2xl py-6 rounded-xl shadow-lg mb-4">
-                START CAMERA
-            </button>
-            <button id="toggleBtn" onclick="toggleCamera()" class="hidden w-full bg-red-600 hover:bg-red-500 text-white font-bold text-2xl py-6 rounded-xl shadow-lg mb-4">
-                STOP CAMERA
+            <button id="toggleBtn" onclick="toggleCamera()" class="hidden w-full max-w-lg bg-slate-800 hover:bg-slate-700 text-red-400 border border-slate-700 font-bold py-3 rounded-xl transition-all mb-6">
+                Deactivate Camera
             </button>
 
-            <div class="w-full bg-slate-800 rounded-xl border border-slate-700 p-4">
-                <h3 class="text-lg font-bold text-white mb-2">Today's Results</h3>
-                <div id="logContainer" class="space-y-2 max-h-40 overflow-y-auto">
-                    <p class="text-slate-500 text-sm italic">No reps yet.</p>
+            <div class="w-full max-w-lg glass-panel rounded-xl p-4">
+                <div class="flex justify-between items-center mb-3 border-b border-slate-700 pb-2">
+                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wide">Session Data</h3>
+                    <span class="text-xs text-slate-500 font-mono">ID: <span id="session-id">...</span></span>
+                </div>
+                <div id="logContainer" class="space-y-1 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
+                    <p class="text-slate-600 text-xs italic text-center py-2">Waiting for repetitions...</p>
                 </div>
             </div>
         </section>
 
-        <section id="view-workout" class="view-section flex-col gap-6">
-            <h2 class="text-3xl font-bold text-white">Daily Prescription</h2>
+        <section id="view-workout" class="view-section flex-col gap-6 animate-fade-in">
+            <h2 class="text-2xl font-bold text-white">Daily Prescription</h2>
             
-            <div class="bg-slate-800 p-6 rounded-xl border border-slate-600">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-xl font-bold text-white">1. Chair Squats</h3>
-                    <span class="bg-blue-600 text-xs px-2 py-1 rounded">Strength</span>
+            <div class="glass-panel p-6 rounded-xl border-l-4 border-l-blue-500 relative">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-lg font-bold text-white">1. Sit-to-Stand</h3>
+                    <span class="bg-blue-900/50 text-blue-300 text-[10px] font-bold px-2 py-1 rounded uppercase">Strength</span>
                 </div>
-                <p class="text-slate-300 mb-4">3 Sets of 8 Reps. Use a sturdy chair.</p>
+                <p class="text-slate-300 text-sm mb-4">3 Sets of 8 Reps. Use a sturdy chair without armrests if possible.</p>
                 
-                <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 text-sm text-slate-400">
-                    <strong class="text-blue-400 block mb-1">Why this?</strong>
-                    "Sit-to-stand performance is a primary predictor of independence in later life." (Alcazar et al., 2018)
+                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-4">
+                    <strong class="text-blue-400 block mb-1">Clinical Rationale:</strong>
+                    "Performance in this movement is a primary predictor of independence in later life." (Alcazar et al., 2018)
                 </div>
                 
-                <button class="w-full mt-4 bg-slate-700 hover:bg-green-600 text-white py-3 rounded-lg font-bold transition-colors">Mark Complete</button>
+                <button class="w-full bg-slate-700 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-bold transition-colors">Mark Complete</button>
             </div>
 
-            <div class="bg-slate-800 p-6 rounded-xl border border-slate-600">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-xl font-bold text-white">2. Single Leg Stance</h3>
-                    <span class="bg-green-600 text-xs px-2 py-1 rounded">Balance</span>
+            <div class="glass-panel p-6 rounded-xl border-l-4 border-l-green-500 relative">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-lg font-bold text-white">2. Single Leg Stance</h3>
+                    <span class="bg-green-900/50 text-green-300 text-[10px] font-bold px-2 py-1 rounded uppercase">Balance</span>
                 </div>
-                <p class="text-slate-300 mb-4">Hold for 20s each leg. Use a wall for support.</p>
-                <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 text-sm text-slate-400">
-                    <strong class="text-blue-400 block mb-1">Why this?</strong>
+                <p class="text-slate-300 text-sm mb-4">Hold for 20s each leg. Maintain proximity to a wall for safety.</p>
+                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-4">
+                    <strong class="text-green-400 block mb-1">Clinical Rationale:</strong>
                     "Static balance training significantly reduces fall risk in adults over 65." (Sherrington et al., 2017)
                 </div>
-                <button class="w-full mt-4 bg-slate-700 hover:bg-green-600 text-white py-3 rounded-lg font-bold transition-colors">Mark Complete</button>
+                <button class="w-full bg-slate-700 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-bold transition-colors">Mark Complete</button>
             </div>
         </section>
 
-        <section id="view-food" class="view-section flex-col gap-6">
-            <h2 class="text-3xl font-bold text-white">Nutrition Log</h2>
-            <p class="text-slate-400">Don't worry about counting calories. Just tick the boxes.</p>
+        <section id="view-food" class="view-section flex-col gap-6 animate-fade-in">
+            <h2 class="text-2xl font-bold text-white">Nutrition Log</h2>
+            <p class="text-slate-400 text-sm">Simplified tracking focusing on protein synthesis.</p>
 
-            <div class="bg-slate-800 p-6 rounded-xl border border-slate-600">
-                <h3 class="text-xl font-bold text-white mb-4">Protein Check</h3>
+            <div class="glass-panel p-6 rounded-xl">
+                <h3 class="text-lg font-bold text-white mb-4">Protein Frequency</h3>
                 
-                <div class="space-y-4">
-                    <label class="flex items-center space-x-4 p-4 bg-slate-900 rounded-lg">
-                        <input type="checkbox" class="w-6 h-6 text-green-500 rounded focus:ring-green-500">
-                        <span class="text-lg">I had protein at Breakfast</span>
+                <div class="space-y-3">
+                    <label class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 cursor-pointer hover:bg-slate-800 transition">
+                        <input type="checkbox" class="w-5 h-5 text-green-500 rounded focus:ring-green-500 bg-slate-700 border-slate-600">
+                        <span class="text-slate-200">Protein at Breakfast</span>
                     </label>
-                    <label class="flex items-center space-x-4 p-4 bg-slate-900 rounded-lg">
-                        <input type="checkbox" class="w-6 h-6 text-green-500 rounded focus:ring-green-500">
-                        <span class="text-lg">I had protein at Lunch</span>
+                    <label class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 cursor-pointer hover:bg-slate-800 transition">
+                        <input type="checkbox" class="w-5 h-5 text-green-500 rounded focus:ring-green-500 bg-slate-700 border-slate-600">
+                        <span class="text-slate-200">Protein at Lunch</span>
                     </label>
-                    <label class="flex items-center space-x-4 p-4 bg-slate-900 rounded-lg">
-                        <input type="checkbox" class="w-6 h-6 text-green-500 rounded focus:ring-green-500">
-                        <span class="text-lg">I had protein at Dinner</span>
+                    <label class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 cursor-pointer hover:bg-slate-800 transition">
+                        <input type="checkbox" class="w-5 h-5 text-green-500 rounded focus:ring-green-500 bg-slate-700 border-slate-600">
+                        <span class="text-slate-200">Protein at Dinner</span>
                     </label>
                 </div>
 
-                <div class="mt-6 bg-slate-900 p-4 rounded-lg border border-slate-700 text-sm text-slate-400">
-                    <strong class="text-yellow-400 block mb-1">Scientific Note:</strong>
-                    Older muscle is less sensitive to protein. You need ~25g-30g per meal (e.g. a chicken breast or 3 eggs) to trigger muscle repair.
+                <div class="mt-6 bg-yellow-900/20 p-4 rounded-lg border border-yellow-700/30 text-xs text-slate-300">
+                    <strong class="text-yellow-500 block mb-1">Scientific Note:</strong>
+                    Anabolic resistance in older muscle requires ~25g-30g of protein per sitting (e.g., a chicken breast or 3 eggs) to effectively trigger muscle protein synthesis.
                 </div>
             </div>
         </section>
 
     </div>
 
-    <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-slate-800 border-t border-slate-700 pb-safe pt-2">
-        <div class="grid grid-cols-4 h-16">
-            <button onclick="switchView('home')" class="nav-btn active flex flex-col items-center justify-center text-white" id="nav-home">
-                <span class="text-2xl">🏠</span>
-                <span class="text-xs font-bold mt-1">Home</span>
+    <nav id="bottom-nav" class="hidden fixed bottom-0 w-full bg-slate-900/90 backdrop-blur-lg border-t border-slate-800 pb-safe pt-2 z-40">
+        <div class="grid grid-cols-4 h-16 max-w-2xl mx-auto">
+            <button onclick="switchView('home')" class="nav-item active flex flex-col items-center justify-center text-slate-500 hover:text-white" id="nav-home">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                <span class="text-[10px] font-bold">Home</span>
             </button>
-            <button onclick="switchView('workout')" class="nav-btn flex flex-col items-center justify-center text-white" id="nav-workout">
-                <span class="text-2xl">💪</span>
-                <span class="text-xs font-bold mt-1">Workouts</span>
+            <button onclick="switchView('workout')" class="nav-item flex flex-col items-center justify-center text-slate-500 hover:text-white" id="nav-workout">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                <span class="text-[10px] font-bold">Rx</span>
             </button>
-            <button onclick="switchView('assess')" class="nav-btn flex flex-col items-center justify-center text-white" id="nav-assess">
-                <span class="text-2xl">📸</span>
-                <span class="text-xs font-bold mt-1">Assess</span>
+            <button onclick="switchView('assess')" class="nav-item flex flex-col items-center justify-center text-slate-500 hover:text-white" id="nav-assess">
+                <div class="bg-blue-600 rounded-full p-2 -mt-4 shadow-lg shadow-blue-600/30 border-4 border-slate-900">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold mt-1">Assess</span>
             </button>
-            <button onclick="switchView('food')" class="nav-btn flex flex-col items-center justify-center text-white" id="nav-food">
-                <span class="text-2xl">🍎</span>
-                <span class="text-xs font-bold mt-1">Food</span>
+            <button onclick="switchView('food')" class="nav-item flex flex-col items-center justify-center text-slate-500 hover:text-white" id="nav-food">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                <span class="text-[10px] font-bold">Log</span>
             </button>
         </div>
     </nav>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // CONFIG (Using your provided keys - in production, lock down Firestore rules)
         const firebaseConfig = {
             apiKey: "AIzaSyBYpFeeBu8r1GYBjMzZEuf264pCEU6-6zU",
             authDomain: "rom-tracker-app.firebaseapp.com",
@@ -229,54 +297,163 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // GLOBAL USER DATA
+        // GLOBAL STATE
         let currentUserId = null;
         let userData = null;
+        let isRegistering = false;
 
         // AUTH LISTENER
-        auth.onAuthStateChanged(async (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
+                    // Check DB for user profile
                     const docRef = doc(db, "users", user.uid);
                     const docSnap = await getDoc(docRef);
-                    if (docSnap.exists() && docSnap.data().paid === true) {
-                        currentUserId = user.uid;
-                        userData = docSnap.data();
+                    
+                    if (docSnap.exists()) {
+                        // User exists in DB
+                        const data = docSnap.data();
                         
-                        // LOAD UI
-                        document.getElementById('login-screen').style.display = 'none';
-                        document.getElementById('app-container').style.display = 'block';
-                        document.getElementById('bottom-nav').style.display = 'block';
-                        
-                        loadStats(userData);
-                        
+                        // Check if Paid (Simple boolean gate)
+                        if (data.paid === true) {
+                            currentUserId = user.uid;
+                            userData = data;
+                            enterApp(userData);
+                        } else {
+                            // Account exists but not paid
+                            showAuthError("Account inactive. Membership required.");
+                            signOut(auth);
+                        }
                     } else {
-                        throw new Error("Inactive");
+                        // Edge case: Auth exists but no DB doc (shouldn't happen with correct flow)
+                        showAuthError("Profile not found.");
+                        signOut(auth);
                     }
                 } catch (e) {
                     console.error(e);
-                    auth.signOut();
-                    document.getElementById('login-screen').style.display = 'flex';
+                    showAuthError("Connection Error");
+                    signOut(auth);
                 }
+            } else {
+                // No User
+                exitApp();
             }
         });
 
-        // LOGIN HANDLER
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        function enterApp(data) {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+            document.getElementById('bottom-nav').style.display = 'block';
+            document.getElementById('app-nav').style.display = 'flex';
+            loadStats(data);
+            document.getElementById('session-id').innerText = Math.random().toString(36).substr(2, 6).toUpperCase();
+        }
+
+        function exitApp() {
+            document.getElementById('auth-screen').style.display = 'flex';
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('bottom-nav').style.display = 'none';
+            document.getElementById('app-nav').style.display = 'none';
+            stopCameraLogic();
+        }
+
+        // AUTH HANDLER (Login & Register)
+        window.toggleAuthMode = function(mode) {
+            const loginTab = document.getElementById('tab-login');
+            const regTab = document.getElementById('tab-register');
+            const regFields = document.getElementById('register-fields');
+            const btn = document.getElementById('submitBtn');
+            const note = document.getElementById('reg-note');
+            const loginOpts = document.getElementById('login-options');
+
+            if (mode === 'register') {
+                isRegistering = true;
+                loginTab.className = "flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all";
+                regTab.className = "flex-1 py-2 text-sm font-bold rounded-md text-white bg-slate-700 shadow-sm transition-all";
+                regFields.classList.remove('hidden');
+                btn.innerText = "CREATE ACCOUNT";
+                note.classList.remove('hidden');
+                loginOpts.classList.add('hidden');
+            } else {
+                isRegistering = false;
+                regTab.className = "flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all";
+                loginTab.className = "flex-1 py-2 text-sm font-bold rounded-md text-white bg-slate-700 shadow-sm transition-all";
+                regFields.classList.add('hidden');
+                btn.innerText = "LOG IN";
+                note.classList.add('hidden');
+                loginOpts.classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('loginBtn');
-            btn.innerText = "Checking...";
+            const btn = document.getElementById('submitBtn');
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            const name = document.getElementById('reg-name').value;
+            const err = document.getElementById('authError');
+            
+            err.classList.add('hidden');
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+
             try {
                 await setPersistence(auth, browserLocalPersistence);
-                await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
+                
+                if (isRegistering) {
+                    // REGISTER FLOW
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                    const user = userCredential.user;
+                    
+                    // Create Firestore Profile
+                    // NOTE: Defaulting 'paid' to FALSE. You must manually change this in Firebase Console
+                    // or implement a Stripe Webhook to flip this to TRUE.
+                    await setDoc(doc(db, "users", user.uid), {
+                        email: email,
+                        fullName: name,
+                        paid: false, // <--- CRITICAL: Gates access
+                        totalReps: 0,
+                        totalCalories: 0,
+                        bestRom: 0,
+                        joinedDate: serverTimestamp()
+                    });
+                    
+                    // Force logout so they can't enter until paid is true (or allow them in with limited view if you prefer)
+                    // For this logic: We kick them out with a message.
+                    await signOut(auth);
+                    showAuthError("Account created. Pending membership verification.");
+
+                } else {
+                    // LOGIN FLOW
+                    await signInWithEmailAndPassword(auth, email, pass);
+                }
+
             } catch (error) {
-                btn.innerText = "LOG IN";
-                const err = document.getElementById('loginError');
-                err.classList.remove('hidden');
-                err.innerText = "Incorrect Details";
+                console.error(error);
+                let msg = "Incorrect Details";
+                if (error.code === 'auth/email-already-in-use') msg = "Email already registered.";
+                if (error.code === 'auth/weak-password') msg = "Password too weak.";
+                showAuthError(msg);
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50');
+                if(!isRegistering) btn.innerText = "LOG IN";
+                else btn.innerText = "CREATE ACCOUNT";
             }
         });
+        
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            signOut(auth);
+        });
 
+        function showAuthError(msg) {
+            const err = document.getElementById('authError');
+            err.classList.remove('hidden');
+            err.innerText = msg;
+        }
+
+        // STATS LOGIC
         function loadStats(data) {
             document.getElementById('statReps').innerText = data.totalReps || 0;
             document.getElementById('statCals').innerText = data.totalCalories ? Math.round(data.totalCalories) : 0;
@@ -284,7 +461,7 @@
             document.getElementById('statDays').innerText = data.daysActive || 1;
         }
 
-        // EXPOSED SAVE FUNCTION
+        // EXPOSED SAVE FUNCTION (For Camera Logic)
         window.saveSession = async function(reps, depth) {
             if(!currentUserId) return;
             const docRef = doc(db, "users", currentUserId);
@@ -294,6 +471,12 @@
             let newBestRom = userData.bestRom || 180;
             if (depth < newBestRom && depth > 40) newBestRom = depth;
 
+            // Optimistic UI Update
+            userData.totalReps = newTotalReps;
+            userData.totalCalories = newCals;
+            userData.bestRom = newBestRom;
+            loadStats(userData);
+
             await updateDoc(docRef, {
                 totalReps: newTotalReps,
                 totalCalories: newCals,
@@ -301,27 +484,18 @@
                 lastActivity: serverTimestamp(),
                 romHistory: arrayUnion(depth)
             });
-
-            // Update Local
-            userData.totalReps = newTotalReps;
-            userData.totalCalories = newCals;
-            userData.bestRom = newBestRom;
-            loadStats(userData);
         }
     </script>
 
     <script>
         // NAVIGATION
         function switchView(viewName) {
-            // 1. Hide all views
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-            // 2. Show selected view
             document.getElementById(`view-${viewName}`).classList.add('active');
             document.getElementById(`nav-${viewName}`).classList.add('active');
 
-            // 3. SPECIAL LOGIC: Only allow camera in 'assess' view
             if (viewName !== 'assess') {
                 stopCameraLogic();
             }
@@ -333,6 +507,7 @@
         let isSquatting = false;
         let currentSquatMin = 180;
         let repCount = 0;
+        
         const videoElement = document.getElementsByClassName('input_video')[0];
         const canvasElement = document.getElementsByClassName('output_canvas')[0];
         const canvasCtx = canvasElement.getContext('2d');
@@ -346,21 +521,23 @@
                 cameraInstance.stop();
                 isCameraRunning = false;
             }
-            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('startOverlay').style.display = 'flex';
             document.getElementById('toggleBtn').classList.add('hidden');
-            document.getElementById('instructionTitle').innerText = "Ready to Test?";
-            document.getElementById('instructionText').innerText = "Click Start Camera when you are ready.";
+            document.getElementById('rec-dot').style.display = 'none';
+            document.getElementById('instructionTitle').innerText = "Mobility Assessment";
+            document.getElementById('instructionText').innerText = "Please ensure your full body is visible.";
         }
 
         function initCamera() {
-            document.getElementById('instructionTitle').innerText = "Warming Up...";
+            document.getElementById('instructionTitle').innerText = "Initialising Sensor...";
             document.getElementById('instructionText').innerText = "Please allow camera access.";
-            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('startOverlay').style.display = 'none';
             document.getElementById('toggleBtn').classList.remove('hidden');
+            document.getElementById('rec-dot').style.display = 'block';
             
             cameraInstance = new Camera(videoElement, {
                 onFrame: async () => { await pose.send({image: videoElement}); },
-                width: 1280, height: 720 // Portrait friendly
+                width: 1280, height: 720
             });
             cameraInstance.start();
             isCameraRunning = true;
@@ -375,12 +552,18 @@
 
             canvasElement.width = videoElement.videoWidth;
             canvasElement.height = videoElement.videoHeight;
+            canvasCtx.save();
             canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            
+            // Draw image with slight darken filter for better skeleton visibility
+            canvasCtx.filter = 'brightness(0.8)';
             canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.filter = 'none';
 
             if (results.poseLandmarks) {
-                drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: '#ffffff', lineWidth: 4});
-                drawLandmarks(canvasCtx, results.poseLandmarks, {color: '#FCD34D', lineWidth: 2, radius: 4});
+                // Professional Skeleton Style
+                drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: 'rgba(255, 255, 255, 0.5)', lineWidth: 2});
+                drawLandmarks(canvasCtx, results.poseLandmarks, {color: '#60A5FA', lineWidth: 1, radius: 3});
 
                 const hip = results.poseLandmarks[24];
                 const knee = results.poseLandmarks[26];
@@ -392,20 +575,25 @@
                     if (angle > 180.0) angle = 360 - angle;
                     angle = Math.round(angle);
 
+                    // Logic & UI Feedback
+                    const title = document.getElementById('instructionTitle');
+                    const text = document.getElementById('instructionText');
+
                     if (!isSquatting) {
                         if (angle > 165) {
-                            document.getElementById('instructionTitle').innerText = "Perfect Position";
-                            document.getElementById('instructionTitle').className = "text-2xl font-bold text-green-400 mb-1";
-                            document.getElementById('instructionText').innerText = "Turn sideways and squat.";
+                            title.innerText = "System Ready";
+                            title.className = "text-xl font-bold text-green-400 mb-1";
+                            text.innerText = "Perform a squat when ready.";
                         } else {
-                            document.getElementById('instructionTitle').innerText = "Please Stand Tall";
-                            document.getElementById('instructionTitle').className = "text-2xl font-bold text-yellow-400 mb-1";
+                            title.innerText = "Stand Tall";
+                            title.className = "text-xl font-bold text-yellow-400 mb-1";
                         }
                     } else if (angle < 130) {
                         isSquatting = true;
                         if (angle < currentSquatMin) currentSquatMin = angle;
-                        document.getElementById('instructionTitle').innerText = "Squatting...";
-                        document.getElementById('instructionTitle').className = "text-2xl font-bold text-blue-400 mb-1";
+                        title.innerText = "Recording Depth...";
+                        title.className = "text-xl font-bold text-blue-400 mb-1";
+                        text.innerText = `Current: ${angle}°`;
                     }
 
                     if (isSquatting && angle > 165) {
@@ -413,25 +601,29 @@
                         repCount++;
                         if (window.saveSession) window.saveSession(1, currentSquatMin);
                         
+                        // Add to log
                         const log = document.getElementById('logContainer');
-                        const entry = document.createElement("p");
-                        entry.className = "text-white font-bold border-l-4 border-green-500 pl-2 mb-1";
-                        entry.innerText = `Rep ${repCount}: ${currentSquatMin}°`;
+                        const entry = document.createElement("div");
+                        entry.className = "flex justify-between items-center text-xs p-2 bg-slate-800/50 rounded border-l-2 border-green-500 mb-1 animate-fade-in";
+                        entry.innerHTML = `<span class="font-bold text-white">Rep ${repCount}</span><span class="font-mono text-green-400">${currentSquatMin}°</span>`;
                         log.prepend(entry);
 
+                        // Audio Feedback
                         window.speechSynthesis.cancel();
-                        let u = new SpeechSynthesisUtterance(`${currentSquatMin} degrees`);
+                        let u = new SpeechSynthesisUtterance(`${currentSquatMin}`);
                         window.speechSynthesis.speak(u);
 
                         isSquatting = false;
                         currentSquatMin = 180;
-                        document.getElementById('instructionTitle').innerText = "Good Job!";
+                        title.innerText = "Repetition Recorded";
+                        title.className = "text-xl font-bold text-white mb-1";
                     }
                 }
             }
+            canvasCtx.restore();
         }
         
-        // Expose switchView to window
+        // Expose to window
         window.switchView = switchView;
         window.initCamera = initCamera;
         window.toggleCamera = toggleCamera;
