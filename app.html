@@ -159,7 +159,7 @@
             
             <div class="glass-panel p-4 rounded-xl w-full mb-6 text-center border-l-4 border-l-blue-500">
                 <h2 class="text-xl font-bold text-white mb-1">Step 2: Baseline Assessment</h2>
-                <p class="text-slate-400 text-sm">Perform your deepest comfortable squat. This sets your target.</p>
+                <p class="text-slate-400 text-sm">Perform your deepest comfortable squat.</p>
             </div>
 
             <div class="canvas-wrapper mb-4 relative aspect-[4/3] md:aspect-video w-full max-w-lg mx-auto border border-slate-700">
@@ -169,7 +169,7 @@
                 <div class="absolute top-4 left-4 bg-black/60 backdrop-blur px-3 py-1 rounded-full border border-white/10">
                     <div class="flex items-center gap-2">
                         <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse hidden" id="assess-dot"></div>
-                        <span class="text-xs font-mono text-white/80">ASSESSMENT MODE</span>
+                        <span class="text-xs font-mono text-white/80">LIVE FEED</span>
                     </div>
                 </div>
 
@@ -184,11 +184,20 @@
                 </div>
             </div>
 
-            <div class="w-full max-w-lg glass-panel rounded-xl p-4 text-center">
-                <p class="text-xs text-slate-500 uppercase mb-1">Current Depth</p>
-                <div class="text-4xl font-bold text-white mb-2" id="assess-val">--</div>
-                <button onclick="saveAssessment()" id="saveAssessBtn" class="hidden w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-lg mt-2">
-                    SAVE BASELINE
+            <div class="grid grid-cols-2 gap-4 w-full max-w-lg mb-2">
+                <div class="glass-panel p-3 rounded-xl text-center border border-slate-700/50">
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Knee Flexion</p>
+                    <div class="text-3xl font-bold text-white" id="assess-knee">--°</div>
+                </div>
+                <div class="glass-panel p-3 rounded-xl text-center border border-slate-700/50">
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Hip Flexion</p>
+                    <div class="text-3xl font-bold text-blue-400" id="assess-hip">--°</div>
+                </div>
+            </div>
+
+            <div class="w-full max-w-lg">
+                <button onclick="saveAssessment()" id="saveAssessBtn" class="hidden w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg shadow-lg">
+                    SAVE KNEE BASELINE
                 </button>
             </div>
             
@@ -206,7 +215,7 @@
                 
                 <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center mb-4">
                     <div>
-                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Today's Target</p>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Target Knee Depth</p>
                         <p class="text-2xl font-bold text-green-400" id="daily-target-display">--°</p>
                     </div>
                     <div class="text-right">
@@ -241,12 +250,13 @@
                 
                 <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
                     <div class="flex justify-between text-xs font-bold text-white mb-1">
-                        <span>DEPTH</span>
+                        <span>KNEE DEPTH</span>
                         <span id="rep-feedback">WAITING</span>
                     </div>
                     <div class="depth-meter">
                         <div class="depth-fill" id="depth-bar"></div>
                     </div>
+                    <div class="text-[10px] text-slate-400 text-right mt-1">Hip: <span id="train-hip-val">--</span>°</div>
                 </div>
             </div>
 
@@ -437,7 +447,7 @@
     <script>
         let currentProtocol = 'power';
         let currentMode = 'none'; // 'assess' or 'train'
-        let assessBest = 180;
+        let assessBestKnee = 180;
         let trainRepCount = 0;
         let isSquatting = false;
         let dailyTarget = 180; // Defaults to standing until calc
@@ -467,13 +477,6 @@
             const baseline = window.userData.baselineRom;
             const sessions = window.userData.sessionsCompleted || 0;
             
-            // MATH: 
-            // Standing = 170deg (approx). Baseline = e.g. 100deg.
-            // Range = 70deg.
-            // Strictness = 50% + (sessions * 1%). Max 100%.
-            // Buffer = Range * (1 - strictness).
-            // Target = Baseline + Buffer.
-            
             const standing = 170;
             const range = standing - baseline;
             const strictnessPercent = Math.min(100, 50 + sessions) / 100;
@@ -495,7 +498,7 @@
 
         // Camera Logic
         let cameraInstance = null;
-        const videoElement = document.getElementsByClassName('input_video')[0]; // Use unified video element? No, keeping separate for safety
+        const videoElement = document.getElementsByClassName('input_video')[0];
         const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
         pose.setOptions({modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5});
         pose.onResults(onResults);
@@ -530,9 +533,9 @@
 
         // Assessment Functions
         window.saveAssessment = () => {
-            if(assessBest < 170) {
-                window.updateBaseline(assessBest);
-                alert("Baseline Saved: " + assessBest + " degrees");
+            if(assessBestKnee < 170) {
+                window.updateBaseline(assessBestKnee);
+                alert("Baseline Saved: " + assessBestKnee + " degrees");
                 stopCameraLogic();
                 switchView('workout');
             }
@@ -545,6 +548,14 @@
             stopCameraLogic();
             switchView('home');
         };
+
+        // --- MATH: Calculate Angle between 3 points ---
+        function calculateAngle(a, b, c) {
+            let radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
+            let angle = Math.abs(radians * 180.0 / Math.PI);
+            if (angle > 180.0) angle = 360 - angle;
+            return Math.round(angle);
+        }
 
         function onResults(results) {
             // Determine active canvas
@@ -568,60 +579,71 @@
             canvasCtx.filter = 'none';
 
             if (results.poseLandmarks) {
-                const legIndices = [23, 24, 25, 26, 27, 28];
+                // Landmarks: 12 (R.Shoulder), 24 (R.Hip), 26 (R.Knee), 28 (R.Ankle)
+                const shoulder = results.poseLandmarks[12];
                 const hip = results.poseLandmarks[24];
                 const knee = results.poseLandmarks[26];
                 const ankle = results.poseLandmarks[28];
 
-                // Draw Legs Only
-                if(hip && knee && ankle && hip.visibility > 0.5) {
+                // Ensure Visibility
+                if(shoulder && hip && knee && ankle && hip.visibility > 0.5 && knee.visibility > 0.5) {
+                    
+                    // --- DRAWING SKELETON (Legs + Torso Line) ---
                     canvasCtx.lineWidth = 3;
                     canvasCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
                     
-                    // Simple leg lines
-                    const drawLine = (i, j) => {
-                        const p1 = results.poseLandmarks[i];
-                        const p2 = results.poseLandmarks[j];
+                    const drawLine = (p1, p2) => {
                         canvasCtx.beginPath();
                         canvasCtx.moveTo(p1.x * canvasEl.width, p1.y * canvasEl.height);
                         canvasCtx.lineTo(p2.x * canvasEl.width, p2.y * canvasEl.height);
                         canvasCtx.stroke();
                     };
-                    drawLine(23, 25); drawLine(24, 26); drawLine(25, 27); drawLine(26, 28);
+                    
+                    // Draw: Shoulder->Hip->Knee->Ankle
+                    drawLine(shoulder, hip);
+                    drawLine(hip, knee);
+                    drawLine(knee, ankle);
 
-                    // Angle Math
-                    let radians = Math.atan2(ankle.y - knee.y, ankle.x - knee.x) - Math.atan2(hip.y - knee.y, hip.x - knee.x);
-                    let angle = Math.abs(radians * 180.0 / Math.PI);
-                    if (angle > 180.0) angle = 360 - angle;
-                    angle = Math.round(angle);
+                    // --- ANGLE CALCULATIONS ---
+                    // 1. KNEE ANGLE (Hip -> Knee -> Ankle)
+                    let kneeAngle = calculateAngle(hip, knee, ankle);
+                    
+                    // 2. HIP ANGLE (Shoulder -> Hip -> Knee)
+                    let hipAngle = calculateAngle(shoulder, hip, knee);
 
-                    // --- ASSESSMENT LOGIC ---
+                    // --- LOGIC ---
+
+                    // ASSESS MODE
                     if (currentMode === 'assess') {
-                        if (angle < assessBest && angle > 40) {
-                            assessBest = angle;
-                            document.getElementById('assess-val').innerText = assessBest + "°";
+                        // Display Live Values
+                        document.getElementById('assess-knee').innerText = kneeAngle + "°";
+                        document.getElementById('assess-hip').innerText = hipAngle + "°";
+
+                        // Track Minimum Knee Angle (Max Depth)
+                        if (kneeAngle < assessBestKnee && kneeAngle > 40) {
+                            assessBestKnee = kneeAngle;
                             document.getElementById('saveAssessBtn').classList.remove('hidden');
                         }
                     }
 
-                    // --- TRAINING LOGIC (Smart Target) ---
+                    // TRAIN MODE
                     if (currentMode === 'train') {
-                        // Visual Gauge Logic
-                        // Range is roughly 180 (standing) to dailyTarget (goal)
-                        // If angle is 180, 0% fill. If angle is dailyTarget, 100% fill.
+                        // Display Secondary Angle
+                        document.getElementById('train-hip-val').innerText = hipAngle;
+
+                        // Visual Gauge (Based on KNEE angle)
                         let percentage = 0;
-                        if (angle < 170) {
+                        if (kneeAngle < 170) {
                             const totalDist = 170 - dailyTarget;
-                            const currentDist = 170 - angle;
+                            const currentDist = 170 - kneeAngle;
                             percentage = Math.min(100, Math.max(0, (currentDist / totalDist) * 100));
                         }
                         
                         const bar = document.getElementById('depth-bar');
                         const label = document.getElementById('rep-feedback');
-                        
                         bar.style.width = percentage + "%";
                         
-                        if (angle <= dailyTarget) {
+                        if (kneeAngle <= dailyTarget) {
                             bar.style.backgroundColor = "#22c55e"; // Green
                             label.innerText = "GOOD DEPTH";
                             label.className = "text-green-400 font-bold";
@@ -632,9 +654,9 @@
                         }
 
                         // Rep Counting
-                        if (!isSquatting && angle <= dailyTarget) {
+                        if (!isSquatting && kneeAngle <= dailyTarget) {
                             isSquatting = true;
-                        } else if (isSquatting && angle > 165) {
+                        } else if (isSquatting && kneeAngle > 165) {
                             trainRepCount++;
                             document.getElementById('train-reps').innerText = trainRepCount;
                             isSquatting = false;
