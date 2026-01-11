@@ -35,7 +35,6 @@
             background-color: #0f172a; 
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); 
         }
-        /* Ensure canvas fills the wrapper */
         .output_canvas, .output_canvas_train { width: 100%; height: 100%; object-fit: cover; display: block; }
         
         /* Navigation */
@@ -50,7 +49,7 @@
         .protocol-btn.selected { background-color: #2563EB; border-color: #3B82F6; color: white; box-shadow: 0 0 15px rgba(37, 99, 235, 0.5); }
 
         /* Depth Gauge */
-        .depth-meter { height: 15px; width: 100%; background: #334155; border-radius: 10px; overflow: hidden; margin-top: 15px; }
+        .depth-meter { height: 20px; width: 100%; background: #334155; border-radius: 10px; overflow: hidden; margin-top: 15px; border: 1px solid #475569; }
         .depth-fill { height: 100%; width: 0%; background: #EF4444; transition: width 0.1s, background 0.3s; }
 
         /* Scrollbar */
@@ -178,7 +177,7 @@
             
             <div class="glass-panel p-4 rounded-xl w-full mb-6 text-center border-l-4 border-l-blue-500">
                 <h2 class="text-xl font-bold text-white mb-1">Step 2: Calibration</h2>
-                <p class="text-slate-400 text-sm">Please perform <strong class="text-white">3 squats</strong>. I will automatically save your best depth.</p>
+                <p class="text-slate-400 text-sm">Please perform <strong class="text-white">3 squats</strong>. I will save your best range.</p>
             </div>
 
             <div class="canvas-wrapper mb-4 relative aspect-[9/16] w-full max-w-sm mx-auto border border-slate-700">
@@ -281,6 +280,10 @@
                     </div>
                     <div class="depth-meter">
                         <div class="depth-fill" id="depth-bar"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-400 uppercase font-bold mt-1 px-1">
+                        <span>Stand</span>
+                        <span>Your Best</span>
                     </div>
                 </div>
             </div>
@@ -456,7 +459,6 @@
             isSubjectDetected = false;
             let videoEl;
             
-            // RESET COUNTERS
             isSquatting = false;
             
             if (mode === 'assess') {
@@ -480,7 +482,9 @@
                 document.getElementById('trainOverlay').style.display = 'none';
                 document.getElementById('train-status').classList.remove('hidden');
 
-                speak("Camera started. Please step back. We will do 5 reps together.");
+                // NEW EDUCATIONAL INTRO
+                const baseline = window.userData.baselineRom || "unknown";
+                speak("Welcome to training. Your best depth is " + baseline + " degrees. Today, we are focusing on Range of Motion, not weight. Please make sure every rep hits the Green Zone. Let's do 5 perfect reps.");
             }
 
             cameraInstance = new Camera(videoEl, {
@@ -502,7 +506,6 @@
             isSubjectDetected = false;
         }
 
-        // --- MATH ---
         function calculateAngle(a, b, c) {
             let radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
             let angle = Math.abs(radians * 180.0 / Math.PI);
@@ -537,10 +540,8 @@
                 const ankle = results.poseLandmarks[28];
                 const shoulder = results.poseLandmarks[12];
 
-                // Check visibility
                 const isVisible = (hip && hip.visibility > 0.8 && knee && knee.visibility > 0.8 && ankle && ankle.visibility > 0.8);
                 
-                // --- FIRST TIME DETECTION ---
                 if (!isSubjectDetected) {
                     if (isVisible) {
                         isSubjectDetected = true;
@@ -559,7 +560,6 @@
                     }
                 }
 
-                // If detected, draw skeleton
                 canvasCtx.lineWidth = 4;
                 canvasCtx.strokeStyle = 'white';
                 canvasCtx.lineCap = 'round';
@@ -592,24 +592,18 @@
 
                 let kneeAngle = calculateAngle(hip, knee, ankle);
 
-                // ===========================================
-                // LOGIC: ASSESSMENT (3 REPS AUTO SAVE)
-                // ===========================================
+                // ASSESSMENT LOGIC
                 if (currentMode === 'assess') {
                     document.getElementById('assess-knee').innerText = kneeAngle + "°";
 
-                    // Track Best Depth continuously
                     if (kneeAngle < assessBestKnee && kneeAngle > 40) {
                         assessBestKnee = kneeAngle;
                         document.getElementById('assess-best').innerText = assessBestKnee + "°";
                     }
 
-                    // Count Reps logic
-                    // Going Down
                     if (!isSquatting && kneeAngle < 140) { 
                         isSquatting = true;
                     } 
-                    // Coming Up
                     else if (isSquatting && kneeAngle > 165) {
                         assessRepCount++;
                         document.getElementById('assess-reps-display').innerText = assessRepCount;
@@ -618,20 +612,15 @@
                         if (assessRepCount < 3) {
                              speak(assessRepCount.toString());
                         } else {
-                             // FINISHED 3 REPS
                              speak("Three reps done. Saving your best angle.");
                              stopCameraLogic();
-                             window.updateBaseline(assessBestKnee); // Auto Save
-                             setTimeout(() => {
-                                 switchView('workout');
-                             }, 2000);
+                             window.updateBaseline(assessBestKnee); 
+                             setTimeout(() => { switchView('workout'); }, 2000);
                         }
                     }
                 }
 
-                // ===========================================
-                // LOGIC: WORKOUT (5 REPS AUTO STOP)
-                // ===========================================
+                // WORKOUT LOGIC
                 if (currentMode === 'train') {
                     
                     let percentage = 0;
@@ -648,14 +637,14 @@
                     if (kneeAngle <= dailyTarget) {
                         bar.style.backgroundColor = "#22c55e"; 
                         label.innerText = "GOOD DEPTH";
-                        label.className = "text-4xl font-black text-green-400"; // BIGGER TEXT
+                        label.className = "text-4xl font-black text-green-400"; 
                     } else {
                         bar.style.backgroundColor = "#EF4444"; 
                         label.innerText = "GO DEEPER";
-                        label.className = "text-4xl font-black text-red-400"; // BIGGER TEXT
+                        label.className = "text-4xl font-black text-red-400"; 
                     }
 
-                    // Count Reps
+                    // STRICT COUNTING: Only count if they hit dailyTarget
                     if (!isSquatting && kneeAngle <= dailyTarget) {
                         isSquatting = true;
                     } else if (isSquatting && kneeAngle > 165) {
@@ -666,13 +655,11 @@
                         if (trainRepCount < 5) {
                             speak(trainRepCount.toString());
                         } else {
-                            // FINISHED 5 REPS
-                            speak("5 reps complete. Great work. Saving session.");
+                            // SUMMARY OUTRO
+                            speak("5 reps complete. Excellent work. You stayed within your safe range for all repetitions. Saving session.");
                             stopCameraLogic();
-                            window.logSessionComplete(trainRepCount); // Auto Save
-                            setTimeout(() => {
-                                switchView('home');
-                            }, 2000);
+                            window.logSessionComplete(trainRepCount); 
+                            setTimeout(() => { switchView('home'); }, 2000);
                         }
                     }
                 }
