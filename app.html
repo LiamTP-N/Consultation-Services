@@ -26,7 +26,7 @@
         .animate-fade-in.loaded { opacity: 1; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Camera & Canvas - UPDATED FOR PORTRAIT */
+        /* Camera & Canvas */
         .canvas-wrapper { 
             position: relative; 
             width: 100%; 
@@ -35,9 +35,9 @@
             background-color: #0f172a; 
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); 
         }
-        .output_canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
-        video { display: none; }
-
+        /* Ensure canvas fills the wrapper */
+        .output_canvas, .output_canvas_train { width: 100%; height: 100%; object-fit: cover; display: block; }
+        
         /* Navigation */
         .view-section { display: none; opacity: 0; }
         .view-section.active { display: flex; animation: fadeIn 0.4s ease-out forwards; }
@@ -50,7 +50,7 @@
         .protocol-btn.selected { background-color: #2563EB; border-color: #3B82F6; color: white; box-shadow: 0 0 15px rgba(37, 99, 235, 0.5); }
 
         /* Depth Gauge */
-        .depth-meter { height: 10px; width: 100%; background: #334155; border-radius: 5px; overflow: hidden; margin-top: 10px; }
+        .depth-meter { height: 15px; width: 100%; background: #334155; border-radius: 10px; overflow: hidden; margin-top: 15px; }
         .depth-fill { height: 100%; width: 0%; background: #EF4444; transition: width 0.1s, background 0.3s; }
 
         /* Scrollbar */
@@ -63,7 +63,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Scroll Effect
             const nav = document.querySelector('nav');
             const handleScroll = () => {
                 if (window.scrollY > 50) {
@@ -77,7 +76,6 @@
             window.addEventListener('scroll', handleScroll);
             handleScroll();
 
-            // 2. Mobile Menu Toggle
             const btn = document.getElementById('mobile-menu-btn');
             const menu = document.getElementById('mobile-menu');
 
@@ -87,7 +85,6 @@
                 });
             }
 
-            // 3. Animation Trigger
             document.querySelectorAll('.animate-fade-in').forEach((el, index) => {
                 setTimeout(() => { el.classList.add('loaded'); }, 50 * (index + 1));
             });
@@ -100,7 +97,7 @@
                 <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
                     Dr. Pearson-Noseworthy
                 </a>
-                </div>
+            </div>
         </div>
     </nav>
 
@@ -140,7 +137,7 @@
     </header>
 
     <section id="auth-screen" class="hidden flex-grow flex flex-col items-center justify-center p-4 min-h-screen pt-32 pb-20">
-        </section>
+    </section>
 
     <div id="app-container" class="block w-full max-w-4xl mx-auto p-4 pb-20">
 
@@ -180,12 +177,12 @@
         <section id="view-assess" class="view-section flex-col items-center">
             
             <div class="glass-panel p-4 rounded-xl w-full mb-6 text-center border-l-4 border-l-blue-500">
-                <h2 class="text-xl font-bold text-white mb-1">Step 2: Baseline Assessment</h2>
-                <p class="text-slate-400 text-sm">Perform your deepest comfortable squat.</p>
+                <h2 class="text-xl font-bold text-white mb-1">Step 2: Calibration</h2>
+                <p class="text-slate-400 text-sm">Please perform <strong class="text-white">3 squats</strong>. I will automatically save your best depth.</p>
             </div>
 
             <div class="canvas-wrapper mb-4 relative aspect-[9/16] w-full max-w-sm mx-auto border border-slate-700">
-                <video class="input_video"></video>
+                <video class="input_video" style="display:none!important"></video>
                 <canvas class="output_canvas"></canvas>
                 
                 <div class="absolute top-4 left-4 bg-black/60 backdrop-blur px-3 py-1 rounded-full border border-white/10">
@@ -196,43 +193,44 @@
                 </div>
 
                 <div class="absolute bottom-4 left-0 right-0 text-center">
-                    <span class="bg-black/50 text-xs text-slate-300 px-3 py-1 rounded-full backdrop-blur-sm">Side View | Waist-Down Only</span>
+                    <span class="bg-black/50 text-xs text-slate-300 px-3 py-1 rounded-full backdrop-blur-sm">Side View Only</span>
                 </div>
 
                 <div class="absolute inset-0 flex items-center justify-center z-20" id="assessOverlay">
-                    <button onclick="initCamera('assess')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all">
-                        Start Assessment
+                    <button onclick="initCamera('assess')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
+                        Start Calibration
                     </button>
                 </div>
                 
                 <div id="assess-status" class="hidden absolute top-1/2 left-0 right-0 text-center -translate-y-1/2">
                     <div class="bg-black/70 backdrop-blur mx-auto inline-block px-6 py-4 rounded-xl border border-white/20">
-                        <p class="text-lg font-bold text-white mb-1">Looking for subject...</p>
-                        <p class="text-xs text-slate-300">Please stand sideways in frame.</p>
+                        <p class="text-lg font-bold text-white mb-1">Looking for you...</p>
+                        <p class="text-xs text-slate-300">Please stand sideways.</p>
                     </div>
+                </div>
+
+                <div id="assess-counter-ui" class="hidden absolute top-10 right-4 text-center">
+                    <div class="bg-blue-600 text-white font-bold rounded-full w-16 h-16 flex items-center justify-center text-3xl shadow-lg border-2 border-white">
+                        <span id="assess-reps-display">0</span>/3
+                    </div>
+                    <span class="text-xs font-bold text-white bg-black/50 px-2 rounded mt-1 block">SQUATS</span>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4 w-full max-w-lg mb-2">
                 <div class="glass-panel p-3 rounded-xl text-center border border-slate-700/50">
-                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Knee Flexion</p>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Current Knee</p>
                     <div class="text-3xl font-bold text-white" id="assess-knee">--°</div>
                 </div>
                 <div class="glass-panel p-3 rounded-xl text-center border border-slate-700/50">
-                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Hip Flexion</p>
-                    <div class="text-3xl font-bold text-blue-400" id="assess-hip">--°</div>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Best Depth</p>
+                    <div class="text-3xl font-bold text-blue-400" id="assess-best">--°</div>
                 </div>
-            </div>
-
-            <div class="w-full max-w-lg">
-                <button onclick="saveAssessment()" id="saveAssessBtn" class="hidden w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg shadow-lg">
-                    SAVE KNEE BASELINE
-                </button>
             </div>
             
             <div class="mt-4">
                  <button onclick="switchView('workout')" class="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
-                     Next: Training <span class="text-xl">→</span>
+                     Skip to Training <span class="text-xl">→</span>
                  </button>
             </div>
         </section>
@@ -240,75 +238,56 @@
         <section id="view-workout" class="view-section flex-col items-center">
             
             <div class="w-full mb-4">
-                <h2 class="text-xl font-bold text-white mb-2">Step 3: Smart Training</h2>
+                <h2 class="text-xl font-bold text-white mb-2">Step 3: Daily Workout</h2>
                 
                 <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center mb-4">
                     <div>
-                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Target Knee Depth</p>
-                        <p class="text-2xl font-bold text-green-400" id="daily-target-display">--°</p>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Goal</p>
+                        <p class="text-2xl font-bold text-green-400">5 Reps</p>
                     </div>
                     <div class="text-right">
-                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Strictness</p>
-                        <p class="text-lg font-bold text-white" id="strictness-display">50%</p>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Target Depth</p>
+                        <p class="text-lg font-bold text-white" id="daily-target-display">--°</p>
                     </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                    <button onclick="setProtocol('power')" id="btn-power" class="protocol-btn selected p-3 rounded-xl flex flex-col items-center justify-center bg-slate-800/50">
-                        <svg class="w-6 h-6 mb-1 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        <span class="font-bold text-sm">MAX POWER</span>
-                        <span class="text-[10px] text-slate-400">Fast Up</span>
-                    </button>
-                    <button onclick="setProtocol('capacity')" id="btn-capacity" class="protocol-btn p-3 rounded-xl flex flex-col items-center justify-center bg-slate-800/50">
-                        <svg class="w-6 h-6 mb-1 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span class="font-bold text-sm">CAPACITY</span>
-                        <span class="text-[10px] text-slate-400">30s Test</span>
-                    </button>
                 </div>
             </div>
 
             <div class="canvas-wrapper mb-4 relative aspect-[9/16] w-full max-w-sm mx-auto border border-slate-700">
-                <video class="input_video_train" style="display:none"></video>
+                <video class="input_video_train" style="display:none!important"></video>
                 <canvas class="output_canvas_train"></canvas>
                 
                 <div class="absolute inset-0 flex items-center justify-center z-20" id="trainOverlay">
-                    <button onclick="initCamera('train')" class="bg-green-600 hover:bg-green-500 text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all">
-                        Start Session
+                    <button onclick="initCamera('train')" class="bg-green-600 hover:bg-green-500 text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
+                        Start 5 Reps
                     </button>
                 </div>
 
                  <div id="train-status" class="hidden absolute top-1/2 left-0 right-0 text-center -translate-y-1/2">
                     <div class="bg-black/70 backdrop-blur mx-auto inline-block px-6 py-4 rounded-xl border border-white/20">
-                        <p class="text-lg font-bold text-white mb-1">Looking for subject...</p>
-                        <p class="text-xs text-slate-300">Please stand sideways in frame.</p>
+                        <p class="text-lg font-bold text-white mb-1">Looking for you...</p>
+                        <p class="text-xs text-slate-300">Please stand sideways.</p>
                     </div>
                 </div>
                 
-                <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
-                    <div class="flex justify-between text-xs font-bold text-white mb-1">
-                        <span>KNEE DEPTH</span>
-                        <span id="rep-feedback">WAITING</span>
+                <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
+                    <div class="flex justify-between items-end mb-2">
+                        <div>
+                             <span id="rep-feedback" class="text-2xl font-black text-slate-400">READY</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-5xl font-black text-white" id="train-reps">0</span>
+                            <span class="text-sm font-bold text-slate-400">/ 5</span>
+                        </div>
                     </div>
                     <div class="depth-meter">
                         <div class="depth-fill" id="depth-bar"></div>
                     </div>
-                    <div class="text-[10px] text-slate-400 text-right mt-1">Hip: <span id="train-hip-val">--</span>°</div>
                 </div>
-            </div>
-
-            <div class="w-full max-w-lg glass-panel rounded-xl p-4 flex justify-between items-center">
-                <div>
-                    <span class="text-xs text-slate-500 uppercase">Reps</span>
-                    <div class="text-3xl font-bold text-white" id="train-reps">0</div>
-                </div>
-                <button onclick="finishSession()" id="finishBtn" class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-lg font-bold text-sm">
-                    FINISH
-                </button>
             </div>
             
             <div class="mt-4">
                  <button onclick="switchView('food')" class="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
-                     Next: Log Nutrition <span class="text-xl">→</span>
+                     Skip to Food <span class="text-xl">→</span>
                  </button>
             </div>
         </section>
@@ -363,10 +342,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        // import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // CONFIG DISABLED FOR NOW
         const firebaseConfig = {
             apiKey: "AIzaSyBYpFeeBu8r1GYBjMzZEuf264pCEU6-6zU",
             authDomain: "rom-tracker-app.firebaseapp.com",
@@ -377,16 +354,11 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        // const auth = getAuth(app);
         const db = getFirestore(app);
 
         let currentUserId = "guest_user";
         window.userData = null; 
         
-        // --- BYPASS LOGIN: Auto Enter ---
-        // onAuthStateChanged(auth, async (user) => { ... }); // DISABLED
-        
-        // Mock Initialize
         setTimeout(() => {
             window.userData = { 
                 email: "guest@example.com", 
@@ -427,24 +399,27 @@
     </script>
 
     <script>
-        let currentProtocol = 'power';
+        // GLOBAL VARIABLES
         let currentMode = 'none'; // 'assess' or 'train'
         let assessBestKnee = 180;
         let trainRepCount = 0;
+        let assessRepCount = 0;
         let isSquatting = false;
         let dailyTarget = 180;
-        
-        // New Flag for Smart Start
         let isSubjectDetected = false; 
 
-        window.switchView = (view) => {
-            if (view === 'workout' && (!window.userData || !window.userData.baselineRom)) {
-                // Bypass for now for testing
-                // alert("Please complete Step 2: Baseline Assessment first.");
-                // switchView('assess');
-                // return;
+        // HELPER: Speak Text
+        function speak(text) {
+            if('speechSynthesis' in window){
+                window.speechSynthesis.cancel(); 
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9; 
+                utterance.pitch = 1;
+                window.speechSynthesis.speak(utterance);
             }
+        }
 
+        window.switchView = (view) => {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${view}`).classList.add('active');
@@ -458,26 +433,15 @@
         }
 
         function calculateSmartTarget() {
-            const baseline = window.userData.baselineRom || 90; // Default if not set
+            const baseline = window.userData.baselineRom || 90;
             const sessions = window.userData.sessionsCompleted || 0;
-            
             const standing = 170;
             const range = standing - baseline;
             const strictnessPercent = Math.min(100, 50 + sessions) / 100;
             const buffer = range * (1 - strictnessPercent);
-            
             dailyTarget = Math.round(baseline + buffer);
             
             document.getElementById('daily-target-display').innerText = dailyTarget + "°";
-            document.getElementById('strictness-display').innerText = Math.round(strictnessPercent * 100) + "%";
-        }
-
-        window.setProtocol = (type) => {
-            currentProtocol = type;
-            document.getElementById('btn-power').classList.toggle('selected', type === 'power');
-            document.getElementById('btn-capacity').classList.toggle('selected', type === 'capacity');
-            document.getElementById('btn-power').classList.toggle('bg-slate-800/50', type !== 'power');
-            document.getElementById('btn-capacity').classList.toggle('bg-slate-800/50', type !== 'capacity');
         }
 
         // Camera Logic
@@ -489,23 +453,38 @@
 
         window.initCamera = (mode) => {
             currentMode = mode;
-            isSubjectDetected = false; // Reset detection
+            isSubjectDetected = false;
             let videoEl;
             
+            // RESET COUNTERS
+            isSquatting = false;
+            
             if (mode === 'assess') {
+                assessRepCount = 0;
+                assessBestKnee = 180;
+                document.getElementById('assess-reps-display').innerText = "0";
+                document.getElementById('assess-best').innerText = "--";
+
                 videoEl = document.querySelector('#view-assess video');
                 document.getElementById('assessOverlay').style.display = 'none';
-                document.getElementById('assess-status').classList.remove('hidden'); // Show "Looking for subject"
+                document.getElementById('assess-status').classList.remove('hidden');
+                
+                speak("Camera started. Place device down, step back, and stand sideways. We will do 3 squats to calibrate.");
+
             } else {
+                trainRepCount = 0;
+                document.getElementById('train-reps').innerText = "0";
+                
                 videoEl = document.querySelector('#view-workout video');
                 document.querySelector('#view-workout .input_video_train').style.display = 'block'; 
                 document.getElementById('trainOverlay').style.display = 'none';
-                document.getElementById('train-status').classList.remove('hidden'); // Show "Looking for subject"
+                document.getElementById('train-status').classList.remove('hidden');
+
+                speak("Camera started. Please step back. We will do 5 reps together.");
             }
 
             cameraInstance = new Camera(videoEl, {
                 onFrame: async () => { await pose.send({image: videoEl}); },
-                // CHANGED TO PORTRAIT
                 width: 720, height: 1280
             });
             cameraInstance.start();
@@ -518,26 +497,12 @@
             document.getElementById('assess-status').classList.add('hidden');
             document.getElementById('train-status').classList.add('hidden');
             document.getElementById('assess-dot').classList.add('hidden');
+            document.getElementById('assess-counter-ui').classList.add('hidden');
             currentMode = 'none';
             isSubjectDetected = false;
         }
 
-        window.saveAssessment = () => {
-            if(assessBestKnee < 170) {
-                window.updateBaseline(assessBestKnee);
-                alert("Baseline Saved: " + assessBestKnee + " degrees");
-                stopCameraLogic();
-                switchView('workout');
-            }
-        };
-
-        window.finishSession = () => {
-            window.logSessionComplete(trainRepCount);
-            alert("Great job! Session logged.");
-            stopCameraLogic();
-            switchView('home');
-        };
-
+        // --- MATH ---
         function calculateAngle(a, b, c) {
             let radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
             let angle = Math.abs(radians * 180.0 / Math.PI);
@@ -559,43 +524,42 @@
             }
             
             canvasCtx = canvasEl.getContext('2d');
-            // Force Portrait Dimensions for Canvas
             canvasEl.width = 720;
             canvasEl.height = 1280;
 
             canvasCtx.save();
             canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-            
-            // Draw Video
             canvasCtx.drawImage(results.image, 0, 0, canvasEl.width, canvasEl.height);
 
             if (results.poseLandmarks) {
-                // Landmarks: 24 (R.Hip), 26 (R.Knee), 28 (R.Ankle)
                 const hip = results.poseLandmarks[24];
                 const knee = results.poseLandmarks[26];
                 const ankle = results.poseLandmarks[28];
                 const shoulder = results.poseLandmarks[12];
 
-                // --- SMART START LOGIC ---
-                // We check if Hip, Knee, Ankle are HIGHLY visible (> 0.8)
+                // Check visibility
                 const isVisible = (hip && hip.visibility > 0.8 && knee && knee.visibility > 0.8 && ankle && ankle.visibility > 0.8);
                 
-                // If not yet detected/active, just check for presence
+                // --- FIRST TIME DETECTION ---
                 if (!isSubjectDetected) {
                     if (isVisible) {
                         isSubjectDetected = true;
-                        statusEl.classList.add('hidden'); // Hide "Looking for..." text
-                        if(currentMode === 'assess') document.getElementById('assess-dot').classList.remove('hidden');
+                        statusEl.classList.add('hidden');
+                        
+                        if(currentMode === 'assess') {
+                            document.getElementById('assess-dot').classList.remove('hidden');
+                            document.getElementById('assess-counter-ui').classList.remove('hidden');
+                            speak("Subject Found. Please perform 3 squats.");
+                        } else {
+                            speak("Subject Found. Start when ready. 5 reps.");
+                        }
                     } else {
-                        // Not found yet? Don't draw overlays, just return (or keep showing video)
                         canvasCtx.restore();
                         return;
                     }
                 }
 
-                // If we are here, isSubjectDetected is TRUE. Start Overlays & Math.
-
-                // --- OVERLAY: Draw Skeleton ---
+                // If detected, draw skeleton
                 canvasCtx.lineWidth = 4;
                 canvasCtx.strokeStyle = 'white';
                 canvasCtx.lineCap = 'round';
@@ -607,16 +571,14 @@
                     canvasCtx.stroke();
                 };
                 
-                // Draw white lines
                 drawLine(shoulder, hip);
                 drawLine(hip, knee);
                 drawLine(knee, ankle);
 
-                // --- OVERLAY: Draw Joint Markers (Circles) ---
                 const drawJoint = (p) => {
                     canvasCtx.beginPath();
                     canvasCtx.arc(p.x * canvasEl.width, p.y * canvasEl.height, 8, 0, 2 * Math.PI);
-                    canvasCtx.fillStyle = '#3B82F6'; // Blue
+                    canvasCtx.fillStyle = '#3B82F6';
                     canvasCtx.fill();
                     canvasCtx.lineWidth = 2;
                     canvasCtx.strokeStyle = 'white';
@@ -628,24 +590,49 @@
                 drawJoint(knee);
                 drawJoint(ankle);
 
-                // --- ANGLES ---
                 let kneeAngle = calculateAngle(hip, knee, ankle);
-                let hipAngle = calculateAngle(shoulder, hip, knee);
 
-                // ASSESS MODE
+                // ===========================================
+                // LOGIC: ASSESSMENT (3 REPS AUTO SAVE)
+                // ===========================================
                 if (currentMode === 'assess') {
                     document.getElementById('assess-knee').innerText = kneeAngle + "°";
-                    document.getElementById('assess-hip').innerText = hipAngle + "°";
 
+                    // Track Best Depth continuously
                     if (kneeAngle < assessBestKnee && kneeAngle > 40) {
                         assessBestKnee = kneeAngle;
-                        document.getElementById('saveAssessBtn').classList.remove('hidden');
+                        document.getElementById('assess-best').innerText = assessBestKnee + "°";
+                    }
+
+                    // Count Reps logic
+                    // Going Down
+                    if (!isSquatting && kneeAngle < 140) { 
+                        isSquatting = true;
+                    } 
+                    // Coming Up
+                    else if (isSquatting && kneeAngle > 165) {
+                        assessRepCount++;
+                        document.getElementById('assess-reps-display').innerText = assessRepCount;
+                        isSquatting = false;
+                        
+                        if (assessRepCount < 3) {
+                             speak(assessRepCount.toString());
+                        } else {
+                             // FINISHED 3 REPS
+                             speak("Three reps done. Saving your best angle.");
+                             stopCameraLogic();
+                             window.updateBaseline(assessBestKnee); // Auto Save
+                             setTimeout(() => {
+                                 switchView('workout');
+                             }, 2000);
+                        }
                     }
                 }
 
-                // TRAIN MODE
+                // ===========================================
+                // LOGIC: WORKOUT (5 REPS AUTO STOP)
+                // ===========================================
                 if (currentMode === 'train') {
-                    document.getElementById('train-hip-val').innerText = hipAngle;
                     
                     let percentage = 0;
                     if (kneeAngle < 170) {
@@ -659,15 +646,16 @@
                     bar.style.width = percentage + "%";
                     
                     if (kneeAngle <= dailyTarget) {
-                        bar.style.backgroundColor = "#22c55e"; // Green
+                        bar.style.backgroundColor = "#22c55e"; 
                         label.innerText = "GOOD DEPTH";
-                        label.className = "text-green-400 font-bold";
+                        label.className = "text-4xl font-black text-green-400"; // BIGGER TEXT
                     } else {
-                        bar.style.backgroundColor = "#EF4444"; // Red
+                        bar.style.backgroundColor = "#EF4444"; 
                         label.innerText = "GO DEEPER";
-                        label.className = "text-red-400 font-bold";
+                        label.className = "text-4xl font-black text-red-400"; // BIGGER TEXT
                     }
 
+                    // Count Reps
                     if (!isSquatting && kneeAngle <= dailyTarget) {
                         isSquatting = true;
                     } else if (isSquatting && kneeAngle > 165) {
@@ -675,9 +663,17 @@
                         document.getElementById('train-reps').innerText = trainRepCount;
                         isSquatting = false;
                         
-                        window.speechSynthesis.cancel();
-                        let u = new SpeechSynthesisUtterance(trainRepCount.toString());
-                        window.speechSynthesis.speak(u);
+                        if (trainRepCount < 5) {
+                            speak(trainRepCount.toString());
+                        } else {
+                            // FINISHED 5 REPS
+                            speak("5 reps complete. Great work. Saving session.");
+                            stopCameraLogic();
+                            window.logSessionComplete(trainRepCount); // Auto Save
+                            setTimeout(() => {
+                                switchView('home');
+                            }, 2000);
+                        }
                     }
                 }
             }
