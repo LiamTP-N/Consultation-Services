@@ -31,7 +31,6 @@
             };
             window.addEventListener('scroll', handleScroll);
             handleScroll();
-
             const btn = document.getElementById('mobile-menu-btn');
             const menu = document.getElementById('mobile-menu');
             if(btn && menu){
@@ -39,7 +38,6 @@
                     menu.classList.toggle('hidden');
                 });
             }
-
             document.querySelectorAll('.animate-fade-in').forEach((el, index) => {
                 setTimeout(() => { el.classList.add('loaded'); }, 50 * (index + 1));
             });
@@ -80,7 +78,6 @@
             </div>
         </div>
     </nav>
-
     <section class="pt-32 pb-20 px-4 bg-gradient-to-br from-slate-900 via-green-950 to-slate-900 min-h-screen">
         <div class="max-w-6xl mx-auto">
             <div class="mb-12 text-center animate-fade-in">
@@ -92,7 +89,6 @@
                     Be the first to access a completely free, motion-capture web tool designed to help older adults exercise safely at home.
                 </p>
             </div>
-
             <!-- APP PREVIEW IMAGE -->
             <div class="mb-16 animate-fade-in">
                 <div class="relative rounded-2xl overflow-hidden border border-slate-700 shadow-2xl">
@@ -107,7 +103,6 @@
                     A guided 5-step process: Warm Up → Calibration → Training → Nutrition → Progress Tracking
                 </p>
             </div>
-
             <div class="max-w-4xl mx-auto">
                 <div class="bg-slate-900/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8 md:p-12 mb-12 animate-fade-in">
                     <h2 class="text-2xl font-bold text-white mb-6">What is Range-of-Motion-Based Training?</h2>
@@ -140,7 +135,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
                         <h3 class="text-white font-bold mb-3 flex items-center gap-2">
                             <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
@@ -151,23 +145,22 @@
                         </p>
                     </div>
                 </div>
-
                 <div class="bg-slate-900 border border-slate-700 rounded-2xl p-8 md:p-12 animate-fade-in">
                     <h2 class="text-2xl font-bold text-white mb-6 text-center">Register Your Interest</h2>
-                    <form action="https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse" method="POST" target="_blank" class="space-y-6">
+                    <form action="https://docs.google.com/forms/d/e/1FAIpQLSdhHfF00lcH6M0orzpDIniLWTEKZ5Kg6mnIUxd8JYPVpJWrUg/formResponse" method="POST" class="space-y-6">
                         <div>
                             <label for="name" class="block text-slate-300 font-medium mb-2 text-sm">Your Name</label>
-                            <input type="text" id="name" name="entry.NAME_ID" required class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors">
+                            <input type="text" id="name" name="entry.1656720273" required class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors">
                         </div>
                         <div>
                             <label for="email" class="block text-slate-300 font-medium mb-2 text-sm">Email Address</label>
-                            <input type="email" id="email" name="entry.EMAIL_ID" required class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors">
+                            <input type="email" id="email" name="entry.1996183462" required class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors">
                         </div>
                         <div>
                             <label for="age" class="block text-slate-300 font-medium mb-2 text-sm">Age Group (Optional)</label>
-                            <select id="age" name="entry.AGE_ID" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors">
+                            <select id="age" name="entry.1502651733" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors">
                                 <option value="">Prefer not to say</option>
-                                <option value="under-50">Under 50</option>
+                                <option value="Under 50">Under 50</option>
                                 <option value="50-59">50-59</option>
                                 <option value="60-69">60-69</option>
                                 <option value="70-79">70-79</option>
@@ -176,7 +169,7 @@
                         </div>
                         <div>
                             <label for="message" class="block text-slate-300 font-medium mb-2 text-sm">Additional Comments (Optional)</label>
-                            <textarea id="message" name="entry.MESSAGE_ID" rows="4" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors resize-none"></textarea>
+                            <textarea id="message" name="entry.1982976171" rows="4" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors resize-none"></textarea>
                         </div>
                         <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg transition-all shadow-lg hover:shadow-green-500/30 hover:-translate-y-0.5 flex items-center justify-center gap-2">
                             Join the Waitlist
@@ -188,7 +181,6 @@
                         You'll receive an email when the tool is ready for public release. No spam, ever.
                     </p>
                 </div>
-
                 <div class="mt-12 text-center animate-fade-in">
                     <a href="index.html" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -198,7 +190,6 @@
             </div>
         </div>
     </section>
-
     <section id="contact" class="py-6 px-4 bg-slate-700 text-white mt-auto border-t border-slate-600">
         <div class="max-w-6xl mx-auto text-center animate-fade-in">
             <h2 class="text-xl md:text-xl font-bold mb-4">Questions about the Mobility Portal?</h2>
