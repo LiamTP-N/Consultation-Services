@@ -26,9 +26,16 @@
         .animate-fade-in.loaded { opacity: 1; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Camera & Canvas */
-        .canvas-wrapper { position: relative; width: 100%; border-radius: 1rem; overflow: hidden; background-color: #0f172a; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        .output_canvas { width: 100%; height: auto; display: block; }
+        /* Camera & Canvas - UPDATED FOR PORTRAIT */
+        .canvas-wrapper { 
+            position: relative; 
+            width: 100%; 
+            border-radius: 1rem; 
+            overflow: hidden; 
+            background-color: #0f172a; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); 
+        }
+        .output_canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
         video { display: none; }
 
         /* Navigation */
@@ -91,46 +98,19 @@
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-between items-center">
                 <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
-                    Dr. Liam T. Pearson-Noseworthy
+                    Dr. Pearson-Noseworthy
                 </a>
-                <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
-                    <a href="index.html" class="hover:text-blue-400 transition-colors">Home</a>
-                    <a href="services.html" class="hover:text-blue-400 transition-colors">Services</a>
-                    <a href="live-research.html" class="text-green-500 font-bold hover:text-green-400 transition-colors">LIVE Research</a>
-                    <a href="portfolio.html" class="hover:text-blue-400 transition-colors">Portfolio</a>
-                    <a href="cv.html" class="hover:text-blue-400 transition-colors">CV</a>
-                    <a href="app.html" class="text-white font-bold border border-green-500/50 bg-green-500/20 px-3 py-1 rounded-lg shadow-[0_0_10px_rgba(74,222,128,0.2)]">📱 Health Portal</a>
-                    <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                        Get in Touch
-                    </a>
                 </div>
-                <button id="mobile-menu-btn" class="md:hidden text-slate-300 hover:text-white focus:outline-none">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-            </div>
-            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 bg-slate-900/95 backdrop-blur-xl border-t border-slate-700 rounded-b-xl animate-fade-in">
-                <div class="flex flex-col space-y-4 pt-4 px-2 text-center">
-                    <a href="index.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Home</a>
-                    <a href="services.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Services</a>
-                    <a href="live-research.html" class="text-green-500 font-bold hover:bg-slate-800 py-2 rounded-lg transition-colors">LIVE Research</a>
-                    <a href="portfolio.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Portfolio</a>
-                    <a href="cv.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">CV</a>
-                    <a href="app.html" class="text-white bg-slate-800 border border-green-500/50 py-2 rounded-lg transition-colors">Mobility Portal</a>
-                    <a href="#contact" class="bg-blue-600 text-white py-3 rounded-lg font-bold mx-4 shadow-lg">Get in Touch</a>
-                </div>
-            </div>
         </div>
     </nav>
 
-    <header id="app-nav" class="hidden flex-col mt-20 bg-slate-950 border-b border-slate-800 relative z-40">
+    <header id="app-nav" class="flex flex-col mt-20 bg-slate-950 border-b border-slate-800 relative z-40">
         <div class="flex justify-between items-center px-4 py-3 bg-slate-900/50">
             <div>
                 <h1 class="text-lg font-bold text-white tracking-tight">Functional Calibration</h1>
                 <p class="text-xs text-slate-400">Daily Protocol</p>
             </div>
-            <button id="logoutBtn" class="bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-lg transition-all active:scale-95 border border-red-500 flex items-center gap-1">
+            <button id="logoutBtn" class="hidden bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-lg transition-all active:scale-95 border border-red-500 flex items-center gap-1">
                 <span class="text-lg">×</span> EXIT APP
             </button>
         </div>
@@ -159,41 +139,10 @@
         </div>
     </header>
 
-    <section id="auth-screen" class="flex-grow flex flex-col items-center justify-center p-4 min-h-screen pt-32 pb-20">
-        <div class="w-full max-w-md animate-fade-in">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-white mb-2">My Health Portal</h1>
-                <p class="text-slate-400">Scientific Mobility & Strength for Over 60s.</p>
-            </div>
+    <section id="auth-screen" class="hidden flex-grow flex flex-col items-center justify-center p-4 min-h-screen pt-32 pb-20">
+        </section>
 
-            <div class="glass-panel rounded-2xl p-8 shadow-2xl">
-                <div class="flex bg-slate-900/50 p-1 rounded-lg mb-6 border border-slate-700/50">
-                    <button onclick="toggleAuthMode('login')" id="tab-login" class="flex-1 py-2 text-sm font-bold rounded-md text-white bg-slate-700 shadow-sm transition-all">Return User</button>
-                    <button onclick="toggleAuthMode('register')" id="tab-register" class="flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all">New User</button>
-                </div>
-
-                <form id="authForm" class="space-y-4">
-                    <div id="register-fields" class="hidden space-y-4">
-                        <input type="text" id="reg-name" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 placeholder-slate-600" placeholder="Full Name">
-                    </div>
-                    <input type="email" id="email" autocomplete="username" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 placeholder-slate-600" placeholder="Email Address">
-                    <input type="password" id="password" autocomplete="current-password" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 placeholder-slate-600" placeholder="Password">
-
-                    <p id="authError" class="text-red-400 text-xs text-center hidden">Error Message</p>
-
-                    <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg transition-all mt-2">
-                        ENTER PORTAL
-                    </button>
-                    
-                    <p class="text-xs text-slate-500 text-center leading-relaxed mt-4">
-                        By entering, you agree to the research consent terms.
-                    </p>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <div id="app-container" class="hidden w-full max-w-4xl mx-auto p-4 pb-20">
+    <div id="app-container" class="block w-full max-w-4xl mx-auto p-4 pb-20">
 
         <section id="view-warmup" class="view-section active flex-col gap-6">
             <h2 class="text-2xl font-bold text-white">Step 1: Mobility Prep</h2>
@@ -235,7 +184,7 @@
                 <p class="text-slate-400 text-sm">Perform your deepest comfortable squat.</p>
             </div>
 
-            <div class="canvas-wrapper mb-4 relative aspect-[4/3] md:aspect-video w-full max-w-lg mx-auto border border-slate-700">
+            <div class="canvas-wrapper mb-4 relative aspect-[9/16] w-full max-w-sm mx-auto border border-slate-700">
                 <video class="input_video"></video>
                 <canvas class="output_canvas"></canvas>
                 
@@ -254,6 +203,13 @@
                     <button onclick="initCamera('assess')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all">
                         Start Assessment
                     </button>
+                </div>
+                
+                <div id="assess-status" class="hidden absolute top-1/2 left-0 right-0 text-center -translate-y-1/2">
+                    <div class="bg-black/70 backdrop-blur mx-auto inline-block px-6 py-4 rounded-xl border border-white/20">
+                        <p class="text-lg font-bold text-white mb-1">Looking for subject...</p>
+                        <p class="text-xs text-slate-300">Please stand sideways in frame.</p>
+                    </div>
                 </div>
             </div>
 
@@ -311,7 +267,7 @@
                 </div>
             </div>
 
-            <div class="canvas-wrapper mb-4 relative aspect-[4/3] md:aspect-video w-full max-w-lg mx-auto border border-slate-700">
+            <div class="canvas-wrapper mb-4 relative aspect-[9/16] w-full max-w-sm mx-auto border border-slate-700">
                 <video class="input_video_train" style="display:none"></video>
                 <canvas class="output_canvas_train"></canvas>
                 
@@ -319,6 +275,13 @@
                     <button onclick="initCamera('train')" class="bg-green-600 hover:bg-green-500 text-white font-bold px-8 py-3 rounded-full shadow-lg transition-all">
                         Start Session
                     </button>
+                </div>
+
+                 <div id="train-status" class="hidden absolute top-1/2 left-0 right-0 text-center -translate-y-1/2">
+                    <div class="bg-black/70 backdrop-blur mx-auto inline-block px-6 py-4 rounded-xl border border-white/20">
+                        <p class="text-lg font-bold text-white mb-1">Looking for subject...</p>
+                        <p class="text-xs text-slate-300">Please stand sideways in frame.</p>
+                    </div>
                 </div>
                 
                 <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
@@ -400,9 +363,10 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        // import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // CONFIG DISABLED FOR NOW
         const firebaseConfig = {
             apiKey: "AIzaSyBYpFeeBu8r1GYBjMzZEuf264pCEU6-6zU",
             authDomain: "rom-tracker-app.firebaseapp.com",
@@ -413,35 +377,25 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+        // const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentUserId = null;
-        window.userData = null; // Exposed for logic
-        let isRegistering = false;
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUserId = user.uid;
-                const docRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(docRef);
-                
-                if (docSnap.exists()) {
-                    window.userData = docSnap.data();
-                } else {
-                    window.userData = { 
-                        email: user.email, 
-                        totalReps: 0, 
-                        baselineRom: 0, 
-                        sessionsCompleted: 0 
-                    };
-                    await setDoc(docRef, window.userData);
-                }
-                enterApp();
-            } else {
-                exitApp();
-            }
-        });
+        let currentUserId = "guest_user";
+        window.userData = null; 
+        
+        // --- BYPASS LOGIN: Auto Enter ---
+        // onAuthStateChanged(auth, async (user) => { ... }); // DISABLED
+        
+        // Mock Initialize
+        setTimeout(() => {
+            window.userData = { 
+                email: "guest@example.com", 
+                totalReps: 0, 
+                baselineRom: 0, 
+                sessionsCompleted: 0 
+            };
+            enterApp();
+        }, 500);
 
         function enterApp() {
             document.getElementById('auth-screen').style.display = 'none';
@@ -450,44 +404,6 @@
             loadStats();
             switchView('warmup');
         }
-
-        function exitApp() {
-            document.getElementById('auth-screen').style.display = 'flex';
-            document.getElementById('app-container').style.display = 'none';
-            document.getElementById('app-nav').style.display = 'none';
-        }
-
-        window.toggleAuthMode = (mode) => {
-            isRegistering = (mode === 'register');
-            document.getElementById('tab-register').className = isRegistering ? "flex-1 py-2 text-sm font-bold rounded-md text-white bg-slate-700 shadow-sm transition-all" : "flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all";
-            document.getElementById('tab-login').className = !isRegistering ? "flex-1 py-2 text-sm font-bold rounded-md text-white bg-slate-700 shadow-sm transition-all" : "flex-1 py-2 text-sm font-medium text-slate-400 hover:text-white transition-all";
-            document.getElementById('register-fields').classList.toggle('hidden', !isRegistering);
-            document.getElementById('submitBtn').innerText = isRegistering ? "CREATE ACCOUNT" : "LOG IN";
-        };
-
-        document.getElementById('authForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
-            const name = document.getElementById('reg-name').value;
-            
-            try {
-                await setPersistence(auth, browserLocalPersistence);
-                if (isRegistering) {
-                    const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                    await setDoc(doc(db, "users", cred.user.uid), {
-                        email, fullName: name, totalReps: 0, baselineRom: 0, sessionsCompleted: 0, joined: serverTimestamp()
-                    });
-                } else {
-                    await signInWithEmailAndPassword(auth, email, pass);
-                }
-            } catch (err) {
-                document.getElementById('authError').innerText = err.message;
-                document.getElementById('authError').classList.remove('hidden');
-            }
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
         function loadStats() {
             if(!window.userData) return;
@@ -499,18 +415,11 @@
         }
 
         window.updateBaseline = async (rom) => {
-            if(!currentUserId) return;
-            await updateDoc(doc(db, "users", currentUserId), { baselineRom: rom });
             window.userData.baselineRom = rom;
             loadStats();
         };
 
         window.logSessionComplete = async (reps) => {
-            if(!currentUserId) return;
-            await updateDoc(doc(db, "users", currentUserId), { 
-                totalReps: increment(reps),
-                sessionsCompleted: increment(1)
-            });
             window.userData.totalReps += reps;
             window.userData.sessionsCompleted += 1;
             loadStats();
@@ -523,14 +432,17 @@
         let assessBestKnee = 180;
         let trainRepCount = 0;
         let isSquatting = false;
-        let dailyTarget = 180; // Defaults to standing until calc
+        let dailyTarget = 180;
+        
+        // New Flag for Smart Start
+        let isSubjectDetected = false; 
 
         window.switchView = (view) => {
-            // Gatekeeper: Can't train without baseline
             if (view === 'workout' && (!window.userData || !window.userData.baselineRom)) {
-                alert("Please complete Step 2: Baseline Assessment first.");
-                switchView('assess');
-                return;
+                // Bypass for now for testing
+                // alert("Please complete Step 2: Baseline Assessment first.");
+                // switchView('assess');
+                // return;
             }
 
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -538,16 +450,15 @@
             document.getElementById(`view-${view}`).classList.add('active');
             document.getElementById(`nav-${view}`).classList.add('active');
             
-            stopCameraLogic(); // Stop previous camera
+            stopCameraLogic();
             
-            // Calculate Daily Target if entering workout
             if (view === 'workout') {
                 calculateSmartTarget();
             }
         }
 
         function calculateSmartTarget() {
-            const baseline = window.userData.baselineRom;
+            const baseline = window.userData.baselineRom || 90; // Default if not set
             const sessions = window.userData.sessionsCompleted || 0;
             
             const standing = 170;
@@ -578,21 +489,24 @@
 
         window.initCamera = (mode) => {
             currentMode = mode;
-            let videoEl, canvasEl;
+            isSubjectDetected = false; // Reset detection
+            let videoEl;
             
             if (mode === 'assess') {
                 videoEl = document.querySelector('#view-assess video');
                 document.getElementById('assessOverlay').style.display = 'none';
-                document.getElementById('assess-dot').classList.remove('hidden');
+                document.getElementById('assess-status').classList.remove('hidden'); // Show "Looking for subject"
             } else {
                 videoEl = document.querySelector('#view-workout video');
-                document.querySelector('#view-workout .input_video_train').style.display = 'block'; // Ensure visible
+                document.querySelector('#view-workout .input_video_train').style.display = 'block'; 
                 document.getElementById('trainOverlay').style.display = 'none';
+                document.getElementById('train-status').classList.remove('hidden'); // Show "Looking for subject"
             }
 
             cameraInstance = new Camera(videoEl, {
                 onFrame: async () => { await pose.send({image: videoEl}); },
-                width: 1280, height: 720
+                // CHANGED TO PORTRAIT
+                width: 720, height: 1280
             });
             cameraInstance.start();
         }
@@ -601,10 +515,13 @@
             if(cameraInstance) cameraInstance.stop();
             document.getElementById('assessOverlay').style.display = 'flex';
             document.getElementById('trainOverlay').style.display = 'flex';
+            document.getElementById('assess-status').classList.add('hidden');
+            document.getElementById('train-status').classList.add('hidden');
+            document.getElementById('assess-dot').classList.add('hidden');
             currentMode = 'none';
+            isSubjectDetected = false;
         }
 
-        // Assessment Functions
         window.saveAssessment = () => {
             if(assessBestKnee < 170) {
                 window.updateBaseline(assessBestKnee);
@@ -614,7 +531,6 @@
             }
         };
 
-        // Training Functions
         window.finishSession = () => {
             window.logSessionComplete(trainRepCount);
             alert("Great job! Session logged.");
@@ -622,7 +538,6 @@
             switchView('home');
         };
 
-        // --- MATH: Calculate Angle between 3 points ---
         function calculateAngle(a, b, c) {
             let radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
             let angle = Math.abs(radians * 180.0 / Math.PI);
@@ -631,114 +546,138 @@
         }
 
         function onResults(results) {
-            // Determine active canvas
-            let canvasCtx, canvasEl;
+            let canvasCtx, canvasEl, statusEl;
+            
             if (currentMode === 'assess') {
                 canvasEl = document.querySelector('#view-assess canvas');
+                statusEl = document.getElementById('assess-status');
             } else if (currentMode === 'train') {
                 canvasEl = document.querySelector('#view-workout canvas');
+                statusEl = document.getElementById('train-status');
             } else {
                 return;
             }
             
             canvasCtx = canvasEl.getContext('2d');
-            canvasEl.width = 1280;
-            canvasEl.height = 720;
+            // Force Portrait Dimensions for Canvas
+            canvasEl.width = 720;
+            canvasEl.height = 1280;
 
             canvasCtx.save();
             canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-            canvasCtx.filter = 'brightness(0.8)';
+            
+            // Draw Video
             canvasCtx.drawImage(results.image, 0, 0, canvasEl.width, canvasEl.height);
-            canvasCtx.filter = 'none';
 
             if (results.poseLandmarks) {
-                // Landmarks: 12 (R.Shoulder), 24 (R.Hip), 26 (R.Knee), 28 (R.Ankle)
-                const shoulder = results.poseLandmarks[12];
+                // Landmarks: 24 (R.Hip), 26 (R.Knee), 28 (R.Ankle)
                 const hip = results.poseLandmarks[24];
                 const knee = results.poseLandmarks[26];
                 const ankle = results.poseLandmarks[28];
+                const shoulder = results.poseLandmarks[12];
 
-                // Ensure Visibility
-                if(shoulder && hip && knee && ankle && hip.visibility > 0.5 && knee.visibility > 0.5) {
+                // --- SMART START LOGIC ---
+                // We check if Hip, Knee, Ankle are HIGHLY visible (> 0.8)
+                const isVisible = (hip && hip.visibility > 0.8 && knee && knee.visibility > 0.8 && ankle && ankle.visibility > 0.8);
+                
+                // If not yet detected/active, just check for presence
+                if (!isSubjectDetected) {
+                    if (isVisible) {
+                        isSubjectDetected = true;
+                        statusEl.classList.add('hidden'); // Hide "Looking for..." text
+                        if(currentMode === 'assess') document.getElementById('assess-dot').classList.remove('hidden');
+                    } else {
+                        // Not found yet? Don't draw overlays, just return (or keep showing video)
+                        canvasCtx.restore();
+                        return;
+                    }
+                }
+
+                // If we are here, isSubjectDetected is TRUE. Start Overlays & Math.
+
+                // --- OVERLAY: Draw Skeleton ---
+                canvasCtx.lineWidth = 4;
+                canvasCtx.strokeStyle = 'white';
+                canvasCtx.lineCap = 'round';
+                
+                const drawLine = (p1, p2) => {
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(p1.x * canvasEl.width, p1.y * canvasEl.height);
+                    canvasCtx.lineTo(p2.x * canvasEl.width, p2.y * canvasEl.height);
+                    canvasCtx.stroke();
+                };
+                
+                // Draw white lines
+                drawLine(shoulder, hip);
+                drawLine(hip, knee);
+                drawLine(knee, ankle);
+
+                // --- OVERLAY: Draw Joint Markers (Circles) ---
+                const drawJoint = (p) => {
+                    canvasCtx.beginPath();
+                    canvasCtx.arc(p.x * canvasEl.width, p.y * canvasEl.height, 8, 0, 2 * Math.PI);
+                    canvasCtx.fillStyle = '#3B82F6'; // Blue
+                    canvasCtx.fill();
+                    canvasCtx.lineWidth = 2;
+                    canvasCtx.strokeStyle = 'white';
+                    canvasCtx.stroke();
+                };
+
+                drawJoint(shoulder);
+                drawJoint(hip);
+                drawJoint(knee);
+                drawJoint(ankle);
+
+                // --- ANGLES ---
+                let kneeAngle = calculateAngle(hip, knee, ankle);
+                let hipAngle = calculateAngle(shoulder, hip, knee);
+
+                // ASSESS MODE
+                if (currentMode === 'assess') {
+                    document.getElementById('assess-knee').innerText = kneeAngle + "°";
+                    document.getElementById('assess-hip').innerText = hipAngle + "°";
+
+                    if (kneeAngle < assessBestKnee && kneeAngle > 40) {
+                        assessBestKnee = kneeAngle;
+                        document.getElementById('saveAssessBtn').classList.remove('hidden');
+                    }
+                }
+
+                // TRAIN MODE
+                if (currentMode === 'train') {
+                    document.getElementById('train-hip-val').innerText = hipAngle;
                     
-                    // --- DRAWING SKELETON (Legs + Torso Line) ---
-                    canvasCtx.lineWidth = 3;
-                    canvasCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                    let percentage = 0;
+                    if (kneeAngle < 170) {
+                        const totalDist = 170 - dailyTarget;
+                        const currentDist = 170 - kneeAngle;
+                        percentage = Math.min(100, Math.max(0, (currentDist / totalDist) * 100));
+                    }
                     
-                    const drawLine = (p1, p2) => {
-                        canvasCtx.beginPath();
-                        canvasCtx.moveTo(p1.x * canvasEl.width, p1.y * canvasEl.height);
-                        canvasCtx.lineTo(p2.x * canvasEl.width, p2.y * canvasEl.height);
-                        canvasCtx.stroke();
-                    };
+                    const bar = document.getElementById('depth-bar');
+                    const label = document.getElementById('rep-feedback');
+                    bar.style.width = percentage + "%";
                     
-                    // Draw: Shoulder->Hip->Knee->Ankle
-                    drawLine(shoulder, hip);
-                    drawLine(hip, knee);
-                    drawLine(knee, ankle);
-
-                    // --- ANGLE CALCULATIONS ---
-                    // 1. KNEE ANGLE (Hip -> Knee -> Ankle)
-                    let kneeAngle = calculateAngle(hip, knee, ankle);
-                    
-                    // 2. HIP ANGLE (Shoulder -> Hip -> Knee)
-                    let hipAngle = calculateAngle(shoulder, hip, knee);
-
-                    // --- LOGIC ---
-
-                    // ASSESS MODE
-                    if (currentMode === 'assess') {
-                        // Display Live Values
-                        document.getElementById('assess-knee').innerText = kneeAngle + "°";
-                        document.getElementById('assess-hip').innerText = hipAngle + "°";
-
-                        // Track Minimum Knee Angle (Max Depth)
-                        if (kneeAngle < assessBestKnee && kneeAngle > 40) {
-                            assessBestKnee = kneeAngle;
-                            document.getElementById('saveAssessBtn').classList.remove('hidden');
-                        }
+                    if (kneeAngle <= dailyTarget) {
+                        bar.style.backgroundColor = "#22c55e"; // Green
+                        label.innerText = "GOOD DEPTH";
+                        label.className = "text-green-400 font-bold";
+                    } else {
+                        bar.style.backgroundColor = "#EF4444"; // Red
+                        label.innerText = "GO DEEPER";
+                        label.className = "text-red-400 font-bold";
                     }
 
-                    // TRAIN MODE
-                    if (currentMode === 'train') {
-                        // Display Secondary Angle
-                        document.getElementById('train-hip-val').innerText = hipAngle;
-
-                        // Visual Gauge (Based on KNEE angle)
-                        let percentage = 0;
-                        if (kneeAngle < 170) {
-                            const totalDist = 170 - dailyTarget;
-                            const currentDist = 170 - kneeAngle;
-                            percentage = Math.min(100, Math.max(0, (currentDist / totalDist) * 100));
-                        }
+                    if (!isSquatting && kneeAngle <= dailyTarget) {
+                        isSquatting = true;
+                    } else if (isSquatting && kneeAngle > 165) {
+                        trainRepCount++;
+                        document.getElementById('train-reps').innerText = trainRepCount;
+                        isSquatting = false;
                         
-                        const bar = document.getElementById('depth-bar');
-                        const label = document.getElementById('rep-feedback');
-                        bar.style.width = percentage + "%";
-                        
-                        if (kneeAngle <= dailyTarget) {
-                            bar.style.backgroundColor = "#22c55e"; // Green
-                            label.innerText = "GOOD DEPTH";
-                            label.className = "text-green-400 font-bold";
-                        } else {
-                            bar.style.backgroundColor = "#EF4444"; // Red
-                            label.innerText = "GO DEEPER";
-                            label.className = "text-red-400 font-bold";
-                        }
-
-                        // Rep Counting
-                        if (!isSquatting && kneeAngle <= dailyTarget) {
-                            isSquatting = true;
-                        } else if (isSquatting && kneeAngle > 165) {
-                            trainRepCount++;
-                            document.getElementById('train-reps').innerText = trainRepCount;
-                            isSquatting = false;
-                            
-                            // Audio
-                            window.speechSynthesis.cancel();
-                            let u = new SpeechSynthesisUtterance(trainRepCount.toString());
-                            window.speechSynthesis.speak(u);
-                        }
+                        window.speechSynthesis.cancel();
+                        let u = new SpeechSynthesisUtterance(trainRepCount.toString());
+                        window.speechSynthesis.speak(u);
                     }
                 }
             }
