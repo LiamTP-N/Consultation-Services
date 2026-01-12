@@ -11,9 +11,9 @@
         .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
         .animate-fade-in.loaded { opacity: 1; }
         
-        /* Added glow effect for the LIVE Research tab */
+        /* Glow effect for the LIVE Research tab */
         .glow-text { text-shadow: 0 0 8px rgba(34, 197, 94, 0.4); }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -21,7 +21,6 @@
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
-    
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const nav = document.querySelector('nav');
@@ -50,7 +49,7 @@
             });
         });
     </script>
-
+    
     <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-4">
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-between items-center">
@@ -97,7 +96,6 @@
                     Be the first to access a completely free, motion-capture web tool designed to help older adults exercise safely at home.
                 </p>
             </div>
-            
             <div class="mb-16 animate-fade-in">
                 <div class="relative rounded-2xl overflow-hidden border border-slate-700 shadow-2xl">
                     <img 
@@ -111,7 +109,6 @@
                     A guided 5-step process: Warm Up → Calibration → Training → Nutrition → Progress Tracking
                 </p>
             </div>
-
             <div class="max-w-4xl mx-auto">
                 <div class="bg-slate-900/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8 md:p-12 mb-12 animate-fade-in">
                     <h2 class="text-2xl font-bold text-white mb-6">What is Range-of-Motion-Based Training?</h2>
@@ -161,7 +158,7 @@
                         if(submitted) {
                             document.getElementById('form-content').classList.add('hidden');
                             document.getElementById('success-message').classList.remove('hidden');
-                            // Optional: Scroll to message
+                            // Scroll to the success message gently
                             document.getElementById('success-message').scrollIntoView({behavior: 'smooth', block: 'center'});
                         }
                     }
@@ -190,15 +187,15 @@
                             
                             <div>
                                 <label for="name" class="block text-slate-300 font-medium mb-2 text-sm">Your Name</label>
-                                <input type="text" id="name" name="entry.1656720273" required class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors">
+                                <input type="text" id="name" name="entry.1191255575" required class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors">
                             </div>
                             <div>
                                 <label for="email" class="block text-slate-300 font-medium mb-2 text-sm">Email Address</label>
-                                <input type="email" id="email" name="entry.1996183462" required class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors">
+                                <input type="email" id="email" name="entry.263764294" required class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors">
                             </div>
                             <div>
                                 <label for="age" class="block text-slate-300 font-medium mb-2 text-sm">Age Group (Optional)</label>
-                                <select id="age" name="entry.1502651733" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors">
+                                <select id="age" name="entry.516461050" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors">
                                     <option value="">Prefer not to say</option>
                                     <option value="Under 50">Under 50</option>
                                     <option value="50-59">50-59</option>
@@ -209,7 +206,7 @@
                             </div>
                             <div>
                                 <label for="message" class="block text-slate-300 font-medium mb-2 text-sm">Additional Comments (Optional)</label>
-                                <textarea id="message" name="entry.1982976171" rows="4" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors resize-none"></textarea>
+                                <textarea id="message" name="entry.578195952" rows="4" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors resize-none"></textarea>
                             </div>
                             <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg transition-all shadow-lg hover:shadow-green-500/30 hover:-translate-y-0.5 flex items-center justify-center gap-2">
                                 Join the Waitlist
