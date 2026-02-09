@@ -6,7 +6,6 @@
     <title>Functional Calibration | Dr. Pearson-Noseworthy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -687,22 +686,21 @@
 
         // Rep detection state
         let isSquatting = false;
-        let squatEntryTime = 0;   // timestamp when dipped below threshold
-        let standReturnTime = 0;  // timestamp when returned above standing threshold
-        const MIN_SQUAT_HOLD_MS = 300;   // must be below threshold for 300ms
-        const MIN_STAND_HOLD_MS = 500;   // must be standing for 500ms before next rep
-        const SQUAT_ENTRY_ANGLE = 140;   // angle to enter squat state
-        const SQUAT_EXIT_ANGLE = 160;    // angle to exit squat state (hysteresis gap)
-        let currentRepDeepest = 180;     // deepest angle in current rep
+        let squatEntryTime = 0;
+        let standReturnTime = 0;
+        const MIN_SQUAT_HOLD_MS = 300;
+        const MIN_STAND_HOLD_MS = 500;
+        const SQUAT_ENTRY_ANGLE = 140;
+        const SQUAT_EXIT_ANGLE = 160;
+        let currentRepDeepest = 180;
 
         // Stabilisation state
         let stabiliseStartTime = 0;
         let lastLandmarkPositions = null;
-        const STABILISE_THRESHOLD = 0.015; // max movement per frame (normalised coords)
+        const STABILISE_THRESHOLD = 0.015;
         const STABILISE_DURATION_MS = 3000;
 
-        // MediaPipe
-        let cameraInstance = null;
+        // MediaPipe Pose (no Camera utility needed)
         const pose = new Pose({
             locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/${file}`
         });
@@ -854,7 +852,6 @@
         };
 
         function loadFood() {
-            // Reset checkboxes for today - could load from Firestore but keeping simple
             const checks = document.querySelectorAll('.food-check');
             checks.forEach(c => { c.checked = false; });
         }
@@ -886,12 +883,32 @@
             const videoEl = document.getElementById(mode === 'assess' ? 'assess-video' : 'train-video');
 
             try {
-                cameraInstance = new Camera(videoEl, {
-                    onFrame: async () => { await pose.send({ image: videoEl }); },
-                    width: 480, height: 640,
-                    facingMode: 'user'
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'user',
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    },
+                    audio: false
                 });
-                await cameraInstance.start();
+
+                videoEl.srcObject = stream;
+                videoEl.style.display = 'none';
+                await videoEl.play();
+
+                // Store stream reference so we can stop it later
+                window._activeStream = stream;
+
+                // Feed frames to MediaPipe manually
+                async function sendFrame() {
+                    if (currentMode === 'none' || cameraState === 'off') return;
+                    if (videoEl.readyState >= 2) {
+                        await pose.send({ image: videoEl });
+                    }
+                    requestAnimationFrame(sendFrame);
+                }
+                sendFrame();
+
             } catch (err) {
                 speak('Camera access was denied. Please allow camera permissions in your browser settings, then try again.');
                 showOverlay(mode, 'start');
@@ -902,9 +919,9 @@
 
         window.stopAllCameras = () => {
             clearSpeech();
-            if (cameraInstance) {
-                cameraInstance.stop();
-                cameraInstance = null;
+            if (window._activeStream) {
+                window._activeStream.getTracks().forEach(t => t.stop());
+                window._activeStream = null;
             }
             cameraState = 'off';
             currentMode = 'none';
@@ -953,7 +970,6 @@
             const rightHip = landmarks[24];
             if (!leftHip || !rightHip) return false;
             const zDiff = Math.abs(leftHip.z - rightHip.z);
-            // If z-difference is large, one hip is much closer - person is side-on
             return zDiff > 0.08;
         }
 
@@ -961,7 +977,7 @@
         // STABILITY CHECK
         // ==============================
         function checkStability(landmarks) {
-            const keyPoints = [landmarks[24], landmarks[26], landmarks[28]]; // hip, knee, ankle
+            const keyPoints = [landmarks[24], landmarks[26], landmarks[28]];
             const current = keyPoints.map(p => ({ x: p.x, y: p.y }));
 
             if (!lastLandmarkPositions) {
@@ -980,7 +996,6 @@
             lastLandmarkPositions = current;
 
             if (maxMovement > STABILISE_THRESHOLD) {
-                // Movement detected - reset timer
                 stabiliseStartTime = Date.now();
                 return false;
             }
@@ -1017,7 +1032,7 @@
                     cameraState = 'tracking';
                     showOverlay(mode, 'tracking');
                     isSquatting = false;
-                    standReturnTime = Date.now(); // allow first rep immediately after a brief stand
+                    standReturnTime = Date.now();
 
                     if (mode === 'assess') {
                         speak('Begin. Squat to your comfortable maximum depth.');
@@ -1047,8 +1062,10 @@
             const canvasEl = document.getElementById(currentMode === 'assess' ? 'assess-canvas' : 'train-canvas');
             const ctx = canvasEl.getContext('2d');
             const videoEl = document.getElementById(currentMode === 'assess' ? 'assess-video' : 'train-video');
-            canvasEl.width = results.image.width || 480;
-            canvasEl.height = results.image.height || 640;
+
+            // Match canvas to actual video dimensions
+            canvasEl.width = videoEl.videoWidth || 640;
+            canvasEl.height = videoEl.videoHeight || 480;
 
             ctx.save();
             ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
@@ -1083,7 +1100,6 @@
             // ---- STATE: STABILISING ----
             if (cameraState === 'stabilising') {
                 if (!isVisible || !isSideOn(lm)) {
-                    // Lost them - back to waiting
                     cameraState = 'waiting';
                     showOverlay(currentMode, 'waiting');
                     lastLandmarkPositions = null;
@@ -1100,7 +1116,6 @@
 
             // ---- STATE: COUNTDOWN ----
             if (cameraState === 'countdown') {
-                // Just draw the skeleton but don't process angles
                 drawSkeleton(ctx, canvasEl, shoulder, hip, knee, ankle);
                 ctx.restore();
                 return;
@@ -1172,7 +1187,6 @@
 
             const now = Date.now();
 
-            // Enter squat: angle drops below entry threshold for MIN_SQUAT_HOLD_MS
             if (!isSquatting && kneeAngle < SQUAT_ENTRY_ANGLE) {
                 if (squatEntryTime === 0) {
                     squatEntryTime = now;
@@ -1181,20 +1195,17 @@
                     currentRepDeepest = kneeAngle;
                 }
             } else if (!isSquatting && kneeAngle >= SQUAT_ENTRY_ANGLE) {
-                squatEntryTime = 0; // reset - they didn't hold it
+                squatEntryTime = 0;
             }
 
-            // Track deepest point during squat
             if (isSquatting && kneeAngle < currentRepDeepest) {
                 currentRepDeepest = kneeAngle;
             }
 
-            // Exit squat: angle rises above exit threshold (hysteresis)
             if (isSquatting && kneeAngle > SQUAT_EXIT_ANGLE) {
                 if (standReturnTime === 0) {
                     standReturnTime = now;
                 } else if (now - standReturnTime >= MIN_STAND_HOLD_MS) {
-                    // Rep complete
                     assessRepCount++;
                     document.getElementById('assess-reps-display').innerText = assessRepCount;
                     isSquatting = false;
@@ -1213,7 +1224,7 @@
                     }
                 }
             } else if (isSquatting && kneeAngle <= SQUAT_EXIT_ANGLE) {
-                standReturnTime = 0; // still squatting
+                standReturnTime = 0;
             }
         }
 
@@ -1221,7 +1232,6 @@
         // TRAINING LOGIC
         // ==============================
         function processTraining(kneeAngle) {
-            // Depth gauge
             let percentage = 0;
             if (kneeAngle < 170) {
                 const totalDist = 170 - dailyTarget;
@@ -1249,7 +1259,6 @@
 
             const now = Date.now();
 
-            // Enter squat: must reach the daily target depth AND hold it
             if (!isSquatting && kneeAngle <= dailyTarget) {
                 if (squatEntryTime === 0) {
                     squatEntryTime = now;
@@ -1261,12 +1270,10 @@
                 squatEntryTime = 0;
             }
 
-            // Track deepest
             if (isSquatting && kneeAngle < currentRepDeepest) {
                 currentRepDeepest = kneeAngle;
             }
 
-            // Exit squat
             if (isSquatting && kneeAngle > SQUAT_EXIT_ANGLE) {
                 if (standReturnTime === 0) {
                     standReturnTime = now;
@@ -1286,8 +1293,8 @@
                         const avgAngle = Math.round(trainAngles.reduce((a, b) => a + b, 0) / trainAngles.length);
                         const allHit = trainAngles.every(a => a <= dailyTarget);
                         const summaryText = allHit
-                            ? `All 5 reps hit target. Average depth: ${avgAngle}°. Excellent.`
-                            : `5 reps complete. Average depth: ${avgAngle}°. Keep working on hitting your target consistently.`;
+                            ? `All 5 reps hit target. Average depth: ${avgAngle} degrees. Excellent.`
+                            : `5 reps complete. Average depth: ${avgAngle} degrees. Keep working on hitting your target consistently.`;
 
                         document.getElementById('train-summary-text').innerText = summaryText;
                         showOverlay('train', 'complete');
@@ -1302,9 +1309,9 @@
         }
 
         function stopCamera() {
-            if (cameraInstance) {
-                cameraInstance.stop();
-                cameraInstance = null;
+            if (window._activeStream) {
+                window._activeStream.getTracks().forEach(t => t.stop());
+                window._activeStream = null;
             }
         }
     </script>
