@@ -2,351 +2,466 @@
 <html lang="en-GB">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Functional Calibration | Dr. Pearson-Noseworthy</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        * { box-sizing: border-box; }
+        body { font-family: 'DM Sans', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
         html { scroll-behavior: smooth; }
-        
+
+        .font-mono-display { font-family: 'Space Mono', monospace; }
+
+        /* Glass panels */
         .glass-panel {
             background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(51, 65, 85, 0.5);
         }
-        
-        /* Animations */
-        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
-        .animate-fade-in.loaded { opacity: 1; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Camera & Canvas */
-        .canvas-wrapper { 
-            position: relative; 
-            width: 100%; 
-            border-radius: 1rem; 
-            overflow: hidden; 
-            background-color: #0f172a; 
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); 
-        }
-        .output_canvas, .output_canvas_train { width: 100%; height: 100%; object-fit: cover; display: block; }
-        
-        /* Navigation */
+
+        /* View transitions */
         .view-section { display: none; opacity: 0; }
-        .view-section.active { display: flex; animation: fadeIn 0.4s ease-out forwards; }
-        
-        .nav-tab { transition: all 0.2s ease; border-bottom: 4px solid transparent; opacity: 0.6; }
-        .nav-tab.active { border-bottom: 4px solid #60A5FA; opacity: 1; background-color: rgba(30, 41, 59, 0.5); }
+        .view-section.active { display: flex; animation: fadeIn 0.35s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Protocol Selector Buttons */
-        .protocol-btn { border: 1px solid #475569; transition: all 0.3s; }
-        .protocol-btn.selected { background-color: #2563EB; border-color: #3B82F6; color: white; box-shadow: 0 0 15px rgba(37, 99, 235, 0.5); }
+        /* Nav tabs */
+        .nav-tab { transition: all 0.2s ease; border-bottom: 3px solid transparent; opacity: 0.5; }
+        .nav-tab.active { border-bottom-color: #60A5FA; opacity: 1; background-color: rgba(30, 41, 59, 0.5); }
+        .nav-tab:disabled { pointer-events: none; opacity: 0.25; }
 
-        /* Depth Gauge */
-        .depth-meter { height: 20px; width: 100%; background: #334155; border-radius: 10px; overflow: hidden; margin-top: 15px; border: 1px solid #475569; }
-        .depth-fill { height: 100%; width: 0%; background: #EF4444; transition: width 0.1s, background 0.3s; }
+        /* Camera canvas */
+        .canvas-wrapper {
+            position: relative; width: 100%; border-radius: 1rem; overflow: hidden;
+            background-color: #0f172a; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+        .canvas-wrapper canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        /* Depth gauge */
+        .depth-meter { height: 22px; width: 100%; background: #1e293b; border-radius: 11px; overflow: hidden; border: 1px solid #334155; }
+        .depth-fill { height: 100%; width: 0%; transition: width 0.1s, background 0.3s; border-radius: 11px; }
+
+        /* Pulse ring for countdown */
+        .pulse-ring { animation: pulseRing 1s ease-out infinite; }
+        @keyframes pulseRing {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.6); }
+            100% { box-shadow: 0 0 0 30px rgba(59, 130, 246, 0); }
+        }
+
+        /* Warm-up check */
+        .warmup-card.done { border-color: #22c55e !important; opacity: 0.6; }
+        .warmup-card.done .warmup-btn { background-color: #22c55e; pointer-events: none; }
+
+        /* Auth input styling */
+        .auth-input {
+            background: #1e293b; border: 1px solid #334155; color: white; border-radius: 0.75rem;
+            padding: 1rem 1.25rem; font-size: 1.1rem; width: 100%; transition: border-color 0.2s;
+        }
+        .auth-input:focus { outline: none; border-color: #3b82f6; }
+        .auth-input::placeholder { color: #64748b; }
 
         /* Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+        /* Prevent pull-to-refresh on mobile */
+        body { overscroll-behavior-y: contain; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const nav = document.querySelector('nav');
-            const handleScroll = () => {
-                if (window.scrollY > 50) {
-                    nav.classList.remove('bg-transparent', 'py-4');
-                    nav.classList.add('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
-                } else {
-                    nav.classList.add('bg-transparent', 'py-4');
-                    nav.classList.remove('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
-                }
-            };
-            window.addEventListener('scroll', handleScroll);
-            handleScroll();
+    <!-- ========== AUTH SCREEN ========== -->
+    <section id="auth-screen" class="flex-grow flex flex-col items-center justify-center p-6 min-h-screen">
+        <div class="w-full max-w-sm">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl font-bold text-white tracking-tight mb-2">Functional Calibration</h1>
+                <p class="text-slate-400 text-sm">Dr. Pearson-Noseworthy</p>
+            </div>
 
-            const btn = document.getElementById('mobile-menu-btn');
-            const menu = document.getElementById('mobile-menu');
+            <div id="auth-login-form" class="space-y-4">
+                <input id="auth-email" type="email" class="auth-input" placeholder="Email address" autocomplete="email">
+                <input id="auth-password" type="password" class="auth-input" placeholder="Password" autocomplete="current-password">
+                <button id="auth-login-btn" onclick="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-4 rounded-xl text-lg transition-all shadow-lg">
+                    Sign In
+                </button>
+                <p id="auth-error" class="text-red-400 text-sm text-center hidden"></p>
+                <div class="text-center pt-2">
+                    <button onclick="toggleAuthMode()" id="auth-toggle-btn" class="text-blue-400 hover:text-blue-300 text-sm transition-colors">
+                        Don't have an account? <span class="font-bold">Sign Up</span>
+                    </button>
+                </div>
+            </div>
 
-            if(btn && menu){
-                btn.addEventListener('click', () => {
-                    menu.classList.toggle('hidden');
-                });
-            }
+            <div id="auth-reset-form" class="hidden space-y-4">
+                <input id="auth-reset-email" type="email" class="auth-input" placeholder="Email address" autocomplete="email">
+                <button onclick="handlePasswordReset()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 rounded-xl text-lg transition-all">
+                    Send Reset Link
+                </button>
+                <p id="reset-msg" class="text-sm text-center hidden"></p>
+                <div class="text-center pt-2">
+                    <button onclick="showLoginForm()" class="text-blue-400 hover:text-blue-300 text-sm">Back to Sign In</button>
+                </div>
+            </div>
 
-            document.querySelectorAll('.animate-fade-in').forEach((el, index) => {
-                setTimeout(() => { el.classList.add('loaded'); }, 50 * (index + 1));
-            });
-        });
-    </script>
-
-    <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-4">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="flex justify-between items-center">
-                <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
-                    Dr. Pearson-Noseworthy
-                </a>
+            <div class="text-center mt-4">
+                <button onclick="showResetForm()" id="forgot-link" class="text-slate-500 hover:text-slate-400 text-xs transition-colors">Forgot password?</button>
             </div>
         </div>
-    </nav>
+    </section>
 
-    <header id="app-nav" class="flex flex-col mt-20 bg-slate-950 border-b border-slate-800 relative z-40">
-        <div class="flex justify-between items-center px-4 py-3 bg-slate-900/50">
+    <!-- ========== APP HEADER / NAV ========== -->
+    <header id="app-nav" class="hidden flex-col bg-slate-950 border-b border-slate-800 sticky top-0 z-50">
+        <div class="flex justify-between items-center px-4 py-3 bg-slate-900/80 backdrop-blur-sm">
             <div>
                 <h1 class="text-lg font-bold text-white tracking-tight">Functional Calibration</h1>
-                <p class="text-xs text-slate-400">Daily Protocol</p>
+                <p class="text-xs text-slate-400" id="user-email-display"></p>
             </div>
-            <button id="logoutBtn" class="hidden bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-lg transition-all active:scale-95 border border-red-500 flex items-center gap-1">
-                <span class="text-lg">×</span> EXIT APP
+            <button id="logoutBtn" onclick="handleLogout()" class="bg-red-600/80 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-lg transition-all active:scale-95 border border-red-500/50 flex items-center gap-1.5">
+                <span class="text-base leading-none">×</span> Sign Out
             </button>
         </div>
-
         <div class="grid grid-cols-5 w-full bg-slate-900 text-[10px] md:text-sm font-bold text-slate-300">
-            <button onclick="switchView('warmup')" id="nav-warmup" class="nav-tab active py-3 flex flex-col items-center justify-center hover:bg-slate-800">
-                <span class="text-orange-400 mb-0.5">STEP 1</span>
-                <span>WARM UP</span>
+            <button onclick="switchView('warmup')" id="nav-warmup" class="nav-tab active py-3 flex flex-col items-center justify-center">
+                <span class="text-orange-400 mb-0.5 text-[9px]">STEP 1</span><span>WARM UP</span>
             </button>
-            <button onclick="switchView('assess')" id="nav-assess" class="nav-tab py-3 flex flex-col items-center justify-center hover:bg-slate-800">
-                <span class="text-blue-400 mb-0.5">STEP 2</span>
-                <span>BASELINE</span>
+            <button onclick="switchView('assess')" id="nav-assess" class="nav-tab py-3 flex flex-col items-center justify-center">
+                <span class="text-blue-400 mb-0.5 text-[9px]">STEP 2</span><span>BASELINE</span>
             </button>
-            <button onclick="switchView('workout')" id="nav-workout" class="nav-tab py-3 flex flex-col items-center justify-center hover:bg-slate-800">
-                <span class="text-green-400 mb-0.5">STEP 3</span>
-                <span>TRAINING</span>
+            <button onclick="switchView('workout')" id="nav-workout" class="nav-tab py-3 flex flex-col items-center justify-center">
+                <span class="text-green-400 mb-0.5 text-[9px]">STEP 3</span><span>TRAINING</span>
             </button>
-            <button onclick="switchView('food')" id="nav-food" class="nav-tab py-3 flex flex-col items-center justify-center hover:bg-slate-800">
-                <span class="text-yellow-400 mb-0.5">STEP 4</span>
-                <span>FOOD</span>
+            <button onclick="switchView('food')" id="nav-food" class="nav-tab py-3 flex flex-col items-center justify-center">
+                <span class="text-yellow-400 mb-0.5 text-[9px]">STEP 4</span><span>FOOD</span>
             </button>
-            <button onclick="switchView('home')" id="nav-home" class="nav-tab py-3 flex flex-col items-center justify-center hover:bg-slate-800">
-                <span class="text-purple-400 mb-0.5">STEP 5</span>
-                <span>PROGRESS</span>
+            <button onclick="switchView('home')" id="nav-home" class="nav-tab py-3 flex flex-col items-center justify-center">
+                <span class="text-purple-400 mb-0.5 text-[9px]">STEP 5</span><span>PROGRESS</span>
             </button>
         </div>
     </header>
 
-    <section id="auth-screen" class="hidden flex-grow flex flex-col items-center justify-center p-4 min-h-screen pt-32 pb-20">
-    </section>
+    <!-- ========== MAIN APP CONTAINER ========== -->
+    <div id="app-container" class="hidden w-full max-w-4xl mx-auto p-4 pb-24 flex-grow">
 
-    <div id="app-container" class="block w-full max-w-4xl mx-auto p-4 pb-20">
+        <!-- ===== STEP 1: WARM UP ===== -->
+        <section id="view-warmup" class="view-section active flex-col gap-5">
+            <div>
+                <h2 class="text-2xl font-bold text-white">Step 1: Mobility Prep</h2>
+                <p class="text-slate-400 text-sm mt-1">Complete both exercises before continuing.</p>
+            </div>
 
-        <section id="view-warmup" class="view-section active flex-col gap-6">
-            <h2 class="text-2xl font-bold text-white">Step 1: Mobility Prep</h2>
-            <p class="text-slate-400 text-sm -mt-4">Safety first. Prepare the joints.</p>
-            
-            <div class="glass-panel p-5 rounded-xl border border-slate-700">
-                <div class="flex justify-between items-center mb-2">
+            <div id="warmup-1" class="glass-panel p-5 rounded-xl border border-slate-700 warmup-card">
+                <div class="flex justify-between items-center mb-3">
                     <h3 class="text-lg font-bold text-white">1. Marching in Place</h3>
-                    <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-1 rounded">2 MINS</span>
+                    <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2.5 py-1 rounded font-mono-display">2 MINS</span>
                 </div>
-                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-2">
+                <p class="text-sm text-slate-400 mb-3">March gently on the spot, lifting knees to a comfortable height. Swing arms naturally.</p>
+                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-3">
                     <strong class="text-orange-400 block mb-1">Evidence:</strong>
-                    "Low-intensity aerobic activation is foundational." (Espejo-Antúnez et al., 2020)
+                    Low-intensity aerobic activation is foundational for joint preparation (Espejo-Antunez et al., 2020).
                 </div>
-                <button class="w-full bg-slate-700 hover:bg-orange-600 text-white py-2 rounded-lg text-sm font-bold transition-colors">Mark Complete</button>
+                <button onclick="completeWarmup('warmup-1')" class="warmup-btn w-full bg-slate-700 hover:bg-orange-600 text-white py-2.5 rounded-lg text-sm font-bold transition-colors">
+                    Mark Complete ✓
+                </button>
             </div>
 
-            <div class="glass-panel p-5 rounded-xl border border-slate-700">
-                <div class="flex justify-between items-center mb-2">
+            <div id="warmup-2" class="glass-panel p-5 rounded-xl border border-slate-700 warmup-card">
+                <div class="flex justify-between items-center mb-3">
                     <h3 class="text-lg font-bold text-white">2. Heel & Toe Raises</h3>
-                    <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-1 rounded">15 REPS</span>
+                    <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2.5 py-1 rounded font-mono-display">15 REPS</span>
                 </div>
-                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-2">
+                <p class="text-sm text-slate-400 mb-3">Rise onto toes, hold briefly, then rock back onto heels. Use a wall for balance if needed.</p>
+                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-3">
                     <strong class="text-orange-400 block mb-1">Evidence:</strong>
-                    "Ankle dorsiflexor activation is critical for gait stability." (Review Consensus)
+                    Ankle dorsiflexor activation is critical for gait stability (review consensus).
                 </div>
-                <button class="w-full bg-slate-700 hover:bg-orange-600 text-white py-2 rounded-lg text-sm font-bold transition-colors">Mark Complete</button>
+                <button onclick="completeWarmup('warmup-2')" class="warmup-btn w-full bg-slate-700 hover:bg-orange-600 text-white py-2.5 rounded-lg text-sm font-bold transition-colors">
+                    Mark Complete ✓
+                </button>
             </div>
 
-            <button onclick="switchView('assess')" class="w-full bg-slate-800 hover:bg-blue-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 mt-4">
+            <button id="warmup-next-btn" disabled onclick="switchView('assess')" class="w-full bg-slate-800 hover:bg-blue-600 disabled:opacity-30 disabled:hover:bg-slate-800 text-white py-4 rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 mt-2">
                 Next: Establish Baseline <span class="text-xl">→</span>
             </button>
         </section>
 
-        <section id="view-assess" class="view-section flex-col items-center">
-            
-            <div class="glass-panel p-4 rounded-xl w-full mb-6 text-center border-l-4 border-l-blue-500">
+        <!-- ===== STEP 2: BASELINE / ASSESSMENT ===== -->
+        <section id="view-assess" class="view-section flex-col items-center gap-4">
+
+            <div class="glass-panel p-4 rounded-xl w-full text-center border-l-4 border-l-blue-500">
                 <h2 class="text-xl font-bold text-white mb-1">Step 2: Calibration</h2>
-                <p class="text-slate-400 text-sm">Please perform <strong class="text-white">3 squats</strong>. I will save your best range.</p>
+                <p class="text-slate-400 text-sm">Perform <strong class="text-white">3 squats</strong> to your comfortable maximum depth. I will save your best range.</p>
             </div>
 
-            <div class="canvas-wrapper mb-4 relative aspect-[9/16] w-full max-w-sm mx-auto border border-slate-700">
-                <video class="input_video" style="display:none!important"></video>
-                <canvas class="output_canvas"></canvas>
-                
-                <div class="absolute top-4 left-4 bg-black/60 backdrop-blur px-3 py-1 rounded-full border border-white/10">
-                    <div class="flex items-center gap-2">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse hidden" id="assess-dot"></div>
-                        <span class="text-xs font-mono text-white/80">LIVE FEED</span>
-                    </div>
-                </div>
+            <div class="canvas-wrapper relative aspect-[9/16] w-full max-w-sm mx-auto border border-slate-700" id="assess-canvas-wrapper">
+                <video id="assess-video" style="display:none!important" playsinline></video>
+                <canvas id="assess-canvas"></canvas>
 
-                <div class="absolute bottom-4 left-0 right-0 text-center">
-                    <span class="bg-black/50 text-xs text-slate-300 px-3 py-1 rounded-full backdrop-blur-sm">Side View Only</span>
-                </div>
-
-                <div class="absolute inset-0 flex items-center justify-center z-20" id="assessOverlay">
-                    <button onclick="initCamera('assess')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
+                <!-- State: Camera Off - Start button -->
+                <div class="absolute inset-0 flex items-center justify-center z-20" id="assess-overlay-start">
+                    <button onclick="beginCameraSequence('assess')" class="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
                         Start Calibration
                     </button>
                 </div>
-                
-                <div id="assess-status" class="hidden absolute top-1/2 left-0 right-0 text-center -translate-y-1/2">
-                    <div class="bg-black/70 backdrop-blur mx-auto inline-block px-6 py-4 rounded-xl border border-white/20">
-                        <p class="text-lg font-bold text-white mb-1">Looking for you...</p>
-                        <p class="text-xs text-slate-300">Please stand sideways.</p>
+
+                <!-- State: Waiting for subject -->
+                <div id="assess-overlay-waiting" class="hidden absolute inset-0 flex items-center justify-center z-20 bg-black/60">
+                    <div class="text-center px-6">
+                        <div class="text-5xl mb-4">📱</div>
+                        <p class="text-lg font-bold text-white mb-2">Place your phone down</p>
+                        <p class="text-sm text-slate-300">Prop it against a wall, step back, and stand <strong>sideways</strong> to the camera.</p>
+                        <div class="mt-4 flex items-center justify-center gap-2">
+                            <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse"></div>
+                            <span class="text-xs text-blue-300 font-mono-display">SEARCHING FOR YOU...</span>
+                        </div>
                     </div>
                 </div>
 
-                <div id="assess-counter-ui" class="hidden absolute top-10 right-4 text-center">
-                    <div class="bg-blue-600 text-white font-bold rounded-full w-16 h-16 flex items-center justify-center text-3xl shadow-lg border-2 border-white">
-                        <span id="assess-reps-display">0</span>/3
+                <!-- State: Stabilising -->
+                <div id="assess-overlay-stabilise" class="hidden absolute inset-0 flex items-center justify-center z-20">
+                    <div class="text-center">
+                        <div class="w-28 h-28 rounded-full border-4 border-blue-500 flex items-center justify-center mx-auto pulse-ring">
+                            <span class="text-white text-lg font-bold">Hold Still</span>
+                        </div>
+                        <p class="text-sm text-slate-300 mt-4">Stay still for <span id="assess-hold-timer" class="text-white font-bold font-mono-display">3</span> seconds...</p>
                     </div>
-                    <span class="text-xs font-bold text-white bg-black/50 px-2 rounded mt-1 block">SQUATS</span>
+                </div>
+
+                <!-- State: Countdown -->
+                <div id="assess-overlay-countdown" class="hidden absolute inset-0 flex items-center justify-center z-20">
+                    <div class="text-center">
+                        <div class="text-8xl font-black text-white font-mono-display" id="assess-countdown-num">3</div>
+                        <p class="text-slate-300 text-sm mt-2">Get ready...</p>
+                    </div>
+                </div>
+
+                <!-- State: Tracking - live HUD -->
+                <div id="assess-hud" class="hidden">
+                    <div class="absolute top-4 left-4 bg-black/60 backdrop-blur px-3 py-1.5 rounded-full border border-white/10">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                            <span class="text-xs font-mono-display text-white/80">RECORDING</span>
+                        </div>
+                    </div>
+                    <div class="absolute top-4 right-4">
+                        <div class="bg-blue-600 text-white font-bold rounded-full w-16 h-16 flex items-center justify-center text-2xl shadow-lg border-2 border-white font-mono-display">
+                            <span id="assess-reps-display">0</span>/3
+                        </div>
+                    </div>
+                </div>
+
+                <!-- State: Complete -->
+                <div id="assess-overlay-complete" class="hidden absolute inset-0 flex items-center justify-center z-20 bg-black/70">
+                    <div class="text-center px-6">
+                        <div class="text-5xl mb-3">✅</div>
+                        <p class="text-xl font-bold text-white mb-1">Calibration Complete</p>
+                        <p class="text-slate-300 text-sm">Your best depth: <span id="assess-final-angle" class="text-blue-400 font-bold font-mono-display">--°</span></p>
+                        <button onclick="switchView('workout')" class="mt-6 bg-green-600 hover:bg-green-500 text-white font-bold px-8 py-3 rounded-full transition-all active:scale-95">
+                            Continue to Training →
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 w-full max-w-lg mb-2">
-                <div class="glass-panel p-3 rounded-xl text-center border border-slate-700/50">
+            <div class="grid grid-cols-2 gap-4 w-full max-w-sm">
+                <div class="glass-panel p-3 rounded-xl text-center">
                     <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Current Knee</p>
-                    <div class="text-3xl font-bold text-white" id="assess-knee">--°</div>
+                    <div class="text-3xl font-bold text-white font-mono-display" id="assess-knee-display">--°</div>
                 </div>
-                <div class="glass-panel p-3 rounded-xl text-center border border-slate-700/50">
+                <div class="glass-panel p-3 rounded-xl text-center">
                     <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Best Depth</p>
-                    <div class="text-3xl font-bold text-blue-400" id="assess-best">--°</div>
+                    <div class="text-3xl font-bold text-blue-400 font-mono-display" id="assess-best-display">--°</div>
                 </div>
-            </div>
-            
-            <div class="mt-4">
-                 <button onclick="switchView('workout')" class="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
-                     Skip to Training <span class="text-xl">→</span>
-                 </button>
             </div>
         </section>
 
-        <section id="view-workout" class="view-section flex-col items-center">
-            
-            <div class="w-full mb-4">
-                <h2 class="text-xl font-bold text-white mb-2">Step 3: Daily Workout</h2>
-                
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center mb-4">
+        <!-- ===== STEP 3: DAILY TRAINING ===== -->
+        <section id="view-workout" class="view-section flex-col items-center gap-4">
+
+            <div class="w-full">
+                <h2 class="text-xl font-bold text-white mb-3">Step 3: Daily Workout</h2>
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center">
                     <div>
                         <p class="text-[10px] text-slate-500 uppercase tracking-widest">Goal</p>
-                        <p class="text-2xl font-bold text-green-400">5 Reps</p>
+                        <p class="text-2xl font-bold text-green-400 font-mono-display">5 Reps</p>
                     </div>
                     <div class="text-right">
                         <p class="text-[10px] text-slate-500 uppercase tracking-widest">Target Depth</p>
-                        <p class="text-lg font-bold text-white" id="daily-target-display">--°</p>
+                        <p class="text-lg font-bold text-white font-mono-display" id="daily-target-display">--°</p>
+                        <p class="text-[10px] text-slate-500" id="daily-allowance-display"></p>
                     </div>
                 </div>
             </div>
 
-            <div class="canvas-wrapper mb-4 relative aspect-[9/16] w-full max-w-sm mx-auto border border-slate-700">
-                <video class="input_video_train" style="display:none!important"></video>
-                <canvas class="output_canvas_train"></canvas>
-                
-                <div class="absolute inset-0 flex items-center justify-center z-20" id="trainOverlay">
-                    <button onclick="initCamera('train')" class="bg-green-600 hover:bg-green-500 text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
+            <div class="canvas-wrapper relative aspect-[9/16] w-full max-w-sm mx-auto border border-slate-700" id="train-canvas-wrapper">
+                <video id="train-video" style="display:none!important" playsinline></video>
+                <canvas id="train-canvas"></canvas>
+
+                <!-- State: Start button -->
+                <div class="absolute inset-0 flex items-center justify-center z-20" id="train-overlay-start">
+                    <button onclick="beginCameraSequence('train')" class="bg-green-600 hover:bg-green-500 active:scale-95 text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
                         Start 5 Reps
                     </button>
                 </div>
 
-                 <div id="train-status" class="hidden absolute top-1/2 left-0 right-0 text-center -translate-y-1/2">
-                    <div class="bg-black/70 backdrop-blur mx-auto inline-block px-6 py-4 rounded-xl border border-white/20">
-                        <p class="text-lg font-bold text-white mb-1">Looking for you...</p>
-                        <p class="text-xs text-slate-300">Please stand sideways.</p>
+                <!-- Waiting -->
+                <div id="train-overlay-waiting" class="hidden absolute inset-0 flex items-center justify-center z-20 bg-black/60">
+                    <div class="text-center px-6">
+                        <div class="text-5xl mb-4">📱</div>
+                        <p class="text-lg font-bold text-white mb-2">Place your phone down</p>
+                        <p class="text-sm text-slate-300">Stand <strong>sideways</strong> to the camera.</p>
+                        <div class="mt-4 flex items-center justify-center gap-2">
+                            <div class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
+                            <span class="text-xs text-green-300 font-mono-display">SEARCHING...</span>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
+
+                <!-- Stabilising -->
+                <div id="train-overlay-stabilise" class="hidden absolute inset-0 flex items-center justify-center z-20">
+                    <div class="text-center">
+                        <div class="w-28 h-28 rounded-full border-4 border-green-500 flex items-center justify-center mx-auto pulse-ring">
+                            <span class="text-white text-lg font-bold">Hold Still</span>
+                        </div>
+                        <p class="text-sm text-slate-300 mt-4">Stay still for <span id="train-hold-timer" class="text-white font-bold font-mono-display">3</span> seconds...</p>
+                    </div>
+                </div>
+
+                <!-- Countdown -->
+                <div id="train-overlay-countdown" class="hidden absolute inset-0 flex items-center justify-center z-20">
+                    <div class="text-center">
+                        <div class="text-8xl font-black text-white font-mono-display" id="train-countdown-num">3</div>
+                        <p class="text-slate-300 text-sm mt-2">Get ready...</p>
+                    </div>
+                </div>
+
+                <!-- Tracking HUD -->
+                <div id="train-hud" class="hidden">
+                    <div class="absolute top-4 left-4 bg-black/60 backdrop-blur px-3 py-1.5 rounded-full border border-white/10">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                            <span class="text-xs font-mono-display text-white/80">TRACKING</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom HUD for reps/depth -->
+                <div id="train-bottom-hud" class="hidden absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/90 via-black/60 to-transparent z-10">
                     <div class="flex justify-between items-end mb-2">
                         <div>
-                             <span id="rep-feedback" class="text-2xl font-black text-slate-400">READY</span>
+                            <span id="rep-feedback" class="text-2xl font-black text-slate-500">READY</span>
                         </div>
                         <div class="text-right">
-                            <span class="text-5xl font-black text-white" id="train-reps">0</span>
-                            <span class="text-sm font-bold text-slate-400">/ 5</span>
+                            <span class="text-5xl font-black text-white font-mono-display" id="train-reps-display">0</span>
+                            <span class="text-sm font-bold text-slate-400 font-mono-display">/ 5</span>
                         </div>
                     </div>
                     <div class="depth-meter">
                         <div class="depth-fill" id="depth-bar"></div>
                     </div>
-                    <div class="flex justify-between text-[10px] text-slate-400 uppercase font-bold mt-1 px-1">
-                        <span>Stand</span>
-                        <span>Your Best</span>
+                    <div class="flex justify-between text-[10px] text-slate-500 uppercase font-bold mt-1.5 px-1 font-mono-display">
+                        <span>Standing</span>
+                        <span>Target Depth</span>
+                    </div>
+                </div>
+
+                <!-- Complete overlay -->
+                <div id="train-overlay-complete" class="hidden absolute inset-0 flex items-center justify-center z-20 bg-black/70">
+                    <div class="text-center px-6">
+                        <div class="text-5xl mb-3">💪</div>
+                        <p class="text-xl font-bold text-white mb-1">Session Complete!</p>
+                        <p class="text-slate-300 text-sm" id="train-summary-text">Great work.</p>
+                        <button onclick="switchView('food')" class="mt-6 bg-yellow-600 hover:bg-yellow-500 text-white font-bold px-8 py-3 rounded-full transition-all active:scale-95">
+                            Continue to Food →
+                        </button>
                     </div>
                 </div>
             </div>
-            
-            <div class="mt-4">
-                 <button onclick="switchView('food')" class="text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
-                     Skip to Food <span class="text-xl">→</span>
-                 </button>
-            </div>
         </section>
 
-        <section id="view-food" class="view-section flex-col gap-6">
-            <h2 class="text-2xl font-bold text-white">Step 4: Protein Check</h2>
-            <p class="text-slate-400 text-sm -mt-4">Anabolic resistance requires higher protein intake (25-30g/meal).</p>
+        <!-- ===== STEP 4: FOOD ===== -->
+        <section id="view-food" class="view-section flex-col gap-5">
+            <div>
+                <h2 class="text-2xl font-bold text-white">Step 4: Protein Check</h2>
+                <p class="text-slate-400 text-sm mt-1">Anabolic resistance requires higher protein intake. Aim for 25-30g per meal.</p>
+            </div>
 
-            <div class="glass-panel p-6 rounded-xl space-y-4">
-                <label class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 cursor-pointer">
-                    <input type="checkbox" class="w-5 h-5 text-green-500 rounded bg-slate-700 border-slate-600" onchange="saveFood()">
+            <div class="glass-panel p-5 rounded-xl space-y-3" id="food-checklist">
+                <label class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 cursor-pointer active:bg-slate-800">
+                    <input type="checkbox" data-meal="breakfast" class="food-check w-6 h-6 text-green-500 rounded bg-slate-700 border-slate-600 accent-green-500" onchange="saveFood()">
                     <span class="text-slate-200">Breakfast Protein</span>
                 </label>
-                <label class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 cursor-pointer">
-                    <input type="checkbox" class="w-5 h-5 text-green-500 rounded bg-slate-700 border-slate-600" onchange="saveFood()">
+                <label class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 cursor-pointer active:bg-slate-800">
+                    <input type="checkbox" data-meal="lunch" class="food-check w-6 h-6 text-green-500 rounded bg-slate-700 border-slate-600 accent-green-500" onchange="saveFood()">
                     <span class="text-slate-200">Lunch Protein</span>
                 </label>
-                <label class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 cursor-pointer">
-                    <input type="checkbox" class="w-5 h-5 text-green-500 rounded bg-slate-700 border-slate-600" onchange="saveFood()">
+                <label class="flex items-center space-x-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50 cursor-pointer active:bg-slate-800">
+                    <input type="checkbox" data-meal="dinner" class="food-check w-6 h-6 text-green-500 rounded bg-slate-700 border-slate-600 accent-green-500" onchange="saveFood()">
                     <span class="text-slate-200">Dinner Protein</span>
                 </label>
             </div>
-            
-            <div class="mt-4 text-center">
-                 <button onclick="switchView('home')" class="text-slate-400 hover:text-white inline-flex items-center gap-2 transition-colors">
-                     Finish: View Stats <span class="text-xl">→</span>
-                 </button>
-            </div>
+
+            <button onclick="switchView('home')" class="w-full bg-slate-800 hover:bg-purple-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 mt-2">
+                Finish: View Progress <span class="text-xl">→</span>
+            </button>
         </section>
 
-        <section id="view-home" class="view-section flex-col gap-6">
-            <div class="bg-gradient-to-br from-blue-900/40 to-slate-900/40 border border-blue-500/30 p-6 rounded-2xl">
+        <!-- ===== STEP 5: PROGRESS ===== -->
+        <section id="view-home" class="view-section flex-col gap-5">
+            <div>
+                <h2 class="text-2xl font-bold text-white">Your Progress</h2>
+                <p class="text-slate-400 text-sm mt-1">Overview of your training journey.</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-blue-900/30 to-slate-900/30 border border-blue-500/20 p-5 rounded-2xl">
                 <h3 class="text-blue-400 font-bold uppercase tracking-widest text-xs mb-2">Smart Progression</h3>
-                <p class="text-slate-300 text-sm">Your target depth becomes 1% stricter every session. You are currently training at <span id="stat-strictness" class="text-white font-bold">50%</span> of your assessed range.</p>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    Your target depth becomes stricter each week. You started with a <strong class="text-white">20% allowance</strong> in week 1, which reduces by 2% per week.
+                    Current allowance: <span id="stat-allowance" class="text-blue-400 font-bold font-mono-display">20%</span>.
+                    Week <span id="stat-week" class="text-white font-bold font-mono-display">1</span> of training.
+                </p>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div class="glass-panel p-5 rounded-2xl text-center border-t-2 border-green-500">
-                    <div class="text-2xl mb-1 text-slate-400">⚡</div>
-                    <div class="text-2xl font-bold text-white" id="statReps">0</div>
-                    <div class="text-[10px] font-bold text-slate-500 uppercase">Total Reps</div>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="glass-panel p-4 rounded-2xl text-center border-t-2 border-green-500">
+                    <div class="text-3xl font-bold text-white font-mono-display" id="stat-total-reps">0</div>
+                    <div class="text-[10px] font-bold text-slate-500 uppercase mt-1">Total Reps</div>
                 </div>
-                <div class="glass-panel p-5 rounded-2xl text-center border-t-2 border-blue-500">
-                    <div class="text-2xl mb-1 text-slate-400">📏</div>
-                    <div class="text-2xl font-bold text-white" id="statBaseline">--</div>
-                    <div class="text-[10px] font-bold text-slate-500 uppercase">Baseline Depth</div>
+                <div class="glass-panel p-4 rounded-2xl text-center border-t-2 border-blue-500">
+                    <div class="text-3xl font-bold text-white font-mono-display" id="stat-baseline">--</div>
+                    <div class="text-[10px] font-bold text-slate-500 uppercase mt-1">Baseline</div>
+                </div>
+                <div class="glass-panel p-4 rounded-2xl text-center border-t-2 border-purple-500">
+                    <div class="text-3xl font-bold text-white font-mono-display" id="stat-sessions">0</div>
+                    <div class="text-[10px] font-bold text-slate-500 uppercase mt-1">Sessions</div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-5 rounded-2xl">
+                <h3 class="text-sm font-bold text-white mb-3">Recent Sessions</h3>
+                <div id="session-history" class="space-y-2 text-sm text-slate-400">
+                    <p class="text-slate-600 text-xs italic">No sessions recorded yet.</p>
                 </div>
             </div>
         </section>
-
     </div>
 
+    <!-- ========== FIREBASE ========== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import {
+            getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+            signOut, onAuthStateChanged, sendPasswordResetEmail
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import {
+            getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // ---- YOUR FIREBASE CONFIG ----
         const firebaseConfig = {
             apiKey: "AIzaSyBYpFeeBu8r1GYBjMzZEuf264pCEU6-6zU",
             authDomain: "rom-tracker-app.firebaseapp.com",
@@ -357,314 +472,838 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentUserId = "guest_user";
-        window.userData = null; 
-        
-        setTimeout(() => {
-            window.userData = { 
-                email: "guest@example.com", 
-                totalReps: 0, 
-                baselineRom: 0, 
-                sessionsCompleted: 0 
-            };
-            enterApp();
-        }, 500);
+        // Expose to global scope for inline handlers
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
 
-        function enterApp() {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('app-container').style.display = 'block';
-            document.getElementById('app-nav').style.display = 'flex';
-            loadStats();
-            switchView('warmup');
-        }
+        // ---- AUTH STATE LISTENER ----
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                window.currentUserId = user.uid;
+                document.getElementById('user-email-display').innerText = user.email;
+                await loadUserData(user.uid);
+                enterApp();
+            } else {
+                window.currentUserId = null;
+                showAuthScreen();
+            }
+        });
 
-        function loadStats() {
-            if(!window.userData) return;
-            document.getElementById('statReps').innerText = window.userData.totalReps || 0;
-            document.getElementById('statBaseline').innerText = window.userData.baselineRom ? window.userData.baselineRom + "°" : "Not Set";
-            
-            const strictness = Math.min(100, 50 + ((window.userData.sessionsCompleted || 0) * 1));
-            document.getElementById('stat-strictness').innerText = strictness + "%";
-        }
+        // ---- LOAD / CREATE USER DATA ----
+        async function loadUserData(uid) {
+            const ref = doc(db, "users", uid);
+            const snap = await getDoc(ref);
 
-        window.updateBaseline = async (rom) => {
-            window.userData.baselineRom = rom;
-            loadStats();
-        };
-
-        window.logSessionComplete = async (reps) => {
-            window.userData.totalReps += reps;
-            window.userData.sessionsCompleted += 1;
-            loadStats();
-        };
-    </script>
-
-    <script>
-        // GLOBAL VARIABLES
-        let currentMode = 'none'; // 'assess' or 'train'
-        let assessBestKnee = 180;
-        let trainRepCount = 0;
-        let assessRepCount = 0;
-        let isSquatting = false;
-        let dailyTarget = 180;
-        let isSubjectDetected = false; 
-
-        // HELPER: Speak Text
-        function speak(text) {
-            if('speechSynthesis' in window){
-                window.speechSynthesis.cancel(); 
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 0.9; 
-                utterance.pitch = 1;
-                window.speechSynthesis.speak(utterance);
+            if (snap.exists()) {
+                window.userData = snap.data();
+            } else {
+                // New user - create initial document
+                const initial = {
+                    email: auth.currentUser.email,
+                    createdAt: serverTimestamp(),
+                    baselineRom: 0,
+                    baselineDate: null,
+                    totalReps: 0,
+                    sessionsCompleted: 0,
+                    sessions: [],
+                    foodLog: {}
+                };
+                await setDoc(ref, initial);
+                window.userData = initial;
             }
         }
 
+        // ---- SAVE HELPERS (exposed globally) ----
+        window.saveBaseline = async (angle) => {
+            if (!window.currentUserId) return;
+            const ref = doc(db, "users", window.currentUserId);
+            const now = new Date().toISOString();
+            await updateDoc(ref, {
+                baselineRom: angle,
+                baselineDate: now
+            });
+            window.userData.baselineRom = angle;
+            window.userData.baselineDate = now;
+            refreshStats();
+        };
+
+        window.saveSession = async (reps, avgAngle, hitTarget) => {
+            if (!window.currentUserId) return;
+            const ref = doc(db, "users", window.currentUserId);
+            const sessionEntry = {
+                date: new Date().toISOString(),
+                reps: reps,
+                avgAngle: Math.round(avgAngle),
+                allHitTarget: hitTarget
+            };
+            const newTotal = (window.userData.totalReps || 0) + reps;
+            const newSessions = (window.userData.sessionsCompleted || 0) + 1;
+            await updateDoc(ref, {
+                totalReps: newTotal,
+                sessionsCompleted: newSessions,
+                sessions: arrayUnion(sessionEntry)
+            });
+            window.userData.totalReps = newTotal;
+            window.userData.sessionsCompleted = newSessions;
+            if (!window.userData.sessions) window.userData.sessions = [];
+            window.userData.sessions.push(sessionEntry);
+            refreshStats();
+        };
+
+        window.saveFoodLog = async (meals) => {
+            if (!window.currentUserId) return;
+            const ref = doc(db, "users", window.currentUserId);
+            const today = new Date().toISOString().split('T')[0];
+            const key = `foodLog.${today}`;
+            await updateDoc(ref, { [key]: meals });
+        };
+
+        // ---- AUTH HANDLERS (exposed globally) ----
+        let isSignUp = false;
+
+        window.handleLogin = async () => {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const errEl = document.getElementById('auth-error');
+            errEl.classList.add('hidden');
+
+            if (!email || !password) {
+                showAuthError('Please enter both email and password.');
+                return;
+            }
+
+            try {
+                if (isSignUp) {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                }
+            } catch (err) {
+                let msg = 'Something went wrong. Please try again.';
+                if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') msg = 'No account found with this email, or wrong password.';
+                if (err.code === 'auth/wrong-password') msg = 'Incorrect password.';
+                if (err.code === 'auth/email-already-in-use') msg = 'An account with this email already exists. Try signing in.';
+                if (err.code === 'auth/weak-password') msg = 'Password must be at least 6 characters.';
+                if (err.code === 'auth/invalid-email') msg = 'Please enter a valid email address.';
+                showAuthError(msg);
+            }
+        };
+
+        window.handleLogout = async () => {
+            stopAllCameras();
+            await signOut(auth);
+        };
+
+        window.handlePasswordReset = async () => {
+            const email = document.getElementById('auth-reset-email').value.trim();
+            const msgEl = document.getElementById('reset-msg');
+            if (!email) {
+                msgEl.innerText = 'Please enter your email.';
+                msgEl.className = 'text-red-400 text-sm text-center';
+                msgEl.classList.remove('hidden');
+                return;
+            }
+            try {
+                await sendPasswordResetEmail(auth, email);
+                msgEl.innerText = 'Reset link sent! Check your inbox.';
+                msgEl.className = 'text-green-400 text-sm text-center';
+                msgEl.classList.remove('hidden');
+            } catch (err) {
+                msgEl.innerText = 'Could not send reset email. Check the address.';
+                msgEl.className = 'text-red-400 text-sm text-center';
+                msgEl.classList.remove('hidden');
+            }
+        };
+
+        window.toggleAuthMode = () => {
+            isSignUp = !isSignUp;
+            const btn = document.getElementById('auth-login-btn');
+            const toggle = document.getElementById('auth-toggle-btn');
+            if (isSignUp) {
+                btn.innerText = 'Create Account';
+                toggle.innerHTML = 'Already have an account? <span class="font-bold">Sign In</span>';
+            } else {
+                btn.innerText = 'Sign In';
+                toggle.innerHTML = 'Don\'t have an account? <span class="font-bold">Sign Up</span>';
+            }
+            document.getElementById('auth-error').classList.add('hidden');
+        };
+
+        window.showResetForm = () => {
+            document.getElementById('auth-login-form').classList.add('hidden');
+            document.getElementById('auth-reset-form').classList.remove('hidden');
+            document.getElementById('forgot-link').classList.add('hidden');
+        };
+
+        window.showLoginForm = () => {
+            document.getElementById('auth-login-form').classList.remove('hidden');
+            document.getElementById('auth-reset-form').classList.add('hidden');
+            document.getElementById('forgot-link').classList.remove('hidden');
+        };
+
+        function showAuthError(msg) {
+            const el = document.getElementById('auth-error');
+            el.innerText = msg;
+            el.classList.remove('hidden');
+        }
+
+        function showAuthScreen() {
+            document.getElementById('auth-screen').style.display = 'flex';
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('app-nav').style.display = 'none';
+        }
+
+        window.enterApp = () => {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+            document.getElementById('app-nav').style.display = 'flex';
+            refreshStats();
+            switchView('warmup');
+        };
+    </script>
+
+    <!-- ========== APP LOGIC ========== -->
+    <script>
+        // ==============================
+        // GLOBAL STATE
+        // ==============================
+
+        // Camera state machine:
+        // 'off' -> 'waiting' -> 'stabilising' -> 'countdown' -> 'tracking' -> 'complete'
+        let cameraState = 'off';
+        let currentMode = 'none'; // 'assess' or 'train'
+
+        // Assessment state
+        let assessBestKnee = 180;
+        let assessRepCount = 0;
+
+        // Training state
+        let trainRepCount = 0;
+        let trainAngles = []; // store each rep's deepest angle
+        let dailyTarget = 180;
+
+        // Rep detection state
+        let isSquatting = false;
+        let squatEntryTime = 0;   // timestamp when dipped below threshold
+        let standReturnTime = 0;  // timestamp when returned above standing threshold
+        const MIN_SQUAT_HOLD_MS = 300;   // must be below threshold for 300ms
+        const MIN_STAND_HOLD_MS = 500;   // must be standing for 500ms before next rep
+        const SQUAT_ENTRY_ANGLE = 140;   // angle to enter squat state
+        const SQUAT_EXIT_ANGLE = 160;    // angle to exit squat state (hysteresis gap)
+        let currentRepDeepest = 180;     // deepest angle in current rep
+
+        // Stabilisation state
+        let stabiliseStartTime = 0;
+        let lastLandmarkPositions = null;
+        const STABILISE_THRESHOLD = 0.015; // max movement per frame (normalised coords)
+        const STABILISE_DURATION_MS = 3000;
+
+        // MediaPipe
+        let cameraInstance = null;
+        const pose = new Pose({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/${file}`
+        });
+        pose.setOptions({
+            modelComplexity: 1,
+            smoothLandmarks: true,
+            minDetectionConfidence: 0.6,
+            minTrackingConfidence: 0.6
+        });
+        pose.onResults(onPoseResults);
+
+        // Warm-up tracking
+        let warmupsComplete = { 'warmup-1': false, 'warmup-2': false };
+
+        // ==============================
+        // SPEECH SYSTEM
+        // ==============================
+        const speechQueue = [];
+        let isSpeaking = false;
+
+        function speak(text) {
+            if (!('speechSynthesis' in window)) return;
+            speechQueue.push(text);
+            processQueue();
+        }
+
+        function processQueue() {
+            if (isSpeaking || speechQueue.length === 0) return;
+            isSpeaking = true;
+            const text = speechQueue.shift();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.85;
+            utterance.pitch = 1;
+            utterance.onend = () => { isSpeaking = false; processQueue(); };
+            utterance.onerror = () => { isSpeaking = false; processQueue(); };
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function clearSpeech() {
+            speechQueue.length = 0;
+            window.speechSynthesis.cancel();
+            isSpeaking = false;
+        }
+
+        // ==============================
+        // VIEW SWITCHING
+        // ==============================
         window.switchView = (view) => {
+            stopAllCameras();
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${view}`).classList.add('active');
             document.getElementById(`nav-${view}`).classList.add('active');
-            
-            stopCameraLogic();
-            
+
             if (view === 'workout') {
-                calculateSmartTarget();
+                calculateDailyTarget();
             }
-        }
+            if (view === 'food') {
+                loadFood();
+            }
+            if (view === 'home') {
+                refreshStats();
+            }
+        };
 
-        function calculateSmartTarget() {
-            const baseline = window.userData.baselineRom || 90;
-            const sessions = window.userData.sessionsCompleted || 0;
-            const standing = 170;
-            const range = standing - baseline;
-            const strictnessPercent = Math.min(100, 50 + sessions) / 100;
-            const buffer = range * (1 - strictnessPercent);
+        // ==============================
+        // WARM-UP
+        // ==============================
+        window.completeWarmup = (id) => {
+            warmupsComplete[id] = true;
+            document.getElementById(id).classList.add('done');
+            const allDone = Object.values(warmupsComplete).every(v => v);
+            document.getElementById('warmup-next-btn').disabled = !allDone;
+            if (allDone) {
+                speak('Well done. Warm up complete. Tap Next to begin your baseline calibration.');
+            }
+        };
+
+        // ==============================
+        // PROGRESSION MODEL
+        // ==============================
+        function calculateDailyTarget() {
+            const baseline = window.userData?.baselineRom || 90;
+            const baselineDate = window.userData?.baselineDate;
+            const standingAngle = 170;
+
+            let weeksElapsed = 0;
+            if (baselineDate) {
+                const msElapsed = Date.now() - new Date(baselineDate).getTime();
+                weeksElapsed = Math.floor(msElapsed / (7 * 24 * 60 * 60 * 1000));
+            }
+
+            // Week 1: 20% allowance, reduces by 2% per week, min 0%
+            const allowancePercent = Math.max(0, 20 - (weeksElapsed * 2));
+            const range = standingAngle - baseline;
+            const buffer = range * (allowancePercent / 100);
             dailyTarget = Math.round(baseline + buffer);
-            
-            document.getElementById('daily-target-display').innerText = dailyTarget + "°";
+
+            document.getElementById('daily-target-display').innerText = dailyTarget + '°';
+            document.getElementById('daily-allowance-display').innerText =
+                allowancePercent > 0 ? `${allowancePercent}% allowance (week ${weeksElapsed + 1})` : 'Full depth required';
         }
 
-        // Camera Logic
-        let cameraInstance = null;
-        const videoElement = document.getElementsByClassName('input_video')[0];
-        const pose = new Pose({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
-        pose.setOptions({modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5});
-        pose.onResults(onResults);
+        // ==============================
+        // STATS
+        // ==============================
+        window.refreshStats = () => {
+            if (!window.userData) return;
+            const d = window.userData;
 
-        window.initCamera = (mode) => {
+            document.getElementById('stat-total-reps').innerText = d.totalReps || 0;
+            document.getElementById('stat-baseline').innerText = d.baselineRom ? d.baselineRom + '°' : '--';
+            document.getElementById('stat-sessions').innerText = d.sessionsCompleted || 0;
+
+            let weeksElapsed = 0;
+            if (d.baselineDate) {
+                weeksElapsed = Math.floor((Date.now() - new Date(d.baselineDate).getTime()) / (7 * 24 * 60 * 60 * 1000));
+            }
+            const allowance = Math.max(0, 20 - (weeksElapsed * 2));
+            document.getElementById('stat-allowance').innerText = allowance + '%';
+            document.getElementById('stat-week').innerText = weeksElapsed + 1;
+
+            // Session history
+            const histEl = document.getElementById('session-history');
+            const sessions = d.sessions || [];
+            if (sessions.length === 0) {
+                histEl.innerHTML = '<p class="text-slate-600 text-xs italic">No sessions recorded yet.</p>';
+            } else {
+                const recent = sessions.slice(-5).reverse();
+                histEl.innerHTML = recent.map(s => {
+                    const date = new Date(s.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                    return `<div class="flex justify-between items-center py-1.5 border-b border-slate-800">
+                        <span class="text-slate-400">${date}</span>
+                        <span class="font-mono-display text-white">${s.reps} reps @ ${s.avgAngle}°</span>
+                        <span class="${s.allHitTarget ? 'text-green-400' : 'text-yellow-400'}">${s.allHitTarget ? '✓' : '○'}</span>
+                    </div>`;
+                }).join('');
+            }
+        };
+
+        // ==============================
+        // FOOD TRACKING
+        // ==============================
+        window.saveFood = () => {
+            const checks = document.querySelectorAll('.food-check');
+            const meals = {};
+            checks.forEach(c => { meals[c.dataset.meal] = c.checked; });
+            if (window.saveFoodLog) window.saveFoodLog(meals);
+        };
+
+        function loadFood() {
+            // Reset checkboxes for today - could load from Firestore but keeping simple
+            const checks = document.querySelectorAll('.food-check');
+            checks.forEach(c => { c.checked = false; });
+        }
+
+        // ==============================
+        // CAMERA STATE MACHINE
+        // ==============================
+        window.beginCameraSequence = async (mode) => {
             currentMode = mode;
-            isSubjectDetected = false;
-            let videoEl;
-            
+            cameraState = 'waiting';
             isSquatting = false;
-            
+            lastLandmarkPositions = null;
+            stabiliseStartTime = 0;
+
             if (mode === 'assess') {
                 assessRepCount = 0;
                 assessBestKnee = 180;
-                document.getElementById('assess-reps-display').innerText = "0";
-                document.getElementById('assess-best').innerText = "--";
-
-                videoEl = document.querySelector('#view-assess video');
-                document.getElementById('assessOverlay').style.display = 'none';
-                document.getElementById('assess-status').classList.remove('hidden');
-                
-                speak("Camera started. Place device down, step back, and stand sideways. We will do 3 squats to calibrate.");
-
+                showOverlay('assess', 'waiting');
+                speak('Camera is starting. Place your phone against a wall or a stable surface. Step back and stand sideways to the camera. I will find you automatically.');
             } else {
                 trainRepCount = 0;
-                document.getElementById('train-reps').innerText = "0";
-                
-                videoEl = document.querySelector('#view-workout video');
-                document.querySelector('#view-workout .input_video_train').style.display = 'block'; 
-                document.getElementById('trainOverlay').style.display = 'none';
-                document.getElementById('train-status').classList.remove('hidden');
-
-                // NEW EDUCATIONAL INTRO
-                const baseline = window.userData.baselineRom || "unknown";
-                speak("Welcome to training. Your best depth is " + baseline + " degrees. Today, we are focusing on Range of Motion, not weight. Please make sure every rep hits the Green Zone. Let's do 5 perfect reps.");
+                trainAngles = [];
+                showOverlay('train', 'waiting');
+                calculateDailyTarget();
+                const baseline = window.userData?.baselineRom || 'unknown';
+                speak(`Camera is starting. Place your phone down and stand sideways. Your baseline is ${baseline} degrees. Today's target is ${dailyTarget} degrees. I will find you when you are ready.`);
             }
 
-            cameraInstance = new Camera(videoEl, {
-                onFrame: async () => { await pose.send({image: videoEl}); },
-                width: 720, height: 1280
-            });
-            cameraInstance.start();
-        }
+            const videoEl = document.getElementById(mode === 'assess' ? 'assess-video' : 'train-video');
 
-        window.stopCameraLogic = () => {
-            if(cameraInstance) cameraInstance.stop();
-            document.getElementById('assessOverlay').style.display = 'flex';
-            document.getElementById('trainOverlay').style.display = 'flex';
-            document.getElementById('assess-status').classList.add('hidden');
-            document.getElementById('train-status').classList.add('hidden');
-            document.getElementById('assess-dot').classList.add('hidden');
-            document.getElementById('assess-counter-ui').classList.add('hidden');
+            try {
+                cameraInstance = new Camera(videoEl, {
+                    onFrame: async () => { await pose.send({ image: videoEl }); },
+                    width: 720, height: 1280
+                });
+                await cameraInstance.start();
+            } catch (err) {
+                speak('Camera access was denied. Please allow camera permissions in your browser settings, then try again.');
+                showOverlay(mode, 'start');
+                cameraState = 'off';
+                currentMode = 'none';
+            }
+        };
+
+        window.stopAllCameras = () => {
+            clearSpeech();
+            if (cameraInstance) {
+                cameraInstance.stop();
+                cameraInstance = null;
+            }
+            cameraState = 'off';
             currentMode = 'none';
-            isSubjectDetected = false;
+            isSquatting = false;
+            lastLandmarkPositions = null;
+
+            // Reset all overlays to start state
+            showOverlay('assess', 'start');
+            showOverlay('train', 'start');
+        };
+
+        function showOverlay(mode, state) {
+            const prefix = mode === 'assess' ? 'assess' : 'train';
+            const states = ['start', 'waiting', 'stabilise', 'countdown', 'complete'];
+            states.forEach(s => {
+                const el = document.getElementById(`${prefix}-overlay-${s}`);
+                if (el) el.classList.toggle('hidden', s !== state);
+            });
+
+            // HUD elements
+            if (mode === 'assess') {
+                const hud = document.getElementById('assess-hud');
+                if (hud) hud.classList.toggle('hidden', state !== 'tracking');
+            }
+            if (mode === 'train') {
+                const hud = document.getElementById('train-hud');
+                const bottomHud = document.getElementById('train-bottom-hud');
+                if (hud) hud.classList.toggle('hidden', state !== 'tracking');
+                if (bottomHud) bottomHud.classList.toggle('hidden', state !== 'tracking');
+            }
+
+            // If showing 'tracking' state, hide all overlays
+            if (state === 'tracking') {
+                states.forEach(s => {
+                    const el = document.getElementById(`${prefix}-overlay-${s}`);
+                    if (el) el.classList.add('hidden');
+                });
+            }
         }
 
-        function calculateAngle(a, b, c) {
+        // ==============================
+        // SIDE-ON VALIDATION
+        // ==============================
+        function isSideOn(landmarks) {
+            const leftHip = landmarks[23];
+            const rightHip = landmarks[24];
+            if (!leftHip || !rightHip) return false;
+            const zDiff = Math.abs(leftHip.z - rightHip.z);
+            // If z-difference is large, one hip is much closer - person is side-on
+            return zDiff > 0.08;
+        }
+
+        // ==============================
+        // STABILITY CHECK
+        // ==============================
+        function checkStability(landmarks) {
+            const keyPoints = [landmarks[24], landmarks[26], landmarks[28]]; // hip, knee, ankle
+            const current = keyPoints.map(p => ({ x: p.x, y: p.y }));
+
+            if (!lastLandmarkPositions) {
+                lastLandmarkPositions = current;
+                stabiliseStartTime = Date.now();
+                return false;
+            }
+
+            let maxMovement = 0;
+            for (let i = 0; i < current.length; i++) {
+                const dx = Math.abs(current[i].x - lastLandmarkPositions[i].x);
+                const dy = Math.abs(current[i].y - lastLandmarkPositions[i].y);
+                maxMovement = Math.max(maxMovement, dx, dy);
+            }
+
+            lastLandmarkPositions = current;
+
+            if (maxMovement > STABILISE_THRESHOLD) {
+                // Movement detected - reset timer
+                stabiliseStartTime = Date.now();
+                return false;
+            }
+
+            const elapsed = Date.now() - stabiliseStartTime;
+            const remaining = Math.ceil((STABILISE_DURATION_MS - elapsed) / 1000);
+
+            const timerId = currentMode === 'assess' ? 'assess-hold-timer' : 'train-hold-timer';
+            const timerEl = document.getElementById(timerId);
+            if (timerEl) timerEl.innerText = Math.max(0, remaining);
+
+            return elapsed >= STABILISE_DURATION_MS;
+        }
+
+        // ==============================
+        // COUNTDOWN
+        // ==============================
+        function startCountdown(mode) {
+            cameraState = 'countdown';
+            showOverlay(mode, 'countdown');
+
+            let count = 3;
+            const numEl = document.getElementById(mode === 'assess' ? 'assess-countdown-num' : 'train-countdown-num');
+            numEl.innerText = count;
+            speak('Three');
+
+            const interval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    numEl.innerText = count;
+                    speak(count.toString());
+                } else {
+                    clearInterval(interval);
+                    cameraState = 'tracking';
+                    showOverlay(mode, 'tracking');
+                    isSquatting = false;
+                    standReturnTime = Date.now(); // allow first rep immediately after a brief stand
+
+                    if (mode === 'assess') {
+                        speak('Begin. Squat to your comfortable maximum depth.');
+                    } else {
+                        speak('Begin. Five reps. Hit the green zone on every rep.');
+                    }
+                }
+            }, 1000);
+        }
+
+        // ==============================
+        // ANGLE CALCULATION
+        // ==============================
+        function calcAngle(a, b, c) {
             let radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
             let angle = Math.abs(radians * 180.0 / Math.PI);
             if (angle > 180.0) angle = 360 - angle;
             return Math.round(angle);
         }
 
-        function onResults(results) {
-            let canvasCtx, canvasEl, statusEl;
-            
-            if (currentMode === 'assess') {
-                canvasEl = document.querySelector('#view-assess canvas');
-                statusEl = document.getElementById('assess-status');
-            } else if (currentMode === 'train') {
-                canvasEl = document.querySelector('#view-workout canvas');
-                statusEl = document.getElementById('train-status');
-            } else {
+        // ==============================
+        // MAIN POSE CALLBACK
+        // ==============================
+        function onPoseResults(results) {
+            if (currentMode === 'none' || cameraState === 'off') return;
+
+            const canvasEl = document.getElementById(currentMode === 'assess' ? 'assess-canvas' : 'train-canvas');
+            const ctx = canvasEl.getContext('2d');
+            canvasEl.width = results.image.width || 720;
+            canvasEl.height = results.image.height || 1280;
+
+            ctx.save();
+            ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+            ctx.drawImage(results.image, 0, 0, canvasEl.width, canvasEl.height);
+
+            if (!results.poseLandmarks) {
+                ctx.restore();
                 return;
             }
-            
-            canvasCtx = canvasEl.getContext('2d');
-            canvasEl.width = 720;
-            canvasEl.height = 1280;
 
-            canvasCtx.save();
-            canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-            canvasCtx.drawImage(results.image, 0, 0, canvasEl.width, canvasEl.height);
+            const lm = results.poseLandmarks;
+            const hip = lm[24];
+            const knee = lm[26];
+            const ankle = lm[28];
+            const shoulder = lm[12];
 
-            if (results.poseLandmarks) {
-                const hip = results.poseLandmarks[24];
-                const knee = results.poseLandmarks[26];
-                const ankle = results.poseLandmarks[28];
-                const shoulder = results.poseLandmarks[12];
+            const isVisible = hip?.visibility > 0.7 && knee?.visibility > 0.7 && ankle?.visibility > 0.7;
 
-                const isVisible = (hip && hip.visibility > 0.8 && knee && knee.visibility > 0.8 && ankle && ankle.visibility > 0.8);
-                
-                if (!isSubjectDetected) {
-                    if (isVisible) {
-                        isSubjectDetected = true;
-                        statusEl.classList.add('hidden');
-                        
-                        if(currentMode === 'assess') {
-                            document.getElementById('assess-dot').classList.remove('hidden');
-                            document.getElementById('assess-counter-ui').classList.remove('hidden');
-                            speak("Subject Found. Please perform 3 squats.");
-                        } else {
-                            speak("Subject Found. Start when ready. 5 reps.");
-                        }
-                    } else {
-                        canvasCtx.restore();
-                        return;
-                    }
+            // ---- STATE: WAITING FOR SUBJECT ----
+            if (cameraState === 'waiting') {
+                if (isVisible && isSideOn(lm)) {
+                    cameraState = 'stabilising';
+                    lastLandmarkPositions = null;
+                    stabiliseStartTime = Date.now();
+                    showOverlay(currentMode, 'stabilise');
+                    speak('I can see you. Please hold still.');
                 }
+                ctx.restore();
+                return;
+            }
 
-                canvasCtx.lineWidth = 4;
-                canvasCtx.strokeStyle = 'white';
-                canvasCtx.lineCap = 'round';
-                
-                const drawLine = (p1, p2) => {
-                    canvasCtx.beginPath();
-                    canvasCtx.moveTo(p1.x * canvasEl.width, p1.y * canvasEl.height);
-                    canvasCtx.lineTo(p2.x * canvasEl.width, p2.y * canvasEl.height);
-                    canvasCtx.stroke();
-                };
-                
-                drawLine(shoulder, hip);
-                drawLine(hip, knee);
-                drawLine(knee, ankle);
+            // ---- STATE: STABILISING ----
+            if (cameraState === 'stabilising') {
+                if (!isVisible || !isSideOn(lm)) {
+                    // Lost them - back to waiting
+                    cameraState = 'waiting';
+                    showOverlay(currentMode, 'waiting');
+                    lastLandmarkPositions = null;
+                    ctx.restore();
+                    return;
+                }
+                if (checkStability(lm)) {
+                    speak('Perfect. Hold on.');
+                    startCountdown(currentMode);
+                }
+                ctx.restore();
+                return;
+            }
 
-                const drawJoint = (p) => {
-                    canvasCtx.beginPath();
-                    canvasCtx.arc(p.x * canvasEl.width, p.y * canvasEl.height, 8, 0, 2 * Math.PI);
-                    canvasCtx.fillStyle = '#3B82F6';
-                    canvasCtx.fill();
-                    canvasCtx.lineWidth = 2;
-                    canvasCtx.strokeStyle = 'white';
-                    canvasCtx.stroke();
-                };
+            // ---- STATE: COUNTDOWN ----
+            if (cameraState === 'countdown') {
+                // Just draw the skeleton but don't process angles
+                drawSkeleton(ctx, canvasEl, shoulder, hip, knee, ankle);
+                ctx.restore();
+                return;
+            }
 
-                drawJoint(shoulder);
-                drawJoint(hip);
-                drawJoint(knee);
-                drawJoint(ankle);
+            // ---- STATE: TRACKING ----
+            if (cameraState === 'tracking' && isVisible) {
+                drawSkeleton(ctx, canvasEl, shoulder, hip, knee, ankle);
+                const kneeAngle = calcAngle(hip, knee, ankle);
 
-                let kneeAngle = calculateAngle(hip, knee, ankle);
-
-                // ASSESSMENT LOGIC
                 if (currentMode === 'assess') {
-                    document.getElementById('assess-knee').innerText = kneeAngle + "°";
-
-                    if (kneeAngle < assessBestKnee && kneeAngle > 40) {
-                        assessBestKnee = kneeAngle;
-                        document.getElementById('assess-best').innerText = assessBestKnee + "°";
-                    }
-
-                    if (!isSquatting && kneeAngle < 140) { 
-                        isSquatting = true;
-                    } 
-                    else if (isSquatting && kneeAngle > 165) {
-                        assessRepCount++;
-                        document.getElementById('assess-reps-display').innerText = assessRepCount;
-                        isSquatting = false;
-                        
-                        if (assessRepCount < 3) {
-                             speak(assessRepCount.toString());
-                        } else {
-                             speak("Three reps done. Saving your best angle.");
-                             stopCameraLogic();
-                             window.updateBaseline(assessBestKnee); 
-                             setTimeout(() => { switchView('workout'); }, 2000);
-                        }
-                    }
-                }
-
-                // WORKOUT LOGIC
-                if (currentMode === 'train') {
-                    
-                    let percentage = 0;
-                    if (kneeAngle < 170) {
-                        const totalDist = 170 - dailyTarget;
-                        const currentDist = 170 - kneeAngle;
-                        percentage = Math.min(100, Math.max(0, (currentDist / totalDist) * 100));
-                    }
-                    
-                    const bar = document.getElementById('depth-bar');
-                    const label = document.getElementById('rep-feedback');
-                    bar.style.width = percentage + "%";
-                    
-                    if (kneeAngle <= dailyTarget) {
-                        bar.style.backgroundColor = "#22c55e"; 
-                        label.innerText = "GOOD DEPTH";
-                        label.className = "text-4xl font-black text-green-400"; 
-                    } else {
-                        bar.style.backgroundColor = "#EF4444"; 
-                        label.innerText = "GO DEEPER";
-                        label.className = "text-4xl font-black text-red-400"; 
-                    }
-
-                    // STRICT COUNTING: Only count if they hit dailyTarget
-                    if (!isSquatting && kneeAngle <= dailyTarget) {
-                        isSquatting = true;
-                    } else if (isSquatting && kneeAngle > 165) {
-                        trainRepCount++;
-                        document.getElementById('train-reps').innerText = trainRepCount;
-                        isSquatting = false;
-                        
-                        if (trainRepCount < 5) {
-                            speak(trainRepCount.toString());
-                        } else {
-                            // SUMMARY OUTRO
-                            speak("5 reps complete. Excellent work. You stayed within your safe range for all repetitions. Saving session.");
-                            stopCameraLogic();
-                            window.logSessionComplete(trainRepCount); 
-                            setTimeout(() => { switchView('home'); }, 2000);
-                        }
-                    }
+                    processAssessment(kneeAngle);
+                } else if (currentMode === 'train') {
+                    processTraining(kneeAngle);
                 }
             }
-            canvasCtx.restore();
+
+            ctx.restore();
+        }
+
+        // ==============================
+        // SKELETON DRAWING
+        // ==============================
+        function drawSkeleton(ctx, canvas, shoulder, hip, knee, ankle) {
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+            ctx.lineCap = 'round';
+
+            const drawLine = (p1, p2) => {
+                ctx.beginPath();
+                ctx.moveTo(p1.x * w, p1.y * h);
+                ctx.lineTo(p2.x * w, p2.y * h);
+                ctx.stroke();
+            };
+
+            drawLine(shoulder, hip);
+            drawLine(hip, knee);
+            drawLine(knee, ankle);
+
+            const drawJoint = (p, color = '#3B82F6') => {
+                ctx.beginPath();
+                ctx.arc(p.x * w, p.y * h, 9, 0, 2 * Math.PI);
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = 'white';
+                ctx.stroke();
+            };
+
+            drawJoint(shoulder, '#64748b');
+            drawJoint(hip);
+            drawJoint(knee, '#60A5FA');
+            drawJoint(ankle);
+        }
+
+        // ==============================
+        // ASSESSMENT LOGIC
+        // ==============================
+        function processAssessment(kneeAngle) {
+            document.getElementById('assess-knee-display').innerText = kneeAngle + '°';
+
+            if (kneeAngle < assessBestKnee && kneeAngle > 40) {
+                assessBestKnee = kneeAngle;
+                document.getElementById('assess-best-display').innerText = assessBestKnee + '°';
+            }
+
+            const now = Date.now();
+
+            // Enter squat: angle drops below entry threshold for MIN_SQUAT_HOLD_MS
+            if (!isSquatting && kneeAngle < SQUAT_ENTRY_ANGLE) {
+                if (squatEntryTime === 0) {
+                    squatEntryTime = now;
+                } else if (now - squatEntryTime >= MIN_SQUAT_HOLD_MS) {
+                    isSquatting = true;
+                    currentRepDeepest = kneeAngle;
+                }
+            } else if (!isSquatting && kneeAngle >= SQUAT_ENTRY_ANGLE) {
+                squatEntryTime = 0; // reset - they didn't hold it
+            }
+
+            // Track deepest point during squat
+            if (isSquatting && kneeAngle < currentRepDeepest) {
+                currentRepDeepest = kneeAngle;
+            }
+
+            // Exit squat: angle rises above exit threshold (hysteresis)
+            if (isSquatting && kneeAngle > SQUAT_EXIT_ANGLE) {
+                if (standReturnTime === 0) {
+                    standReturnTime = now;
+                } else if (now - standReturnTime >= MIN_STAND_HOLD_MS) {
+                    // Rep complete
+                    assessRepCount++;
+                    document.getElementById('assess-reps-display').innerText = assessRepCount;
+                    isSquatting = false;
+                    squatEntryTime = 0;
+                    standReturnTime = 0;
+
+                    if (assessRepCount < 3) {
+                        speak(`${assessRepCount}. ${3 - assessRepCount} to go.`);
+                    } else {
+                        cameraState = 'complete';
+                        showOverlay('assess', 'complete');
+                        document.getElementById('assess-final-angle').innerText = assessBestKnee + '°';
+                        speak(`Calibration complete. Your best depth is ${assessBestKnee} degrees. Well done.`);
+                        if (window.saveBaseline) window.saveBaseline(assessBestKnee);
+                        stopCamera();
+                    }
+                }
+            } else if (isSquatting && kneeAngle <= SQUAT_EXIT_ANGLE) {
+                standReturnTime = 0; // still squatting
+            }
+        }
+
+        // ==============================
+        // TRAINING LOGIC
+        // ==============================
+        function processTraining(kneeAngle) {
+            // Depth gauge
+            let percentage = 0;
+            if (kneeAngle < 170) {
+                const totalDist = 170 - dailyTarget;
+                const currentDist = 170 - kneeAngle;
+                percentage = Math.min(100, Math.max(0, (currentDist / totalDist) * 100));
+            }
+
+            const bar = document.getElementById('depth-bar');
+            const label = document.getElementById('rep-feedback');
+            bar.style.width = percentage + '%';
+
+            if (kneeAngle <= dailyTarget) {
+                bar.style.backgroundColor = '#22c55e';
+                label.innerText = 'GOOD DEPTH';
+                label.className = 'text-3xl font-black text-green-400';
+            } else if (kneeAngle < 170) {
+                bar.style.backgroundColor = '#f59e0b';
+                label.innerText = 'GO DEEPER';
+                label.className = 'text-3xl font-black text-yellow-400';
+            } else {
+                bar.style.backgroundColor = '#334155';
+                label.innerText = 'READY';
+                label.className = 'text-2xl font-black text-slate-500';
+            }
+
+            const now = Date.now();
+
+            // Enter squat: must reach the daily target depth AND hold it
+            if (!isSquatting && kneeAngle <= dailyTarget) {
+                if (squatEntryTime === 0) {
+                    squatEntryTime = now;
+                } else if (now - squatEntryTime >= MIN_SQUAT_HOLD_MS) {
+                    isSquatting = true;
+                    currentRepDeepest = kneeAngle;
+                }
+            } else if (!isSquatting && kneeAngle > dailyTarget) {
+                squatEntryTime = 0;
+            }
+
+            // Track deepest
+            if (isSquatting && kneeAngle < currentRepDeepest) {
+                currentRepDeepest = kneeAngle;
+            }
+
+            // Exit squat
+            if (isSquatting && kneeAngle > SQUAT_EXIT_ANGLE) {
+                if (standReturnTime === 0) {
+                    standReturnTime = now;
+                } else if (now - standReturnTime >= MIN_STAND_HOLD_MS) {
+                    trainRepCount++;
+                    trainAngles.push(currentRepDeepest);
+                    document.getElementById('train-reps-display').innerText = trainRepCount;
+                    isSquatting = false;
+                    squatEntryTime = 0;
+                    standReturnTime = 0;
+                    currentRepDeepest = 180;
+
+                    if (trainRepCount < 5) {
+                        speak(`${trainRepCount}. ${5 - trainRepCount} to go.`);
+                    } else {
+                        cameraState = 'complete';
+                        const avgAngle = Math.round(trainAngles.reduce((a, b) => a + b, 0) / trainAngles.length);
+                        const allHit = trainAngles.every(a => a <= dailyTarget);
+                        const summaryText = allHit
+                            ? `All 5 reps hit target. Average depth: ${avgAngle}°. Excellent.`
+                            : `5 reps complete. Average depth: ${avgAngle}°. Keep working on hitting your target consistently.`;
+
+                        document.getElementById('train-summary-text').innerText = summaryText;
+                        showOverlay('train', 'complete');
+                        speak(`Session complete. ${summaryText}`);
+                        if (window.saveSession) window.saveSession(5, avgAngle, allHit);
+                        stopCamera();
+                    }
+                }
+            } else if (isSquatting && kneeAngle <= SQUAT_EXIT_ANGLE) {
+                standReturnTime = 0;
+            }
+        }
+
+        function stopCamera() {
+            if (cameraInstance) {
+                cameraInstance.stop();
+                cameraInstance = null;
+            }
         }
     </script>
 </body>
