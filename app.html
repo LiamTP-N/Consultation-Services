@@ -1046,8 +1046,9 @@
 
             const canvasEl = document.getElementById(currentMode === 'assess' ? 'assess-canvas' : 'train-canvas');
             const ctx = canvasEl.getContext('2d');
-            canvasEl.width = results.image.width || 720;
-            canvasEl.height = results.image.height || 1280;
+            const videoEl = document.getElementById(currentMode === 'assess' ? 'assess-video' : 'train-video');
+            canvasEl.width = results.image.width || 480;
+            canvasEl.height = results.image.height || 640;
 
             ctx.save();
             ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
