@@ -79,6 +79,15 @@
         }
 
         .hidden { display: none !important; }
+        
+        /* Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #68D391;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #68D391;
+        }
     </style>
 </head>
 <body class="text-slate-200 min-h-screen flex flex-col items-center justify-center p-4">
@@ -91,13 +100,34 @@
         </div>
 
         <div class="glass-card p-6 rounded-[2rem] space-y-6">
+            
+            <!-- Mode Selection -->
+            <div class="flex p-1 bg-slate-800/50 rounded-xl mb-4">
+                <button id="mode-freestyle" class="flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-slate-700 text-white shadow-md">Freestyle</button>
+                <button id="mode-program" class="flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">12 Round Class</button>
+            </div>
+
+            <!-- Partner Mode Toggle -->
+            <div class="flex items-center justify-between px-2">
+                <div>
+                    <span class="text-sm font-bold text-white block">Partner Mode</span>
+                    <span class="text-[10px] text-slate-400">Doubles rounds (You go, I go)</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="in-partner" class="sr-only peer">
+                    <div class="w-12 h-6 bg-slate-800 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-6 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                </label>
+            </div>
+
+            <hr class="border-slate-700/50 my-2">
+
             <!-- Rounds Control -->
-            <div class="space-y-3">
+            <div class="space-y-3" id="group-rounds">
                 <div class="flex justify-between items-end">
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rounds</label>
                     <span id="disp-rounds" class="font-mono-display text-2xl text-blue-400 font-bold">12</span>
                 </div>
-                <input type="range" min="1" max="20" value="12" id="in-rounds">
+                <input type="range" min="1" max="24" value="12" id="in-rounds">
             </div>
 
             <!-- Work Control -->
@@ -119,12 +149,12 @@
             </div>
         </div>
 
-        <!-- Coach Settings -->
-        <div class="glass-card p-6 rounded-[2rem] space-y-5 border-t-2 border-purple-500/30">
+        <!-- Coach Settings (Only for Freestyle) -->
+        <div id="coach-settings" class="glass-card p-6 rounded-[2rem] space-y-5 border-t-2 border-purple-500/30 transition-all">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="font-bold text-white">Coach Mode</h3>
-                    <p class="text-xs text-slate-500">Audio callouts & randomization</p>
+                    <h3 class="font-bold text-white">Coach Callouts</h3>
+                    <p class="text-xs text-slate-500">Audio commands</p>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="in-random" class="sr-only peer" checked>
@@ -141,7 +171,7 @@
                     <input type="range" min="1" max="3" value="2" id="in-pace">
                 </div>
                 
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-2 gap-2" id="cat-select">
                     <label class="glass-inset p-3 rounded-xl flex items-center space-x-3 cursor-pointer">
                         <input type="checkbox" class="move-cat w-4 h-4 accent-purple-500" value="basics" checked>
                         <span class="text-xs font-bold text-slate-300">Basics</span>
@@ -172,7 +202,7 @@
         
         <div class="w-full px-6 flex justify-between items-center">
             <div class="space-y-1">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Round</p>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]" id="round-label">Round</p>
                 <div class="flex items-baseline space-x-2">
                     <span id="current-round" class="text-4xl font-black font-mono-display text-white">1</span>
                     <span class="text-slate-600 text-xl font-bold">/</span>
@@ -200,7 +230,7 @@
         <div id="callout-card" class="w-full glass-card h-32 rounded-[2rem] flex items-center justify-center px-8 transition-all duration-300 opacity-0 transform translate-y-4">
             <div class="text-center">
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2" id="callout-label">Coach</p>
-                <div id="current-callout" class="text-4xl font-black text-white uppercase tracking-tight">--</div>
+                <div id="current-callout" class="text-3xl font-black text-white uppercase tracking-tight leading-none">--</div>
             </div>
         </div>
 
@@ -216,16 +246,41 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Configuration
-            const MOVES = {
+            // Configuration Data
+            const FREESTYLE_MOVES = {
                 basics: ['Jab', 'Cross', '1-2', '1-1-2', 'Jab, Hook', 'Cross, Hook', 'Double Jab'],
                 defense: ['Slip Left', 'Slip Right', 'Roll', 'Duck', 'High Block', 'Parry'],
                 complex: ['1-2-3', '2-3-2', 'Lead Uppercut', 'Liver Shot', '1-2-Roll-2', 'Speed Jab'],
                 footwork: ['Pivot', 'Step Back', 'Angle Right', 'Circle Left', 'Reset Center']
             };
 
+            const PROGRAM_12_ROUNDS = [
+                { name: "Warm Up: Slow Constant", moves: ['Jab', '1-2', 'Move', 'Breathe', 'Light 1-2', 'Shake out'] },
+                { name: "3's", moves: ['1-2-3', 'Jab-Cross-Hook', 'Jab-Uppercut-Hook', 'Cross-Hook-Cross'] },
+                { name: "Up & 1 x Hook", moves: ['Lead Uppercut-Hook', 'Rear Uppercut-Lead Hook', 'Uppercut-Hook', '5-3', '6-2'] },
+                { name: "4's", moves: ['1-2-3-2', '1-2-5-2', 'Jab-Cross-Hook-Cross', '1-1-2-3'] },
+                { name: "Power Singles", moves: ['Power Jab', 'Hard Cross', 'Big Hook', 'Overhand', 'Body Shot'] },
+                { name: "Light 2's", moves: ['Fast 1-2', 'Touch-Touch', 'Jab-Cross (Fast)', 'High-Low'] },
+                { name: "Double Jab + Power", moves: ['1-1-2', '1-1-Rear Hook', '1-1-Overhand', 'Jab-Jab-Cross'] },
+                { name: "Light 3's", moves: ['Fast 1-2-3', 'Touch-Touch-Bang', 'Speed 3s'] },
+                { name: "Hooks (Close)", moves: ['Lead Hook', 'Rear Hook', 'Body Hook', '3-4', 'Head-Body'] },
+                { name: "Heavy 2's", moves: ['Hard 1-2', 'Power 1-2', 'Cross-Hook', 'Hook-Cross'] },
+                { name: "Up & 2 Hooks", moves: ['Uppercut-Hook-Hook', '5-3-4', '6-3-2'] },
+                { name: "Constant", moves: ['Non-stop', '1-2-1-2', 'Burnout', 'Speed', 'Go Go Go'] }
+            ];
+
             // App State
-            let settings = { rounds: 12, work: 180, rest: 60, coach: true, pace: 2, cats: [] };
+            let settings = { 
+                mode: 'freestyle', // or 'program'
+                rounds: 12, 
+                work: 180, 
+                rest: 60, 
+                partner: false,
+                coach: true, 
+                pace: 2, 
+                cats: [] 
+            };
+            
             let session = { 
                 active: false, 
                 paused: false, 
@@ -245,6 +300,15 @@
             const ui = {
                 setup: document.getElementById('setup-screen'),
                 timer: document.getElementById('timer-screen'),
+                
+                // Inputs
+                inRounds: document.getElementById('in-rounds'),
+                inWork: document.getElementById('in-work'),
+                inRest: document.getElementById('in-rest'),
+                inPartner: document.getElementById('in-partner'),
+                inRandom: document.getElementById('in-random'),
+                
+                // Display
                 dispRounds: document.getElementById('disp-rounds'),
                 dispWork: document.getElementById('disp-work'),
                 dispRest: document.getElementById('disp-rest'),
@@ -254,9 +318,21 @@
                 dispRoundTot: document.getElementById('total-rounds'),
                 dispNext: document.getElementById('next-up'),
                 dispCallout: document.getElementById('current-callout'),
+                dispCallLabel: document.getElementById('callout-label'),
+                
+                // Mode Switchers
+                modeFreestyle: document.getElementById('mode-freestyle'),
+                modeProgram: document.getElementById('mode-program'),
+                
+                // Elements
                 ring: document.getElementById('progress-ring'),
                 badge: document.getElementById('phase-badge'),
                 calloutCard: document.getElementById('callout-card'),
+                coachSettings: document.getElementById('coach-settings'),
+                roundLabel: document.getElementById('round-label'),
+                groupRounds: document.getElementById('group-rounds'),
+                
+                // Buttons
                 btnStart: document.getElementById('btn-start'),
                 btnPause: document.getElementById('btn-pause'),
                 btnEnd: document.getElementById('btn-end')
@@ -269,19 +345,56 @@
                 return `${m}:${sec}`;
             };
 
+            // Mode Switching Logic
+            function setMode(mode) {
+                settings.mode = mode;
+                if (mode === 'freestyle') {
+                    ui.modeFreestyle.className = "flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-slate-700 text-white shadow-md";
+                    ui.modeProgram.className = "flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
+                    
+                    // Unlock Inputs
+                    ui.groupRounds.classList.remove('opacity-50', 'pointer-events-none');
+                    ui.coachSettings.classList.remove('hidden');
+                } else {
+                    ui.modeProgram.className = "flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-blue-600 text-white shadow-md";
+                    ui.modeFreestyle.className = "flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
+                    
+                    // Preset Defaults for 12 Round Class
+                    ui.inWork.value = 60; ui.dispWork.innerText = "01:00";
+                    ui.inRest.value = 60; ui.dispRest.innerText = "01:00";
+                    
+                    // Lock Rounds (Visual feedback)
+                    ui.inRounds.value = 12; ui.dispRounds.innerText = "12";
+                    ui.groupRounds.classList.add('opacity-50', 'pointer-events-none');
+                    
+                    // Hide Freestyle Coach options
+                    ui.coachSettings.classList.add('hidden');
+                }
+            }
+            
+            ui.modeFreestyle.onclick = () => setMode('freestyle');
+            ui.modeProgram.onclick = () => setMode('program');
+
             // Input Updates
-            document.getElementById('in-rounds').oninput = (e) => ui.dispRounds.innerText = e.target.value;
-            document.getElementById('in-work').oninput = (e) => ui.dispWork.innerText = format(e.target.value);
-            document.getElementById('in-rest').oninput = (e) => ui.dispRest.innerText = format(e.target.value);
+            ui.inRounds.oninput = (e) => ui.dispRounds.innerText = e.target.value;
+            ui.inWork.oninput = (e) => ui.dispWork.innerText = format(e.target.value);
+            ui.inRest.oninput = (e) => ui.dispRest.innerText = format(e.target.value);
+            ui.inPartner.onchange = (e) => {
+                if (e.target.checked && settings.mode === 'program') {
+                     ui.dispRounds.innerText = "24";
+                } else if (!e.target.checked && settings.mode === 'program') {
+                     ui.dispRounds.innerText = "12";
+                }
+            };
             document.getElementById('in-pace').oninput = (e) => {
                 const map = { 1: 'High Pace', 2: 'Medium', 3: 'Technical' };
                 ui.dispPace.innerText = map[e.target.value];
             };
-            document.getElementById('in-random').onchange = (e) => {
+            ui.inRandom.onchange = (e) => {
                 document.getElementById('random-options').style.opacity = e.target.checked ? '1' : '0.3';
             };
 
-            // Audio Synthesis
+            // Audio
             function initAudio() {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -290,7 +403,6 @@
             function playBell() {
                 if (!audioCtx) return;
                 const now = audioCtx.currentTime;
-                // Layered oscillators for a rich "metallic" bell sound
                 [440, 880, 1200].forEach((freq, i) => {
                     const osc = audioCtx.createOscillator();
                     const gain = audioCtx.createGain();
@@ -334,11 +446,15 @@
                 ui.calloutCard.classList.add('opacity-0', 'translate-y-4');
                 
                 if (phase === 'ready') {
-                    session.time = 10; session.total = 10;
+                    session.time = 20; // 20s Prepare
+                    session.total = 20;
                     ui.badge.innerText = "Prepare";
                     ui.badge.className = "px-4 py-2 rounded-full border border-blue-500/30 text-blue-400 text-[10px] font-black uppercase tracking-widest";
                     ui.ring.style.stroke = "#3b82f6";
-                    ui.dispNext.innerText = "Get into stance";
+                    ui.dispNext.innerText = "Gloves On - Get Ready";
+                    if (settings.mode === 'program') {
+                         ui.dispNext.innerText = "Next: Warm Up - Slow Constant";
+                    }
                 } else if (phase === 'work') {
                     session.time = settings.work; session.total = settings.work;
                     ui.badge.innerText = "Work";
@@ -347,16 +463,56 @@
                     ui.dispRoundCur.innerText = session.round;
                     ui.dispNext.innerText = "";
                     playBell();
-                    if (settings.coach) {
-                        ui.calloutCard.classList.remove('opacity-0', 'translate-y-4');
-                        triggerCallout(true);
+                    
+                    // Show Program Info
+                    ui.calloutCard.classList.remove('opacity-0', 'translate-y-4');
+                    
+                    if (settings.mode === 'program') {
+                        // Calculate Theme Index (Handles Partner Mode where 1&2=Theme1, 3&4=Theme2)
+                        const themeIndex = settings.partner 
+                            ? Math.floor((session.round - 1) / 2) 
+                            : session.round - 1;
+                            
+                        const theme = PROGRAM_12_ROUNDS[themeIndex % PROGRAM_12_ROUNDS.length];
+                        
+                        // Partner Mode Label
+                        if (settings.partner) {
+                             const pName = (session.round % 2 !== 0) ? "YOU" : "PARTNER";
+                             ui.dispCallLabel.innerText = `${pName} • ${theme.name}`;
+                        } else {
+                             ui.dispCallLabel.innerText = theme.name;
+                        }
+                        
+                        triggerCallout(true); // Initial callout for program
+                    } else {
+                        ui.dispCallLabel.innerText = "Freestyle";
+                        if (settings.coach) triggerCallout(true);
                     }
+                    
                 } else if (phase === 'rest') {
                     session.time = settings.rest; session.total = settings.rest;
                     ui.badge.innerText = "Rest";
                     ui.badge.className = "px-4 py-2 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 text-[10px] font-black uppercase tracking-widest";
                     ui.ring.style.stroke = "#f97316";
-                    ui.dispNext.innerText = session.round < settings.rounds ? `Up Next: Round ${session.round + 1}` : "Final Round Complete";
+                    
+                    // Next Round Logic
+                    if (session.round < settings.rounds) {
+                        let nextText = `Up Next: Round ${session.round + 1}`;
+                        
+                        if (settings.mode === 'program') {
+                            const nextIdx = settings.partner 
+                                ? Math.floor(session.round / 2) // Logic holds: R1done(idx0.5->0) R2done(idx1->1)
+                                : session.round;
+                            
+                            if (nextIdx < PROGRAM_12_ROUNDS.length) {
+                                const nextTheme = PROGRAM_12_ROUNDS[nextIdx].name;
+                                nextText += ` (${nextTheme})`;
+                            }
+                        }
+                        ui.dispNext.innerText = nextText;
+                    } else {
+                        ui.dispNext.innerText = "Final Round Complete";
+                    }
                     playBell();
                 }
                 updateUI();
@@ -365,20 +521,43 @@
             function triggerCallout(first = false) {
                 if (!settings.coach || session.phase !== 'work') return;
                 
-                const cat = settings.cats[Math.floor(Math.random() * settings.cats.length)];
-                const list = MOVES[cat];
-                let move = list[Math.floor(Math.random() * list.length)];
+                let moveList = [];
                 
-                // Prevent immediate repetition
-                if (move === session.lastMove) move = list[(list.indexOf(move) + 1) % list.length];
-                session.lastMove = move;
+                if (settings.mode === 'program') {
+                    const themeIndex = settings.partner 
+                        ? Math.floor((session.round - 1) / 2) 
+                        : session.round - 1;
+                    const theme = PROGRAM_12_ROUNDS[themeIndex % PROGRAM_12_ROUNDS.length];
+                    moveList = theme.moves;
+                    
+                    // If first call of round, just announce theme if we haven't
+                    if (first) {
+                         speak(theme.name);
+                         // Don't display name again as it's in the label
+                         ui.dispCallout.innerText = "GO";
+                    }
+                } else {
+                    // Freestyle Logic
+                    if (settings.cats.length === 0) settings.cats = ['basics'];
+                    const cat = settings.cats[Math.floor(Math.random() * settings.cats.length)];
+                    moveList = FREESTYLE_MOVES[cat];
+                }
 
-                ui.dispCallout.classList.add('scale-90', 'opacity-50');
-                setTimeout(() => {
-                    ui.dispCallout.innerText = move;
-                    ui.dispCallout.classList.remove('scale-90', 'opacity-50');
-                    speak(move);
-                }, 100);
+                if (!first || settings.mode === 'freestyle') {
+                    let move = moveList[Math.floor(Math.random() * moveList.length)];
+                    // Prevent immediate repetition
+                    if (move === session.lastMove && moveList.length > 1) {
+                         move = moveList[(moveList.indexOf(move) + 1) % moveList.length];
+                    }
+                    session.lastMove = move;
+
+                    ui.dispCallout.classList.add('scale-90', 'opacity-50');
+                    setTimeout(() => {
+                        ui.dispCallout.innerText = move;
+                        ui.dispCallout.classList.remove('scale-90', 'opacity-50');
+                        speak(move);
+                    }, 100);
+                }
 
                 // Pace timing
                 const delays = { 1: [2, 3], 2: [3, 5], 3: [5, 8] };
@@ -431,13 +610,19 @@
             // Event Listeners
             ui.btnStart.onclick = async () => {
                 initAudio();
-                settings.rounds = parseInt(document.getElementById('in-rounds').value);
-                settings.work = parseInt(document.getElementById('in-work').value);
-                settings.rest = parseInt(document.getElementById('in-rest').value);
-                settings.coach = document.getElementById('in-random').checked;
+                
+                settings.partner = ui.inPartner.checked;
+                settings.work = parseInt(ui.inWork.value);
+                settings.rest = parseInt(ui.inRest.value);
                 settings.pace = parseInt(document.getElementById('in-pace').value);
-                settings.cats = Array.from(document.querySelectorAll('.move-cat:checked')).map(c => c.value);
-                if (settings.cats.length === 0) settings.cats = ['basics'];
+                settings.coach = ui.inRandom.checked;
+
+                if (settings.mode === 'program') {
+                    settings.rounds = settings.partner ? 24 : 12;
+                } else {
+                    settings.rounds = parseInt(ui.inRounds.value);
+                    settings.cats = Array.from(document.querySelectorAll('.move-cat:checked')).map(c => c.value);
+                }
 
                 try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e){}
 
