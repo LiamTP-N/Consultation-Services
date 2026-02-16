@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Interval Coach</title>
+    <title>Interval Coach | Dr. Pearson-Noseworthy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -22,6 +22,7 @@
             font-family: 'DM Sans', system-ui, sans-serif; 
             overscroll-behavior-y: contain;
             background-color: #0f172a;
+            overflow: hidden; /* Prevent scrolling during timer */
         }
 
         .font-mono-display { font-family: 'Space Mono', monospace; }
@@ -38,13 +39,6 @@
         .glass-inset {
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        /* Animated Progress Ring */
-        .timer-ring {
-            transition: stroke-dashoffset 0.2s linear, stroke 0.3s ease;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
         }
 
         /* Scrollbar */
@@ -68,126 +62,159 @@
         }
         
         .hidden { display: none !important; }
+
+        /* Background Timer Animation */
+        #timer-bg {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 0;
+            transition: height 1s linear, background-color 0.3s ease;
+        }
     </style>
 </head>
-<body class="text-slate-200 min-h-screen flex flex-col items-center justify-center p-4">
+<body class="text-slate-200 min-h-screen flex flex-col items-center justify-center">
 
-    <!-- SETUP SCREEN -->
-    <div id="setup-screen" class="w-full max-w-md space-y-5 py-4">
-        <div class="text-center mb-2">
-            <h1 class="text-3xl font-bold text-white tracking-tight mb-1">Boxing Timer!</h1>
-            <p class="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]"></p>
-        </div>
+    <!-- BACKGROUND TIMER LAYER -->
+    <div id="timer-bg" class="h-0 bg-slate-800"></div>
 
-        <div class="glass-card p-5 rounded-[2rem] space-y-5">
-            
-            <!-- Mode Selection (Solo vs Wife) -->
-            <div class="flex p-1 bg-slate-800/50 rounded-xl">
-                <button id="mode-solo" class="flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-blue-600 text-white shadow-md">Solo</button>
-                <button id="mode-wife" class="flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">With Wife</button>
+    <!-- CONTENT LAYER (Z-10) -->
+    <div class="relative z-10 w-full flex flex-col items-center justify-center p-4 min-h-screen">
+
+        <!-- SETUP SCREEN -->
+        <div id="setup-screen" class="w-full max-w-md space-y-5 py-4">
+            <div class="text-center mb-2">
+                <h1 class="text-3xl font-bold text-white tracking-tight mb-1">12 Rounds</h1>
+                <p class="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]">Dr. Pearson-Noseworthy</p>
             </div>
 
-            <div id="rest-info" class="text-center bg-slate-800/30 p-2 rounded-lg border border-slate-700/30">
-                <p class="text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p>
-                <p class="text-xs text-slate-400">Starts at 30s, adds 5s each round.</p>
-            </div>
-
-            <!-- Controls Grid -->
-            <div class="space-y-4">
+            <div class="glass-card p-5 rounded-[2rem] space-y-5">
                 
-                <!-- Randomiser Toggle -->
-                <div class="flex items-center justify-between px-1">
-                    <div>
-                        <span class="text-sm font-bold text-white block">Randomise Focus</span>
-                        <span class="text-[10px] text-slate-400">Generates unique themes (Rnds 2-11)</span>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="in-random" class="sr-only peer">
-                        <div class="w-12 h-6 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-6 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
-                    </label>
+                <!-- Mode Selection (Solo vs Wife) -->
+                <div class="flex p-1 bg-slate-800/50 rounded-xl">
+                    <button id="mode-solo" class="flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-blue-600 text-white shadow-md">Solo</button>
+                    <button id="mode-wife" class="flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">With Wife</button>
                 </div>
 
-                <hr class="border-slate-700/50">
-
-                <!-- Rounds Grid -->
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Total Rounds</label>
-                    <div class="grid grid-cols-6 gap-2" id="grid-rounds">
-                        <!-- Generated by JS -->
-                    </div>
+                <div id="rest-info" class="text-center bg-slate-800/30 p-2 rounded-lg border border-slate-700/30">
+                    <p class="text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p>
+                    <p class="text-xs text-slate-400">Starts at 30s, adds 5s each round.</p>
                 </div>
 
-                <!-- Work Duration Buttons -->
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Work Time</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(30, this)">30s</button>
-                        <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(45, this)">45s</button>
-                        <button class="btn-select active py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(60, this)">60s</button>
+                <!-- Controls Grid -->
+                <div class="space-y-4">
+                    
+                    <!-- Randomiser Toggle -->
+                    <div class="flex items-center justify-between px-1">
+                        <div>
+                            <span class="text-sm font-bold text-white block">Randomise Focus</span>
+                            <span class="text-[10px] text-slate-400">Generates unique themes (Rnds 2-11)</span>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="in-random" class="sr-only peer">
+                            <div class="w-12 h-6 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-6 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                        </label>
                     </div>
-                </div>
 
+                    <hr class="border-slate-700/50">
+
+                    <!-- Rounds Grid -->
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Total Rounds</label>
+                        <div class="grid grid-cols-6 gap-2" id="grid-rounds">
+                            <!-- Generated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Work Duration Buttons -->
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Work Time</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(30, this)">30s</button>
+                            <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(45, this)">45s</button>
+                            <button class="btn-select active py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(60, this)">60s</button>
+                        </div>
+                    </div>
+
+                </div>
             </div>
+
+            <!-- Preview Section -->
+            <div class="glass-card p-4 rounded-[1.5rem] space-y-2">
+                <h3 class="font-bold text-white text-xs uppercase tracking-widest ml-1 opacity-70">Session Preview</h3>
+                <div id="round-preview" class="max-h-32 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
+                    <!-- JS Populated -->
+                </div>
+            </div>
+
+            <button id="btn-start" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl text-lg shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all">
+                Begin Session
+            </button>
         </div>
 
-        <!-- Preview Section -->
-        <div class="glass-card p-4 rounded-[1.5rem] space-y-2">
-            <h3 class="font-bold text-white text-xs uppercase tracking-widest ml-1 opacity-70">Session Preview</h3>
-            <div id="round-preview" class="max-h-32 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
-                <!-- JS Populated -->
-            </div>
-        </div>
-
-        <button id="btn-start" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl text-lg shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all">
-            Begin Session
-        </button>
-    </div>
-
-    <!-- TIMER SCREEN -->
-    <div id="timer-screen" class="hidden w-full max-w-md flex-col items-center justify-between h-[90vh] py-8">
-        
-        <div class="w-full px-6 flex justify-between items-center">
-            <div class="space-y-1">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]" id="round-label">Round</p>
-                <div class="flex items-baseline space-x-2">
-                    <span id="current-round" class="text-4xl font-black font-mono-display text-white">1</span>
-                    <span class="text-slate-600 text-xl font-bold">/</span>
-                    <span id="total-rounds" class="text-slate-600 text-xl font-bold">12</span>
-                </div>
-            </div>
-            <div id="phase-badge" class="px-4 py-2 rounded-full border text-[10px] font-black uppercase tracking-widest transition-colors duration-500">
-                Ready
-            </div>
-        </div>
-
-        <div class="relative w-80 h-80 flex items-center justify-center">
-            <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="4" />
-                <circle id="progress-ring" class="timer-ring" cx="50" cy="50" r="46" fill="none" stroke="#f97316" stroke-width="4" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="0" />
-            </svg>
+        <!-- TIMER SCREEN -->
+        <div id="timer-screen" class="hidden w-full max-w-md flex-col items-center justify-between h-[85vh] py-4">
             
-            <div class="text-center z-10">
-                <div id="timer-display" class="text-7xl font-black font-mono-display text-white tracking-tighter">00:00</div>
-                <div id="next-up" class="text-[10px] text-slate-500 mt-4 font-bold uppercase tracking-widest h-4"></div>
+            <!-- Header Info -->
+            <div class="w-full px-6 flex justify-between items-start">
+                <div class="space-y-1">
+                    <p class="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em]" id="round-label">Round</p>
+                    <div class="flex items-baseline space-x-2">
+                        <span id="current-round" class="text-5xl font-black font-mono-display text-white drop-shadow-md">1</span>
+                        <span class="text-white/60 text-xl font-bold">/</span>
+                        <span id="total-rounds" class="text-white/60 text-xl font-bold">12</span>
+                    </div>
+                </div>
+                
+                <div id="phase-badge" class="px-4 py-2 rounded-full backdrop-blur-md bg-black/20 border border-white/10 text-xs font-black uppercase tracking-widest text-white shadow-lg">
+                    Ready
+                </div>
+            </div>
+
+            <!-- Main Timer Display -->
+            <div class="flex-grow flex flex-col items-center justify-center space-y-8 w-full">
+                
+                <div id="focus-container" class="text-center space-y-2">
+                    <p class="text-xs font-bold text-white/70 uppercase tracking-widest">Current Focus</p>
+                    <div id="round-focus" class="text-4xl md:text-5xl font-black text-white uppercase leading-tight drop-shadow-lg px-2">
+                        Warm Up
+                    </div>
+                </div>
+
+                <div id="timer-display" class="text-9xl font-black font-mono-display text-white tracking-tighter drop-shadow-2xl">
+                    00:00
+                </div>
+
+                <div id="next-up" class="text-sm font-bold text-white/60 uppercase tracking-widest h-6">
+                    <!-- Next round info -->
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="w-full px-4 space-y-3">
+                <!-- Skip Controls -->
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="btn-prev" class="bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold py-3 rounded-xl transition-all active:scale-95 text-xs uppercase tracking-wider">
+                        &larr; Prev Round
+                    </button>
+                    <button id="btn-next" class="bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold py-3 rounded-xl transition-all active:scale-95 text-xs uppercase tracking-wider">
+                        Next Round &rarr;
+                    </button>
+                </div>
+
+                <!-- Main Controls -->
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="btn-pause" class="bg-black/30 hover:bg-black/40 backdrop-blur-md border border-white/10 text-white font-bold py-5 rounded-2xl transition-all active:scale-95">
+                        Pause
+                    </button>
+                    <button id="btn-end" class="bg-red-500/20 hover:bg-red-500/30 backdrop-blur-md border border-red-500/30 text-red-100 font-bold py-5 rounded-2xl transition-all active:scale-95">
+                        End
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Coach Callout Area -->
-        <div id="callout-card" class="w-full glass-card h-32 rounded-[2rem] flex items-center justify-center px-8 transition-all duration-300 opacity-0 transform translate-y-4">
-            <div class="text-center">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2" id="callout-label">Coach</p>
-                <div id="current-callout" class="text-3xl font-black text-white uppercase tracking-tight leading-none">--</div>
-            </div>
-        </div>
-
-        <div class="w-full px-4 grid grid-cols-2 gap-4">
-            <button id="btn-pause" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-5 rounded-2xl transition-all active:scale-95">
-                Pause
-            </button>
-            <button id="btn-end" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 font-bold py-5 rounded-2xl transition-all active:scale-95">
-                End
-            </button>
-        </div>
     </div>
 
     <script>
@@ -195,7 +222,6 @@
             
             // --- DATA LIBRARIES ---
             
-            // 1. The Fixed Program (Dr. P's Class)
             const PROGRAM_12_ROUNDS = [
                 { name: "Warm Up: Jab & Move", moves: ['Jab', '1-2', 'Move', 'Breathe', 'Light 1-2', 'Shake out'] },
                 { name: "1-2-3 (Straight-Straight-Hook)", moves: ['1-2-3', 'Jab-Cross-Hook', 'Jab-Uppercut-Hook', 'Cross-Hook-Cross'] },
@@ -211,29 +237,20 @@
                 { name: "Constant Burnout", moves: ['Non-stop', '1-2-1-2', 'Burnout', 'Speed', 'Go Go Go'] }
             ];
 
-            // 2. The Massive Random Pool (Descriptive for Beginners)
             const ROUND_POOL = [
-                // BASICS
                 { name: "Jab Only", moves: ['Jab', 'Double Jab', 'Jab-Head', 'Jab-Body', 'Power Jab'] },
                 { name: "Jab & Cross (1-2)", moves: ['1-2', 'Fast 1-2', 'Hard 1-2', '1-Body 2'] },
                 { name: "Double Jab & Cross", moves: ['1-1-2', 'Jab-Jab-Cross', '1-1-Body 2'] },
                 { name: "1-2 then Hook", moves: ['1-2-3', 'Jab-Cross-Hook', '1-2-Lead Hook'] },
                 { name: "1-2 then Uppercut", moves: ['1-2-5', '1-2-6', 'Jab-Cross-Lead Uppercut', 'Jab-Cross-Rear Uppercut'] },
-                
-                // PUNCH TYPES
                 { name: "4 Straight Punches", moves: ['1-2-1-2', 'Jab-Cross-Jab-Cross', '4 Fast Straights'] },
-                // "Uppercuts Only" removed as requested for bag compatibility
                 { name: "Hooks Only", moves: ['Lead Hook', 'Rear Hook', 'Left Hook-Right Hook', 'Check Hook'] },
                 { name: "Body Shots Only", moves: ['Lead Body Hook', 'Rear Body Hook', 'Jab Low', 'Cross Low'] },
                 { name: "Power Singles", moves: ['Hard Cross', 'Big Hook', 'Power Jab', 'Hard Uppercut'] },
-
-                // DEFENSE & MOVEMENT
                 { name: "1-2, Slip, Cross", moves: ['1-2-Slip-2', 'Jab-Cross-Slip-Cross'] },
                 { name: "1-2, Roll, Cross", moves: ['1-2-Roll-2', 'Jab-Cross-Roll Under-Cross'] },
                 { name: "Step Back & Cross", moves: ['1-2-Step Back', 'Jab-Back-Cross', 'Touch-Back-Bang'] },
                 { name: "Pivot & Punch", moves: ['1-2-Pivot', 'Jab-Pivot-Cross', 'Pivot-Hook'] },
-                
-                // COMBINATIONS
                 { name: "Jab, Cross, Hook, Cross", moves: ['1-2-3-2', 'Jab-Cross-Hook-Cross'] },
                 { name: "Lead Hook, Rear Straight", moves: ['3-2', 'Hook-Cross', 'Check Hook-Cross'] },
                 { name: "High & Low (Head & Body)", moves: ['Jab High-Cross Low', '1-2 High-Hook Low', 'Head-Body-Head'] },
@@ -243,10 +260,10 @@
 
             // --- APP STATE ---
             let settings = { 
-                mode: 'solo', // 'solo' or 'wife'
+                mode: 'solo', 
                 rounds: 12, 
                 work: 60,
-                restBase: 30, // Starting rest
+                restBase: 30,
                 randomiseMiddle: false
             };
             
@@ -260,7 +277,7 @@
                 timer: null, 
                 callTimer: 0,
                 lastMove: '',
-                plan: [] // Array of { name, moves }
+                plan: [] 
             };
             
             let audioCtx = null;
@@ -270,32 +287,27 @@
             const ui = {
                 setup: document.getElementById('setup-screen'),
                 timer: document.getElementById('timer-screen'),
+                timerBg: document.getElementById('timer-bg'),
                 
-                // Controls
                 modeSolo: document.getElementById('mode-solo'),
                 modeWife: document.getElementById('mode-wife'),
                 restInfo: document.getElementById('rest-info'),
                 inRandom: document.getElementById('in-random'),
                 gridRounds: document.getElementById('grid-rounds'),
-                
-                // Display
                 previewList: document.getElementById('round-preview'),
                 
-                // Timer
-                ring: document.getElementById('progress-ring'),
                 badge: document.getElementById('phase-badge'),
-                calloutCard: document.getElementById('callout-card'),
                 timerDisplay: document.getElementById('timer-display'),
                 roundCur: document.getElementById('current-round'),
                 roundTot: document.getElementById('total-rounds'),
                 nextUp: document.getElementById('next-up'),
-                callLabel: document.getElementById('callout-label'),
-                callText: document.getElementById('current-callout'),
+                roundFocus: document.getElementById('round-focus'),
                 
-                // Buttons
                 btnStart: document.getElementById('btn-start'),
                 btnPause: document.getElementById('btn-pause'),
-                btnEnd: document.getElementById('btn-end')
+                btnEnd: document.getElementById('btn-end'),
+                btnNext: document.getElementById('btn-next'),
+                btnPrev: document.getElementById('btn-prev')
             };
 
             const format = (s) => {
@@ -351,35 +363,26 @@
             // ---- SESSION GENERATION ----
             function generateSessionPlan() {
                 session.plan = [];
-                const totalRounds = settings.rounds; // Base rounds (1-12)
-
-                // Clone pool to allow splicing (no duplicates)
+                const totalRounds = settings.rounds; 
                 let tempPool = [...ROUND_POOL];
 
                 for (let i = 0; i < totalRounds; i++) {
                     let roundObj = null;
-
-                    // Logic: Round 1 is always Warmup. Round N is always Constant.
-                    // If RandomiseMiddle is OFF: Use Fixed Program.
-                    // If RandomiseMiddle is ON: Use Pool for 2 -> N-1.
-
                     const isFirst = (i === 0);
                     const isLast = (i === totalRounds - 1);
 
                     if (settings.randomiseMiddle) {
                         if (isFirst) {
-                            roundObj = PROGRAM_12_ROUNDS[0]; // Warm Up
+                            roundObj = PROGRAM_12_ROUNDS[0]; 
                         } else if (isLast) {
-                            roundObj = PROGRAM_12_ROUNDS[11]; // Constant
+                            roundObj = PROGRAM_12_ROUNDS[11];
                         } else {
-                            // Pick random from pool
-                            if (tempPool.length === 0) tempPool = [...ROUND_POOL]; // Refill if exhausted
+                            if (tempPool.length === 0) tempPool = [...ROUND_POOL];
                             const idx = Math.floor(Math.random() * tempPool.length);
                             roundObj = tempPool[idx];
-                            tempPool.splice(idx, 1); // Remove used
+                            tempPool.splice(idx, 1);
                         }
                     } else {
-                        // Fixed Program
                         roundObj = PROGRAM_12_ROUNDS[i % PROGRAM_12_ROUNDS.length];
                     }
                     session.plan.push(roundObj);
@@ -393,9 +396,6 @@
                 const displayRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
 
                 for (let i = 1; i <= displayRounds; i++) {
-                    // Logic:
-                    // Solo: i-1 maps directly to plan index.
-                    // Wife: (i-1)/2 maps to plan index (R1&2=Plan[0], R3&4=Plan[1])
                     const planIdx = settings.mode === 'wife' ? Math.floor((i-1)/2) : i-1;
                     const roundData = session.plan[planIdx];
 
@@ -409,7 +409,6 @@
                         colorClass = isYou ? "text-green-400" : "text-purple-400";
                     } else {
                         title = `${i}. ${subtitle}`;
-                        // Progressive rest info for solo
                         const restTime = settings.restBase + ((i-1)*5);
                         subtitle = i < displayRounds ? `Rest: ${restTime}s` : 'Finish';
                     }
@@ -472,66 +471,55 @@
             // ---- SESSION RUNTIME ----
             const setPhase = (phase) => {
                 session.phase = phase;
-                ui.calloutCard.classList.add('opacity-0', 'translate-y-4');
                 
+                // Color Logic & Text
                 if (phase === 'ready') {
-                    session.time = 20; 
-                    session.total = 20;
-                    ui.badge.innerText = "Prepare";
-                    ui.badge.className = "px-4 py-2 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 text-[10px] font-black uppercase tracking-widest";
-                    ui.ring.style.stroke = "#f97316"; 
+                    // ORANGE
+                    session.time = 20; session.total = 20;
+                    ui.timerBg.className = "bg-orange-600";
+                    ui.badge.innerText = "PREPARE";
+                    ui.roundFocus.innerText = "Gloves On";
                     ui.nextUp.innerText = "Next: " + session.plan[0].name;
                     
                 } else if (phase === 'work') {
+                    // GREEN / PURPLE
                     session.time = settings.work; session.total = settings.work;
                     playBell();
-                    ui.calloutCard.classList.remove('opacity-0', 'translate-y-4');
                     
-                    // Identify current round theme from Plan
                     const planIdx = settings.mode === 'wife' ? Math.floor((session.round - 1) / 2) : session.round - 1;
                     const roundData = session.plan[planIdx];
-                    
-                    // Store active move list
                     session.currentMoves = roundData.moves;
                     
-                    // Label Logic
+                    ui.roundFocus.innerText = roundData.name;
+                    ui.roundCur.innerText = session.round;
+                    ui.nextUp.innerText = ""; // Clear next up during work
+
                     if (settings.mode === 'wife') {
                         const isYou = (session.round % 2 !== 0);
-                        ui.callLabel.innerText = isYou ? `YOU • ${roundData.name}` : `PARTNER • ${roundData.name}`;
-                        
                         if (isYou) {
-                            ui.badge.innerText = "YOU: Work";
-                            ui.badge.className = "px-4 py-2 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-[10px] font-black uppercase tracking-widest";
-                            ui.ring.style.stroke = "#22c55e";
+                            ui.timerBg.className = "bg-green-600";
+                            ui.badge.innerText = "YOU: WORK";
                         } else {
-                            ui.badge.innerText = "PARTNER: Work";
-                            ui.badge.className = "px-4 py-2 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 text-[10px] font-black uppercase tracking-widest";
-                            ui.ring.style.stroke = "#a855f7";
+                            ui.timerBg.className = "bg-purple-600";
+                            ui.badge.innerText = "PARTNER: WORK";
                         }
                     } else {
-                        ui.callLabel.innerText = roundData.name;
-                        ui.badge.innerText = "Work";
-                        ui.badge.className = "px-4 py-2 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-[10px] font-black uppercase tracking-widest";
-                        ui.ring.style.stroke = "#22c55e";
+                        ui.timerBg.className = "bg-green-600";
+                        ui.badge.innerText = "WORK";
                     }
-
-                    ui.roundCur.innerText = session.round;
-                    ui.nextUp.innerText = "";
                     
-                    // Announce theme & start
                     speak(roundData.name);
                     triggerCallout(true);
 
                 } else if (phase === 'rest') {
-                    // Solo Progressive Rest
+                    // RED
                     const restDuration = settings.restBase + ((session.round - 1) * 5);
                     session.time = restDuration; session.total = restDuration;
                     
-                    ui.badge.innerText = `Rest (${restDuration}s)`;
-                    ui.badge.className = "px-4 py-2 rounded-full border border-red-500/30 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest";
-                    ui.ring.style.stroke = "#ef4444";
+                    ui.timerBg.className = "bg-red-600";
+                    ui.badge.innerText = "REST";
+                    ui.roundFocus.innerText = "Breathe";
                     
-                    // Next Up Logic
                     if (session.round < settings.rounds) {
                         const nextName = session.plan[session.round].name;
                         ui.nextUp.innerText = `Up Next: ${nextName}`;
@@ -550,31 +538,26 @@
                 let move = moveList[Math.floor(Math.random() * moveList.length)];
                 
                 if (first) {
-                    ui.callText.innerText = "GO";
+                    // Start of round, no audio move yet, just the theme name spoken in setPhase
                 } else {
                     if (move === session.lastMove && moveList.length > 1) {
                          move = moveList[(moveList.indexOf(move) + 1) % moveList.length];
                     }
                     session.lastMove = move;
-
-                    ui.callText.classList.add('scale-90', 'opacity-50');
-                    setTimeout(() => {
-                        ui.callText.innerText = move;
-                        ui.callText.classList.remove('scale-90', 'opacity-50');
-                        speak(move);
-                    }, 100);
+                    speak(move);
                 }
 
-                // Callout timing
                 const min = 3, max = 5;
                 session.callTimer = Math.floor(Math.random() * (max - min + 1) + min);
             }
 
             function updateUI() {
                 ui.timerDisplay.innerText = format(session.time);
-                const circumference = 289;
-                const offset = circumference - ((session.time / session.total) * circumference);
-                ui.ring.style.strokeDashoffset = offset;
+                
+                // Background Height Animation
+                // Full at start (100%), empty at end (0%)
+                const pct = (session.time / session.total) * 100;
+                ui.timerBg.style.height = `${pct}%`;
             }
 
             function run() {
@@ -612,6 +595,22 @@
                 }, 1000);
             }
 
+            function skipRound(dir) {
+                const maxRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
+                let nextRound = session.round + dir;
+                
+                // Boundaries
+                if (nextRound < 1) nextRound = 1;
+                if (nextRound > maxRounds) {
+                    end();
+                    return;
+                }
+                
+                session.round = nextRound;
+                // Force jump to Work phase of the new round
+                setPhase('work');
+            }
+
             function end() {
                 session.active = false;
                 clearInterval(session.timer);
@@ -619,6 +618,7 @@
                 window.speechSynthesis.cancel();
                 ui.timer.classList.add('hidden');
                 ui.setup.classList.remove('hidden');
+                ui.timerBg.style.height = '0%'; // Reset BG
             }
 
             // ---- INIT ----
@@ -644,9 +644,11 @@
             ui.btnPause.onclick = () => {
                 session.paused = !session.paused;
                 ui.btnPause.innerText = session.paused ? "Resume" : "Pause";
-                ui.btnPause.classList.toggle('bg-blue-600');
-                ui.btnPause.classList.toggle('bg-slate-800');
+                ui.btnPause.classList.toggle('bg-white/10');
             };
+
+            ui.btnNext.onclick = () => skipRound(1);
+            ui.btnPrev.onclick = () => skipRound(-1);
 
             // Run Init Logic
             generateSessionPlan();
