@@ -2,334 +2,465 @@
 <html lang="en-GB">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Interval Coach | Dr. Pearson-Noseworthy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'DM Sans', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: contain; }
-        .font-mono-display { font-family: 'Space Mono', monospace; }
-        
-        /* Glass styling consistent with your existing app */
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(51, 65, 85, 0.5);
+        :root {
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
+            --accent-orange: #f97316;
+            --accent-purple: #a855f7;
         }
 
-        .timer-ring { transition: stroke-dashoffset 1s linear, stroke 0.3s; transform: rotate(-90deg); transform-origin: 50% 50%; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
+        body { 
+            font-family: 'DM Sans', system-ui, sans-serif; 
+            overscroll-behavior-y: contain;
+            background-color: #0f172a;
+        }
+
+        .font-mono-display { font-family: 'Space Mono', monospace; }
+
+        /* Advanced Glassmorphism */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-inset {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Animated Progress Ring */
+        .timer-ring {
+            transition: stroke-dashoffset 0.2s linear;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* Custom Range Input */
         input[type="range"] {
-            -webkit-appearance: none; width: 100%; height: 6px; background: #334155; border-radius: 3px; outline: none;
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: #334155;
+            border-radius: 2px;
+            outline: none;
         }
         input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #60A5FA; cursor: pointer; border: 2px solid #1e293b;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            cursor: pointer;
+            border: 2px solid #3b82f6;
+            transition: transform 0.1s;
         }
+        input[type="range"]::-webkit-slider-thumb:active {
+            transform: scale(1.2);
+        }
+
+        .phase-transition {
+            animation: phaseIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes phaseIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .hidden { display: none !important; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col items-center justify-center p-4">
+<body class="text-slate-200 min-h-screen flex flex-col items-center justify-center p-4">
 
-    <div id="setup-screen" class="w-full max-w-md space-y-6 animate-fade-in">
-        <div class="text-center mb-8">
+    <!-- SETUP SCREEN -->
+    <div id="setup-screen" class="w-full max-w-md space-y-6">
+        <div class="text-center mb-6">
             <h1 class="text-3xl font-bold text-white tracking-tight mb-1">Interval Coach</h1>
-            <p class="text-slate-400 text-sm">Dr. Pearson-Noseworthy</p>
+            <p class="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]">Dr. Pearson-Noseworthy</p>
         </div>
 
-        <div class="glass-panel p-6 rounded-2xl space-y-6">
-            
-            <div class="space-y-2">
-                <div class="flex justify-between">
-                    <label class="text-sm font-bold text-slate-300 uppercase tracking-wider">Rounds</label>
-                    <span id="disp-rounds" class="font-mono-display text-blue-400 font-bold">12</span>
+        <div class="glass-card p-6 rounded-[2rem] space-y-6">
+            <!-- Rounds Control -->
+            <div class="space-y-3">
+                <div class="flex justify-between items-end">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rounds</label>
+                    <span id="disp-rounds" class="font-mono-display text-2xl text-blue-400 font-bold">12</span>
                 </div>
-                <input type="range" min="1" max="20" value="12" id="in-rounds" oninput="updateDisp('rounds', this.value)">
+                <input type="range" min="1" max="20" value="12" id="in-rounds">
             </div>
 
-            <div class="space-y-2">
-                <div class="flex justify-between">
-                    <label class="text-sm font-bold text-slate-300 uppercase tracking-wider">Work</label>
-                    <span id="disp-work" class="font-mono-display text-green-400 font-bold">03:00</span>
+            <!-- Work Control -->
+            <div class="space-y-3">
+                <div class="flex justify-between items-end">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Work Duration</label>
+                    <span id="disp-work" class="font-mono-display text-2xl text-green-400 font-bold">03:00</span>
                 </div>
-                <input type="range" min="10" max="600" step="10" value="180" id="in-work" oninput="updateDisp('work', this.value)">
+                <input type="range" min="10" max="600" step="10" value="180" id="in-work">
             </div>
 
-            <div class="space-y-2">
-                <div class="flex justify-between">
-                    <label class="text-sm font-bold text-slate-300 uppercase tracking-wider">Rest</label>
-                    <span id="disp-rest" class="font-mono-display text-orange-400 font-bold">01:00</span>
+            <!-- Rest Control -->
+            <div class="space-y-3">
+                <div class="flex justify-between items-end">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rest Duration</label>
+                    <span id="disp-rest" class="font-mono-display text-2xl text-orange-400 font-bold">01:00</span>
                 </div>
-                <input type="range" min="10" max="300" step="10" value="60" id="in-rest" oninput="updateDisp('rest', this.value)">
+                <input type="range" min="10" max="300" step="10" value="60" id="in-rest">
             </div>
-
         </div>
 
-        <div class="glass-panel p-6 rounded-2xl space-y-6 border-t-4 border-t-purple-500">
+        <!-- Coach Settings -->
+        <div class="glass-card p-6 rounded-[2rem] space-y-5 border-t-2 border-purple-500/30">
             <div class="flex items-center justify-between">
                 <div>
                     <h3 class="font-bold text-white">Coach Mode</h3>
-                    <p class="text-xs text-slate-400">Random callouts during work</p>
+                    <p class="text-xs text-slate-500">Audio callouts & randomization</p>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="in-random" class="sr-only peer" checked>
-                    <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                    <div class="w-12 h-6 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-6 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                 </label>
             </div>
 
-            <div id="random-options" class="space-y-4 transition-all">
+            <div id="random-options" class="space-y-4">
                 <div class="space-y-2">
-                    <div class="flex justify-between">
-                        <label class="text-xs font-bold text-slate-300 uppercase">Pace (Callouts)</label>
-                        <span id="disp-pace" class="font-mono-display text-purple-300 text-xs">Medium</span>
+                    <div class="flex justify-between items-center">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Intensity / Pace</label>
+                        <span id="disp-pace" class="text-[10px] font-bold text-purple-400 uppercase">Medium</span>
                     </div>
-                    <input type="range" min="1" max="3" value="2" id="in-pace" oninput="updatePace(this.value)">
+                    <input type="range" min="1" max="3" value="2" id="in-pace">
                 </div>
                 
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                    <label class="flex items-center space-x-2 bg-slate-800 p-2 rounded cursor-pointer">
-                        <input type="checkbox" class="move-cat accent-purple-500" value="basics" checked>
-                        <span>Basics (1-2)</span>
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="glass-inset p-3 rounded-xl flex items-center space-x-3 cursor-pointer">
+                        <input type="checkbox" class="move-cat w-4 h-4 accent-purple-500" value="basics" checked>
+                        <span class="text-xs font-bold text-slate-300">Basics</span>
                     </label>
-                    <label class="flex items-center space-x-2 bg-slate-800 p-2 rounded cursor-pointer">
-                        <input type="checkbox" class="move-cat accent-purple-500" value="defense" checked>
-                        <span>Defense</span>
+                    <label class="glass-inset p-3 rounded-xl flex items-center space-x-3 cursor-pointer">
+                        <input type="checkbox" class="move-cat w-4 h-4 accent-purple-500" value="defense" checked>
+                        <span class="text-xs font-bold text-slate-300">Defense</span>
                     </label>
-                    <label class="flex items-center space-x-2 bg-slate-800 p-2 rounded cursor-pointer">
-                        <input type="checkbox" class="move-cat accent-purple-500" value="complex">
-                        <span>Complex</span>
+                    <label class="glass-inset p-3 rounded-xl flex items-center space-x-3 cursor-pointer">
+                        <input type="checkbox" class="move-cat w-4 h-4 accent-purple-500" value="complex">
+                        <span class="text-xs font-bold text-slate-300">Complex</span>
                     </label>
-                    <label class="flex items-center space-x-2 bg-slate-800 p-2 rounded cursor-pointer">
-                        <input type="checkbox" class="move-cat accent-purple-500" value="footwork">
-                        <span>Footwork</span>
+                    <label class="glass-inset p-3 rounded-xl flex items-center space-x-3 cursor-pointer">
+                        <input type="checkbox" class="move-cat w-4 h-4 accent-purple-500" value="footwork">
+                        <span class="text-xs font-bold text-slate-300">Footwork</span>
                     </label>
                 </div>
             </div>
         </div>
 
-        <button onclick="startTimer()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg active:scale-[0.98] transition-all">
-            Start Workout
+        <button id="btn-start" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-2xl text-xl shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all">
+            Begin Session
         </button>
     </div>
 
-    <div id="timer-screen" class="hidden w-full max-w-md flex-col items-center justify-between h-[85vh]">
+    <!-- TIMER SCREEN -->
+    <div id="timer-screen" class="hidden w-full max-w-md flex-col items-center justify-between h-[90vh] py-8">
         
-        <div class="w-full flex justify-between items-end border-b border-slate-700 pb-4">
-            <div>
-                <span class="text-xs text-slate-500 uppercase tracking-widest block">Round</span>
-                <span class="text-3xl font-bold font-mono-display text-white">
-                    <span id="current-round">1</span><span class="text-slate-600 text-lg">/</span><span id="total-rounds" class="text-slate-600 text-lg">12</span>
-                </span>
+        <div class="w-full px-6 flex justify-between items-center">
+            <div class="space-y-1">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Round</p>
+                <div class="flex items-baseline space-x-2">
+                    <span id="current-round" class="text-4xl font-black font-mono-display text-white">1</span>
+                    <span class="text-slate-600 text-xl font-bold">/</span>
+                    <span id="total-rounds" class="text-slate-600 text-xl font-bold">12</span>
+                </div>
             </div>
-            <div class="text-right">
-                <span id="phase-label" class="bg-green-500/20 text-green-400 px-3 py-1 rounded text-xs font-bold uppercase tracking-widest border border-green-500/30">Get Ready</span>
+            <div id="phase-badge" class="px-4 py-2 rounded-full border text-[10px] font-black uppercase tracking-widest transition-colors duration-500">
+                Ready
             </div>
         </div>
 
-        <div class="relative w-72 h-72 flex items-center justify-center">
+        <div class="relative w-80 h-80 flex items-center justify-center">
             <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" fill="none" stroke="#1e293b" stroke-width="6" />
-                <circle id="progress-ring" class="timer-ring" cx="50" cy="50" r="45" fill="none" stroke="#22c55e" stroke-width="6" stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="0" />
+                <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="4" />
+                <circle id="progress-ring" class="timer-ring" cx="50" cy="50" r="46" fill="none" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="0" />
             </svg>
             
             <div class="text-center z-10">
-                <div id="timer-display" class="text-6xl font-black font-mono-display text-white tracking-tighter">00:00</div>
-                <div id="next-up" class="text-xs text-slate-400 mt-2 font-mono-display h-4"></div>
+                <div id="timer-display" class="text-7xl font-black font-mono-display text-white tracking-tighter">00:00</div>
+                <div id="next-up" class="text-[10px] text-slate-500 mt-4 font-bold uppercase tracking-widest h-4"></div>
             </div>
         </div>
 
-        <div id="move-container" class="w-full glass-panel h-32 rounded-2xl flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+        <!-- Coach Callout Area -->
+        <div id="callout-card" class="w-full glass-card h-32 rounded-[2rem] flex items-center justify-center px-8 transition-all duration-300 opacity-0 transform translate-y-4">
             <div class="text-center">
-                <div id="current-move" class="text-4xl font-black text-white uppercase leading-none">--</div>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2" id="callout-label">Coach</p>
+                <div id="current-callout" class="text-4xl font-black text-white uppercase tracking-tight">--</div>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 w-full">
-            <button onclick="togglePause()" id="btn-pause" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 rounded-xl transition-all">
+        <div class="w-full px-4 grid grid-cols-2 gap-4">
+            <button id="btn-pause" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-5 rounded-2xl transition-all active:scale-95">
                 Pause
             </button>
-            <button onclick="stopTimer()" class="bg-red-900/50 hover:bg-red-900/80 text-red-200 border border-red-900 font-bold py-4 rounded-xl transition-all">
+            <button id="btn-end" class="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 font-bold py-5 rounded-2xl transition-all active:scale-95">
                 End
             </button>
         </div>
     </div>
 
     <script>
-        // --- DATA ---
-        const MOVES = {
-            basics: ['Jab', 'Cross', '1-2', '1-1-2', 'Jab, Hook', 'Cross, Hook'],
-            defense: ['Slip', 'Roll', 'Duck', 'Block', 'Slip-Jab', 'Roll-Cross'],
-            complex: ['1-2-3', '2-3-2', 'Uppercut', 'Liver Shot', 'Hook-Cross-Hook', '6-3-2'],
-            footwork: ['Pivot', 'Step Back', 'Angle', 'Circle Left', 'Circle Right']
-        };
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configuration
+            const MOVES = {
+                basics: ['Jab', 'Cross', '1-2', '1-1-2', 'Jab, Hook', 'Cross, Hook', 'Double Jab'],
+                defense: ['Slip Left', 'Slip Right', 'Roll', 'Duck', 'High Block', 'Parry'],
+                complex: ['1-2-3', '2-3-2', 'Lead Uppercut', 'Liver Shot', '1-2-Roll-2', 'Speed Jab'],
+                footwork: ['Pivot', 'Step Back', 'Angle Right', 'Circle Left', 'Reset Center']
+            };
 
-        // --- STATE ---
-        let config = {
-            rounds: 12,
-            workSec: 180,
-            restSec: 60,
-            randomEnabled: true,
-            pace: 2, // 1=Fast(2s), 2=Med(3.5s), 3=Slow(5s)
-            categories: ['basics', 'defense']
-        };
+            // App State
+            let settings = { rounds: 12, work: 180, rest: 60, coach: true, pace: 2, cats: [] };
+            let session = { 
+                active: false, 
+                paused: false, 
+                phase: 'ready', 
+                round: 1, 
+                time: 10, 
+                total: 10, 
+                timer: null, 
+                callTimer: 0,
+                lastMove: ''
+            };
+            
+            let audioCtx = null;
+            let wakeLock = null;
 
-        let state = {
-            active: false,
-            paused: false,
-            phase: 'ready', // ready, work, rest, finished
-            round: 1,
-            timeLeft: 10,
-            totalTime: 10,
-            interval: null,
-            nextCallout: 0
-        };
+            // DOM Selectors
+            const ui = {
+                setup: document.getElementById('setup-screen'),
+                timer: document.getElementById('timer-screen'),
+                dispRounds: document.getElementById('disp-rounds'),
+                dispWork: document.getElementById('disp-work'),
+                dispRest: document.getElementById('disp-rest'),
+                dispPace: document.getElementById('disp-pace'),
+                dispTime: document.getElementById('timer-display'),
+                dispRoundCur: document.getElementById('current-round'),
+                dispRoundTot: document.getElementById('total-rounds'),
+                dispNext: document.getElementById('next-up'),
+                dispCallout: document.getElementById('current-callout'),
+                ring: document.getElementById('progress-ring'),
+                badge: document.getElementById('phase-badge'),
+                calloutCard: document.getElementById('callout-card'),
+                btnStart: document.getElementById('btn-start'),
+                btnPause: document.getElementById('btn-pause'),
+                btnEnd: document.getElementById('btn-end')
+            };
 
-        let wakeLock = null;
-        let audioCtx = null;
+            // Formatting
+            const format = (s) => {
+                const m = Math.floor(s / 60).toString().padStart(2, '0');
+                const sec = (Math.max(0, s) % 60).toString().padStart(2, '0');
+                return `${m}:${sec}`;
+            };
 
-        // --- SETUP HANDLERS ---
-        function updateDisp(type, val) {
-            const el = document.getElementById(`disp-${type}`);
-            if (type === 'rounds') {
-                el.innerText = val;
-            } else {
-                const m = Math.floor(val / 60).toString().padStart(2, '0');
-                const s = (val % 60).toString().padStart(2, '0');
-                el.innerText = `${m}:${s}`;
+            // Input Updates
+            document.getElementById('in-rounds').oninput = (e) => ui.dispRounds.innerText = e.target.value;
+            document.getElementById('in-work').oninput = (e) => ui.dispWork.innerText = format(e.target.value);
+            document.getElementById('in-rest').oninput = (e) => ui.dispRest.innerText = format(e.target.value);
+            document.getElementById('in-pace').oninput = (e) => {
+                const map = { 1: 'High Pace', 2: 'Medium', 3: 'Technical' };
+                ui.dispPace.innerText = map[e.target.value];
+            };
+            document.getElementById('in-random').onchange = (e) => {
+                document.getElementById('random-options').style.opacity = e.target.checked ? '1' : '0.3';
+            };
+
+            // Audio Synthesis
+            function initAudio() {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
             }
-        }
 
-        function updatePace(val) {
-            const map = { 1: 'High (Active)', 2: 'Medium', 3: 'Low (Tech)' };
-            document.getElementById('disp-pace').innerText = map[val];
-        }
-
-        document.getElementById('in-random').addEventListener('change', (e) => {
-            const opts = document.getElementById('random-options');
-            if(e.target.checked) {
-                opts.classList.remove('opacity-50', 'pointer-events-none');
-            } else {
-                opts.classList.add('opacity-50', 'pointer-events-none');
+            function playBell() {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                // Layered oscillators for a rich "metallic" bell sound
+                [440, 880, 1200].forEach((freq, i) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = i === 0 ? 'sine' : 'triangle';
+                    osc.frequency.setValueAtTime(freq, now);
+                    gain.connect(audioCtx.destination);
+                    osc.connect(gain);
+                    gain.gain.setValueAtTime(0.5 / (i+1), now);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + (i === 0 ? 2 : 1));
+                    osc.start(now);
+                    osc.stop(now + 2);
+                });
             }
+
+            function playBeep(high = false) {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(high ? 1000 : 600, now);
+                gain.connect(audioCtx.destination);
+                osc.connect(gain);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            }
+
+            function speak(text) {
+                if (!settings.coach) return;
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.rate = 1.2; u.pitch = 1; u.lang = 'en-GB';
+                window.speechSynthesis.speak(u);
+            }
+
+            // Session Logic
+            const setPhase = (phase) => {
+                session.phase = phase;
+                ui.calloutCard.classList.add('opacity-0', 'translate-y-4');
+                
+                if (phase === 'ready') {
+                    session.time = 10; session.total = 10;
+                    ui.badge.innerText = "Prepare";
+                    ui.badge.className = "px-4 py-2 rounded-full border border-blue-500/30 text-blue-400 text-[10px] font-black uppercase tracking-widest";
+                    ui.ring.style.stroke = "#3b82f6";
+                    ui.dispNext.innerText = "Get into stance";
+                } else if (phase === 'work') {
+                    session.time = settings.work; session.total = settings.work;
+                    ui.badge.innerText = "Work";
+                    ui.badge.className = "px-4 py-2 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-[10px] font-black uppercase tracking-widest";
+                    ui.ring.style.stroke = "#22c55e";
+                    ui.dispRoundCur.innerText = session.round;
+                    ui.dispNext.innerText = "";
+                    playBell();
+                    if (settings.coach) {
+                        ui.calloutCard.classList.remove('opacity-0', 'translate-y-4');
+                        triggerCallout(true);
+                    }
+                } else if (phase === 'rest') {
+                    session.time = settings.rest; session.total = settings.rest;
+                    ui.badge.innerText = "Rest";
+                    ui.badge.className = "px-4 py-2 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 text-[10px] font-black uppercase tracking-widest";
+                    ui.ring.style.stroke = "#f97316";
+                    ui.dispNext.innerText = session.round < settings.rounds ? `Up Next: Round ${session.round + 1}` : "Final Round Complete";
+                    playBell();
+                }
+                updateUI();
+            };
+
+            function triggerCallout(first = false) {
+                if (!settings.coach || session.phase !== 'work') return;
+                
+                const cat = settings.cats[Math.floor(Math.random() * settings.cats.length)];
+                const list = MOVES[cat];
+                let move = list[Math.floor(Math.random() * list.length)];
+                
+                // Prevent immediate repetition
+                if (move === session.lastMove) move = list[(list.indexOf(move) + 1) % list.length];
+                session.lastMove = move;
+
+                ui.dispCallout.classList.add('scale-90', 'opacity-50');
+                setTimeout(() => {
+                    ui.dispCallout.innerText = move;
+                    ui.dispCallout.classList.remove('scale-90', 'opacity-50');
+                    speak(move);
+                }, 100);
+
+                // Pace timing
+                const delays = { 1: [2, 3], 2: [3, 5], 3: [5, 8] };
+                const [min, max] = delays[settings.pace];
+                session.callTimer = Math.floor(Math.random() * (max - min + 1) + min);
+            }
+
+            function updateUI() {
+                ui.dispTime.innerText = format(session.time);
+                const circumference = 289;
+                const offset = circumference - ((session.time / session.total) * circumference);
+                ui.ring.style.strokeDashoffset = offset;
+            }
+
+            function run() {
+                session.timer = setInterval(() => {
+                    if (session.paused) return;
+                    session.time--;
+                    
+                    if (session.time <= 3 && session.time > 0) playBeep(session.time === 1);
+                    
+                    if (session.time < 0) {
+                        if (session.phase === 'ready') setPhase('work');
+                        else if (session.phase === 'work') {
+                            if (session.round >= settings.rounds) end();
+                            else setPhase('rest');
+                        } else if (session.phase === 'rest') {
+                            session.round++;
+                            setPhase('work');
+                        }
+                    }
+
+                    if (session.phase === 'work') {
+                        session.callTimer--;
+                        if (session.callTimer <= 0) triggerCallout();
+                    }
+                    updateUI();
+                }, 1000);
+            }
+
+            function end() {
+                session.active = false;
+                clearInterval(session.timer);
+                if (wakeLock) wakeLock.release();
+                window.speechSynthesis.cancel();
+                ui.timer.classList.add('hidden');
+                ui.setup.classList.remove('hidden');
+            }
+
+            // Event Listeners
+            ui.btnStart.onclick = async () => {
+                initAudio();
+                settings.rounds = parseInt(document.getElementById('in-rounds').value);
+                settings.work = parseInt(document.getElementById('in-work').value);
+                settings.rest = parseInt(document.getElementById('in-rest').value);
+                settings.coach = document.getElementById('in-random').checked;
+                settings.pace = parseInt(document.getElementById('in-pace').value);
+                settings.cats = Array.from(document.querySelectorAll('.move-cat:checked')).map(c => c.value);
+                if (settings.cats.length === 0) settings.cats = ['basics'];
+
+                try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e){}
+
+                ui.setup.classList.add('hidden');
+                ui.timer.classList.remove('hidden');
+                ui.timer.classList.add('flex');
+                ui.dispRoundTot.innerText = settings.rounds;
+
+                session.round = 1;
+                session.active = true;
+                setPhase('ready');
+                run();
+            };
+
+            ui.btnEnd.onclick = end;
+
+            ui.btnPause.onclick = () => {
+                session.paused = !session.paused;
+                ui.btnPause.innerText = session.paused ? "Resume" : "Pause";
+                ui.btnPause.classList.toggle('bg-blue-600');
+                ui.btnPause.classList.toggle('bg-slate-800');
+            };
         });
-
-        // --- AUDIO ENGINE (Web Audio API) ---
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        function playTone(freq, type, duration) {
-            if (!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.value = freq;
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-            osc.stop(audioCtx.currentTime + duration);
-        }
-
-        function playBeep() { playTone(880, 'sine', 0.1); } // Second tick
-        function playHighBeep() { playTone(1200, 'sine', 0.1); } // 3-2-1
-        function playBell() { 
-            // Simulated bell
-            if (!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.frequency.value = 400; // Lower bell tone
-            osc.type = 'triangle';
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            gain.gain.setValueAtTime(1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 1.5);
-            osc.stop(audioCtx.currentTime + 1.5);
-        }
-
-        // --- SPEECH ENGINE ---
-        function speak(text) {
-            if (!config.randomEnabled) return;
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(text);
-            u.rate = 1.1;
-            u.pitch = 1;
-            u.lang = 'en-GB';
-            window.speechSynthesis.speak(u);
-        }
-
-        // --- TIMER LOGIC ---
-        async function startTimer() {
-            initAudio();
-            
-            // Acquire wake lock
-            try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(err) {}
-
-            // Gather config
-            config.rounds = parseInt(document.getElementById('in-rounds').value);
-            config.workSec = parseInt(document.getElementById('in-work').value);
-            config.restSec = parseInt(document.getElementById('in-rest').value);
-            config.randomEnabled = document.getElementById('in-random').checked;
-            config.pace = parseInt(document.getElementById('in-pace').value);
-            
-            config.categories = [];
-            document.querySelectorAll('.move-cat:checked').forEach(c => config.categories.push(c.value));
-            if (config.categories.length === 0) config.categories = ['basics']; // Fallback
-
-            // UI Switch
-            document.getElementById('setup-screen').classList.add('hidden');
-            document.getElementById('timer-screen').classList.remove('hidden');
-            document.getElementById('timer-screen').classList.add('flex');
-            
-            document.getElementById('total-rounds').innerText = config.rounds;
-
-            setPhase('ready');
-            
-            state.active = true;
-            state.paused = false;
-            state.round = 1;
-            runLoop();
-        }
-
-        function stopTimer() {
-            state.active = false;
-            clearInterval(state.interval);
-            if (wakeLock) wakeLock.release();
-            window.speechSynthesis.cancel();
-            
-            document.getElementById('timer-screen').classList.add('hidden');
-            document.getElementById('timer-screen').classList.remove('flex');
-            document.getElementById('setup-screen').classList.remove('hidden');
-        }
-
-        function togglePause() {
-            state.paused = !state.paused;
-            document.getElementById('btn-pause').innerText = state.paused ? "Resume" : "Pause";
-            document.getElementById('btn-pause').classList.toggle('bg-yellow-600');
-            document.getElementById('btn-pause').classList.toggle('bg-slate-700');
-        }
-
-        function setPhase(phase) {
-            state.phase = phase;
-            const label = document.getElementById('phase-label');
-            const ring = document.getElementById('progress-ring');
-            const moveCont = document.getElementById('move-container');
-
-            // Reset callout timer
-            resetCalloutTimer();
-
-            if (phase === 'ready') {
-                state.timeLeft = 10;
-                state.totalTime = 10;
-                label.innerText = "GET READY";
-                label.className = "bg-slate-700 text-white px-3 py-1 rounded text-xs font-bold uppercase tracking-widest border border-slate-500";
-                ring.style.stroke = "#cbd5e1";
-                moveCont.classList.add('opacity-0');
-            } 
-            else if (phase === 'work') {
-                state.timeLeft = config.workSec;
-                state.totalTime = config.workSec;
-                label.innerText = "WORK";
-                label.className = "bg-green-500/20 text-green-400 px-3 py-1 rounded text-xs font-bold uppercase tracking-widest border border-
+    </script>
+</body>
+</html>
