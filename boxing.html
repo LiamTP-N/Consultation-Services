@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Interval Coach</title>
+    <title>Boxing Interval Timer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -22,7 +22,6 @@
             font-family: 'DM Sans', system-ui, sans-serif; 
             overscroll-behavior-y: contain;
             background-color: #0f172a;
-            /* overflow: hidden; REMOVED to allow scrolling on setup */
         }
         
         /* Lock scrolling only when timer is running */
@@ -90,8 +89,7 @@
         <!-- SETUP SCREEN -->
         <div id="setup-screen" class="w-full max-w-md space-y-5 py-8 pb-12">
             <div class="text-center mb-2">
-                <h1 class="text-3xl font-bold text-white tracking-tight mb-1">Boxing Intervals!</h1>
-                <p class="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]"></p>
+                <h1 class="text-3xl font-bold text-white tracking-tight mb-1">Boxing Interval Timer</h1>
             </div>
 
             <div class="glass-card p-5 rounded-[2rem] space-y-5">
@@ -148,15 +146,24 @@
 
             <!-- Preview Section -->
             <div class="glass-card p-4 rounded-[1.5rem] space-y-2">
-                <h3 class="font-bold text-white text-xs uppercase tracking-widest ml-1 opacity-70">Session Preview</h3>
-                <div id="round-preview" class="max-h-32 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
-                    <!-- JS Populated -->
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-white text-xs uppercase tracking-widest ml-1 opacity-70">Session Preview</h3>
+                    <button id="btn-toggle-preview" class="text-[10px] bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded uppercase tracking-wider transition-colors">Show</button>
+                </div>
+                <div id="preview-container" class="hidden max-h-32 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
+                    <div id="round-preview"></div>
                 </div>
             </div>
 
-            <button id="btn-start" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl text-lg shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all mb-8">
-                Begin Session
-            </button>
+            <div class="grid grid-cols-3 gap-3">
+                <button id="btn-quick-rest" class="col-span-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 rounded-2xl text-xs sm:text-sm shadow-lg active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight">
+                    <span>Quick Rest</span>
+                    <span class="opacity-50 text-[10px]">(3 min)</span>
+                </button>
+                <button id="btn-start" class="col-span-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl text-lg shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all">
+                    Begin Session
+                </button>
+            </div>
         </div>
 
         <!-- TIMER SCREEN -->
@@ -202,10 +209,10 @@
                 <!-- Skip Controls -->
                 <div class="grid grid-cols-2 gap-4">
                     <button id="btn-prev" class="bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold py-3 rounded-xl transition-all active:scale-95 text-xs uppercase tracking-wider">
-                        &larr; Prev Round
+                        &larr; Prev Step
                     </button>
                     <button id="btn-next" class="bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold py-3 rounded-xl transition-all active:scale-95 text-xs uppercase tracking-wider">
-                        Next Round &rarr;
+                        Next Step &rarr;
                     </button>
                 </div>
 
@@ -266,7 +273,7 @@
 
             // --- APP STATE ---
             let settings = { 
-                mode: 'solo', 
+                mode: 'solo', // 'solo', 'wife', or 'quick-rest'
                 rounds: 12, 
                 work: 60,
                 restBase: 30,
@@ -300,6 +307,8 @@
                 restInfo: document.getElementById('rest-info'),
                 inRandom: document.getElementById('in-random'),
                 gridRounds: document.getElementById('grid-rounds'),
+                previewContainer: document.getElementById('preview-container'),
+                btnTogglePreview: document.getElementById('btn-toggle-preview'),
                 previewList: document.getElementById('round-preview'),
                 
                 badge: document.getElementById('phase-badge'),
@@ -310,6 +319,7 @@
                 roundFocus: document.getElementById('round-focus'),
                 
                 btnStart: document.getElementById('btn-start'),
+                btnQuickRest: document.getElementById('btn-quick-rest'),
                 btnPause: document.getElementById('btn-pause'),
                 btnEnd: document.getElementById('btn-end'),
                 btnNext: document.getElementById('btn-next'),
@@ -342,6 +352,12 @@
                 settings.work = n;
                 Array.from(el.parentNode.children).forEach(b => b.classList.remove('active'));
                 el.classList.add('active');
+            };
+
+            // ---- UI INTERACTIONS ----
+            ui.btnTogglePreview.onclick = () => {
+                ui.previewContainer.classList.toggle('hidden');
+                ui.btnTogglePreview.innerText = ui.previewContainer.classList.contains('hidden') ? "Show" : "Hide";
             };
 
             // ---- MODE SWITCHING ----
@@ -498,7 +514,7 @@
                     
                     ui.roundFocus.innerText = roundData.name;
                     ui.roundCur.innerText = session.round;
-                    ui.nextUp.innerText = ""; // Clear next up during work
+                    ui.nextUp.innerText = ""; 
 
                     if (settings.mode === 'wife') {
                         const isYou = (session.round % 2 !== 0);
@@ -533,18 +549,29 @@
                         ui.nextUp.innerText = "Final Round Complete";
                     }
                     playBell();
+                } else if (phase === 'quick-rest') {
+                    // Custom Quick Rest Phase
+                    // Note: session.time is set before calling setPhase for this mode
+                    ui.timerBg.className = "bg-red-600";
+                    ui.badge.innerText = "RECOVERY";
+                    ui.roundFocus.innerText = "Full Rest";
+                    ui.nextUp.innerText = "";
+                    playBell();
                 }
                 updateUI();
             };
 
             function triggerCallout(first = false) {
+                // Don't call out in quick rest
+                if (settings.mode === 'quick-rest') return;
+                
                 if (session.phase !== 'work') return;
                 
                 const moveList = session.currentMoves;
                 let move = moveList[Math.floor(Math.random() * moveList.length)];
                 
                 if (first) {
-                    // Start of round, no audio move yet, just the theme name spoken in setPhase
+                    // Start of round
                 } else {
                     if (move === session.lastMove && moveList.length > 1) {
                          move = moveList[(moveList.indexOf(move) + 1) % moveList.length];
@@ -561,7 +588,6 @@
                 ui.timerDisplay.innerText = format(session.time);
                 
                 // Background Height Animation
-                // Full at start (100%), empty at end (0%)
                 const pct = (session.time / session.total) * 100;
                 ui.timerBg.style.height = `${pct}%`;
             }
@@ -574,23 +600,13 @@
                     if (session.time <= 3 && session.time > 0) playBeep(session.time === 1);
                     
                     if (session.time < 0) {
-                        const maxRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
-
-                        if (session.phase === 'ready') setPhase('work');
-                        else if (session.phase === 'work') {
-                            if (session.round >= maxRounds) end();
-                            else {
-                                if (settings.mode === 'wife') {
-                                    session.round++;
-                                    setPhase('work');
-                                } else {
-                                    setPhase('rest');
-                                }
-                            }
-                        } else if (session.phase === 'rest') {
-                            session.round++;
-                            setPhase('work');
+                        // Handle Quick Rest End
+                        if (settings.mode === 'quick-rest') {
+                            end();
+                            return;
                         }
+                        
+                        stepPhase(1); // Auto move next
                     }
 
                     if (session.phase === 'work') {
@@ -601,20 +617,95 @@
                 }, 1000);
             }
 
-            function skipRound(dir) {
-                const maxRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
-                let nextRound = session.round + dir;
-                
-                // Boundaries
-                if (nextRound < 1) nextRound = 1;
-                if (nextRound > maxRounds) {
-                    end();
+            function stepPhase(dir) {
+                // Quick Rest: Adjust time by 30s instead of rounds
+                if (settings.mode === 'quick-rest') {
+                    if (dir === 1) {
+                        session.time -= 30; // Skip 30s
+                        if (session.time < 0) session.time = 0;
+                    } else {
+                        session.time += 30; // Add 30s
+                        if (session.time > 3600) session.time = 3600;
+                        session.total = Math.max(session.total, session.time); // adjust total if needed to keep bar sane
+                    }
+                    updateUI();
                     return;
                 }
+
+                const maxRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
                 
-                session.round = nextRound;
-                // Force jump to Work phase of the new round
-                setPhase('work');
+                if (dir === 1) {
+                    // NEXT STEP
+                    if (session.phase === 'ready') {
+                        setPhase('work');
+                    }
+                    else if (session.phase === 'work') {
+                        // Go to REST (unless Wife mode, then next Work)
+                        if (settings.mode === 'wife') {
+                            session.round++;
+                            if (session.round > maxRounds) end();
+                            else setPhase('work');
+                        } 
+                        else {
+                            // Solo mode: Work -> Rest (even on last round usually you rest before finish, or finish immediately. Logic says finish if > rounds)
+                            if (session.round >= maxRounds) end();
+                            else setPhase('rest');
+                        }
+                    } 
+                    else if (session.phase === 'rest') {
+                        // Rest -> Next Work
+                        session.round++;
+                        setPhase('work');
+                    }
+                } 
+                else {
+                    // PREV STEP
+                    if (session.phase === 'ready') {
+                        // Do nothing
+                    }
+                    else if (session.phase === 'work') {
+                        // Work -> Previous Rest (or Ready)
+                        if (settings.mode === 'wife') {
+                            if (session.round > 1) {
+                                session.round--;
+                                setPhase('work');
+                            } else {
+                                setPhase('ready');
+                            }
+                        } 
+                        else {
+                            // Solo: Work -> Previous Rest
+                            if (session.round > 1) {
+                                // If we are in Round 2 Work, Prev means go to Rest 1
+                                // Note: Logic is session.round is current.
+                                // If we go back to rest, session.round stays same? 
+                                // Rest 1 happens after Round 1. 
+                                // So Round 2 Work -> Prev -> Rest 1.
+                                // In 'rest' phase logic: const restDuration = base + (round-1)*5
+                                // If we set round to 2 and phase to rest, it calculates rest duration for having finished round 2.
+                                // We want rest duration for having finished round 1.
+                                // So we effectively step back to round 1, but set phase to rest? No that's Rest 1.
+                                // Actually, standard logic: R1 Work -> R1 Rest -> R2 Work.
+                                // If at R2 Work, prev is R1 Rest.
+                                // If we set round to 1 and phase to rest, logic calc: (1-1)*5 = 0? Wait.
+                                // Logic: Rest after Round X.
+                                // If we go back to "Rest after Round 1", session.round should be 1?
+                                // Let's check rest logic: (session.round - 1) * 5. 
+                                // If session.round is 1, rest is base + 0. Correct.
+                                // So yes, decrement round, set to rest.
+                                session.round--;
+                                setPhase('rest');
+                            } else {
+                                setPhase('ready');
+                            }
+                        }
+                    }
+                    else if (session.phase === 'rest') {
+                        // Rest -> Current Work
+                        // We are in Rest after Round 1. Prev means go back to Work Round 1.
+                        setPhase('work');
+                    }
+                }
             }
 
             function end() {
@@ -638,6 +729,10 @@
                 // LOCK SCROLLING
                 document.body.classList.add('timer-running');
 
+                // Determine Mode
+                if (ui.modeSolo.classList.contains('bg-blue-600')) settings.mode = 'solo';
+                else settings.mode = 'wife';
+
                 ui.setup.classList.add('hidden');
                 ui.timer.classList.remove('hidden');
                 ui.timer.classList.add('flex');
@@ -651,6 +746,31 @@
                 run();
             };
 
+            ui.btnQuickRest.onclick = async () => {
+                initAudio();
+                try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e){}
+                
+                document.body.classList.add('timer-running');
+                
+                // Special Mode
+                settings.mode = 'quick-rest';
+                
+                ui.setup.classList.add('hidden');
+                ui.timer.classList.remove('hidden');
+                ui.timer.classList.add('flex');
+                
+                // Set initial time manually before setPhase
+                session.time = 180; 
+                session.total = 180;
+                session.round = 1;
+                ui.roundTot.innerText = "-";
+                ui.roundCur.innerText = "-";
+                
+                session.active = true;
+                setPhase('quick-rest');
+                run();
+            };
+
             ui.btnEnd.onclick = end;
 
             ui.btnPause.onclick = () => {
@@ -659,8 +779,8 @@
                 ui.btnPause.classList.toggle('bg-white/10');
             };
 
-            ui.btnNext.onclick = () => skipRound(1);
-            ui.btnPrev.onclick = () => skipRound(-1);
+            ui.btnNext.onclick = () => stepPhase(1);
+            ui.btnPrev.onclick = () => stepPhase(-1);
 
             // Run Init Logic
             generateSessionPlan();
