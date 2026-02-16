@@ -137,11 +137,11 @@
 
                     <!-- Work Duration Buttons -->
                     <div class="space-y-2">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Work Time</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Work Time (Secs)</label>
                         <div class="grid grid-cols-3 gap-2">
-                            <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(30, this)">30s</button>
-                            <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(45, this)">45s</button>
-                            <button class="btn-select active py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(60, this)">60s</button>
+                            <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(30, this)">30</button>
+                            <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(45, this)">45</button>
+                            <button class="btn-select active py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(60, this)">60</button>
                         </div>
                     </div>
 
@@ -154,7 +154,7 @@
                     <!-- Red Quick Rest Button -->
                     <button id="btn-quick-rest" class="col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-2xl text-xs sm:text-sm shadow-lg active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight">
                         <span>Quick Rest</span>
-                        <span class="opacity-70 text-[10px]">(3 min)</span>
+                        <span class="opacity-70 text-[10px]">(180s)</span>
                     </button>
                     <!-- Dynamic Theme Start Button -->
                     <button id="btn-start" class="col-span-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl text-lg shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all">
@@ -205,7 +205,7 @@
                 </div>
 
                 <div id="timer-display" class="text-9xl font-black font-mono-display text-white tracking-tighter drop-shadow-2xl">
-                    00:00
+                    0
                 </div>
 
                 <div id="next-up" class="text-sm font-bold text-white/60 uppercase tracking-widest h-6">
@@ -245,7 +245,7 @@
             // --- DATA LIBRARIES ---
             
             const PROGRAM_12_ROUNDS = [
-                { name: "Warm Up", moves: ['Jab', '1-2', 'Move', 'Breathe', 'Light 1-2', 'Shake out'] },
+                { name: "Warm Up: Jab & Move", moves: ['Jab', '1-2', 'Move', 'Breathe', 'Light 1-2', 'Shake out'] },
                 { name: "1-2-3 (Straight-Straight-Hook)", moves: ['1-2-3', 'Jab-Cross-Hook', 'Jab-Uppercut-Hook', 'Cross-Hook-Cross'] },
                 { name: "Uppercut then Hook", moves: ['Lead Uppercut-Hook', 'Rear Uppercut-Lead Hook', 'Uppercut-Hook', '5-3', '6-2'] },
                 { name: "4 Punch Combos", moves: ['1-2-3-2', '1-2-5-2', 'Jab-Cross-Hook-Cross', '1-1-2-3'] },
@@ -337,9 +337,8 @@
             };
 
             const format = (s) => {
-                const m = Math.floor(s / 60).toString().padStart(2, '0');
-                const sec = (Math.max(0, s) % 60).toString().padStart(2, '0');
-                return `${m}:${sec}`;
+                // Returns just the seconds as a string
+                return Math.max(0, s).toString();
             };
 
             // ---- UI GENERATION ----
