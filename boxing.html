@@ -14,6 +14,10 @@
             --accent-orange: #f97316;
             --accent-purple: #a855f7;
             --accent-red: #ef4444;
+            
+            /* Dynamic Theme Variables */
+            --theme-color: #3b82f6; 
+            --theme-shadow: rgba(59, 130, 246, 0.4);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -50,7 +54,7 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
-        /* Button Grid Styles */
+        /* Button Grid Styles using Variables for Theme */
         .btn-select {
             background: rgba(30, 41, 59, 0.8);
             border: 1px solid rgba(255,255,255,0.1);
@@ -58,11 +62,11 @@
             transition: all 0.2s;
         }
         .btn-select.active {
-            background: #3b82f6;
+            background: var(--theme-color);
             color: white;
-            border-color: #3b82f6;
+            border-color: var(--theme-color);
             font-weight: bold;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 0 15px var(--theme-shadow);
         }
         
         .hidden { display: none !important; }
@@ -156,10 +160,12 @@
             </div>
 
             <div class="grid grid-cols-3 gap-3">
-                <button id="btn-quick-rest" class="col-span-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 rounded-2xl text-xs sm:text-sm shadow-lg active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight">
+                <!-- Red Quick Rest Button -->
+                <button id="btn-quick-rest" class="col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-2xl text-xs sm:text-sm shadow-lg active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight">
                     <span>Quick Rest</span>
-                    <span class="opacity-50 text-[10px]">(3 min)</span>
+                    <span class="opacity-70 text-[10px]">(3 min)</span>
                 </button>
+                <!-- Dynamic Theme Start Button -->
                 <button id="btn-start" class="col-span-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl text-lg shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all">
                     Begin Session
                 </button>
@@ -363,14 +369,38 @@
             // ---- MODE SWITCHING ----
             function setMode(mode) {
                 settings.mode = mode;
+                const root = document.documentElement;
+                
+                // Theme Logic
                 if (mode === 'solo') {
+                    // Update Mode Buttons
                     ui.modeSolo.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-blue-600 text-white shadow-md";
                     ui.modeWife.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
+                    
+                    // Info
                     ui.restInfo.innerHTML = `<p class="text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-xs text-slate-400">Starts at 30s, +5s each round.</p>`;
+                    
+                    // Set Theme: BLUE
+                    root.style.setProperty('--theme-color', '#3b82f6');
+                    root.style.setProperty('--theme-shadow', 'rgba(59, 130, 246, 0.4)');
+                    
+                    ui.btnStart.classList.remove('bg-purple-600', 'hover:bg-purple-500', 'shadow-[0_0_20px_rgba(168,85,247,0.4)]');
+                    ui.btnStart.classList.add('bg-blue-600', 'hover:bg-blue-500', 'shadow-[0_0_20px_rgba(59,130,246,0.4)]');
+                    
                 } else {
+                    // Update Mode Buttons
                     ui.modeWife.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white shadow-md";
                     ui.modeSolo.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
+                    
+                    // Info
                     ui.restInfo.innerHTML = `<p class="text-[10px] text-purple-300 font-bold uppercase tracking-widest">Partner Mode</p><p class="text-xs text-slate-400">2x Rounds. No rest timer (You go, I go).</p>`;
+                    
+                    // Set Theme: PURPLE
+                    root.style.setProperty('--theme-color', '#a855f7');
+                    root.style.setProperty('--theme-shadow', 'rgba(168, 85, 247, 0.4)');
+                    
+                    ui.btnStart.classList.remove('bg-blue-600', 'hover:bg-blue-500', 'shadow-[0_0_20px_rgba(59,130,246,0.4)]');
+                    ui.btnStart.classList.add('bg-purple-600', 'hover:bg-purple-500', 'shadow-[0_0_20px_rgba(168,85,247,0.4)]');
                 }
                 generateSessionPlan();
             }
@@ -676,23 +706,6 @@
                         else {
                             // Solo: Work -> Previous Rest
                             if (session.round > 1) {
-                                // If we are in Round 2 Work, Prev means go to Rest 1
-                                // Note: Logic is session.round is current.
-                                // If we go back to rest, session.round stays same? 
-                                // Rest 1 happens after Round 1. 
-                                // So Round 2 Work -> Prev -> Rest 1.
-                                // In 'rest' phase logic: const restDuration = base + (round-1)*5
-                                // If we set round to 2 and phase to rest, it calculates rest duration for having finished round 2.
-                                // We want rest duration for having finished round 1.
-                                // So we effectively step back to round 1, but set phase to rest? No that's Rest 1.
-                                // Actually, standard logic: R1 Work -> R1 Rest -> R2 Work.
-                                // If at R2 Work, prev is R1 Rest.
-                                // If we set round to 1 and phase to rest, logic calc: (1-1)*5 = 0? Wait.
-                                // Logic: Rest after Round X.
-                                // If we go back to "Rest after Round 1", session.round should be 1?
-                                // Let's check rest logic: (session.round - 1) * 5. 
-                                // If session.round is 1, rest is base + 0. Correct.
-                                // So yes, decrement round, set to rest.
                                 session.round--;
                                 setPhase('rest');
                             } else {
@@ -702,7 +715,6 @@
                     }
                     else if (session.phase === 'rest') {
                         // Rest -> Current Work
-                        // We are in Rest after Round 1. Prev means go back to Work Round 1.
                         setPhase('work');
                     }
                 }
@@ -729,9 +741,8 @@
                 // LOCK SCROLLING
                 document.body.classList.add('timer-running');
 
-                // Determine Mode
-                if (ui.modeSolo.classList.contains('bg-blue-600')) settings.mode = 'solo';
-                else settings.mode = 'wife';
+                // Determine Mode (Re-confirm settings just in case)
+                // Use settings.mode which is updated by setMode
 
                 ui.setup.classList.add('hidden');
                 ui.timer.classList.remove('hidden');
@@ -783,7 +794,7 @@
             ui.btnPrev.onclick = () => stepPhase(-1);
 
             // Run Init Logic
-            generateSessionPlan();
+            setMode('solo'); // Initialize theme
         });
     </script>
 </body>
