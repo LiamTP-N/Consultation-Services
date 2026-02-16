@@ -26,7 +26,7 @@
 
         .font-mono-display { font-family: 'Space Mono', monospace; }
 
-        /* Advanced Glassmorphism */
+        /* Glassmorphism */
         .glass-card {
             background: rgba(30, 41, 59, 0.4);
             backdrop-filter: blur(16px);
@@ -47,35 +47,26 @@
             transform-origin: 50% 50%;
         }
 
-        /* Custom Scrollbar for Preview */
+        /* Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
-        /* Custom Range Input */
-        input[type="range"] {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 4px;
-            background: #334155;
-            border-radius: 2px;
-            outline: none;
+        /* Button Grid Styles */
+        .btn-select {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8;
+            transition: all 0.2s;
         }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: white;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-            cursor: pointer;
-            border: 2px solid #3b82f6;
-            transition: transform 0.1s;
+        .btn-select.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
         }
-        input[type="range"]::-webkit-slider-thumb:active {
-            transform: scale(1.2);
-        }
-
+        
         .hidden { display: none !important; }
     </style>
 </head>
@@ -84,57 +75,58 @@
     <!-- SETUP SCREEN -->
     <div id="setup-screen" class="w-full max-w-md space-y-5 py-4">
         <div class="text-center mb-2">
-            <h1 class="text-3xl font-bold text-white tracking-tight mb-1">Interval Coach</h1>
+            <h1 class="text-3xl font-bold text-white tracking-tight mb-1">12 Rounds</h1>
             <p class="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]">Dr. Pearson-Noseworthy</p>
         </div>
 
         <div class="glass-card p-5 rounded-[2rem] space-y-5">
             
-            <!-- Mode Selection -->
+            <!-- Mode Selection (Solo vs Wife) -->
             <div class="flex p-1 bg-slate-800/50 rounded-xl">
-                <button id="mode-freestyle" class="flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-slate-700 text-white shadow-md">Freestyle</button>
-                <button id="mode-program" class="flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">12 Round Class</button>
+                <button id="mode-solo" class="flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-blue-600 text-white shadow-md">Solo</button>
+                <button id="mode-wife" class="flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">With Wife</button>
             </div>
 
-            <!-- Partner Mode Toggle -->
-            <div class="flex items-center justify-between px-2">
-                <div>
-                    <span class="text-sm font-bold text-white block">Partner Mode</span>
-                    <span class="text-[10px] text-slate-400">Doubles rounds, removes rest</span>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="in-partner" class="sr-only peer">
-                    <div class="w-12 h-6 bg-slate-800 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-6 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
-                </label>
+            <div id="rest-info" class="text-center bg-slate-800/30 p-2 rounded-lg border border-slate-700/30">
+                <p class="text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p>
+                <p class="text-xs text-slate-400">Starts at 30s, adds 5s each round.</p>
             </div>
 
-            <hr class="border-slate-700/50">
-
-            <!-- Inputs -->
+            <!-- Controls Grid -->
             <div class="space-y-4">
-                <div class="space-y-2" id="group-rounds">
-                    <div class="flex justify-between items-end">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rounds</label>
-                        <span id="disp-rounds" class="font-mono-display text-xl text-blue-400 font-bold">12</span>
+                
+                <!-- Randomiser Toggle -->
+                <div class="flex items-center justify-between px-1">
+                    <div>
+                        <span class="text-sm font-bold text-white block">Randomise Middle</span>
+                        <span class="text-[10px] text-slate-400">Random moves for Rnds 2-11</span>
                     </div>
-                    <input type="range" min="1" max="24" value="12" id="in-rounds">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="in-random" class="sr-only peer">
+                        <div class="w-12 h-6 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-6 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                    </label>
                 </div>
 
+                <hr class="border-slate-700/50">
+
+                <!-- Rounds Grid -->
                 <div class="space-y-2">
-                    <div class="flex justify-between items-end">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Work Duration</label>
-                        <span id="disp-work" class="font-mono-display text-xl text-green-400 font-bold">03:00</span>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Total Rounds</label>
+                    <div class="grid grid-cols-6 gap-2" id="grid-rounds">
+                        <!-- Generated by JS -->
                     </div>
-                    <input type="range" min="10" max="600" step="10" value="180" id="in-work">
                 </div>
 
-                <div class="space-y-2" id="group-rest">
-                    <div class="flex justify-between items-end">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rest Duration</label>
-                        <span id="disp-rest" class="font-mono-display text-xl text-orange-400 font-bold">01:00</span>
+                <!-- Work Duration Buttons -->
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Work Time</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(30, this)">30s</button>
+                        <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(45, this)">45s</button>
+                        <button class="btn-select active py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(60, this)">60s</button>
                     </div>
-                    <input type="range" min="10" max="300" step="10" value="60" id="in-rest">
                 </div>
+
             </div>
         </div>
 
@@ -142,50 +134,7 @@
         <div class="glass-card p-4 rounded-[1.5rem] space-y-2">
             <h3 class="font-bold text-white text-xs uppercase tracking-widest ml-1 opacity-70">Session Preview</h3>
             <div id="round-preview" class="max-h-32 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
-                <!-- Javascript will populate this -->
-            </div>
-        </div>
-
-        <!-- Coach Settings (Only for Freestyle) -->
-        <div id="coach-settings" class="glass-card p-5 rounded-[2rem] space-y-4 border-t-2 border-purple-500/30 transition-all">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="font-bold text-white text-sm">Coach Callouts</h3>
-                    <p class="text-[10px] text-slate-500">Audio commands</p>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="in-random" class="sr-only peer" checked>
-                    <div class="w-10 h-5 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all"></div>
-                </label>
-            </div>
-
-            <div id="random-options" class="space-y-3">
-                <div class="space-y-2">
-                    <div class="flex justify-between items-center">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">Pace</label>
-                        <span id="disp-pace" class="text-[10px] font-bold text-purple-400 uppercase">Medium</span>
-                    </div>
-                    <input type="range" min="1" max="3" value="2" id="in-pace">
-                </div>
-                
-                <div class="grid grid-cols-2 gap-2" id="cat-select">
-                    <label class="glass-inset p-2 rounded-lg flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" class="move-cat w-3 h-3 accent-purple-500" value="basics" checked>
-                        <span class="text-[10px] font-bold text-slate-300">Basics</span>
-                    </label>
-                    <label class="glass-inset p-2 rounded-lg flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" class="move-cat w-3 h-3 accent-purple-500" value="defense" checked>
-                        <span class="text-[10px] font-bold text-slate-300">Defense</span>
-                    </label>
-                    <label class="glass-inset p-2 rounded-lg flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" class="move-cat w-3 h-3 accent-purple-500" value="complex">
-                        <span class="text-[10px] font-bold text-slate-300">Complex</span>
-                    </label>
-                    <label class="glass-inset p-2 rounded-lg flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" class="move-cat w-3 h-3 accent-purple-500" value="footwork">
-                        <span class="text-[10px] font-bold text-slate-300">Footwork</span>
-                    </label>
-                </div>
+                <!-- JS Populated -->
             </div>
         </div>
 
@@ -245,10 +194,11 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Configuration Data
             const FREESTYLE_MOVES = {
-                basics: ['Jab', 'Cross', '1-2', '1-1-2', 'Jab, Hook', 'Cross, Hook', 'Double Jab'],
-                defense: ['Slip Left', 'Slip Right', 'Roll', 'Duck', 'High Block', 'Parry'],
-                complex: ['1-2-3', '2-3-2', 'Lead Uppercut', 'Liver Shot', '1-2-Roll-2', 'Speed Jab'],
-                footwork: ['Pivot', 'Step Back', 'Angle Right', 'Circle Left', 'Reset Center']
+                all: [
+                    'Jab', 'Cross', '1-2', '1-1-2', 'Jab, Hook', 'Cross, Hook', 
+                    'Double Jab', 'Slip Left', 'Slip Right', 'Roll', 'Duck', 
+                    '1-2-3', '2-3-2', 'Lead Uppercut', 'Liver Shot', '1-2-Roll-2'
+                ]
             };
 
             const PROGRAM_12_ROUNDS = [
@@ -268,14 +218,11 @@
 
             // App State
             let settings = { 
-                mode: 'freestyle',
+                mode: 'solo', // 'solo' or 'wife'
                 rounds: 12, 
-                work: 180, 
-                rest: 60, 
-                partner: false,
-                coach: true, 
-                pace: 2, 
-                cats: [] 
+                work: 60,
+                restBase: 30, // Starting rest
+                randomiseMiddle: false
             };
             
             let session = { 
@@ -298,38 +245,26 @@
                 setup: document.getElementById('setup-screen'),
                 timer: document.getElementById('timer-screen'),
                 
-                // Inputs
-                inRounds: document.getElementById('in-rounds'),
-                inWork: document.getElementById('in-work'),
-                inRest: document.getElementById('in-rest'),
-                inPartner: document.getElementById('in-partner'),
+                // Controls
+                modeSolo: document.getElementById('mode-solo'),
+                modeWife: document.getElementById('mode-wife'),
+                restInfo: document.getElementById('rest-info'),
                 inRandom: document.getElementById('in-random'),
+                gridRounds: document.getElementById('grid-rounds'),
                 
                 // Display
-                dispRounds: document.getElementById('disp-rounds'),
-                dispWork: document.getElementById('disp-work'),
-                dispRest: document.getElementById('disp-rest'),
-                dispPace: document.getElementById('disp-pace'),
-                dispTime: document.getElementById('timer-display'),
-                dispRoundCur: document.getElementById('current-round'),
-                dispRoundTot: document.getElementById('total-rounds'),
-                dispNext: document.getElementById('next-up'),
-                dispCallout: document.getElementById('current-callout'),
-                dispCallLabel: document.getElementById('callout-label'),
                 previewList: document.getElementById('round-preview'),
                 
-                // Mode Switchers
-                modeFreestyle: document.getElementById('mode-freestyle'),
-                modeProgram: document.getElementById('mode-program'),
-                
-                // Elements
+                // Timer
                 ring: document.getElementById('progress-ring'),
                 badge: document.getElementById('phase-badge'),
                 calloutCard: document.getElementById('callout-card'),
-                coachSettings: document.getElementById('coach-settings'),
-                roundLabel: document.getElementById('round-label'),
-                groupRounds: document.getElementById('group-rounds'),
-                groupRest: document.getElementById('group-rest'),
+                timerDisplay: document.getElementById('timer-display'),
+                roundCur: document.getElementById('current-round'),
+                roundTot: document.getElementById('total-rounds'),
+                nextUp: document.getElementById('next-up'),
+                callLabel: document.getElementById('callout-label'),
+                callText: document.getElementById('current-callout'),
                 
                 // Buttons
                 btnStart: document.getElementById('btn-start'),
@@ -343,48 +278,97 @@
                 return `${m}:${sec}`;
             };
 
+            // ---- UI GENERATION ----
+            // Round Buttons 1-12
+            for (let i = 1; i <= 12; i++) {
+                const btn = document.createElement('button');
+                btn.className = `btn-select py-2 rounded-lg text-xs font-bold ${i === 12 ? 'active' : ''}`;
+                btn.innerText = i;
+                btn.onclick = () => selectRound(i, btn);
+                ui.gridRounds.appendChild(btn);
+            }
+
+            window.selectRound = (n, el) => {
+                settings.rounds = n;
+                Array.from(ui.gridRounds.children).forEach(b => b.classList.remove('active'));
+                el.classList.add('active');
+                updatePreview();
+            };
+
+            window.selectWork = (n, el) => {
+                settings.work = n;
+                Array.from(el.parentNode.children).forEach(b => b.classList.remove('active'));
+                el.classList.add('active');
+            };
+
+            // ---- MODE SWITCHING ----
+            function setMode(mode) {
+                settings.mode = mode;
+                if (mode === 'solo') {
+                    ui.modeSolo.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-blue-600 text-white shadow-md";
+                    ui.modeWife.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
+                    
+                    ui.restInfo.innerHTML = `<p class="text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-xs text-slate-400">Starts at 30s, +5s each round.</p>`;
+                } else {
+                    ui.modeWife.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white shadow-md";
+                    ui.modeSolo.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
+                    
+                    ui.restInfo.innerHTML = `<p class="text-[10px] text-purple-300 font-bold uppercase tracking-widest">Partner Mode</p><p class="text-xs text-slate-400">2x Rounds. No rest timer (You go, I go).</p>`;
+                }
+                updatePreview();
+            }
+            
+            ui.modeSolo.onclick = () => setMode('solo');
+            ui.modeWife.onclick = () => setMode('wife');
+            ui.inRandom.onchange = (e) => {
+                settings.randomiseMiddle = e.target.checked;
+                updatePreview();
+            };
+
             // ---- PREVIEW LOGIC ----
             function updatePreview() {
                 ui.previewList.innerHTML = '';
                 
-                // Determine total rounds
-                let total = settings.mode === 'program' ? 12 : parseInt(ui.inRounds.value);
-                if (ui.inPartner.checked) total *= 2; // Partner doubles rounds
+                let displayRounds = settings.rounds;
+                let actualRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
 
-                // Partner Mode: Rounds 1&2 are Theme 1, 3&4 are Theme 2, etc.
-                // Solo Mode: Round 1 is Theme 1, Round 2 is Theme 2.
-
-                for (let i = 1; i <= total; i++) {
+                for (let i = 1; i <= actualRounds; i++) {
                     let title = `Round ${i}`;
                     let subtitle = "";
                     let colorClass = "text-slate-300";
 
-                    if (settings.mode === 'program') {
-                        // Calculate which Program Theme applies to this round
-                        // If Partner: R1=0, R2=0, R3=1, R4=1
-                        // If Solo: R1=0, R2=1
-                        const themeIdx = ui.inPartner.checked ? Math.floor((i-1)/2) : i-1;
-                        const theme = PROGRAM_12_ROUNDS[themeIdx % PROGRAM_12_ROUNDS.length].name;
+                    // Calculate Theme Index
+                    // Solo: i-1
+                    // Wife: floor((i-1)/2)
+                    let themeIdx = settings.mode === 'wife' ? Math.floor((i-1)/2) : i-1;
+                    
+                    // Determine Logic
+                    // Randomise if: Toggle ON AND not first theme AND not last theme
+                    // Note: Last theme is index 11 (Constant). 
+                    // If user selects 4 rounds, last theme is index 3. 
+                    // Logic: Round 1 (Warmup) fixed. Round N (Last) fixed. Middle random.
+                    
+                    let isFirst = (themeIdx === 0);
+                    let isLast = (themeIdx === settings.rounds - 1);
+                    
+                    let themeName = "";
 
-                        if (ui.inPartner.checked) {
-                            const isYou = (i % 2 !== 0);
-                            title = isYou ? "YOU" : "PARTNER";
-                            subtitle = theme;
-                            colorClass = isYou ? "text-green-400" : "text-purple-400";
-                        } else {
-                            title = `${i}. ${theme}`;
-                        }
+                    if (settings.randomiseMiddle && !isFirst && !isLast) {
+                        themeName = "Random / Freestyle";
                     } else {
-                        // Freestyle
-                        if (ui.inPartner.checked) {
-                            const isYou = (i % 2 !== 0);
-                            title = isYou ? `Round ${i} (YOU)` : `Round ${i} (PARTNER)`;
-                            colorClass = isYou ? "text-green-400" : "text-purple-400";
-                            subtitle = "Freestyle Random";
-                        } else {
-                            title = `Round ${i}`;
-                            subtitle = "Freestyle Random";
-                        }
+                        // Fallback to program list, looping if rounds > 12
+                        const prog = PROGRAM_12_ROUNDS[themeIdx % PROGRAM_12_ROUNDS.length];
+                        themeName = prog.name;
+                    }
+
+                    if (settings.mode === 'wife') {
+                        const isYou = (i % 2 !== 0);
+                        title = isYou ? "YOU" : "PARTNER";
+                        subtitle = themeName;
+                        colorClass = isYou ? "text-green-400" : "text-purple-400";
+                    } else {
+                        title = `${i}. ${themeName}`;
+                        subtitle = settings.mode === 'solo' ? `Rest: ${settings.restBase + ((i-1)*5)}s` : '';
                     }
 
                     // Create Element
@@ -392,62 +376,11 @@
                     div.className = "text-[10px] p-2 rounded bg-slate-800/40 border border-slate-700/50 flex justify-between items-center";
                     div.innerHTML = `
                         <span class="font-bold ${colorClass}">${title}</span>
-                        <span class="text-slate-500 truncate ml-2 max-w-[120px] text-right">${subtitle}</span>
+                        <span class="text-slate-500 truncate ml-2 max-w-[150px] text-right">${subtitle}</span>
                     `;
                     ui.previewList.appendChild(div);
                 }
             }
-
-            // ---- MODE SWITCHING ----
-            function setMode(mode) {
-                settings.mode = mode;
-                if (mode === 'freestyle') {
-                    ui.modeFreestyle.className = "flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-slate-700 text-white shadow-md";
-                    ui.modeProgram.className = "flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
-                    
-                    ui.groupRounds.classList.remove('opacity-50', 'pointer-events-none');
-                    ui.coachSettings.classList.remove('hidden');
-                } else {
-                    ui.modeProgram.className = "flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-blue-600 text-white shadow-md";
-                    ui.modeFreestyle.className = "flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
-                    
-                    ui.inWork.value = 60; ui.dispWork.innerText = "01:00";
-                    ui.inRest.value = 60; ui.dispRest.innerText = "01:00";
-                    ui.inRounds.value = 12; ui.dispRounds.innerText = "12";
-                    
-                    ui.groupRounds.classList.add('opacity-50', 'pointer-events-none');
-                    ui.coachSettings.classList.add('hidden');
-                }
-                updatePreview();
-            }
-            
-            ui.modeFreestyle.onclick = () => setMode('freestyle');
-            ui.modeProgram.onclick = () => setMode('program');
-
-            // ---- INPUT UPDATES ----
-            ui.inRounds.oninput = (e) => { ui.dispRounds.innerText = e.target.value; updatePreview(); };
-            ui.inWork.oninput = (e) => ui.dispWork.innerText = format(e.target.value);
-            ui.inRest.oninput = (e) => ui.dispRest.innerText = format(e.target.value);
-            
-            ui.inPartner.onchange = (e) => {
-                // If partner checked, rest is disabled/hidden logically
-                if (e.target.checked) {
-                    ui.groupRest.classList.add('opacity-30', 'pointer-events-none');
-                    if (settings.mode === 'program') ui.dispRounds.innerText = "24";
-                } else {
-                    ui.groupRest.classList.remove('opacity-30', 'pointer-events-none');
-                    if (settings.mode === 'program') ui.dispRounds.innerText = "12";
-                }
-                updatePreview();
-            };
-
-            document.getElementById('in-pace').oninput = (e) => {
-                const map = { 1: 'High Pace', 2: 'Medium', 3: 'Technical' };
-                ui.dispPace.innerText = map[e.target.value];
-            };
-            ui.inRandom.onchange = (e) => {
-                document.getElementById('random-options').style.opacity = e.target.checked ? '1' : '0.3';
-            };
 
             // ---- AUDIO ----
             function initAudio() {
@@ -488,135 +421,131 @@
             }
 
             function speak(text) {
-                if (!settings.coach) return;
                 window.speechSynthesis.cancel();
                 const u = new SpeechSynthesisUtterance(text);
                 u.rate = 1.2; u.pitch = 1; u.lang = 'en-GB';
                 window.speechSynthesis.speak(u);
             }
 
-            // ---- SESSION STATE MACHINE ----
+            // ---- SESSION LOGIC ----
             const setPhase = (phase) => {
                 session.phase = phase;
                 ui.calloutCard.classList.add('opacity-0', 'translate-y-4');
                 
                 if (phase === 'ready') {
-                    // PREPARE: ORANGE
+                    // PREPARE (Orange)
                     session.time = 20; 
                     session.total = 20;
                     ui.badge.innerText = "Prepare";
                     ui.badge.className = "px-4 py-2 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 text-[10px] font-black uppercase tracking-widest";
                     ui.ring.style.stroke = "#f97316"; 
-                    ui.dispNext.innerText = "Gloves On - Get Ready";
-                    if (settings.mode === 'program') ui.dispNext.innerText = "Next: Warm Up - Slow Constant";
+                    ui.nextUp.innerText = "Next: Warm Up";
                     
                 } else if (phase === 'work') {
                     session.time = settings.work; session.total = settings.work;
                     playBell();
                     
-                    // Show Program Info
                     ui.calloutCard.classList.remove('opacity-0', 'translate-y-4');
                     
-                    // Logic for Name/Theme
-                    let themeName = "Freestyle";
-                    let isYou = true;
+                    // Determine Theme
+                    // Logic matches preview:
+                    const themeIdx = settings.mode === 'wife' ? Math.floor((session.round - 1) / 2) : session.round - 1;
+                    const isFirst = (themeIdx === 0);
+                    const isLast = (themeIdx === settings.rounds - 1);
+                    
+                    let themeName = "";
+                    let isRandom = false;
 
-                    if (settings.mode === 'program') {
-                        const themeIdx = settings.partner ? Math.floor((session.round - 1) / 2) : session.round - 1;
-                        const theme = PROGRAM_12_ROUNDS[themeIdx % PROGRAM_12_ROUNDS.length];
-                        themeName = theme.name;
-                    }
-
-                    if (settings.partner) {
-                        isYou = (session.round % 2 !== 0); // Odd rounds = You
-                        ui.dispCallLabel.innerText = isYou ? `YOU • ${themeName}` : `PARTNER • ${themeName}`;
+                    if (settings.randomiseMiddle && !isFirst && !isLast) {
+                        themeName = "Random / Freestyle";
+                        isRandom = true;
                     } else {
-                        ui.dispCallLabel.innerText = themeName;
+                        const prog = PROGRAM_12_ROUNDS[themeIdx % PROGRAM_12_ROUNDS.length];
+                        themeName = prog.name;
                     }
 
-                    // COLORS:
-                    if (settings.partner) {
+                    // Store move source for callouts
+                    session.isRandomRound = isRandom;
+                    session.currentProgramMoves = isRandom ? FREESTYLE_MOVES.all : PROGRAM_12_ROUNDS[themeIdx % PROGRAM_12_ROUNDS.length].moves;
+
+                    let isYou = true;
+                    if (settings.mode === 'wife') {
+                        isYou = (session.round % 2 !== 0);
+                        ui.callLabel.innerText = isYou ? `YOU • ${themeName}` : `PARTNER • ${themeName}`;
+                        
+                        // Colors
                         if (isYou) {
-                            // YOU: GREEN
                             ui.badge.innerText = "YOU: Work";
                             ui.badge.className = "px-4 py-2 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-[10px] font-black uppercase tracking-widest";
                             ui.ring.style.stroke = "#22c55e";
                         } else {
-                            // PARTNER: PURPLE
                             ui.badge.innerText = "PARTNER: Work";
                             ui.badge.className = "px-4 py-2 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 text-[10px] font-black uppercase tracking-widest";
                             ui.ring.style.stroke = "#a855f7";
                         }
                     } else {
-                        // SOLO WORK: GREEN
+                        ui.callLabel.innerText = themeName;
                         ui.badge.innerText = "Work";
                         ui.badge.className = "px-4 py-2 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-[10px] font-black uppercase tracking-widest";
                         ui.ring.style.stroke = "#22c55e";
                     }
 
-                    ui.dispRoundCur.innerText = session.round;
-                    ui.dispNext.innerText = "";
+                    ui.roundCur.innerText = session.round;
+                    ui.nextUp.innerText = "";
                     
-                    // Initial Callout logic
-                    if (settings.mode === 'program' || settings.coach) triggerCallout(true);
+                    // Initial Callout
+                    if (!isRandom) speak(themeName);
+                    triggerCallout(true);
 
                 } else if (phase === 'rest') {
-                    // REST: RED
-                    session.time = settings.rest; session.total = settings.rest;
-                    ui.badge.innerText = "Rest";
+                    // REST (Red)
+                    // Calculate Progressive Rest
+                    // Round 1 done -> Rest 1. (30s)
+                    // Round 2 done -> Rest 2. (35s)
+                    const restDuration = settings.restBase + ((session.round - 1) * 5);
+                    
+                    session.time = restDuration; session.total = restDuration;
+                    ui.badge.innerText = `Rest (${restDuration}s)`;
                     ui.badge.className = "px-4 py-2 rounded-full border border-red-500/30 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest";
                     ui.ring.style.stroke = "#ef4444";
                     
-                    ui.dispNext.innerText = session.round < settings.rounds ? `Up Next: Round ${session.round + 1}` : "Final Round Complete";
+                    ui.nextUp.innerText = session.round < settings.rounds ? `Up Next: Round ${session.round + 1}` : "Final Round Complete";
                     playBell();
                 }
                 updateUI();
             };
 
             function triggerCallout(first = false) {
-                if (!settings.coach || session.phase !== 'work') return;
+                if (session.phase !== 'work') return;
                 
-                let moveList = [];
+                const moveList = session.currentProgramMoves;
+                let move = moveList[Math.floor(Math.random() * moveList.length)];
                 
-                if (settings.mode === 'program') {
-                    const themeIndex = settings.partner 
-                        ? Math.floor((session.round - 1) / 2) 
-                        : session.round - 1;
-                    const theme = PROGRAM_12_ROUNDS[themeIndex % PROGRAM_12_ROUNDS.length];
-                    moveList = theme.moves;
-                    
-                    if (first) {
-                         speak(theme.name);
-                         ui.dispCallout.innerText = "GO";
-                    }
+                if (first && !session.isRandomRound) {
+                    ui.callText.innerText = "GO";
                 } else {
-                    if (settings.cats.length === 0) settings.cats = ['basics'];
-                    const cat = settings.cats[Math.floor(Math.random() * settings.cats.length)];
-                    moveList = FREESTYLE_MOVES[cat];
-                }
-
-                if (!first || settings.mode === 'freestyle') {
-                    let move = moveList[Math.floor(Math.random() * moveList.length)];
+                    // Avoid repeats
                     if (move === session.lastMove && moveList.length > 1) {
                          move = moveList[(moveList.indexOf(move) + 1) % moveList.length];
                     }
                     session.lastMove = move;
 
-                    ui.dispCallout.classList.add('scale-90', 'opacity-50');
+                    ui.callText.classList.add('scale-90', 'opacity-50');
                     setTimeout(() => {
-                        ui.dispCallout.innerText = move;
-                        ui.dispCallout.classList.remove('scale-90', 'opacity-50');
+                        ui.callText.innerText = move;
+                        ui.callText.classList.remove('scale-90', 'opacity-50');
                         speak(move);
                     }, 100);
                 }
 
-                const delays = { 1: [2, 3], 2: [3, 5], 3: [5, 8] };
-                const [min, max] = delays[settings.pace];
+                // Callout timing (Medium pace default)
+                // We can hardcode medium (3-5s) or add pace slider back if needed
+                const min = 3, max = 5;
                 session.callTimer = Math.floor(Math.random() * (max - min + 1) + min);
             }
 
             function updateUI() {
-                ui.dispTime.innerText = format(session.time);
+                ui.timerDisplay.innerText = format(session.time);
                 const circumference = 289;
                 const offset = circumference - ((session.time / session.total) * circumference);
                 ui.ring.style.strokeDashoffset = offset;
@@ -630,14 +559,15 @@
                     if (session.time <= 3 && session.time > 0) playBeep(session.time === 1);
                     
                     if (session.time < 0) {
+                        const maxRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
+
                         if (session.phase === 'ready') setPhase('work');
                         else if (session.phase === 'work') {
-                            if (session.round >= settings.rounds) end();
+                            if (session.round >= maxRounds) end();
                             else {
-                                if (settings.partner) {
-                                    // PARTNER MODE: SKIP REST, GO STRAIGHT TO WORK (Next Round)
+                                if (settings.mode === 'wife') {
                                     session.round++;
-                                    setPhase('work');
+                                    setPhase('work'); // Immediate switch
                                 } else {
                                     setPhase('rest');
                                 }
@@ -665,30 +595,18 @@
                 ui.setup.classList.remove('hidden');
             }
 
-            // ---- INITIALIZE ----
+            // ---- INITIALIZATION ----
             ui.btnStart.onclick = async () => {
                 initAudio();
-                
-                settings.partner = ui.inPartner.checked;
-                settings.work = parseInt(ui.inWork.value);
-                settings.rest = parseInt(ui.inRest.value);
-                settings.pace = parseInt(document.getElementById('in-pace').value);
-                settings.coach = ui.inRandom.checked;
-
-                if (settings.mode === 'program') {
-                    settings.rounds = settings.partner ? 24 : 12;
-                } else {
-                    settings.rounds = parseInt(ui.inRounds.value);
-                    if (settings.partner) settings.rounds *= 2;
-                    settings.cats = Array.from(document.querySelectorAll('.move-cat:checked')).map(c => c.value);
-                }
-
                 try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e){}
 
                 ui.setup.classList.add('hidden');
                 ui.timer.classList.remove('hidden');
                 ui.timer.classList.add('flex');
-                ui.dispRoundTot.innerText = settings.rounds;
+                
+                // Actual round count for display logic
+                const totalDisplay = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
+                ui.roundTot.innerText = totalDisplay;
 
                 session.round = 1;
                 session.active = true;
@@ -705,7 +623,7 @@
                 ui.btnPause.classList.toggle('bg-slate-800');
             };
 
-            // Run on load
+            // Init
             updatePreview();
         });
     </script>
