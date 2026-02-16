@@ -13,6 +13,7 @@
             --accent-green: #22c55e;
             --accent-orange: #f97316;
             --accent-purple: #a855f7;
+            --accent-red: #ef4444;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -41,10 +42,15 @@
 
         /* Animated Progress Ring */
         .timer-ring {
-            transition: stroke-dashoffset 0.2s linear;
+            transition: stroke-dashoffset 0.2s linear, stroke 0.3s ease;
             transform: rotate(-90deg);
             transform-origin: 50% 50%;
         }
+
+        /* Custom Scrollbar for Preview */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
         /* Custom Range Input */
         input[type="range"] {
@@ -70,39 +76,22 @@
             transform: scale(1.2);
         }
 
-        .phase-transition {
-            animation: phaseIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        @keyframes phaseIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
         .hidden { display: none !important; }
-        
-        /* Toggle Switch */
-        .toggle-checkbox:checked {
-            right: 0;
-            border-color: #68D391;
-        }
-        .toggle-checkbox:checked + .toggle-label {
-            background-color: #68D391;
-        }
     </style>
 </head>
 <body class="text-slate-200 min-h-screen flex flex-col items-center justify-center p-4">
 
     <!-- SETUP SCREEN -->
-    <div id="setup-screen" class="w-full max-w-md space-y-6">
-        <div class="text-center mb-6">
+    <div id="setup-screen" class="w-full max-w-md space-y-5 py-4">
+        <div class="text-center mb-2">
             <h1 class="text-3xl font-bold text-white tracking-tight mb-1">Interval Coach</h1>
             <p class="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]">Dr. Pearson-Noseworthy</p>
         </div>
 
-        <div class="glass-card p-6 rounded-[2rem] space-y-6">
+        <div class="glass-card p-5 rounded-[2rem] space-y-5">
             
             <!-- Mode Selection -->
-            <div class="flex p-1 bg-slate-800/50 rounded-xl mb-4">
+            <div class="flex p-1 bg-slate-800/50 rounded-xl">
                 <button id="mode-freestyle" class="flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-slate-700 text-white shadow-md">Freestyle</button>
                 <button id="mode-program" class="flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">12 Round Class</button>
             </div>
@@ -111,7 +100,7 @@
             <div class="flex items-center justify-between px-2">
                 <div>
                     <span class="text-sm font-bold text-white block">Partner Mode</span>
-                    <span class="text-[10px] text-slate-400">Doubles rounds (You go, I go)</span>
+                    <span class="text-[10px] text-slate-400">Doubles rounds, removes rest</span>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="in-partner" class="sr-only peer">
@@ -119,80 +108,88 @@
                 </label>
             </div>
 
-            <hr class="border-slate-700/50 my-2">
+            <hr class="border-slate-700/50">
 
-            <!-- Rounds Control -->
-            <div class="space-y-3" id="group-rounds">
-                <div class="flex justify-between items-end">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rounds</label>
-                    <span id="disp-rounds" class="font-mono-display text-2xl text-blue-400 font-bold">12</span>
+            <!-- Inputs -->
+            <div class="space-y-4">
+                <div class="space-y-2" id="group-rounds">
+                    <div class="flex justify-between items-end">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rounds</label>
+                        <span id="disp-rounds" class="font-mono-display text-xl text-blue-400 font-bold">12</span>
+                    </div>
+                    <input type="range" min="1" max="24" value="12" id="in-rounds">
                 </div>
-                <input type="range" min="1" max="24" value="12" id="in-rounds">
+
+                <div class="space-y-2">
+                    <div class="flex justify-between items-end">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Work Duration</label>
+                        <span id="disp-work" class="font-mono-display text-xl text-green-400 font-bold">03:00</span>
+                    </div>
+                    <input type="range" min="10" max="600" step="10" value="180" id="in-work">
+                </div>
+
+                <div class="space-y-2" id="group-rest">
+                    <div class="flex justify-between items-end">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rest Duration</label>
+                        <span id="disp-rest" class="font-mono-display text-xl text-orange-400 font-bold">01:00</span>
+                    </div>
+                    <input type="range" min="10" max="300" step="10" value="60" id="in-rest">
+                </div>
             </div>
+        </div>
 
-            <!-- Work Control -->
-            <div class="space-y-3">
-                <div class="flex justify-between items-end">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Work Duration</label>
-                    <span id="disp-work" class="font-mono-display text-2xl text-green-400 font-bold">03:00</span>
-                </div>
-                <input type="range" min="10" max="600" step="10" value="180" id="in-work">
-            </div>
-
-            <!-- Rest Control -->
-            <div class="space-y-3">
-                <div class="flex justify-between items-end">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rest Duration</label>
-                    <span id="disp-rest" class="font-mono-display text-2xl text-orange-400 font-bold">01:00</span>
-                </div>
-                <input type="range" min="10" max="300" step="10" value="60" id="in-rest">
+        <!-- Preview Section -->
+        <div class="glass-card p-4 rounded-[1.5rem] space-y-2">
+            <h3 class="font-bold text-white text-xs uppercase tracking-widest ml-1 opacity-70">Session Preview</h3>
+            <div id="round-preview" class="max-h-32 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
+                <!-- Javascript will populate this -->
             </div>
         </div>
 
         <!-- Coach Settings (Only for Freestyle) -->
-        <div id="coach-settings" class="glass-card p-6 rounded-[2rem] space-y-5 border-t-2 border-purple-500/30 transition-all">
+        <div id="coach-settings" class="glass-card p-5 rounded-[2rem] space-y-4 border-t-2 border-purple-500/30 transition-all">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="font-bold text-white">Coach Callouts</h3>
-                    <p class="text-xs text-slate-500">Audio commands</p>
+                    <h3 class="font-bold text-white text-sm">Coach Callouts</h3>
+                    <p class="text-[10px] text-slate-500">Audio commands</p>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="in-random" class="sr-only peer" checked>
-                    <div class="w-12 h-6 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-6 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                    <div class="w-10 h-5 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all"></div>
                 </label>
             </div>
 
-            <div id="random-options" class="space-y-4">
+            <div id="random-options" class="space-y-3">
                 <div class="space-y-2">
                     <div class="flex justify-between items-center">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase">Intensity / Pace</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Pace</label>
                         <span id="disp-pace" class="text-[10px] font-bold text-purple-400 uppercase">Medium</span>
                     </div>
                     <input type="range" min="1" max="3" value="2" id="in-pace">
                 </div>
                 
                 <div class="grid grid-cols-2 gap-2" id="cat-select">
-                    <label class="glass-inset p-3 rounded-xl flex items-center space-x-3 cursor-pointer">
-                        <input type="checkbox" class="move-cat w-4 h-4 accent-purple-500" value="basics" checked>
-                        <span class="text-xs font-bold text-slate-300">Basics</span>
+                    <label class="glass-inset p-2 rounded-lg flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" class="move-cat w-3 h-3 accent-purple-500" value="basics" checked>
+                        <span class="text-[10px] font-bold text-slate-300">Basics</span>
                     </label>
-                    <label class="glass-inset p-3 rounded-xl flex items-center space-x-3 cursor-pointer">
-                        <input type="checkbox" class="move-cat w-4 h-4 accent-purple-500" value="defense" checked>
-                        <span class="text-xs font-bold text-slate-300">Defense</span>
+                    <label class="glass-inset p-2 rounded-lg flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" class="move-cat w-3 h-3 accent-purple-500" value="defense" checked>
+                        <span class="text-[10px] font-bold text-slate-300">Defense</span>
                     </label>
-                    <label class="glass-inset p-3 rounded-xl flex items-center space-x-3 cursor-pointer">
-                        <input type="checkbox" class="move-cat w-4 h-4 accent-purple-500" value="complex">
-                        <span class="text-xs font-bold text-slate-300">Complex</span>
+                    <label class="glass-inset p-2 rounded-lg flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" class="move-cat w-3 h-3 accent-purple-500" value="complex">
+                        <span class="text-[10px] font-bold text-slate-300">Complex</span>
                     </label>
-                    <label class="glass-inset p-3 rounded-xl flex items-center space-x-3 cursor-pointer">
-                        <input type="checkbox" class="move-cat w-4 h-4 accent-purple-500" value="footwork">
-                        <span class="text-xs font-bold text-slate-300">Footwork</span>
+                    <label class="glass-inset p-2 rounded-lg flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" class="move-cat w-3 h-3 accent-purple-500" value="footwork">
+                        <span class="text-[10px] font-bold text-slate-300">Footwork</span>
                     </label>
                 </div>
             </div>
         </div>
 
-        <button id="btn-start" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-5 rounded-2xl text-xl shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all">
+        <button id="btn-start" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl text-lg shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all">
             Begin Session
         </button>
     </div>
@@ -217,7 +214,7 @@
         <div class="relative w-80 h-80 flex items-center justify-center">
             <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="4" />
-                <circle id="progress-ring" class="timer-ring" cx="50" cy="50" r="46" fill="none" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="0" />
+                <circle id="progress-ring" class="timer-ring" cx="50" cy="50" r="46" fill="none" stroke="#f97316" stroke-width="4" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="0" />
             </svg>
             
             <div class="text-center z-10">
@@ -271,7 +268,7 @@
 
             // App State
             let settings = { 
-                mode: 'freestyle', // or 'program'
+                mode: 'freestyle',
                 rounds: 12, 
                 work: 180, 
                 rest: 60, 
@@ -319,6 +316,7 @@
                 dispNext: document.getElementById('next-up'),
                 dispCallout: document.getElementById('current-callout'),
                 dispCallLabel: document.getElementById('callout-label'),
+                previewList: document.getElementById('round-preview'),
                 
                 // Mode Switchers
                 modeFreestyle: document.getElementById('mode-freestyle'),
@@ -331,6 +329,7 @@
                 coachSettings: document.getElementById('coach-settings'),
                 roundLabel: document.getElementById('round-label'),
                 groupRounds: document.getElementById('group-rounds'),
+                groupRest: document.getElementById('group-rest'),
                 
                 // Buttons
                 btnStart: document.getElementById('btn-start'),
@@ -338,54 +337,110 @@
                 btnEnd: document.getElementById('btn-end')
             };
 
-            // Formatting
             const format = (s) => {
                 const m = Math.floor(s / 60).toString().padStart(2, '0');
                 const sec = (Math.max(0, s) % 60).toString().padStart(2, '0');
                 return `${m}:${sec}`;
             };
 
-            // Mode Switching Logic
+            // ---- PREVIEW LOGIC ----
+            function updatePreview() {
+                ui.previewList.innerHTML = '';
+                
+                // Determine total rounds
+                let total = settings.mode === 'program' ? 12 : parseInt(ui.inRounds.value);
+                if (ui.inPartner.checked) total *= 2; // Partner doubles rounds
+
+                // Partner Mode: Rounds 1&2 are Theme 1, 3&4 are Theme 2, etc.
+                // Solo Mode: Round 1 is Theme 1, Round 2 is Theme 2.
+
+                for (let i = 1; i <= total; i++) {
+                    let title = `Round ${i}`;
+                    let subtitle = "";
+                    let colorClass = "text-slate-300";
+
+                    if (settings.mode === 'program') {
+                        // Calculate which Program Theme applies to this round
+                        // If Partner: R1=0, R2=0, R3=1, R4=1
+                        // If Solo: R1=0, R2=1
+                        const themeIdx = ui.inPartner.checked ? Math.floor((i-1)/2) : i-1;
+                        const theme = PROGRAM_12_ROUNDS[themeIdx % PROGRAM_12_ROUNDS.length].name;
+
+                        if (ui.inPartner.checked) {
+                            const isYou = (i % 2 !== 0);
+                            title = isYou ? "YOU" : "PARTNER";
+                            subtitle = theme;
+                            colorClass = isYou ? "text-green-400" : "text-purple-400";
+                        } else {
+                            title = `${i}. ${theme}`;
+                        }
+                    } else {
+                        // Freestyle
+                        if (ui.inPartner.checked) {
+                            const isYou = (i % 2 !== 0);
+                            title = isYou ? `Round ${i} (YOU)` : `Round ${i} (PARTNER)`;
+                            colorClass = isYou ? "text-green-400" : "text-purple-400";
+                            subtitle = "Freestyle Random";
+                        } else {
+                            title = `Round ${i}`;
+                            subtitle = "Freestyle Random";
+                        }
+                    }
+
+                    // Create Element
+                    const div = document.createElement('div');
+                    div.className = "text-[10px] p-2 rounded bg-slate-800/40 border border-slate-700/50 flex justify-between items-center";
+                    div.innerHTML = `
+                        <span class="font-bold ${colorClass}">${title}</span>
+                        <span class="text-slate-500 truncate ml-2 max-w-[120px] text-right">${subtitle}</span>
+                    `;
+                    ui.previewList.appendChild(div);
+                }
+            }
+
+            // ---- MODE SWITCHING ----
             function setMode(mode) {
                 settings.mode = mode;
                 if (mode === 'freestyle') {
                     ui.modeFreestyle.className = "flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-slate-700 text-white shadow-md";
                     ui.modeProgram.className = "flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
                     
-                    // Unlock Inputs
                     ui.groupRounds.classList.remove('opacity-50', 'pointer-events-none');
                     ui.coachSettings.classList.remove('hidden');
                 } else {
                     ui.modeProgram.className = "flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-blue-600 text-white shadow-md";
                     ui.modeFreestyle.className = "flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
                     
-                    // Preset Defaults for 12 Round Class
                     ui.inWork.value = 60; ui.dispWork.innerText = "01:00";
                     ui.inRest.value = 60; ui.dispRest.innerText = "01:00";
-                    
-                    // Lock Rounds (Visual feedback)
                     ui.inRounds.value = 12; ui.dispRounds.innerText = "12";
-                    ui.groupRounds.classList.add('opacity-50', 'pointer-events-none');
                     
-                    // Hide Freestyle Coach options
+                    ui.groupRounds.classList.add('opacity-50', 'pointer-events-none');
                     ui.coachSettings.classList.add('hidden');
                 }
+                updatePreview();
             }
             
             ui.modeFreestyle.onclick = () => setMode('freestyle');
             ui.modeProgram.onclick = () => setMode('program');
 
-            // Input Updates
-            ui.inRounds.oninput = (e) => ui.dispRounds.innerText = e.target.value;
+            // ---- INPUT UPDATES ----
+            ui.inRounds.oninput = (e) => { ui.dispRounds.innerText = e.target.value; updatePreview(); };
             ui.inWork.oninput = (e) => ui.dispWork.innerText = format(e.target.value);
             ui.inRest.oninput = (e) => ui.dispRest.innerText = format(e.target.value);
+            
             ui.inPartner.onchange = (e) => {
-                if (e.target.checked && settings.mode === 'program') {
-                     ui.dispRounds.innerText = "24";
-                } else if (!e.target.checked && settings.mode === 'program') {
-                     ui.dispRounds.innerText = "12";
+                // If partner checked, rest is disabled/hidden logically
+                if (e.target.checked) {
+                    ui.groupRest.classList.add('opacity-30', 'pointer-events-none');
+                    if (settings.mode === 'program') ui.dispRounds.innerText = "24";
+                } else {
+                    ui.groupRest.classList.remove('opacity-30', 'pointer-events-none');
+                    if (settings.mode === 'program') ui.dispRounds.innerText = "12";
                 }
+                updatePreview();
             };
+
             document.getElementById('in-pace').oninput = (e) => {
                 const map = { 1: 'High Pace', 2: 'Medium', 3: 'Technical' };
                 ui.dispPace.innerText = map[e.target.value];
@@ -394,7 +449,7 @@
                 document.getElementById('random-options').style.opacity = e.target.checked ? '1' : '0.3';
             };
 
-            // Audio
+            // ---- AUDIO ----
             function initAudio() {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -440,79 +495,79 @@
                 window.speechSynthesis.speak(u);
             }
 
-            // Session Logic
+            // ---- SESSION STATE MACHINE ----
             const setPhase = (phase) => {
                 session.phase = phase;
                 ui.calloutCard.classList.add('opacity-0', 'translate-y-4');
                 
                 if (phase === 'ready') {
-                    session.time = 20; // 20s Prepare
+                    // PREPARE: ORANGE
+                    session.time = 20; 
                     session.total = 20;
                     ui.badge.innerText = "Prepare";
-                    ui.badge.className = "px-4 py-2 rounded-full border border-blue-500/30 text-blue-400 text-[10px] font-black uppercase tracking-widest";
-                    ui.ring.style.stroke = "#3b82f6";
+                    ui.badge.className = "px-4 py-2 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 text-[10px] font-black uppercase tracking-widest";
+                    ui.ring.style.stroke = "#f97316"; 
                     ui.dispNext.innerText = "Gloves On - Get Ready";
-                    if (settings.mode === 'program') {
-                         ui.dispNext.innerText = "Next: Warm Up - Slow Constant";
-                    }
+                    if (settings.mode === 'program') ui.dispNext.innerText = "Next: Warm Up - Slow Constant";
+                    
                 } else if (phase === 'work') {
                     session.time = settings.work; session.total = settings.work;
-                    ui.badge.innerText = "Work";
-                    ui.badge.className = "px-4 py-2 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-[10px] font-black uppercase tracking-widest";
-                    ui.ring.style.stroke = "#22c55e";
-                    ui.dispRoundCur.innerText = session.round;
-                    ui.dispNext.innerText = "";
                     playBell();
                     
                     // Show Program Info
                     ui.calloutCard.classList.remove('opacity-0', 'translate-y-4');
                     
+                    // Logic for Name/Theme
+                    let themeName = "Freestyle";
+                    let isYou = true;
+
                     if (settings.mode === 'program') {
-                        // Calculate Theme Index (Handles Partner Mode where 1&2=Theme1, 3&4=Theme2)
-                        const themeIndex = settings.partner 
-                            ? Math.floor((session.round - 1) / 2) 
-                            : session.round - 1;
-                            
-                        const theme = PROGRAM_12_ROUNDS[themeIndex % PROGRAM_12_ROUNDS.length];
-                        
-                        // Partner Mode Label
-                        if (settings.partner) {
-                             const pName = (session.round % 2 !== 0) ? "YOU" : "PARTNER";
-                             ui.dispCallLabel.innerText = `${pName} • ${theme.name}`;
-                        } else {
-                             ui.dispCallLabel.innerText = theme.name;
-                        }
-                        
-                        triggerCallout(true); // Initial callout for program
-                    } else {
-                        ui.dispCallLabel.innerText = "Freestyle";
-                        if (settings.coach) triggerCallout(true);
+                        const themeIdx = settings.partner ? Math.floor((session.round - 1) / 2) : session.round - 1;
+                        const theme = PROGRAM_12_ROUNDS[themeIdx % PROGRAM_12_ROUNDS.length];
+                        themeName = theme.name;
                     }
+
+                    if (settings.partner) {
+                        isYou = (session.round % 2 !== 0); // Odd rounds = You
+                        ui.dispCallLabel.innerText = isYou ? `YOU • ${themeName}` : `PARTNER • ${themeName}`;
+                    } else {
+                        ui.dispCallLabel.innerText = themeName;
+                    }
+
+                    // COLORS:
+                    if (settings.partner) {
+                        if (isYou) {
+                            // YOU: GREEN
+                            ui.badge.innerText = "YOU: Work";
+                            ui.badge.className = "px-4 py-2 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-[10px] font-black uppercase tracking-widest";
+                            ui.ring.style.stroke = "#22c55e";
+                        } else {
+                            // PARTNER: PURPLE
+                            ui.badge.innerText = "PARTNER: Work";
+                            ui.badge.className = "px-4 py-2 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 text-[10px] font-black uppercase tracking-widest";
+                            ui.ring.style.stroke = "#a855f7";
+                        }
+                    } else {
+                        // SOLO WORK: GREEN
+                        ui.badge.innerText = "Work";
+                        ui.badge.className = "px-4 py-2 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-[10px] font-black uppercase tracking-widest";
+                        ui.ring.style.stroke = "#22c55e";
+                    }
+
+                    ui.dispRoundCur.innerText = session.round;
+                    ui.dispNext.innerText = "";
                     
+                    // Initial Callout logic
+                    if (settings.mode === 'program' || settings.coach) triggerCallout(true);
+
                 } else if (phase === 'rest') {
+                    // REST: RED
                     session.time = settings.rest; session.total = settings.rest;
                     ui.badge.innerText = "Rest";
-                    ui.badge.className = "px-4 py-2 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 text-[10px] font-black uppercase tracking-widest";
-                    ui.ring.style.stroke = "#f97316";
+                    ui.badge.className = "px-4 py-2 rounded-full border border-red-500/30 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest";
+                    ui.ring.style.stroke = "#ef4444";
                     
-                    // Next Round Logic
-                    if (session.round < settings.rounds) {
-                        let nextText = `Up Next: Round ${session.round + 1}`;
-                        
-                        if (settings.mode === 'program') {
-                            const nextIdx = settings.partner 
-                                ? Math.floor(session.round / 2) // Logic holds: R1done(idx0.5->0) R2done(idx1->1)
-                                : session.round;
-                            
-                            if (nextIdx < PROGRAM_12_ROUNDS.length) {
-                                const nextTheme = PROGRAM_12_ROUNDS[nextIdx].name;
-                                nextText += ` (${nextTheme})`;
-                            }
-                        }
-                        ui.dispNext.innerText = nextText;
-                    } else {
-                        ui.dispNext.innerText = "Final Round Complete";
-                    }
+                    ui.dispNext.innerText = session.round < settings.rounds ? `Up Next: Round ${session.round + 1}` : "Final Round Complete";
                     playBell();
                 }
                 updateUI();
@@ -530,14 +585,11 @@
                     const theme = PROGRAM_12_ROUNDS[themeIndex % PROGRAM_12_ROUNDS.length];
                     moveList = theme.moves;
                     
-                    // If first call of round, just announce theme if we haven't
                     if (first) {
                          speak(theme.name);
-                         // Don't display name again as it's in the label
                          ui.dispCallout.innerText = "GO";
                     }
                 } else {
-                    // Freestyle Logic
                     if (settings.cats.length === 0) settings.cats = ['basics'];
                     const cat = settings.cats[Math.floor(Math.random() * settings.cats.length)];
                     moveList = FREESTYLE_MOVES[cat];
@@ -545,7 +597,6 @@
 
                 if (!first || settings.mode === 'freestyle') {
                     let move = moveList[Math.floor(Math.random() * moveList.length)];
-                    // Prevent immediate repetition
                     if (move === session.lastMove && moveList.length > 1) {
                          move = moveList[(moveList.indexOf(move) + 1) % moveList.length];
                     }
@@ -559,7 +610,6 @@
                     }, 100);
                 }
 
-                // Pace timing
                 const delays = { 1: [2, 3], 2: [3, 5], 3: [5, 8] };
                 const [min, max] = delays[settings.pace];
                 session.callTimer = Math.floor(Math.random() * (max - min + 1) + min);
@@ -583,7 +633,15 @@
                         if (session.phase === 'ready') setPhase('work');
                         else if (session.phase === 'work') {
                             if (session.round >= settings.rounds) end();
-                            else setPhase('rest');
+                            else {
+                                if (settings.partner) {
+                                    // PARTNER MODE: SKIP REST, GO STRAIGHT TO WORK (Next Round)
+                                    session.round++;
+                                    setPhase('work');
+                                } else {
+                                    setPhase('rest');
+                                }
+                            }
                         } else if (session.phase === 'rest') {
                             session.round++;
                             setPhase('work');
@@ -607,7 +665,7 @@
                 ui.setup.classList.remove('hidden');
             }
 
-            // Event Listeners
+            // ---- INITIALIZE ----
             ui.btnStart.onclick = async () => {
                 initAudio();
                 
@@ -621,6 +679,7 @@
                     settings.rounds = settings.partner ? 24 : 12;
                 } else {
                     settings.rounds = parseInt(ui.inRounds.value);
+                    if (settings.partner) settings.rounds *= 2;
                     settings.cats = Array.from(document.querySelectorAll('.move-cat:checked')).map(c => c.value);
                 }
 
@@ -645,6 +704,9 @@
                 ui.btnPause.classList.toggle('bg-blue-600');
                 ui.btnPause.classList.toggle('bg-slate-800');
             };
+
+            // Run on load
+            updatePreview();
         });
     </script>
 </body>
