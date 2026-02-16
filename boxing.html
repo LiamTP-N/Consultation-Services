@@ -98,8 +98,8 @@
                 <!-- Randomiser Toggle -->
                 <div class="flex items-center justify-between px-1">
                     <div>
-                        <span class="text-sm font-bold text-white block">Randomise Middle</span>
-                        <span class="text-[10px] text-slate-400">Random moves for Rnds 2-11</span>
+                        <span class="text-sm font-bold text-white block">Randomise Focus</span>
+                        <span class="text-[10px] text-slate-400">Generates unique themes (Rnds 2-11)</span>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="in-random" class="sr-only peer">
@@ -192,31 +192,56 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Configuration Data
-            const FREESTYLE_MOVES = {
-                all: [
-                    'Jab', 'Cross', '1-2', '1-1-2', 'Jab, Hook', 'Cross, Hook', 
-                    'Double Jab', 'Slip Left', 'Slip Right', 'Roll', 'Duck', 
-                    '1-2-3', '2-3-2', 'Lead Uppercut', 'Liver Shot', '1-2-Roll-2'
-                ]
-            };
-
+            
+            // --- DATA LIBRARIES ---
+            
+            // 1. The Fixed Program (Dr. P's Class)
             const PROGRAM_12_ROUNDS = [
-                { name: "Warm Up: Slow Constant", moves: ['Jab', '1-2', 'Move', 'Breathe', 'Light 1-2', 'Shake out'] },
-                { name: "3's", moves: ['1-2-3', 'Jab-Cross-Hook', 'Jab-Uppercut-Hook', 'Cross-Hook-Cross'] },
-                { name: "Up & 1 x Hook", moves: ['Lead Uppercut-Hook', 'Rear Uppercut-Lead Hook', 'Uppercut-Hook', '5-3', '6-2'] },
-                { name: "4's", moves: ['1-2-3-2', '1-2-5-2', 'Jab-Cross-Hook-Cross', '1-1-2-3'] },
+                { name: "Warm Up: Jab & Move", moves: ['Jab', '1-2', 'Move', 'Breathe', 'Light 1-2', 'Shake out'] },
+                { name: "1-2-3 (Straight-Straight-Hook)", moves: ['1-2-3', 'Jab-Cross-Hook', 'Jab-Uppercut-Hook', 'Cross-Hook-Cross'] },
+                { name: "Uppercut then Hook", moves: ['Lead Uppercut-Hook', 'Rear Uppercut-Lead Hook', 'Uppercut-Hook', '5-3', '6-2'] },
+                { name: "4 Punch Combos", moves: ['1-2-3-2', '1-2-5-2', 'Jab-Cross-Hook-Cross', '1-1-2-3'] },
                 { name: "Power Singles", moves: ['Power Jab', 'Hard Cross', 'Big Hook', 'Overhand', 'Body Shot'] },
-                { name: "Light 2's", moves: ['Fast 1-2', 'Touch-Touch', 'Jab-Cross (Fast)', 'High-Low'] },
-                { name: "Double Jab + Power", moves: ['1-1-2', '1-1-Rear Hook', '1-1-Overhand', 'Jab-Jab-Cross'] },
-                { name: "Light 3's", moves: ['Fast 1-2-3', 'Touch-Touch-Bang', 'Speed 3s'] },
-                { name: "Hooks (Close)", moves: ['Lead Hook', 'Rear Hook', 'Body Hook', '3-4', 'Head-Body'] },
-                { name: "Heavy 2's", moves: ['Hard 1-2', 'Power 1-2', 'Cross-Hook', 'Hook-Cross'] },
-                { name: "Up & 2 Hooks", moves: ['Uppercut-Hook-Hook', '5-3-4', '6-3-2'] },
-                { name: "Constant", moves: ['Non-stop', '1-2-1-2', 'Burnout', 'Speed', 'Go Go Go'] }
+                { name: "Light 1-2s (Speed)", moves: ['Fast 1-2', 'Touch-Touch', 'Jab-Cross (Fast)', 'High-Low'] },
+                { name: "Double Jab + Cross", moves: ['1-1-2', '1-1-Rear Hook', '1-1-Overhand', 'Jab-Jab-Cross'] },
+                { name: "3 Punch Speed", moves: ['Fast 1-2-3', 'Touch-Touch-Bang', 'Speed 3s'] },
+                { name: "Hooks Only", moves: ['Lead Hook', 'Rear Hook', 'Body Hook', '3-4', 'Head-Body'] },
+                { name: "Heavy 1-2s", moves: ['Hard 1-2', 'Power 1-2', 'Cross-Hook', 'Hook-Cross'] },
+                { name: "Uppercut, Hook, Hook", moves: ['Uppercut-Hook-Hook', '5-3-4', '6-3-2'] },
+                { name: "Constant Burnout", moves: ['Non-stop', '1-2-1-2', 'Burnout', 'Speed', 'Go Go Go'] }
             ];
 
-            // App State
+            // 2. The Massive Random Pool (Descriptive for Beginners)
+            const ROUND_POOL = [
+                // BASICS
+                { name: "Jab Only", moves: ['Jab', 'Double Jab', 'Jab-Head', 'Jab-Body', 'Power Jab'] },
+                { name: "Jab & Cross (1-2)", moves: ['1-2', 'Fast 1-2', 'Hard 1-2', '1-Body 2'] },
+                { name: "Double Jab & Cross", moves: ['1-1-2', 'Jab-Jab-Cross', '1-1-Body 2'] },
+                { name: "1-2 then Hook", moves: ['1-2-3', 'Jab-Cross-Hook', '1-2-Lead Hook'] },
+                { name: "1-2 then Uppercut", moves: ['1-2-5', '1-2-6', 'Jab-Cross-Lead Uppercut', 'Jab-Cross-Rear Uppercut'] },
+                
+                // PUNCH TYPES
+                { name: "4 Straight Punches", moves: ['1-2-1-2', 'Jab-Cross-Jab-Cross', '4 Fast Straights'] },
+                { name: "Uppercuts Only", moves: ['Lead Uppercut', 'Rear Uppercut', 'Shoeshine', 'Left Up-Right Up'] },
+                { name: "Hooks Only", moves: ['Lead Hook', 'Rear Hook', 'Left Hook-Right Hook', 'Check Hook'] },
+                { name: "Body Shots Only", moves: ['Lead Body Hook', 'Rear Body Hook', 'Jab Low', 'Cross Low'] },
+                { name: "Power Singles", moves: ['Hard Cross', 'Big Hook', 'Power Jab', 'Hard Uppercut'] },
+
+                // DEFENSE & MOVEMENT
+                { name: "1-2, Slip, Cross", moves: ['1-2-Slip-2', 'Jab-Cross-Slip-Cross'] },
+                { name: "1-2, Roll, Cross", moves: ['1-2-Roll-2', 'Jab-Cross-Roll Under-Cross'] },
+                { name: "Step Back & Cross", moves: ['1-2-Step Back', 'Jab-Back-Cross', 'Touch-Back-Bang'] },
+                { name: "Pivot & Punch", moves: ['1-2-Pivot', 'Jab-Pivot-Cross', 'Pivot-Hook'] },
+                
+                // COMBINATIONS
+                { name: "Jab, Cross, Hook, Cross", moves: ['1-2-3-2', 'Jab-Cross-Hook-Cross'] },
+                { name: "Lead Hook, Rear Straight", moves: ['3-2', 'Hook-Cross', 'Check Hook-Cross'] },
+                { name: "High & Low (Head & Body)", moves: ['Jab High-Cross Low', '1-2 High-Hook Low', 'Head-Body-Head'] },
+                { name: "3 Punch Combos", moves: ['1-2-3', '2-3-2', '3-2-3', '5-2-3'] },
+                { name: "Non-stop Light Speed", moves: ['1-2-1-2 Light', 'Speed punches', 'Fast Hands'] }
+            ];
+
+            // --- APP STATE ---
             let settings = { 
                 mode: 'solo', // 'solo' or 'wife'
                 rounds: 12, 
@@ -234,13 +259,14 @@
                 total: 10, 
                 timer: null, 
                 callTimer: 0,
-                lastMove: ''
+                lastMove: '',
+                plan: [] // Array of { name, moves }
             };
             
             let audioCtx = null;
             let wakeLock = null;
 
-            // DOM Selectors
+            // --- DOM SELECTORS ---
             const ui = {
                 setup: document.getElementById('setup-screen'),
                 timer: document.getElementById('timer-screen'),
@@ -279,7 +305,6 @@
             };
 
             // ---- UI GENERATION ----
-            // Round Buttons 1-12
             for (let i = 1; i <= 12; i++) {
                 const btn = document.createElement('button');
                 btn.className = `btn-select py-2 rounded-lg text-xs font-bold ${i === 12 ? 'active' : ''}`;
@@ -292,7 +317,7 @@
                 settings.rounds = n;
                 Array.from(ui.gridRounds.children).forEach(b => b.classList.remove('active'));
                 el.classList.add('active');
-                updatePreview();
+                generateSessionPlan();
             };
 
             window.selectWork = (n, el) => {
@@ -307,76 +332,93 @@
                 if (mode === 'solo') {
                     ui.modeSolo.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-blue-600 text-white shadow-md";
                     ui.modeWife.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
-                    
                     ui.restInfo.innerHTML = `<p class="text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-xs text-slate-400">Starts at 30s, +5s each round.</p>`;
                 } else {
                     ui.modeWife.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white shadow-md";
                     ui.modeSolo.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
-                    
                     ui.restInfo.innerHTML = `<p class="text-[10px] text-purple-300 font-bold uppercase tracking-widest">Partner Mode</p><p class="text-xs text-slate-400">2x Rounds. No rest timer (You go, I go).</p>`;
                 }
-                updatePreview();
+                generateSessionPlan();
             }
             
             ui.modeSolo.onclick = () => setMode('solo');
             ui.modeWife.onclick = () => setMode('wife');
             ui.inRandom.onchange = (e) => {
                 settings.randomiseMiddle = e.target.checked;
-                updatePreview();
+                generateSessionPlan();
             };
 
-            // ---- PREVIEW LOGIC ----
+            // ---- SESSION GENERATION ----
+            function generateSessionPlan() {
+                session.plan = [];
+                const totalRounds = settings.rounds; // Base rounds (1-12)
+
+                // Clone pool to allow splicing (no duplicates)
+                let tempPool = [...ROUND_POOL];
+
+                for (let i = 0; i < totalRounds; i++) {
+                    let roundObj = null;
+
+                    // Logic: Round 1 is always Warmup. Round N is always Constant.
+                    // If RandomiseMiddle is OFF: Use Fixed Program.
+                    // If RandomiseMiddle is ON: Use Pool for 2 -> N-1.
+
+                    const isFirst = (i === 0);
+                    const isLast = (i === totalRounds - 1);
+
+                    if (settings.randomiseMiddle) {
+                        if (isFirst) {
+                            roundObj = PROGRAM_12_ROUNDS[0]; // Warm Up
+                        } else if (isLast) {
+                            roundObj = PROGRAM_12_ROUNDS[11]; // Constant
+                        } else {
+                            // Pick random from pool
+                            if (tempPool.length === 0) tempPool = [...ROUND_POOL]; // Refill if exhausted
+                            const idx = Math.floor(Math.random() * tempPool.length);
+                            roundObj = tempPool[idx];
+                            tempPool.splice(idx, 1); // Remove used
+                        }
+                    } else {
+                        // Fixed Program
+                        roundObj = PROGRAM_12_ROUNDS[i % PROGRAM_12_ROUNDS.length];
+                    }
+                    session.plan.push(roundObj);
+                }
+                updatePreview();
+            }
+
+            // ---- PREVIEW RENDER ----
             function updatePreview() {
                 ui.previewList.innerHTML = '';
-                
-                let displayRounds = settings.rounds;
-                let actualRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
+                const displayRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
 
-                for (let i = 1; i <= actualRounds; i++) {
+                for (let i = 1; i <= displayRounds; i++) {
+                    // Logic:
+                    // Solo: i-1 maps directly to plan index.
+                    // Wife: (i-1)/2 maps to plan index (R1&2=Plan[0], R3&4=Plan[1])
+                    const planIdx = settings.mode === 'wife' ? Math.floor((i-1)/2) : i-1;
+                    const roundData = session.plan[planIdx];
+
                     let title = `Round ${i}`;
-                    let subtitle = "";
+                    let subtitle = roundData.name;
                     let colorClass = "text-slate-300";
-
-                    // Calculate Theme Index
-                    // Solo: i-1
-                    // Wife: floor((i-1)/2)
-                    let themeIdx = settings.mode === 'wife' ? Math.floor((i-1)/2) : i-1;
-                    
-                    // Determine Logic
-                    // Randomise if: Toggle ON AND not first theme AND not last theme
-                    // Note: Last theme is index 11 (Constant). 
-                    // If user selects 4 rounds, last theme is index 3. 
-                    // Logic: Round 1 (Warmup) fixed. Round N (Last) fixed. Middle random.
-                    
-                    let isFirst = (themeIdx === 0);
-                    let isLast = (themeIdx === settings.rounds - 1);
-                    
-                    let themeName = "";
-
-                    if (settings.randomiseMiddle && !isFirst && !isLast) {
-                        themeName = "Random / Freestyle";
-                    } else {
-                        // Fallback to program list, looping if rounds > 12
-                        const prog = PROGRAM_12_ROUNDS[themeIdx % PROGRAM_12_ROUNDS.length];
-                        themeName = prog.name;
-                    }
 
                     if (settings.mode === 'wife') {
                         const isYou = (i % 2 !== 0);
                         title = isYou ? "YOU" : "PARTNER";
-                        subtitle = themeName;
                         colorClass = isYou ? "text-green-400" : "text-purple-400";
                     } else {
-                        title = `${i}. ${themeName}`;
-                        subtitle = settings.mode === 'solo' ? `Rest: ${settings.restBase + ((i-1)*5)}s` : '';
+                        title = `${i}. ${subtitle}`;
+                        // Progressive rest info for solo
+                        const restTime = settings.restBase + ((i-1)*5);
+                        subtitle = i < displayRounds ? `Rest: ${restTime}s` : 'Finish';
                     }
 
-                    // Create Element
                     const div = document.createElement('div');
                     div.className = "text-[10px] p-2 rounded bg-slate-800/40 border border-slate-700/50 flex justify-between items-center";
                     div.innerHTML = `
                         <span class="font-bold ${colorClass}">${title}</span>
-                        <span class="text-slate-500 truncate ml-2 max-w-[150px] text-right">${subtitle}</span>
+                        <span class="text-slate-500 truncate ml-2 max-w-[150px] text-right">${settings.mode === 'wife' ? subtitle : subtitle}</span>
                     `;
                     ui.previewList.appendChild(div);
                 }
@@ -427,53 +469,36 @@
                 window.speechSynthesis.speak(u);
             }
 
-            // ---- SESSION LOGIC ----
+            // ---- SESSION RUNTIME ----
             const setPhase = (phase) => {
                 session.phase = phase;
                 ui.calloutCard.classList.add('opacity-0', 'translate-y-4');
                 
                 if (phase === 'ready') {
-                    // PREPARE (Orange)
                     session.time = 20; 
                     session.total = 20;
                     ui.badge.innerText = "Prepare";
                     ui.badge.className = "px-4 py-2 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 text-[10px] font-black uppercase tracking-widest";
                     ui.ring.style.stroke = "#f97316"; 
-                    ui.nextUp.innerText = "Next: Warm Up";
+                    ui.nextUp.innerText = "Next: " + session.plan[0].name;
                     
                 } else if (phase === 'work') {
                     session.time = settings.work; session.total = settings.work;
                     playBell();
-                    
                     ui.calloutCard.classList.remove('opacity-0', 'translate-y-4');
                     
-                    // Determine Theme
-                    // Logic matches preview:
-                    const themeIdx = settings.mode === 'wife' ? Math.floor((session.round - 1) / 2) : session.round - 1;
-                    const isFirst = (themeIdx === 0);
-                    const isLast = (themeIdx === settings.rounds - 1);
+                    // Identify current round theme from Plan
+                    const planIdx = settings.mode === 'wife' ? Math.floor((session.round - 1) / 2) : session.round - 1;
+                    const roundData = session.plan[planIdx];
                     
-                    let themeName = "";
-                    let isRandom = false;
-
-                    if (settings.randomiseMiddle && !isFirst && !isLast) {
-                        themeName = "Random / Freestyle";
-                        isRandom = true;
-                    } else {
-                        const prog = PROGRAM_12_ROUNDS[themeIdx % PROGRAM_12_ROUNDS.length];
-                        themeName = prog.name;
-                    }
-
-                    // Store move source for callouts
-                    session.isRandomRound = isRandom;
-                    session.currentProgramMoves = isRandom ? FREESTYLE_MOVES.all : PROGRAM_12_ROUNDS[themeIdx % PROGRAM_12_ROUNDS.length].moves;
-
-                    let isYou = true;
+                    // Store active move list
+                    session.currentMoves = roundData.moves;
+                    
+                    // Label Logic
                     if (settings.mode === 'wife') {
-                        isYou = (session.round % 2 !== 0);
-                        ui.callLabel.innerText = isYou ? `YOU • ${themeName}` : `PARTNER • ${themeName}`;
+                        const isYou = (session.round % 2 !== 0);
+                        ui.callLabel.innerText = isYou ? `YOU • ${roundData.name}` : `PARTNER • ${roundData.name}`;
                         
-                        // Colors
                         if (isYou) {
                             ui.badge.innerText = "YOU: Work";
                             ui.badge.className = "px-4 py-2 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-[10px] font-black uppercase tracking-widest";
@@ -484,7 +509,7 @@
                             ui.ring.style.stroke = "#a855f7";
                         }
                     } else {
-                        ui.callLabel.innerText = themeName;
+                        ui.callLabel.innerText = roundData.name;
                         ui.badge.innerText = "Work";
                         ui.badge.className = "px-4 py-2 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-[10px] font-black uppercase tracking-widest";
                         ui.ring.style.stroke = "#22c55e";
@@ -493,23 +518,26 @@
                     ui.roundCur.innerText = session.round;
                     ui.nextUp.innerText = "";
                     
-                    // Initial Callout
-                    if (!isRandom) speak(themeName);
+                    // Announce theme & start
+                    speak(roundData.name);
                     triggerCallout(true);
 
                 } else if (phase === 'rest') {
-                    // REST (Red)
-                    // Calculate Progressive Rest
-                    // Round 1 done -> Rest 1. (30s)
-                    // Round 2 done -> Rest 2. (35s)
+                    // Solo Progressive Rest
                     const restDuration = settings.restBase + ((session.round - 1) * 5);
-                    
                     session.time = restDuration; session.total = restDuration;
+                    
                     ui.badge.innerText = `Rest (${restDuration}s)`;
                     ui.badge.className = "px-4 py-2 rounded-full border border-red-500/30 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest";
                     ui.ring.style.stroke = "#ef4444";
                     
-                    ui.nextUp.innerText = session.round < settings.rounds ? `Up Next: Round ${session.round + 1}` : "Final Round Complete";
+                    // Next Up Logic
+                    if (session.round < settings.rounds) {
+                        const nextName = session.plan[session.round].name;
+                        ui.nextUp.innerText = `Up Next: ${nextName}`;
+                    } else {
+                        ui.nextUp.innerText = "Final Round Complete";
+                    }
                     playBell();
                 }
                 updateUI();
@@ -518,13 +546,12 @@
             function triggerCallout(first = false) {
                 if (session.phase !== 'work') return;
                 
-                const moveList = session.currentProgramMoves;
+                const moveList = session.currentMoves;
                 let move = moveList[Math.floor(Math.random() * moveList.length)];
                 
-                if (first && !session.isRandomRound) {
+                if (first) {
                     ui.callText.innerText = "GO";
                 } else {
-                    // Avoid repeats
                     if (move === session.lastMove && moveList.length > 1) {
                          move = moveList[(moveList.indexOf(move) + 1) % moveList.length];
                     }
@@ -538,8 +565,7 @@
                     }, 100);
                 }
 
-                // Callout timing (Medium pace default)
-                // We can hardcode medium (3-5s) or add pace slider back if needed
+                // Callout timing
                 const min = 3, max = 5;
                 session.callTimer = Math.floor(Math.random() * (max - min + 1) + min);
             }
@@ -567,7 +593,7 @@
                             else {
                                 if (settings.mode === 'wife') {
                                     session.round++;
-                                    setPhase('work'); // Immediate switch
+                                    setPhase('work');
                                 } else {
                                     setPhase('rest');
                                 }
@@ -595,7 +621,7 @@
                 ui.setup.classList.remove('hidden');
             }
 
-            // ---- INITIALIZATION ----
+            // ---- INIT ----
             ui.btnStart.onclick = async () => {
                 initAudio();
                 try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e){}
@@ -604,7 +630,6 @@
                 ui.timer.classList.remove('hidden');
                 ui.timer.classList.add('flex');
                 
-                // Actual round count for display logic
                 const totalDisplay = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
                 ui.roundTot.innerText = totalDisplay;
 
@@ -623,8 +648,8 @@
                 ui.btnPause.classList.toggle('bg-slate-800');
             };
 
-            // Init
-            updatePreview();
+            // Run Init Logic
+            generateSessionPlan();
         });
     </script>
 </body>
