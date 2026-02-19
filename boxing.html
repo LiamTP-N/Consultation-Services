@@ -154,7 +154,7 @@
                     <!-- Red Quick Rest Button -->
                     <button id="btn-quick-rest" class="col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-2xl text-xs sm:text-sm shadow-lg active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight">
                         <span>Quick Rest</span>
-                        <span class="opacity-70 text-[10px]">(180s)</span>
+                        <span class="opacity-70 text-[10px]">(120s)</span>
                     </button>
                     <!-- Dynamic Theme Start Button -->
                     <button id="btn-start" class="col-span-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl text-lg shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all">
@@ -807,8 +807,8 @@
                 ui.timer.classList.add('flex');
                 
                 // Set initial time manually before setPhase
-                session.time = 180; 
-                session.total = 180;
+                session.time = 120; 
+                session.total = 120;
                 session.round = 1;
                 ui.roundTot.innerText = "-";
                 ui.roundCur.innerText = "-";
