@@ -1,116 +1,708 @@
-import tkinter as tk
-import random
-import time
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Boxing Interval Timer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-green: #22c55e;
+            --accent-orange: #f97316;
+            --accent-purple: #a855f7;
+            --accent-red: #ef4444;
+            --theme-color: #3b82f6; 
+            --theme-shadow: rgba(59, 130, 246, 0.4);
+        }
 
-class BoxingTimer:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Boxing Training Timer")
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        # Configuration
-        self.total_rounds = 12
-        self.round_duration = 180  # 3 minutes
-        self.rest_duration = 60    # 1 minute
-        self.surprise_duration = 30
+        body { 
+            font-family: 'DM Sans', system-ui, sans-serif; 
+            overscroll-behavior-y: contain;
+            background-color: #0f172a;
+        }
         
-        # Determine Hook Rounds (e.g., rounds 4, 8, 12)
-        self.hook_rounds = [4, 8, 12]
-        
-        # Determine Surprise Round (Randomly between 5-11, avoiding hook rounds)
-        self.surprise_round_trigger = random.randint(5, 11)
-        while self.surprise_round_trigger in self.hook_rounds:
-            self.surprise_round_trigger += 1
-            if self.surprise_round_trigger > 11:
-                self.surprise_round_trigger = 5
-        
-        self.current_round = 1
-        self.is_rest = False
-        self.is_surprise = False
-        self.time_left = self.round_duration
-        
-        # UI Setup
-        self.label_status = tk.Label(root, text="Round 1", font=("Helvetica", 48), bg="green", fg="white")
-        self.label_status.pack(expand=True, fill="both")
-        
-        self.label_timer = tk.Label(root, text=self.format_time(self.time_left), font=("Helvetica", 72), bg="green", fg="white")
-        self.label_timer.pack(expand=True, fill="both")
-        
-        self.label_instruction = tk.Label(root, text="Work!", font=("Helvetica", 32), bg="green", fg="white")
-        self.label_instruction.pack(expand=True, fill="both")
-        
-        self.update_timer()
+        body.timer-running {
+            overflow: hidden;
+        }
 
-    def format_time(self, seconds):
-        mins, secs = divmod(seconds, 100) # Simple display logic for this example
-        return f"{seconds // 60:02d}:{seconds % 60:02d}"
+        .font-mono-display { font-family: 'Space Mono', monospace; }
 
-    def update_timer(self):
-        if self.time_left > 0:
-            self.time_left -= 1
-            self.label_timer.config(text=self.format_time(self.time_left))
-            self.root.after(1000, self.update_timer)
-        else:
-            self.next_phase()
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
 
-    def next_phase(self):
-        if self.is_surprise:
-            # Finished surprise, go to rest
-            self.is_surprise = False
-            self.is_rest = True
-            self.time_left = self.rest_duration
-            self.setup_ui("Rest", "yellow", "black", "Recover")
-        elif self.is_rest:
-            # Finished rest, go to next round
-            self.is_rest = False
-            self.current_round += 1
-            if self.current_round > self.total_rounds:
-                self.label_status.config(text="Finished", bg="blue")
-                return
-            self.time_left = self.round_duration
-            self.setup_ui(f"Round {self.current_round}", "green", "white", self.get_round_type())
-        else:
-            # Finished a round, check if surprise should trigger
-            if self.current_round == self.surprise_round_trigger:
-                # Need rest first, then surprise
-                self.is_rest = True
-                self.time_left = self.rest_duration
-                self.setup_ui("Rest", "yellow", "black", "Prepare for Surprise!")
-                # Mark that the NEXT phase after this rest is the surprise
-                self.is_rest = False 
-                self.trigger_surprise_after_rest()
-            else:
-                # Normal rest
-                self.is_rest = True
-                self.time_left = self.rest_duration
-                self.setup_ui("Rest", "yellow", "black", "Recover")
+        .glass-inset {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
-        self.update_timer()
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
-    def trigger_surprise_after_rest(self):
-        # Helper to ensure surprise follows the rest of the trigger round
-        def start_surprise():
-            self.is_surprise = True
-            self.time_left = self.surprise_duration
-            content = random.choice(["30s Non-stop Straights!", "30s Non-stop Hooks!"])
-            self.setup_ui("SURPRISE ROUND", "white", "black", content)
-            self.update_timer()
+        .btn-select {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+        .btn-select.active {
+            background: var(--theme-color);
+            color: white;
+            border-color: var(--theme-color);
+            font-weight: bold;
+            box-shadow: 0 0 15px var(--theme-shadow);
+        }
         
-        # Override the next_phase temporarily for the specific transition
-        self.next_phase = start_surprise
+        .hidden { display: none !important; }
 
-    def get_round_type(self):
-        if self.current_round in self.hook_rounds:
-            return "Hook Focused Round!"
-        return "Work!"
+        #timer-bg {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 0;
+            transition: height 1s linear, background-color 0.3s ease;
+        }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen flex flex-col items-center justify-center">
 
-    def setup_ui(self, status, bg, fg, instruction):
-        self.label_status.config(text=status, bg=bg, fg=fg)
-        self.label_timer.config(bg=bg, fg=fg)
-        self.label_instruction.config(text=instruction, bg=bg, fg=fg)
-        self.root.config(bg=bg)
+    <div id="timer-bg" class="h-0 bg-slate-800"></div>
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.geometry("600x400")
-    app = BoxingTimer(root)
-    root.mainloop()
+    <div class="relative z-10 w-full flex flex-col items-center justify-center p-4 min-h-screen">
+
+        <div id="setup-screen" class="w-full max-w-md space-y-5 py-8 pb-12">
+            <div class="text-center mb-2">
+                <h1 class="text-3xl font-bold text-white tracking-tight mb-1">Boxing Interval Timer</h1>
+            </div>
+
+            <div class="glass-card p-5 rounded-[2rem] space-y-6">
+                
+                <div class="flex p-1 bg-slate-800/50 rounded-xl">
+                    <button id="mode-solo" class="flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-green-600 text-white shadow-md">Solo</button>
+                    <button id="mode-wife" class="flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">With Wife</button>
+                </div>
+
+                <div id="rest-info" class="text-center bg-slate-800/30 p-2 rounded-lg border border-slate-700/30">
+                    <p class="text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p>
+                    <p class="text-xs text-slate-400">Starts at 30s, adds 5s each round.</p>
+                </div>
+
+                <div class="space-y-4">
+                    
+                    <div class="flex items-center justify-between px-1">
+                        <div>
+                            <span class="text-sm font-bold text-white block">Randomise Focus</span>
+                            <span id="random-desc" class="text-[10px] text-slate-400">Randomises middle rounds (2 to 11)</span>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="in-random" class="sr-only peer">
+                            <div id="toggle-bg" class="w-12 h-6 bg-slate-800 rounded-full peer peer-checked:bg-green-600 peer-checked:after:translate-x-6 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                        </label>
+                    </div>
+
+                    <hr class="border-slate-700/50">
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Total Rounds</label>
+                        <div class="grid grid-cols-4 sm:grid-cols-6 gap-2" id="grid-rounds">
+                            </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Work Time (Secs)</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(30, this)">30</button>
+                            <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(45, this)">45</button>
+                            <button class="btn-select active py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(60, this)">60</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <hr class="border-slate-700/50">
+
+                <div class="grid grid-cols-3 gap-3">
+                    <button id="btn-quick-rest" class="col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-2xl text-xs sm:text-sm shadow-lg active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight">
+                        <span>Quick Rest</span>
+                        <span class="opacity-70 text-[10px]">(120s)</span>
+                    </button>
+                    <button id="btn-start" class="col-span-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-2xl text-lg shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all">
+                        Begin Session
+                    </button>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 rounded-[1.5rem] space-y-2">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-white text-xs uppercase tracking-widest ml-1 opacity-70">Session Preview</h3>
+                    <button id="btn-toggle-preview" class="text-[10px] bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded uppercase tracking-wider transition-colors">Show</button>
+                </div>
+                <div id="preview-container" class="hidden max-h-32 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
+                    <div id="round-preview"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="timer-screen" class="hidden w-full max-w-md flex-col items-center justify-between h-[85vh] py-4">
+            
+            <div class="w-full px-6 flex justify-between items-start">
+                <div class="space-y-1">
+                    <p class="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em]" id="round-label">Round</p>
+                    <div class="flex items-baseline space-x-2">
+                        <span id="current-round" class="text-5xl font-black font-mono-display text-white drop-shadow-md">1</span>
+                        <span class="text-white/60 text-xl font-bold">/</span>
+                        <span id="total-rounds" class="text-white/60 text-xl font-bold">12</span>
+                    </div>
+                </div>
+                
+                <div id="phase-badge" class="px-4 py-2 rounded-full backdrop-blur-md bg-black/20 border border-white/10 text-xs font-black uppercase tracking-widest text-white shadow-lg">
+                    Ready
+                </div>
+            </div>
+
+            <div class="flex-grow flex flex-col items-center justify-center space-y-8 w-full">
+                
+                <div id="focus-container" class="text-center space-y-2">
+                    <p class="text-xs font-bold text-white/70 uppercase tracking-widest" id="focus-label">Current Focus</p>
+                    <div id="round-focus" class="text-4xl md:text-5xl font-black text-white uppercase leading-tight drop-shadow-lg px-2">
+                        Warm Up
+                    </div>
+                </div>
+
+                <div id="timer-display" class="text-9xl font-black font-mono-display text-white tracking-tighter drop-shadow-2xl">
+                    0
+                </div>
+
+                <div id="next-up" class="text-sm font-bold text-white/60 uppercase tracking-widest h-6">
+                    </div>
+            </div>
+
+            <div class="w-full px-4 space-y-3">
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="btn-prev" class="bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold py-3 rounded-xl transition-all active:scale-95 text-xs uppercase tracking-wider">
+                        &larr; Prev Round
+                    </button>
+                    <button id="btn-next" class="bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold py-3 rounded-xl transition-all active:scale-95 text-xs uppercase tracking-wider">
+                        Next Round &rarr;
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="btn-pause" class="bg-black/30 hover:bg-black/40 backdrop-blur-md border border-white/10 text-white font-bold py-5 rounded-2xl transition-all active:scale-95">
+                        Pause
+                    </button>
+                    <button id="btn-end" class="bg-red-500/20 hover:bg-red-500/30 backdrop-blur-md border border-red-500/30 text-red-100 font-bold py-5 rounded-2xl transition-all active:scale-95">
+                        End
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const PROGRAM_12_ROUNDS = [
+                { name: "Warm Up", moves: ['Jab', '1-2', 'Move', 'Breathe', 'Light 1-2', 'Shake out'] },
+                { name: "1-2-3 (Straight-Straight-Hook)", moves: ['1-2-3', 'Jab-Cross-Hook', 'Jab-Uppercut-Hook', 'Cross-Hook-Cross'] },
+                { name: "Uppercut then Hook", moves: ['Lead Uppercut-Hook', 'Rear Uppercut-Lead Hook', 'Uppercut-Hook', '5-3', '6-2'] },
+                { name: "4 Punch Combos", moves: ['1-2-3-2', '1-2-5-2', 'Jab-Cross-Hook-Cross', '1-1-2-3'] },
+                { name: "Power Singles", moves: ['Power Jab', 'Hard Cross', 'Big Hook', 'Overhand', 'Body Shot'] },
+                { name: "Light 1-2s (Speed)", moves: ['Fast 1-2', 'Touch-Touch', 'Jab-Cross (Fast)', 'High-Low'] },
+                { name: "Double Jab + Cross", moves: ['1-1-2', '1-1-Rear Hook', '1-1-Overhand', 'Jab-Jab-Cross'] },
+                { name: "3 Punch Speed", moves: ['Fast 1-2-3', 'Touch-Touch-Bang', 'Speed 3s'] },
+                { name: "Hooks Only", moves: ['Lead Hook', 'Rear Hook', 'Body Hook', '3-4', 'Head-Body'] },
+                { name: "Heavy 1-2s", moves: ['Hard 1-2', 'Power 1-2', 'Cross-Hook', 'Hook-Cross'] },
+                { name: "Uppercut, Hook, Hook", moves: ['Uppercut-Hook-Hook', '5-3-4', '6-3-2'] },
+                { name: "Constant", moves: ['Non-stop', '1-2-1-2', 'Burnout', 'Speed', 'Go Go Go'] }
+            ];
+
+            const ROUND_POOL = [
+                { name: "Jab Only", moves: ['Jab', 'Double Jab', 'Jab-Head', 'Jab-Body', 'Power Jab'] },
+                { name: "Jab & Cross (1-2)", moves: ['1-2', 'Fast 1-2', 'Hard 1-2', '1-Body 2'] },
+                { name: "Double Jab & Cross", moves: ['1-1-2', 'Jab-Jab-Cross', '1-1-Body 2'] },
+                { name: "1-2 > Hook", moves: ['1-2-3', 'Jab-Cross-Hook', '1-2-Lead Hook'] },
+                { name: "1-2 > Uppercut", moves: ['1-2-5', '1-2-6', 'Jab-Cross-Lead Uppercut', 'Jab-Cross-Rear Uppercut'] },
+                { name: "4 Straight Punches", moves: ['1-2-1-2', 'Jab-Cross-Jab-Cross', '4 Fast Straights'] },
+                { name: "Hooks Only", moves: ['Lead Hook', 'Rear Hook', 'Left Hook-Right Hook', 'Check Hook'] },
+                { name: "Body Shots Only", moves: ['Lead Body Hook', 'Rear Body Hook', 'Jab Low', 'Cross Low'] },
+                { name: "Power Singles", moves: ['Hard Cross', 'Big Hook', 'Power Jab', 'Hard Uppercut'] },
+                { name: "1-2, Slip, Cross", moves: ['1-2-Slip-2', 'Jab-Cross-Slip-Cross'] },
+                { name: "1-2, Roll, Cross", moves: ['1-2-Roll-2', 'Jab-Cross-Roll Under-Cross'] },
+                { name: "Step Back & Cross", moves: ['1-2-Step Back', 'Jab-Back-Cross', 'Touch-Back-Bang'] },
+                { name: "Pivot & Punch", moves: ['1-2-Pivot', 'Jab-Pivot-Cross', 'Pivot-Hook'] },
+                { name: "Jab, Cross, Hook, Cross", moves: ['1-2-3-2', 'Jab-Cross-Hook-Cross'] },
+                { name: "Lead Hook, Rear Straight", moves: ['3-2', 'Hook-Cross', 'Check Hook-Cross'] },
+                { name: "High & Low (Head & Body)", moves: ['Jab High-Cross Low', '1-2 High-Hook Low', 'Head-Body-Head'] },
+                { name: "3 Punch Combos", moves: ['1-2-3', '2-3-2', '3-2-3', '5-2-3'] },
+                { name: "Non-stop Light Speed", moves: ['1-2-1-2 Light', 'Speed punches', 'Fast Hands'] }
+            ];
+
+            let settings = { 
+                mode: 'solo', 
+                rounds: 12, 
+                work: 60,
+                restBase: 30,
+                randomiseMiddle: false
+            };
+            
+            let session = { 
+                active: false, 
+                paused: false, 
+                phase: 'ready', 
+                round: 1, 
+                time: 10, 
+                total: 10, 
+                timer: null, 
+                callTimer: 0,
+                lastMove: '',
+                plan: [],
+                surpriseTriggered: false,
+                surpriseRoundNum: -1
+            };
+            
+            let audioCtx = null;
+            let wakeLock = null;
+
+            const ui = {
+                setup: document.getElementById('setup-screen'),
+                timer: document.getElementById('timer-screen'),
+                timerBg: document.getElementById('timer-bg'),
+                modeSolo: document.getElementById('mode-solo'),
+                modeWife: document.getElementById('mode-wife'),
+                restInfo: document.getElementById('rest-info'),
+                inRandom: document.getElementById('in-random'),
+                randomDesc: document.getElementById('random-desc'),
+                toggleBg: document.getElementById('toggle-bg'),
+                gridRounds: document.getElementById('grid-rounds'),
+                previewContainer: document.getElementById('preview-container'),
+                btnTogglePreview: document.getElementById('btn-toggle-preview'),
+                previewList: document.getElementById('round-preview'),
+                badge: document.getElementById('phase-badge'),
+                timerDisplay: document.getElementById('timer-display'),
+                roundCur: document.getElementById('current-round'),
+                roundTot: document.getElementById('total-rounds'),
+                nextUp: document.getElementById('next-up'),
+                roundFocus: document.getElementById('round-focus'),
+                focusLabel: document.getElementById('focus-label'),
+                btnStart: document.getElementById('btn-start'),
+                btnQuickRest: document.getElementById('btn-quick-rest'),
+                btnPause: document.getElementById('btn-pause'),
+                btnEnd: document.getElementById('btn-end'),
+                btnNext: document.getElementById('btn-next'),
+                btnPrev: document.getElementById('btn-prev')
+            };
+
+            const format = (s) => Math.max(0, s).toString();
+
+            for (let i = 1; i <= 12; i++) {
+                const btn = document.createElement('button');
+                btn.className = `btn-select py-2 rounded-lg text-xs font-bold ${i === 12 ? 'active' : ''}`;
+                btn.innerText = i;
+                btn.onclick = () => selectRound(i, btn);
+                ui.gridRounds.appendChild(btn);
+            }
+
+            window.selectRound = (n, el) => {
+                settings.rounds = n;
+                Array.from(ui.gridRounds.children).forEach(b => b.classList.remove('active'));
+                el.classList.add('active');
+                if (n <= 6) {
+                    ui.randomDesc.innerText = "Randomises ALL rounds";
+                } else {
+                    ui.randomDesc.innerText = `Randomises middle rounds (2 to ${n-1})`;
+                }
+                generateSessionPlan();
+            };
+
+            window.selectWork = (n, el) => {
+                settings.work = n;
+                Array.from(el.parentNode.children).forEach(b => b.classList.remove('active'));
+                el.classList.add('active');
+            };
+
+            ui.btnTogglePreview.onclick = () => {
+                ui.previewContainer.classList.toggle('hidden');
+                ui.btnTogglePreview.innerText = ui.previewContainer.classList.contains('hidden') ? "Show" : "Hide";
+            };
+
+            function setMode(mode) {
+                settings.mode = mode;
+                const root = document.documentElement;
+                if (mode === 'solo') {
+                    ui.modeSolo.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-green-600 text-white shadow-md";
+                    ui.modeWife.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
+                    ui.restInfo.innerHTML = `<p class="text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-xs text-slate-400">Starts at 30s, +5s each round.</p>`;
+                    root.style.setProperty('--theme-color', '#3b82f6');
+                    root.style.setProperty('--theme-shadow', 'rgba(59, 130, 246, 0.4)');
+                    ui.btnStart.classList.remove('bg-purple-600', 'hover:bg-purple-500');
+                    ui.btnStart.classList.add('bg-green-600', 'hover:bg-green-500');
+                    ui.toggleBg.classList.remove('peer-checked:bg-purple-600');
+                    ui.toggleBg.classList.add('peer-checked:bg-green-600');
+                } else {
+                    ui.modeWife.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white shadow-md";
+                    ui.modeSolo.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
+                    ui.restInfo.innerHTML = `<p class="text-[10px] text-purple-300 font-bold uppercase tracking-widest">Partner Mode</p><p class="text-xs text-slate-400">2x Rounds. 10s changeover between rounds.</p>`;
+                    root.style.setProperty('--theme-color', '#a855f7');
+                    root.style.setProperty('--theme-shadow', 'rgba(168, 85, 247, 0.4)');
+                    ui.btnStart.classList.remove('bg-green-600', 'hover:bg-green-500');
+                    ui.btnStart.classList.add('bg-purple-600', 'hover:bg-purple-500');
+                    ui.toggleBg.classList.remove('peer-checked:bg-green-600');
+                    ui.toggleBg.classList.add('peer-checked:bg-purple-600');
+                }
+                generateSessionPlan();
+            }
+            
+            ui.modeSolo.onclick = () => setMode('solo');
+            ui.modeWife.onclick = () => setMode('wife');
+            ui.inRandom.onchange = (e) => {
+                settings.randomiseMiddle = e.target.checked;
+                generateSessionPlan();
+            };
+
+            function generateSessionPlan() {
+                session.plan = [];
+                const totalRounds = settings.rounds; 
+                let tempPool = [...ROUND_POOL];
+                for (let i = 0; i < totalRounds; i++) {
+                    let roundObj = null;
+                    const isFirst = (i === 0);
+                    const isLast = (i === totalRounds - 1);
+                    const keepFirstLast = totalRounds > 6;
+                    if (settings.randomiseMiddle) {
+                        if (keepFirstLast && isFirst) roundObj = PROGRAM_12_ROUNDS[0]; 
+                        else if (keepFirstLast && isLast) roundObj = PROGRAM_12_ROUNDS[11];
+                        else {
+                            if (tempPool.length === 0) tempPool = [...ROUND_POOL];
+                            const idx = Math.floor(Math.random() * tempPool.length);
+                            roundObj = tempPool[idx];
+                            tempPool.splice(idx, 1);
+                        }
+                    } else {
+                        roundObj = PROGRAM_12_ROUNDS[i % PROGRAM_12_ROUNDS.length];
+                    }
+                    session.plan.push(roundObj);
+                }
+                updatePreview();
+            }
+
+            function updatePreview() {
+                ui.previewList.innerHTML = '';
+                const displayRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
+                for (let i = 1; i <= displayRounds; i++) {
+                    const planIdx = settings.mode === 'wife' ? Math.floor((i-1)/2) : i-1;
+                    const roundData = session.plan[planIdx];
+                    let title = `Round ${i}`;
+                    let subtitle = roundData.name;
+                    let colorClass = "text-slate-300";
+                    if (settings.mode === 'wife') {
+                        const isYou = (i % 2 !== 0);
+                        title = isYou ? "YOU" : "PARTNER";
+                        colorClass = isYou ? "text-green-400" : "text-purple-400";
+                    } else {
+                        title = `${i}. ${subtitle}`;
+                        const restTime = settings.restBase + ((i-1)*5);
+                        subtitle = i < displayRounds ? `Rest: ${restTime}s` : 'Finish';
+                    }
+                    const div = document.createElement('div');
+                    div.className = "text-[10px] p-2 rounded bg-slate-800/40 border border-slate-700/50 flex justify-between items-center";
+                    div.innerHTML = `<span class="font-bold ${colorClass}">${title}</span><span class="text-slate-500 truncate ml-2 max-w-[150px] text-right">${subtitle}</span>`;
+                    ui.previewList.appendChild(div);
+                }
+            }
+
+            function initAudio() {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+            }
+
+            function playBell() {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                [440, 880, 1200].forEach((freq, i) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = i === 0 ? 'sine' : 'triangle';
+                    osc.frequency.setValueAtTime(freq, now);
+                    gain.connect(audioCtx.destination);
+                    osc.connect(gain);
+                    gain.gain.setValueAtTime(0.5 / (i+1), now);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + (i === 0 ? 2 : 1));
+                    osc.start(now);
+                    osc.stop(now + 2);
+                });
+            }
+
+            function playBeep(high = false) {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(high ? 1000 : 600, now);
+                gain.connect(audioCtx.destination);
+                osc.connect(gain);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            }
+
+            function speak(text) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.rate = 1.2; u.pitch = 1; u.lang = 'en-GB';
+                window.speechSynthesis.speak(u);
+            }
+
+            const setPhase = (phase) => {
+                session.phase = phase;
+                ui.focusLabel.classList.remove('text-black/70');
+                ui.focusLabel.classList.add('text-white/70');
+                ui.roundFocus.classList.remove('text-black', 'text-red-600');
+                ui.roundFocus.classList.add('text-white');
+
+                if (phase === 'ready') {
+                    session.time = 20; session.total = 20;
+                    ui.timerBg.className = "bg-orange-600";
+                    ui.badge.innerText = "PREPARE";
+                    ui.roundFocus.innerText = "Gloves On";
+                    ui.nextUp.innerText = "Next: " + session.plan[0].name;
+                } else if (phase === 'work') {
+                    session.time = settings.work; session.total = settings.work;
+                    playBell();
+                    const planIdx = settings.mode === 'wife' ? Math.floor((session.round - 1) / 2) : session.round - 1;
+                    const roundData = session.plan[planIdx];
+                    session.currentMoves = roundData.moves;
+                    ui.roundFocus.innerText = roundData.name;
+                    ui.roundCur.innerText = session.round;
+                    ui.nextUp.innerText = ""; 
+                    if (settings.mode === 'wife') {
+                        const isYou = (session.round % 2 !== 0);
+                        ui.timerBg.className = isYou ? "bg-green-600" : "bg-purple-600";
+                        ui.badge.innerText = isYou ? "YOU: WORK" : "PARTNER: WORK";
+                    } else {
+                        ui.timerBg.className = "bg-green-600";
+                        ui.badge.innerText = "WORK";
+                    }
+                    speak(roundData.name);
+                    triggerCallout(true);
+                } else if (phase === 'rest') {
+                    const restDuration = settings.restBase + ((session.round - 1) * 5);
+                    session.time = restDuration; session.total = restDuration;
+                    ui.timerBg.className = "bg-red-600";
+                    ui.badge.innerText = "REST";
+                    ui.roundFocus.innerText = "";
+                    const maxRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
+                    if (session.round < maxRounds) {
+                        const planIdx = settings.mode === 'wife' ? Math.floor(session.round / 2) : session.round;
+                        ui.nextUp.innerText = `Up Next: ${session.plan[planIdx].name}`;
+                    } else ui.nextUp.innerText = "Final Round Complete";
+                    playBell();
+                } else if (phase === 'change') {
+                    session.time = 10; session.total = 10;
+                    ui.timerBg.className = "bg-yellow-600";
+                    ui.badge.innerText = "CHANGE";
+                    ui.roundFocus.innerText = "Change";
+                    const maxRounds = settings.rounds * 2;
+                    if (session.round < maxRounds) {
+                        const nextIsYou = ((session.round + 1) % 2 !== 0);
+                        const nextName = session.plan[Math.floor(session.round / 2)].name;
+                        ui.nextUp.innerText = `Up Next: ${nextIsYou ? 'YOU' : 'PARTNER'} - ${nextName}`;
+                    }
+                    playBell();
+                } else if (phase === 'quick-rest') {
+                    ui.timerBg.className = "bg-red-600";
+                    ui.badge.innerText = "RECOVERY";
+                    ui.roundFocus.innerText = "Full Rest";
+                    ui.nextUp.innerText = "";
+                    playBell();
+                } else if (phase === 'surprise') {
+                    session.time = 30; session.total = 30;
+                    ui.timerBg.className = "bg-white"; // White background
+                    ui.badge.innerText = "SURPRISE ROUND";
+                    ui.badge.classList.add('bg-black/10', 'text-black');
+                    ui.focusLabel.classList.remove('text-white/70');
+                    ui.focusLabel.classList.add('text-black/70');
+                    ui.roundFocus.classList.remove('text-white');
+                    ui.roundFocus.classList.add('text-red-600');
+                    
+                    const task = Math.random() > 0.5 ? "NON-STOP STRAIGHTS" : "NON-STOP HOOKS";
+                    ui.roundFocus.innerText = task;
+                    ui.nextUp.innerText = "GO GO GO!";
+                    ui.timerDisplay.classList.remove('text-white');
+                    ui.timerDisplay.classList.add('text-black');
+                    playBell();
+                    speak("Surprise Round! " + task);
+                }
+                updateUI();
+            };
+
+            function triggerCallout(first = false) {
+                if (settings.mode === 'quick-rest' || session.phase !== 'work') return;
+                const moveList = session.currentMoves;
+                let move = moveList[Math.floor(Math.random() * moveList.length)];
+                if (!first) {
+                    if (move === session.lastMove && moveList.length > 1) {
+                         move = moveList[(moveList.indexOf(move) + 1) % moveList.length];
+                    }
+                    session.lastMove = move;
+                    speak(move);
+                }
+                session.callTimer = Math.floor(Math.random() * (5 - 3 + 1) + 3);
+            }
+
+            function updateUI() {
+                ui.timerDisplay.innerText = format(session.time);
+                const pct = (session.time / session.total) * 100;
+                ui.timerBg.style.height = `${pct}%`;
+                
+                if (session.phase !== 'surprise') {
+                    ui.timerDisplay.classList.remove('text-black');
+                    ui.timerDisplay.classList.add('text-white');
+                    ui.badge.classList.remove('bg-black/10', 'text-black');
+                }
+
+                if (settings.mode === 'quick-rest') {
+                    ui.btnPrev.innerText = "-10s"; ui.btnNext.innerText = "+10s";
+                } else {
+                    ui.btnPrev.innerText = "← Prev Round"; ui.btnNext.innerText = "Next Round →";
+                }
+            }
+
+            function run() {
+                session.timer = setInterval(() => {
+                    if (session.paused) return;
+                    session.time--;
+                    if (session.time <= 3 && session.time > 0) playBeep(session.time === 1);
+                    if (session.time < 0) {
+                        if (settings.mode === 'quick-rest') { end(); return; }
+                        stepPhase(1);
+                    }
+                    if (session.phase === 'work') {
+                        session.callTimer--;
+                        if (session.callTimer <= 0) triggerCallout();
+                    }
+                    updateUI();
+                }, 1000);
+            }
+
+            function stepPhase(dir) {
+                if (settings.mode === 'quick-rest') {
+                    if (dir === 1) { session.time += 10; session.total = Math.max(session.total, session.time); }
+                    else { session.time = Math.max(0, session.time - 10); }
+                    updateUI(); return;
+                }
+
+                const maxRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
+                
+                if (dir === 1) {
+                    if (session.phase === 'ready') setPhase('work');
+                    else if (session.phase === 'work') {
+                        if (settings.mode === 'wife') {
+                            if (session.round >= maxRounds) end();
+                            else setPhase('change');
+                        } else {
+                            if (session.round >= maxRounds) end();
+                            else setPhase('rest');
+                        }
+                    } 
+                    else if (session.phase === 'rest' || session.phase === 'change') {
+                        // Check for Surprise Round trigger
+                        if (!session.surpriseTriggered && session.round === session.surpriseRoundNum) {
+                            session.surpriseTriggered = true;
+                            setPhase('surprise');
+                        } else {
+                            session.round++;
+                            setPhase('work');
+                        }
+                    }
+                    else if (session.phase === 'surprise') {
+                        // After surprise, give a standard rest before next round
+                        setPhase('rest');
+                    }
+                } else {
+                    // PREV
+                    if (session.phase === 'work') {
+                        if (session.round > 1) { session.round--; setPhase(settings.mode === 'wife' ? 'change' : 'rest'); }
+                        else setPhase('ready');
+                    } else if (session.phase === 'rest' || session.phase === 'change' || session.phase === 'surprise') {
+                        setPhase('work');
+                    }
+                }
+            }
+
+            function end() {
+                session.active = false;
+                clearInterval(session.timer);
+                if (wakeLock) wakeLock.release();
+                window.speechSynthesis.cancel();
+                ui.timer.classList.add('hidden');
+                ui.setup.classList.remove('hidden');
+                ui.timerBg.style.height = '0%';
+                document.body.classList.remove('timer-running');
+                setMode(document.getElementById('mode-solo').classList.contains('bg-green-600') ? 'solo' : 'wife');
+            }
+
+            ui.btnStart.onclick = async () => {
+                initAudio();
+                try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e){}
+                document.body.classList.add('timer-running');
+                ui.setup.classList.add('hidden');
+                ui.timer.classList.remove('hidden');
+                ui.timer.classList.add('flex');
+                
+                const totalDisplay = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
+                ui.roundTot.innerText = totalDisplay;
+                session.round = 1;
+                session.active = true;
+                session.surpriseTriggered = false;
+                
+                // Pick a random round between 5 and 11, avoiding 8 (hook round)
+                const pool = [5, 6, 7, 9, 10, 11].filter(r => r < settings.rounds);
+                session.surpriseRoundNum = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : -1;
+                
+                setPhase('ready');
+                run();
+            };
+
+            ui.btnQuickRest.onclick = async () => {
+                initAudio();
+                try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e){}
+                document.body.classList.add('timer-running');
+                settings.mode = 'quick-rest';
+                ui.setup.classList.add('hidden');
+                ui.timer.classList.remove('hidden');
+                ui.timer.classList.add('flex');
+                session.time = 120; session.total = 120; session.round = 1;
+                ui.roundTot.innerText = "-"; ui.roundCur.innerText = "-";
+                session.active = true;
+                setPhase('quick-rest');
+                run();
+            };
+
+            ui.btnEnd.onclick = end;
+            ui.btnPause.onclick = () => {
+                session.paused = !session.paused;
+                ui.btnPause.innerText = session.paused ? "Resume" : "Pause";
+                ui.btnPause.classList.toggle('bg-white/10');
+            };
+            ui.btnNext.onclick = () => stepPhase(1);
+            ui.btnPrev.onclick = () => stepPhase(-1);
+
+            setMode('solo');
+        });
+    </script>
+</body>
+</html>
