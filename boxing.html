@@ -116,7 +116,7 @@
                     <div class="flex items-center justify-between px-1">
                         <div>
                             <span class="text-sm font-bold text-white block">Randomise Focus</span>
-                            <span class="text-[10px] text-slate-400">Generates unique themes (Rnds 2-11)</span>
+                            <span id="random-desc" class="text-[10px] text-slate-400">Randomises middle rounds (2 to 11)</span>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="in-random" class="sr-only peer">
@@ -315,6 +315,7 @@
                 modeWife: document.getElementById('mode-wife'),
                 restInfo: document.getElementById('rest-info'),
                 inRandom: document.getElementById('in-random'),
+                randomDesc: document.getElementById('random-desc'),
                 toggleBg: document.getElementById('toggle-bg'),
                 gridRounds: document.getElementById('grid-rounds'),
                 previewContainer: document.getElementById('preview-container'),
@@ -354,6 +355,14 @@
                 settings.rounds = n;
                 Array.from(ui.gridRounds.children).forEach(b => b.classList.remove('active'));
                 el.classList.add('active');
+                
+                // Update randomiser description text dynamically
+                if (n <= 6) {
+                    ui.randomDesc.innerText = "Randomises ALL rounds";
+                } else {
+                    ui.randomDesc.innerText = `Randomises middle rounds (2 to ${n-1})`;
+                }
+                
                 generateSessionPlan();
             };
 
@@ -435,11 +444,12 @@
                     let roundObj = null;
                     const isFirst = (i === 0);
                     const isLast = (i === totalRounds - 1);
+                    const keepFirstLast = totalRounds > 6;
 
                     if (settings.randomiseMiddle) {
-                        if (isFirst) {
+                        if (keepFirstLast && isFirst) {
                             roundObj = PROGRAM_12_ROUNDS[0]; 
-                        } else if (isLast) {
+                        } else if (keepFirstLast && isLast) {
                             roundObj = PROGRAM_12_ROUNDS[11];
                         } else {
                             if (tempPool.length === 0) tempPool = [...ROUND_POOL];
@@ -599,7 +609,7 @@
                     
                     ui.timerBg.className = "bg-yellow-600";
                     ui.badge.innerText = "CHANGE";
-                    ui.roundFocus.innerText = "Swap!";
+                    ui.roundFocus.innerText = "Swap Gloves!";
                     
                     const maxRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
                     if (session.round < maxRounds) {
