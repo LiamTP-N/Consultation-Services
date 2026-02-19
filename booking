@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource & Inventory Manager</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google API Scripts -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js" async defer></script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* Toast Animation */
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .toast-enter {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans h-screen flex flex-col overflow-hidden">
+
+    <!-- Navigation -->
+    <nav class="bg-slate-900 text-white shadow-lg shrink-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-boxes-stacked text-indigo-400 text-xl"></i>
+                    <span class="font-bold text-xl tracking-wide">Resourcely</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <button onclick="app.router.navigate('dashboard')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-700 transition" data-target="dashboard">Dashboard</button>
+                        <button onclick="app.router.navigate('my-bookings')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-700 transition" data-target="my-bookings">My Bookings</button>
+                        <button onclick="app.router.navigate('admin')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-700 transition" data-target="admin">Admin</button>
+                        <button onclick="app.router.navigate('settings')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-700 transition" data-target="settings">Settings</button>
+                    </div>
+                </div>
+                <!-- Mobile menu button would go here -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-auto p-4 sm:p-8 relative">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- VIEW: Dashboard -->
+            <section id="view-dashboard" class="view-section space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h1 class="text-3xl font-bold text-slate-900">Available Resources</h1>
+                        <p class="text-slate-500 mt-1">Browse and book equipment for your projects.</p>
+                    </div>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <div class="relative w-full sm:w-64">
+                            <input type="text" id="search-assets" placeholder="Search equipment..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                            <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400"></i>
+                        </div>
+                        <select id="filter-category" class="border border-slate-300 rounded-lg px-4 py-2 bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option value="all">All Categories</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Furniture">Furniture</option>
+                            <option value="Vehicles">Vehicles</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Asset Grid -->
+                <div id="asset-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Dynamic Content -->
+                </div>
+            </section>
+
+            <!-- VIEW: My Bookings -->
+            <section id="view-my-bookings" class="view-section hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-3xl font-bold text-slate-900">My Bookings</h1>
+                    <button onclick="app.integrations.timetable.sync()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate"></i> Sync MyTimetable
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-600">
+                            <thead class="bg-slate-50 text-slate-900 font-semibold uppercase tracking-wider">
+                                <tr>
+                                    <th class="px-6 py-4">Asset</th>
+                                    <th class="px-6 py-4">Category</th>
+                                    <th class="px-6 py-4">Checkout Date</th>
+                                    <th class="px-6 py-4">Return Date</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="my-bookings-table-body" class="divide-y divide-slate-100">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="my-bookings-empty" class="hidden p-8 text-center text-slate-500">
+                        No active bookings found.
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: Admin -->
+            <section id="view-admin" class="view-section hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-3xl font-bold text-slate-900">Admin Console</h1>
+                    <button onclick="app.ui.modals.openAddAsset()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Add New Asset
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Asset Management -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-list"></i> Inventory List</h2>
+                        <div class="overflow-y-auto max-h-[500px] pr-2">
+                             <table class="w-full text-left text-sm">
+                                <thead class="bg-slate-50 sticky top-0">
+                                    <tr>
+                                        <th class="p-3 font-semibold">Name</th>
+                                        <th class="p-3 font-semibold">Status</th>
+                                        <th class="p-3 font-semibold text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-asset-list" class="divide-y divide-slate-100">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- All Bookings -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fa-regular fa-calendar-check"></i> Recent Activity</h2>
+                        <div class="overflow-y-auto max-h-[500px] pr-2">
+                            <ul id="admin-activity-list" class="space-y-4">
+                                <!-- Dynamic -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: Settings -->
+            <section id="view-settings" class="view-section hidden space-y-6 max-w-2xl mx-auto">
+                <h1 class="text-3xl font-bold text-slate-900">Settings & Integrations</h1>
+                
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-6">
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-900 mb-2">Google Calendar Integration</h3>
+                        <p class="text-sm text-slate-500 mb-4">Required to sync bookings to your personal calendar. These keys are stored only in your browser's LocalStorage.</p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Client ID</label>
+                                <input type="text" id="setting-gcal-client-id" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="apps.googleusercontent.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">API Key</label>
+                                <input type="password" id="setting-gcal-api-key" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="AIzaSy...">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Calendar ID</label>
+                                <input type="text" id="setting-gcal-id" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="primary or email@gmail.com">
+                                <p class="text-xs text-slate-500 mt-1">Default is 'primary'. Use 'nu.sportex.labs@gmail.com' for the lab calendar.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="app.integrations.gcal.authorize()" class="bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg transition flex items-center gap-2">
+                                    <i class="fa-brands fa-google"></i> Test Auth & Sign In
+                                </button>
+                                <span id="gcal-status" class="text-sm text-slate-500">Not connected</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-6">
+                        <h3 class="text-lg font-semibold text-slate-900 mb-2">MyTimetable Integration</h3>
+                        <p class="text-sm text-slate-500 mb-4">API Endpoint for fetching schedule data.</p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">API URL</label>
+                                <input type="text" id="setting-timetable-url" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="https://api.institution.ac.uk/timetable">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4">
+                        <button onclick="app.settings.save()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-lg transition">Save Settings</button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- MODALS -->
+    
+    <!-- Booking Modal -->
+    <div id="modal-booking" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transform transition-all scale-100">
+            <h3 class="text-xl font-bold mb-1" id="booking-modal-title">Book Asset</h3>
+            <p class="text-sm text-slate-500 mb-4" id="booking-modal-subtitle">Select your dates.</p>
+            
+            <form id="booking-form" onsubmit="event.preventDefault(); app.booking.confirm();" class="space-y-4">
+                <input type="hidden" id="booking-asset-id">
+                
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Start Date</label>
+                    <input type="datetime-local" id="booking-start" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">End Date</label>
+                    <input type="datetime-local" id="booking-end" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+
+                <div class="flex items-center gap-2 mt-4">
+                    <input type="checkbox" id="booking-gcal-sync" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                    <label for="booking-gcal-sync" class="text-sm text-slate-700">Add to Google Calendar</label>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="app.ui.modals.close('modal-booking')" class="flex-1 bg-white border border-slate-300 text-slate-700 py-2 rounded-lg hover:bg-slate-50 transition">Cancel</button>
+                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition font-medium">Confirm Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Asset Modal -->
+    <div id="modal-add-asset" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <h3 class="text-xl font-bold mb-4">Add New Asset</h3>
+            <form onsubmit="event.preventDefault(); app.admin.addAsset();" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Asset Name</label>
+                    <input type="text" id="new-asset-name" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                    <select id="new-asset-category" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <option value="Electronics">Electronics</option>
+                        <option value="Furniture">Furniture</option>
+                        <option value="Vehicles">Vehicles</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Image URL (Optional)</label>
+                    <input type="url" id="new-asset-image" placeholder="https://..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="app.ui.modals.close('modal-add-asset')" class="flex-1 bg-white border border-slate-300 text-slate-700 py-2 rounded-lg hover:bg-slate-50 transition">Cancel</button>
+                    <button type="submit" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition font-medium">Add Asset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /**
+         * Resource & Inventory Manager
+         * Architecture: SPA with LocalStorage Persistence
+         */
+
+        const app = {
+            data: {
+                currentUser: { id: 'user_123', name: 'Demo User', role: 'admin' },
+                assets: [],
+                bookings: [],
+                settings: {
+                    gcalClientId: '',
+                    gcalApiKey: '',
+                    timetableUrl: ''
+                }
+            },
+            
+            // Storage Manager: Handles LocalStorage, prepared for Firebase swap
+            storage: {
+                key: 'rim_data_v1',
+                init() {
+                    const stored = localStorage.getItem(this.key);
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        app.data.assets = parsed.assets || [];
+                        app.data.bookings = parsed.bookings || [];
+                        app.data.settings = parsed.settings || app.data.settings;
+                        
+                        // Ensure calendarId exists in loaded settings or default to specific lab email
+                        if (!app.data.settings.calendarId) {
+                            app.data.settings.calendarId = 'nu.sportex.labs@gmail.com';
+                        }
+                    } else {
+                        this.seed();
+                    }
+                },
+                save() {
+                    localStorage.setItem(this.key, JSON.stringify({
+                        assets: app.data.assets,
+                        bookings: app.data.bookings,
+                        settings: app.data.settings
+                    }));
+                },
+                seed() {
+                    // Initial Mock Data
+                    app.data.assets = [
+                        { id: 1, name: 'MacBook Pro 16"', category: 'Electronics', status: 'Available', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60' },
+                        { id: 2, name: 'Dell XPS 15', category: 'Electronics', status: 'Booked', image: 'https://images.unsplash.com/photo-1593642632823-8f78536788c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60' },
+                        { id: 3, name: 'Ergonomic Chair', category: 'Furniture', status: 'Available', image: 'https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60' },
+                        { id: 4, name: 'Projector 4K', category: 'Electronics', status: 'Available', image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60' },
+                        { id: 5, name: 'Company Van', category: 'Vehicles', status: 'Available', image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60' }
+                    ];
+                    // Set default settings
+                    app.data.settings.calendarId = 'nu.sportex.labs@gmail.com';
+                    this.save();
+                }
+            },
+
+            // Routing Logic
+            router: {
+                navigate(targetId) {
+                    document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+                    document.getElementById(`view-${targetId}`).classList.remove('hidden');
+                    
+                    // Update Nav Active State
+                    document.querySelectorAll('.nav-btn').forEach(btn => {
+                        if(btn.dataset.target === targetId) {
+                            btn.classList.add('bg-slate-900', 'text-white');
+                            btn.classList.remove('text-slate-300', 'hover:bg-slate-700');
+                        } else {
+                            btn.classList.remove('bg-slate-900', 'text-white');
+                            // btn.classList.add('text-slate-300', 'hover:bg-slate-700'); // Simplified
+                        }
+                    });
+
+                    // Trigger lifecycle hooks
+                    if(targetId === 'dashboard') app.ui.renderDashboard();
+                    if(targetId === 'admin') app.ui.renderAdmin();
+                    if(targetId === 'my-bookings') app.ui.renderMyBookings();
+                    if(targetId === 'settings') app.settings.loadUI();
+                }
+            },
+
+            // UI Rendering & Interaction
+            ui: {
+                renderDashboard() {
+                    const grid = document.getElementById('asset-grid');
+                    const searchTerm = document.getElementById('search-assets').value.toLowerCase();
+                    const categoryFilter = document.getElementById('filter-category').value;
+
+                    grid.innerHTML = '';
+
+                    const filtered = app.data.assets.filter(asset => {
+                        const matchesSearch = asset.name.toLowerCase().includes(searchTerm);
+                        const matchesCat = categoryFilter === 'all' || asset.category === categoryFilter;
+                        return matchesSearch && matchesCat;
+                    });
+
+                    filtered.forEach(asset => {
+                        const isAvailable = asset.status === 'Available';
+                        const statusColor = isAvailable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+                        const btnState = isAvailable ? `onclick="app.booking.openModal(${asset.id})"` : 'disabled class="w-full py-2 rounded-lg bg-slate-100 text-slate-400 cursor-not-allowed"';
+                        const btnText = isAvailable ? 'Book Now' : 'Currently Booked';
+                        const btnClass = isAvailable ? 'w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition font-medium' : 'w-full py-2 rounded-lg bg-slate-100 text-slate-400 cursor-not-allowed';
+
+                        const card = `
+                            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition group">
+                                <div class="h-48 overflow-hidden relative bg-slate-100">
+                                    <img src="${asset.image || 'https://via.placeholder.com/400x300?text=No+Image'}" alt="${asset.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                    <span class="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-bold ${statusColor}">
+                                        ${asset.status}
+                                    </span>
+                                </div>
+                                <div class="p-5">
+                                    <p class="text-xs text-slate-500 uppercase font-semibold tracking-wide mb-1">${asset.category}</p>
+                                    <h3 class="text-lg font-bold text-slate-900 mb-4">${asset.name}</h3>
+                                    <button ${btnState} class="${btnClass}">
+                                        ${btnText}
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        grid.innerHTML += card;
+                    });
+                },
+
+                renderAdmin() {
+                    // Render Asset List
+                    const assetList = document.getElementById('admin-asset-list');
+                    assetList.innerHTML = '';
+                    app.data.assets.forEach(asset => {
+                        assetList.innerHTML += `
+                            <tr>
+                                <td class="p-3 text-slate-800 font-medium">${asset.name} <span class="text-xs text-slate-400 ml-1">(${asset.category})</span></td>
+                                <td class="p-3"><span class="px-2 py-1 rounded text-xs ${asset.status === 'Available' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${asset.status}</span></td>
+                                <td class="p-3 text-right">
+                                    <button onclick="app.admin.deleteAsset(${asset.id})" class="text-red-500 hover:text-red-700 text-sm"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    // Render Activity List
+                    const activityList = document.getElementById('admin-activity-list');
+                    activityList.innerHTML = '';
+                    // Sort bookings by date desc
+                    const sortedBookings = [...app.data.bookings].sort((a,b) => new Date(b.created) - new Date(a.created));
+                    
+                    sortedBookings.forEach(b => {
+                        const asset = app.data.assets.find(a => a.id === b.assetId);
+                        const assetName = asset ? asset.name : 'Unknown Asset';
+                        activityList.innerHTML += `
+                            <li class="flex items-start gap-3 pb-3 border-b border-slate-50 last:border-0">
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-user text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-slate-800"><span class="font-bold">User</span> booked <span class="font-bold">${assetName}</span></p>
+                                    <p class="text-xs text-slate-500">${new Date(b.start).toLocaleDateString()} - ${new Date(b.end).toLocaleDateString()}</p>
+                                </div>
+                            </li>
+                        `;
+                    });
+                },
+
+                renderMyBookings() {
+                    const tbody = document.getElementById('my-bookings-table-body');
+                    const emptyState = document.getElementById('my-bookings-empty');
+                    tbody.innerHTML = '';
+
+                    const myBookings = app.data.bookings.filter(b => b.userId === app.data.currentUser.id);
+
+                    if (myBookings.length === 0) {
+                        emptyState.classList.remove('hidden');
+                        return;
+                    }
+                    emptyState.classList.add('hidden');
+
+                    myBookings.forEach(b => {
+                        const asset = app.data.assets.find(a => a.id === b.assetId);
+                        if (!asset) return;
+                        
+                        // Check if booking is active
+                        const now = new Date();
+                        const isPast = new Date(b.end) < now;
+                        const statusClass = isPast ? 'bg-slate-100 text-slate-600' : 'bg-blue-100 text-blue-700';
+                        const statusText = isPast ? 'Completed' : 'Active';
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="px-6 py-4 font-medium text-slate-900">${asset.name}</td>
+                                <td class="px-6 py-4">${asset.category}</td>
+                                <td class="px-6 py-4">${new Date(b.start).toLocaleString()}</td>
+                                <td class="px-6 py-4">${new Date(b.end).toLocaleString()}</td>
+                                <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs font-bold ${statusClass}">${statusText}</span></td>
+                                <td class="px-6 py-4">
+                                    ${!isPast ? `<button onclick="app.booking.cancel(${b.id}, ${asset.id})" class="text-red-600 hover:text-red-800 text-xs font-bold uppercase tracking-wide">Return</button>` : '-'}
+                                </td>
+                            </tr>
+                        `;
+                    });
+                },
+
+                modals: {
+                    openAddAsset() {
+                        document.getElementById('modal-add-asset').classList.remove('hidden');
+                    },
+                    close(id) {
+                        document.getElementById(id).classList.add('hidden');
+                    }
+                },
+
+                toast(message, type = 'success') {
+                    const container = document.getElementById('toast-container');
+                    const toast = document.createElement('div');
+                    const colorClass = type === 'success' ? 'bg-green-600' : (type === 'error' ? 'bg-red-600' : 'bg-slate-800');
+                    
+                    toast.className = `${colorClass} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 toast-enter`;
+                    toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i> <span>${message}</span>`;
+                    
+                    container.appendChild(toast);
+                    setTimeout(() => {
+                        toast.style.opacity = '0';
+                        toast.style.transform = 'translateY(10px)';
+                        setTimeout(() => toast.remove(), 300);
+                    }, 3000);
+                }
+            },
+
+            // Booking Logic
+            booking: {
+                openModal(assetId) {
+                    const asset = app.data.assets.find(a => a.id === assetId);
+                    document.getElementById('booking-asset-id').value = assetId;
+                    document.getElementById('booking-modal-title').innerText = `Book ${asset.name}`;
+                    document.getElementById('modal-booking').classList.remove('hidden');
+                    
+                    // Set default dates
+                    const now = new Date();
+                    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                    document.getElementById('booking-start').value = now.toISOString().slice(0,16);
+                    
+                    const tomorrow = new Date(now);
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    document.getElementById('booking-end').value = tomorrow.toISOString().slice(0,16);
+                },
+                
+                async confirm() {
+                    const assetId = parseInt(document.getElementById('booking-asset-id').value);
+                    const start = document.getElementById('booking-start').value;
+                    const end = document.getElementById('booking-end').value;
+                    const syncGcal = document.getElementById('booking-gcal-sync').checked;
+
+                    if (new Date(start) >= new Date(end)) {
+                        app.ui.toast("End date must be after start date", "error");
+                        return;
+                    }
+
+                    // Create Booking
+                    const booking = {
+                        id: Date.now(),
+                        userId: app.data.currentUser.id,
+                        assetId: assetId,
+                        start: start,
+                        end: end,
+                        created: new Date().toISOString()
+                    };
+
+                    app.data.bookings.push(booking);
+                    
+                    // Update Asset Status
+                    const assetIndex = app.data.assets.findIndex(a => a.id === assetId);
+                    if(assetIndex > -1) {
+                        app.data.assets[assetIndex].status = 'Booked';
+                    }
+
+                    app.storage.save();
+                    app.ui.modals.close('modal-booking');
+                    app.ui.renderDashboard();
+                    
+                    // Google Calendar Sync
+                    if (syncGcal) {
+                        const asset = app.data.assets[assetIndex];
+                        await app.integrations.gcal.createEvent(booking, asset);
+                    } else {
+                        app.ui.toast("Booking confirmed successfully!");
+                    }
+                },
+
+                cancel(bookingId, assetId) {
+                    // Remove booking
+                    app.data.bookings = app.data.bookings.filter(b => b.id !== bookingId);
+                    
+                    // Free up asset
+                    const assetIndex = app.data.assets.findIndex(a => a.id === assetId);
+                    if(assetIndex > -1) {
+                        app.data.assets[assetIndex].status = 'Available';
+                    }
+
+                    app.storage.save();
+                    app.ui.renderMyBookings();
+                    app.ui.toast("Asset returned successfully.");
+                }
+            },
+
+            // Admin Logic
+            admin: {
+                addAsset() {
+                    const name = document.getElementById('new-asset-name').value;
+                    const cat = document.getElementById('new-asset-category').value;
+                    const img = document.getElementById('new-asset-image').value;
+
+                    const newAsset = {
+                        id: Date.now(),
+                        name: name,
+                        category: cat,
+                        status: 'Available',
+                        image: img || null
+                    };
+
+                    app.data.assets.push(newAsset);
+                    app.storage.save();
+                    app.ui.modals.close('modal-add-asset');
+                    app.ui.renderAdmin(); // Refresh if on admin page
+                    app.ui.toast("Asset added to inventory.");
+                    
+                    // Reset form
+                    document.getElementById('new-asset-name').value = '';
+                },
+                
+                deleteAsset(id) {
+                    if(confirm("Are you sure you want to delete this asset?")) {
+                        app.data.assets = app.data.assets.filter(a => a.id !== id);
+                        app.storage.save();
+                        app.ui.renderAdmin();
+                        app.ui.toast("Asset deleted.");
+                    }
+                }
+            },
+
+            settings: {
+                loadUI() {
+                    document.getElementById('setting-gcal-client-id').value = app.data.settings.gcalClientId || '';
+                    document.getElementById('setting-gcal-api-key').value = app.data.settings.gcalApiKey || '';
+                    document.getElementById('setting-timetable-url').value = app.data.settings.timetableUrl || '';
+                    document.getElementById('setting-gcal-id').value = app.data.settings.calendarId || 'nu.sportex.labs@gmail.com';
+                },
+                save() {
+                    app.data.settings.gcalClientId = document.getElementById('setting-gcal-client-id').value;
+                    app.data.settings.gcalApiKey = document.getElementById('setting-gcal-api-key').value;
+                    app.data.settings.timetableUrl = document.getElementById('setting-timetable-url').value;
+                    app.data.settings.calendarId = document.getElementById('setting-gcal-id').value;
+                    
+                    app.storage.save();
+                    app.ui.toast("Settings saved successfully.");
+                    
+                    // Re-init Google Client if keys changed
+                    if(app.data.settings.gcalApiKey) {
+                        app.integrations.gcal.initClient();
+                    }
+                }
+            },
+
+            // External Integrations
+            integrations: {
+                gcal: {
+                    tokenClient: null,
+                    gapiInited: false,
+                    gisInited: false,
+
+                    initClient() {
+                        if (!app.data.settings.gcalApiKey || !app.data.settings.gcalClientId) return;
+
+                        gapi.load('client', () => {
+                            gapi.client.init({
+                                apiKey: app.data.settings.gcalApiKey,
+                                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
+                            }).then(() => {
+                                app.integrations.gcal.gapiInited = true;
+                                console.log("GAPI Initialized");
+                            });
+                        });
+
+                        app.integrations.gcal.tokenClient = google.accounts.oauth2.initTokenClient({
+                            client_id: app.data.settings.gcalClientId,
+                            scope: 'https://www.googleapis.com/auth/calendar.events',
+                            callback: '', // defined at request time
+                        });
+                        app.integrations.gcal.gisInited = true;
+                    },
+
+                    authorize() {
+                        if (!this.tokenClient) {
+                            app.ui.toast("Please save API keys first.", "error");
+                            return;
+                        }
+                        
+                        this.tokenClient.callback = async (resp) => {
+                            if (resp.error) {
+                                throw (resp);
+                            }
+                            document.getElementById('gcal-status').innerText = "Connected";
+                            document.getElementById('gcal-status').classList.replace('text-slate-500', 'text-green-600');
+                            app.ui.toast("Google Account Connected");
+                        };
+
+                        if (gapi.client.getToken() === null) {
+                            // Prompt the user to select a Google Account and ask for consent to share their data
+                            this.tokenClient.requestAccessToken({prompt: 'consent'});
+                        } else {
+                            // Skip display of account chooser and consent dialog for an existing session.
+                            this.tokenClient.requestAccessToken({prompt: ''});
+                        }
+                    },
+
+                    async createEvent(booking, asset) {
+                        if (!this.gapiInited || !this.gisInited) {
+                            app.ui.toast("Google Calendar not configured. Check settings.", "error");
+                            return;
+                        }
+
+                        // Check if we have a token
+                        if (gapi.client.getToken() === null) {
+                            // Need to auth first
+                            this.tokenClient.callback = async (resp) => {
+                                if (resp.error) return;
+                                await this.pushToCalendar(booking, asset);
+                            }
+                            this.tokenClient.requestAccessToken({prompt: ''});
+                        } else {
+                            await this.pushToCalendar(booking, asset);
+                        }
+                    },
+
+                    async pushToCalendar(booking, asset) {
+                        const event = {
+                            'summary': `Booking: ${asset.name}`,
+                            'description': `Resource booking via Resourcely.\nItem: ${asset.category} - ${asset.name}`,
+                            'start': {
+                                'dateTime': new Date(booking.start).toISOString(),
+                                'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
+                            },
+                            'end': {
+                                'dateTime': new Date(booking.end).toISOString(),
+                                'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
+                            }
+                        };
+
+                        const targetCalendarId = app.data.settings.calendarId || 'primary';
+
+                        try {
+                            await gapi.client.calendar.events.insert({
+                                'calendarId': targetCalendarId,
+                                'resource': event
+                            });
+                            app.ui.toast(`Booking synced to Calendar (${targetCalendarId})!`);
+                        } catch (err) {
+                            console.error("GCal Error", err);
+                            app.ui.toast("Failed to sync to Calendar. Check permissions.", "error");
+                        }
+                    }
+                },
+
+                timetable: {
+                    async sync() {
+                        const url = app.data.settings.timetableUrl;
+                        
+                        if (!url) {
+                            app.ui.toast("MyTimetable URL not configured.", "error");
+                            return;
+                        }
+
+                        app.ui.toast("Syncing with MyTimetable...", "info");
+
+                        try {
+                            // NOTE: Client-side fetch to external APIs usually fails due to CORS 
+                            // unless the server allows it. This is a simulation.
+                            const response = await fetch(url, {
+                                method: 'GET',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    // 'Authorization': 'Basic ' + btoa('user:pass') // Example auth
+                                }
+                            });
+
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            
+                            const data = await response.json();
+                            console.log("Timetable Data:", data);
+                            app.ui.toast("Timetable synced successfully!");
+
+                        } catch (error) {
+                            console.error("Timetable Fetch Error:", error);
+                            // Fallback message for the user explaining the limitation
+                            app.ui.toast("CORS Error: Cannot fetch MyTimetable from browser. Please enable CORS on server or use a proxy.", "error");
+                        }
+                    }
+                }
+            }
+        };
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            app.storage.init();
+            app.router.navigate('dashboard');
+            
+            // Search Listener
+            document.getElementById('search-assets').addEventListener('keyup', app.ui.renderDashboard);
+            document.getElementById('filter-category').addEventListener('change', app.ui.renderDashboard);
+
+            // Attempt to load GAPI if settings exist
+            if(app.data.settings.gcalApiKey) {
+                app.integrations.gcal.initClient();
+            }
+        });
+
+    </script>
+</body>
+</html>
