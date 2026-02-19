@@ -183,7 +183,7 @@
                     0
                 </div>
 
-                <div id="next-up" class="text-sm font-bold text-white/60 uppercase tracking-widest h-6">
+                <div id="next-up" class="text-sm font-bold text-white/60 uppercase tracking-widest h-6 text-center">
                     </div>
             </div>
 
@@ -268,7 +268,10 @@
                 callTimer: 0,
                 lastMove: '',
                 plan: [],
-                surpriseTriggered: false,
+                surpriseTracker: {
+                    you: false,
+                    partner: false
+                },
                 surpriseRoundNum: -1
             };
             
@@ -530,7 +533,7 @@
                     playBell();
                 } else if (phase === 'surprise') {
                     session.time = 30; session.total = 30;
-                    ui.timerBg.className = "bg-white"; // White background
+                    ui.timerBg.className = "bg-white";
                     ui.badge.innerText = "SURPRISE ROUND";
                     ui.badge.classList.add('bg-black/10', 'text-black');
                     ui.focusLabel.classList.remove('text-white/70');
@@ -540,7 +543,14 @@
                     
                     const task = Math.random() > 0.5 ? "NON-STOP STRAIGHTS" : "NON-STOP HOOKS";
                     ui.roundFocus.innerText = task;
-                    ui.nextUp.innerText = "GO GO GO!";
+                    
+                    if (settings.mode === 'wife') {
+                        const isYou = (session.round % 2 !== 0);
+                        ui.nextUp.innerText = (isYou ? "YOU" : "PARTNER") + " - GO GO GO!";
+                    } else {
+                        ui.nextUp.innerText = "GO GO GO!";
+                    }
+                    
                     ui.timerDisplay.classList.remove('text-white');
                     ui.timerDisplay.classList.add('text-black');
                     playBell();
@@ -606,36 +616,47 @@
                 }
 
                 const maxRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
+                const isWife = settings.mode === 'wife';
                 
                 if (dir === 1) {
                     if (session.phase === 'ready') setPhase('work');
                     else if (session.phase === 'work') {
-                        if (settings.mode === 'wife') {
+                        // Logic to trigger surprise for Partner 1
+                        if (isWife && (session.round % 2 !== 0) && !session.surpriseTracker.you && Math.floor((session.round - 1)/2) === session.surpriseRoundNum) {
+                            session.surpriseTracker.you = true;
+                            setPhase('surprise');
+                        } 
+                        // Logic to trigger surprise for Solo
+                        else if (!isWife && !session.surpriseTracker.you && (session.round - 1) === session.surpriseRoundNum) {
+                            session.surpriseTracker.you = true;
+                            setPhase('surprise');
+                        }
+                        else {
                             if (session.round >= maxRounds) end();
-                            else setPhase('change');
-                        } else {
-                            if (session.round >= maxRounds) end();
-                            else setPhase('rest');
+                            else setPhase(isWife ? 'change' : 'rest');
                         }
                     } 
-                    else if (session.phase === 'rest' || session.phase === 'change') {
-                        // Check for Surprise Round trigger
-                        if (!session.surpriseTriggered && session.round === session.surpriseRoundNum) {
-                            session.surpriseTriggered = true;
-                            setPhase('surprise');
-                        } else {
-                            session.round++;
-                            setPhase('work');
-                        }
+                    else if (session.phase === 'change' || session.phase === 'rest') {
+                        // After rest/change, move to next round
+                        session.round++;
+                        setPhase('work');
                     }
                     else if (session.phase === 'surprise') {
-                        // After surprise, give a standard rest before next round
-                        setPhase('rest');
+                        // Check if Partner 2 needs their surprise now
+                        const isYouRound = (session.round % 2 !== 0);
+                        if (isWife && isYouRound && !session.surpriseTracker.partner) {
+                            // Partner 1 just finished surprise. Give a changeover then Partner 2 work, then Partner 2 surprise.
+                            setPhase('change');
+                        } else {
+                            // After surprise is over for the active person
+                            setPhase(isWife ? 'change' : 'rest');
+                            if (isWife && !isYouRound) session.surpriseTracker.partner = true;
+                        }
                     }
                 } else {
                     // PREV
                     if (session.phase === 'work') {
-                        if (session.round > 1) { session.round--; setPhase(settings.mode === 'wife' ? 'change' : 'rest'); }
+                        if (session.round > 1) { session.round--; setPhase(isWife ? 'change' : 'rest'); }
                         else setPhase('ready');
                     } else if (session.phase === 'rest' || session.phase === 'change' || session.phase === 'surprise') {
                         setPhase('work');
@@ -652,7 +673,7 @@
                 ui.setup.classList.remove('hidden');
                 ui.timerBg.style.height = '0%';
                 document.body.classList.remove('timer-running');
-                setMode(document.getElementById('mode-solo').classList.contains('bg-green-600') ? 'solo' : 'wife');
+                setMode(ui.modeSolo.classList.contains('bg-green-600') ? 'solo' : 'wife');
             }
 
             ui.btnStart.onclick = async () => {
@@ -667,10 +688,9 @@
                 ui.roundTot.innerText = totalDisplay;
                 session.round = 1;
                 session.active = true;
-                session.surpriseTriggered = false;
+                session.surpriseTracker = { you: false, partner: false };
                 
-                // Pick a random round between 5 and 11, avoiding 8 (hook round)
-                const pool = [5, 6, 7, 9, 10, 11].filter(r => r < settings.rounds);
+                const pool = [4, 5, 6, 8, 9, 10].filter(r => r < settings.rounds);
                 session.surpriseRoundNum = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : -1;
                 
                 setPhase('ready');
