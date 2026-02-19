@@ -315,7 +315,7 @@
                 modeWife: document.getElementById('mode-wife'),
                 restInfo: document.getElementById('rest-info'),
                 inRandom: document.getElementById('in-random'),
-                toggleBg: document.getElementById('toggle-bg'), // New ID for toggle logic
+                toggleBg: document.getElementById('toggle-bg'),
                 gridRounds: document.getElementById('grid-rounds'),
                 previewContainer: document.getElementById('preview-container'),
                 btnTogglePreview: document.getElementById('btn-toggle-preview'),
@@ -400,8 +400,8 @@
                     ui.modeWife.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white shadow-md";
                     ui.modeSolo.className = "flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
                     
-                    // Info
-                    ui.restInfo.innerHTML = `<p class="text-[10px] text-purple-300 font-bold uppercase tracking-widest">Partner Mode</p><p class="text-xs text-slate-400">2x Rounds. No rest timer (You go, I go).</p>`;
+                    // Info (Updated to reflect 10s changeover)
+                    ui.restInfo.innerHTML = `<p class="text-[10px] text-purple-300 font-bold uppercase tracking-widest">Partner Mode</p><p class="text-xs text-slate-400">2x Rounds. 10s changeover between rounds.</p>`;
                     
                     // Set Theme: PURPLE
                     root.style.setProperty('--theme-color', '#a855f7');
@@ -411,7 +411,7 @@
                     ui.btnStart.classList.remove('bg-blue-600', 'hover:bg-blue-500', 'shadow-[0_0_20px_rgba(59,130,246,0.4)]');
                     ui.btnStart.classList.add('bg-purple-600', 'hover:bg-purple-500', 'shadow-[0_0_20px_rgba(168,85,247,0.4)]');
 
-                    // Toggle Color: RED (as requested for "With Wife" mode)
+                    // Toggle Color: RED
                     ui.toggleBg.classList.remove('peer-checked:bg-blue-600');
                     ui.toggleBg.classList.add('peer-checked:bg-red-600');
                 }
@@ -482,7 +482,7 @@
                     div.className = "text-[10px] p-2 rounded bg-slate-800/40 border border-slate-700/50 flex justify-between items-center";
                     div.innerHTML = `
                         <span class="font-bold ${colorClass}">${title}</span>
-                        <span class="text-slate-500 truncate ml-2 max-w-[150px] text-right">${settings.mode === 'wife' ? subtitle : subtitle}</span>
+                        <span class="text-slate-500 truncate ml-2 max-w-[150px] text-right">${subtitle}</span>
                     `;
                     ui.previewList.appendChild(div);
                 }
@@ -592,6 +592,25 @@
                         ui.nextUp.innerText = "Final Round Complete";
                     }
                     playBell();
+
+                } else if (phase === 'change') {
+                    // YELLOW / CHANGE FOR WIFE MODE
+                    session.time = 10; session.total = 10;
+                    
+                    ui.timerBg.className = "bg-yellow-600";
+                    ui.badge.innerText = "CHANGE";
+                    ui.roundFocus.innerText = "Swap!";
+                    
+                    const maxRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
+                    if (session.round < maxRounds) {
+                        const nextIsYou = ((session.round + 1) % 2 !== 0);
+                        const nextName = session.plan[Math.floor(session.round / 2)].name;
+                        ui.nextUp.innerText = `Up Next: ${nextIsYou ? 'YOU' : 'PARTNER'} - ${nextName}`;
+                    } else {
+                        ui.nextUp.innerText = "Final Round Complete";
+                    }
+                    playBell();
+
                 } else if (phase === 'quick-rest') {
                     // Custom Quick Rest Phase
                     // Note: session.time is set before calling setPhase for this mode
@@ -683,20 +702,18 @@
                         setPhase('work');
                     }
                     else if (session.phase === 'work') {
-                        // Go to REST (unless Wife mode, then next Work)
+                        // Go to REST or CHANGE
                         if (settings.mode === 'wife') {
-                            session.round++;
-                            if (session.round > maxRounds) end();
-                            else setPhase('work');
+                            if (session.round >= maxRounds) end();
+                            else setPhase('change');
                         } 
                         else {
-                            // Solo mode: Work -> Rest (even on last round usually you rest before finish, or finish immediately. Logic says finish if > rounds)
                             if (session.round >= maxRounds) end();
                             else setPhase('rest');
                         }
                     } 
-                    else if (session.phase === 'rest') {
-                        // Rest -> Next Work
+                    else if (session.phase === 'rest' || session.phase === 'change') {
+                        // Rest or Change -> Next Work
                         session.round++;
                         setPhase('work');
                     }
@@ -707,17 +724,16 @@
                         // Do nothing
                     }
                     else if (session.phase === 'work') {
-                        // Work -> Previous Rest (or Ready)
+                        // Work -> Previous Rest (or Ready/Change)
                         if (settings.mode === 'wife') {
                             if (session.round > 1) {
                                 session.round--;
-                                setPhase('work');
+                                setPhase('change'); // Go back to the change phase before this work
                             } else {
                                 setPhase('ready');
                             }
                         } 
                         else {
-                            // Solo: Work -> Previous Rest
                             if (session.round > 1) {
                                 session.round--;
                                 setPhase('rest');
@@ -726,8 +742,8 @@
                             }
                         }
                     }
-                    else if (session.phase === 'rest') {
-                        // Rest -> Current Work
+                    else if (session.phase === 'rest' || session.phase === 'change') {
+                        // Rest or Change -> Current Work
                         setPhase('work');
                     }
                 }
@@ -753,9 +769,6 @@
 
                 // LOCK SCROLLING
                 document.body.classList.add('timer-running');
-
-                // Determine Mode (Re-confirm settings just in case)
-                // Use settings.mode which is updated by setMode
 
                 ui.setup.classList.add('hidden');
                 ui.timer.classList.remove('hidden');
