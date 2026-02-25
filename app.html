@@ -33,12 +33,14 @@
         .nav-tab.active { border-bottom-color: #60A5FA; opacity: 1; background-color: rgba(30, 41, 59, 0.5); }
         .nav-tab:disabled { pointer-events: none; opacity: 0.25; }
 
-        /* Camera canvas */
+        /* Camera canvas - mobile default: portrait */
         .canvas-wrapper {
             position: relative; width: 100%; border-radius: 1rem; overflow: hidden;
             background-color: #0f172a; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
         }
         .canvas-wrapper canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .canvas-aspect-mobile  { aspect-ratio: 9 / 16; }
+        .canvas-aspect-desktop { aspect-ratio: 16 / 9; }
 
         /* Depth gauge */
         .depth-meter { height: 22px; width: 100%; background: #1e293b; border-radius: 11px; overflow: hidden; border: 1px solid #334155; }
@@ -71,7 +73,85 @@
         /* Prevent pull-to-refresh on mobile */
         body { overscroll-behavior-y: contain; }
 
-        /* Questionnaire modal */
+        /* =============================================
+           RESPONSIVE: TABLET / DESKTOP (768px+)
+           Camera steps use side-by-side layout.
+           Canvas switches to landscape aspect ratio.
+        ============================================= */
+        @media (min-width: 768px) {
+
+            /* Wider auth box */
+            #auth-screen .w-full.max-w-sm { max-width: 28rem; }
+            #auth-screen h1 { font-size: 2.25rem; }
+
+            /* Nav tabs - more breathing room */
+            #app-nav .grid-cols-5 { font-size: 0.8rem; }
+            #app-nav .nav-tab { padding-top: 0.875rem; padding-bottom: 0.875rem; }
+
+            /* Camera step layouts: stack becomes side-by-side */
+            #view-assess,
+            #view-workout {
+                flex-direction: row !important;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+
+            /* Camera panel takes 55% on wider screens */
+            #assess-canvas-wrapper,
+            #train-canvas-wrapper {
+                flex: 0 0 55%;
+                max-width: 55%;
+            }
+
+            /* Controls panel takes remaining space */
+            .camera-controls-panel {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            /* Header info cards below camera fill full width in side layout */
+            #assess-stats-row,
+            #train-stats-row { width: 100%; }
+
+            /* Warm-up cards side by side */
+            #view-warmup .warmup-cards-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+
+            /* Progress stats grid wider */
+            #view-home .grid-cols-3 { gap: 1.25rem; }
+
+            /* Larger touch targets on tablet */
+            .warmup-btn { padding-top: 0.875rem; padding-bottom: 0.875rem; }
+            button[onclick*="switchView"] { padding-top: 1rem; padding-bottom: 1rem; }
+
+            /* Modals wider on tablet */
+            .modal-box { max-width: 520px; padding: 2rem; }
+        }
+
+        @media (min-width: 1024px) {
+            /* Desktop: nav can show full labels */
+            #app-nav .grid-cols-5 { font-size: 0.875rem; }
+
+            /* Camera takes less proportional space, controls more prominent */
+            #assess-canvas-wrapper,
+            #train-canvas-wrapper {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+
+            /* Larger base text in main content */
+            #app-container { font-size: 1rem; }
+
+            /* Modals comfortable width */
+            .modal-box { max-width: 560px; }
+        }
+
+        /* Shared modal styles */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.88);
             z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem;
@@ -81,6 +161,8 @@
             background: #1e293b; border: 1px solid #334155; border-radius: 1.25rem;
             width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto; padding: 1.75rem;
         }
+
+        /* Questionnaire buttons */
         .borg-btn {
             flex: 1; min-width: 2.2rem; padding: 0.55rem 0.1rem;
             border-radius: 0.5rem; font-weight: 700; font-size: 0.9rem;
@@ -95,9 +177,90 @@
             background: #0f172a; color: #64748b;
         }
         .confidence-btn.selected { border-color: #22c55e; background: #15803d; color: white; }
+
+        /* Feedback buttons */
+        .feedback-type-btn.selected { border-color: #a855f7; background: #7e22ce; color: white; }
+        .feedback-step-btn.selected { border-color: #94a3b8; background: #334155; color: white; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- ========== FEEDBACK MODAL ========== -->
+    <div id="feedback-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="flex justify-between items-start mb-1">
+                <h2 class="text-xl font-bold text-white">Report a Problem</h2>
+                <button onclick="closeFeedbackModal()" class="text-slate-500 hover:text-white text-2xl leading-none transition-colors">×</button>
+            </div>
+            <p class="text-xs text-purple-400 font-bold uppercase tracking-widest mb-5">or leave general feedback</p>
+
+            <!-- Type selector -->
+            <div class="mb-5">
+                <p class="text-sm font-bold text-white mb-3">What kind of report is this?</p>
+                <div class="grid grid-cols-3 gap-2">
+                    <button id="ftype-problem" onclick="selectFeedbackType('problem')"
+                        class="feedback-type-btn py-2.5 px-2 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-300 font-bold text-xs transition-all">
+                        🛑 Problem
+                    </button>
+                    <button id="ftype-suggestion" onclick="selectFeedbackType('suggestion')"
+                        class="feedback-type-btn py-2.5 px-2 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-300 font-bold text-xs transition-all">
+                        💡 Suggestion
+                    </button>
+                    <button id="ftype-other" onclick="selectFeedbackType('other')"
+                        class="feedback-type-btn py-2.5 px-2 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-300 font-bold text-xs transition-all">
+                        💬 Other
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step selector -->
+            <div class="mb-5">
+                <p class="text-sm font-bold text-white mb-3">Which step were you on? <span class="font-normal text-slate-500">(optional)</span></p>
+                <div class="grid grid-cols-3 gap-2">
+                    <button id="fstep-warmup" onclick="selectFeedbackStep('warmup')"
+                        class="feedback-step-btn py-2 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-400 font-bold text-xs transition-all">
+                        Warm Up
+                    </button>
+                    <button id="fstep-baseline" onclick="selectFeedbackStep('baseline')"
+                        class="feedback-step-btn py-2 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-400 font-bold text-xs transition-all">
+                        Baseline
+                    </button>
+                    <button id="fstep-training" onclick="selectFeedbackStep('training')"
+                        class="feedback-step-btn py-2 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-400 font-bold text-xs transition-all">
+                        Training
+                    </button>
+                    <button id="fstep-food" onclick="selectFeedbackStep('food')"
+                        class="feedback-step-btn py-2 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-400 font-bold text-xs transition-all">
+                        Food Log
+                    </button>
+                    <button id="fstep-progress" onclick="selectFeedbackStep('progress')"
+                        class="feedback-step-btn py-2 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-400 font-bold text-xs transition-all">
+                        Progress
+                    </button>
+                    <button id="fstep-general" onclick="selectFeedbackStep('general')"
+                        class="feedback-step-btn py-2 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-400 font-bold text-xs transition-all">
+                        General
+                    </button>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-6">
+                <p class="text-sm font-bold text-white mb-2">Describe the issue or feedback</p>
+                <textarea id="feedback-text" rows="4" class="auth-input text-sm resize-none"
+                    placeholder="e.g. The camera wouldn't find me on step 2. I was standing sideways but it kept searching..."></textarea>
+            </div>
+
+            <button id="feedback-submit-btn" onclick="submitFeedback()"
+                class="w-full bg-purple-600 hover:bg-purple-500 disabled:opacity-30 text-white font-bold py-4 rounded-xl transition-all"
+                disabled>
+                Send Report
+            </button>
+            <p id="feedback-success" class="hidden text-center text-green-400 text-sm font-bold mt-3">
+                ✓ Sent - thank you. Your feedback has been logged.
+            </p>
+        </div>
+    </div>
 
     <!-- ========== POST-SESSION QUESTIONNAIRE MODAL ========== -->
     <div id="questionnaire-modal" class="modal-overlay hidden">
@@ -105,7 +268,6 @@
             <h2 class="text-xl font-bold text-white mb-1">Session Complete</h2>
             <p class="text-xs text-green-400 font-bold uppercase tracking-widest mb-5">4 Quick Questions</p>
 
-            <!-- Q1: RPE Borg CR-10 -->
             <div class="mb-6">
                 <p class="text-sm font-bold text-white mb-1">How hard did that feel?</p>
                 <p class="text-xs text-slate-400 mb-3">Borg CR-10: 0 = nothing at all, 10 = maximal effort</p>
@@ -115,18 +277,13 @@
                 </div>
             </div>
 
-            <!-- Q2: Discomfort -->
             <div class="mb-6">
                 <p class="text-sm font-bold text-white mb-3">Did you experience any pain or discomfort?</p>
                 <div class="flex gap-3">
                     <button id="discomfort-yes" onclick="selectDiscomfort('yes')"
-                        class="flex-1 py-3 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-300 font-bold transition-all">
-                        Yes
-                    </button>
+                        class="flex-1 py-3 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-300 font-bold transition-all">Yes</button>
                     <button id="discomfort-no" onclick="selectDiscomfort('no')"
-                        class="flex-1 py-3 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-300 font-bold transition-all">
-                        No
-                    </button>
+                        class="flex-1 py-3 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-300 font-bold transition-all">No</button>
                 </div>
                 <div id="discomfort-detail-wrap" class="hidden mt-3">
                     <input type="text" id="discomfort-detail" class="auth-input text-sm"
@@ -134,7 +291,6 @@
                 </div>
             </div>
 
-            <!-- Q3: Confidence -->
             <div class="mb-6">
                 <p class="text-sm font-bold text-white mb-3">How confident do you feel about doing this again tomorrow?</p>
                 <div class="flex gap-1.5" id="confidence-buttons"></div>
@@ -143,7 +299,6 @@
                 </div>
             </div>
 
-            <!-- Q4: Free text -->
             <div class="mb-6">
                 <p class="text-sm font-bold text-white mb-2">Any other comments? <span class="font-normal text-slate-500">(optional)</span></p>
                 <textarea id="q-comments" rows="2" class="auth-input text-sm resize-none"
@@ -151,8 +306,7 @@
             </div>
 
             <button id="questionnaire-submit-btn" onclick="submitQuestionnaire()"
-                class="w-full bg-green-600 hover:bg-green-500 disabled:opacity-30 text-white font-bold py-4 rounded-xl transition-all"
-                disabled>
+                class="w-full bg-green-600 hover:bg-green-500 disabled:opacity-30 text-white font-bold py-4 rounded-xl transition-all" disabled>
                 Submit and Continue →
             </button>
             <button onclick="skipQuestionnaire()"
@@ -208,9 +362,14 @@
                 <h1 class="text-lg font-bold text-white tracking-tight">Functional Calibration</h1>
                 <p class="text-xs text-slate-400" id="user-email-display"></p>
             </div>
-            <button id="logoutBtn" onclick="handleLogout()" class="bg-red-600/80 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-lg transition-all active:scale-95 border border-red-500/50 flex items-center gap-1.5">
-                <span class="text-base leading-none">×</span> Sign Out
-            </button>
+            <div class="flex items-center gap-2">
+                <button onclick="openFeedbackModal()" class="bg-purple-700/80 hover:bg-purple-600 text-white font-bold px-3 py-2 rounded-lg text-xs shadow-lg transition-all active:scale-95 border border-purple-500/50 flex items-center gap-1.5">
+                    <span class="text-sm leading-none">!</span> Feedback
+                </button>
+                <button id="logoutBtn" onclick="handleLogout()" class="bg-red-600/80 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-lg transition-all active:scale-95 border border-red-500/50 flex items-center gap-1.5">
+                    <span class="text-base leading-none">×</span> Sign Out
+                </button>
+            </div>
         </div>
         <div class="grid grid-cols-5 w-full bg-slate-900 text-[10px] md:text-sm font-bold text-slate-300">
             <button onclick="switchView('warmup')" id="nav-warmup" class="nav-tab active py-3 flex flex-col items-center justify-center">
@@ -241,6 +400,7 @@
                 <p class="text-slate-400 text-sm mt-1">Complete both exercises before continuing.</p>
             </div>
 
+            <div class="warmup-cards-grid">
             <div id="warmup-1" class="glass-panel p-5 rounded-xl border border-slate-700 warmup-card">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="text-lg font-bold text-white">1. Marching in Place</h3>
@@ -270,6 +430,7 @@
                     Mark Complete ✓
                 </button>
             </div>
+            </div><!-- end warmup-cards-grid -->
 
             <button id="warmup-next-btn" disabled onclick="switchView('assess')" class="w-full bg-slate-800 hover:bg-blue-600 disabled:opacity-30 disabled:hover:bg-slate-800 text-white py-4 rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 mt-2">
                 Next: Establish Baseline <span class="text-xl">→</span>
@@ -284,7 +445,7 @@
                 <p class="text-slate-400 text-sm">Perform <strong class="text-white">3 squats</strong> to your comfortable maximum depth. I will save your best range.</p>
             </div>
 
-            <div class="canvas-wrapper relative aspect-[9/16] w-full max-w-sm mx-auto border border-slate-700" id="assess-canvas-wrapper">
+            <div class="canvas-wrapper canvas-aspect-mobile relative w-full border border-slate-700" id="assess-canvas-wrapper">
                 <video id="assess-video" style="display:none!important" playsinline></video>
                 <canvas id="assess-canvas"></canvas>
 
@@ -295,12 +456,12 @@
                     </button>
                 </div>
 
-                <!-- State: Waiting for subject -->
+                <!-- State: Waiting for subject - content set dynamically by device type -->
                 <div id="assess-overlay-waiting" class="hidden absolute inset-0 flex items-center justify-center z-20 bg-black/60">
                     <div class="text-center px-6">
-                        <div class="text-5xl mb-4">📱</div>
-                        <p class="text-lg font-bold text-white mb-2">Place your phone down</p>
-                        <p class="text-sm text-slate-300">Prop it against a wall, step back, and stand <strong>sideways</strong> to the camera.</p>
+                        <div class="text-5xl mb-4" id="assess-device-icon">📱</div>
+                        <p class="text-lg font-bold text-white mb-2" id="assess-device-title">Place your phone down</p>
+                        <p class="text-sm text-slate-300" id="assess-device-instructions">Prop it against a wall, step back, and stand <strong>sideways</strong> to the camera.</p>
                         <div class="mt-4 flex items-center justify-center gap-2">
                             <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse"></div>
                             <span class="text-xs text-blue-300 font-mono-display">SEARCHING FOR YOU...</span>
@@ -354,14 +515,22 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 w-full max-w-sm">
-                <div class="glass-panel p-3 rounded-xl text-center">
-                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Current Knee</p>
-                    <div class="text-3xl font-bold text-white font-mono-display" id="assess-knee-display">--°</div>
+            <!-- Controls panel: stacks below on mobile, sits beside camera on desktop -->
+            <div class="camera-controls-panel w-full">
+                <div class="grid grid-cols-2 gap-4" id="assess-stats-row">
+                    <div class="glass-panel p-3 rounded-xl text-center">
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Current Knee</p>
+                        <div class="text-3xl font-bold text-white font-mono-display" id="assess-knee-display">--°</div>
+                    </div>
+                    <div class="glass-panel p-3 rounded-xl text-center">
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Best Depth</p>
+                        <div class="text-3xl font-bold text-blue-400 font-mono-display" id="assess-best-display">--°</div>
+                    </div>
                 </div>
-                <div class="glass-panel p-3 rounded-xl text-center">
-                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Best Depth</p>
-                    <div class="text-3xl font-bold text-blue-400 font-mono-display" id="assess-best-display">--°</div>
+                <!-- Device setup tip shown on desktop only -->
+                <div id="assess-desktop-tip" class="hidden glass-panel p-4 rounded-xl border border-blue-500/20 text-sm text-slate-300 leading-relaxed">
+                    <strong class="text-blue-400 block mb-1">💻 Laptop / Tablet Setup</strong>
+                    Position your device at roughly knee height pointing sideways toward you - propped on a chair or low shelf works well. Stand 1-2 metres away so your full body from head to foot is visible. You need a clear side-on view for the angle measurement to work accurately.
                 </div>
             </div>
         </section>
@@ -369,22 +538,7 @@
         <!-- ===== STEP 3: DAILY TRAINING ===== -->
         <section id="view-workout" class="view-section flex-col items-center gap-4">
 
-            <div class="w-full">
-                <h2 class="text-xl font-bold text-white mb-3">Step 3: Daily Workout</h2>
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center">
-                    <div>
-                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Goal</p>
-                        <p class="text-2xl font-bold text-green-400 font-mono-display">5 Reps</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Target Depth</p>
-                        <p class="text-lg font-bold text-white font-mono-display" id="daily-target-display">--°</p>
-                        <p class="text-[10px] text-slate-500" id="daily-allowance-display"></p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="canvas-wrapper relative aspect-[9/16] w-full max-w-sm mx-auto border border-slate-700" id="train-canvas-wrapper">
+            <div class="canvas-wrapper canvas-aspect-mobile relative w-full border border-slate-700" id="train-canvas-wrapper">
                 <video id="train-video" style="display:none!important" playsinline></video>
                 <canvas id="train-canvas"></canvas>
 
@@ -395,12 +549,12 @@
                     </button>
                 </div>
 
-                <!-- Waiting -->
+                <!-- Waiting - content set dynamically by device type -->
                 <div id="train-overlay-waiting" class="hidden absolute inset-0 flex items-center justify-center z-20 bg-black/60">
                     <div class="text-center px-6">
-                        <div class="text-5xl mb-4">📱</div>
-                        <p class="text-lg font-bold text-white mb-2">Place your phone down</p>
-                        <p class="text-sm text-slate-300">Stand <strong>sideways</strong> to the camera.</p>
+                        <div class="text-5xl mb-4" id="train-device-icon">📱</div>
+                        <p class="text-lg font-bold text-white mb-2" id="train-device-title">Place your phone down</p>
+                        <p class="text-sm text-slate-300" id="train-device-instructions">Stand <strong>sideways</strong> to the camera.</p>
                         <div class="mt-4 flex items-center justify-center gap-2">
                             <div class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
                             <span class="text-xs text-green-300 font-mono-display">SEARCHING...</span>
@@ -466,6 +620,26 @@
                             Answer Feedback Questions →
                         </button>
                     </div>
+                </div>
+            </div>
+
+            <!-- Controls panel: stacks below on mobile, sits beside camera on desktop -->
+            <div class="camera-controls-panel w-full">
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center" id="train-stats-row">
+                    <div>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Goal</p>
+                        <p class="text-2xl font-bold text-green-400 font-mono-display">5 Reps</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Target Depth</p>
+                        <p class="text-lg font-bold text-white font-mono-display" id="daily-target-display">--°</p>
+                        <p class="text-[10px] text-slate-500" id="daily-allowance-display"></p>
+                    </div>
+                </div>
+                <!-- Desktop setup tip -->
+                <div id="train-desktop-tip" class="hidden glass-panel p-4 rounded-xl border border-green-500/20 text-sm text-slate-300 leading-relaxed">
+                    <strong class="text-green-400 block mb-1">💻 Laptop / Tablet Setup</strong>
+                    Position your device at roughly knee height pointing sideways toward you. Stand 1-2 metres away so your full body is in frame. You need a clear side-on view for the depth measurement to work.
                 </div>
             </div>
         </section>
@@ -756,6 +930,59 @@
     <!-- ========== APP LOGIC ========== -->
     <script>
         // ==============================
+        // DEVICE DETECTION & RESPONSIVE INIT
+        // ==============================
+
+        // True for phones and small tablets in portrait; false for laptops, desktops, landscape tablets
+        const IS_MOBILE = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+            && window.screen.width < 768;
+
+        function initResponsive() {
+            const canvases = document.querySelectorAll('.canvas-wrapper');
+
+            if (!IS_MOBILE) {
+                // Switch canvas to landscape aspect ratio
+                canvases.forEach(c => {
+                    c.classList.remove('canvas-aspect-mobile');
+                    c.classList.add('canvas-aspect-desktop');
+                });
+
+                // Show desktop setup tips
+                document.getElementById('assess-desktop-tip')?.classList.remove('hidden');
+                document.getElementById('train-desktop-tip')?.classList.remove('hidden');
+
+                // Update waiting overlay content for desktop
+                const assessIcon  = document.getElementById('assess-device-icon');
+                const assessTitle = document.getElementById('assess-device-title');
+                const assessInstr = document.getElementById('assess-device-instructions');
+                if (assessIcon)  assessIcon.textContent  = '💻';
+                if (assessTitle) assessTitle.textContent = 'Position your device sideways';
+                if (assessInstr) assessInstr.innerHTML   =
+                    'Place your laptop or tablet at <strong>knee height</strong>, pointing sideways toward you. Stand 1-2 metres away so your full body is visible.';
+
+                const trainIcon  = document.getElementById('train-device-icon');
+                const trainTitle = document.getElementById('train-device-title');
+                const trainInstr = document.getElementById('train-device-instructions');
+                if (trainIcon)  trainIcon.textContent  = '💻';
+                if (trainTitle) trainTitle.textContent = 'Position your device sideways';
+                if (trainInstr) trainInstr.innerHTML   =
+                    'Place your laptop or tablet at <strong>knee height</strong> and stand sideways to it. Use a chair or low shelf to prop it up.';
+
+            } else {
+                // Mobile: portrait canvas
+                canvases.forEach(c => {
+                    c.classList.remove('canvas-aspect-desktop');
+                    c.classList.add('canvas-aspect-mobile');
+                });
+            }
+        }
+
+        // Run on load
+        initResponsive();
+        // Re-run if orientation changes (tablet rotating)
+        window.addEventListener('orientationchange', () => setTimeout(initResponsive, 300));
+
+        // ==============================
         // GLOBAL STATE
         // ==============================
 
@@ -973,10 +1200,14 @@
 
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
+                    video: IS_MOBILE ? {
                         facingMode: 'user',
                         width: { ideal: 640 },
                         height: { ideal: 480 }
+                    } : {
+                        facingMode: 'user',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
                     },
                     audio: false
                 });
@@ -1398,7 +1629,6 @@
                         };
 
                         stopCamera();
-                        // Short delay so the complete overlay is visible before modal appears
                         setTimeout(() => showQuestionnaire(window._pendingSessionData), 1800);
                     }
                 }
@@ -1415,12 +1645,107 @@
         }
 
         // ==============================
+        // APPS SCRIPT URL
+        // ==============================
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSGKpWYXbIfXNjupdQYzSPDw7FoB3l0nuOQIP0jK95RQAm8auMoHUrp8fbwziH6fyB/exec';
+
+        // ==============================
+        // FEEDBACK MODAL
+        // ==============================
+        let _feedbackType = null;
+        let _feedbackStep = null;
+
+        window.openFeedbackModal = () => {
+            _feedbackType = null;
+            _feedbackStep = null;
+            document.querySelectorAll('.feedback-type-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('.feedback-step-btn').forEach(b => b.classList.remove('selected'));
+            const txt = document.getElementById('feedback-text');
+            if (txt) txt.value = '';
+            document.getElementById('feedback-success')?.classList.add('hidden');
+            document.getElementById('feedback-submit-btn').disabled = true;
+            document.getElementById('feedback-modal').classList.remove('hidden');
+        };
+
+        window.closeFeedbackModal = () => {
+            document.getElementById('feedback-modal').classList.add('hidden');
+        };
+
+        window.selectFeedbackType = (type) => {
+            _feedbackType = type;
+            document.querySelectorAll('.feedback-type-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById(`ftype-${type}`)?.classList.add('selected');
+            checkFeedbackReady();
+        };
+
+        window.selectFeedbackStep = (step) => {
+            _feedbackStep = step;
+            document.querySelectorAll('.feedback-step-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById(`fstep-${step}`)?.classList.add('selected');
+        };
+
+        function checkFeedbackReady() {
+            const hasType = _feedbackType !== null;
+            const hasText = (document.getElementById('feedback-text')?.value.trim().length || 0) > 0;
+            const btn = document.getElementById('feedback-submit-btn');
+            if (btn) btn.disabled = !(hasType && hasText);
+        }
+
+        // Also enable submit button when user types
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('feedback-text')?.addEventListener('input', checkFeedbackReady);
+        });
+
+        window.submitFeedback = async () => {
+            const text = document.getElementById('feedback-text')?.value.trim() || '';
+            const payload = {
+                type: 'feedback',
+                feedbackType: _feedbackType,
+                feedbackStep: _feedbackStep || 'not specified',
+                feedbackText: text,
+                userId: window.currentUserId || 'anonymous',
+                userEmail: window.userData?.email || '',
+                submittedAt: new Date().toISOString(),
+                appVersion: 'v0.5-alpha',
+                currentView: document.querySelector('.view-section.active')?.id || 'unknown'
+            };
+
+            // Disable button to prevent double-submit
+            const btn = document.getElementById('feedback-submit-btn');
+            if (btn) btn.disabled = true;
+
+            // 1. Write to Firestore feedback collection
+            try {
+                const { collection, addDoc } = await import(
+                    "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+                );
+                await addDoc(collection(window.firebaseDb, 'feedback'), payload);
+            } catch (e) {
+                console.warn('Firestore feedback write failed:', e);
+            }
+
+            // 2. POST to Apps Script (lands in Feedback tab in the Sheet)
+            if (APPS_SCRIPT_URL) {
+                try {
+                    fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } catch (e) {
+                    console.warn('Apps Script feedback POST failed:', e);
+                }
+            }
+
+            // Show success message then close after 2 seconds
+            document.getElementById('feedback-success')?.classList.remove('hidden');
+            setTimeout(() => closeFeedbackModal(), 2000);
+        };
+
+        // ==============================
         // QUESTIONNAIRE
         // ==============================
-
-        // Paste your Google Apps Script Web App URL here after deploying
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzm_KEZXsk9MFd_9GOC-WrihSytsmIMxOZF_KHmFPsM7qlJlnmqtnk0Uc5Spo90EVoQ/exec';
-
         let _qRpe = null;
         let _qDiscomfort = null;
         let _qConfidence = null;
@@ -1484,8 +1809,6 @@
         window.showQuestionnaire = (sessionData) => {
             window._pendingSessionData = sessionData;
             _qRpe = null; _qDiscomfort = null; _qConfidence = null;
-
-            // Reset all controls
             document.querySelectorAll('.borg-btn').forEach(b => b.classList.remove('selected'));
             document.querySelectorAll('.confidence-btn').forEach(b => b.classList.remove('selected'));
             const yBtn = document.getElementById('discomfort-yes');
@@ -1499,7 +1822,6 @@
             if (commentsEl) commentsEl.value = '';
             const submitBtn = document.getElementById('questionnaire-submit-btn');
             if (submitBtn) submitBtn.disabled = true;
-
             buildQuestionnaireBtns();
             document.getElementById('questionnaire-modal').classList.remove('hidden');
         };
@@ -1521,7 +1843,7 @@
             })();
 
             const payload = {
-                // Objective session data
+                type: 'session_response',
                 userId: window.currentUserId || 'anonymous',
                 userEmail: window.userData?.email || '',
                 sessionDate: new Date().toISOString(),
@@ -1538,7 +1860,6 @@
                 rep3Angle: d.repAngles?.[2] ?? null,
                 rep4Angle: d.repAngles?.[3] ?? null,
                 rep5Angle: d.repAngles?.[4] ?? null,
-                // Patient-reported outcomes
                 rpe_borg_cr10: _qRpe,
                 discomfort: _qDiscomfort === 'yes' ? 'Yes' : 'No',
                 discomfortDetail: _qDiscomfort === 'yes'
@@ -1549,7 +1870,6 @@
 
             document.getElementById('questionnaire-modal').classList.add('hidden');
 
-            // 1. Write to dedicated Firestore collection (queryable across all users)
             try {
                 const { collection, addDoc } = await import(
                     "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
@@ -1559,7 +1879,6 @@
                 console.warn('Firestore session_responses write failed:', e);
             }
 
-            // 2. POST to Google Apps Script (auto-appends row to Google Sheet)
             if (APPS_SCRIPT_URL) {
                 try {
                     fetch(APPS_SCRIPT_URL, {
@@ -1573,7 +1892,6 @@
                 }
             }
 
-            // 3. Save to user's own record and proceed
             if (window.saveSession) {
                 await window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles);
             }
