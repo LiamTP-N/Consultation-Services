@@ -70,9 +70,97 @@
 
         /* Prevent pull-to-refresh on mobile */
         body { overscroll-behavior-y: contain; }
+
+        /* Questionnaire modal */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.88);
+            z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem;
+        }
+        .modal-overlay.hidden { display: none; }
+        .modal-box {
+            background: #1e293b; border: 1px solid #334155; border-radius: 1.25rem;
+            width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto; padding: 1.75rem;
+        }
+        .borg-btn {
+            flex: 1; min-width: 2.2rem; padding: 0.55rem 0.1rem;
+            border-radius: 0.5rem; font-weight: 700; font-size: 0.9rem;
+            border: 2px solid transparent; transition: all 0.15s; cursor: pointer;
+            background: #0f172a; color: #64748b;
+        }
+        .borg-btn.selected { border-color: #3b82f6; background: #1d4ed8; color: white; }
+        .confidence-btn {
+            flex: 1; padding: 0.65rem 0.1rem; border-radius: 0.5rem;
+            font-weight: 700; font-size: 0.7rem; text-align: center; line-height: 1.3;
+            border: 2px solid transparent; transition: all 0.15s; cursor: pointer;
+            background: #0f172a; color: #64748b;
+        }
+        .confidence-btn.selected { border-color: #22c55e; background: #15803d; color: white; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- ========== POST-SESSION QUESTIONNAIRE MODAL ========== -->
+    <div id="questionnaire-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h2 class="text-xl font-bold text-white mb-1">Session Complete</h2>
+            <p class="text-xs text-green-400 font-bold uppercase tracking-widest mb-5">4 Quick Questions</p>
+
+            <!-- Q1: RPE Borg CR-10 -->
+            <div class="mb-6">
+                <p class="text-sm font-bold text-white mb-1">How hard did that feel?</p>
+                <p class="text-xs text-slate-400 mb-3">Borg CR-10: 0 = nothing at all, 10 = maximal effort</p>
+                <div class="flex gap-1" id="borg-buttons"></div>
+                <div class="flex justify-between text-[10px] text-slate-500 mt-1 px-0.5">
+                    <span>Nothing</span><span>Maximal</span>
+                </div>
+            </div>
+
+            <!-- Q2: Discomfort -->
+            <div class="mb-6">
+                <p class="text-sm font-bold text-white mb-3">Did you experience any pain or discomfort?</p>
+                <div class="flex gap-3">
+                    <button id="discomfort-yes" onclick="selectDiscomfort('yes')"
+                        class="flex-1 py-3 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-300 font-bold transition-all">
+                        Yes
+                    </button>
+                    <button id="discomfort-no" onclick="selectDiscomfort('no')"
+                        class="flex-1 py-3 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-300 font-bold transition-all">
+                        No
+                    </button>
+                </div>
+                <div id="discomfort-detail-wrap" class="hidden mt-3">
+                    <input type="text" id="discomfort-detail" class="auth-input text-sm"
+                        placeholder="Where and what type? (optional)">
+                </div>
+            </div>
+
+            <!-- Q3: Confidence -->
+            <div class="mb-6">
+                <p class="text-sm font-bold text-white mb-3">How confident do you feel about doing this again tomorrow?</p>
+                <div class="flex gap-1.5" id="confidence-buttons"></div>
+                <div class="flex justify-between text-[10px] text-slate-500 mt-1 px-0.5">
+                    <span>Not at all</span><span>Very confident</span>
+                </div>
+            </div>
+
+            <!-- Q4: Free text -->
+            <div class="mb-6">
+                <p class="text-sm font-bold text-white mb-2">Any other comments? <span class="font-normal text-slate-500">(optional)</span></p>
+                <textarea id="q-comments" rows="2" class="auth-input text-sm resize-none"
+                    placeholder="e.g. felt unsteady on rep 3, audio coaching too fast..."></textarea>
+            </div>
+
+            <button id="questionnaire-submit-btn" onclick="submitQuestionnaire()"
+                class="w-full bg-green-600 hover:bg-green-500 disabled:opacity-30 text-white font-bold py-4 rounded-xl transition-all"
+                disabled>
+                Submit and Continue →
+            </button>
+            <button onclick="skipQuestionnaire()"
+                class="w-full mt-3 text-xs text-slate-600 hover:text-slate-400 transition-colors py-1">
+                Skip feedback
+            </button>
+        </div>
+    </div>
 
     <!-- ========== AUTH SCREEN ========== -->
     <section id="auth-screen" class="flex-grow flex flex-col items-center justify-center p-6 min-h-screen">
@@ -374,8 +462,8 @@
                         <div class="text-5xl mb-3">💪</div>
                         <p class="text-xl font-bold text-white mb-1">Session Complete!</p>
                         <p class="text-slate-300 text-sm" id="train-summary-text">Great work.</p>
-                        <button onclick="switchView('food')" class="mt-6 bg-yellow-600 hover:bg-yellow-500 text-white font-bold px-8 py-3 rounded-full transition-all active:scale-95">
-                            Continue to Food →
+                        <button onclick="showQuestionnaire(window._pendingSessionData || {})" class="mt-6 bg-yellow-600 hover:bg-yellow-500 text-white font-bold px-8 py-3 rounded-full transition-all active:scale-95">
+                            Answer Feedback Questions →
                         </button>
                     </div>
                 </div>
@@ -529,14 +617,15 @@
             refreshStats();
         };
 
-        window.saveSession = async (reps, avgAngle, hitTarget) => {
+        window.saveSession = async (reps, avgAngle, hitTarget, repAngles) => {
             if (!window.currentUserId) return;
             const ref = doc(db, "users", window.currentUserId);
             const sessionEntry = {
                 date: new Date().toISOString(),
                 reps: reps,
                 avgAngle: Math.round(avgAngle),
-                allHitTarget: hitTarget
+                allHitTarget: hitTarget,
+                repAngles: repAngles || []
             };
             const newTotal = (window.userData.totalReps || 0) + reps;
             const newSessions = (window.userData.sessionsCompleted || 0) + 1;
@@ -1298,9 +1387,19 @@
 
                         document.getElementById('train-summary-text').innerText = summaryText;
                         showOverlay('train', 'complete');
-                        speak(`Session complete. ${summaryText}`);
-                        if (window.saveSession) window.saveSession(5, avgAngle, allHit);
+                        speak(`Session complete. ${summaryText} Please answer 4 quick questions about how you found it.`);
+
+                        window._pendingSessionData = {
+                            reps: 5,
+                            avgAngle: avgAngle,
+                            allHitTarget: allHit,
+                            repAngles: trainAngles.slice(),
+                            dailyTarget: dailyTarget
+                        };
+
                         stopCamera();
+                        // Short delay so the complete overlay is visible before modal appears
+                        setTimeout(() => showQuestionnaire(window._pendingSessionData), 1800);
                     }
                 }
             } else if (isSquatting && kneeAngle <= SQUAT_EXIT_ANGLE) {
@@ -1314,6 +1413,173 @@
                 window._activeStream = null;
             }
         }
+
+        // ==============================
+        // QUESTIONNAIRE
+        // ==============================
+
+        // Paste your Google Apps Script Web App URL here after deploying
+        const APPS_SCRIPT_URL = '';
+
+        let _qRpe = null;
+        let _qDiscomfort = null;
+        let _qConfidence = null;
+
+        function buildQuestionnaireBtns() {
+            const borgEl = document.getElementById('borg-buttons');
+            if (borgEl && borgEl.children.length === 0) {
+                for (let i = 0; i <= 10; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = 'borg-btn';
+                    btn.id = `borg-${i}`;
+                    btn.textContent = i;
+                    btn.onclick = () => selectRpe(i);
+                    borgEl.appendChild(btn);
+                }
+            }
+            const confEl = document.getElementById('confidence-buttons');
+            if (confEl && confEl.children.length === 0) {
+                const labels = ['1\nNot\nat all', '2\nUnlikely', '3\nMaybe', '4\nLikely', '5\nVery\nconfident'];
+                labels.forEach((label, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'confidence-btn';
+                    btn.id = `conf-${i + 1}`;
+                    btn.innerHTML = label.replace(/\n/g, '<br>');
+                    btn.onclick = () => selectConfidence(i + 1);
+                    confEl.appendChild(btn);
+                });
+            }
+        }
+
+        window.selectRpe = (val) => {
+            _qRpe = val;
+            document.querySelectorAll('.borg-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById(`borg-${val}`)?.classList.add('selected');
+            checkQReady();
+        };
+
+        window.selectDiscomfort = (val) => {
+            _qDiscomfort = val;
+            const yBtn = document.getElementById('discomfort-yes');
+            const nBtn = document.getElementById('discomfort-no');
+            yBtn.className = `flex-1 py-3 rounded-xl border-2 font-bold transition-all ${val === 'yes' ? 'border-red-500 bg-red-900/40 text-red-300' : 'border-slate-700 bg-slate-900/60 text-slate-300'}`;
+            nBtn.className = `flex-1 py-3 rounded-xl border-2 font-bold transition-all ${val === 'no' ? 'border-green-500 bg-green-900/40 text-green-300' : 'border-slate-700 bg-slate-900/60 text-slate-300'}`;
+            document.getElementById('discomfort-detail-wrap').classList.toggle('hidden', val !== 'yes');
+            checkQReady();
+        };
+
+        window.selectConfidence = (val) => {
+            _qConfidence = val;
+            document.querySelectorAll('.confidence-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById(`conf-${val}`)?.classList.add('selected');
+            checkQReady();
+        };
+
+        function checkQReady() {
+            const ready = _qRpe !== null && _qDiscomfort !== null && _qConfidence !== null;
+            const btn = document.getElementById('questionnaire-submit-btn');
+            if (btn) btn.disabled = !ready;
+        }
+
+        window.showQuestionnaire = (sessionData) => {
+            window._pendingSessionData = sessionData;
+            _qRpe = null; _qDiscomfort = null; _qConfidence = null;
+
+            // Reset all controls
+            document.querySelectorAll('.borg-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('.confidence-btn').forEach(b => b.classList.remove('selected'));
+            const yBtn = document.getElementById('discomfort-yes');
+            const nBtn = document.getElementById('discomfort-no');
+            if (yBtn) yBtn.className = 'flex-1 py-3 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-300 font-bold transition-all';
+            if (nBtn) nBtn.className = 'flex-1 py-3 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-300 font-bold transition-all';
+            document.getElementById('discomfort-detail-wrap')?.classList.add('hidden');
+            const detailEl = document.getElementById('discomfort-detail');
+            if (detailEl) detailEl.value = '';
+            const commentsEl = document.getElementById('q-comments');
+            if (commentsEl) commentsEl.value = '';
+            const submitBtn = document.getElementById('questionnaire-submit-btn');
+            if (submitBtn) submitBtn.disabled = true;
+
+            buildQuestionnaireBtns();
+            document.getElementById('questionnaire-modal').classList.remove('hidden');
+        };
+
+        window.skipQuestionnaire = async () => {
+            document.getElementById('questionnaire-modal').classList.add('hidden');
+            const d = window._pendingSessionData;
+            if (d && window.saveSession) {
+                await window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles);
+            }
+            switchView('food');
+        };
+
+        window.submitQuestionnaire = async () => {
+            const d = window._pendingSessionData || {};
+            const weeksElapsed = (() => {
+                if (!window.userData?.baselineDate) return 0;
+                return Math.floor((Date.now() - new Date(window.userData.baselineDate).getTime()) / (7 * 24 * 60 * 60 * 1000));
+            })();
+
+            const payload = {
+                // Objective session data
+                userId: window.currentUserId || 'anonymous',
+                userEmail: window.userData?.email || '',
+                sessionDate: new Date().toISOString(),
+                appVersion: 'v0.5-alpha',
+                weeksElapsed,
+                baselineRom: window.userData?.baselineRom ?? null,
+                standingRom: window.userData?.standingRom ?? null,
+                dailyTarget: d.dailyTarget ?? null,
+                totalReps: d.reps ?? 0,
+                avgAngle: d.avgAngle ?? null,
+                allHitTarget: d.allHitTarget ?? false,
+                rep1Angle: d.repAngles?.[0] ?? null,
+                rep2Angle: d.repAngles?.[1] ?? null,
+                rep3Angle: d.repAngles?.[2] ?? null,
+                rep4Angle: d.repAngles?.[3] ?? null,
+                rep5Angle: d.repAngles?.[4] ?? null,
+                // Patient-reported outcomes
+                rpe_borg_cr10: _qRpe,
+                discomfort: _qDiscomfort === 'yes' ? 'Yes' : 'No',
+                discomfortDetail: _qDiscomfort === 'yes'
+                    ? (document.getElementById('discomfort-detail')?.value.trim() || '') : '',
+                confidence_1to5: _qConfidence,
+                comments: document.getElementById('q-comments')?.value.trim() || ''
+            };
+
+            document.getElementById('questionnaire-modal').classList.add('hidden');
+
+            // 1. Write to dedicated Firestore collection (queryable across all users)
+            try {
+                const { collection, addDoc } = await import(
+                    "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+                );
+                await addDoc(collection(window.firebaseDb, 'session_responses'), payload);
+            } catch (e) {
+                console.warn('Firestore session_responses write failed:', e);
+            }
+
+            // 2. POST to Google Apps Script (auto-appends row to Google Sheet)
+            if (APPS_SCRIPT_URL) {
+                try {
+                    fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } catch (e) {
+                    console.warn('Apps Script POST failed:', e);
+                }
+            }
+
+            // 3. Save to user's own record and proceed
+            if (window.saveSession) {
+                await window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles);
+            }
+            switchView('food');
+        };
+
     </script>
 </body>
 </html>
