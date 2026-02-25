@@ -272,7 +272,8 @@
                     you: false,
                     partner: false
                 },
-                surpriseRoundNum: -1
+                surpriseRoundNum: -1,
+                surpriseRoundNumPartner: -1
             };
             
             let audioCtx = null;
@@ -619,39 +620,29 @@
                 const isWife = settings.mode === 'wife';
                 
                 if (dir === 1) {
-                    if (session.phase === 'ready') setPhase('work');
-                    else if (session.phase === 'work') {
-                        // Logic to trigger surprise for Partner 1
-                        if (isWife && (session.round % 2 !== 0) && !session.surpriseTracker.you && Math.floor((session.round - 1)/2) === session.surpriseRoundNum) {
+                    if (session.phase === 'ready') {
+                        setPhase('work');
+                    } else if (session.phase === 'work') {
+                        const planIdx = Math.floor((session.round - 1) / 2);
+                        const isYouTurn = !isWife || (session.round % 2 !== 0);
+                        const isPartnerTurn = isWife && (session.round % 2 === 0);
+
+                        if (isYouTurn && !session.surpriseTracker.you && planIdx === session.surpriseRoundNum) {
                             session.surpriseTracker.you = true;
                             setPhase('surprise');
-                        } 
-                        // Logic to trigger surprise for Solo
-                        else if (!isWife && !session.surpriseTracker.you && (session.round - 1) === session.surpriseRoundNum) {
-                            session.surpriseTracker.you = true;
+                        } else if (isPartnerTurn && !session.surpriseTracker.partner && planIdx === session.surpriseRoundNumPartner) {
+                            session.surpriseTracker.partner = true;
                             setPhase('surprise');
-                        }
-                        else {
+                        } else {
                             if (session.round >= maxRounds) end();
                             else setPhase(isWife ? 'change' : 'rest');
                         }
-                    } 
-                    else if (session.phase === 'change' || session.phase === 'rest') {
-                        // After rest/change, move to next round
+                    } else if (session.phase === 'change' || session.phase === 'rest') {
                         session.round++;
                         setPhase('work');
-                    }
-                    else if (session.phase === 'surprise') {
-                        // Check if Partner 2 needs their surprise now
-                        const isYouRound = (session.round % 2 !== 0);
-                        if (isWife && isYouRound && !session.surpriseTracker.partner) {
-                            // Partner 1 just finished surprise. Give a changeover then Partner 2 work, then Partner 2 surprise.
-                            setPhase('change');
-                        } else {
-                            // After surprise is over for the active person
-                            setPhase(isWife ? 'change' : 'rest');
-                            if (isWife && !isYouRound) session.surpriseTracker.partner = true;
-                        }
+                    } else if (session.phase === 'surprise') {
+                        if (session.round >= maxRounds) end();
+                        else setPhase(isWife ? 'change' : 'rest');
                     }
                 } else {
                     // PREV
@@ -692,6 +683,14 @@
                 
                 const pool = [4, 5, 6, 8, 9, 10].filter(r => r < settings.rounds);
                 session.surpriseRoundNum = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : -1;
+
+                if (settings.mode === 'wife' && pool.length > 0) {
+                    let partnerPool = pool.filter(r => r !== session.surpriseRoundNum);
+                    if (partnerPool.length === 0) partnerPool = [...pool];
+                    session.surpriseRoundNumPartner = partnerPool[Math.floor(Math.random() * partnerPool.length)];
+                } else {
+                    session.surpriseRoundNumPartner = -1;
+                }
                 
                 setPhase('ready');
                 run();
