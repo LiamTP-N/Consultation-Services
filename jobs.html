@@ -22,7 +22,7 @@
         .source-jobsac    { background: #1e3350; color: #67e8f9; }
         .source-reed      { background: #3d1a1a; color: #f87171; }
         .source-totaljobs { background: #3d2e00; color: #fbbf24; }
-        .source-bluesky  { background: #0a1a3d; color: #60a5fa; }
+        .source-bluesky   { background: #0a1a3d; color: #60a5fa; }
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable:hover { color: #60a5fa; }
         th.sorted { color: #60a5fa; }
@@ -89,16 +89,14 @@
         </div>
     </nav>
 
-    <!-- Page header -->
     <header class="pt-28 pb-8 px-4 bg-gradient-to-br from-slate-900 to-slate-800 animate-fade-in">
         <div class="max-w-6xl mx-auto">
             <h1 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight mb-2">
                 Jobs in <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text">Sport Science</span>
             </h1>
-            <p class="text-slate-400 text-sm mb-6">Sport Science &middot; Wearable Technology &middot; Research &middot; Academia &middot; Lecturing &mdash; scraped daily at 07:00 UTC.</p>
+            <p class="text-slate-400 text-sm mb-6">Sport Science &middot; Wearable Technology &middot; Research &middot; Academia &middot; Lecturing &mdash; scraped daily at 07:00 UTC. Showing roles posted in the last 60 days.</p>
 
-            <!-- Stats -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6" id="stats-row">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                 <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
                     <div class="text-2xl font-extrabold text-blue-400" id="stat-total">-</div>
                     <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Total Jobs</div>
@@ -117,9 +115,8 @@
                 </div>
             </div>
 
-            <!-- Controls -->
             <div class="flex flex-wrap gap-2 items-center mb-4">
-                <button class="filter-btn px-4 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition active-filter" data-filter="all">All</button>
+                <button class="filter-btn px-4 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-filter="all">All</button>
                 <button class="filter-btn px-4 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-filter="unviewed">Unviewed</button>
                 <button class="filter-btn px-4 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-filter="viewed">Viewed</button>
                 <select id="source-filter" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
@@ -129,15 +126,15 @@
                     <option value="Jobs.ac.uk">Jobs.ac.uk</option>
                     <option value="Reed">Reed</option>
                     <option value="Totaljobs">Totaljobs</option>
+                    <option value="Bluesky">Bluesky</option>
                 </select>
-                <input id="search" type="text" placeholder="Search title, org, location..." class="px-3 py-1.5 rounded-lg text-xs border border-slate-600 bg-slate-800 text-slate-300 placeholder-slate-600 focus:outline-none focus:border-blue-500 flex-1 min-w-[180px]">
+                <input id="search" type="text" placeholder="Search title or organisation..." class="px-3 py-1.5 rounded-lg text-xs border border-slate-600 bg-slate-800 text-slate-300 placeholder-slate-600 focus:outline-none focus:border-blue-500 flex-1 min-w-[180px]">
                 <button id="mark-all-viewed" class="ml-auto px-4 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-400 hover:border-slate-400 hover:text-slate-200 transition">Mark all viewed</button>
                 <button id="reset-viewed" class="px-4 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-400 hover:border-red-500 hover:text-red-400 transition">Reset viewed</button>
             </div>
         </div>
     </header>
 
-    <!-- Table -->
     <main class="flex-1 px-4 py-6">
         <div class="max-w-6xl mx-auto">
             <div class="overflow-x-auto rounded-lg border border-slate-700">
@@ -146,20 +143,17 @@
                         <tr class="bg-slate-800 text-slate-500 text-xs uppercase tracking-wider">
                             <th class="sortable px-4 py-3 text-left" data-col="title">Role <span class="sort-arrow">↕</span></th>
                             <th class="sortable px-4 py-3 text-left hidden md:table-cell" data-col="organisation">Organisation <span class="sort-arrow">↕</span></th>
-                            <th class="sortable px-4 py-3 text-left hidden lg:table-cell" data-col="location">Location <span class="sort-arrow">↕</span></th>
                             <th class="sortable px-4 py-3 text-left" data-col="source">Source <span class="sort-arrow">↕</span></th>
-                            <th class="sortable px-4 py-3 text-left hidden sm:table-cell" data-col="date_posted">Posted <span class="sort-arrow">↕</span></th>
-                            <th class="sortable px-4 py-3 text-left hidden lg:table-cell" data-col="closing_date">Closes <span class="sort-arrow">↕</span></th>
+                            <th class="sortable px-4 py-3 text-left sorted" data-col="date_posted">Posted <span class="sort-arrow">↓</span></th>
                             <th class="px-4 py-3 text-left"></th>
                         </tr>
                     </thead>
                     <tbody id="jobs-body">
-                        <tr><td colspan="7" class="px-4 py-12 text-center text-slate-500 text-sm" id="table-msg">Loading jobs.json...</td></tr>
+                        <tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">Loading jobs.json...</td></tr>
                     </tbody>
                 </table>
             </div>
 
-            <!-- Live fallback links -->
             <div class="mt-8 p-5 bg-slate-800 border border-slate-700 rounded-lg">
                 <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Live Search Links (always current)</p>
                 <div class="flex flex-wrap gap-2">
@@ -174,23 +168,23 @@
                     <a href="https://www.totaljobs.com/jobs/sport-science" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Totaljobs - Sport Science</a>
                     <a href="https://www.linkedin.com/jobs/search/?keywords=sport%20science%20researcher&sortBy=DD" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">LinkedIn - Sport Science</a>
                     <a href="https://www.linkedin.com/jobs/search/?keywords=wearable%20technology%20sport&sortBy=DD" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">LinkedIn - Wearable Tech</a>
+                    <a href="https://bsky.app/profile/jobsinsportscience.bsky.social" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Bluesky - Jobs in Sport Science</a>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Footer (matches site) -->
     <section id="contact" class="py-6 px-4 bg-slate-700 text-white mt-auto border-t border-slate-600">
         <div class="max-w-6xl mx-auto text-center animate-fade-in">
             <h2 class="text-xl font-bold mb-4">Ready to optimise your training or research?</h2>
             <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-                <a href="/cdn-cgi/l/email-protection#470b2e262a131722263534282907202a262e2b6924282a783432252d2224337a102225342e3322627577163222353e" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md hover:shadow-blue-500/20">
+                <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md hover:shadow-blue-500/20">
                     Email Me
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.8 5.2a2 2 0 002.4 0L21 8"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2"></path></svg>
                 </a>
                 <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" class="flex items-center justify-center bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md border border-slate-600">
                     Connect on LinkedIn
-                    <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.75s.784-1.75 1.75-1.75 1.75.79 1.75 1.75-.783 1.75 1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.535-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.766 7 2.062v7.173z"/></svg>
+                    <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.75s.784-1.75 1.75-1.75 1.75.79 1.75 1.75-.783 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.535-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.766 7 2.062v7.173z"/></svg>
                 </a>
             </div>
             <div class="pt-4 border-t border-slate-600/50 text-slate-400 text-xs">
@@ -199,13 +193,14 @@
         </div>
     </section>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script>
     const STORAGE_KEY = 'ltp_jobs_viewed';
+    const MAX_AGE_DAYS = 60;
 
     let allJobs = [];
     let currentFilter = 'all';
     let sortCol = 'date_posted';
-    let sortDir = -1;
+    let sortDir = -1; // -1 = newest first (descending)
     let searchTerm = '';
     let sourceFilter = 'all';
 
@@ -214,6 +209,14 @@
         catch { return new Set(); }
     }
     function saveViewed(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify([...s])); }
+
+    function isRecent(dateStr) {
+        if (!dateStr) return false;
+        const posted = new Date(dateStr);
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - MAX_AGE_DAYS);
+        return posted >= cutoff;
+    }
 
     function isToday(d) {
         if (!d) return false;
@@ -243,12 +246,14 @@
     function renderTable() {
         const viewed = getViewed();
         let jobs = allJobs.filter(j => {
+            // Always enforce 60-day cutoff client-side
+            if (!isRecent(j.date_posted)) return false;
             const v = viewed.has(j.id);
             if (currentFilter === 'unviewed' && v) return false;
             if (currentFilter === 'viewed' && !v) return false;
             if (sourceFilter !== 'all' && j.source !== sourceFilter) return false;
             if (searchTerm) {
-                const hay = `${j.title} ${j.organisation} ${j.location}`.toLowerCase();
+                const hay = `${j.title} ${j.organisation}`.toLowerCase();
                 if (!hay.includes(searchTerm)) return false;
             }
             return true;
@@ -256,7 +261,7 @@
 
         jobs.sort((a, b) => {
             let va = a[sortCol] || '', vb = b[sortCol] || '';
-            if (sortCol === 'date_posted' || sortCol === 'closing_date') {
+            if (sortCol === 'date_posted') {
                 va = va ? new Date(va).getTime() : 0;
                 vb = vb ? new Date(vb).getTime() : 0;
             } else {
@@ -268,7 +273,7 @@
 
         const tbody = document.getElementById('jobs-body');
         if (!jobs.length) {
-            tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs match this filter.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs match this filter.</td></tr>`;
             updateStats();
             return;
         }
@@ -291,10 +296,8 @@
                     </div>
                 </td>
                 <td class="px-4 py-3 text-slate-400 text-xs hidden md:table-cell">${j.organisation || '-'}</td>
-                <td class="px-4 py-3 text-slate-500 text-xs hidden lg:table-cell">${j.location || '-'}</td>
-                <td class="px-4 py-3 hidden sm:table-cell"><span class="source-badge ${srcClass(j.source)}">${j.source || '-'}</span></td>
-                <td class="px-4 py-3 text-slate-500 text-xs hidden sm:table-cell">${fmtDate(j.date_posted)}</td>
-                <td class="px-4 py-3 text-slate-500 text-xs hidden lg:table-cell">${fmtDate(j.closing_date)}</td>
+                <td class="px-4 py-3"><span class="source-badge ${srcClass(j.source)}">${j.source || '-'}</span></td>
+                <td class="px-4 py-3 text-slate-500 text-xs">${fmtDate(j.date_posted)}</td>
                 <td class="px-4 py-3">
                     <button onclick="toggleViewed('${j.id}')"
                         class="text-xs px-3 py-1 rounded border border-slate-600 text-slate-500 hover:border-blue-500 hover:text-blue-400 transition whitespace-nowrap">
@@ -320,9 +323,10 @@
 
     function updateStats() {
         const viewed = getViewed();
-        document.getElementById('stat-total').textContent     = allJobs.length;
-        document.getElementById('stat-unviewed').textContent  = allJobs.filter(j => !viewed.has(j.id)).length;
-        document.getElementById('stat-today').textContent     = allJobs.filter(j => isToday(j.date_posted)).length;
+        const recent = allJobs.filter(j => isRecent(j.date_posted));
+        document.getElementById('stat-total').textContent    = recent.length;
+        document.getElementById('stat-unviewed').textContent = recent.filter(j => !viewed.has(j.id)).length;
+        document.getElementById('stat-today').textContent    = recent.filter(j => isToday(j.date_posted)).length;
     }
 
     async function loadJobs() {
@@ -334,15 +338,16 @@
                 ? new Date(data.last_updated).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
                 : 'Never';
             document.getElementById('stat-updated').textContent = upd;
-            if (!allJobs.length) {
+            const recent = allJobs.filter(j => isRecent(j.date_posted));
+            if (!recent.length) {
                 document.getElementById('jobs-body').innerHTML =
-                    `<tr><td colspan="7" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs yet - check back after the first 07:00 UTC GitHub Actions run.</td></tr>`;
+                    `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 60 days - check back after the next 07:00 UTC scrape.</td></tr>`;
             } else {
                 renderTable();
             }
         } catch (e) {
             document.getElementById('jobs-body').innerHTML =
-                `<tr><td colspan="7" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load jobs.json. Has the GitHub Action run yet?<br><span class="text-xs text-slate-600">${e.message}</span></td></tr>`;
+                `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load jobs.json.<br><span class="text-xs text-slate-600">${e.message}</span></td></tr>`;
         }
         updateStats();
     }
@@ -360,7 +365,6 @@
             renderTable();
         });
     });
-    // Set 'All' active on load
     document.querySelector('.filter-btn[data-filter="all"]').classList.add('bg-blue-600', 'text-white', 'border-blue-600');
 
     document.getElementById('search').addEventListener('input', e => {
@@ -386,7 +390,6 @@
         }
     });
 
-    // Column sort
     document.querySelectorAll('th.sortable').forEach(th => {
         th.addEventListener('click', () => {
             const col = th.dataset.col;
