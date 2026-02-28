@@ -397,3 +397,12 @@
                 t.querySelector('.sort-arrow').textContent = '↕';
             });
             th.classList.add('sorted');
+            th.querySelector('.sort-arrow').textContent = sortDir === -1 ? '↓' : '↑';
+            renderTable();
+        });
+    });
+
+    loadJobs();
+    </script>
+</body>
+</html>
