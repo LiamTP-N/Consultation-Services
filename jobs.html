@@ -20,8 +20,6 @@
         .source-indeed    { background: #1e3a5f; color: #60a5fa; }
         .source-linkedin  { background: #0d3330; color: #34d399; }
         .source-jobsac    { background: #1e3350; color: #67e8f9; }
-        .source-reed      { background: #3d1a1a; color: #f87171; }
-        .source-totaljobs { background: #3d2e00; color: #fbbf24; }
         .source-bluesky   { background: #0a1a3d; color: #60a5fa; }
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable:hover { color: #60a5fa; }
@@ -94,7 +92,7 @@
             <h1 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight mb-2">
                 Jobs in <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text">Sport Science</span>
             </h1>
-            <p class="text-slate-400 text-sm mb-6">Sport Science &middot; Wearable Technology &middot; Research &middot; Academia &middot; Lecturing &mdash; scraped daily at 07:00 UTC. Showing roles posted in the last 60 days.</p>
+            <p class="text-slate-400 text-sm mb-6">Sport Science &middot; Wearable Technology &middot; Research &middot; Academia &middot; Lecturing &mdash; scraped daily at 07:00 UTC. Showing roles posted in the last 90 days.</p>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                 <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
@@ -124,8 +122,6 @@
                     <option value="Indeed">Indeed</option>
                     <option value="LinkedIn">LinkedIn</option>
                     <option value="Jobs.ac.uk">Jobs.ac.uk</option>
-                    <option value="Reed">Reed</option>
-                    <option value="Totaljobs">Totaljobs</option>
                     <option value="Bluesky">Bluesky</option>
                 </select>
                 <input id="search" type="text" placeholder="Search title or organisation..." class="px-3 py-1.5 rounded-lg text-xs border border-slate-600 bg-slate-800 text-slate-300 placeholder-slate-600 focus:outline-none focus:border-blue-500 flex-1 min-w-[180px]">
@@ -164,8 +160,6 @@
                     <a href="https://www.indeed.co.uk/jobs?q=sport+science+researcher&sort=date" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Indeed - Sport Science</a>
                     <a href="https://www.indeed.co.uk/jobs?q=exercise+science+lecturer&sort=date" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Indeed - Lecturer</a>
                     <a href="https://www.indeed.co.uk/jobs?q=wearable+technology+sport&sort=date" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Indeed - Wearable Tech</a>
-                    <a href="https://www.reed.co.uk/jobs/sport-science-jobs" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Reed - Sport Science</a>
-                    <a href="https://www.totaljobs.com/jobs/sport-science" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Totaljobs - Sport Science</a>
                     <a href="https://www.linkedin.com/jobs/search/?keywords=sport%20science%20researcher&sortBy=DD" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">LinkedIn - Sport Science</a>
                     <a href="https://www.linkedin.com/jobs/search/?keywords=wearable%20technology%20sport&sortBy=DD" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">LinkedIn - Wearable Tech</a>
                     <a href="https://bsky.app/profile/jobsinsportscience.bsky.social" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Bluesky - Jobs in Sport Science</a>
@@ -195,12 +189,12 @@
 
     <script>
     const STORAGE_KEY = 'ltp_jobs_viewed';
-    const MAX_AGE_DAYS = 60;
+    const MAX_AGE_DAYS = 90;
 
     let allJobs = [];
     let currentFilter = 'all';
     let sortCol = 'date_posted';
-    let sortDir = -1; // -1 = newest first (descending)
+    let sortDir = -1;
     let searchTerm = '';
     let sourceFilter = 'all';
 
@@ -234,11 +228,9 @@
     function srcClass(s) {
         if (!s) return '';
         const l = s.toLowerCase();
-        if (l.includes('indeed'))    return 'source-indeed';
-        if (l.includes('linkedin'))  return 'source-linkedin';
-        if (l.includes('jobs.ac'))   return 'source-jobsac';
-        if (l.includes('reed'))      return 'source-reed';
-        if (l.includes('total'))     return 'source-totaljobs';
+        if (l.includes('indeed'))   return 'source-indeed';
+        if (l.includes('linkedin')) return 'source-linkedin';
+        if (l.includes('jobs.ac'))  return 'source-jobsac';
         if (l.includes('bluesky') || l.includes('bsky')) return 'source-bluesky';
         return '';
     }
@@ -246,7 +238,6 @@
     function renderTable() {
         const viewed = getViewed();
         let jobs = allJobs.filter(j => {
-            // Always enforce 60-day cutoff client-side
             if (!isRecent(j.date_posted)) return false;
             const v = viewed.has(j.id);
             if (currentFilter === 'unviewed' && v) return false;
@@ -258,7 +249,8 @@
             }
             return true;
         });
-jobs.sort((a, b) => {
+
+        jobs.sort((a, b) => {
             let va = a[sortCol] || '', vb = b[sortCol] || '';
             if (sortCol === 'date_posted') {
                 va = va ? new Date(va).getTime() : 0;
@@ -270,7 +262,7 @@ jobs.sort((a, b) => {
             return va < vb ? sortDir : va > vb ? -sortDir : 0;
         });
 
-        // Round-robin interleave by source (only when sorting by date)
+        // Round-robin interleave by source when sorting by date
         if (sortCol === 'date_posted') {
             const groups = {};
             jobs.forEach(j => {
@@ -359,7 +351,7 @@ jobs.sort((a, b) => {
             const recent = allJobs.filter(j => isRecent(j.date_posted));
             if (!recent.length) {
                 document.getElementById('jobs-body').innerHTML =
-                    `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 60 days - check back after the next 07:00 UTC scrape.</td></tr>`;
+                    `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 90 days - check back after the next 07:00 UTC scrape.</td></tr>`;
             } else {
                 renderTable();
             }
@@ -370,7 +362,6 @@ jobs.sort((a, b) => {
         updateStats();
     }
 
-    // Filter buttons
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.filter-btn').forEach(b => {
