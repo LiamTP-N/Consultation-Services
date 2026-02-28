@@ -22,6 +22,7 @@
         .source-jobsac    { background: #1e3350; color: #67e8f9; }
         .source-reed      { background: #3d1a1a; color: #f87171; }
         .source-totaljobs { background: #3d2e00; color: #fbbf24; }
+        .source-bluesky  { background: #0a1a3d; color: #60a5fa; }
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable:hover { color: #60a5fa; }
         th.sorted { color: #60a5fa; }
@@ -183,7 +184,7 @@
         <div class="max-w-6xl mx-auto text-center animate-fade-in">
             <h2 class="text-xl font-bold mb-4">Ready to optimise your training or research?</h2>
             <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-                <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md hover:shadow-blue-500/20">
+                <a href="/cdn-cgi/l/email-protection#470b2e262a131722263534282907202a262e2b6924282a783432252d2224337a102225342e3322627577163222353e" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md hover:shadow-blue-500/20">
                     Email Me
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.8 5.2a2 2 0 002.4 0L21 8"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2"></path></svg>
                 </a>
@@ -198,7 +199,7 @@
         </div>
     </section>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     const STORAGE_KEY = 'ltp_jobs_viewed';
 
     let allJobs = [];
@@ -235,6 +236,7 @@
         if (l.includes('jobs.ac'))   return 'source-jobsac';
         if (l.includes('reed'))      return 'source-reed';
         if (l.includes('total'))     return 'source-totaljobs';
+        if (l.includes('bluesky') || l.includes('bsky')) return 'source-bluesky';
         return '';
     }
 
@@ -395,12 +397,3 @@
                 t.querySelector('.sort-arrow').textContent = '↕';
             });
             th.classList.add('sorted');
-            th.querySelector('.sort-arrow').textContent = sortDir === -1 ? '↓' : '↑';
-            renderTable();
-        });
-    });
-
-    loadJobs();
-    </script>
-</body>
-</html>
