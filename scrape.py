@@ -1,5 +1,5 @@
 """
-Job scraper for: Indeed, LinkedIn, Jobs.ac.uk, Reed, Totaljobs
+Job scraper for: Indeed (RSS), Jobs.ac.uk (RSS), LinkedIn, Reed, Totaljobs, Bluesky
 Writes results to jobs.json
 
 Search terms tuned for: Sport Science, Wearable Technology, Research, Academia, Lecturing
@@ -9,16 +9,16 @@ import json
 import hashlib
 import time
 import datetime
-import os
 import re
 import urllib.parse
 from pathlib import Path
+from email.utils import parsedate_to_datetime
 
 try:
     import requests
     from bs4 import BeautifulSoup
 except ImportError:
-    raise SystemExit("Install dependencies: pip install requests beautifulsoup4")
+    raise SystemExit("Install dependencies: pip install requests beautifulsoup4 lxml")
 
 HEADERS = {
     "User-Agent": (
@@ -42,8 +42,7 @@ SEARCH_TERMS = [
     "laboratory technician sport science",
 ]
 
-# Jobs must contain at least one of these keywords (case-insensitive) to be kept.
-# This filters out the noise - clinical fellows, business analysts, NHS clinical posts etc.
+# Jobs must contain at least one of these keywords to be kept.
 REQUIRED_KEYWORDS = [
     "sport", "exercise", "physical activity", "biomechanics", "wearable",
     "strength", "conditioning", "physiology", "fitness", "health science",
@@ -53,7 +52,7 @@ REQUIRED_KEYWORDS = [
     "resistance training", "older adult", "ageing", "aging", "musculoskeletal",
 ]
 
-# Jobs containing any of these are excluded outright regardless of other matches.
+# Jobs containing any of these are excluded outright.
 EXCLUDE_KEYWORDS = [
     "clinical fellow", "junior fellow", "medical fellow", "surgical fellow",
     "haematology", "oncology", "cardiology", "anaesthetic", "radiographer",
@@ -65,22 +64,20 @@ EXCLUDE_KEYWORDS = [
     "pathology", "dentist", "dental", "veterinary",
 ]
 
+# Official Jobs.ac.uk RSS feeds - no scraping, always reliable
+JOBSAC_RSS_FEEDS = [
+    ("https://www.jobs.ac.uk/jobs/sport-and-leisure/?format=rss", "Jobs.ac.uk"),
+    ("https://www.jobs.ac.uk/jobs/laboratory-clinical-and-technician/?format=rss", "Jobs.ac.uk"),
+    ("https://www.jobs.ac.uk/jobs/health-and-medical/?format=rss", "Jobs.ac.uk"),
+    ("https://www.jobs.ac.uk/jobs/biological-sciences/?format=rss", "Jobs.ac.uk"),
+]
 
-def passes_filter(job: dict) -> bool:
-    """Return True if the job is relevant based on title + organisation text."""
-    text = f"{job.get('title', '')} {job.get('organisation', '')} {job.get('type', '')}".lower()
-    # Exclude outright if any exclude keyword found
-    for kw in EXCLUDE_KEYWORDS:
-        if kw in text:
-            return False
-    # Must match at least one required keyword
-    for kw in REQUIRED_KEYWORDS:
-        if kw in text:
-            return True
-    return False
+BLUESKY_ACCOUNTS = [
+    "jobsinsportscience.bsky.social",
+]
 
 OUTPUT_FILE = Path("jobs.json")
-MAX_DAYS_OLD = 60  # drop jobs older than this
+MAX_DAYS_OLD = 60
 
 
 def make_id(url: str, title: str) -> str:
@@ -91,6 +88,17 @@ def clean(text: str) -> str:
     if not text:
         return ""
     return re.sub(r"\s+", " ", text).strip()
+
+
+def passes_filter(job: dict) -> bool:
+    text = f"{job.get('title', '')} {job.get('organisation', '')} {job.get('type', '')}".lower()
+    for kw in EXCLUDE_KEYWORDS:
+        if kw in text:
+            return False
+    for kw in REQUIRED_KEYWORDS:
+        if kw in text:
+            return True
+    return False
 
 
 def load_existing() -> dict:
@@ -120,7 +128,7 @@ def prune_old(jobs: list) -> list:
                     continue
             except Exception:
                 pass
-        kept.append(j)  # keep if date unknown
+        kept.append(j)
     return kept
 
 
@@ -134,51 +142,125 @@ def get(url: str, timeout: int = 15) -> requests.Response | None:
         return None
 
 
+def parse_rss_date(date_str: str) -> str:
+    """Parse RSS date string to ISO date."""
+    if not date_str:
+        return datetime.date.today().isoformat()
+    try:
+        dt = parsedate_to_datetime(date_str)
+        return dt.date().isoformat()
+    except Exception:
+        return datetime.date.today().isoformat()
+
+
 # ---------------------------------------------------------------------------
-# Jobs.ac.uk
+# Jobs.ac.uk - Official RSS feeds (reliable, no blocking)
 # ---------------------------------------------------------------------------
 
-def scrape_jobsac(term: str) -> list:
+def scrape_jobsac_rss() -> list:
+    """Pull from Jobs.ac.uk official RSS feeds by category."""
     jobs = []
-    url = f"https://www.jobs.ac.uk/search/?keywords={urllib.parse.quote(term)}&sort=date"
-    print(f"  jobs.ac.uk: {term}")
-    r = get(url)
-    if not r:
-        return jobs
-    soup = BeautifulSoup(r.text, "html.parser")
-    for item in soup.select("div.j-search-result__text")[:20]:
+    for feed_url, source in JOBSAC_RSS_FEEDS:
+        print(f"  Jobs.ac.uk RSS: {feed_url.split('/')[-3]}")
+        r = get(feed_url)
+        if not r:
+            continue
         try:
-            title_el = item.select_one("h2.j-search-result__title a")
-            if not title_el:
-                continue
-            title = clean(title_el.get_text())
-            href = title_el.get("href", "")
-            if not href.startswith("http"):
-                href = "https://www.jobs.ac.uk" + href
-            org_el = item.select_one("span.j-search-result__employer")
-            org = clean(org_el.get_text()) if org_el else ""
-            loc_el = item.select_one("span.j-search-result__location")
-            loc = clean(loc_el.get_text()) if loc_el else ""
-            date_el = item.select_one("span.j-search-result__deadline")
-            closing = clean(date_el.get_text()).replace("Closing date:", "").strip() if date_el else ""
-            jobs.append({
-                "id": make_id(href, title),
-                "title": title,
-                "organisation": org,
-                "location": loc,
-                "source": "Jobs.ac.uk",
-                "url": href,
-                "date_posted": datetime.date.today().isoformat(),
-                "closing_date": closing,
-                "type": "",
-            })
+            soup = BeautifulSoup(r.text, "xml")
+            for item in soup.find_all("item")[:50]:
+                try:
+                    title = clean(item.find("title").get_text()) if item.find("title") else ""
+                    if not title:
+                        continue
+                    link = item.find("link")
+                    href = link.get_text().strip() if link else ""
+                    if not href and link:
+                        href = link.next_sibling
+                    desc_el = item.find("description")
+                    desc = BeautifulSoup(desc_el.get_text(), "html.parser").get_text() if desc_el else ""
+                    # Extract org from description - jobs.ac.uk puts it there
+                    org = ""
+                    org_match = re.search(r"(?:Employer|Institution|Organisation):\s*(.+?)(?:\n|$)", desc, re.I)
+                    if org_match:
+                        org = org_match.group(1).strip()
+                    loc = ""
+                    loc_match = re.search(r"(?:Location|Place):\s*(.+?)(?:\n|$)", desc, re.I)
+                    if loc_match:
+                        loc = loc_match.group(1).strip()
+                    closing = ""
+                    close_match = re.search(r"(?:Closing date|Closes):\s*(.+?)(?:\n|$)", desc, re.I)
+                    if close_match:
+                        closing = close_match.group(1).strip()
+                    pub_date = item.find("pubDate")
+                    date_str = parse_rss_date(pub_date.get_text() if pub_date else "")
+                    jobs.append({
+                        "id": make_id(href, title),
+                        "title": title,
+                        "organisation": org,
+                        "location": loc,
+                        "source": source,
+                        "url": href,
+                        "date_posted": date_str,
+                        "closing_date": closing,
+                        "type": "",
+                    })
+                except Exception as e:
+                    print(f"    item parse error: {e}")
         except Exception as e:
-            print(f"    parse error: {e}")
+            print(f"    feed parse error: {e}")
+        time.sleep(1)
     return jobs
 
 
 # ---------------------------------------------------------------------------
-# Reed
+# Indeed - RSS feed (more reliable than HTML scraping)
+# ---------------------------------------------------------------------------
+
+def scrape_indeed(term: str) -> list:
+    jobs = []
+    url = (
+        f"https://www.indeed.co.uk/rss?q={urllib.parse.quote(term)}"
+        f"&l=United+Kingdom&sort=date&fromage=30"
+    )
+    print(f"  Indeed RSS: {term}")
+    r = get(url)
+    if not r:
+        return jobs
+    try:
+        soup = BeautifulSoup(r.text, "xml")
+        for item in soup.find_all("item")[:20]:
+            try:
+                title = clean(item.find("title").get_text()) if item.find("title") else ""
+                if not title:
+                    continue
+                href = item.find("link").get_text().strip() if item.find("link") else ""
+                pub_date = item.find("pubDate")
+                date_str = parse_rss_date(pub_date.get_text() if pub_date else "")
+                org = ""
+                if " - " in title:
+                    parts = title.rsplit(" - ", 1)
+                    title = parts[0].strip()
+                    org = parts[1].strip()
+                jobs.append({
+                    "id": make_id(href, title),
+                    "title": title,
+                    "organisation": org,
+                    "location": "UK",
+                    "source": "Indeed",
+                    "url": href,
+                    "date_posted": date_str,
+                    "closing_date": "",
+                    "type": "",
+                })
+            except Exception as e:
+                print(f"    parse error: {e}")
+    except Exception as e:
+        print(f"  Indeed RSS parse error: {e}")
+    return jobs
+
+
+# ---------------------------------------------------------------------------
+# Reed - HTML scraping (no RSS available)
 # ---------------------------------------------------------------------------
 
 def scrape_reed(term: str) -> list:
@@ -221,7 +303,7 @@ def scrape_reed(term: str) -> list:
 
 
 # ---------------------------------------------------------------------------
-# Totaljobs
+# Totaljobs - HTML scraping (no RSS available)
 # ---------------------------------------------------------------------------
 
 def scrape_totaljobs(term: str) -> list:
@@ -262,69 +344,10 @@ def scrape_totaljobs(term: str) -> list:
 
 
 # ---------------------------------------------------------------------------
-# Indeed (RSS feed - more stable than HTML scraping)
-# ---------------------------------------------------------------------------
-
-def scrape_indeed(term: str) -> list:
-    jobs = []
-    # Indeed RSS - more reliable than scraping HTML
-    url = (
-        f"https://www.indeed.co.uk/rss?q={urllib.parse.quote(term)}"
-        f"&l=United+Kingdom&sort=date&fromage=30"
-    )
-    print(f"  Indeed (RSS): {term}")
-    r = get(url)
-    if not r:
-        return jobs
-    soup = BeautifulSoup(r.text, "xml")
-    for item in soup.find_all("item")[:20]:
-        try:
-            title = clean(item.find("title").get_text()) if item.find("title") else ""
-            href = item.find("link").get_text().strip() if item.find("link") else ""
-            # strip redirect
-            if "clk?" in href:
-                href_clean = href
-            else:
-                href_clean = href
-            desc = item.find("description")
-            desc_text = BeautifulSoup(desc.get_text(), "html.parser").get_text() if desc else ""
-            pub_date = item.find("pubDate")
-            date_str = ""
-            if pub_date:
-                try:
-                    from email.utils import parsedate_to_datetime
-                    dt = parsedate_to_datetime(pub_date.get_text())
-                    date_str = dt.date().isoformat()
-                except Exception:
-                    date_str = datetime.date.today().isoformat()
-            # extract org from title pattern "Job Title - Company"
-            org = ""
-            if " - " in title:
-                parts = title.rsplit(" - ", 1)
-                title = parts[0].strip()
-                org = parts[1].strip()
-            jobs.append({
-                "id": make_id(href_clean, title),
-                "title": title,
-                "organisation": org,
-                "location": "UK",
-                "source": "Indeed",
-                "url": href_clean,
-                "date_posted": date_str,
-                "closing_date": "",
-                "type": "",
-            })
-        except Exception as e:
-            print(f"    parse error: {e}")
-    return jobs
-
-
-# ---------------------------------------------------------------------------
-# LinkedIn (public job search - limited without auth)
+# LinkedIn - public HTML (limited but works for now)
 # ---------------------------------------------------------------------------
 
 def scrape_linkedin(term: str) -> list:
-    """LinkedIn blocks most scraping; we attempt the public listing page."""
     jobs = []
     url = (
         f"https://www.linkedin.com/jobs/search/?keywords={urllib.parse.quote(term)}"
@@ -341,6 +364,8 @@ def scrape_linkedin(term: str) -> list:
             if not title_el:
                 continue
             title = clean(title_el.get_text())
+            if not title:
+                continue
             link_el = item.select_one("a.base-card__full-link, a")
             href = link_el.get("href", "") if link_el else ""
             org_el = item.select_one("h4.base-search-card__subtitle a, a.hidden-nested-link")
@@ -349,8 +374,6 @@ def scrape_linkedin(term: str) -> list:
             loc = clean(loc_el.get_text()) if loc_el else ""
             time_el = item.select_one("time")
             date_str = time_el.get("datetime", datetime.date.today().isoformat()) if time_el else datetime.date.today().isoformat()
-            if not title:
-                continue
             jobs.append({
                 "id": make_id(href, title),
                 "title": title,
@@ -368,6 +391,76 @@ def scrape_linkedin(term: str) -> list:
 
 
 # ---------------------------------------------------------------------------
+# Bluesky - public AT Protocol API
+# ---------------------------------------------------------------------------
+
+def scrape_bluesky() -> list:
+    jobs = []
+    for handle in BLUESKY_ACCOUNTS:
+        print(f"  Bluesky: {handle}")
+        try:
+            resolve_url = f"https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle={handle}"
+            r = get(resolve_url)
+            if not r:
+                continue
+            did = r.json().get("did", "")
+            if not did:
+                continue
+            feed_url = (
+                f"https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed"
+                f"?actor={did}&limit=100&filter=posts_no_replies"
+            )
+            r = get(feed_url)
+            if not r:
+                continue
+            feed = r.json().get("feed", [])
+            for item in feed:
+                try:
+                    post = item.get("post", {})
+                    record = post.get("record", {})
+                    text = record.get("text", "")
+                    if not text:
+                        continue
+                    created_at = record.get("createdAt", "")
+                    date_str = created_at[:10] if created_at else datetime.date.today().isoformat()
+                    uri = post.get("uri", "")
+                    rkey = uri.split("/")[-1] if uri else ""
+                    post_url = f"https://bsky.app/profile/{handle}/post/{rkey}" if rkey else f"https://bsky.app/profile/{handle}"
+                    job_url = post_url
+                    embed = record.get("embed", {})
+                    if embed:
+                        external = embed.get("external", {})
+                        if external and external.get("uri"):
+                            job_url = external["uri"]
+                    for facet in record.get("facets", []):
+                        for feature in facet.get("features", []):
+                            if feature.get("$type") == "app.bsky.richtext.facet#link":
+                                uri_val = feature.get("uri", "")
+                                if uri_val and not uri_val.startswith("https://bsky.app"):
+                                    job_url = uri_val
+                                    break
+                    first_line = text.split("\n")[0].strip()
+                    title = first_line[:120] if first_line else text[:120]
+                    jobs.append({
+                        "id": make_id(post_url, title),
+                        "title": title,
+                        "organisation": handle.replace(".bsky.social", ""),
+                        "location": "",
+                        "source": "Bluesky",
+                        "url": job_url,
+                        "date_posted": date_str,
+                        "closing_date": "",
+                        "type": "Social post" if job_url == post_url else "Job listing",
+                    })
+                except Exception as e:
+                    print(f"    post parse error: {e}")
+        except Exception as e:
+            print(f"  ERROR bluesky {handle}: {e}")
+        time.sleep(1)
+    return jobs
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -377,8 +470,22 @@ def main():
     existing_ids = {j["id"] for j in existing.get("jobs", [])}
     new_jobs = []
 
+    # Jobs.ac.uk via official RSS - runs once, pulls all relevant categories
+    print("  Running Jobs.ac.uk RSS scraper...")
+    try:
+        results = scrape_jobsac_rss()
+        added = 0
+        for j in results:
+            if j["id"] not in existing_ids and passes_filter(j):
+                new_jobs.append(j)
+                existing_ids.add(j["id"])
+                added += 1
+        print(f"    +{added} new from Jobs.ac.uk RSS")
+    except Exception as e:
+        print(f"  ERROR jobs.ac.uk RSS: {e}")
+
+    # Indeed, Reed, Totaljobs, LinkedIn - per search term
     scrapers = [
-        ("jobsac",    scrape_jobsac),
         ("indeed",    scrape_indeed),
         ("reed",      scrape_reed),
         ("totaljobs", scrape_totaljobs),
@@ -398,10 +505,9 @@ def main():
                 print(f"    +{added} new from {source_name} / '{term}'")
             except Exception as e:
                 print(f"  ERROR {source_name} '{term}': {e}")
-            time.sleep(1.5)  # polite delay
+            time.sleep(1.5)
 
-
-    # Bluesky - runs once, not per search term
+    # Bluesky - runs once, no keyword filter (already curated)
     print("  Running Bluesky scraper...")
     try:
         bsky_results = scrape_bluesky()
@@ -414,10 +520,9 @@ def main():
         print(f"    +{added} new from Bluesky")
     except Exception as e:
         print(f"  ERROR bluesky: {e}")
+
     all_jobs = existing.get("jobs", []) + new_jobs
     all_jobs = prune_old(all_jobs)
-
-    # sort newest first
     all_jobs.sort(key=lambda j: j.get("date_posted") or "", reverse=True)
 
     print(f"\nTotal jobs: {len(all_jobs)} ({len(new_jobs)} new)")
@@ -426,87 +531,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# ---------------------------------------------------------------------------
-# Bluesky (public AT Protocol API - no auth needed)
-# ---------------------------------------------------------------------------
-
-BLUESKY_ACCOUNTS = [
-    "jobsinsportscience.bsky.social",
-]
-
-def scrape_bluesky() -> list:
-    jobs = []
-    for handle in BLUESKY_ACCOUNTS:
-        print(f"  Bluesky: {handle}")
-        try:
-            resolve_url = f"https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle={handle}"
-            r = get(resolve_url)
-            if not r:
-                continue
-            did = r.json().get("did", "")
-            if not did:
-                print(f"    could not resolve DID for {handle}")
-                continue
-
-            feed_url = (
-                f"https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed"
-                f"?actor={did}&limit=100&filter=posts_no_replies"
-            )
-            r = get(feed_url)
-            if not r:
-                continue
-            feed = r.json().get("feed", [])
-
-            for item in feed:
-                try:
-                    post = item.get("post", {})
-                    record = post.get("record", {})
-                    text = record.get("text", "")
-                    if not text:
-                        continue
-
-                    created_at = record.get("createdAt", "")
-                    date_str = created_at[:10] if created_at else datetime.date.today().isoformat()
-
-                    uri = post.get("uri", "")
-                    rkey = uri.split("/")[-1] if uri else ""
-                    post_url = f"https://bsky.app/profile/{handle}/post/{rkey}" if rkey else f"https://bsky.app/profile/{handle}"
-
-                    job_url = post_url
-                    embed = record.get("embed", {})
-                    if embed:
-                        external = embed.get("external", {})
-                        if external and external.get("uri"):
-                            job_url = external["uri"]
-                    for facet in record.get("facets", []):
-                        for feature in facet.get("features", []):
-                            if feature.get("$type") == "app.bsky.richtext.facet#link":
-                                uri_val = feature.get("uri", "")
-                                if uri_val and not uri_val.startswith("https://bsky.app"):
-                                    job_url = uri_val
-                                    break
-
-                    first_line = text.split("\n")[0].strip()
-                    title = first_line[:120] if first_line else text[:120]
-
-                    jobs.append({
-                        "id": make_id(post_url, title),
-                        "title": title,
-                        "organisation": handle.replace(".bsky.social", ""),
-                        "location": "",
-                        "source": "Bluesky",
-                        "url": job_url,
-                        "date_posted": date_str,
-                        "closing_date": "",
-                        "type": "Social post" if job_url == post_url else "Job listing",
-                    })
-                except Exception as e:
-                    print(f"    post parse error: {e}")
-
-        except Exception as e:
-            print(f"  ERROR bluesky {handle}: {e}")
-        time.sleep(1)
-
-    return jobs
