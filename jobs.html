@@ -258,8 +258,7 @@
             }
             return true;
         });
-
-        jobs.sort((a, b) => {
+jobs.sort((a, b) => {
             let va = a[sortCol] || '', vb = b[sortCol] || '';
             if (sortCol === 'date_posted') {
                 va = va ? new Date(va).getTime() : 0;
@@ -270,6 +269,25 @@
             }
             return va < vb ? sortDir : va > vb ? -sortDir : 0;
         });
+
+        // Round-robin interleave by source (only when sorting by date)
+        if (sortCol === 'date_posted') {
+            const groups = {};
+            jobs.forEach(j => {
+                const src = j.source || 'Other';
+                if (!groups[src]) groups[src] = [];
+                groups[src].push(j);
+            });
+            const sources = Object.keys(groups);
+            const interleaved = [];
+            let i = 0;
+            while (interleaved.length < jobs.length) {
+                const src = sources[i % sources.length];
+                if (groups[src].length) interleaved.push(groups[src].shift());
+                i++;
+            }
+            jobs = interleaved;
+        }
 
         const tbody = document.getElementById('jobs-body');
         if (!jobs.length) {
