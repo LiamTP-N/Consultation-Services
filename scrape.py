@@ -1,5 +1,5 @@
 """
-Job scraper for: Indeed (RSS), Jobs.ac.uk (RSS), LinkedIn, Reed, Totaljobs, Bluesky
+Job scraper for: Indeed (RSS), Jobs.ac.uk (RSS), LinkedIn, Bluesky
 Writes results to jobs.json
 
 Search terms tuned for: Sport Science, Wearable Technology, Research, Academia, Lecturing
@@ -42,7 +42,6 @@ SEARCH_TERMS = [
     "laboratory technician sport science",
 ]
 
-# Jobs must contain at least one of these keywords to be kept.
 REQUIRED_KEYWORDS = [
     "sport", "exercise", "physical activity", "biomechanics", "wearable",
     "strength", "conditioning", "physiology", "fitness", "health science",
@@ -52,7 +51,6 @@ REQUIRED_KEYWORDS = [
     "resistance training", "older adult", "ageing", "aging", "musculoskeletal",
 ]
 
-# Jobs containing any of these are excluded outright.
 EXCLUDE_KEYWORDS = [
     "clinical fellow", "junior fellow", "medical fellow", "surgical fellow",
     "haematology", "oncology", "cardiology", "anaesthetic", "radiographer",
@@ -64,7 +62,6 @@ EXCLUDE_KEYWORDS = [
     "pathology", "dentist", "dental", "veterinary",
 ]
 
-# Official Jobs.ac.uk RSS feeds - no scraping, always reliable
 JOBSAC_RSS_FEEDS = [
     ("https://www.jobs.ac.uk/jobs/sport-and-leisure/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/laboratory-clinical-and-technician/?format=rss", "Jobs.ac.uk"),
@@ -77,7 +74,7 @@ BLUESKY_ACCOUNTS = [
 ]
 
 OUTPUT_FILE = Path("jobs.json")
-MAX_DAYS_OLD = 60
+MAX_DAYS_OLD = 90
 
 
 def make_id(url: str, title: str) -> str:
@@ -143,7 +140,6 @@ def get(url: str, timeout: int = 15) -> requests.Response | None:
 
 
 def parse_rss_date(date_str: str) -> str:
-    """Parse RSS date string to ISO date."""
     if not date_str:
         return datetime.date.today().isoformat()
     try:
@@ -154,11 +150,10 @@ def parse_rss_date(date_str: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Jobs.ac.uk - Official RSS feeds (reliable, no blocking)
+# Jobs.ac.uk - Official RSS feeds
 # ---------------------------------------------------------------------------
 
 def scrape_jobsac_rss() -> list:
-    """Pull from Jobs.ac.uk official RSS feeds by category."""
     jobs = []
     for feed_url, source in JOBSAC_RSS_FEEDS:
         print(f"  Jobs.ac.uk RSS: {feed_url.split('/')[-3]}")
@@ -178,7 +173,6 @@ def scrape_jobsac_rss() -> list:
                         href = link.next_sibling
                     desc_el = item.find("description")
                     desc = BeautifulSoup(desc_el.get_text(), "html.parser").get_text() if desc_el else ""
-                    # Extract org from description - jobs.ac.uk puts it there
                     org = ""
                     org_match = re.search(r"(?:Employer|Institution|Organisation):\s*(.+?)(?:\n|$)", desc, re.I)
                     if org_match:
@@ -213,7 +207,7 @@ def scrape_jobsac_rss() -> list:
 
 
 # ---------------------------------------------------------------------------
-# Indeed - RSS feed (more reliable than HTML scraping)
+# Indeed - RSS feed
 # ---------------------------------------------------------------------------
 
 def scrape_indeed(term: str) -> list:
@@ -260,91 +254,7 @@ def scrape_indeed(term: str) -> list:
 
 
 # ---------------------------------------------------------------------------
-# Reed - HTML scraping (no RSS available)
-# ---------------------------------------------------------------------------
-
-def scrape_reed(term: str) -> list:
-    jobs = []
-    url = f"https://www.reed.co.uk/jobs/{urllib.parse.quote(term.replace(' ', '-'))}-jobs?datecreatedoffset=30"
-    print(f"  Reed: {term}")
-    r = get(url)
-    if not r:
-        return jobs
-    soup = BeautifulSoup(r.text, "html.parser")
-    for item in soup.select("article.job-result-card")[:20]:
-        try:
-            title_el = item.select_one("h2.job-result-title a, h3.title a")
-            if not title_el:
-                continue
-            title = clean(title_el.get_text())
-            href = title_el.get("href", "")
-            if href and not href.startswith("http"):
-                href = "https://www.reed.co.uk" + href
-            org_el = item.select_one("a.gtmJobListingPostedBy, span.posted-by a")
-            org = clean(org_el.get_text()) if org_el else ""
-            loc_el = item.select_one("li.location span, span.location")
-            loc = clean(loc_el.get_text()) if loc_el else ""
-            date_el = item.select_one("time")
-            date_str = date_el.get("datetime", datetime.date.today().isoformat()) if date_el else datetime.date.today().isoformat()
-            jobs.append({
-                "id": make_id(href, title),
-                "title": title,
-                "organisation": org,
-                "location": loc,
-                "source": "Reed",
-                "url": href,
-                "date_posted": date_str[:10] if date_str else "",
-                "closing_date": "",
-                "type": "",
-            })
-        except Exception as e:
-            print(f"    parse error: {e}")
-    return jobs
-
-
-# ---------------------------------------------------------------------------
-# Totaljobs - HTML scraping (no RSS available)
-# ---------------------------------------------------------------------------
-
-def scrape_totaljobs(term: str) -> list:
-    jobs = []
-    url = f"https://www.totaljobs.com/jobs/{urllib.parse.quote(term.replace(' ', '-'))}"
-    print(f"  Totaljobs: {term}")
-    r = get(url)
-    if not r:
-        return jobs
-    soup = BeautifulSoup(r.text, "html.parser")
-    for item in soup.select("article[data-job-id], div.job-result")[:20]:
-        try:
-            title_el = item.select_one("h2 a, h3 a")
-            if not title_el:
-                continue
-            title = clean(title_el.get_text())
-            href = title_el.get("href", "")
-            if href and not href.startswith("http"):
-                href = "https://www.totaljobs.com" + href
-            org_el = item.select_one("span.job-result-company-name, [data-at='job-item-company-name']")
-            org = clean(org_el.get_text()) if org_el else ""
-            loc_el = item.select_one("span.job-result-location, [data-at='job-item-location']")
-            loc = clean(loc_el.get_text()) if loc_el else ""
-            jobs.append({
-                "id": make_id(href, title),
-                "title": title,
-                "organisation": org,
-                "location": loc,
-                "source": "Totaljobs",
-                "url": href,
-                "date_posted": datetime.date.today().isoformat(),
-                "closing_date": "",
-                "type": "",
-            })
-        except Exception as e:
-            print(f"    parse error: {e}")
-    return jobs
-
-
-# ---------------------------------------------------------------------------
-# LinkedIn - public HTML (limited but works for now)
+# LinkedIn - public HTML
 # ---------------------------------------------------------------------------
 
 def scrape_linkedin(term: str) -> list:
@@ -470,7 +380,6 @@ def main():
     existing_ids = {j["id"] for j in existing.get("jobs", [])}
     new_jobs = []
 
-    # Jobs.ac.uk via official RSS - runs once, pulls all relevant categories
     print("  Running Jobs.ac.uk RSS scraper...")
     try:
         results = scrape_jobsac_rss()
@@ -484,12 +393,9 @@ def main():
     except Exception as e:
         print(f"  ERROR jobs.ac.uk RSS: {e}")
 
-    # Indeed, Reed, Totaljobs, LinkedIn - per search term
     scrapers = [
-        ("indeed",    scrape_indeed),
-        ("reed",      scrape_reed),
-        ("totaljobs", scrape_totaljobs),
-        ("linkedin",  scrape_linkedin),
+        ("indeed",   scrape_indeed),
+        ("linkedin", scrape_linkedin),
     ]
 
     for source_name, fn in scrapers:
@@ -507,7 +413,6 @@ def main():
                 print(f"  ERROR {source_name} '{term}': {e}")
             time.sleep(1.5)
 
-    # Bluesky - runs once, no keyword filter (already curated)
     print("  Running Bluesky scraper...")
     try:
         bsky_results = scrape_bluesky()
