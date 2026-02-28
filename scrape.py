@@ -30,17 +30,54 @@ HEADERS = {
 }
 
 SEARCH_TERMS = [
-    "sport science researcher",
-    "exercise science lecturer",
     "sport science lecturer",
-    "wearable technology sport",
+    "exercise science lecturer",
+    "sport exercise science researcher",
     "biomechanics researcher",
     "exercise physiology researcher",
-    "sports performance analyst",
-    "human movement researcher",
+    "wearable technology sport research",
     "strength conditioning researcher",
-    "health exercise science",
+    "sport science senior lecturer",
+    "physical activity health researcher",
+    "laboratory technician sport science",
 ]
+
+# Jobs must contain at least one of these keywords (case-insensitive) to be kept.
+# This filters out the noise - clinical fellows, business analysts, NHS clinical posts etc.
+REQUIRED_KEYWORDS = [
+    "sport", "exercise", "physical activity", "biomechanics", "wearable",
+    "strength", "conditioning", "physiology", "fitness", "health science",
+    "human movement", "rehabilitation", "performance", "kinesiology",
+    "lecturer", "senior lecturer", "professor", "research fellow", "postdoc",
+    "lab technician", "laboratory", "data scientist", "python", "machine learning",
+    "resistance training", "older adult", "ageing", "aging", "musculoskeletal",
+]
+
+# Jobs containing any of these are excluded outright regardless of other matches.
+EXCLUDE_KEYWORDS = [
+    "clinical fellow", "junior fellow", "medical fellow", "surgical fellow",
+    "haematology", "oncology", "cardiology", "anaesthetic", "radiographer",
+    "pharmacist", "nurse", "physiotherapist", "occupational therapist",
+    "business analyst", "investment analyst", "financial analyst",
+    "software engineer", "front-end", "back-end", "devops",
+    "tiktok", "ecommerce", "anti-fraud",
+    "urology", "gynaecology", "neurosurgery", "ophthalmology",
+    "pathology", "dentist", "dental", "veterinary",
+]
+
+
+def passes_filter(job: dict) -> bool:
+    """Return True if the job is relevant based on title + organisation text."""
+    text = f"{job.get('title', '')} {job.get('organisation', '')} {job.get('type', '')}".lower()
+    # Exclude outright if any exclude keyword found
+    for kw in EXCLUDE_KEYWORDS:
+        if kw in text:
+            return False
+    # Must match at least one required keyword
+    for kw in REQUIRED_KEYWORDS:
+        if kw in text:
+            return True
+    return False
 
 OUTPUT_FILE = Path("jobs.json")
 MAX_DAYS_OLD = 60  # drop jobs older than this
@@ -354,7 +391,7 @@ def main():
                 results = fn(term)
                 added = 0
                 for j in results:
-                    if j["id"] not in existing_ids:
+                    if j["id"] not in existing_ids and passes_filter(j):
                         new_jobs.append(j)
                         existing_ids.add(j["id"])
                         added += 1
@@ -363,6 +400,20 @@ def main():
                 print(f"  ERROR {source_name} '{term}': {e}")
             time.sleep(1.5)  # polite delay
 
+
+    # Bluesky - runs once, not per search term
+    print("  Running Bluesky scraper...")
+    try:
+        bsky_results = scrape_bluesky()
+        added = 0
+        for j in bsky_results:
+            if j["id"] not in existing_ids:
+                new_jobs.append(j)
+                existing_ids.add(j["id"])
+                added += 1
+        print(f"    +{added} new from Bluesky")
+    except Exception as e:
+        print(f"  ERROR bluesky: {e}")
     all_jobs = existing.get("jobs", []) + new_jobs
     all_jobs = prune_old(all_jobs)
 
@@ -375,3 +426,87 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ---------------------------------------------------------------------------
+# Bluesky (public AT Protocol API - no auth needed)
+# ---------------------------------------------------------------------------
+
+BLUESKY_ACCOUNTS = [
+    "jobsinsportscience.bsky.social",
+]
+
+def scrape_bluesky() -> list:
+    jobs = []
+    for handle in BLUESKY_ACCOUNTS:
+        print(f"  Bluesky: {handle}")
+        try:
+            resolve_url = f"https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle={handle}"
+            r = get(resolve_url)
+            if not r:
+                continue
+            did = r.json().get("did", "")
+            if not did:
+                print(f"    could not resolve DID for {handle}")
+                continue
+
+            feed_url = (
+                f"https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed"
+                f"?actor={did}&limit=100&filter=posts_no_replies"
+            )
+            r = get(feed_url)
+            if not r:
+                continue
+            feed = r.json().get("feed", [])
+
+            for item in feed:
+                try:
+                    post = item.get("post", {})
+                    record = post.get("record", {})
+                    text = record.get("text", "")
+                    if not text:
+                        continue
+
+                    created_at = record.get("createdAt", "")
+                    date_str = created_at[:10] if created_at else datetime.date.today().isoformat()
+
+                    uri = post.get("uri", "")
+                    rkey = uri.split("/")[-1] if uri else ""
+                    post_url = f"https://bsky.app/profile/{handle}/post/{rkey}" if rkey else f"https://bsky.app/profile/{handle}"
+
+                    job_url = post_url
+                    embed = record.get("embed", {})
+                    if embed:
+                        external = embed.get("external", {})
+                        if external and external.get("uri"):
+                            job_url = external["uri"]
+                    for facet in record.get("facets", []):
+                        for feature in facet.get("features", []):
+                            if feature.get("$type") == "app.bsky.richtext.facet#link":
+                                uri_val = feature.get("uri", "")
+                                if uri_val and not uri_val.startswith("https://bsky.app"):
+                                    job_url = uri_val
+                                    break
+
+                    first_line = text.split("\n")[0].strip()
+                    title = first_line[:120] if first_line else text[:120]
+
+                    jobs.append({
+                        "id": make_id(post_url, title),
+                        "title": title,
+                        "organisation": handle.replace(".bsky.social", ""),
+                        "location": "",
+                        "source": "Bluesky",
+                        "url": job_url,
+                        "date_posted": date_str,
+                        "closing_date": "",
+                        "type": "Social post" if job_url == post_url else "Job listing",
+                    })
+                except Exception as e:
+                    print(f"    post parse error: {e}")
+
+        except Exception as e:
+            print(f"  ERROR bluesky {handle}: {e}")
+        time.sleep(1)
+
+    return jobs
