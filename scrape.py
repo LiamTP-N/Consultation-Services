@@ -2,7 +2,7 @@
 Job scraper for: Indeed (RSS), Jobs.ac.uk (RSS), LinkedIn, Bluesky
 Writes results to jobs.json
 
-Search terms tuned for: Sport Science, Wearable Technology, Research, Academia, Lecturing
+Search terms tuned for: Sport Science, Nutrition, Wearable Technology, Research, Academia, Lecturing
 """
 
 import json
@@ -40,6 +40,10 @@ SEARCH_TERMS = [
     "sport science senior lecturer",
     "physical activity health researcher",
     "laboratory technician sport science",
+    "sport nutrition lecturer",
+    "exercise nutrition researcher",
+    "health nutrition lecturer",
+    "nutrition science researcher",
 ]
 
 REQUIRED_KEYWORDS = [
@@ -49,6 +53,7 @@ REQUIRED_KEYWORDS = [
     "lecturer", "senior lecturer", "professor", "research fellow", "postdoc",
     "lab technician", "laboratory", "data scientist", "python", "machine learning",
     "resistance training", "older adult", "ageing", "aging", "musculoskeletal",
+    "nutrition", "dietetics", "diet",
 ]
 
 EXCLUDE_KEYWORDS = [
@@ -67,6 +72,7 @@ JOBSAC_RSS_FEEDS = [
     ("https://www.jobs.ac.uk/jobs/laboratory-clinical-and-technician/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/health-and-medical/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/biological-sciences/?format=rss", "Jobs.ac.uk"),
+    ("https://www.jobs.ac.uk/jobs/nutrition-and-food-science/?format=rss", "Jobs.ac.uk"),
 ]
 
 BLUESKY_ACCOUNTS = [
