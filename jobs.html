@@ -14,8 +14,6 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .row-new { border-left: 3px solid #3b82f6; }
-        .row-viewed { opacity: 0.45; }
         .source-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; }
         .source-indeed    { background: #1e3a5f; color: #60a5fa; }
         .source-linkedin  { background: #0d3330; color: #34d399; }
@@ -24,7 +22,7 @@
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable:hover { color: #60a5fa; }
         th.sorted { color: #60a5fa; }
-        .new-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #3b82f6; margin-right: 6px; flex-shrink: 0; }
+        .subject-active { background: #1e40af !important; color: #fff !important; border-color: #1e40af !important; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
@@ -90,18 +88,14 @@
     <header class="pt-28 pb-8 px-4 bg-gradient-to-br from-slate-900 to-slate-800 animate-fade-in">
         <div class="max-w-6xl mx-auto">
             <h1 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight mb-2">
-                Jobs in <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text">Sport Science</span>
+                Jobs in <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text">Sport &amp; Exercise Science</span>
             </h1>
             <p class="text-slate-400 text-sm mb-6">Sport Science &middot; Nutrition &middot; Wearable Technology &middot; Research &middot; Academia &middot; Lecturing - scraped daily at 07:00 UTC. Showing roles posted in the last 90 days.</p>
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                 <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
                     <div class="text-2xl font-extrabold text-blue-400" id="stat-total">-</div>
                     <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Total Jobs</div>
-                </div>
-                <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
-                    <div class="text-2xl font-extrabold text-blue-400" id="stat-unviewed">-</div>
-                    <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Unviewed</div>
                 </div>
                 <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
                     <div class="text-2xl font-extrabold text-blue-400" id="stat-today">-</div>
@@ -113,10 +107,8 @@
                 </div>
             </div>
 
-            <div class="flex flex-wrap gap-2 items-center mb-4">
-                <button class="filter-btn px-4 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-filter="all">All</button>
-                <button class="filter-btn px-4 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-filter="unviewed">Unviewed</button>
-                <button class="filter-btn px-4 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-filter="viewed">Viewed</button>
+            <!-- Source + search row -->
+            <div class="flex flex-wrap gap-2 items-center mb-3">
                 <select id="source-filter" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
                     <option value="all">All sources</option>
                     <option value="Indeed">Indeed</option>
@@ -125,8 +117,21 @@
                     <option value="Bluesky">Bluesky</option>
                 </select>
                 <input id="search" type="text" placeholder="Search title or organisation..." class="px-3 py-1.5 rounded-lg text-xs border border-slate-600 bg-slate-800 text-slate-300 placeholder-slate-600 focus:outline-none focus:border-blue-500 flex-1 min-w-[180px]">
-                <button id="mark-all-viewed" class="ml-auto px-4 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-400 hover:border-slate-400 hover:text-slate-200 transition">Mark all viewed</button>
-                <button id="reset-viewed" class="px-4 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-400 hover:border-red-500 hover:text-red-400 transition">Reset viewed</button>
+            </div>
+
+            <!-- Subject filter row -->
+            <div class="flex flex-wrap gap-2 items-center mb-4">
+                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Subject:</span>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="all">All</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="sport science">Sport Science</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="physiology">Physiology</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="biomechanics">Biomechanics</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="nutrition,diet">Nutrition</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="wearable">Wearables</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="strength,conditioning">S&amp;C</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="lecturer,professor,teaching">Academia</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="research fellow,postdoc,researcher">Research</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="technician,laboratory">Technician</button>
             </div>
         </div>
     </header>
@@ -137,17 +142,24 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="bg-slate-800 text-slate-500 text-xs uppercase tracking-wider">
-                            <th class="sortable px-4 py-3 text-left" data-col="title">Role <span class="sort-arrow">↕</span></th>
-                            <th class="sortable px-4 py-3 text-left hidden md:table-cell" data-col="organisation">Organisation <span class="sort-arrow">↕</span></th>
-                            <th class="sortable px-4 py-3 text-left" data-col="source">Source <span class="sort-arrow">↕</span></th>
-                            <th class="sortable px-4 py-3 text-left sorted" data-col="date_posted">Posted <span class="sort-arrow">↓</span></th>
-                            <th class="px-4 py-3 text-left"></th>
+                            <th class="sortable px-4 py-3 text-left" data-col="title">Role <span class="sort-arrow">&#8597;</span></th>
+                            <th class="sortable px-4 py-3 text-left hidden md:table-cell" data-col="organisation">Organisation <span class="sort-arrow">&#8597;</span></th>
+                            <th class="sortable px-4 py-3 text-left" data-col="source">Source <span class="sort-arrow">&#8597;</span></th>
+                            <th class="sortable px-4 py-3 text-left sorted" data-col="date_posted">Posted <span class="sort-arrow">&#8595;</span></th>
                         </tr>
                     </thead>
                     <tbody id="jobs-body">
-                        <tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">Loading jobs.json...</td></tr>
+                        <tr><td colspan="4" class="px-4 py-12 text-center text-slate-500 text-sm">Loading jobs.json...</td></tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Load more -->
+            <div id="load-more-wrap" class="hidden mt-4 text-center">
+                <button id="load-more-btn" class="px-6 py-2.5 rounded-lg text-sm font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 hover:bg-slate-800 transition">
+                    Show more jobs
+                </button>
+                <p id="load-more-count" class="text-xs text-slate-500 mt-2"></p>
             </div>
 
             <div class="mt-8 p-5 bg-slate-800 border border-slate-700 rounded-lg">
@@ -193,21 +205,16 @@
     </section>
 
     <script>
-    const STORAGE_KEY = 'ltp_jobs_viewed';
     const MAX_AGE_DAYS = 90;
+    const PAGE_SIZE = 30;
 
     let allJobs = [];
-    let currentFilter = 'all';
     let sortCol = 'date_posted';
     let sortDir = -1;
     let searchTerm = '';
     let sourceFilter = 'all';
-
-    function getViewed() {
-        try { return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')); }
-        catch { return new Set(); }
-    }
-    function saveViewed(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify([...s])); }
+    let subjectFilter = 'all';
+    let visibleCount = PAGE_SIZE;
 
     function isRecent(dateStr) {
         if (!dateStr) return false;
@@ -240,17 +247,15 @@
         return '';
     }
 
-    function renderTable() {
-        const viewed = getViewed();
+    function getFilteredJobs() {
         let jobs = allJobs.filter(j => {
             if (!isRecent(j.date_posted)) return false;
-            const v = viewed.has(j.id);
-            if (currentFilter === 'unviewed' && v) return false;
-            if (currentFilter === 'viewed' && !v) return false;
             if (sourceFilter !== 'all' && j.source !== sourceFilter) return false;
-            if (searchTerm) {
-                const hay = `${j.title} ${j.organisation}`.toLowerCase();
-                if (!hay.includes(searchTerm)) return false;
+            const hay = `${j.title} ${j.organisation} ${j.type}`.toLowerCase();
+            if (searchTerm && !hay.includes(searchTerm)) return false;
+            if (subjectFilter !== 'all') {
+                const terms = subjectFilter.split(',');
+                if (!terms.some(t => hay.includes(t.trim()))) return false;
             }
             return true;
         });
@@ -286,62 +291,56 @@
             jobs = interleaved;
         }
 
+        return jobs;
+    }
+
+    function renderTable() {
+        const jobs = getFilteredJobs();
+        const page = jobs.slice(0, visibleCount);
         const tbody = document.getElementById('jobs-body');
+
         if (!jobs.length) {
-            tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs match this filter.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs match this filter.</td></tr>`;
+            updateLoadMore(0, 0);
             updateStats();
             return;
         }
 
-        tbody.innerHTML = jobs.map(j => {
-            const v = viewed.has(j.id);
-            const dot = !v ? `<span class="new-dot"></span>` : '';
-            const rowClass = v ? 'row-viewed border-b border-slate-700/50' : 'row-new border-b border-slate-700/50 hover:bg-slate-800/60 transition-colors';
-            return `<tr class="${rowClass}">
+        tbody.innerHTML = page.map(j => {
+            return `<tr class="border-b border-slate-700/50 hover:bg-slate-800/60 transition-colors">
                 <td class="px-4 py-3">
-                    <div class="flex items-center">
-                        ${dot}
-                        <div>
-                            <a href="${j.url || '#'}" target="_blank" rel="noopener"
-                               onclick="handleClick('${j.id}')"
-                               class="font-semibold text-slate-200 hover:text-blue-400 transition-colors text-sm">${j.title}</a>
-                            ${isToday(j.date_posted) && !v ? `<span class="ml-2 text-xs bg-blue-600/30 text-blue-400 px-2 py-0.5 rounded font-semibold">New</span>` : ''}
-                            ${j.type ? `<div class="text-xs text-slate-500 mt-0.5">${j.type}</div>` : ''}
-                        </div>
+                    <div>
+                        <a href="${j.url || '#'}" target="_blank" rel="noopener"
+                           class="font-semibold text-slate-200 hover:text-blue-400 transition-colors text-sm">${j.title}</a>
+                        ${isToday(j.date_posted) ? `<span class="ml-2 text-xs bg-blue-600/30 text-blue-400 px-2 py-0.5 rounded font-semibold">New</span>` : ''}
+                        ${j.type ? `<div class="text-xs text-slate-500 mt-0.5">${j.type}</div>` : ''}
                     </div>
                 </td>
                 <td class="px-4 py-3 text-slate-400 text-xs hidden md:table-cell">${j.organisation || '-'}</td>
                 <td class="px-4 py-3"><span class="source-badge ${srcClass(j.source)}">${j.source || '-'}</span></td>
-                <td class="px-4 py-3 text-slate-500 text-xs">${fmtDate(j.date_posted)}</td>
-                <td class="px-4 py-3">
-                    <button onclick="toggleViewed('${j.id}')"
-                        class="text-xs px-3 py-1 rounded border border-slate-600 text-slate-500 hover:border-blue-500 hover:text-blue-400 transition whitespace-nowrap">
-                        ${v ? 'Unmark' : 'Viewed'}
-                    </button>
-                </td>
+                <td class="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">${fmtDate(j.date_posted)}</td>
             </tr>`;
         }).join('');
 
+        updateLoadMore(page.length, jobs.length);
         updateStats();
     }
 
-    function handleClick(id) {
-        const v = getViewed(); v.add(id); saveViewed(v);
-        setTimeout(renderTable, 150);
-    }
-
-    function toggleViewed(id) {
-        const v = getViewed();
-        v.has(id) ? v.delete(id) : v.add(id);
-        saveViewed(v); renderTable();
+    function updateLoadMore(shown, total) {
+        const wrap = document.getElementById('load-more-wrap');
+        const countEl = document.getElementById('load-more-count');
+        if (shown < total) {
+            wrap.classList.remove('hidden');
+            countEl.textContent = `Showing ${shown} of ${total} jobs`;
+        } else {
+            wrap.classList.add('hidden');
+        }
     }
 
     function updateStats() {
-        const viewed = getViewed();
         const recent = allJobs.filter(j => isRecent(j.date_posted));
-        document.getElementById('stat-total').textContent    = recent.length;
-        document.getElementById('stat-unviewed').textContent = recent.filter(j => !viewed.has(j.id)).length;
-        document.getElementById('stat-today').textContent    = recent.filter(j => isToday(j.date_posted)).length;
+        document.getElementById('stat-total').textContent = recent.length;
+        document.getElementById('stat-today').textContent = recent.filter(j => isToday(j.date_posted)).length;
     }
 
     async function loadJobs() {
@@ -356,54 +355,52 @@
             const recent = allJobs.filter(j => isRecent(j.date_posted));
             if (!recent.length) {
                 document.getElementById('jobs-body').innerHTML =
-                    `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 90 days - check back after the next 07:00 UTC scrape.</td></tr>`;
+                    `<tr><td colspan="4" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 90 days - check back after the next 07:00 UTC scrape.</td></tr>`;
             } else {
                 renderTable();
             }
         } catch (e) {
             document.getElementById('jobs-body').innerHTML =
-                `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load jobs.json.<br><span class="text-xs text-slate-600">${e.message}</span></td></tr>`;
+                `<tr><td colspan="4" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load jobs.json.<br><span class="text-xs text-slate-600">${e.message}</span></td></tr>`;
         }
         updateStats();
     }
 
-    document.querySelectorAll('.filter-btn').forEach(btn => {
+    // Search
+    document.getElementById('search').addEventListener('input', e => {
+        searchTerm = e.target.value.toLowerCase().trim();
+        visibleCount = PAGE_SIZE;
+        renderTable();
+    });
+
+    // Source filter
+    document.getElementById('source-filter').addEventListener('change', e => {
+        sourceFilter = e.target.value;
+        visibleCount = PAGE_SIZE;
+        renderTable();
+    });
+
+    // Subject filter buttons
+    document.querySelectorAll('.subject-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.filter-btn').forEach(b => {
-                b.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
-                b.classList.add('text-slate-300', 'border-slate-600');
+            document.querySelectorAll('.subject-btn').forEach(b => {
+                b.classList.remove('subject-active');
             });
-            btn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
-            btn.classList.remove('text-slate-300');
-            currentFilter = btn.dataset.filter;
+            btn.classList.add('subject-active');
+            subjectFilter = btn.dataset.subject;
+            visibleCount = PAGE_SIZE;
             renderTable();
         });
     });
-    document.querySelector('.filter-btn[data-filter="all"]').classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+    document.querySelector('.subject-btn[data-subject="all"]').classList.add('subject-active');
 
-    document.getElementById('search').addEventListener('input', e => {
-        searchTerm = e.target.value.toLowerCase().trim();
+    // Load more
+    document.getElementById('load-more-btn').addEventListener('click', () => {
+        visibleCount += PAGE_SIZE;
         renderTable();
     });
 
-    document.getElementById('source-filter').addEventListener('change', e => {
-        sourceFilter = e.target.value;
-        renderTable();
-    });
-
-    document.getElementById('mark-all-viewed').addEventListener('click', () => {
-        const v = getViewed();
-        allJobs.forEach(j => v.add(j.id));
-        saveViewed(v); renderTable();
-    });
-
-    document.getElementById('reset-viewed').addEventListener('click', () => {
-        if (confirm('Reset all viewed status?')) {
-            localStorage.removeItem(STORAGE_KEY);
-            renderTable();
-        }
-    });
-
+    // Column sorting
     document.querySelectorAll('th.sortable').forEach(th => {
         th.addEventListener('click', () => {
             const col = th.dataset.col;
@@ -411,10 +408,11 @@
             sortCol = col;
             document.querySelectorAll('th.sortable').forEach(t => {
                 t.classList.remove('sorted');
-                t.querySelector('.sort-arrow').textContent = '↕';
+                t.querySelector('.sort-arrow').innerHTML = '&#8597;';
             });
             th.classList.add('sorted');
-            th.querySelector('.sort-arrow').textContent = sortDir === -1 ? '↓' : '↑';
+            th.querySelector('.sort-arrow').innerHTML = sortDir === -1 ? '&#8595;' : '&#8593;';
+            visibleCount = PAGE_SIZE;
             renderTable();
         });
     });
