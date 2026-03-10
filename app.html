@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Functional Calibration | Dr. Pearson-Noseworthy</title>
+    <title>ROM-Based Training App | Dr. Pearson-Noseworthy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" crossorigin="anonymous"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -766,6 +766,7 @@
                     email: auth.currentUser.email,
                     createdAt: serverTimestamp(),
                     baselineRom: 0,
+                    standingRom: null,
                     baselineDate: null,
                     totalReps: 0,
                     sessionsCompleted: 0,
@@ -778,16 +779,23 @@
         }
 
         // ---- SAVE HELPERS (exposed globally) ----
-        window.saveBaseline = async (angle) => {
+        window.saveBaseline = async (angle, standingAngle) => {
             if (!window.currentUserId) return;
             const ref = doc(db, "users", window.currentUserId);
             const now = new Date().toISOString();
-            await updateDoc(ref, {
+            const updateData = {
                 baselineRom: angle,
                 baselineDate: now
-            });
+            };
+            if (standingAngle != null) {
+                updateData.standingRom = standingAngle;
+            }
+            await updateDoc(ref, updateData);
             window.userData.baselineRom = angle;
             window.userData.baselineDate = now;
+            if (standingAngle != null) {
+                window.userData.standingRom = standingAngle;
+            }
             refreshStats();
         };
 
@@ -821,6 +829,9 @@
             const today = new Date().toISOString().split('T')[0];
             const key = `foodLog.${today}`;
             await updateDoc(ref, { [key]: meals });
+            // Keep local state in sync so loadFood() works without re-fetching
+            if (!window.userData.foodLog) window.userData.foodLog = {};
+            window.userData.foodLog[today] = meals;
         };
 
         // ---- AUTH HANDLERS (exposed globally) ----
@@ -930,6 +941,11 @@
     <!-- ========== APP LOGIC ========== -->
     <script>
         // ==============================
+        // APP VERSION
+        // ==============================
+        const APP_VERSION = 'v0.6-alpha';
+
+        // ==============================
         // DEVICE DETECTION & RESPONSIVE INIT
         // ==============================
 
@@ -994,6 +1010,7 @@
         // Assessment state
         let assessBestKnee = 180;
         let assessRepCount = 0;
+        let assessStandingKnee = null; // captured from first upright frames
 
         // Training state
         let trainRepCount = 0;
@@ -1101,7 +1118,7 @@
         function calculateDailyTarget() {
             const baseline = window.userData?.baselineRom || 90;
             const baselineDate = window.userData?.baselineDate;
-            const standingAngle = 170;
+            const standingAngle = window.userData?.standingRom || 170;
 
             let weeksElapsed = 0;
             if (baselineDate) {
@@ -1168,8 +1185,12 @@
         };
 
         function loadFood() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayLog = window.userData?.foodLog?.[today];
             const checks = document.querySelectorAll('.food-check');
-            checks.forEach(c => { c.checked = false; });
+            checks.forEach(c => {
+                c.checked = todayLog ? (todayLog[c.dataset.meal] === true) : false;
+            });
         }
 
         // ==============================
@@ -1185,6 +1206,7 @@
             if (mode === 'assess') {
                 assessRepCount = 0;
                 assessBestKnee = 180;
+                assessStandingKnee = null;
                 showOverlay('assess', 'waiting');
                 speak('Camera is starting. Place your phone against a wall or a stable surface. Step back and stand sideways to the camera. I will find you automatically.');
             } else {
@@ -1500,6 +1522,16 @@
         function processAssessment(kneeAngle) {
             document.getElementById('assess-knee-display').innerText = kneeAngle + '°';
 
+            // Capture standing knee angle from the first upright frames
+            // before any squat begins. Use the highest (most upright) value.
+            if (!isSquatting && kneeAngle > 150) {
+                if (assessStandingKnee === null) {
+                    assessStandingKnee = kneeAngle;
+                } else {
+                    assessStandingKnee = Math.max(assessStandingKnee, kneeAngle);
+                }
+            }
+
             if (kneeAngle < assessBestKnee && kneeAngle > 40) {
                 assessBestKnee = kneeAngle;
                 document.getElementById('assess-best-display').innerText = assessBestKnee + '°';
@@ -1539,7 +1571,7 @@
                         showOverlay('assess', 'complete');
                         document.getElementById('assess-final-angle').innerText = assessBestKnee + '°';
                         speak(`Calibration complete. Your best depth is ${assessBestKnee} degrees. Well done.`);
-                        if (window.saveBaseline) window.saveBaseline(assessBestKnee);
+                        if (window.saveBaseline) window.saveBaseline(assessBestKnee, assessStandingKnee);
                         stopCamera();
                     }
                 }
@@ -1706,7 +1738,7 @@
                 userId: window.currentUserId || 'anonymous',
                 userEmail: window.userData?.email || '',
                 submittedAt: new Date().toISOString(),
-                appVersion: 'v0.5-alpha',
+                appVersion: APP_VERSION,
                 currentView: document.querySelector('.view-section.active')?.id || 'unknown'
             };
 
@@ -1847,7 +1879,7 @@
                 userId: window.currentUserId || 'anonymous',
                 userEmail: window.userData?.email || '',
                 sessionDate: new Date().toISOString(),
-                appVersion: 'v0.5-alpha',
+                appVersion: APP_VERSION,
                 weeksElapsed,
                 baselineRom: window.userData?.baselineRom ?? null,
                 standingRom: window.userData?.standingRom ?? null,
