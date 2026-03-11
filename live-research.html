@@ -288,7 +288,13 @@
     // ---- Render ----
 
     function renderCards() {
-        const studies = getFiltered();
+        const studies = getFiltered().sort((a, b) => {
+            const aMe = (a.researcher || '').toLowerCase().includes('pearson-noseworthy');
+            const bMe = (b.researcher || '').toLowerCase().includes('pearson-noseworthy');
+            if (aMe && !bMe) return -1;
+            if (!aMe && bMe) return 1;
+            return 0;
+        });
         const page = studies.slice(0, visibleCount);
         const grid = document.getElementById('studies-grid');
         const emptyEl = document.getElementById('empty-state');
