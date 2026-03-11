@@ -37,8 +37,9 @@
         /* Format badge */
         .format-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; background: #1e293b; color: #64748b; border: 1px solid #334155; }
 
-        /* Poster image in card */
-        .card-poster { max-height: 140px; object-fit: cover; width: 100%; background: #0f172a; }
+        /* Compact list thumbnail */
+        .card-thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 0.5rem; background: #0f172a; flex-shrink: 0; cursor: pointer; }
+        .card-thumb:hover { opacity: 0.8; }
 
         /* Closing date colours */
         .closing-soon { color: #f87171; }
@@ -54,6 +55,12 @@
         .poster-overlay img { max-width: 95vw; max-height: 92vh; object-fit: contain; border-radius: 0.75rem; }
 
         /* Truncate descriptions */
+        .line-clamp-1 {
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
         .line-clamp-3 {
             display: -webkit-box;
             -webkit-line-clamp: 3;
@@ -153,7 +160,7 @@
             <p id="results-count" class="text-xs text-slate-500 mb-4"></p>
 
             <!-- Study cards -->
-            <div id="studies-grid" class="grid md:grid-cols-2 gap-6">
+            <div id="studies-grid" class="flex flex-col gap-3">
                 <div class="col-span-full text-center py-16 text-slate-500 text-sm">Loading studies...</div>
             </div>
 
@@ -190,7 +197,7 @@
     // =============================================
     const DATA_URL = 'https://script.google.com/macros/s/AKfycbx8PFOGYdH41uamDyBUSj3hZFug2jQE1h3DGV4XfpzsVE43IhQiyNsvmJO9QwgAeSx6/exec';
     const MAX_AGE_DAYS = 90;
-    const PAGE_SIZE = 10;
+    const PAGE_SIZE = 20;
 
     let allStudies = [];
     let searchTerm = '';
@@ -312,9 +319,9 @@
         document.getElementById('results-count').textContent = `Showing ${page.length} of ${studies.length} ${studies.length === 1 ? 'study' : 'studies'}`;
 
         grid.innerHTML = page.map(s => {
-            const posterHtml = s.poster_url
-                ? `<img src="${escHtml(s.poster_url)}" alt="Study poster" class="card-poster cursor-pointer hover:opacity-80 transition-opacity" onclick="openPoster('${escHtml(s.poster_url)}')" loading="lazy" onerror="this.style.display='none'">`
-                : '';
+            const thumbHtml = s.poster_url
+                ? `<img src="${escHtml(s.poster_url)}" alt="Study poster" class="card-thumb" onclick="openPoster('${escHtml(s.poster_url)}')" loading="lazy" onerror="this.style.display='none'">`
+                : `<div class="card-thumb flex items-center justify-center border border-slate-700"><svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg></div>`;
 
             const closingHtml = s.closing_date
                 ? `<span class="text-xs font-bold ${closingClass(s.closing_date)}">${isClosingSoon(s.closing_date) ? '&#9888; ' : ''}Closes ${fmtDate(s.closing_date)}</span>`
@@ -322,41 +329,37 @@
 
             const compRaw = (s.compensation || '').trim().toLowerCase();
             const hasComp = compRaw && compRaw !== 'no' && compRaw !== 'n/a' && compRaw !== 'none' && compRaw !== '-';
-            const compensationHtml = hasComp
-                ? `<div class="col-span-2 flex items-center gap-1.5 text-xs text-yellow-400 mt-1">
-                       <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.736 6.979C9.208 6.193 9.696 6 10 6c.304 0 .792.193 1.264.979a1 1 0 001.715-1.029C12.279 4.784 11.232 4 10 4s-2.279.784-2.979 1.95c-.285.475-.507 1-.67 1.55H6a1 1 0 000 2h.013a9.358 9.358 0 000 1H6a1 1 0 100 2h.351c.163.55.385 1.075.67 1.55C7.721 15.216 8.768 16 10 16s2.279-.784 2.979-1.95a1 1 0 10-1.715-1.029C10.792 13.807 10.304 14 10 14c-.304 0-.792-.193-1.264-.979a5.56 5.56 0 01-.464-.521H10a1 1 0 100-2H7.938a7.394 7.394 0 01-.062-.5c0-.17.021-.338.062-.5H10a1 1 0 100-2H8.272c.153-.184.317-.362.464-.521z"></path></svg>
-                       ${escHtml(s.compensation)}
-                   </div>`
+            const compHtml = hasComp
+                ? `<span class="text-xs text-yellow-400 font-semibold">${escHtml(s.compensation)}</span>`
                 : '';
 
             return `
-            <div class="bg-slate-800/60 border border-green-900/20 rounded-xl overflow-hidden hover:border-green-700/40 transition-all duration-300 hover:shadow-lg hover:shadow-green-900/10 flex flex-col">
-                ${posterHtml}
-                <div class="p-5 flex flex-col flex-1 gap-3">
-                    <div class="flex flex-wrap items-center gap-2">
+            <div class="bg-slate-800/60 border border-green-900/20 rounded-lg hover:border-green-700/40 transition-all duration-200 hover:bg-slate-800/80 p-3 flex gap-3 items-start">
+                ${thumbHtml}
+                <div class="flex-1 min-w-0">
+                    <div class="flex flex-wrap items-center gap-1.5 mb-1">
                         <span class="type-badge ${typeClass(s.study_type)}">${escHtml(s.study_type)}</span>
                         <span class="format-badge">${escHtml(s.format)}</span>
                         ${closingHtml}
+                        ${compHtml}
                     </div>
-                    <h3 class="text-lg font-bold text-white leading-snug">${escHtml(s.title)}</h3>
-                    <div class="text-xs text-slate-400">
-                        <span class="font-semibold text-slate-300">${escHtml(s.researcher)}</span>
-                        ${s.institution ? ` &middot; ${escHtml(s.institution)}` : ''}
+                    <h3 class="text-sm font-bold text-white leading-snug mb-0.5 truncate">${escHtml(s.title)}</h3>
+                    <div class="text-xs text-slate-400 mb-1">
+                        <span class="font-semibold text-slate-300">${escHtml(s.researcher)}</span>${s.institution ? ` &middot; ${escHtml(s.institution)}` : ''}
+                        <span class="text-slate-600 ml-1">${escHtml(s.subject)}</span>
+                        <span class="text-slate-600 ml-1">&middot; ${escHtml(s.format === 'Online only' ? 'Online' : escHtml(s.location))}</span>
                     </div>
-                    <p class="text-sm text-slate-400 leading-relaxed line-clamp-3 flex-1">${escHtml(s.description)}</p>
-                    <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-500 border-t border-slate-700/50 pt-3 mt-auto">
-                        <div><span class="text-slate-600">Subject:</span> ${escHtml(s.subject)}</div>
-                        <div><span class="text-slate-600">Location:</span> ${escHtml(s.location)}</div>
-                        <div><span class="text-slate-600">Eligibility:</span> ${escHtml(s.eligibility)}</div>
-                        <div><span class="text-slate-600">Time:</span> ${escHtml(s.time_commitment)}</div>
-                        ${compensationHtml}
+                    <p class="text-xs text-slate-500 line-clamp-1 mb-1">${escHtml(s.description)}</p>
+                    <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                        <span>Eligibility: ${escHtml(s.eligibility)}</span>
+                        <span>&middot; Time: ${escHtml(s.time_commitment)}</span>
                     </div>
-                    <a href="${escHtml(s.signup_url)}" target="_blank" rel="noopener"
-                       class="mt-2 inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold text-sm px-5 py-3 rounded-xl transition-all active:scale-95 border border-green-500/50 w-full">
-                        Participate / More Info
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </a>
                 </div>
+                <a href="${escHtml(s.signup_url)}" target="_blank" rel="noopener"
+                   class="flex-shrink-0 inline-flex items-center gap-1 bg-green-600 hover:bg-green-500 text-white font-bold text-xs px-3 py-2 rounded-lg transition-all active:scale-95 border border-green-500/50 self-center">
+                    Participate
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </a>
             </div>`;
         }).join('');
 
