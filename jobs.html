@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="current-page" content="jobs">
     <title>Job Tracker | Dr. Liam T. Pearson-Noseworthy</title>
     <meta name="description" content="Personal job tracker - Sport Science, Nutrition, Wearable Technology, Research, Academia, Lecturing.">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,6 +15,7 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .glow-text { text-shadow: 0 0 8px rgba(34, 197, 94, 0.4); }
         .source-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; }
         .source-indeed    { background: #1e3a5f; color: #60a5fa; }
         .source-linkedin  { background: #0d3330; color: #34d399; }
@@ -27,63 +29,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const nav = document.querySelector('nav');
-            const handleScroll = () => {
-                if (window.scrollY > 50) {
-                    nav.classList.remove('bg-transparent', 'py-4');
-                    nav.classList.add('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
-                } else {
-                    nav.classList.add('bg-transparent', 'py-4');
-                    nav.classList.remove('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
-                }
-            };
-            window.addEventListener('scroll', handleScroll);
-            handleScroll();
-            const btn = document.getElementById('mobile-menu-btn');
-            const menu = document.getElementById('mobile-menu');
-            if (btn && menu) btn.addEventListener('click', () => menu.classList.toggle('hidden'));
-            document.querySelectorAll('.animate-fade-in').forEach((el, i) => {
-                setTimeout(() => el.classList.add('loaded'), 50 * (i + 1));
-            });
-        });
-    </script>
-
-    <nav class="fixed w-full z-50 transition-all duration-300 bg-transparent py-4">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="flex justify-between items-center">
-                <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
-                    Dr. Liam T. Pearson-Noseworthy
-                </a>
-                <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
-                    <a href="index.html" class="hover:text-blue-400 transition-colors">Home</a>
-                    <a href="services.html" class="hover:text-blue-400 transition-colors">Services</a>
-                    <a href="live-research.html" class="text-green-500 font-bold animate-pulse">LIVE Research</a>
-                    <a href="portfolio.html" class="hover:text-blue-400 transition-colors">Portfolio</a>
-                    <a href="cv.html" class="hover:text-blue-400 transition-colors">CV</a>
-                    <a href="jobs.html" class="text-white">Jobs</a>
-                    <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Get in Touch</a>
-                </div>
-                <button id="mobile-menu-btn" class="md:hidden text-slate-300 hover:text-white focus:outline-none">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-            </div>
-            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 bg-slate-900/95 backdrop-blur-xl border-t border-slate-700 rounded-b-xl animate-fade-in">
-                <div class="flex flex-col space-y-4 pt-4 px-2 text-center">
-                    <a href="index.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Home</a>
-                    <a href="services.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Services</a>
-                    <a href="live-research.html" class="text-green-500 font-bold hover:bg-slate-800 py-2 rounded-lg transition-colors">LIVE Research</a>
-                    <a href="portfolio.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">Portfolio</a>
-                    <a href="cv.html" class="text-slate-300 hover:text-white hover:bg-slate-800 py-2 rounded-lg transition-colors">CV</a>
-                    <a href="jobs.html" class="text-white font-bold hover:bg-slate-800 py-2 rounded-lg transition-colors">Jobs</a>
-                    <a href="#contact" class="bg-blue-600 text-white py-3 rounded-lg font-bold mx-4 shadow-lg">Get in Touch</a>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <nav id="main-nav"></nav>
 
     <header class="pt-28 pb-8 px-4 bg-gradient-to-br from-slate-900 to-slate-800 animate-fade-in">
         <div class="max-w-6xl mx-auto">
@@ -185,25 +131,9 @@
         </div>
     </main>
 
-    <section id="contact" class="py-6 px-4 bg-slate-700 text-white mt-auto border-t border-slate-600">
-        <div class="max-w-6xl mx-auto text-center animate-fade-in">
-            <h2 class="text-xl font-bold mb-4">Ready to optimise your training or research?</h2>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-                <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md hover:shadow-blue-500/20">
-                    Email Me
-                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.8 5.2a2 2 0 002.4 0L21 8"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2"></path></svg>
-                </a>
-                <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" class="flex items-center justify-center bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md border border-slate-600">
-                    Connect on LinkedIn
-                    <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.75s.784-1.75 1.75-1.75 1.75.79 1.75 1.75-.783 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.535-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.766 7 2.062v7.173z"/></svg>
-                </a>
-            </div>
-            <div class="pt-4 border-t border-slate-600/50 text-slate-400 text-xs">
-                &copy; 2025 Dr. Liam T. Pearson-Noseworthy. All rights reserved.
-            </div>
-        </div>
-    </section>
+    <footer id="main-footer"></footer>
 
+    <script src="includes.js" defer></script>
     <script>
     const MAX_AGE_DAYS = 90;
     const PAGE_SIZE = 30;
