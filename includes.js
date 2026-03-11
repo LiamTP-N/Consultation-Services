@@ -85,22 +85,92 @@
         footer.id = 'contact';
         footer.className = 'py-6 px-4 bg-slate-700 text-white mt-auto border-t border-slate-600';
         footer.innerHTML = `
-        <div class="max-w-6xl mx-auto text-center">
-            <h2 class="text-xl font-bold mb-4">Ready to optimise your training or research?</h2>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-                <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md hover:shadow-blue-500/20">
-                    Email Me
-                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.8 5.2a2 2 0 002.4 0L21 8"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2"></path></svg>
-                </a>
-                <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" class="flex items-center justify-center bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md border border-slate-600">
-                    Connect on LinkedIn
-                    <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.75s.784-1.75 1.75-1.75 1.75.79 1.75 1.75-.783 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.535-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.766 7 2.062v7.173z"/></svg>
-                </a>
+        <div class="max-w-6xl mx-auto">
+            <div class="max-w-xl mx-auto mb-8">
+                <h2 class="text-xl font-bold mb-6 text-center">Ready to optimise your training or research?</h2>
+                <div id="form-success" class="hidden bg-green-900/30 border border-green-700/50 text-green-400 text-sm text-center p-4 rounded-xl mb-4">
+                    Thanks for your message - I'll be in touch shortly.
+                </div>
+                <div id="contact-form-wrap">
+                    <div class="space-y-4 mb-6">
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <input type="text" id="cf-name" placeholder="Name" required class="w-full bg-slate-800 border border-slate-600 text-white text-sm px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 placeholder-slate-500 transition-colors">
+                            <input type="email" id="cf-email" placeholder="Email" required class="w-full bg-slate-800 border border-slate-600 text-white text-sm px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 placeholder-slate-500 transition-colors">
+                        </div>
+                        <select id="cf-subject" class="w-full bg-slate-800 border border-slate-600 text-slate-400 text-sm px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 transition-colors">
+                            <option value="" disabled selected>What can I help with?</option>
+                            <option value="Performance Consulting">Performance & Health Consulting</option>
+                            <option value="Academic Services">Academic & Data Services</option>
+                            <option value="ROM App Feedback">ROM-Based App Feedback</option>
+                            <option value="General Enquiry">General Enquiry</option>
+                        </select>
+                        <textarea id="cf-message" rows="4" placeholder="Your message..." required class="w-full bg-slate-800 border border-slate-600 text-white text-sm px-4 py-3 rounded-lg focus:outline-none focus:border-blue-500 placeholder-slate-500 transition-colors resize-none"></textarea>
+                        <button type="button" id="cf-submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-blue-600/30 text-sm">
+                            Send Message
+                        </button>
+                    </div>
+                </div>
+                <div class="flex justify-center gap-4">
+                    <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" class="flex items-center justify-center bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all shadow-md border border-slate-600">
+                        Connect on LinkedIn
+                        <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.75s.784-1.75 1.75-1.75 1.75.79 1.75 1.75-.783 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.535-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.766 7 2.062v7.173z"/></svg>
+                    </a>
+                </div>
             </div>
-            <div class="pt-4 border-t border-slate-600/50 text-slate-400 text-xs">
+            <div class="pt-4 border-t border-slate-600/50 text-slate-400 text-xs text-center">
                 &copy; ${year} Dr. Liam T. Pearson-Noseworthy. All rights reserved.
             </div>
         </div>`;
+
+        // Contact form submission via Formspree
+        const cfSubmit = document.getElementById('cf-submit');
+        if (cfSubmit) {
+            cfSubmit.addEventListener('click', async () => {
+                const name = document.getElementById('cf-name');
+                const email = document.getElementById('cf-email');
+                const subject = document.getElementById('cf-subject');
+                const message = document.getElementById('cf-message');
+
+                if (!name.value.trim() || !email.value.trim() || !message.value.trim()) {
+                    [name, email, message].forEach(f => {
+                        if (!f.value.trim()) f.style.borderColor = '#ef4444';
+                    });
+                    return;
+                }
+
+                cfSubmit.disabled = true;
+                cfSubmit.textContent = 'Sending...';
+
+                try {
+                    const res = await fetch('https://formspree.io/f/YOUR_FORMSPREE_ID', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                        body: JSON.stringify({
+                            name: name.value.trim(),
+                            email: email.value.trim(),
+                            subject: subject.value,
+                            message: message.value.trim()
+                        })
+                    });
+                    if (res.ok) {
+                        document.getElementById('contact-form-wrap').classList.add('hidden');
+                        document.getElementById('form-success').classList.remove('hidden');
+                    } else {
+                        cfSubmit.textContent = 'Error - try again';
+                        cfSubmit.disabled = false;
+                    }
+                } catch (e) {
+                    cfSubmit.textContent = 'Error - try again';
+                    cfSubmit.disabled = false;
+                }
+            });
+
+            // Clear red borders on input
+            ['cf-name', 'cf-email', 'cf-message'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', () => el.style.borderColor = '');
+            });
+        }
     }
 
     // --- shared fade-in animation ---
