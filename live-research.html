@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="current-page" content="live-research">
     <title>LIVE Research & Studies | Dr. Liam T. Pearson-Noseworthy, PhD</title>
-    <meta name="description" content="View Dr. Pearson-Noseworthy's LIVE research studies. Check back for active data collection projects in exercise science, biomechanics, and performance analysis.">
+    <meta name="description" content="Browse current research studies recruiting participants in sport science, physiology, biomechanics, nutrition, and more. Submit your own study via the portal.">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         html { scroll-behavior: smooth; }
@@ -16,138 +16,441 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .glow-text { text-shadow: 0 0 8px rgba(34, 197, 94, 0.4); }
+
+        /* Subject filter active state */
+        .subject-active { background: #166534 !important; color: #fff !important; border-color: #166534 !important; }
+
+        /* Study type badges */
+        .type-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; }
+        .type-survey        { background: #0d3330; color: #34d399; }
+        .type-lab           { background: #1e3a5f; color: #60a5fa; }
+        .type-intervention  { background: #3b1764; color: #c084fc; }
+        .type-observational { background: #422006; color: #fbbf24; }
+        .type-qualitative   { background: #1a1a2e; color: #94a3b8; }
+
+        /* Format badge */
+        .format-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; background: #1e293b; color: #64748b; border: 1px solid #334155; }
+
+        /* Poster image in card */
+        .card-poster { aspect-ratio: 16 / 10; object-fit: cover; width: 100%; background: #0f172a; }
+
+        /* Closing date colours */
+        .closing-soon { color: #f87171; }
+        .closing-ok   { color: #4ade80; }
+
+        /* Poster lightbox */
+        .poster-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+            z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem;
+            cursor: zoom-out;
+        }
+        .poster-overlay.hidden { display: none; }
+        .poster-overlay img { max-width: 95vw; max-height: 92vh; object-fit: contain; border-radius: 0.75rem; }
+
+        /* Truncate descriptions */
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
 
     <nav id="main-nav"></nav>
 
-    <section class="pt-24 pb-20 px-4 bg-gradient-to-br from-slate-900 via-green-950 to-slate-900 min-h-screen">
+    <!-- Poster lightbox -->
+    <div id="poster-modal" class="poster-overlay hidden" onclick="closePoster()">
+        <img id="poster-modal-img" src="" alt="Study poster">
+    </div>
+
+    <header class="pt-28 pb-8 px-4 bg-gradient-to-br from-slate-900 via-green-950 to-slate-900 animate-fade-in">
         <div class="max-w-6xl mx-auto">
-            <div class="mb-6 text-center animate-fade-in">
+            <div class="mb-6">
                 <span class="bg-green-900/30 text-green-400 border border-green-800/50 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide mb-3 inline-block">Research Hub</span>
-                <h1 class="text-4xl md:text-5xl font-bold text-slate-100">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight mb-2">
                     <span class="text-green-500">LIVE Research:</span> Current Studies
                 </h1>
+                <p class="text-slate-400 text-sm mb-1">Browse studies currently recruiting participants across sport and exercise science.</p>
+                <p class="text-slate-500 text-xs">Studies are listed for up to 3 months from submission. Researchers can submit their own study via the portal below.</p>
             </div>
 
-            <!-- ============================================================
-                 EMPTY STATE - shown when no studies are active.
-                 Hide or remove this block when you add a live study below.
-                 ============================================================ -->
-            <div class="animate-fade-in max-w-2xl mx-auto text-center py-20">
+            <!-- Stats -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                <div class="bg-slate-800/60 border border-green-900/30 rounded-lg p-4">
+                    <div class="text-2xl font-extrabold text-green-400" id="stat-total">-</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Active Studies</div>
+                </div>
+                <div class="bg-slate-800/60 border border-green-900/30 rounded-lg p-4">
+                    <div class="text-2xl font-extrabold text-green-400" id="stat-online">-</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Online Studies</div>
+                </div>
+                <div class="bg-slate-800/60 border border-green-900/30 rounded-lg p-4">
+                    <div class="text-2xl font-extrabold text-green-400" id="stat-closing">-</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Closing Soon</div>
+                </div>
+                <div class="bg-slate-800/60 border border-green-900/30 rounded-lg p-4">
+                    <div class="text-2xl font-extrabold text-slate-400 text-xs pt-1" id="stat-updated">-</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Last Updated</div>
+                </div>
+            </div>
+
+            <!-- Filter row 1: dropdowns + search -->
+            <div class="flex flex-wrap gap-2 items-center mb-3">
+                <select id="type-filter" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-green-500">
+                    <option value="all">All study types</option>
+                    <option value="Survey">Survey</option>
+                    <option value="Lab-based trial">Lab-based trial</option>
+                    <option value="Intervention">Intervention</option>
+                    <option value="Observational">Observational</option>
+                    <option value="Qualitative">Qualitative</option>
+                </select>
+                <select id="format-filter" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-green-500">
+                    <option value="all">All formats</option>
+                    <option value="Online only">Online only</option>
+                    <option value="In-person only">In-person only</option>
+                    <option value="Both">Both</option>
+                </select>
+                <input id="search" type="text" placeholder="Search title, researcher, institution..." class="px-3 py-1.5 rounded-lg text-xs border border-slate-600 bg-slate-800 text-slate-300 placeholder-slate-600 focus:outline-none focus:border-green-500 flex-1 min-w-[180px]">
+            </div>
+
+            <!-- Filter row 2: subject buttons -->
+            <div class="flex flex-wrap gap-2 items-center mb-5">
+                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Subject:</span>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-green-500 hover:text-green-400 transition" data-subject="all">All</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-green-500 hover:text-green-400 transition" data-subject="Sport Science">Sport Science</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-green-500 hover:text-green-400 transition" data-subject="Physiology">Physiology</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-green-500 hover:text-green-400 transition" data-subject="Biomechanics">Biomechanics</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-green-500 hover:text-green-400 transition" data-subject="Nutrition">Nutrition</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-green-500 hover:text-green-400 transition" data-subject="Strength & Conditioning">S&amp;C</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-green-500 hover:text-green-400 transition" data-subject="Wearables">Wearables</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-green-500 hover:text-green-400 transition" data-subject="Psychology">Psychology</button>
+                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-green-500 hover:text-green-400 transition" data-subject="Rehabilitation">Rehabilitation</button>
+            </div>
+
+            <!-- Submit CTA -->
+            <div class="flex items-center gap-3">
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSd8rz9RS-eqoEDu3eCCVxBLx8u8M6ZMRafeGo4lcinFCfNIpw/viewform" target="_blank"
+                   class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all active:scale-95 border border-green-500/50 shadow-lg shadow-green-900/30">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Submit Your Research
+                </a>
+                <span class="text-xs text-slate-600">Free - takes ~3 minutes</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 px-4 py-8 bg-gradient-to-b from-green-950/20 to-slate-900">
+        <div class="max-w-6xl mx-auto">
+
+            <p id="results-count" class="text-xs text-slate-500 mb-4"></p>
+
+            <!-- Study cards -->
+            <div id="studies-grid" class="grid md:grid-cols-2 gap-6">
+                <div class="col-span-full text-center py-16 text-slate-500 text-sm">Loading studies...</div>
+            </div>
+
+            <!-- Empty state (shown by JS when 0 studies after load) -->
+            <div id="empty-state" class="hidden animate-fade-in max-w-2xl mx-auto text-center py-20">
                 <div class="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6 mx-auto border border-slate-700">
                     <svg class="w-10 h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                 </div>
                 <h2 class="text-2xl font-bold text-slate-300 mb-3">No Active Studies</h2>
-                <p class="text-slate-500 leading-relaxed mb-8">
-                    There are no studies currently recruiting participants. Check back soon - new projects are added here as they go live.
+                <p class="text-slate-500 leading-relaxed mb-6">
+                    There are no studies currently recruiting participants. Check back soon, or submit your own research via the button above.
                 </p>
-                <a href="index.html" class="inline-flex items-center text-sm text-blue-400 hover:text-blue-300 transition-colors font-medium">
+                <a href="index.html" class="inline-flex items-center text-sm text-green-400 hover:text-green-300 transition-colors font-medium">
                     &larr; Back to Home
                 </a>
             </div>
 
-
-            <!--
-            ================================================================
-            STUDY TEMPLATE - ALTERNATING LEFT/RIGHT LAYOUT
-            ================================================================
-            
-            How to use:
-            1. Hide or remove the "EMPTY STATE" block above.
-            2. Uncomment one of the study blocks below (or duplicate as needed).
-            3. Odd-numbered studies (01, 03, 05...) = text LEFT, image RIGHT.
-               Even-numbered studies (02, 04, 06...) = image LEFT, text RIGHT.
-               This is controlled by the grid column ordering classes.
-            4. Separate multiple studies with a horizontal rule:
-               <hr class="border-slate-700/50 my-16">
-
-            ================================================================
-            STUDY 01 - POWERLIFTING BIG DATA (text left, image right)
-            ================================================================
-            
-            <div class="grid md:grid-cols-12 gap-10 items-center animate-fade-in">
-                <div class="md:col-span-7 space-y-6">
-                    <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Study 01</span>
-                            <span class="h-px w-8 bg-slate-700"></span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-4">Defining the Next Era of Powerlifting Research</h3>
-                        <p class="text-slate-300 leading-relaxed mb-4">Following a 25-year analysis of 60,000+ Olympic Weightlifting performances, I am applying a <strong>'Big Data' approach</strong> to Powerlifting.</p>
-                        <p class="text-slate-300 leading-relaxed">To ensure this research delivers genuine, practical value, I am surveying the community to identify the questions that matter most to coaches and athletes, from "bomb-out" risks to the junior-to-senior transition.</p>
-                    </div>
-                    <div class="bg-slate-900/50 p-6 rounded-xl border border-green-900/30">
-                        <h4 class="text-white font-bold mb-3 border-b border-green-900/30 pb-2">Help shape the analysis on:</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span><span class="text-sm text-slate-300"><strong>Strategic Risk:</strong> Attempt selection and failure probability.</span></div>
-                            <div class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span><span class="text-sm text-slate-300"><strong>Talent Pathways:</strong> Avoiding burnout in junior lifters.</span></div>
-                            <div class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span><span class="text-sm text-slate-300"><strong>Performance Ceilings:</strong> Long-term trends in Raw vs Equipped.</span></div>
-                            <div class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span><span class="text-sm text-slate-300"><strong>Myth Busting:</strong> Testing coaching intuition against data.</span></div>
-                        </div>
-                    </div>
-                    <div>
-                        <a href="https://forms.gle/PHwb5UnwF2WpvjcW6" target="_blank" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg shadow-green-900/30 hover:shadow-green-500/30 hover:-translate-y-1 transition-all w-full md:w-auto">
-                            Take the 2-Minute Survey
-                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                        </a>
-                    </div>
-                </div>
-                <div class="md:col-span-5">
-                    <div class="rounded-xl overflow-hidden border border-green-800 shadow-2xl hover:shadow-green-900/20 transition-all bg-slate-900 relative group">
-                        <img src="Recruitment_Poster1.png" alt="Powerlifting Research Recruitment Poster" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <p class="text-center text-xs text-slate-500 mt-3">Help define the parameters of this analysis.</p>
-                </div>
+            <!-- Load more -->
+            <div id="load-more-wrap" class="hidden mt-6 text-center">
+                <button id="load-more-btn" class="px-6 py-2.5 rounded-lg text-sm font-semibold border border-slate-600 text-slate-300 hover:border-green-500 hover:text-green-400 hover:bg-slate-800 transition">
+                    Show more studies
+                </button>
+                <p id="load-more-count" class="text-xs text-slate-500 mt-2"></p>
             </div>
-
-
-            ================================================================
-            STUDY 02 TEMPLATE - (image left, text right) - DUPLICATE & EDIT
-            ================================================================
-            
-            <hr class="border-slate-700/50 my-16">
-
-            <div class="grid md:grid-cols-12 gap-10 items-center animate-fade-in">
-                <div class="md:col-span-5 md:order-1 order-2">
-                    <div class="rounded-xl overflow-hidden border border-green-800 shadow-2xl hover:shadow-green-900/20 transition-all bg-slate-900 relative group">
-                        <img src="YOUR_IMAGE.png" alt="Study 02 Poster" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <p class="text-center text-xs text-slate-500 mt-3">Caption for this study image.</p>
-                </div>
-                <div class="md:col-span-7 md:order-2 order-1 space-y-6">
-                    <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Study 02</span>
-                            <span class="h-px w-8 bg-slate-700"></span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white mb-4">Study Title Here</h3>
-                        <p class="text-slate-300 leading-relaxed mb-4">Description paragraph one.</p>
-                        <p class="text-slate-300 leading-relaxed">Description paragraph two.</p>
-                    </div>
-                    <div class="bg-slate-900/50 p-6 rounded-xl border border-green-900/30">
-                        <h4 class="text-white font-bold mb-3 border-b border-green-900/30 pb-2">Key areas:</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span><span class="text-sm text-slate-300"><strong>Area 1:</strong> Detail.</span></div>
-                            <div class="flex items-start"><span class="text-green-500 mr-2 font-bold">✓</span><span class="text-sm text-slate-300"><strong>Area 2:</strong> Detail.</span></div>
-                        </div>
-                    </div>
-                    <div>
-                        <a href="#" target="_blank" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg shadow-green-900/30 hover:shadow-green-500/30 hover:-translate-y-1 transition-all w-full md:w-auto">
-                            Call to Action
-                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            -->
-
         </div>
-    </section>
-    
+    </main>
+
     <footer id="main-footer"></footer>
     <script src="includes.js" defer></script>
+
+    <script>
+    // =============================================
+    //  CONFIG
+    // =============================================
+    const DATA_URL = 'https://script.google.com/macros/s/AKfycbx8PFOGYdH41uamDyBUSj3hZFug2jQE1h3DGV4XfpzsVE43IhQiyNsvmJO9QwgAeSx6/exec';
+    const MAX_AGE_DAYS = 90;
+    const PAGE_SIZE = 10;
+
+    let allStudies = [];
+    let searchTerm = '';
+    let typeFilter = 'all';
+    let formatFilter = 'all';
+    let subjectFilter = 'all';
+    let visibleCount = PAGE_SIZE;
+
+    // ---- Helpers ----
+
+    function isExpired(closingDate) {
+        if (!closingDate) return false;
+        const d = new Date(closingDate);
+        if (isNaN(d)) return false;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return d < today;
+    }
+
+    function isClosingSoon(closingDate) {
+        if (!closingDate) return false;
+        const d = new Date(closingDate);
+        if (isNaN(d)) return false;
+        const now = new Date();
+        const diff = (d - now) / (1000 * 60 * 60 * 24);
+        return diff >= 0 && diff <= 14;
+    }
+
+    function isTooOld(dateSubmitted) {
+        if (!dateSubmitted) return false;
+        const d = new Date(dateSubmitted);
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - MAX_AGE_DAYS);
+        return d < cutoff;
+    }
+
+    function fmtDate(d) {
+        if (!d) return '-';
+        const p = new Date(d);
+        if (isNaN(p)) return d;
+        return p.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' });
+    }
+
+    function typeClass(t) {
+        if (!t) return '';
+        const l = t.toLowerCase();
+        if (l.includes('survey'))        return 'type-survey';
+        if (l.includes('lab'))           return 'type-lab';
+        if (l.includes('intervention'))  return 'type-intervention';
+        if (l.includes('observational')) return 'type-observational';
+        if (l.includes('qualitative'))   return 'type-qualitative';
+        return '';
+    }
+
+    function closingClass(d) {
+        return isClosingSoon(d) ? 'closing-soon' : 'closing-ok';
+    }
+
+    function escHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ---- Filtering ----
+
+    function getFiltered() {
+        return allStudies.filter(s => {
+            if (isExpired(s.closing_date)) return false;
+            if (isTooOld(s.date_submitted)) return false;
+
+            if (typeFilter !== 'all' && s.study_type !== typeFilter) return false;
+            if (formatFilter !== 'all' && s.format !== formatFilter) return false;
+
+            if (subjectFilter !== 'all') {
+                const subj = (s.subject || '').toLowerCase();
+                if (!subj.includes(subjectFilter.toLowerCase())) return false;
+            }
+
+            if (searchTerm) {
+                const hay = `${s.title} ${s.researcher} ${s.institution} ${s.description} ${s.subject} ${s.location}`.toLowerCase();
+                if (!hay.includes(searchTerm)) return false;
+            }
+
+            return true;
+        });
+    }
+
+    // ---- Render ----
+
+    function renderCards() {
+        const studies = getFiltered();
+        const page = studies.slice(0, visibleCount);
+        const grid = document.getElementById('studies-grid');
+        const emptyEl = document.getElementById('empty-state');
+
+        // If there are zero studies total (not just filtered), show the empty state
+        const totalActive = allStudies.filter(s => !isExpired(s.closing_date) && !isTooOld(s.date_submitted));
+
+        if (totalActive.length === 0 && allStudies.length >= 0) {
+            grid.innerHTML = '';
+            emptyEl.classList.remove('hidden');
+            document.getElementById('results-count').textContent = '';
+            updateLoadMore(0, 0);
+            return;
+        }
+
+        emptyEl.classList.add('hidden');
+
+        if (!studies.length) {
+            grid.innerHTML = `
+                <div class="col-span-full text-center py-16">
+                    <p class="text-slate-500 text-sm">No studies match your filters.</p>
+                </div>`;
+            document.getElementById('results-count').textContent = '';
+            updateLoadMore(0, 0);
+            return;
+        }
+
+        document.getElementById('results-count').textContent = `Showing ${page.length} of ${studies.length} ${studies.length === 1 ? 'study' : 'studies'}`;
+
+        grid.innerHTML = page.map(s => {
+            const posterHtml = s.poster_url
+                ? `<img src="${escHtml(s.poster_url)}" alt="Study poster" class="card-poster cursor-pointer hover:opacity-80 transition-opacity" onclick="openPoster('${escHtml(s.poster_url)}')" loading="lazy" onerror="this.style.display='none'">`
+                : '';
+
+            const closingHtml = s.closing_date
+                ? `<span class="text-xs font-bold ${closingClass(s.closing_date)}">${isClosingSoon(s.closing_date) ? '&#9888; ' : ''}Closes ${fmtDate(s.closing_date)}</span>`
+                : '';
+
+            const compRaw = (s.compensation || '').trim().toLowerCase();
+            const hasComp = compRaw && compRaw !== 'no' && compRaw !== 'n/a' && compRaw !== 'none' && compRaw !== '-';
+            const compensationHtml = hasComp
+                ? `<div class="col-span-2 flex items-center gap-1.5 text-xs text-yellow-400 mt-1">
+                       <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.736 6.979C9.208 6.193 9.696 6 10 6c.304 0 .792.193 1.264.979a1 1 0 001.715-1.029C12.279 4.784 11.232 4 10 4s-2.279.784-2.979 1.95c-.285.475-.507 1-.67 1.55H6a1 1 0 000 2h.013a9.358 9.358 0 000 1H6a1 1 0 100 2h.351c.163.55.385 1.075.67 1.55C7.721 15.216 8.768 16 10 16s2.279-.784 2.979-1.95a1 1 0 10-1.715-1.029C10.792 13.807 10.304 14 10 14c-.304 0-.792-.193-1.264-.979a5.56 5.56 0 01-.464-.521H10a1 1 0 100-2H7.938a7.394 7.394 0 01-.062-.5c0-.17.021-.338.062-.5H10a1 1 0 100-2H8.272c.153-.184.317-.362.464-.521z"></path></svg>
+                       ${escHtml(s.compensation)}
+                   </div>`
+                : '';
+
+            return `
+            <div class="bg-slate-800/60 border border-green-900/20 rounded-xl overflow-hidden hover:border-green-700/40 transition-all duration-300 hover:shadow-lg hover:shadow-green-900/10 flex flex-col">
+                ${posterHtml}
+                <div class="p-5 flex flex-col flex-1 gap-3">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="type-badge ${typeClass(s.study_type)}">${escHtml(s.study_type)}</span>
+                        <span class="format-badge">${escHtml(s.format)}</span>
+                        ${closingHtml}
+                    </div>
+                    <h3 class="text-lg font-bold text-white leading-snug">${escHtml(s.title)}</h3>
+                    <div class="text-xs text-slate-400">
+                        <span class="font-semibold text-slate-300">${escHtml(s.researcher)}</span>
+                        ${s.institution ? ` &middot; ${escHtml(s.institution)}` : ''}
+                    </div>
+                    <p class="text-sm text-slate-400 leading-relaxed line-clamp-3 flex-1">${escHtml(s.description)}</p>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-500 border-t border-slate-700/50 pt-3 mt-auto">
+                        <div><span class="text-slate-600">Subject:</span> ${escHtml(s.subject)}</div>
+                        <div><span class="text-slate-600">Location:</span> ${escHtml(s.location)}</div>
+                        <div><span class="text-slate-600">Eligibility:</span> ${escHtml(s.eligibility)}</div>
+                        <div><span class="text-slate-600">Time:</span> ${escHtml(s.time_commitment)}</div>
+                        ${compensationHtml}
+                    </div>
+                    <a href="${escHtml(s.signup_url)}" target="_blank" rel="noopener"
+                       class="mt-2 inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold text-sm px-5 py-3 rounded-xl transition-all active:scale-95 border border-green-500/50 w-full">
+                        Participate / More Info
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
+                </div>
+            </div>`;
+        }).join('');
+
+        updateLoadMore(page.length, studies.length);
+        updateStats();
+    }
+
+    function updateLoadMore(shown, total) {
+        const wrap = document.getElementById('load-more-wrap');
+        const countEl = document.getElementById('load-more-count');
+        if (shown < total) {
+            wrap.classList.remove('hidden');
+            countEl.textContent = `Showing ${shown} of ${total} studies`;
+        } else {
+            wrap.classList.add('hidden');
+        }
+    }
+
+    function updateStats() {
+        const active = allStudies.filter(s => !isExpired(s.closing_date) && !isTooOld(s.date_submitted));
+        const online = active.filter(s => (s.format || '').toLowerCase().includes('online'));
+        const closing = active.filter(s => isClosingSoon(s.closing_date));
+        document.getElementById('stat-total').textContent = active.length;
+        document.getElementById('stat-online').textContent = online.length;
+        document.getElementById('stat-closing').textContent = closing.length;
+    }
+
+    // ---- Poster lightbox ----
+
+    function openPoster(url) {
+        document.getElementById('poster-modal-img').src = url;
+        document.getElementById('poster-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closePoster() {
+        document.getElementById('poster-modal').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePoster(); });
+
+    // ---- Load data ----
+
+    async function loadStudies() {
+        try {
+            const res = await fetch(DATA_URL);
+            const data = await res.json();
+            allStudies = data.submissions || [];
+
+            const upd = data.last_updated
+                ? new Date(data.last_updated).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+                : 'Never';
+            document.getElementById('stat-updated').textContent = upd;
+
+            renderCards();
+        } catch (e) {
+            document.getElementById('studies-grid').innerHTML =
+                `<div class="col-span-full text-center py-16 text-slate-500 text-sm">Could not load research data.<br><span class="text-xs text-slate-600">${e.message}</span></div>`;
+        }
+        updateStats();
+    }
+
+    // ---- Events ----
+
+    document.getElementById('search').addEventListener('input', e => {
+        searchTerm = e.target.value.toLowerCase().trim();
+        visibleCount = PAGE_SIZE;
+        renderCards();
+    });
+
+    document.getElementById('type-filter').addEventListener('change', e => {
+        typeFilter = e.target.value;
+        visibleCount = PAGE_SIZE;
+        renderCards();
+    });
+
+    document.getElementById('format-filter').addEventListener('change', e => {
+        formatFilter = e.target.value;
+        visibleCount = PAGE_SIZE;
+        renderCards();
+    });
+
+    document.querySelectorAll('.subject-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('subject-active'));
+            btn.classList.add('subject-active');
+            subjectFilter = btn.dataset.subject;
+            visibleCount = PAGE_SIZE;
+            renderCards();
+        });
+    });
+    document.querySelector('.subject-btn[data-subject="all"]').classList.add('subject-active');
+
+    document.getElementById('load-more-btn').addEventListener('click', () => {
+        visibleCount += PAGE_SIZE;
+        renderCards();
+    });
+
+    loadStudies();
+    </script>
 </body>
 </html>
