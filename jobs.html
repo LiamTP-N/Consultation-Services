@@ -86,9 +86,19 @@
                 <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="technician,laboratory">Technician</button>
             </div>
 
-            <!-- Sub-discipline row (appears for parent filters with sub-categories) -->
-            <div id="sub-filter-row" class="flex flex-wrap gap-2 items-center mb-4 hidden">
+            <!-- Discipline filter row (always visible) -->
+            <div id="sub-filter-row" class="flex flex-wrap gap-2 items-center mb-4">
                 <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Discipline:</span>
+                <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition subject-active" data-sub="all">All</button>
+                <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-sub="sport science">Sport Science</button>
+                <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-sub="physiology">Physiology</button>
+                <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-sub="biomechanics">Biomechanics</button>
+                <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-sub="nutrition,diet">Nutrition</button>
+                <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-sub="strength,conditioning">S&amp;C</button>
+                <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-sub="coaching,coach">Coaching</button>
+                <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-sub="psychology">Psychology</button>
+                <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-sub="health,public health">Health</button>
+                <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-sub="wearable">Wearables</button>
             </div>
         </div>
     </header>
@@ -158,34 +168,7 @@
     let subDiscipline = 'all';
     let visibleCount = PAGE_SIZE;
 
-    const SUB_DISCIPLINES = {
-        'lecturer,professor,teaching': [
-            { label: 'Sport Science', terms: 'sport science' },
-            { label: 'Nutrition', terms: 'nutrition,diet' },
-            { label: 'S&C', terms: 'strength,conditioning' },
-            { label: 'Coaching', terms: 'coaching,coach' },
-            { label: 'Biomechanics', terms: 'biomechanics' },
-            { label: 'Physiology', terms: 'physiology' },
-            { label: 'Psychology', terms: 'psychology' },
-            { label: 'Health', terms: 'health,public health' }
-        ],
-        'research fellow,postdoc,researcher': [
-            { label: 'Sport Science', terms: 'sport science' },
-            { label: 'Nutrition', terms: 'nutrition,diet' },
-            { label: 'Biomechanics', terms: 'biomechanics' },
-            { label: 'Physiology', terms: 'physiology' },
-            { label: 'Wearables', terms: 'wearable' },
-            { label: 'Psychology', terms: 'psychology' },
-            { label: 'Health', terms: 'health,public health' }
-        ],
-        'technician,laboratory': [
-            { label: 'Sport Science', terms: 'sport science' },
-            { label: 'Nutrition', terms: 'nutrition,diet' },
-            { label: 'Biomechanics', terms: 'biomechanics' },
-            { label: 'Physiology', terms: 'physiology' },
-            { label: 'Health', terms: 'health,public health' }
-        ]
-    };
+    // Discipline terms are now static buttons in the HTML
 
     function deduplicateJobs(jobs) {
         const seen = new Set();
@@ -346,54 +329,28 @@
         renderTable();
     });
 
-    // Subject filter buttons + sub-discipline row
-    function buildSubRow(parentSubject) {
-        const row = document.getElementById('sub-filter-row');
-        const subs = SUB_DISCIPLINES[parentSubject];
-        if (!subs) {
-            row.classList.add('hidden');
-            return;
-        }
-        row.innerHTML = '<span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Discipline:</span>';
-        // "All" sub-button
-        const allBtn = document.createElement('button');
-        allBtn.className = 'sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition subject-active';
-        allBtn.dataset.sub = 'all';
-        allBtn.textContent = 'All';
-        row.appendChild(allBtn);
-        // Discipline buttons
-        subs.forEach(s => {
-            const b = document.createElement('button');
-            b.className = 'sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition';
-            b.dataset.sub = s.terms;
-            b.textContent = s.label;
-            row.appendChild(b);
-        });
-        // Sub-button click events
-        row.querySelectorAll('.sub-btn').forEach(sb => {
-            sb.addEventListener('click', () => {
-                row.querySelectorAll('.sub-btn').forEach(x => x.classList.remove('subject-active'));
-                sb.classList.add('subject-active');
-                subDiscipline = sb.dataset.sub;
-                visibleCount = PAGE_SIZE;
-                renderTable();
-            });
-        });
-        row.classList.remove('hidden');
-    }
-
+    // Subject filter buttons
     document.querySelectorAll('.subject-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('subject-active'));
             btn.classList.add('subject-active');
             subjectFilter = btn.dataset.subject;
-            subDiscipline = 'all';
             visibleCount = PAGE_SIZE;
-            buildSubRow(subjectFilter);
             renderTable();
         });
     });
     document.querySelector('.subject-btn[data-subject="all"]').classList.add('subject-active');
+
+    // Discipline filter buttons
+    document.querySelectorAll('.sub-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('subject-active'));
+            btn.classList.add('subject-active');
+            subDiscipline = btn.dataset.sub;
+            visibleCount = PAGE_SIZE;
+            renderTable();
+        });
+    });
 
     // Load more
     document.getElementById('load-more-btn').addEventListener('click', () => {
