@@ -141,7 +141,7 @@
 
     <script src="includes.js" defer></script>
     <script>
-    const MAX_AGE_DAYS = 90;
+    const MAX_AGE_DAYS = 60;
     const PAGE_SIZE = 30;
 
     let allJobs = [];
@@ -272,7 +272,7 @@
             const recent = allJobs.filter(j => isRecent(j.date_posted));
             if (!recent.length) {
                 document.getElementById('jobs-body').innerHTML =
-                    `<tr><td colspan="4" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 90 days - check back after the next 07:00 UTC scrape.</td></tr>`;
+                    `<tr><td colspan="4" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 60 days - check back after the next 07:00 UTC scrape.</td></tr>`;
             } else {
                 renderTable();
             }
