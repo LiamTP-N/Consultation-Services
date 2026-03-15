@@ -87,6 +87,17 @@ def make_id(url: str, title: str) -> str:
     return hashlib.md5(f"{url}{title}".encode()).hexdigest()[:16]
 
 
+def normalise_linkedin_url(url: str) -> str:
+    """Strip tracking/query params from LinkedIn job URLs so the same
+    job found via different search terms produces the same ID."""
+    if not url:
+        return url
+    parsed = urllib.parse.urlparse(url)
+    # LinkedIn job URLs look like linkedin.com/jobs/view/1234567890...
+    # Keep only the path, drop all query params and fragments
+    return f"{parsed.scheme}://{parsed.netloc}{parsed.path}".rstrip("/")
+
+
 def clean(text: str) -> str:
     if not text:
         return ""
@@ -133,6 +144,23 @@ def prune_old(jobs: list) -> list:
                 pass
         kept.append(j)
     return kept
+
+
+def deduplicate(jobs: list) -> list:
+    """Remove duplicates based on normalised title + organisation + source.
+    Keeps the first occurrence (which will be the earliest-scraped copy)."""
+    seen = set()
+    unique = []
+    for j in jobs:
+        key = (
+            j.get("title", "").strip().lower(),
+            j.get("organisation", "").strip().lower(),
+            j.get("source", "").strip().lower(),
+        )
+        if key not in seen:
+            seen.add(key)
+            unique.append(j)
+    return unique
 
 
 def get(url: str, timeout: int = 15) -> requests.Response | None:
@@ -284,6 +312,7 @@ def scrape_linkedin(term: str) -> list:
                 continue
             link_el = item.select_one("a.base-card__full-link, a")
             href = link_el.get("href", "") if link_el else ""
+            href = normalise_linkedin_url(href)
             org_el = item.select_one("h4.base-search-card__subtitle a, a.hidden-nested-link")
             org = clean(org_el.get_text()) if org_el else ""
             loc_el = item.select_one("span.job-search-card__location")
@@ -434,8 +463,10 @@ def main():
 
     all_jobs = existing.get("jobs", []) + new_jobs
     all_jobs = prune_old(all_jobs)
+    all_jobs = deduplicate(all_jobs)
     all_jobs.sort(key=lambda j: j.get("date_posted") or "", reverse=True)
 
+    dupes_removed = len(existing.get("jobs", []) + new_jobs) - len(prune_old(existing.get("jobs", []) + new_jobs))
     print(f"\nTotal jobs: {len(all_jobs)} ({len(new_jobs)} new)")
     save({"jobs": all_jobs})
 
