@@ -623,7 +623,7 @@
                     if (session.phase === 'ready') {
                         setPhase('work');
                     } else if (session.phase === 'work') {
-                        const planIdx = Math.floor((session.round - 1) / 2);
+                        const planIdx = isWife ? Math.floor((session.round - 1) / 2) : session.round - 1;
                         const isYouTurn = !isWife || (session.round % 2 !== 0);
                         const isPartnerTurn = isWife && (session.round % 2 === 0);
 
@@ -681,12 +681,13 @@
                 session.active = true;
                 session.surpriseTracker = { you: false, partner: false };
                 
-                const pool = [4, 5, 6, 8, 9, 10].filter(r => r < settings.rounds);
-                session.surpriseRoundNum = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : -1;
+                const pool = [];
+                for (let i = 1; i < settings.rounds - 1; i++) pool.push(i);
+                session.surpriseRoundNum = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : 0;
 
-                if (settings.mode === 'wife' && pool.length > 0) {
-                    let partnerPool = pool.filter(r => r !== session.surpriseRoundNum);
-                    if (partnerPool.length === 0) partnerPool = [...pool];
+                if (settings.mode === 'wife') {
+                    let partnerPool = pool.length > 1 ? pool.filter(r => r !== session.surpriseRoundNum) : [...pool];
+                    if (partnerPool.length === 0) partnerPool = [0];
                     session.surpriseRoundNumPartner = partnerPool[Math.floor(Math.random() * partnerPool.length)];
                 } else {
                     session.surpriseRoundNumPartner = -1;
