@@ -1,0 +1,26 @@
+/* ============================================================
+   Shared styles - Dr. Liam T. Pearson-Noseworthy
+   Referenced by all pages via <link rel="stylesheet" href="style.css">
+   ============================================================ */
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Fade-in animation used across all pages */
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+    opacity: 0;
+}
+.animate-fade-in.loaded {
+    opacity: 1;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Green glow text - used on LIVE Research nav link and headings */
+.glow-text {
+    text-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+}

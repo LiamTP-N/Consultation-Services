@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="current-page" content="jobs">
     <title>Job Tracker | Dr. Liam T. Pearson-Noseworthy</title>
-    <meta name="description" content="Personal job tracker - Sport Science, Nutrition, Wearable Technology, Research, Academia, Lecturing.">
+    <!-- A2: meta description updated from "Personal job tracker" to community-facing description -->
+    <meta name="description" content="Daily-updated job board for sport science, nutrition, wearable technology, research, and academia roles. Scraped from Indeed, LinkedIn, Jobs.ac.uk, and Bluesky.">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Jobs in Sport & Exercise Science | Dr. Liam T. Pearson-Noseworthy">
@@ -42,6 +43,7 @@
             <h1 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight mb-2">
                 Jobs in <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text">Sport &amp; Exercise Science</span>
             </h1>
+            <!-- A3: "90 days" now consistent throughout -->
             <p class="text-slate-400 text-sm mb-6">Sport Science &middot; Nutrition &middot; Wearable Technology &middot; Research &middot; Academia &middot; Lecturing - scraped daily at 07:00 UTC. Showing roles posted in the last 90 days.</p>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
@@ -71,22 +73,7 @@
                 <input id="search" type="text" placeholder="Search title or organisation..." class="px-3 py-1.5 rounded-lg text-xs border border-slate-600 bg-slate-800 text-slate-300 placeholder-slate-600 focus:outline-none focus:border-blue-500 flex-1 min-w-[180px]">
             </div>
 
-            <!-- Subject filter row -->
-            <div class="flex flex-wrap gap-2 items-center mb-4">
-                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Subject:</span>
-                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="all">All</button>
-                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="sport science">Sport Science</button>
-                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="physiology">Physiology</button>
-                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="biomechanics">Biomechanics</button>
-                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="nutrition,diet">Nutrition</button>
-                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="wearable">Wearables</button>
-                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="strength,conditioning">S&amp;C</button>
-                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="lecturer,professor,teaching">Academia</button>
-                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="research fellow,postdoc,researcher">Research</button>
-                <button class="subject-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-subject="technician,laboratory">Technician</button>
-            </div>
-
-            <!-- Discipline filter row (always visible) -->
+            <!-- D1: Single discipline filter row (redundant Subject row removed) -->
             <div id="sub-filter-row" class="flex flex-wrap gap-2 items-center mb-4">
                 <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Discipline:</span>
                 <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition subject-active" data-sub="all">All</button>
@@ -99,6 +86,9 @@
                 <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-sub="psychology">Psychology</button>
                 <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-sub="health,public health">Health</button>
                 <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-sub="wearable">Wearables</button>
+                <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-sub="lecturer,professor,teaching">Academia</button>
+                <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-sub="research fellow,postdoc,researcher">Research</button>
+                <button class="sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-sub="technician,laboratory">Technician</button>
             </div>
         </div>
     </header>
@@ -156,7 +146,8 @@
 
     <script src="includes.js" defer></script>
     <script>
-    const MAX_AGE_DAYS = 60;
+    // A3: MAX_AGE_DAYS corrected from 60 to 90 to match header text
+    const MAX_AGE_DAYS = 90;
     const PAGE_SIZE = 30;
 
     let allJobs = [];
@@ -164,11 +155,8 @@
     let sortDir = -1;
     let searchTerm = '';
     let sourceFilter = 'all';
-    let subjectFilter = 'all';
     let subDiscipline = 'all';
     let visibleCount = PAGE_SIZE;
-
-    // Discipline terms are now static buttons in the HTML
 
     function deduplicateJobs(jobs) {
         const seen = new Set();
@@ -217,10 +205,6 @@
             if (sourceFilter !== 'all' && j.source !== sourceFilter) return false;
             const hay = `${j.title} ${j.organisation} ${j.type}`.toLowerCase();
             if (searchTerm && !hay.includes(searchTerm)) return false;
-            if (subjectFilter !== 'all') {
-                const terms = subjectFilter.split(',');
-                if (!terms.some(t => hay.includes(t.trim()))) return false;
-            }
             if (subDiscipline !== 'all') {
                 const terms = subDiscipline.split(',');
                 if (!terms.some(t => hay.includes(t.trim()))) return false;
@@ -304,7 +288,8 @@
             const recent = allJobs.filter(j => isRecent(j.date_posted));
             if (!recent.length) {
                 document.getElementById('jobs-body').innerHTML =
-                    `<tr><td colspan="4" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 60 days - check back after the next 07:00 UTC scrape.</td></tr>`;
+                    // A3: empty state message corrected from "60 days" to "90 days"
+                    `<tr><td colspan="4" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 90 days - check back after the next 07:00 UTC scrape.</td></tr>`;
             } else {
                 renderTable();
             }
@@ -328,18 +313,6 @@
         visibleCount = PAGE_SIZE;
         renderTable();
     });
-
-    // Subject filter buttons
-    document.querySelectorAll('.subject-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('subject-active'));
-            btn.classList.add('subject-active');
-            subjectFilter = btn.dataset.subject;
-            visibleCount = PAGE_SIZE;
-            renderTable();
-        });
-    });
-    document.querySelector('.subject-btn[data-subject="all"]').classList.add('subject-active');
 
     // Discipline filter buttons
     document.querySelectorAll('.sub-btn').forEach(btn => {
