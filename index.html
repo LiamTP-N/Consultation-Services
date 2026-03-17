@@ -13,20 +13,13 @@
     <meta property="og:image" content="https://liamtp-n.github.io/Consultation-Services/assets/images/og-image.jpg">
     <meta property="og:url" content="https://liamtp-n.github.io/Consultation-Services/index.html">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
     <style>
-        html { scroll-behavior: smooth; }
-        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
-        .animate-fade-in.loaded { opacity: 1; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
         @keyframes pulseGlow {
             0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
             50% { box-shadow: 0 0 20px 6px rgba(34, 197, 94, 0.2); }
         }
         .btn-research { animation: pulseGlow 2.5s ease-in-out infinite; }
-        .glow-text { text-shadow: 0 0 8px rgba(34, 197, 94, 0.4); }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
