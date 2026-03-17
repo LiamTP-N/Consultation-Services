@@ -805,7 +805,7 @@
             refreshStats();
         };
 
-        window.saveSession = async (reps, avgAngle, hitTarget, repAngles) => {
+        window.saveSession = async (reps, avgAngle, hitTarget, repAngles, questionnaireSubmitted) => {
             if (!window.currentUserId) return;
             const ref = doc(db, "users", window.currentUserId);
             const sessionEntry = {
@@ -813,7 +813,8 @@
                 reps: reps,
                 avgAngle: Math.round(avgAngle),
                 allHitTarget: hitTarget,
-                repAngles: repAngles || []
+                repAngles: repAngles || [],
+                questionnaireSubmitted: questionnaireSubmitted === true
             };
             const newTotal = (window.userData.totalReps || 0) + reps;
             const newSessions = (window.userData.sessionsCompleted || 0) + 1;
@@ -832,7 +833,7 @@
         window.saveFoodLog = async (meals) => {
             if (!window.currentUserId) return;
             const ref = doc(db, "users", window.currentUserId);
-            const today = new Date().toISOString().split('T')[0];
+            const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local time
             const key = `foodLog.${today}`;
             await updateDoc(ref, { [key]: meals });
             // Keep local state in sync so loadFood() works without re-fetching
@@ -949,7 +950,7 @@
         // ==============================
         // APP VERSION
         // ==============================
-        const APP_VERSION = 'v0.6-alpha';
+        const APP_VERSION = 'v0.7-alpha';
 
         // ==============================
         // DEVICE DETECTION & RESPONSIVE INIT
@@ -1039,17 +1040,32 @@
         const STABILISE_THRESHOLD = 0.015;
         const STABILISE_DURATION_MS = 3000;
 
-        // MediaPipe Pose (no Camera utility needed)
-        const pose = new Pose({
-            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/${file}`
-        });
-        pose.setOptions({
-            modelComplexity: 1,
-            smoothLandmarks: true,
-            minDetectionConfidence: 0.6,
-            minTrackingConfidence: 0.6
-        });
-        pose.onResults(onPoseResults);
+        // MediaPipe Pose - deferred initialisation
+        // Created on first camera use so a CDN failure doesn't kill the whole app
+        let pose = null;
+        let poseInitFailed = false;
+
+        function ensurePoseReady() {
+            if (pose) return true;
+            if (poseInitFailed) return false;
+            try {
+                pose = new Pose({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/${file}`
+                });
+                pose.setOptions({
+                    modelComplexity: 1,
+                    smoothLandmarks: true,
+                    minDetectionConfidence: 0.6,
+                    minTrackingConfidence: 0.6
+                });
+                pose.onResults(onPoseResults);
+                return true;
+            } catch (e) {
+                console.error('MediaPipe Pose failed to initialise:', e);
+                poseInitFailed = true;
+                return false;
+            }
+        }
 
         // Warm-up tracking
         let warmupsComplete = { 'warmup-1': false, 'warmup-2': false };
@@ -1191,7 +1207,7 @@
         };
 
         function loadFood() {
-            const today = new Date().toISOString().split('T')[0];
+            const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local time
             const todayLog = window.userData?.foodLog?.[today];
             const checks = document.querySelectorAll('.food-check');
             checks.forEach(c => {
@@ -1203,6 +1219,13 @@
         // CAMERA STATE MACHINE
         // ==============================
         window.beginCameraSequence = async (mode) => {
+            // Initialise MediaPipe on first use
+            if (!ensurePoseReady()) {
+                speak('The pose detection system could not load. Please check your internet connection and refresh the page.');
+                alert('Pose detection failed to load. Please check your connection and refresh.');
+                return;
+            }
+
             currentMode = mode;
             cameraState = 'waiting';
             isSquatting = false;
@@ -1247,10 +1270,14 @@
                 // Store stream reference so we can stop it later
                 window._activeStream = stream;
 
-                // Feed frames to MediaPipe manually
+                // Feed frames to MediaPipe - throttled to ~10fps to reduce device load
+                let lastFrameTime = 0;
+                const FRAME_INTERVAL_MS = 100;
                 async function sendFrame() {
                     if (currentMode === 'none' || cameraState === 'off') return;
-                    if (videoEl.readyState >= 2) {
+                    const now = performance.now();
+                    if (now - lastFrameTime >= FRAME_INTERVAL_MS && videoEl.readyState >= 2) {
+                        lastFrameTime = now;
                         await pose.send({ image: videoEl });
                     }
                     requestAnimationFrame(sendFrame);
@@ -1868,7 +1895,7 @@
             document.getElementById('questionnaire-modal').classList.add('hidden');
             const d = window._pendingSessionData;
             if (d && window.saveSession) {
-                await window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles);
+                await window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, false);
             }
             switchView('food');
         };
@@ -1931,7 +1958,7 @@
             }
 
             if (window.saveSession) {
-                await window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles);
+                await window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, true);
             }
             switchView('food');
         };
