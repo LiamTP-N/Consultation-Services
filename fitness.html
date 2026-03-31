@@ -39,11 +39,6 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        .glass-inset {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
@@ -89,6 +84,41 @@
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        .t-stroke {
+            -webkit-text-stroke: 2px rgba(0, 0, 0, 0.4);
+            paint-order: stroke fill;
+        }
+        .t-stroke-heavy {
+            -webkit-text-stroke: 3px rgba(0, 0, 0, 0.5);
+            paint-order: stroke fill;
+        }
+        .t-stroke-btn {
+            -webkit-text-stroke: 1px rgba(0, 0, 0, 0.3);
+            paint-order: stroke fill;
+        }
+        .surprise-stroke {
+            -webkit-text-stroke: 3px rgba(255, 255, 255, 0.6) !important;
+        }
+        .surprise-stroke-light {
+            -webkit-text-stroke: 2px rgba(255, 255, 255, 0.5) !important;
+        }
+        .surprise-stroke-btn {
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.4) !important;
+        }
+
+        /* Fixed timer layout */
+        #timer-screen {
+            height: 100vh;
+            height: 100dvh;
+        }
+        #timer-middle {
+            min-height: 0;
+        }
+        #round-focus {
+            overflow-wrap: break-word;
+            word-break: break-word;
         }
     </style>
 </head>
@@ -170,9 +200,7 @@
                 <h1 class="text-3xl font-bold text-white tracking-tight">Today's Exercises</h1>
             </div>
 
-            <div class="glass-card p-5 rounded-[2rem] space-y-3" id="gym-exercise-list">
-                <!-- Exercises injected here -->
-            </div>
+            <div class="glass-card p-5 rounded-[2rem] space-y-3" id="gym-exercise-list"></div>
 
             <div class="grid grid-cols-2 gap-3">
                 <button id="btn-gym-shuffle" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl text-sm shadow-lg active:scale-[0.98] transition-all">
@@ -185,75 +213,84 @@
         </div>
 
         <!-- ==================== BOXING: SETUP SCREEN ==================== -->
-        <div id="setup-screen" class="hidden w-full max-w-md space-y-5 py-8 pb-12">
+        <div id="setup-screen" class="hidden w-full max-w-3xl space-y-5 py-8 pb-12">
             <div class="text-center mb-2">
                 <h1 class="text-3xl font-bold text-white tracking-tight mb-1">Boxing Interval Timer</h1>
             </div>
 
-            <div class="glass-card p-5 rounded-[2rem] space-y-6">
-                
-                <div class="flex p-1 bg-slate-800/50 rounded-xl">
-                    <button id="mode-solo" class="flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-green-600 text-white shadow-md">Solo</button>
-                    <button id="mode-wife" class="flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">With Wife</button>
-                </div>
-
-                <div id="rest-info" class="text-center bg-slate-800/30 p-2 rounded-lg border border-slate-700/30">
-                    <p class="text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p>
-                    <p class="text-xs text-slate-400">Starts at 30s, adds 5s each round.</p>
-                </div>
-
-                <div class="space-y-4">
+            <div class="flex flex-col md:flex-row gap-5 items-start">
+                <!-- LEFT: Settings -->
+                <div class="glass-card p-5 rounded-[2rem] space-y-6 w-full md:flex-1">
                     
-                    <div class="flex items-center justify-between px-1">
-                        <div>
-                            <span class="text-sm font-bold text-white block">Randomise Focus</span>
-                            <span id="random-desc" class="text-[10px] text-slate-400">Randomises middle rounds (2 to 11)</span>
+                    <div class="flex p-1 bg-slate-800/50 rounded-xl">
+                        <button id="mode-solo" class="flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all bg-green-600 text-white shadow-md">Solo</button>
+                        <button id="mode-wife" class="flex-1 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">With Wife</button>
+                    </div>
+
+                    <div id="rest-info" class="text-center bg-slate-800/30 p-2 rounded-lg border border-slate-700/30">
+                        <p class="text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p>
+                        <p class="text-xs text-slate-400">Starts at 30s, adds 5s each round.</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        
+                        <div class="flex items-center justify-between px-1">
+                            <div>
+                                <span class="text-sm font-bold text-white block">Randomise Focus</span>
+                                <span id="random-desc" class="text-[10px] text-slate-400">Randomises middle rounds (2 to 11)</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="in-random" class="sr-only peer">
+                                <div id="toggle-bg" class="w-12 h-6 bg-slate-800 rounded-full peer peer-checked:bg-green-600 peer-checked:after:translate-x-6 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                            </label>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="in-random" class="sr-only peer">
-                            <div id="toggle-bg" class="w-12 h-6 bg-slate-800 rounded-full peer peer-checked:bg-green-600 peer-checked:after:translate-x-6 after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
-                        </label>
+
+                        <hr class="border-slate-700/50">
+
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Total Rounds</label>
+                            <div class="grid grid-cols-4 sm:grid-cols-6 gap-2" id="grid-rounds"></div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Work Time (Secs)</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(30, this)">30</button>
+                                <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(45, this)">45</button>
+                                <button class="btn-select active py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(60, this)">60</button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Surprise Rounds</label>
+                            <div class="grid grid-cols-3 gap-2" id="grid-surprise">
+                                <button class="btn-select active py-3 rounded-xl text-sm font-bold" onclick="selectSurprise(1, this)">1</button>
+                                <button class="btn-select py-3 rounded-xl text-sm font-bold" onclick="selectSurprise(2, this)">2</button>
+                                <button class="btn-select py-3 rounded-xl text-sm font-bold" onclick="selectSurprise(3, this)">3</button>
+                            </div>
+                        </div>
+
                     </div>
 
                     <hr class="border-slate-700/50">
 
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Total Rounds</label>
-                        <div class="grid grid-cols-4 sm:grid-cols-6 gap-2" id="grid-rounds">
-                            </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button id="btn-quick-rest" class="col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-2xl text-xs sm:text-sm shadow-lg active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight">
+                            <span>Quick Rest</span>
+                            <span class="opacity-70 text-[10px]">(120s)</span>
+                        </button>
+                        <button id="btn-start" class="col-span-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-2xl text-lg shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all">
+                            Begin Session
+                        </button>
                     </div>
-
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Work Time (Secs)</label>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(30, this)">30</button>
-                            <button class="btn-select py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(45, this)">45</button>
-                            <button class="btn-select active py-3 rounded-xl text-sm font-mono-display" onclick="selectWork(60, this)">60</button>
-                        </div>
-                    </div>
-
                 </div>
 
-                <hr class="border-slate-700/50">
-
-                <div class="grid grid-cols-3 gap-3">
-                    <button id="btn-quick-rest" class="col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-2xl text-xs sm:text-sm shadow-lg active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight">
-                        <span>Quick Rest</span>
-                        <span class="opacity-70 text-[10px]">(120s)</span>
-                    </button>
-                    <button id="btn-start" class="col-span-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-2xl text-lg shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all">
-                        Begin Session
-                    </button>
-                </div>
-            </div>
-
-            <div class="glass-card p-4 rounded-[1.5rem] space-y-2">
-                <div class="flex justify-between items-center">
+                <!-- RIGHT: Session Preview -->
+                <div class="glass-card p-4 rounded-[1.5rem] space-y-2 w-full md:w-60 md:flex-shrink-0">
                     <h3 class="font-bold text-white text-xs uppercase tracking-widest ml-1 opacity-70">Session Preview</h3>
-                    <button id="btn-toggle-preview" class="text-[10px] bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded uppercase tracking-wider transition-colors">Show</button>
-                </div>
-                <div id="preview-container" class="hidden max-h-32 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
-                    <div id="round-preview"></div>
+                    <div id="preview-container" class="space-y-1.5 pr-1 custom-scrollbar">
+                        <div id="round-preview"></div>
+                    </div>
                 </div>
             </div>
 
@@ -263,55 +300,63 @@
         </div>
 
         <!-- ==================== BOXING: TIMER SCREEN ==================== -->
-        <div id="timer-screen" class="hidden w-full max-w-md flex-col items-center justify-between h-[85vh] py-4">
+        <div id="timer-screen" class="hidden w-full max-w-md flex-col py-4">
             
-            <div class="w-full px-6 flex justify-between items-start">
+            <!-- TOP: Round counter + mute (fixed height) -->
+            <div class="w-full px-6 flex justify-between items-start flex-shrink-0">
                 <div class="space-y-1">
-                    <p class="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em]" id="round-label">Round</p>
+                    <p class="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p>
                     <div class="flex items-baseline space-x-2">
-                        <span id="current-round" class="text-5xl font-black font-mono-display text-white drop-shadow-md">1</span>
-                        <span class="text-white/60 text-xl font-bold">/</span>
-                        <span id="total-rounds" class="text-white/60 text-xl font-bold">12</span>
+                        <span id="current-round" class="text-5xl font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span>
+                        <span class="text-white/60 text-xl font-bold t-stroke">/</span>
+                        <span id="total-rounds" class="text-white/60 text-xl font-bold t-stroke">12</span>
                     </div>
                 </div>
                 
-                <div id="phase-badge" class="px-4 py-2 rounded-full backdrop-blur-md bg-black/20 border border-white/10 text-xs font-black uppercase tracking-widest text-white shadow-lg">
-                    Ready
-                </div>
+                <button id="btn-mute" class="mt-1 flex items-center space-x-2 px-3 py-2 rounded-full backdrop-blur-md bg-black/20 border border-white/10 active:scale-95 transition-all" title="Mute voice">
+                    <svg id="icon-unmuted" class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M11 5L6 9H2v6h4l5 4V5z"/>
+                    </svg>
+                    <svg id="icon-muted" class="hidden w-5 h-5 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/>
+                    </svg>
+                    <span id="mute-label" class="text-[10px] font-bold uppercase tracking-wider text-white/70">Voice</span>
+                </button>
             </div>
 
-            <div class="flex-grow flex flex-col items-center justify-center space-y-8 w-full">
+            <!-- MIDDLE: Focus + Timer + Next (fills remaining space) -->
+            <div id="timer-middle" class="flex-grow flex flex-col items-center justify-center w-full overflow-hidden px-4">
                 
-                <div id="focus-container" class="text-center space-y-2">
-                    <p class="text-xs font-bold text-white/70 uppercase tracking-widest" id="focus-label">Current Focus</p>
-                    <div id="round-focus" class="text-4xl md:text-5xl font-black text-white uppercase leading-tight drop-shadow-lg px-2">
+                <div id="focus-container" class="text-center w-full flex-shrink-0 mb-4">
+                    <div id="round-focus" class="font-black text-white uppercase leading-tight drop-shadow-lg t-stroke-heavy text-4xl">
                         Warm Up
                     </div>
                 </div>
 
-                <div id="timer-display" class="text-9xl font-black font-mono-display text-white tracking-tighter drop-shadow-2xl">
+                <div id="timer-display" class="text-9xl font-black font-mono-display text-white tracking-tighter drop-shadow-2xl t-stroke-heavy flex-shrink-0">
                     0
                 </div>
 
-                <div id="next-up" class="text-sm font-bold text-white/60 uppercase tracking-widest h-6 text-center">
+                <div id="next-up" class="text-sm font-bold text-white/60 uppercase tracking-widest text-center t-stroke mt-4 flex-shrink-0 h-6">
                     </div>
             </div>
 
-            <div class="w-full px-4 space-y-3">
+            <!-- BOTTOM: Buttons (fixed height, never moves) -->
+            <div class="w-full px-4 space-y-3 flex-shrink-0">
                 <div class="grid grid-cols-2 gap-4">
-                    <button id="btn-prev" class="bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold py-3 rounded-xl transition-all active:scale-95 text-xs uppercase tracking-wider">
+                    <button id="btn-prev" class="bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold py-3 rounded-xl transition-all active:scale-95 text-xs uppercase tracking-wider t-stroke-btn">
                         &larr; Prev Round
                     </button>
-                    <button id="btn-next" class="bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold py-3 rounded-xl transition-all active:scale-95 text-xs uppercase tracking-wider">
+                    <button id="btn-next" class="bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold py-3 rounded-xl transition-all active:scale-95 text-xs uppercase tracking-wider t-stroke-btn">
                         Next Round &rarr;
                     </button>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <button id="btn-pause" class="bg-black/30 hover:bg-black/40 backdrop-blur-md border border-white/10 text-white font-bold py-5 rounded-2xl transition-all active:scale-95">
+                    <button id="btn-pause" class="bg-black/30 hover:bg-black/40 backdrop-blur-md border border-white/10 text-white font-bold py-5 rounded-2xl transition-all active:scale-95 t-stroke-btn">
                         Pause
                     </button>
-                    <button id="btn-end" class="bg-red-500/20 hover:bg-red-500/30 backdrop-blur-md border border-red-500/30 text-red-100 font-bold py-5 rounded-2xl transition-all active:scale-95">
+                    <button id="btn-end" class="bg-red-500/20 hover:bg-red-500/30 backdrop-blur-md border border-red-500/30 text-red-100 font-bold py-5 rounded-2xl transition-all active:scale-95 t-stroke-btn">
                         End
                     </button>
                 </div>
@@ -437,7 +482,6 @@
                 { name: "Constant", moves: ['Non-stop', '1-2-1-2', 'Burnout', 'Speed', 'Go Go Go'] }
             ];
 
-            // Movement rounds removed: Slip, Roll, Step Back, Pivot
             const ROUND_POOL = [
                 { name: "Jab Only", moves: ['Jab', 'Double Jab', 'Jab-Head', 'Jab-Body', 'Power Jab'] },
                 { name: "Jab & Cross (1-2)", moves: ['1-2', 'Fast 1-2', 'Hard 1-2', '1-Body 2'] },
@@ -463,7 +507,8 @@
                 rounds: 12, 
                 work: 60,
                 restBase: 30,
-                randomiseMiddle: false
+                randomiseMiddle: false,
+                surpriseCount: 1
             };
             
             let session = { 
@@ -474,17 +519,19 @@
                 time: 10, 
                 total: 10, 
                 timer: null, 
-                callTimer: 0,
-                lastMove: '',
                 plan: [],
-                surpriseTracker: { you: false, partner: false },
-                surpriseRoundNum: -1,
-                surpriseRoundNumPartner: -1
+                surpriseRoundsYou: new Set(),
+                surpriseRoundsPartner: new Set(),
+                surpriseTriggeredYou: new Set(),
+                surpriseTriggeredPartner: new Set(),
+                halfwayPlayed: false,
+                last10Played: false
             };
             
             let audioCtx = null;
             let wakeLock = null;
             let currentGymDay = null;
+            let voiceMuted = false;
 
             // ========================================================
             //  UI REFERENCES
@@ -507,24 +554,39 @@
                 toggleBg: document.getElementById('toggle-bg'),
                 gridRounds: document.getElementById('grid-rounds'),
                 previewContainer: document.getElementById('preview-container'),
-                btnTogglePreview: document.getElementById('btn-toggle-preview'),
                 previewList: document.getElementById('round-preview'),
-                badge: document.getElementById('phase-badge'),
                 timerDisplay: document.getElementById('timer-display'),
                 roundCur: document.getElementById('current-round'),
                 roundTot: document.getElementById('total-rounds'),
                 nextUp: document.getElementById('next-up'),
                 roundFocus: document.getElementById('round-focus'),
-                focusLabel: document.getElementById('focus-label'),
                 btnStart: document.getElementById('btn-start'),
                 btnQuickRest: document.getElementById('btn-quick-rest'),
                 btnPause: document.getElementById('btn-pause'),
                 btnEnd: document.getElementById('btn-end'),
                 btnNext: document.getElementById('btn-next'),
                 btnPrev: document.getElementById('btn-prev'),
+                btnMute: document.getElementById('btn-mute'),
+                iconUnmuted: document.getElementById('icon-unmuted'),
+                iconMuted: document.getElementById('icon-muted'),
+                muteLabel: document.getElementById('mute-label'),
                 gymDayLabel: document.getElementById('gym-day-label'),
                 gymExerciseList: document.getElementById('gym-exercise-list')
             };
+
+            // Surprise stroke targets
+            const surpriseStrokeTargets = [
+                { el: ui.roundFocus, cls: 'surprise-stroke' },
+                { el: ui.timerDisplay, cls: 'surprise-stroke' },
+                { el: document.getElementById('next-up'), cls: 'surprise-stroke-light' },
+                { el: document.getElementById('round-label'), cls: 'surprise-stroke-light' },
+                { el: ui.roundCur, cls: 'surprise-stroke' },
+                { el: document.getElementById('total-rounds'), cls: 'surprise-stroke-light' },
+                { el: ui.btnPause, cls: 'surprise-stroke-btn' },
+                { el: ui.btnEnd, cls: 'surprise-stroke-btn' },
+                { el: document.getElementById('btn-prev'), cls: 'surprise-stroke-btn' },
+                { el: document.getElementById('btn-next'), cls: 'surprise-stroke-btn' }
+            ];
 
             // ========================================================
             //  SCREEN NAVIGATION
@@ -535,14 +597,12 @@
                 if (name === 'timer') screens[name].classList.add('flex');
             }
 
-            // Home screen buttons
             document.getElementById('btn-home-boxing').onclick = () => {
                 showScreen('setup');
                 setMode('solo');
             };
             document.getElementById('btn-home-gym').onclick = () => showScreen('gymDay');
 
-            // Back buttons
             document.getElementById('btn-gym-back').onclick = () => showScreen('home');
             document.getElementById('btn-boxing-back').onclick = () => showScreen('home');
             document.getElementById('btn-gym-workout-back').onclick = () => showScreen('gymDay');
@@ -593,7 +653,7 @@
             };
 
             // ========================================================
-            //  BOXING TIMER LOGIC (unchanged except movement rounds removed)
+            //  BOXING TIMER LOGIC
             // ========================================================
             const format = (s) => Math.max(0, s).toString();
 
@@ -623,10 +683,24 @@
                 el.classList.add('active');
             };
 
-            ui.btnTogglePreview.onclick = () => {
-                ui.previewContainer.classList.toggle('hidden');
-                ui.btnTogglePreview.innerText = ui.previewContainer.classList.contains('hidden') ? "Show" : "Hide";
+            window.selectSurprise = (n, el) => {
+                settings.surpriseCount = n;
+                Array.from(document.getElementById('grid-surprise').children).forEach(b => b.classList.remove('active'));
+                el.classList.add('active');
             };
+
+            // Auto-size focus text
+            function autoSizeFocus(text) {
+                const len = text.length;
+                ui.roundFocus.className = 'font-black text-white uppercase leading-tight drop-shadow-lg t-stroke-heavy';
+                if (len > 30) {
+                    ui.roundFocus.classList.add('text-2xl');
+                } else if (len > 20) {
+                    ui.roundFocus.classList.add('text-3xl');
+                } else {
+                    ui.roundFocus.classList.add('text-4xl');
+                }
+            }
 
             function setMode(mode) {
                 settings.mode = mode;
@@ -690,22 +764,23 @@
 
             function updatePreview() {
                 ui.previewList.innerHTML = '';
-                const displayRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
-                for (let i = 1; i <= displayRounds; i++) {
-                    const planIdx = settings.mode === 'wife' ? Math.floor((i-1)/2) : i-1;
-                    const roundData = session.plan[planIdx];
-                    let title = `Round ${i}`;
-                    let subtitle = roundData.name;
+                const totalPlanRounds = settings.rounds;
+                for (let i = 0; i < totalPlanRounds; i++) {
+                    const roundData = session.plan[i];
+                    const roundNum = i + 1;
+                    let title = `${roundNum}. ${roundData.name}`;
+                    let subtitle = '';
                     let colorClass = "text-slate-300";
+
                     if (settings.mode === 'wife') {
-                        const isYou = (i % 2 !== 0);
-                        title = isYou ? "YOU" : "PARTNER";
-                        colorClass = isYou ? "text-green-400" : "text-purple-400";
+                        subtitle = 'Changeover: 10s';
+                        if (roundNum >= totalPlanRounds) subtitle = 'Finish';
+                        colorClass = "text-purple-300";
                     } else {
-                        title = `${i}. ${subtitle}`;
-                        const restTime = settings.restBase + ((i-1)*5);
-                        subtitle = i < displayRounds ? `Rest: ${restTime}s` : 'Finish';
+                        const restTime = settings.restBase + (i * 5);
+                        subtitle = roundNum < totalPlanRounds ? `Rest: ${restTime}s` : 'Finish';
                     }
+
                     const div = document.createElement('div');
                     div.className = "text-[10px] p-2 rounded bg-slate-800/40 border border-slate-700/50 flex justify-between items-center";
                     div.innerHTML = `<span class="font-bold ${colorClass}">${title}</span><span class="text-slate-500 truncate ml-2 max-w-[150px] text-right">${subtitle}</span>`;
@@ -753,27 +828,97 @@
                 osc.stop(now + 0.1);
             }
 
+            function playDoubleBeep() {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                [0, 0.15].forEach(offset => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, now + offset);
+                    gain.connect(audioCtx.destination);
+                    osc.connect(gain);
+                    gain.gain.setValueAtTime(0.25, now + offset);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.12);
+                    osc.start(now + offset);
+                    osc.stop(now + offset + 0.15);
+                });
+            }
+
+            function playWarningTone() {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(500, now);
+                osc.frequency.linearRampToValueAtTime(700, now + 0.3);
+                gain.connect(audioCtx.destination);
+                osc.connect(gain);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+
             function speak(text) {
+                if (voiceMuted) return;
                 window.speechSynthesis.cancel();
                 const u = new SpeechSynthesisUtterance(text);
                 u.rate = 1.2; u.pitch = 1; u.lang = 'en-GB';
                 window.speechSynthesis.speak(u);
             }
 
+            ui.btnMute.onclick = () => {
+                voiceMuted = !voiceMuted;
+                ui.iconUnmuted.classList.toggle('hidden', voiceMuted);
+                ui.iconMuted.classList.toggle('hidden', !voiceMuted);
+                ui.muteLabel.innerText = voiceMuted ? 'Muted' : 'Voice';
+                ui.muteLabel.classList.toggle('text-red-400', voiceMuted);
+                ui.muteLabel.classList.toggle('text-white/70', !voiceMuted);
+                if (voiceMuted) window.speechSynthesis.cancel();
+            };
+
+            // ========================================================
+            //  SURPRISE ROUND PICKER
+            // ========================================================
+            function pickSurpriseIndices(count, totalPlanRounds) {
+                // Eligible indices: not first, not last, middle rounds
+                const pool = [];
+                for (let i = 1; i < totalPlanRounds - 1; i++) pool.push(i);
+                // Shuffle and pick
+                for (let i = pool.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [pool[i], pool[j]] = [pool[j], pool[i]];
+                }
+                return new Set(pool.slice(0, Math.min(count, pool.length)));
+            }
+
             // ========================================================
             //  TIMER PHASES
             // ========================================================
+            function setSurpriseStrokes(on) {
+                surpriseStrokeTargets.forEach(t => {
+                    if (on) t.el.classList.add(t.cls);
+                    else t.el.classList.remove(t.cls);
+                });
+            }
+
             const setPhase = (phase) => {
                 session.phase = phase;
-                ui.focusLabel.classList.remove('text-black/70');
-                ui.focusLabel.classList.add('text-white/70');
-                ui.roundFocus.classList.remove('text-black', 'text-red-600');
-                ui.roundFocus.classList.add('text-white');
+                session.halfwayPlayed = false;
+                session.last10Played = false;
+
+                // Reset surprise styling
+                setSurpriseStrokes(false);
+                ui.roundFocus.classList.remove('text-red-600');
+                ui.timerDisplay.classList.remove('text-black');
+                ui.timerDisplay.classList.add('text-white');
 
                 if (phase === 'ready') {
                     session.time = 20; session.total = 20;
                     ui.timerBg.className = "bg-orange-600";
-                    ui.badge.innerText = "PREPARE";
+                    autoSizeFocus("Gloves On");
                     ui.roundFocus.innerText = "Gloves On";
                     ui.nextUp.innerText = "Next: " + session.plan[0].name;
                 } else if (phase === 'work') {
@@ -781,26 +926,23 @@
                     playBell();
                     const planIdx = settings.mode === 'wife' ? Math.floor((session.round - 1) / 2) : session.round - 1;
                     const roundData = session.plan[planIdx];
-                    session.currentMoves = roundData.moves;
+                    autoSizeFocus(roundData.name);
                     ui.roundFocus.innerText = roundData.name;
                     ui.roundCur.innerText = session.round;
                     ui.nextUp.innerText = ""; 
                     if (settings.mode === 'wife') {
                         const isYou = (session.round % 2 !== 0);
                         ui.timerBg.className = isYou ? "bg-green-600" : "bg-purple-600";
-                        ui.badge.innerText = isYou ? "YOU: WORK" : "PARTNER: WORK";
                     } else {
                         ui.timerBg.className = "bg-green-600";
-                        ui.badge.innerText = "WORK";
                     }
                     speak(roundData.name);
-                    triggerCallout(true);
                 } else if (phase === 'rest') {
                     const restDuration = settings.restBase + ((session.round - 1) * 5);
                     session.time = restDuration; session.total = restDuration;
                     ui.timerBg.className = "bg-red-600";
-                    ui.badge.innerText = "REST";
-                    ui.roundFocus.innerText = "";
+                    autoSizeFocus("Rest");
+                    ui.roundFocus.innerText = "Rest";
                     const maxRounds = settings.mode === 'wife' ? settings.rounds * 2 : settings.rounds;
                     if (session.round < maxRounds) {
                         const planIdx = settings.mode === 'wife' ? Math.floor(session.round / 2) : session.round;
@@ -810,7 +952,7 @@
                 } else if (phase === 'change') {
                     session.time = 10; session.total = 10;
                     ui.timerBg.className = "bg-yellow-600";
-                    ui.badge.innerText = "CHANGE";
+                    autoSizeFocus("Change");
                     ui.roundFocus.innerText = "Change";
                     const maxRounds = settings.rounds * 2;
                     if (session.round < maxRounds) {
@@ -821,21 +963,21 @@
                     playBell();
                 } else if (phase === 'quick-rest') {
                     ui.timerBg.className = "bg-red-600";
-                    ui.badge.innerText = "RECOVERY";
+                    autoSizeFocus("Full Rest");
                     ui.roundFocus.innerText = "Full Rest";
                     ui.nextUp.innerText = "";
                     playBell();
                 } else if (phase === 'surprise') {
                     session.time = 30; session.total = 30;
                     ui.timerBg.className = "bg-white";
-                    ui.badge.innerText = "SURPRISE ROUND";
-                    ui.badge.classList.add('bg-black/10', 'text-black');
-                    ui.focusLabel.classList.remove('text-white/70');
-                    ui.focusLabel.classList.add('text-black/70');
-                    ui.roundFocus.classList.remove('text-white');
+
                     ui.roundFocus.classList.add('text-red-600');
+                    ui.timerDisplay.classList.remove('text-white');
+                    ui.timerDisplay.classList.add('text-black');
+                    setSurpriseStrokes(true);
                     
                     const task = Math.random() > 0.5 ? "NON-STOP STRAIGHTS" : "NON-STOP HOOKS";
+                    autoSizeFocus(task);
                     ui.roundFocus.innerText = task;
                     
                     if (settings.mode === 'wife') {
@@ -845,43 +987,21 @@
                         ui.nextUp.innerText = "GO GO GO!";
                     }
                     
-                    ui.timerDisplay.classList.remove('text-white');
-                    ui.timerDisplay.classList.add('text-black');
                     playBell();
                     speak("Surprise Round! " + task);
                 }
                 updateUI();
             };
 
-            function triggerCallout(first = false) {
-                if (settings.mode === 'quick-rest' || session.phase !== 'work') return;
-                const moveList = session.currentMoves;
-                let move = moveList[Math.floor(Math.random() * moveList.length)];
-                if (!first) {
-                    if (move === session.lastMove && moveList.length > 1) {
-                         move = moveList[(moveList.indexOf(move) + 1) % moveList.length];
-                    }
-                    session.lastMove = move;
-                    speak(move);
-                }
-                session.callTimer = Math.floor(Math.random() * (5 - 3 + 1) + 3);
-            }
-
             function updateUI() {
                 ui.timerDisplay.innerText = format(session.time);
                 const pct = (session.time / session.total) * 100;
                 ui.timerBg.style.height = `${pct}%`;
-                
-                if (session.phase !== 'surprise') {
-                    ui.timerDisplay.classList.remove('text-black');
-                    ui.timerDisplay.classList.add('text-white');
-                    ui.badge.classList.remove('bg-black/10', 'text-black');
-                }
 
                 if (settings.mode === 'quick-rest') {
                     ui.btnPrev.innerText = "-10s"; ui.btnNext.innerText = "+10s";
                 } else {
-                    ui.btnPrev.innerText = "← Prev Round"; ui.btnNext.innerText = "Next Round →";
+                    ui.btnPrev.innerText = "\u2190 Prev Round"; ui.btnNext.innerText = "Next Round \u2192";
                 }
             }
 
@@ -889,14 +1009,24 @@
                 session.timer = setInterval(() => {
                     if (session.paused) return;
                     session.time--;
+
+                    if (session.phase === 'work' || session.phase === 'surprise') {
+                        const halfway = Math.floor(session.total / 2);
+                        if (session.time === halfway && !session.halfwayPlayed) {
+                            session.halfwayPlayed = true;
+                            playDoubleBeep();
+                        }
+                        if (session.time === 10 && !session.last10Played) {
+                            session.last10Played = true;
+                            playWarningTone();
+                        }
+                    }
+
                     if (session.time <= 3 && session.time > 0) playBeep(session.time === 1);
+
                     if (session.time < 0) {
                         if (settings.mode === 'quick-rest') { end(); return; }
                         stepPhase(1);
-                    }
-                    if (session.phase === 'work') {
-                        session.callTimer--;
-                        if (session.callTimer <= 0) triggerCallout();
                     }
                     updateUI();
                 }, 1000);
@@ -916,15 +1046,20 @@
                     if (session.phase === 'ready') {
                         setPhase('work');
                     } else if (session.phase === 'work') {
-                        const planIdx = Math.floor((session.round - 1) / 2);
+                        const planIdx = isWife ? Math.floor((session.round - 1) / 2) : session.round - 1;
                         const isYouTurn = !isWife || (session.round % 2 !== 0);
                         const isPartnerTurn = isWife && (session.round % 2 === 0);
 
-                        if (isYouTurn && !session.surpriseTracker.you && planIdx === session.surpriseRoundNum) {
-                            session.surpriseTracker.you = true;
-                            setPhase('surprise');
-                        } else if (isPartnerTurn && !session.surpriseTracker.partner && planIdx === session.surpriseRoundNumPartner) {
-                            session.surpriseTracker.partner = true;
+                        let triggerSurprise = false;
+                        if (isYouTurn && session.surpriseRoundsYou.has(planIdx) && !session.surpriseTriggeredYou.has(planIdx)) {
+                            session.surpriseTriggeredYou.add(planIdx);
+                            triggerSurprise = true;
+                        } else if (isPartnerTurn && session.surpriseRoundsPartner.has(planIdx) && !session.surpriseTriggeredPartner.has(planIdx)) {
+                            session.surpriseTriggeredPartner.add(planIdx);
+                            triggerSurprise = true;
+                        }
+
+                        if (triggerSurprise) {
                             setPhase('surprise');
                         } else {
                             if (session.round >= maxRounds) end();
@@ -957,6 +1092,7 @@
                 showScreen('setup');
                 ui.timerBg.style.height = '0%';
                 document.body.classList.remove('timer-running');
+                setSurpriseStrokes(false);
                 setMode(ui.modeSolo.classList.contains('bg-green-600') ? 'solo' : 'wife');
             }
 
@@ -970,17 +1106,17 @@
                 ui.roundTot.innerText = totalDisplay;
                 session.round = 1;
                 session.active = true;
-                session.surpriseTracker = { you: false, partner: false };
-                
-                const pool = [4, 5, 6, 8, 9, 10].filter(r => r < settings.rounds);
-                session.surpriseRoundNum = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : -1;
 
-                if (settings.mode === 'wife' && pool.length > 0) {
-                    let partnerPool = pool.filter(r => r !== session.surpriseRoundNum);
-                    if (partnerPool.length === 0) partnerPool = [...pool];
-                    session.surpriseRoundNumPartner = partnerPool[Math.floor(Math.random() * partnerPool.length)];
+                // Pick surprise round indices
+                session.surpriseRoundsYou = pickSurpriseIndices(settings.surpriseCount, settings.rounds);
+                session.surpriseTriggeredYou = new Set();
+
+                if (settings.mode === 'wife') {
+                    session.surpriseRoundsPartner = pickSurpriseIndices(settings.surpriseCount, settings.rounds);
+                    session.surpriseTriggeredPartner = new Set();
                 } else {
-                    session.surpriseRoundNumPartner = -1;
+                    session.surpriseRoundsPartner = new Set();
+                    session.surpriseTriggeredPartner = new Set();
                 }
                 
                 setPhase('ready');
@@ -1009,7 +1145,6 @@
             ui.btnNext.onclick = () => stepPhase(1);
             ui.btnPrev.onclick = () => stepPhase(-1);
 
-            // Start on home screen
             showScreen('home');
         });
     </script>
