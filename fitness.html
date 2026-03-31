@@ -108,7 +108,6 @@
             -webkit-text-stroke: 1px rgba(255, 255, 255, 0.4) !important;
         }
 
-        /* Fixed timer layout */
         #timer-screen {
             height: 100vh;
             height: 100dvh;
@@ -302,7 +301,7 @@
         <!-- ==================== BOXING: TIMER SCREEN ==================== -->
         <div id="timer-screen" class="hidden w-full max-w-md flex-col py-4">
             
-            <!-- TOP: Round counter + mute (fixed height) -->
+            <!-- TOP -->
             <div class="w-full px-6 flex justify-between items-start flex-shrink-0">
                 <div class="space-y-1">
                     <p class="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p>
@@ -313,18 +312,29 @@
                     </div>
                 </div>
                 
-                <button id="btn-mute" class="mt-1 flex items-center space-x-2 px-3 py-2 rounded-full backdrop-blur-md bg-black/20 border border-white/10 active:scale-95 transition-all" title="Mute voice">
-                    <svg id="icon-unmuted" class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M11 5L6 9H2v6h4l5 4V5z"/>
-                    </svg>
-                    <svg id="icon-muted" class="hidden w-5 h-5 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/>
-                    </svg>
-                    <span id="mute-label" class="text-[10px] font-bold uppercase tracking-wider text-white/70">Voice</span>
-                </button>
+                <div class="flex flex-col items-end space-y-1.5 mt-1">
+                    <button id="btn-mute-voice" class="flex items-center space-x-2 px-3 py-1.5 rounded-full backdrop-blur-md bg-black/20 border border-white/10 active:scale-95 transition-all">
+                        <svg id="icon-voice-on" class="hidden w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M11 5L6 9H2v6h4l5 4V5z"/>
+                        </svg>
+                        <svg id="icon-voice-off" class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/>
+                        </svg>
+                        <span id="voice-label" class="text-[10px] font-bold uppercase tracking-wider text-red-400">Voice</span>
+                    </button>
+                    <button id="btn-mute-sound" class="flex items-center space-x-2 px-3 py-1.5 rounded-full backdrop-blur-md bg-black/20 border border-white/10 active:scale-95 transition-all">
+                        <svg id="icon-sound-on" class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M11 5L6 9H2v6h4l5 4V5z"/>
+                        </svg>
+                        <svg id="icon-sound-off" class="hidden w-4 h-4 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/>
+                        </svg>
+                        <span id="sound-label" class="text-[10px] font-bold uppercase tracking-wider text-white/70">Sound</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- MIDDLE: Focus + Timer + Next (fills remaining space) -->
+            <!-- MIDDLE -->
             <div id="timer-middle" class="flex-grow flex flex-col items-center justify-center w-full overflow-hidden px-4">
                 
                 <div id="focus-container" class="text-center w-full flex-shrink-0 mb-4">
@@ -341,7 +351,7 @@
                     </div>
             </div>
 
-            <!-- BOTTOM: Buttons (fixed height, never moves) -->
+            <!-- BOTTOM -->
             <div class="w-full px-4 space-y-3 flex-shrink-0">
                 <div class="grid grid-cols-2 gap-4">
                     <button id="btn-prev" class="bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold py-3 rounded-xl transition-all active:scale-95 text-xs uppercase tracking-wider t-stroke-btn">
@@ -531,7 +541,8 @@
             let audioCtx = null;
             let wakeLock = null;
             let currentGymDay = null;
-            let voiceMuted = false;
+            let voiceMuted = true;
+            let soundMuted = false;
 
             // ========================================================
             //  UI REFERENCES
@@ -566,10 +577,14 @@
                 btnEnd: document.getElementById('btn-end'),
                 btnNext: document.getElementById('btn-next'),
                 btnPrev: document.getElementById('btn-prev'),
-                btnMute: document.getElementById('btn-mute'),
-                iconUnmuted: document.getElementById('icon-unmuted'),
-                iconMuted: document.getElementById('icon-muted'),
-                muteLabel: document.getElementById('mute-label'),
+                btnMuteVoice: document.getElementById('btn-mute-voice'),
+                iconVoiceOn: document.getElementById('icon-voice-on'),
+                iconVoiceOff: document.getElementById('icon-voice-off'),
+                voiceLabel: document.getElementById('voice-label'),
+                btnMuteSound: document.getElementById('btn-mute-sound'),
+                iconSoundOn: document.getElementById('icon-sound-on'),
+                iconSoundOff: document.getElementById('icon-sound-off'),
+                soundLabel: document.getElementById('sound-label'),
                 gymDayLabel: document.getElementById('gym-day-label'),
                 gymExerciseList: document.getElementById('gym-exercise-list')
             };
@@ -689,7 +704,6 @@
                 el.classList.add('active');
             };
 
-            // Auto-size focus text
             function autoSizeFocus(text) {
                 const len = text.length;
                 ui.roundFocus.className = 'font-black text-white uppercase leading-tight drop-shadow-lg t-stroke-heavy';
@@ -797,7 +811,7 @@
             }
 
             function playBell() {
-                if (!audioCtx) return;
+                if (soundMuted || !audioCtx) return;
                 const now = audioCtx.currentTime;
                 [440, 880, 1200].forEach((freq, i) => {
                     const osc = audioCtx.createOscillator();
@@ -814,7 +828,7 @@
             }
 
             function playBeep(high = false) {
-                if (!audioCtx) return;
+                if (soundMuted || !audioCtx) return;
                 const now = audioCtx.currentTime;
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
@@ -829,7 +843,7 @@
             }
 
             function playDoubleBeep() {
-                if (!audioCtx) return;
+                if (soundMuted || !audioCtx) return;
                 const now = audioCtx.currentTime;
                 [0, 0.15].forEach(offset => {
                     const osc = audioCtx.createOscillator();
@@ -846,7 +860,7 @@
             }
 
             function playWarningTone() {
-                if (!audioCtx) return;
+                if (soundMuted || !audioCtx) return;
                 const now = audioCtx.currentTime;
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
@@ -869,24 +883,31 @@
                 window.speechSynthesis.speak(u);
             }
 
-            ui.btnMute.onclick = () => {
+            // Voice toggle (OFF by default)
+            ui.btnMuteVoice.onclick = () => {
                 voiceMuted = !voiceMuted;
-                ui.iconUnmuted.classList.toggle('hidden', voiceMuted);
-                ui.iconMuted.classList.toggle('hidden', !voiceMuted);
-                ui.muteLabel.innerText = voiceMuted ? 'Muted' : 'Voice';
-                ui.muteLabel.classList.toggle('text-red-400', voiceMuted);
-                ui.muteLabel.classList.toggle('text-white/70', !voiceMuted);
+                ui.iconVoiceOn.classList.toggle('hidden', voiceMuted);
+                ui.iconVoiceOff.classList.toggle('hidden', !voiceMuted);
+                ui.voiceLabel.classList.toggle('text-red-400', voiceMuted);
+                ui.voiceLabel.classList.toggle('text-white/70', !voiceMuted);
                 if (voiceMuted) window.speechSynthesis.cancel();
+            };
+
+            // Sound toggle (ON by default)
+            ui.btnMuteSound.onclick = () => {
+                soundMuted = !soundMuted;
+                ui.iconSoundOn.classList.toggle('hidden', soundMuted);
+                ui.iconSoundOff.classList.toggle('hidden', !soundMuted);
+                ui.soundLabel.classList.toggle('text-red-400', soundMuted);
+                ui.soundLabel.classList.toggle('text-white/70', !soundMuted);
             };
 
             // ========================================================
             //  SURPRISE ROUND PICKER
             // ========================================================
             function pickSurpriseIndices(count, totalPlanRounds) {
-                // Eligible indices: not first, not last, middle rounds
                 const pool = [];
                 for (let i = 1; i < totalPlanRounds - 1; i++) pool.push(i);
-                // Shuffle and pick
                 for (let i = pool.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -909,7 +930,6 @@
                 session.halfwayPlayed = false;
                 session.last10Played = false;
 
-                // Reset surprise styling
                 setSurpriseStrokes(false);
                 ui.roundFocus.classList.remove('text-red-600');
                 ui.timerDisplay.classList.remove('text-black');
@@ -1107,7 +1127,6 @@
                 session.round = 1;
                 session.active = true;
 
-                // Pick surprise round indices
                 session.surpriseRoundsYou = pickSurpriseIndices(settings.surpriseCount, settings.rounds);
                 session.surpriseTriggeredYou = new Set();
 
