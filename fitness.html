@@ -35,7 +35,7 @@
         .surprise-stroke-light{-webkit-text-stroke:4px rgba(255,255,255,0.5)!important;}
         .surprise-stroke-btn{-webkit-text-stroke:2px rgba(255,255,255,0.4)!important;}
 
-        /* TIMER - viewport-relative */
+        /* TIMER */
         #timer-screen{height:100vh;height:100dvh;padding:1.5dvh 0 calc(4dvh + env(safe-area-inset-bottom));}
         .timer-top{padding:0 3vw;}
         .timer-top .round-num{font-size:clamp(1.5rem,5dvh,2.5rem);}
@@ -56,18 +56,18 @@
         .timer-bottom .btn-nav{padding:clamp(6px,1.2dvh,14px) 0;font-size:clamp(8px,1.2dvh,12px);border-radius:clamp(8px,1.5dvh,16px);}
         .timer-bottom .btn-main{padding:clamp(8px,2dvh,22px) 0;font-size:clamp(10px,1.8dvh,18px);border-radius:clamp(10px,2dvh,20px);}
 
-        /* GYM WORKOUT - viewport-relative */
+        /* GYM WORKOUT */
         #gym-workout-screen{height:100vh;height:100dvh;padding:2dvh 1rem calc(3dvh + env(safe-area-inset-bottom));overflow:hidden;}
-        #gym-workout-screen .gym-header{margin-bottom:clamp(4px,1dvh,12px);}
+        #gym-workout-screen .gym-header{margin-bottom:0;}
         #gym-workout-screen .gym-header h1{font-size:clamp(1rem,3dvh,1.75rem);}
         #gym-workout-screen .gym-header p{font-size:clamp(8px,1.2dvh,11px);}
-        #gym-workout-screen .gym-list{padding:clamp(6px,1dvh,16px);border-radius:clamp(12px,2dvh,24px);gap:clamp(4px,0.8dvh,10px);}
-        #gym-workout-screen .gym-rest{padding:clamp(6px,1dvh,14px);border-radius:clamp(10px,1.5dvh,20px);gap:clamp(2px,0.5dvh,8px);margin-top:clamp(4px,0.8dvh,10px);}
+        #gym-workout-screen .gym-list{padding:clamp(6px,1dvh,16px);border-radius:clamp(12px,2dvh,24px);gap:clamp(4px,0.8dvh,10px);flex-shrink:1;min-height:0;overflow-y:auto;}
+        #gym-workout-screen .gym-rest{padding:clamp(6px,1dvh,14px);border-radius:clamp(10px,1.5dvh,20px);gap:clamp(2px,0.5dvh,8px);}
         #gym-workout-screen .gym-rest .gym-rest-num{font-size:clamp(1.5rem,5dvh,3.5rem);}
         #gym-workout-screen .gym-rest .gym-rest-label{font-size:clamp(7px,1dvh,10px);}
         #gym-workout-screen .gym-rest .gym-rest-pick-btn{padding:clamp(4px,0.7dvh,10px) clamp(10px,2vw,18px);font-size:clamp(9px,1.2dvh,13px);}
         #gym-workout-screen .gym-rest .gym-rest-go{padding:clamp(6px,1.2dvh,14px) 0;font-size:clamp(10px,1.5dvh,15px);border-radius:clamp(10px,1.5dvh,18px);}
-        #gym-workout-screen .gym-btns{gap:clamp(6px,1vw,14px);margin-top:clamp(4px,0.8dvh,10px);}
+        #gym-workout-screen .gym-btns{gap:clamp(6px,1vw,14px);}
         #gym-workout-screen .gym-btns button{padding:clamp(8px,1.5dvh,18px) 0;font-size:clamp(10px,1.5dvh,15px);border-radius:clamp(10px,1.5dvh,18px);}
         .gym-card{padding:clamp(6px,1dvh,14px) clamp(8px,1.5vw,14px);gap:clamp(6px,1vw,14px);border-radius:clamp(8px,1.2dvh,16px);}
         .gym-card .gym-card-num{width:clamp(24px,4dvh,40px);height:clamp(24px,4dvh,40px);border-radius:clamp(6px,1dvh,12px);font-size:clamp(9px,1.5dvh,14px);}
@@ -110,10 +110,10 @@
             <button id="btn-gym-back" class="w-full py-3 rounded-xl text-sm font-bold text-slate-400 hover:text-white transition-colors">&larr; Back</button>
         </div>
 
-        <!-- GYM WORKOUT - viewport-relative flex column -->
-        <div id="gym-workout-screen" class="hidden w-full max-w-md flex flex-col">
+        <!-- GYM WORKOUT -->
+        <div id="gym-workout-screen" class="hidden w-full max-w-md flex flex-col justify-evenly">
             <div class="gym-header text-center flex-shrink-0"><p class="font-bold text-blue-400 uppercase tracking-[0.2em]" id="gym-day-label">Push Day</p><h1 class="font-bold text-white tracking-tight">Today's Exercises</h1></div>
-            <div class="gym-list glass-card flex flex-col flex-1 min-h-0 custom-scrollbar overflow-y-auto" id="gym-exercise-list"></div>
+            <div class="gym-list glass-card flex flex-col custom-scrollbar" id="gym-exercise-list"></div>
             <div id="gym-rest-timer" class="hidden gym-rest glass-card text-center flex flex-col flex-shrink-0">
                 <p class="gym-rest-label font-bold text-blue-400 uppercase tracking-widest">Rest Between Sets</p>
                 <div id="gym-rest-display" class="gym-rest-num font-black font-mono-display text-white">90</div>
