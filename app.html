@@ -1030,8 +1030,10 @@
         let standReturnTime = 0;
         const MIN_SQUAT_HOLD_MS = 300;
         const MIN_STAND_HOLD_MS = 500;
-        const SQUAT_ENTRY_ANGLE = 140;
-        const SQUAT_EXIT_ANGLE = 160;
+        // Entry/exit thresholds are computed per-user in beginCameraSequence()
+        // based on individual standingRom. Defaults here are fallbacks only.
+        let SQUAT_ENTRY_ANGLE = 140;
+        let SQUAT_EXIT_ANGLE = 155;
         let currentRepDeepest = 180;
 
         // Stabilisation state
@@ -1232,6 +1234,15 @@
             lastLandmarkPositions = null;
             stabiliseStartTime = 0;
 
+            // Compute individualised rep detection thresholds from user's standing ROM.
+            // Entry: 15° below standing (i.e. beginning to flex). Exit: 8° below standing.
+            // For a typical standing ROM of 170°: entry=155°, exit=162°.
+            // For a stiff user with standing ROM of 155°: entry=140°, exit=147°.
+            // Clamped so entry never exceeds 158° and exit never exceeds 165°.
+            const userStanding = window.userData?.standingRom || 170;
+            SQUAT_ENTRY_ANGLE = Math.min(158, userStanding - 15);
+            SQUAT_EXIT_ANGLE = Math.min(165, userStanding - 8);
+
             if (mode === 'assess') {
                 assessRepCount = 0;
                 assessBestKnee = 180;
@@ -1343,9 +1354,12 @@
         function isSideOn(landmarks) {
             const leftHip = landmarks[23];
             const rightHip = landmarks[24];
-            if (!leftHip || !rightHip) return false;
-            const zDiff = Math.abs(leftHip.z - rightHip.z);
-            return zDiff > 0.08;
+            const leftKnee = landmarks[25];
+            const rightKnee = landmarks[26];
+            if (!leftHip || !rightHip || !leftKnee || !rightKnee) return false;
+            const hipZDiff = Math.abs(leftHip.z - rightHip.z);
+            const kneeZDiff = Math.abs(leftKnee.z - rightKnee.z);
+            return hipZDiff > 0.08 && kneeZDiff > 0.06;
         }
 
         // ==============================
@@ -1462,6 +1476,15 @@
             // ---- STATE: WAITING FOR SUBJECT ----
             if (cameraState === 'waiting') {
                 if (isVisible && isSideOn(lm)) {
+                    // Capture standing ROM opportunistically while user is upright and still
+                    if (currentMode === 'assess') {
+                        const kneeAngleWait = calcAngle(hip, knee, ankle);
+                        if (kneeAngleWait > 155) {
+                            assessStandingKnee = assessStandingKnee === null
+                                ? kneeAngleWait
+                                : Math.max(assessStandingKnee, kneeAngleWait);
+                        }
+                    }
                     cameraState = 'stabilising';
                     lastLandmarkPositions = null;
                     stabiliseStartTime = Date.now();
@@ -1480,6 +1503,15 @@
                     lastLandmarkPositions = null;
                     ctx.restore();
                     return;
+                }
+                // Continue capturing standing ROM during stabilisation - user is stood still
+                if (currentMode === 'assess') {
+                    const kneeAngleStab = calcAngle(hip, knee, ankle);
+                    if (kneeAngleStab > 155) {
+                        assessStandingKnee = assessStandingKnee === null
+                            ? kneeAngleStab
+                            : Math.max(assessStandingKnee, kneeAngleStab);
+                    }
                 }
                 if (checkStability(lm)) {
                     speak('Perfect. Hold on.');
@@ -1554,16 +1586,6 @@
         // ==============================
         function processAssessment(kneeAngle) {
             document.getElementById('assess-knee-display').innerText = kneeAngle + '°';
-
-            // Capture standing knee angle from the first upright frames
-            // before any squat begins. Use the highest (most upright) value.
-            if (!isSquatting && kneeAngle > 150) {
-                if (assessStandingKnee === null) {
-                    assessStandingKnee = kneeAngle;
-                } else {
-                    assessStandingKnee = Math.max(assessStandingKnee, kneeAngle);
-                }
-            }
 
             if (kneeAngle < assessBestKnee && kneeAngle > 40) {
                 assessBestKnee = kneeAngle;
