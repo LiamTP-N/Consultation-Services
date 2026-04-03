@@ -49,7 +49,7 @@
     <div id="timer-bg" class="h-0 bg-slate-800"></div>
     <div class="relative z-10 w-full flex flex-col items-center justify-center p-4 min-h-screen">
 
-        <!-- ==================== HOME ==================== -->
+        <!-- HOME -->
         <div id="home-screen" class="w-full max-w-md space-y-6 py-8">
             <div class="text-center mb-4"><h1 class="text-3xl font-bold text-white tracking-tight mb-2">What's Today's Session?</h1><p class="text-sm text-slate-400">Pick one and let's go.</p></div>
             <div class="space-y-4">
@@ -58,7 +58,7 @@
             </div>
         </div>
 
-        <!-- ==================== GYM DAY ==================== -->
+        <!-- GYM DAY -->
         <div id="gym-day-screen" class="hidden w-full max-w-md space-y-5 py-8">
             <div class="text-center mb-2"><h1 class="text-3xl font-bold text-white tracking-tight mb-1">What Day Is It?</h1><p class="text-sm text-slate-400">Pick your split.</p></div>
             <div class="glass-card p-5 rounded-[2rem] space-y-3">
@@ -71,17 +71,16 @@
             <button id="btn-gym-back" class="w-full py-3 rounded-xl text-sm font-bold text-slate-400 hover:text-white transition-colors">&larr; Back</button>
         </div>
 
-        <!-- ==================== GYM WORKOUT ==================== -->
+        <!-- GYM WORKOUT -->
         <div id="gym-workout-screen" class="hidden w-full max-w-md space-y-5 py-8">
             <div class="text-center mb-2"><p class="text-[10px] font-bold text-blue-400 uppercase tracking-[0.2em]" id="gym-day-label">Push Day</p><h1 class="text-3xl font-bold text-white tracking-tight">Today's Exercises</h1></div>
             <div class="glass-card p-5 rounded-[2rem] space-y-3" id="gym-exercise-list"></div>
             <div class="grid grid-cols-2 gap-3"><button id="btn-gym-shuffle" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl text-sm shadow-lg active:scale-[0.98] transition-all">Shuffle</button><button id="btn-gym-workout-back" class="bg-slate-700/50 hover:bg-slate-700/70 border border-white/5 text-white/80 font-bold py-4 rounded-2xl text-sm transition-all active:scale-[0.98]">&larr; Back</button></div>
         </div>
 
-        <!-- ==================== BOXING SETUP ==================== -->
+        <!-- BOXING SETUP -->
         <div id="setup-screen" class="hidden w-full flex flex-col p-2 sm:p-4">
             <div class="text-center mb-2 flex-shrink-0"><h1 class="text-lg sm:text-2xl font-bold text-white tracking-tight">Boxing Interval Timer</h1></div>
-            <!-- Top bar -->
             <div class="glass-card p-3 sm:p-4 rounded-2xl flex-shrink-0 mb-2 sm:mb-3">
                 <div class="flex items-center gap-3">
                     <div class="flex p-1 bg-slate-800/50 rounded-xl flex-shrink-0"><button id="mode-solo" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-green-600 text-white shadow-md">Solo</button><button id="mode-wife" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">With Wife</button></div>
@@ -92,7 +91,6 @@
                     <button id="btn-hr-wife" class="hidden flex-1 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold bg-slate-800/50 border border-slate-700/30 hover:border-purple-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-label">Wife's HR</span></button>
                 </div></div>
             </div>
-            <!-- Columns -->
             <div id="setup-columns" class="flex flex-row gap-2 sm:gap-3 items-stretch">
                 <div class="flex-1 min-w-0 flex flex-col"><div id="settings-scroll" class="glass-card p-3 sm:p-4 rounded-2xl space-y-3 flex-1 custom-scrollbar">
                     <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Rounds</label><div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5" id="grid-rounds"></div></div>
@@ -110,7 +108,7 @@
             <button id="btn-boxing-back" class="w-full py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition-colors flex-shrink-0 mt-1">&larr; Back</button>
         </div>
 
-        <!-- ==================== TIMER SCREEN ==================== -->
+        <!-- TIMER SCREEN -->
         <div id="timer-screen" class="hidden w-full max-w-md flex-col py-4">
             <div class="w-full px-4 flex justify-between items-start flex-shrink-0">
                 <div class="flex flex-col items-start space-y-1">
@@ -134,7 +132,7 @@
             </div>
         </div>
 
-        <!-- ==================== SESSION SUMMARY ==================== -->
+        <!-- SESSION SUMMARY -->
         <div id="summary-screen" class="hidden w-full max-w-lg py-6 px-2 space-y-4 overflow-y-auto">
             <div class="text-center"><h1 class="text-2xl font-bold text-white tracking-tight">Session Complete</h1><p id="summary-duration" class="text-sm text-slate-400 mt-1"></p></div>
             <div id="summary-capture" class="space-y-4">
@@ -158,39 +156,49 @@
         const GYM_EXERCISES={push:[{name:"Chest Press Machine",muscle:"Chest"},{name:"Dumbbell Bench Press",muscle:"Chest"},{name:"Incline Dumbbell Press",muscle:"Upper Chest"},{name:"Pec Deck / Machine Fly",muscle:"Chest"},{name:"Cable Crossover",muscle:"Chest"},{name:"Shoulder Press Machine",muscle:"Shoulders"},{name:"Dumbbell Shoulder Press",muscle:"Shoulders"},{name:"Dumbbell Lateral Raise",muscle:"Side Delts"},{name:"Dumbbell Front Raise",muscle:"Front Delts"},{name:"Cable Lateral Raise",muscle:"Side Delts"},{name:"Tricep Pushdown (Cable)",muscle:"Triceps"},{name:"Overhead Tricep Extension (Cable)",muscle:"Triceps"},{name:"Dumbbell Tricep Kickback",muscle:"Triceps"},{name:"Tricep Dip Machine",muscle:"Triceps"}],pull:[{name:"Lat Pulldown Machine",muscle:"Lats"},{name:"Seated Cable Row",muscle:"Mid Back"},{name:"Dumbbell Bent-Over Row",muscle:"Back"},{name:"Single-Arm Dumbbell Row",muscle:"Lats"},{name:"Face Pulls (Cable)",muscle:"Rear Delts"},{name:"Rear Delt Fly Machine",muscle:"Rear Delts"},{name:"Cable Pullover",muscle:"Lats"},{name:"Assisted Pull-Up Machine",muscle:"Back"},{name:"Dumbbell Bicep Curl",muscle:"Biceps"},{name:"Cable Bicep Curl",muscle:"Biceps"},{name:"Hammer Curl (Dumbbell)",muscle:"Biceps"},{name:"Dumbbell Shrug",muscle:"Traps"},{name:"Reverse Cable Fly",muscle:"Rear Delts"},{name:"Preacher Curl Machine",muscle:"Biceps"}],legs:[{name:"Leg Press Machine",muscle:"Quads / Glutes"},{name:"Leg Extension Machine",muscle:"Quads"},{name:"Leg Curl Machine",muscle:"Hamstrings"},{name:"Calf Raise Machine",muscle:"Calves"},{name:"Goblet Squat (Dumbbell)",muscle:"Quads / Glutes"},{name:"Dumbbell Romanian Deadlift",muscle:"Hamstrings / Glutes"},{name:"Hip Adductor Machine",muscle:"Adductors"},{name:"Hip Abductor Machine",muscle:"Abductors"},{name:"Smith Machine Squat",muscle:"Quads / Glutes"},{name:"Dumbbell Walking Lunges",muscle:"Quads / Glutes"},{name:"Hip Thrust Machine",muscle:"Glutes"},{name:"Dumbbell Step-Ups",muscle:"Quads / Glutes"},{name:"Seated Calf Raise",muscle:"Calves"},{name:"Dumbbell Sumo Squat",muscle:"Quads / Adductors"}],upper:[{name:"Chest Press Machine",muscle:"Chest"},{name:"Dumbbell Bench Press",muscle:"Chest"},{name:"Incline Dumbbell Press",muscle:"Upper Chest"},{name:"Pec Deck / Machine Fly",muscle:"Chest"},{name:"Shoulder Press Machine",muscle:"Shoulders"},{name:"Dumbbell Lateral Raise",muscle:"Side Delts"},{name:"Lat Pulldown Machine",muscle:"Lats"},{name:"Seated Cable Row",muscle:"Mid Back"},{name:"Dumbbell Bent-Over Row",muscle:"Back"},{name:"Face Pulls (Cable)",muscle:"Rear Delts"},{name:"Tricep Pushdown (Cable)",muscle:"Triceps"},{name:"Dumbbell Bicep Curl",muscle:"Biceps"},{name:"Cable Bicep Curl",muscle:"Biceps"},{name:"Rear Delt Fly Machine",muscle:"Rear Delts"},{name:"Dumbbell Shoulder Press",muscle:"Shoulders"},{name:"Hammer Curl (Dumbbell)",muscle:"Biceps"}],lower:[{name:"Leg Press Machine",muscle:"Quads / Glutes"},{name:"Leg Extension Machine",muscle:"Quads"},{name:"Leg Curl Machine",muscle:"Hamstrings"},{name:"Calf Raise Machine",muscle:"Calves"},{name:"Goblet Squat (Dumbbell)",muscle:"Quads / Glutes"},{name:"Dumbbell Romanian Deadlift",muscle:"Hamstrings / Glutes"},{name:"Hip Adductor Machine",muscle:"Adductors"},{name:"Hip Abductor Machine",muscle:"Abductors"},{name:"Smith Machine Squat",muscle:"Quads / Glutes"},{name:"Dumbbell Walking Lunges",muscle:"Quads / Glutes"},{name:"Hip Thrust Machine",muscle:"Glutes"},{name:"Dumbbell Step-Ups",muscle:"Quads / Glutes"},{name:"Seated Calf Raise",muscle:"Calves"},{name:"Dumbbell Sumo Squat",muscle:"Quads / Adductors"}]};
         const DAY_LABELS={push:"Push Day",pull:"Pull Day",legs:"Leg Day",upper:"Upper Body",lower:"Lower Body"};
         const PROGRAM_12_ROUNDS=[{name:"Warm Up",moves:['Jab','1-2','Breathe','Light 1-2','Shake out']},{name:"1-2-3 (Straight-Straight-Hook)",moves:['1-2-3','Jab-Cross-Hook','Jab-Uppercut-Hook','Cross-Hook-Cross']},{name:"Uppercut then Hook",moves:['Lead Uppercut-Hook','Rear Uppercut-Lead Hook','Uppercut-Hook','5-3','6-2']},{name:"4 Punch Combos",moves:['1-2-3-2','1-2-5-2','Jab-Cross-Hook-Cross','1-1-2-3']},{name:"Power Singles",moves:['Power Jab','Hard Cross','Big Hook','Overhand','Body Shot']},{name:"Light 1-2s (Speed)",moves:['Fast 1-2','Touch-Touch','Jab-Cross (Fast)','High-Low']},{name:"Double Jab + Cross",moves:['1-1-2','1-1-Rear Hook','1-1-Overhand','Jab-Jab-Cross']},{name:"3 Punch Speed",moves:['Fast 1-2-3','Touch-Touch-Bang','Speed 3s']},{name:"Hooks Only",moves:['Lead Hook','Rear Hook','Body Hook','3-4','Head-Body']},{name:"Heavy 1-2s",moves:['Hard 1-2','Power 1-2','Cross-Hook','Hook-Cross']},{name:"Uppercut, Hook, Hook",moves:['Uppercut-Hook-Hook','5-3-4','6-3-2']},{name:"Constant",moves:['Non-stop','1-2-1-2','Burnout','Speed','Go Go Go']}];
-        const ROUND_POOL=[{name:"Jab Only",moves:['Jab','Double Jab','Jab-Head','Jab-Body','Power Jab']},{name:"Jab & Cross (1-2)",moves:['1-2','Fast 1-2','Hard 1-2','1-Body 2']},{name:"Double Jab & Cross",moves:['1-1-2','Jab-Jab-Cross','1-1-Body 2']},{name:"1-2 > Hook",moves:['1-2-3','Jab-Cross-Hook','1-2-Lead Hook']},{name:"1-2 > Uppercut",moves:['1-2-5','1-2-6','Jab-Cross-Lead Uppercut','Jab-Cross-Rear Uppercut']},{name:"4 Straight Punches",moves:['1-2-1-2','Jab-Cross-Jab-Cross','4 Fast Straights']},{name:"Hooks Only",moves:['Lead Hook','Rear Hook','Left Hook-Right Hook','Check Hook']},{name:"Body Shots Only",moves:['Lead Body Hook','Rear Body Hook','Jab Low','Cross Low']},{name:"Power Singles",moves:['Hard Cross','Big Hook','Power Jab','Hard Uppercut']},{name:"Jab, Cross, Hook, Cross",moves:['1-2-3-2','Jab-Cross-Hook-Cross']},{name:"Lead Hook, Rear Straight",moves:['3-2','Hook-Cross','Check Hook-Cross']},{name:"High & Low (Head & Body)",moves:['Jab High-Cross Low','1-2 High-Hook Low','Head-Body-Head']},{name:"3 Punch Combos",moves:['1-2-3','2-3-2','3-2-3','5-2-3']},{name:"Non-stop Light Speed",moves:['1-2-1-2 Light','Speed punches','Fast Hands']}];
+        const ROUND_POOL=[
+            {name:"Singles",moves:['Power Jab','Hard Cross','Lead Hook','Rear Uppercut','Body Shot']},
+            {name:"Jab & Cross (1-2)",moves:['1-2','Fast 1-2','Hard 1-2','1-Body 2']},
+            {name:"Double Jab & Cross",moves:['1-1-2','Jab-Jab-Cross','1-1-Body 2']},
+            {name:"1-2 > Hook",moves:['1-2-3','Jab-Cross-Hook','1-2-Lead Hook']},
+            {name:"1-2 > Uppercut",moves:['1-2-5','1-2-6','Jab-Cross-Lead Uppercut','Jab-Cross-Rear Uppercut']},
+            {name:"4 Straight Punches",moves:['1-2-1-2','Jab-Cross-Jab-Cross','4 Fast Straights']},
+            {name:"Hooks Only",moves:['Lead Hook','Rear Hook','Left Hook-Right Hook','Check Hook']},
+            {name:"Body Shots Only",moves:['Lead Body Hook','Rear Body Hook','Jab Low','Cross Low']},
+            {name:"Power Singles",moves:['Hard Cross','Big Hook','Power Jab','Hard Uppercut']},
+            {name:"Jab, Cross, Hook, Cross",moves:['1-2-3-2','Jab-Cross-Hook-Cross']},
+            {name:"Lead Hook, Rear Straight",moves:['3-2','Hook-Cross','Check Hook-Cross']},
+            {name:"High & Low (Head & Body)",moves:['Jab High-Cross Low','1-2 High-Hook Low','Head-Body-Head']},
+            {name:"3 Punch Combos",moves:['1-2-3','2-3-2','3-2-3','5-2-3']},
+            {name:"Non-stop Light Speed",moves:['1-2-1-2 Light','Speed punches','Fast Hands']}
+        ];
+        const HOOKS_ONLY_ENTRY=ROUND_POOL.find(r=>r.name==='Hooks Only')||PROGRAM_12_ROUNDS[8];
 
         // ================================================================
-        //  PERSON DATA (auto-updating ages from DOBs)
+        //  PERSON DATA
         // ================================================================
         function getAge(y,m,d){const t=new Date();let a=t.getFullYear()-y;if(t.getMonth()+1<m||(t.getMonth()+1===m&&t.getDate()<d))a--;return a;}
         const YOU={age:getAge(1991,4,5),weight:100,sex:'male',hrMax:220-getAge(1991,4,5)};
         const WIFE={age:getAge(1987,4,2),weight:70,sex:'female',hrMax:220-getAge(1987,4,2)};
         const ZONE_COLORS=['#3b82f6','#22c55e','#eab308','#f97316','#ef4444'];
         const ZONE_NAMES=['Z1','Z2','Z3','Z4','Z5'];
-        const HR_HISTORY_CAP=7200; // 2hrs at 1Hz per person
+        const HR_HISTORY_CAP=7200;
 
         // ================================================================
         //  STATE
         // ================================================================
         let settings={mode:'solo',rounds:12,work:60,restBase:30,randomiseMiddle:false,surpriseCount:1};
-        let prevMode='solo'; // FIX: track mode before quick-rest
+        let prevMode='solo';
         let session={active:false,paused:false,phase:'ready',round:1,time:10,total:10,timer:null,plan:[],surpriseRoundsYou:new Set(),surpriseRoundsWife:new Set(),surpriseTriggeredYou:new Set(),surpriseTriggeredWife:new Set(),halfwayPlayed:false,last10Played:false};
         let audioCtx=null,wakeLock=null,currentGymDay=null,voiceMuted=true,soundMuted=false;
-
-        // HR state
         let hrDeviceYou=null,hrDeviceWife=null,hrCharYou=null,hrCharWife=null;
         let hrValueYou=null,hrValueWife=null;
-        let hrHistoryYou=[],hrHistoryWife=[];
-        let hrRoundYou=[],hrRoundWife=[];
-        let sessionStartTime=0;
-        let lastSparkDrawYou=0,lastSparkDrawWife=0; // FIX: throttle sparklines
-
-        // Recovery tracking
+        let hrHistoryYou=[],hrHistoryWife=[],hrRoundYou=[],hrRoundWife=[];
+        let sessionStartTime=0,lastSparkDrawYou=0,lastSparkDrawWife=0;
         let endOfWorkHRYou=null,endOfWorkHRWife=null;
-        let recoveryDropsYou=[],recoveryDropsWife=[]; // bpm drops per rest period
+        let recoveryDropsYou=[],recoveryDropsWife=[];
         let peakHRYou={bpm:0,round:0},peakHRWife={bpm:0,round:0};
-        let workSecsTotal=0,restSecsTotal=0; // for work:rest ratio
+        let workSecsTotal=0,restSecsTotal=0;
 
         // ================================================================
         //  BLE HEART RATE
@@ -205,216 +213,83 @@
         if(hasBLE)hrSetupEl.classList.remove('hidden');
 
         function parseHR(v){const f=v.getUint8(0);return(f&0x01)?v.getUint16(1,true):v.getUint8(1);}
-
         function recordHR(who,bpm){
-            const t=(Date.now()-sessionStartTime)/1000;
-            const entry={t,bpm,round:session.round,phase:session.phase};
-            if(who==='you'){
-                if(hrHistoryYou.length<HR_HISTORY_CAP)hrHistoryYou.push(entry);
-                hrRoundYou.push(entry);
-                if(bpm>peakHRYou.bpm){peakHRYou.bpm=bpm;peakHRYou.round=session.round;}
-            }else{
-                if(hrHistoryWife.length<HR_HISTORY_CAP)hrHistoryWife.push(entry);
-                hrRoundWife.push(entry);
-                if(bpm>peakHRWife.bpm){peakHRWife.bpm=bpm;peakHRWife.round=session.round;}
-            }
+            const t=(Date.now()-sessionStartTime)/1000;const entry={t,bpm,round:session.round,phase:session.phase};
+            if(who==='you'){if(hrHistoryYou.length<HR_HISTORY_CAP)hrHistoryYou.push(entry);hrRoundYou.push(entry);if(bpm>peakHRYou.bpm){peakHRYou.bpm=bpm;peakHRYou.round=session.round;}}
+            else{if(hrHistoryWife.length<HR_HISTORY_CAP)hrHistoryWife.push(entry);hrRoundWife.push(entry);if(bpm>peakHRWife.bpm){peakHRWife.bpm=bpm;peakHRWife.round=session.round;}}
         }
-
         function onHRReading(who,bpm){
-            if(who==='you'){
-                hrValueYou=bpm;hrYouBpm.innerText=bpm;
-                if(session.active)recordHR('you',bpm);
-                const now=Date.now();if(now-lastSparkDrawYou>1000){lastSparkDrawYou=now;drawSpark(sparkYou,hrRoundYou,'#f87171');}
-                // Live recovery display during rest
-                if(session.active&&(session.phase==='rest'||session.phase==='change')&&endOfWorkHRYou!==null){
-                    const drop=endOfWorkHRYou-bpm;
-                    if(drop>0)updateRecoveryDisplay('you',drop);
-                }
-            }else{
-                hrValueWife=bpm;hrWifeBpm.innerText=bpm;
-                if(session.active)recordHR('wife',bpm);
-                const now=Date.now();if(now-lastSparkDrawWife>1000){lastSparkDrawWife=now;drawSpark(sparkWife,hrRoundWife,'#c084fc');}
-                if(session.active&&(session.phase==='rest'||session.phase==='change')&&endOfWorkHRWife!==null){
-                    const drop=endOfWorkHRWife-bpm;
-                    if(drop>0)updateRecoveryDisplay('wife',drop);
-                }
-            }
+            if(who==='you'){hrValueYou=bpm;hrYouBpm.innerText=bpm;if(session.active)recordHR('you',bpm);const now=Date.now();if(now-lastSparkDrawYou>1000){lastSparkDrawYou=now;drawSpark(sparkYou,hrRoundYou,'#f87171');}}
+            else{hrValueWife=bpm;hrWifeBpm.innerText=bpm;if(session.active)recordHR('wife',bpm);const now=Date.now();if(now-lastSparkDrawWife>1000){lastSparkDrawWife=now;drawSpark(sparkWife,hrRoundWife,'#c084fc');}}
         }
-
-        function updateRecoveryDisplay(who,drop){
-            // Show recovery in the next-up area during rest
-            const parts=[];
-            if(who==='you'&&endOfWorkHRYou!==null)parts.push(`You: -${drop} bpm`);
-            if(who==='wife'&&endOfWorkHRWife!==null)parts.push(`Wife: -${drop} bpm`);
-            // Merge with existing
-            const el=document.getElementById('next-up');
-            const existing=el.innerText;
-            if(existing.includes('Recovery')){
-                // Rebuild
-                const youDrop=endOfWorkHRYou!==null&&hrValueYou!==null?endOfWorkHRYou-hrValueYou:0;
-                const wifeDrop=endOfWorkHRWife!==null&&hrValueWife!==null?endOfWorkHRWife-hrValueWife:0;
-                const bits=[];
-                if(youDrop>0)bits.push(`You: -${youDrop}`);
-                if(wifeDrop>0)bits.push(`Wife: -${wifeDrop}`);
-                if(bits.length)el.innerText=`Recovery: ${bits.join(' | ')}`;
-            }else if(existing){
-                el.innerText=existing;
-            }
-        }
-
-        // FIX: BLE reconnect with retry
-        async function connectHR(who){
-            try{
-                const device=await navigator.bluetooth.requestDevice({filters:[{services:['heart_rate']}]});
-                await setupDevice(device,who);
-            }catch(err){if(err.name!=='NotFoundError')console.error('BLE error:',err);}
-        }
-
+        async function connectHR(who){try{const device=await navigator.bluetooth.requestDevice({filters:[{services:['heart_rate']}]});await setupDevice(device,who);}catch(err){if(err.name!=='NotFoundError')console.error('BLE error:',err);}}
         async function setupDevice(device,who){
-            const server=await device.gatt.connect();
-            const service=await server.getPrimaryService('heart_rate');
-            const char=await service.getCharacteristic('heart_rate_measurement');
-            await char.startNotifications();
+            const server=await device.gatt.connect();const service=await server.getPrimaryService('heart_rate');const char=await service.getCharacteristic('heart_rate_measurement');await char.startNotifications();
             const shortName=device.name?device.name.substring(0,12):'Connected';
-
-            const handler=(e)=>onHRReading(who,parseHR(e.target.value));
-            char.addEventListener('characteristicvaluechanged',handler);
-
-            if(who==='you'){
-                hrDeviceYou=device;hrCharYou=char;hrYouLabel.innerText=shortName;btnHrYou.classList.add('border-red-500/60');
-            }else{
-                hrDeviceWife=device;hrCharWife=char;hrWifeLabel.innerText=shortName;btnHrWife.classList.add('border-purple-500/60');
-            }
-
+            char.addEventListener('characteristicvaluechanged',(e)=>onHRReading(who,parseHR(e.target.value)));
+            if(who==='you'){hrDeviceYou=device;hrCharYou=char;hrYouLabel.innerText=shortName;btnHrYou.classList.add('border-red-500/60');}
+            else{hrDeviceWife=device;hrCharWife=char;hrWifeLabel.innerText=shortName;btnHrWife.classList.add('border-purple-500/60');}
             device.addEventListener('gattserverdisconnected',async()=>{
-                // Try auto-reconnect up to 3 times
-                for(let attempt=0;attempt<3;attempt++){
-                    try{
-                        await new Promise(r=>setTimeout(r,1000));
-                        if(!device.gatt)break;
-                        await setupDevice(device,who);
-                        return; // reconnected
-                    }catch(e){/* retry */}
-                }
-                // Gave up - reset UI
+                for(let a=0;a<3;a++){try{await new Promise(r=>setTimeout(r,1000));if(!device.gatt)break;await setupDevice(device,who);return;}catch(e){}}
                 if(who==='you'){hrDeviceYou=null;hrCharYou=null;hrValueYou=null;hrYouLabel.innerText='Connect HR';btnHrYou.classList.remove('border-red-500/60');hrYouBpm.innerText='--';}
                 else{hrDeviceWife=null;hrCharWife=null;hrValueWife=null;hrWifeLabel.innerText="Wife's HR";btnHrWife.classList.remove('border-purple-500/60');hrWifeBpm.innerText='--';}
             });
         }
-
         btnHrYou.onclick=()=>{if(hrDeviceYou&&hrDeviceYou.gatt.connected)hrDeviceYou.gatt.disconnect();else connectHR('you');};
         btnHrWife.onclick=()=>{if(hrDeviceWife&&hrDeviceWife.gatt.connected)hrDeviceWife.gatt.disconnect();else connectHR('wife');};
         function updateHRVisibility(){if(hrDeviceYou&&hrDeviceYou.gatt.connected)hrLiveYou.classList.remove('hidden');else hrLiveYou.classList.add('hidden');if(hrDeviceWife&&hrDeviceWife.gatt.connected)hrLiveWife.classList.remove('hidden');else hrLiveWife.classList.add('hidden');}
-
-        function drawSpark(canvas,data,color){const ctx=canvas.getContext('2d');const w=canvas.width;const h=canvas.height;ctx.clearRect(0,0,w,h);if(data.length<2)return;const bpms=data.map(d=>d.bpm);const mn=Math.min(...bpms)-5;const mx=Math.max(...bpms)+5;const range=mx-mn||1;ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.lineJoin='round';const step=w/(data.length-1);data.forEach((d,i)=>{const x=i*step;const y=h-((d.bpm-mn)/range)*h;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();}
+        function drawSpark(canvas,data,color){const ctx=canvas.getContext('2d');const w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);if(data.length<2)return;const bpms=data.map(d=>d.bpm);const mn=Math.min(...bpms)-5,mx=Math.max(...bpms)+5,range=mx-mn||1;ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.lineJoin='round';const step=w/(data.length-1);data.forEach((d,i)=>{const x=i*step;const y=h-((d.bpm-mn)/range)*h;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();}
 
         // ================================================================
-        //  SUMMARY STATS
+        //  SUMMARY
         // ================================================================
         function calcStats(data,person,peakInfo,recoveries){
-            if(data.length<2)return null;
-            const bpms=data.map(d=>d.bpm);
-            const avg=Math.round(bpms.reduce((a,b)=>a+b,0)/bpms.length);
-            const totalSecs=data[data.length-1].t-data[0].t;
-            let cals=0;
-            for(let i=1;i<data.length;i++){
-                const dt=(data[i].t-data[i-1].t)/60;const hr=(data[i].bpm+data[i-1].bpm)/2;
-                let cm;if(person.sex==='male')cm=(-55.0969+0.6309*hr+0.1988*person.weight+0.2017*person.age)/4.184;
-                else cm=(-20.4022+0.4472*hr-0.1263*person.weight+0.074*person.age)/4.184;
-                cals+=Math.max(0,cm)*dt;
-            }
-            const zones=[0,0,0,0,0];
-            for(let i=1;i<data.length;i++){const dt=data[i].t-data[i-1].t;const hr=(data[i].bpm+data[i-1].bpm)/2;const pct=hr/person.hrMax;let z=0;if(pct>=0.9)z=4;else if(pct>=0.8)z=3;else if(pct>=0.7)z=2;else if(pct>=0.6)z=1;zones[z]+=dt;}
-            const avgRecovery=recoveries.length>0?Math.round(recoveries.reduce((a,b)=>a+b,0)/recoveries.length):null;
-            return{avg,peak:peakInfo.bpm,peakRound:peakInfo.round,cals:Math.round(cals),zones,totalMins:Math.round(totalSecs/60),avgRecovery};
+            if(data.length<2)return null;const bpms=data.map(d=>d.bpm);const avg=Math.round(bpms.reduce((a,b)=>a+b,0)/bpms.length);const totalSecs=data[data.length-1].t-data[0].t;
+            let cals=0;for(let i=1;i<data.length;i++){const dt=(data[i].t-data[i-1].t)/60;const hr=(data[i].bpm+data[i-1].bpm)/2;let cm;if(person.sex==='male')cm=(-55.0969+0.6309*hr+0.1988*person.weight+0.2017*person.age)/4.184;else cm=(-20.4022+0.4472*hr-0.1263*person.weight+0.074*person.age)/4.184;cals+=Math.max(0,cm)*dt;}
+            const zones=[0,0,0,0,0];for(let i=1;i<data.length;i++){const dt=data[i].t-data[i-1].t;const hr=(data[i].bpm+data[i-1].bpm)/2;const pct=hr/person.hrMax;let z=0;if(pct>=0.9)z=4;else if(pct>=0.8)z=3;else if(pct>=0.7)z=2;else if(pct>=0.6)z=1;zones[z]+=dt;}
+            const avgRec=recoveries.length>0?Math.round(recoveries.reduce((a,b)=>a+b,0)/recoveries.length):null;
+            return{avg,peak:peakInfo.bpm,peakRound:peakInfo.round,cals:Math.round(cals),zones,totalMins:Math.round(totalSecs/60),avgRecovery:avgRec};
         }
-
         function fmtZoneTime(s){const m=Math.floor(s/60);const sec=Math.round(s%60);return m>0?`${m}m${sec>0?sec+'s':''}`:`${sec}s`;}
-
         function buildSummaryCard(data,person,label,color,tintBg,chartId,peakInfo,recoveries,workR,restR){
-            const stats=calcStats(data,person,peakInfo,recoveries);
-            if(!stats)return '';
-            const totalZ=stats.zones.reduce((a,b)=>a+b,0)||1;
+            const stats=calcStats(data,person,peakInfo,recoveries);if(!stats)return '';const totalZ=stats.zones.reduce((a,b)=>a+b,0)||1;
             let zoneBar='';stats.zones.forEach((secs,i)=>{const pct=(secs/totalZ)*100;if(pct>0)zoneBar+=`<div class="zone-segment rounded-sm" style="width:${pct}%;background:${ZONE_COLORS[i]};">${pct>8?fmtZoneTime(secs):''}</div>`;});
-            const wrMins=Math.floor(workR/60);const wrSecs=workR%60;
-            const rrMins=Math.floor(restR/60);const rrSecs=restR%60;
-
-            let statsRow=`
-                <div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.cals}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">kcal</div></div>
-                <div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.avg}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Avg bpm</div></div>
-                <div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.peak}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Peak (R${stats.peakRound})</div></div>`;
-            if(stats.avgRecovery!==null) statsRow+=`<div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">-${stats.avgRecovery}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Avg Recovery</div></div>`;
-
+            const wrM=Math.floor(workR/60),wrS=workR%60,rrM=Math.floor(restR/60),rrS=restR%60;
+            let statsRow=`<div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.cals}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">kcal</div></div><div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.avg}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Avg bpm</div></div><div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.peak}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Peak (R${stats.peakRound})</div></div>`;
+            if(stats.avgRecovery!==null)statsRow+=`<div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">-${stats.avgRecovery}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Avg Recovery</div></div>`;
             const colCount=stats.avgRecovery!==null?4:3;
-
-            return `<div class="p-4 rounded-2xl space-y-3" style="background:${tintBg};border:1px solid rgba(255,255,255,0.08);">
-                <div class="flex justify-between items-center"><p class="text-[10px] font-bold uppercase tracking-widest" style="color:${color}">${label}</p><span class="text-[9px] text-slate-500">Work ${wrMins}:${wrSecs.toString().padStart(2,'0')} | Rest ${rrMins}:${rrSecs.toString().padStart(2,'0')}</span></div>
-                <div class="grid grid-cols-${colCount} gap-1.5">${statsRow}</div>
-                <div><div class="flex items-center justify-between mb-1"><span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Zones</span><span class="text-[9px] text-slate-500">${stats.totalMins} min</span></div><div class="flex rounded-lg overflow-hidden">${zoneBar}</div><div class="flex justify-between mt-1">${ZONE_NAMES.map((n,i)=>`<span class="text-[8px] font-bold" style="color:${ZONE_COLORS[i]}">${n}</span>`).join('')}</div></div>
-                <canvas id="${chartId}" class="summary-chart rounded-lg" height="120" style="width:100%;display:block;"></canvas>
-            </div>`;
+            return `<div class="p-4 rounded-2xl space-y-3" style="background:${tintBg};border:1px solid rgba(255,255,255,0.08);"><div class="flex justify-between items-center"><p class="text-[10px] font-bold uppercase tracking-widest" style="color:${color}">${label}</p><span class="text-[9px] text-slate-500">Work ${wrM}:${wrS.toString().padStart(2,'0')} | Rest ${rrM}:${rrS.toString().padStart(2,'0')}</span></div><div class="grid grid-cols-${colCount} gap-1.5">${statsRow}</div><div><div class="flex items-center justify-between mb-1"><span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Zones</span><span class="text-[9px] text-slate-500">${stats.totalMins} min</span></div><div class="flex rounded-lg overflow-hidden">${zoneBar}</div><div class="flex justify-between mt-1">${ZONE_NAMES.map((n,i)=>`<span class="text-[8px] font-bold" style="color:${ZONE_COLORS[i]}">${n}</span>`).join('')}</div></div><canvas id="${chartId}" class="summary-chart rounded-lg" height="120" style="width:100%;display:block;"></canvas></div>`;
         }
-
         function drawSummaryChart(canvasId,data,hrMax,color){
-            const canvas=document.getElementById(canvasId);if(!canvas)return;
-            const ctx=canvas.getContext('2d');canvas.width=canvas.offsetWidth*2;canvas.height=240;
+            const canvas=document.getElementById(canvasId);if(!canvas)return;const ctx=canvas.getContext('2d');canvas.width=canvas.offsetWidth*2;canvas.height=240;
             const w=canvas.width,h=canvas.height,pad={top:15,right:45,bottom:25,left:38},cw=w-pad.left-pad.right,ch=h-pad.top-pad.bottom;
-            ctx.clearRect(0,0,w,h);if(data.length<2)return;
-            const bpms=data.map(d=>d.bpm),minBpm=Math.floor((Math.min(...bpms)-10)/10)*10,maxBpm=Math.ceil((Math.max(...bpms)+10)/10)*10,bpmRange=maxBpm-minBpm||1,maxT=data[data.length-1].t;
+            ctx.clearRect(0,0,w,h);if(data.length<2)return;const bpms=data.map(d=>d.bpm),minBpm=Math.floor((Math.min(...bpms)-10)/10)*10,maxBpm=Math.ceil((Math.max(...bpms)+10)/10)*10,bpmRange=maxBpm-minBpm||1,maxT=data[data.length-1].t;
             ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;
             for(let bpm=minBpm;bpm<=maxBpm;bpm+=20){const y=pad.top+ch-(bpm-minBpm)/bpmRange*ch;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();ctx.fillStyle='#64748b';ctx.font='16px Space Mono';ctx.textAlign='right';ctx.fillText(bpm,pad.left-6,y+5);ctx.textAlign='left';ctx.fillText(Math.round(bpm/hrMax*100)+'%',pad.left+cw+6,y+5);}
             const tStep=maxT>300?60:30;for(let t=0;t<=maxT;t+=tStep){const x=pad.left+(t/maxT)*cw;ctx.fillStyle='#64748b';ctx.font='14px Space Mono';ctx.textAlign='center';ctx.fillText(`${Math.floor(t/60)}:${Math.floor(t%60).toString().padStart(2,'0')}`,x,h-4);}
             let prevRound=0;ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.setLineDash([3,3]);ctx.lineWidth=1;data.forEach(d=>{if(d.round!==prevRound&&d.phase==='work'){const x=pad.left+(d.t/maxT)*cw;ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+ch);ctx.stroke();prevRound=d.round;}});ctx.setLineDash([]);
             ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';data.forEach((d,i)=>{const x=pad.left+(d.t/maxT)*cw;const y=pad.top+ch-(d.bpm-minBpm)/bpmRange*ch;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();
         }
-
         function showSummary(){
             const hasYou=hrHistoryYou.length>=2,hasWife=hrHistoryWife.length>=2;
             if(!hasYou&&!hasWife){showScreen('setup');return;}
-            // Session duration
-            const durSecs=Math.round((Date.now()-sessionStartTime)/1000);
-            const durM=Math.floor(durSecs/60),durS=durSecs%60;
+            const durSecs=Math.round((Date.now()-sessionStartTime)/1000);const durM=Math.floor(durSecs/60),durS=durSecs%60;
             document.getElementById('summary-duration').innerText=`${durM}:${durS.toString().padStart(2,'0')} total`;
-
             document.getElementById('summary-you').innerHTML=hasYou?buildSummaryCard(hrHistoryYou,YOU,'You','#4ade80','rgba(22,101,52,0.2)','chart-you',peakHRYou,recoveryDropsYou,workSecsTotal,restSecsTotal):'';
             document.getElementById('summary-wife').innerHTML=hasWife?buildSummaryCard(hrHistoryWife,WIFE,'Wife','#c084fc','rgba(107,33,168,0.2)','chart-wife',peakHRWife,recoveryDropsWife,workSecsTotal,restSecsTotal):'';
             showScreen('summary');
-            setTimeout(()=>{
-                if(hasYou)drawSummaryChart('chart-you',hrHistoryYou,YOU.hrMax,'#4ade80');
-                if(hasWife)drawSummaryChart('chart-wife',hrHistoryWife,WIFE.hrMax,'#c084fc');
-            },80);
+            setTimeout(()=>{if(hasYou)drawSummaryChart('chart-you',hrHistoryYou,YOU.hrMax,'#4ade80');if(hasWife)drawSummaryChart('chart-wife',hrHistoryWife,WIFE.hrMax,'#c084fc');},80);
         }
-
-        // FIX: Save image - swap canvases to imgs for html2canvas
         document.getElementById('btn-summary-save').onclick=async()=>{
-            const el=document.getElementById('summary-capture');
-            // Convert canvases to images
-            const canvases=el.querySelectorAll('canvas');
-            const swaps=[];
-            canvases.forEach(c=>{
-                const img=document.createElement('img');
-                img.src=c.toDataURL('image/png');
-                img.style.cssText=c.style.cssText;
-                img.className=c.className;
-                img.width=c.offsetWidth;img.height=c.offsetHeight;
-                c.parentNode.replaceChild(img,c);
-                swaps.push({img,canvas:c,parent:img.parentNode});
-            });
-            try{
-                const canvas=await html2canvas(el,{backgroundColor:'#0f172a',scale:2,useCORS:true});
-                const link=document.createElement('a');
-                link.download=`boxing-session-${new Date().toISOString().slice(0,10)}.png`;
-                link.href=canvas.toDataURL('image/png');
-                link.click();
-            }catch(err){console.error('Save failed:',err);}
-            // Swap back
+            const el=document.getElementById('summary-capture');const canvases=el.querySelectorAll('canvas');const swaps=[];
+            canvases.forEach(c=>{const img=document.createElement('img');img.src=c.toDataURL('image/png');img.style.cssText=c.style.cssText;img.className=c.className;img.width=c.offsetWidth;img.height=c.offsetHeight;c.parentNode.replaceChild(img,c);swaps.push({img,canvas:c,parent:img.parentNode});});
+            try{const canvas=await html2canvas(el,{backgroundColor:'#0f172a',scale:2,useCORS:true});const link=document.createElement('a');link.download=`boxing-session-${new Date().toISOString().slice(0,10)}.png`;link.href=canvas.toDataURL('image/png');link.click();}catch(err){console.error('Save failed:',err);}
             swaps.forEach(s=>s.parent.replaceChild(s.canvas,s.img));
         };
-
         document.getElementById('btn-summary-done').onclick=()=>{showScreen('setup');setMode(prevMode);};
 
         // ================================================================
-        //  UI REFS & NAVIGATION
+        //  UI & NAVIGATION
         // ================================================================
         const screens={home:document.getElementById('home-screen'),gymDay:document.getElementById('gym-day-screen'),gymWorkout:document.getElementById('gym-workout-screen'),setup:document.getElementById('setup-screen'),timer:document.getElementById('timer-screen'),summary:document.getElementById('summary-screen')};
         const ui={timerBg:document.getElementById('timer-bg'),modeSolo:document.getElementById('mode-solo'),modeWife:document.getElementById('mode-wife'),restInfo:document.getElementById('rest-info'),inRandom:document.getElementById('in-random'),randomDesc:document.getElementById('random-desc'),toggleBg:document.getElementById('toggle-bg'),gridRounds:document.getElementById('grid-rounds'),previewList:document.getElementById('round-preview'),timerDisplay:document.getElementById('timer-display'),roundCur:document.getElementById('current-round'),roundTot:document.getElementById('total-rounds'),nextUp:document.getElementById('next-up'),roundFocus:document.getElementById('round-focus'),btnStart:document.getElementById('btn-start'),btnQuickRest:document.getElementById('btn-quick-rest'),btnPause:document.getElementById('btn-pause'),btnEnd:document.getElementById('btn-end'),btnNext:document.getElementById('btn-next'),btnPrev:document.getElementById('btn-prev'),btnMuteVoice:document.getElementById('btn-mute-voice'),iconVoiceOn:document.getElementById('icon-voice-on'),iconVoiceOff:document.getElementById('icon-voice-off'),voiceLabel:document.getElementById('voice-label'),btnMuteSound:document.getElementById('btn-mute-sound'),iconSoundOn:document.getElementById('icon-sound-on'),iconSoundOff:document.getElementById('icon-sound-off'),soundLabel:document.getElementById('sound-label'),gymDayLabel:document.getElementById('gym-day-label'),gymExerciseList:document.getElementById('gym-exercise-list')};
@@ -428,7 +303,7 @@
         document.getElementById('btn-gym-workout-back').onclick=()=>showScreen('gymDay');
 
         // ================================================================
-        //  GYM LOGIC
+        //  GYM
         // ================================================================
         function pickExercises(day){const pool=[...GYM_EXERCISES[day]],picked=[];for(let i=0;i<5&&pool.length>0;i++){const idx=Math.floor(Math.random()*pool.length);picked.push(pool[idx]);pool.splice(idx,1);}return picked;}
         function renderGymWorkout(day){currentGymDay=day;ui.gymDayLabel.innerText=DAY_LABELS[day];const exercises=pickExercises(day);ui.gymExerciseList.innerHTML='';exercises.forEach((ex,i)=>{const card=document.createElement('div');card.className='exercise-card flex items-center space-x-4 p-4 rounded-xl bg-slate-800/50 border border-slate-700/30';card.style.animationDelay=`${i*0.08}s`;card.innerHTML=`<div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0"><span class="text-blue-400 font-black font-mono-display text-sm">${i+1}</span></div><div><span class="text-sm font-bold text-white block">${ex.name}</span><span class="text-[10px] text-slate-400 uppercase tracking-wider">${ex.muscle}</span></div>`;ui.gymExerciseList.appendChild(card);});showScreen('gymWorkout');}
@@ -455,7 +330,26 @@
         ui.modeSolo.onclick=()=>setMode('solo');ui.modeWife.onclick=()=>setMode('wife');
         ui.inRandom.onchange=(e)=>{settings.randomiseMiddle=e.target.checked;generateSessionPlan();};
 
-        function generateSessionPlan(){session.plan=[];const totalRounds=settings.rounds;let tempPool=[...ROUND_POOL];for(let i=0;i<totalRounds;i++){let roundObj=null;const isFirst=(i===0),isLast=(i===totalRounds-1),keepFirstLast=totalRounds>6;if(settings.randomiseMiddle){if(keepFirstLast&&isFirst)roundObj=PROGRAM_12_ROUNDS[0];else if(keepFirstLast&&isLast)roundObj=PROGRAM_12_ROUNDS[11];else{if(tempPool.length===0)tempPool=[...ROUND_POOL];const idx=Math.floor(Math.random()*tempPool.length);roundObj=tempPool[idx];tempPool.splice(idx,1);}}else{roundObj=PROGRAM_12_ROUNDS[i%PROGRAM_12_ROUNDS.length];}session.plan.push(roundObj);}updatePreview();}
+        function generateSessionPlan(){
+            session.plan=[];const totalRounds=settings.rounds;let tempPool=[...ROUND_POOL];
+            for(let i=0;i<totalRounds;i++){
+                let roundObj=null;const isFirst=(i===0),isLast=(i===totalRounds-1),keepFirstLast=totalRounds>6;
+                if(settings.randomiseMiddle){
+                    if(keepFirstLast&&isFirst)roundObj=PROGRAM_12_ROUNDS[0];
+                    else if(keepFirstLast&&isLast)roundObj=PROGRAM_12_ROUNDS[11];
+                    else{if(tempPool.length===0)tempPool=[...ROUND_POOL];const idx=Math.floor(Math.random()*tempPool.length);roundObj=tempPool[idx];tempPool.splice(idx,1);}
+                }else{roundObj=PROGRAM_12_ROUNDS[i%PROGRAM_12_ROUNDS.length];}
+                session.plan.push(roundObj);
+            }
+            // Guarantee at least one Hooks Only round
+            if(!session.plan.some(r=>r.name==='Hooks Only')){
+                const start=totalRounds>6?1:0;
+                const end=totalRounds>6?totalRounds-1:totalRounds;
+                if(end>start){const slot=start+Math.floor(Math.random()*(end-start));session.plan[slot]=HOOKS_ONLY_ENTRY;}
+            }
+            updatePreview();
+        }
+
         function updatePreview(){ui.previewList.innerHTML='';for(let i=0;i<settings.rounds;i++){const rd=session.plan[i],rn=i+1;const cc=settings.mode==='wife'?"text-purple-300":"text-slate-300";const div=document.createElement('div');div.className="text-[9px] sm:text-[10px] py-1.5 px-2 rounded bg-slate-800/40 border border-slate-700/50";div.innerHTML=`<span class="font-bold ${cc} truncate block">${rn}. ${rd.name}</span>`;ui.previewList.appendChild(div);}}
 
         // ================================================================
@@ -477,22 +371,15 @@
         function setSurpriseStrokes(on){surpriseStrokeTargets.forEach(t=>{if(on)t.el.classList.add(t.cls);else t.el.classList.remove(t.cls);});}
 
         const setPhase=(phase)=>{
-            // Capture end-of-work HR for recovery tracking
-            if((session.phase==='work'||session.phase==='surprise')&&(phase==='rest'||phase==='change')){
-                if(hrValueYou!==null)endOfWorkHRYou=hrValueYou;
-                if(hrValueWife!==null)endOfWorkHRWife=hrValueWife;
-            }
-            // Record recovery drop when leaving rest/change
+            if((session.phase==='work'||session.phase==='surprise')&&(phase==='rest'||phase==='change')){if(hrValueYou!==null)endOfWorkHRYou=hrValueYou;if(hrValueWife!==null)endOfWorkHRWife=hrValueWife;}
             if((session.phase==='rest'||session.phase==='change')&&phase==='work'){
                 if(endOfWorkHRYou!==null&&hrValueYou!==null){const drop=endOfWorkHRYou-hrValueYou;if(drop>0)recoveryDropsYou.push(drop);}
                 if(endOfWorkHRWife!==null&&hrValueWife!==null){const drop=endOfWorkHRWife-hrValueWife;if(drop>0)recoveryDropsWife.push(drop);}
                 endOfWorkHRYou=null;endOfWorkHRWife=null;
             }
-
             session.phase=phase;session.halfwayPlayed=false;session.last10Played=false;
             setSurpriseStrokes(false);ui.roundFocus.classList.remove('text-red-600');ui.timerDisplay.classList.remove('text-black');ui.timerDisplay.classList.add('text-white');
             if(phase==='work'||phase==='surprise'){hrRoundYou=[];hrRoundWife=[];}
-
             if(phase==='ready'){session.time=20;session.total=20;ui.timerBg.className="bg-orange-600";autoSizeFocus("Gloves On");ui.roundFocus.innerText="Gloves On";ui.nextUp.innerText="Next: "+session.plan[0].name;}
             else if(phase==='work'){session.time=settings.work;session.total=settings.work;playBell();const pi=settings.mode==='wife'?Math.floor((session.round-1)/2):session.round-1;const rd=session.plan[pi];autoSizeFocus(rd.name);ui.roundFocus.innerText=rd.name;ui.roundCur.innerText=session.round;ui.nextUp.innerText="";if(settings.mode==='wife'){ui.timerBg.className=(session.round%2!==0)?"bg-green-600":"bg-purple-600";}else{ui.timerBg.className="bg-green-600";}speak(rd.name);}
             else if(phase==='rest'){const dur=settings.restBase+((session.round-1)*5);session.time=dur;session.total=dur;ui.timerBg.className="bg-red-600";autoSizeFocus("Rest");ui.roundFocus.innerText="Rest";const mx=settings.mode==='wife'?settings.rounds*2:settings.rounds;if(session.round<mx){const pi=settings.mode==='wife'?Math.floor(session.round/2):session.round;ui.nextUp.innerText=`Up Next: ${session.plan[pi].name}`;}else ui.nextUp.innerText="Final Round Complete";playBell();}
@@ -502,38 +389,18 @@
             updateUI();
         };
 
-        function updateUI(){
-            ui.timerDisplay.innerText=format(session.time);
-            ui.timerBg.style.height=`${(session.time/session.total)*100}%`;
-            if(settings.mode==='quick-rest'){ui.btnPrev.innerText="-10s";ui.btnNext.innerText="+10s";}
-            else{ui.btnPrev.innerText="\u2190 Prev Round";ui.btnNext.innerText="Next Round \u2192";}
-        }
+        function updateUI(){ui.timerDisplay.innerText=format(session.time);ui.timerBg.style.height=`${(session.time/session.total)*100}%`;if(settings.mode==='quick-rest'){ui.btnPrev.innerText="-10s";ui.btnNext.innerText="+10s";}else{ui.btnPrev.innerText="\u2190 Prev Round";ui.btnNext.innerText="Next Round \u2192";}}
 
-        function run(){
-            session.timer=setInterval(()=>{
-                if(session.paused)return;
-                session.time--;
-                // Track work vs rest seconds
-                if(session.phase==='work'||session.phase==='surprise')workSecsTotal++;
-                else if(session.phase==='rest'||session.phase==='change')restSecsTotal++;
-
-                if(session.phase==='work'||session.phase==='surprise'){
-                    if(session.time===Math.floor(session.total/2)&&!session.halfwayPlayed){session.halfwayPlayed=true;playDoubleBeep();}
-                    if(session.time===10&&!session.last10Played){session.last10Played=true;playWarningTone();}
-                }
-                // Live recovery update during rest
-                if(session.phase==='rest'||session.phase==='change'){
-                    const bits=[];
-                    if(endOfWorkHRYou!==null&&hrValueYou!==null){const d=endOfWorkHRYou-hrValueYou;if(d>0)bits.push(`You: -${d}`);}
-                    if(endOfWorkHRWife!==null&&hrValueWife!==null){const d=endOfWorkHRWife-hrValueWife;if(d>0)bits.push(`Wife: -${d}`);}
-                    if(bits.length)ui.nextUp.innerText=`Recovery: ${bits.join(' | ')}`;
-                }
-
-                if(session.time<=3&&session.time>0)playBeep(session.time===1);
-                if(session.time<0){if(settings.mode==='quick-rest'){end();return;}stepPhase(1);}
-                updateUI();
-            },1000);
-        }
+        function run(){session.timer=setInterval(()=>{
+            if(session.paused)return;session.time--;
+            if(session.phase==='work'||session.phase==='surprise')workSecsTotal++;
+            else if(session.phase==='rest'||session.phase==='change')restSecsTotal++;
+            if(session.phase==='work'||session.phase==='surprise'){if(session.time===Math.floor(session.total/2)&&!session.halfwayPlayed){session.halfwayPlayed=true;playDoubleBeep();}if(session.time===10&&!session.last10Played){session.last10Played=true;playWarningTone();}}
+            if(session.phase==='rest'||session.phase==='change'){const bits=[];if(endOfWorkHRYou!==null&&hrValueYou!==null){const d=endOfWorkHRYou-hrValueYou;if(d>0)bits.push(`You: -${d}`);}if(endOfWorkHRWife!==null&&hrValueWife!==null){const d=endOfWorkHRWife-hrValueWife;if(d>0)bits.push(`Wife: -${d}`);}if(bits.length)ui.nextUp.innerText=`Recovery: ${bits.join(' | ')}`;}
+            if(session.time<=3&&session.time>0)playBeep(session.time===1);
+            if(session.time<0){if(settings.mode==='quick-rest'){end();return;}stepPhase(1);}
+            updateUI();
+        },1000);}
 
         function stepPhase(dir){
             if(settings.mode==='quick-rest'){if(dir===1){session.time+=10;session.total=Math.max(session.total,session.time);}else{session.time=Math.max(0,session.time-10);}updateUI();return;}
@@ -551,51 +418,30 @@
 
         function end(){
             session.active=false;clearInterval(session.timer);if(wakeLock)wakeLock.release();window.speechSynthesis.cancel();
-            screens.timer.classList.add('hidden');screens.timer.classList.remove('flex');
-            ui.timerBg.style.height='0%';document.body.classList.remove('timer-running');setSurpriseStrokes(false);
+            screens.timer.classList.add('hidden');screens.timer.classList.remove('flex');ui.timerBg.style.height='0%';document.body.classList.remove('timer-running');setSurpriseStrokes(false);
             const hasHR=hrHistoryYou.length>=2||hrHistoryWife.length>=2;
-            // FIX: always restore mode properly
             if(hasHR&&settings.mode!=='quick-rest')showSummary();
             else{showScreen('setup');setMode(prevMode);}
         }
 
         ui.btnStart.onclick=async()=>{
-            initAudio();
-            try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}
+            initAudio();try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}
             document.body.classList.add('timer-running');
-            // Reset all session HR data
             hrHistoryYou=[];hrHistoryWife=[];hrRoundYou=[];hrRoundWife=[];
-            endOfWorkHRYou=null;endOfWorkHRWife=null;
-            recoveryDropsYou=[];recoveryDropsWife=[];
+            endOfWorkHRYou=null;endOfWorkHRWife=null;recoveryDropsYou=[];recoveryDropsWife=[];
             peakHRYou={bpm:0,round:0};peakHRWife={bpm:0,round:0};
-            workSecsTotal=0;restSecsTotal=0;
-            sessionStartTime=Date.now();
-            prevMode=settings.mode;
-            showScreen('timer');
-            ui.roundTot.innerText=settings.mode==='wife'?settings.rounds*2:settings.rounds;
+            workSecsTotal=0;restSecsTotal=0;sessionStartTime=Date.now();prevMode=settings.mode;
+            showScreen('timer');ui.roundTot.innerText=settings.mode==='wife'?settings.rounds*2:settings.rounds;
             session.round=1;session.active=true;
             session.surpriseRoundsYou=pickSurpriseIndices(settings.surpriseCount,settings.rounds);session.surpriseTriggeredYou=new Set();
             if(settings.mode==='wife'){session.surpriseRoundsWife=pickSurpriseIndices(settings.surpriseCount,settings.rounds);session.surpriseTriggeredWife=new Set();}
             else{session.surpriseRoundsWife=new Set();session.surpriseTriggeredWife=new Set();}
             setPhase('ready');run();
         };
-
-        ui.btnQuickRest.onclick=async()=>{
-            initAudio();
-            try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}
-            document.body.classList.add('timer-running');
-            prevMode=settings.mode; // FIX: save mode before overwriting
-            settings.mode='quick-rest';
-            showScreen('timer');
-            session.time=120;session.total=120;session.round=1;
-            ui.roundTot.innerText="-";ui.roundCur.innerText="-";
-            session.active=true;setPhase('quick-rest');run();
-        };
-
+        ui.btnQuickRest.onclick=async()=>{initAudio();try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}document.body.classList.add('timer-running');prevMode=settings.mode;settings.mode='quick-rest';showScreen('timer');session.time=120;session.total=120;session.round=1;ui.roundTot.innerText="-";ui.roundCur.innerText="-";session.active=true;setPhase('quick-rest');run();};
         ui.btnEnd.onclick=end;
         ui.btnPause.onclick=()=>{session.paused=!session.paused;ui.btnPause.innerText=session.paused?"Resume":"Pause";ui.btnPause.classList.toggle('bg-white/10');};
-        ui.btnNext.onclick=()=>stepPhase(1);
-        ui.btnPrev.onclick=()=>stepPhase(-1);
+        ui.btnNext.onclick=()=>stepPhase(1);ui.btnPrev.onclick=()=>stepPhase(-1);
         showScreen('home');
     });
     </script>
