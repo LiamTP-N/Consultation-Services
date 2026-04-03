@@ -94,16 +94,21 @@
             #app-nav .grid-cols-5 { font-size: 0.8rem; }
             #app-nav .nav-tab { padding-top: 0.875rem; padding-bottom: 0.875rem; }
 
-            /* Camera step layouts: stack becomes side-by-side */
-            #view-assess,
+            /* Camera step layouts: stack becomes side-by-side (workout only) */
             #view-workout {
                 flex-direction: row !important;
                 align-items: flex-start;
                 gap: 1.5rem;
             }
 
-            /* Camera panel takes 55% on wider screens */
-            #assess-canvas-wrapper,
+            /* Step 2: simple centred stack on desktop */
+            #view-assess {
+                max-width: 640px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            /* Camera panel takes 55% on wider screens (workout only) */
             #train-canvas-wrapper {
                 flex: 0 0 55%;
                 max-width: 55%;
@@ -118,7 +123,6 @@
             }
 
             /* Header info cards below camera fill full width in side layout */
-            #assess-stats-row,
             #train-stats-row { width: 100%; }
 
             /* Warm-up cards side by side */
@@ -143,11 +147,15 @@
             /* Desktop: nav can show full labels */
             #app-nav .grid-cols-5 { font-size: 0.875rem; }
 
-            /* Camera takes less proportional space, controls more prominent */
-            #assess-canvas-wrapper,
+            /* Camera takes less proportional space, controls more prominent (workout only) */
             #train-canvas-wrapper {
                 flex: 0 0 50%;
                 max-width: 50%;
+            }
+
+            /* Step 2: slightly wider on large screens */
+            #view-assess {
+                max-width: 720px;
             }
 
             /* Larger base text in main content */
@@ -326,8 +334,8 @@
     <section id="auth-screen" class="flex-grow flex flex-col items-center justify-center p-6 min-h-screen">
         <div class="w-full max-w-sm">
             <div class="text-center mb-10">
-                <h1 class="text-3xl font-bold text-white tracking-tight mb-2">ROM-based training / RBT</h1>
-                <p class="text-slate-400 text-sm">Dr. Pearson-Noseworthy</p>
+                <h1 class="text-3xl font-bold text-white tracking-tight mb-2">ROM-based exercise / RBE</h1>
+                <p class="text-slate-400 text-sm">Dr. Liam T. Pearson-Noseworthy</p>
             </div>
 
             <div id="auth-login-form" class="space-y-4">
