@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>ROM-Based Training App | Dr. Pearson-Noseworthy</title>
+    <title>ROM-Based Exercise App | Dr. Pearson-Noseworthy</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="ROM-Based Training App | Dr. Pearson-Noseworthy">
+    <meta property="og:title" content="ROM-Based Exercise App | Dr. Pearson-Noseworthy">
     <meta property="og:description" content="A free home exercise tool that adapts to your mobility in real time. Built on doctoral research.">
     <meta property="og:image" content="https://liamtp-n.github.io/Consultation-Services/assets/images/og-image.jpg">
     <meta property="og:url" content="https://liamtp-n.github.io/Consultation-Services/app.html">
@@ -334,8 +334,8 @@
     <section id="auth-screen" class="flex-grow flex flex-col items-center justify-center p-6 min-h-screen">
         <div class="w-full max-w-sm">
             <div class="text-center mb-10">
-                <h1 class="text-3xl font-bold text-white tracking-tight mb-2">ROM-based exercise / RBE</h1>
-                <p class="text-slate-400 text-sm">Dr. Liam T. Pearson-Noseworthy</p>
+                <h1 class="text-3xl font-bold text-white tracking-tight mb-2">ROM-based Exercise / RBE</h1>
+                <p class="text-slate-400 text-sm">Dr. Pearson-Noseworthy</p>
             </div>
 
             <div id="auth-login-form" class="space-y-4">
@@ -386,20 +386,20 @@
             </div>
         </div>
         <div class="grid grid-cols-5 w-full bg-slate-900 text-[10px] md:text-sm font-bold text-slate-300">
-            <button onclick="switchView('warmup')" id="nav-warmup" class="nav-tab active py-3 flex flex-col items-center justify-center">
-                <span class="text-orange-400 mb-0.5 text-[9px]">STEP 1</span><span>WARM UP</span>
+            <button onclick="switchView('warmup')" id="nav-warmup" class="nav-tab active py-3 flex items-center justify-center">
+                <span>WARM UP</span>
             </button>
-            <button onclick="switchView('assess')" id="nav-assess" class="nav-tab py-3 flex flex-col items-center justify-center">
-                <span class="text-blue-400 mb-0.5 text-[9px]">STEP 2</span><span>BASELINE</span>
+            <button onclick="switchView('assess')" id="nav-assess" class="nav-tab py-3 flex items-center justify-center">
+                <span>BASELINE</span>
             </button>
-            <button onclick="switchView('workout')" id="nav-workout" class="nav-tab py-3 flex flex-col items-center justify-center">
-                <span class="text-green-400 mb-0.5 text-[9px]">STEP 3</span><span>TRAINING</span>
+            <button onclick="switchView('workout')" id="nav-workout" class="nav-tab py-3 flex items-center justify-center">
+                <span>TRAINING</span>
             </button>
-            <button onclick="switchView('food')" id="nav-food" class="nav-tab py-3 flex flex-col items-center justify-center">
-                <span class="text-yellow-400 mb-0.5 text-[9px]">STEP 4</span><span>FOOD</span>
+            <button onclick="switchView('food')" id="nav-food" class="nav-tab py-3 flex items-center justify-center">
+                <span>FOOD</span>
             </button>
-            <button onclick="switchView('home')" id="nav-home" class="nav-tab py-3 flex flex-col items-center justify-center">
-                <span class="text-purple-400 mb-0.5 text-[9px]">STEP 5</span><span>PROGRESS</span>
+            <button onclick="switchView('home')" id="nav-home" class="nav-tab py-3 flex items-center justify-center">
+                <span>PROGRESS</span>
             </button>
         </div>
     </header>
@@ -410,7 +410,7 @@
         <!-- ===== STEP 1: WARM UP ===== -->
         <section id="view-warmup" class="view-section active flex-col gap-5">
             <div>
-                <h2 class="text-2xl font-bold text-white">Step 1: Mobility Prep</h2>
+                <h2 class="text-2xl font-bold text-white">Mobility Prep</h2>
                 <p class="text-slate-400 text-sm mt-1">Complete both exercises before continuing.</p>
             </div>
 
@@ -455,7 +455,7 @@
         <section id="view-assess" class="view-section flex-col items-center gap-4">
 
             <div class="glass-panel p-4 rounded-xl w-full text-center border-l-4 border-l-blue-500">
-                <h2 class="text-xl font-bold text-white mb-1">Step 2: Calibration</h2>
+                <h2 class="text-xl font-bold text-white mb-1">Calibration</h2>
                 <p class="text-slate-400 text-sm">Perform <strong class="text-white">3 squats</strong> to your comfortable maximum depth. I will save your best range.</p>
             </div>
 
@@ -661,7 +661,7 @@
         <!-- ===== STEP 4: FOOD ===== -->
         <section id="view-food" class="view-section flex-col gap-5">
             <div>
-                <h2 class="text-2xl font-bold text-white">Step 4: Protein Check</h2>
+                <h2 class="text-2xl font-bold text-white">Protein Check</h2>
                 <p class="text-slate-400 text-sm mt-1">Anabolic resistance requires higher protein intake. Aim for 25-30g per meal.</p>
             </div>
 
@@ -958,7 +958,7 @@
         // ==============================
         // APP VERSION
         // ==============================
-        const APP_VERSION = 'v0.7-alpha';
+        const APP_VERSION = 'v0.8-alpha';
 
         // ==============================
         // DEVICE DETECTION & RESPONSIVE INIT
