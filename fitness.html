@@ -34,17 +34,7 @@
         .surprise-stroke{-webkit-text-stroke:6px rgba(255,255,255,0.6)!important;}
         .surprise-stroke-light{-webkit-text-stroke:4px rgba(255,255,255,0.5)!important;}
         .surprise-stroke-btn{-webkit-text-stroke:2px rgba(255,255,255,0.4)!important;}
-
-        /* ============================================================
-           TIMER SCREEN - fully viewport-relative layout
-           Three rows: top (auto), middle (flex-grow), bottom (auto)
-           All internal sizing uses dvh / vmin / clamp
-           ============================================================ */
-        #timer-screen{
-            height:100vh;height:100dvh;
-            padding:1.5dvh 0 calc(1.5dvh + env(safe-area-inset-bottom));
-        }
-        /* Top bar */
+        #timer-screen{height:100vh;height:100dvh;padding:1.5dvh 0 calc(4dvh + env(safe-area-inset-bottom));}
         .timer-top{padding:0 3vw;}
         .timer-top .round-num{font-size:clamp(1.5rem,5dvh,2.5rem);}
         .timer-top .round-slash{font-size:clamp(0.8rem,2.5dvh,1.25rem);}
@@ -56,17 +46,14 @@
         .timer-top .hr-badge-box svg{width:clamp(10px,1.5dvh,16px);height:clamp(10px,1.5dvh,16px);}
         .timer-top .hr-badge-box .hr-bpm{font-size:clamp(0.7rem,2dvh,1.1rem);}
         .timer-top .hr-badge-box canvas{width:clamp(50px,10vw,80px);height:clamp(14px,2.5dvh,24px);}
-        /* Middle - the timer display */
         #timer-middle{min-height:0;}
-        #round-focus{overflow-wrap:break-word;word-break:break-word;font-size:clamp(1rem,4.5dvh,2.25rem);}
-        #timer-display{font-size:clamp(3rem,18dvh,10rem);line-height:1;}
+        #round-focus{overflow-wrap:break-word;word-break:break-word;}
+        #timer-display{font-size:clamp(4rem,22dvh,12rem);line-height:1;}
         #next-up{font-size:clamp(0.55rem,1.5dvh,0.85rem);}
-        /* Bottom buttons */
         .timer-bottom{padding:0 3vw;gap:clamp(4px,1dvh,12px);}
         .timer-bottom .btn-row{gap:clamp(6px,1.5vw,16px);}
         .timer-bottom .btn-nav{padding:clamp(6px,1.2dvh,14px) 0;font-size:clamp(8px,1.2dvh,12px);border-radius:clamp(8px,1.5dvh,16px);}
         .timer-bottom .btn-main{padding:clamp(8px,2dvh,22px) 0;font-size:clamp(10px,1.8dvh,18px);border-radius:clamp(10px,2dvh,20px);}
-
         #setup-screen{height:100vh;height:100dvh;overflow:hidden;}
         #setup-columns{min-height:0;flex:1;}
         #settings-scroll{overflow-y:auto;min-height:0;}
@@ -150,13 +137,8 @@
             <button id="btn-boxing-back" class="w-full py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition-colors flex-shrink-0 mt-1">&larr; Back</button>
         </div>
 
-        <!-- ============================================================
-             TIMER SCREEN - viewport-relative layout
-             All sizing via dvh / vmin / clamp - no fixed rem/px
-             Three flex rows: top (auto), middle (grow), bottom (auto)
-             ============================================================ -->
+        <!-- TIMER SCREEN -->
         <div id="timer-screen" class="hidden w-full max-w-lg flex-col">
-            <!-- TOP ROW -->
             <div class="timer-top w-full flex justify-between items-start flex-shrink-0">
                 <div class="flex flex-col items-start" style="gap:0.5dvh;">
                     <div id="hr-live-wife" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-purple-600/20 border border-purple-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-purple-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-bpm" class="hr-bpm font-black font-mono-display text-purple-300">--</span></div><canvas id="hr-spark-wife" class="rounded" style="display:block;"></canvas></div>
@@ -168,15 +150,11 @@
                     <button id="btn-mute-sound" class="ctrl-btn flex items-center rounded-full backdrop-blur-md bg-black/20 border border-white/10 active:scale-95 transition-all"><svg id="icon-sound-on" class="text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M11 5L6 9H2v6h4l5 4V5z"/></svg><svg id="icon-sound-off" class="hidden text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/></svg><span id="sound-label" class="font-bold uppercase tracking-wider text-white/70">Sound</span></button>
                 </div>
             </div>
-
-            <!-- MIDDLE ROW - grows to fill, centres content, shrinks if needed -->
             <div id="timer-middle" class="flex-grow flex flex-col items-center justify-center w-full overflow-hidden px-4 min-h-0">
                 <div id="focus-container" class="text-center w-full flex-shrink" style="margin-bottom:1dvh;"><div id="round-focus" class="font-black text-white uppercase leading-tight drop-shadow-lg t-stroke-heavy">Warm Up</div></div>
                 <div id="timer-display" class="font-black font-mono-display text-white tracking-tighter drop-shadow-2xl t-stroke-heavy flex-shrink">0</div>
                 <div id="next-up" class="font-bold text-white/60 uppercase tracking-widest text-center t-stroke flex-shrink-0" style="margin-top:1dvh;"></div>
             </div>
-
-            <!-- BOTTOM ROW - buttons, auto-sized with dvh -->
             <div class="timer-bottom w-full flex flex-col flex-shrink-0">
                 <div class="btn-row grid grid-cols-2"><button id="btn-prev" class="btn-nav bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold transition-all active:scale-95 uppercase tracking-wider t-stroke-btn">&larr; Prev</button><button id="btn-next" class="btn-nav bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold transition-all active:scale-95 uppercase tracking-wider t-stroke-btn">Next &rarr;</button></div>
                 <div class="btn-row grid grid-cols-2"><button id="btn-pause" class="btn-main bg-black/30 hover:bg-black/40 backdrop-blur-md border border-white/10 text-white font-bold transition-all active:scale-95 t-stroke-btn">Pause</button><button id="btn-end" class="btn-main bg-red-500/20 hover:bg-red-500/30 backdrop-blur-md border border-red-500/30 text-red-100 font-bold transition-all active:scale-95 t-stroke-btn">End</button></div>
@@ -201,7 +179,7 @@
         const GYM_EXERCISES={push:[{name:"Chest Press Machine",muscle:"Chest"},{name:"Dumbbell Bench Press",muscle:"Chest"},{name:"Incline Dumbbell Press",muscle:"Upper Chest"},{name:"Pec Deck / Machine Fly",muscle:"Chest"},{name:"Cable Crossover",muscle:"Chest"},{name:"Shoulder Press Machine",muscle:"Shoulders"},{name:"Dumbbell Shoulder Press",muscle:"Shoulders"},{name:"Dumbbell Lateral Raise",muscle:"Side Delts"},{name:"Dumbbell Front Raise",muscle:"Front Delts"},{name:"Cable Lateral Raise",muscle:"Side Delts"},{name:"Tricep Pushdown (Cable)",muscle:"Triceps"},{name:"Overhead Tricep Extension (Cable)",muscle:"Triceps"},{name:"Dumbbell Tricep Kickback",muscle:"Triceps"},{name:"Tricep Dip Machine",muscle:"Triceps"}],pull:[{name:"Lat Pulldown Machine",muscle:"Lats"},{name:"Seated Cable Row",muscle:"Mid Back"},{name:"Dumbbell Bent-Over Row",muscle:"Back"},{name:"Single-Arm Dumbbell Row",muscle:"Lats"},{name:"Face Pulls (Cable)",muscle:"Rear Delts"},{name:"Rear Delt Fly Machine",muscle:"Rear Delts"},{name:"Cable Pullover",muscle:"Lats"},{name:"Assisted Pull-Up Machine",muscle:"Back"},{name:"Dumbbell Bicep Curl",muscle:"Biceps"},{name:"Cable Bicep Curl",muscle:"Biceps"},{name:"Hammer Curl (Dumbbell)",muscle:"Biceps"},{name:"Dumbbell Shrug",muscle:"Traps"},{name:"Reverse Cable Fly",muscle:"Rear Delts"},{name:"Preacher Curl Machine",muscle:"Biceps"}],legs:[{name:"Leg Press Machine",muscle:"Quads / Glutes"},{name:"Leg Extension Machine",muscle:"Quads"},{name:"Leg Curl Machine",muscle:"Hamstrings"},{name:"Calf Raise Machine",muscle:"Calves"},{name:"Goblet Squat (Dumbbell)",muscle:"Quads / Glutes"},{name:"Dumbbell Romanian Deadlift",muscle:"Hamstrings / Glutes"},{name:"Hip Adductor Machine",muscle:"Adductors"},{name:"Hip Abductor Machine",muscle:"Abductors"},{name:"Smith Machine Squat",muscle:"Quads / Glutes"},{name:"Dumbbell Walking Lunges",muscle:"Quads / Glutes"},{name:"Hip Thrust Machine",muscle:"Glutes"},{name:"Dumbbell Step-Ups",muscle:"Quads / Glutes"},{name:"Seated Calf Raise",muscle:"Calves"},{name:"Dumbbell Sumo Squat",muscle:"Quads / Adductors"}],upper:[{name:"Chest Press Machine",muscle:"Chest"},{name:"Dumbbell Bench Press",muscle:"Chest"},{name:"Incline Dumbbell Press",muscle:"Upper Chest"},{name:"Pec Deck / Machine Fly",muscle:"Chest"},{name:"Shoulder Press Machine",muscle:"Shoulders"},{name:"Dumbbell Lateral Raise",muscle:"Side Delts"},{name:"Lat Pulldown Machine",muscle:"Lats"},{name:"Seated Cable Row",muscle:"Mid Back"},{name:"Dumbbell Bent-Over Row",muscle:"Back"},{name:"Face Pulls (Cable)",muscle:"Rear Delts"},{name:"Tricep Pushdown (Cable)",muscle:"Triceps"},{name:"Dumbbell Bicep Curl",muscle:"Biceps"},{name:"Cable Bicep Curl",muscle:"Biceps"},{name:"Rear Delt Fly Machine",muscle:"Rear Delts"},{name:"Dumbbell Shoulder Press",muscle:"Shoulders"},{name:"Hammer Curl (Dumbbell)",muscle:"Biceps"}],lower:[{name:"Leg Press Machine",muscle:"Quads / Glutes"},{name:"Leg Extension Machine",muscle:"Quads"},{name:"Leg Curl Machine",muscle:"Hamstrings"},{name:"Calf Raise Machine",muscle:"Calves"},{name:"Goblet Squat (Dumbbell)",muscle:"Quads / Glutes"},{name:"Dumbbell Romanian Deadlift",muscle:"Hamstrings / Glutes"},{name:"Hip Adductor Machine",muscle:"Adductors"},{name:"Hip Abductor Machine",muscle:"Abductors"},{name:"Smith Machine Squat",muscle:"Quads / Glutes"},{name:"Dumbbell Walking Lunges",muscle:"Quads / Glutes"},{name:"Hip Thrust Machine",muscle:"Glutes"},{name:"Dumbbell Step-Ups",muscle:"Quads / Glutes"},{name:"Seated Calf Raise",muscle:"Calves"},{name:"Dumbbell Sumo Squat",muscle:"Quads / Adductors"}]};
         const DAY_LABELS={push:"Push Day",pull:"Pull Day",legs:"Leg Day",upper:"Upper Body",lower:"Lower Body"};
         const PROGRAM_12_ROUNDS=[{name:"Warm Up",moves:['Jab','1-2','Breathe','Light 1-2','Shake out']},{name:"1-2-3 (Straight-Straight-Hook)",moves:['1-2-3','Jab-Cross-Hook','Jab-Uppercut-Hook','Cross-Hook-Cross']},{name:"Uppercut then Hook",moves:['Lead Uppercut-Hook','Rear Uppercut-Lead Hook','Uppercut-Hook','5-3','6-2']},{name:"4 Punch Combos",moves:['1-2-3-2','1-2-5-2','Jab-Cross-Hook-Cross','1-1-2-3']},{name:"Power Singles",moves:['Power Jab','Hard Cross','Big Hook','Overhand','Body Shot']},{name:"Light 1-2s (Speed)",moves:['Fast 1-2','Touch-Touch','Jab-Cross (Fast)','High-Low']},{name:"Double Jab + Cross",moves:['1-1-2','1-1-Rear Hook','1-1-Overhand','Jab-Jab-Cross']},{name:"3 Punch Speed",moves:['Fast 1-2-3','Touch-Touch-Bang','Speed 3s']},{name:"Hooks Only",moves:['Lead Hook','Rear Hook','Body Hook','3-4','Head-Body']},{name:"Heavy 1-2s",moves:['Hard 1-2','Power 1-2','Cross-Hook','Hook-Cross']},{name:"Uppercut, Hook, Hook",moves:['Uppercut-Hook-Hook','5-3-4','6-3-2']},{name:"Constant",moves:['Non-stop','1-2-1-2','Burnout','Speed','Go Go Go']}];
-        const ROUND_POOL=[{name:"Singles",moves:['Power Jab','Hard Cross','Lead Hook','Rear Uppercut','Body Shot']},{name:"Jab & Cross (1-2)",moves:['1-2','Fast 1-2','Hard 1-2','1-Body 2']},{name:"Double Jab & Cross",moves:['1-1-2','Jab-Jab-Cross','1-1-Body 2']},{name:"1-2 > Hook",moves:['1-2-3','Jab-Cross-Hook','1-2-Lead Hook']},{name:"1-2 > Uppercut",moves:['1-2-5','1-2-6','Jab-Cross-Lead Uppercut','Jab-Cross-Rear Uppercut']},{name:"4 Straight Punches",moves:['1-2-1-2','Jab-Cross-Jab-Cross','4 Fast Straights']},{name:"Hooks Only",moves:['Lead Hook','Rear Hook','Left Hook-Right Hook','Check Hook']},{name:"Body Shots Only",moves:['Lead Body Hook','Rear Body Hook','Jab Low','Cross Low']},{name:"Power Singles",moves:['Hard Cross','Big Hook','Power Jab','Hard Uppercut']},{name:"Jab, Cross, Hook, Cross",moves:['1-2-3-2','Jab-Cross-Hook-Cross']},{name:"Lead Hook, Rear Straight",moves:['3-2','Hook-Cross','Check Hook-Cross']},{name:"High & Low (Head & Body)",moves:['Jab High-Cross Low','1-2 High-Hook Low','Head-Body-Head']},{name:"3 Punch Combos",moves:['1-2-3','2-3-2','3-2-3','5-2-3']},{name:"Non-stop Light Speed",moves:['1-2-1-2 Light','Speed punches','Fast Hands']}];
+        const ROUND_POOL=[{name:"Singles",moves:['Power Jab','Hard Cross','Lead Hook','Rear Uppercut','Body Shot']},{name:"Jab & Cross (1-2)",moves:['1-2','Fast 1-2','Hard 1-2','1-Body 2']},{name:"Double Jab & Cross",moves:['1-1-2','Jab-Jab-Cross','1-1-Body 2']},{name:"1-2 > Hook",moves:['1-2-3','Jab-Cross-Hook','1-2-Lead Hook']},{name:"1-2 > Uppercut",moves:['1-2-5','1-2-6','Jab-Cross-Lead Uppercut','Jab-Cross-Rear Uppercut']},{name:"4 Straight Punches",moves:['1-2-1-2','Jab-Cross-Jab-Cross','4 Fast Straights']},{name:"Hooks Only",moves:['Lead Hook','Rear Hook','Left Hook-Right Hook','Check Hook']},{name:"Power Singles",moves:['Hard Cross','Big Hook','Power Jab','Hard Uppercut']},{name:"Jab, Cross, Hook, Cross",moves:['1-2-3-2','Jab-Cross-Hook-Cross']},{name:"Lead Hook, Rear Straight",moves:['3-2','Hook-Cross','Check Hook-Cross']},{name:"High & Low (Head & Body)",moves:['Jab High-Cross Low','1-2 High-Hook Low','Head-Body-Head']},{name:"3 Punch Combos",moves:['1-2-3','2-3-2','3-2-3','5-2-3']},{name:"Non-stop Light Speed",moves:['1-2-1-2 Light','Speed punches','Fast Hands']}];
         const HOOKS_ONLY_ENTRY=ROUND_POOL.find(r=>r.name==='Hooks Only')||PROGRAM_12_ROUNDS[8];
         function getAge(y,m,d){const t=new Date();let a=t.getFullYear()-y;if(t.getMonth()+1<m||(t.getMonth()+1===m&&t.getDate()<d))a--;return a;}
         const YOU={age:getAge(1991,4,5),weight:100,sex:'male',hrMax:220-getAge(1991,4,5)};
@@ -275,7 +253,7 @@
         window.selectRound=(n,el)=>{settings.rounds=n;Array.from(ui.gridRounds.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');ui.randomDesc.innerText=n<=6?"Randomises ALL rounds":`Randomises middle rounds (2 to ${n-1})`;generateSessionPlan();};
         window.selectWork=(n,el)=>{settings.work=n;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
         window.selectSurprise=(n,el)=>{settings.surpriseCount=n;Array.from(document.getElementById('grid-surprise').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
-        function autoSizeFocus(t){const l=t.length;if(l>30)ui.roundFocus.style.fontSize='clamp(0.9rem,3dvh,1.4rem)';else if(l>20)ui.roundFocus.style.fontSize='clamp(1rem,4dvh,1.75rem)';else ui.roundFocus.style.fontSize='clamp(1.2rem,4.5dvh,2.25rem)';}
+        function autoSizeFocus(t){const l=t.length;if(l>30)ui.roundFocus.style.fontSize='clamp(0.7rem,2dvh,1rem)';else if(l>20)ui.roundFocus.style.fontSize='clamp(0.8rem,2.5dvh,1.2rem)';else ui.roundFocus.style.fontSize='clamp(0.9rem,3dvh,1.5rem)';}
 
         function setMode(mode){settings.mode=mode;if(mode!=='quick-rest')prevMode=mode;const root=document.documentElement;if(hasBLE)btnHrWife.classList.toggle('hidden',mode==='solo');if(mode==='solo'){ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-green-600 text-white shadow-md";ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p>`;root.style.setProperty('--theme-color','#3b82f6');root.style.setProperty('--theme-shadow','rgba(59,130,246,0.4)');ui.btnStart.classList.remove('bg-purple-600','hover:bg-purple-500');ui.btnStart.classList.add('bg-green-600','hover:bg-green-500');ui.toggleBg.classList.remove('peer-checked:bg-purple-600');ui.toggleBg.classList.add('peer-checked:bg-green-600');}else if(mode==='wife'){ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white shadow-md";ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-purple-300 font-bold uppercase tracking-widest">Partner Mode</p><p class="text-[10px] sm:text-xs text-slate-400">2x Rounds. 10s changeover.</p>`;root.style.setProperty('--theme-color','#a855f7');root.style.setProperty('--theme-shadow','rgba(168,85,247,0.4)');ui.btnStart.classList.remove('bg-green-600','hover:bg-green-500');ui.btnStart.classList.add('bg-purple-600','hover:bg-purple-500');ui.toggleBg.classList.remove('peer-checked:bg-green-600');ui.toggleBg.classList.add('peer-checked:bg-purple-600');}generateSessionPlan();}
         ui.modeSolo.onclick=()=>setMode('solo');ui.modeWife.onclick=()=>setMode('wife');
