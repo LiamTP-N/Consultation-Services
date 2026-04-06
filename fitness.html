@@ -12,18 +12,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* ── CSS custom properties for theming; --theme-color swaps per mode ── */
         :root{--accent-green:#22c55e;--accent-orange:#f97316;--accent-purple:#a855f7;--accent-red:#ef4444;--theme-color:#3b82f6;--theme-shadow:rgba(59,130,246,0.4);}
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
         body{font-family:'DM Sans',system-ui,sans-serif;overscroll-behavior-y:contain;background-color:#0f172a;margin:0;}
         body.timer-running{overflow:hidden;}
         .font-mono-display{font-family:'Space Mono',monospace;}
+        /* Frosted-glass card used across setup/home screens */
         .glass-card{background:rgba(30,41,59,0.4);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 8px 32px 0 rgba(0,0,0,0.37);}
         .custom-scrollbar::-webkit-scrollbar{width:4px;}
         .custom-scrollbar::-webkit-scrollbar-track{background:rgba(0,0,0,0.2);}
         .custom-scrollbar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:4px;}
+        /* Setting selector buttons (rounds, work time, surprise count) */
         .btn-select{background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;transition:all 0.2s;}
         .btn-select.active{background:var(--theme-color);color:white;border-color:var(--theme-color);font-weight:bold;box-shadow:0 0 15px var(--theme-shadow);}
         .hidden{display:none !important;}
+        /* Timer background flood-fill: height animates 0-100% over the phase duration */
         #timer-bg{position:fixed;bottom:0;left:0;width:100%;z-index:0;transition:height 1s linear,background-color 0.3s ease;}
         @keyframes restPulse{0%,100%{opacity:1;}50%{opacity:0.8;}}
         .rest-pulse{animation:restPulse 4s ease-in-out infinite;}
@@ -35,12 +39,15 @@
         .exercise-card.core-card .gym-card-num{background:rgba(249,115,22,0.2) !important;border-color:rgba(249,115,22,0.3) !important;}
         .exercise-card.core-card .gym-card-num span{color:#fb923c !important;}
         @keyframes slideIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+        /* Text strokes keep labels readable over the coloured timer background */
         .t-stroke{-webkit-text-stroke:4px rgba(0,0,0,1);paint-order:stroke fill;}
         .t-stroke-heavy{-webkit-text-stroke:6px rgba(0,0,0,1);paint-order:stroke fill;}
         .t-stroke-btn{-webkit-text-stroke:2px rgba(0,0,0,1);paint-order:stroke fill;}
+        /* Surprise round override: white stroke on white background */
         .surprise-stroke{-webkit-text-stroke:6px rgba(255,255,255,0.6)!important;}
         .surprise-stroke-light{-webkit-text-stroke:4px rgba(255,255,255,0.5)!important;}
         .surprise-stroke-btn{-webkit-text-stroke:2px rgba(255,255,255,0.4)!important;}
+        /* dvh units avoid the address-bar jump on mobile Safari */
         #timer-screen{height:100vh;height:100dvh;padding:1.5dvh 0 calc(4dvh + env(safe-area-inset-bottom));}
         .timer-top{padding:0 3vw;}
         .timer-top .round-num{font-size:clamp(1.5rem,5dvh,2.5rem);}
@@ -97,7 +104,7 @@
                 <button id="btn-home-gym" class="home-btn w-full glass-card p-6 rounded-[2rem] flex items-center space-x-5 hover:border-blue-500/30"><div class="w-14 h-14 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h4v12H4zM16 6h4v12h-4zM8 11h8v2H8z"/></svg></div><div class="text-left"><span class="text-xl font-bold text-white block">Gym</span><span class="text-xs text-slate-400">Pick your day, get your exercises</span></div></button>
             </div>
         </div>
-        <!-- GYM DAY -->
+        <!-- GYM DAY PICKER -->
         <div id="gym-day-screen" class="hidden w-full max-w-md space-y-5 py-8">
             <div class="text-center mb-2"><h1 class="text-3xl font-bold text-white tracking-tight mb-1">What Day Is It?</h1><p class="text-sm text-slate-400">Pick your split.</p></div>
             <div class="glass-card p-5 rounded-[2rem] space-y-3">
@@ -130,6 +137,7 @@
                     <div class="flex p-1 bg-slate-800/50 rounded-xl flex-shrink-0"><button id="mode-solo" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-green-600 text-white shadow-md">Solo</button><button id="mode-wife" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">With Wife</button></div>
                     <div id="rest-info" class="flex-1 text-center bg-slate-800/30 p-1.5 rounded-lg border border-slate-700/30"><p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p></div>
                 </div>
+                <!-- BLE HR connect buttons - hidden if device has no Web Bluetooth -->
                 <div id="hr-setup" class="hidden mt-3 pt-3 border-t border-slate-700/50"><div class="flex items-center gap-2">
                     <button id="btn-hr-you" class="flex-1 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold bg-slate-800/50 border border-slate-700/30 hover:border-red-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-red-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-label">Liam's HR</span></button>
                     <button id="btn-hr-wife" class="hidden flex-1 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold bg-slate-800/50 border border-slate-700/30 hover:border-purple-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-label">Wife's HR</span></button>
@@ -139,9 +147,17 @@
                 <div class="flex-1 min-w-0 flex flex-col"><div id="settings-scroll" class="glass-card p-3 sm:p-4 rounded-2xl space-y-3 flex-1 custom-scrollbar">
                     <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Rounds</label><div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5" id="grid-rounds"></div></div>
                     <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Work (Secs)</label><div class="grid grid-cols-3 gap-1.5"><button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(30,this)">30</button><button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(45,this)">45</button><button class="btn-select active py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(60,this)">60</button></div></div>
-                    <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Surprise Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-surprise"><button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(1,this)">1</button><button class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(2,this)">2</button><button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(3,this)">3</button></div></div>
+                    <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Surprise Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-surprise">
+                        <!-- Default active = 2 -->
+                        <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(1,this)">1</button>
+                        <button class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(2,this)">2</button>
+                        <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(3,this)">3</button>
+                    </div></div>
                     <hr class="border-slate-700/50">
-                    <div class="grid grid-cols-3 gap-2"><button id="btn-quick-rest" class="col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-[10px] sm:text-xs shadow-lg active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight"><span>Quick Rest</span><span class="opacity-70 text-[9px]">(120s)</span></button><button id="btn-start" class="col-span-2 bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-2xl text-sm sm:text-lg shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all">Begin Session</button></div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button id="btn-quick-rest" class="col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-[10px] sm:text-xs shadow-lg active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight"><span>Quick Rest</span><span class="opacity-70 text-[9px]">(120s)</span></button>
+                        <button id="btn-start" class="col-span-2 bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-2xl text-sm sm:text-lg shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all">Begin Session</button>
+                    </div>
                 </div></div>
                 <div class="w-[140px] sm:w-[180px] md:w-[220px] flex-shrink-0 flex flex-col"><div class="glass-card p-2 sm:p-3 rounded-2xl flex flex-col flex-1 min-h-0 space-y-2">
                     <div class="flex-shrink-0"><div class="flex items-center justify-between mb-1"><span class="text-[10px] sm:text-xs font-bold text-white">Randomise</span><label class="relative inline-flex items-center cursor-pointer flex-shrink-0"><input type="checkbox" id="in-random" class="sr-only peer"><div id="toggle-bg" class="w-9 sm:w-10 h-5 bg-slate-800 rounded-full peer peer-checked:bg-green-600 peer-checked:after:translate-x-4 sm:peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label></div><p id="random-desc" class="text-[8px] sm:text-[9px] text-slate-400 leading-tight">Randomises middle rounds (2 to 11)</p><hr class="border-slate-700/50 mt-2"></div>
@@ -183,38 +199,124 @@
                 <button id="btn-summary-done" class="bg-slate-700/50 hover:bg-slate-700/70 border border-white/5 text-white font-bold py-4 rounded-2xl transition-all active:scale-[0.98]">Done</button>
             </div>
         </div>
+    </div><!-- /z-10 wrapper -->
+    <!-- NO HR MONITOR MODAL
+         Shown when Begin Session is tapped with no HR device connected.
+         "Go Back" returns to setup; "Start Anyway" calls startSession() directly. -->
+    <div id="hr-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-6">
+        <div class="bg-slate-800 border border-slate-600 rounded-2xl p-6 max-w-xs w-full text-center shadow-2xl">
+            <div class="text-3xl mb-3">&#x1F493;</div>
+            <p class="text-white font-bold text-base mb-1">No HR Monitor Connected</p>
+            <p class="text-slate-400 text-sm mb-5">Train without heart rate tracking?</p>
+            <div class="flex gap-3">
+                <button id="hr-modal-cancel" class="flex-1 py-2.5 rounded-xl text-sm font-bold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition">Go Back</button>
+                <button id="hr-modal-confirm" class="flex-1 py-2.5 rounded-xl text-sm font-bold bg-green-600 hover:bg-green-500 text-white transition">Start Anyway</button>
+            </div>
+        </div>
     </div>
+    <!-- BLE DISCONNECT TOAST
+         Auto-shown mid-session when a paired HR monitor drops and all 3 reconnect
+         attempts fail. Auto-hides after 4 seconds. pointer-events:none so it
+         does not block the timer controls underneath. -->
+    <div id="ble-toast" class="hidden fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl bg-red-600/95 backdrop-blur-sm text-white text-sm font-bold shadow-xl pointer-events-none text-center whitespace-nowrap"></div>
     <script>
+    // Register service worker for offline/PWA support
     if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
     document.addEventListener('DOMContentLoaded',()=>{
+        // ── GYM EXERCISE DATA ──
+        // type: compound/isolation; group: push/pull/quad/hip used by balanced picker
         const GYM_EXERCISES={push:[{name:"Chest Press Machine",muscle:"Chest",type:"compound",group:"push"},{name:"Dumbbell Bench Press",muscle:"Chest",type:"compound",group:"push"},{name:"Incline Dumbbell Press",muscle:"Upper Chest",type:"compound",group:"push"},{name:"Pec Deck / Machine Fly",muscle:"Chest",type:"isolation",group:"push"},{name:"Cable Crossover",muscle:"Chest",type:"isolation",group:"push"},{name:"Shoulder Press Machine",muscle:"Shoulders",type:"compound",group:"push"},{name:"Dumbbell Shoulder Press",muscle:"Shoulders",type:"compound",group:"push"},{name:"Dumbbell Lateral Raise",muscle:"Side Delts",type:"isolation",group:"push"},{name:"Dumbbell Front Raise",muscle:"Front Delts",type:"isolation",group:"push"},{name:"Cable Lateral Raise",muscle:"Side Delts",type:"isolation",group:"push"},{name:"Tricep Pushdown (Cable)",muscle:"Triceps",type:"isolation",group:"push"},{name:"Overhead Tricep Extension (Cable)",muscle:"Triceps",type:"isolation",group:"push"},{name:"Dumbbell Tricep Kickback",muscle:"Triceps",type:"isolation",group:"push"},{name:"Tricep Dip Machine",muscle:"Triceps",type:"compound",group:"push"}],pull:[{name:"Lat Pulldown Machine",muscle:"Lats",type:"compound",group:"pull"},{name:"Seated Cable Row",muscle:"Mid Back",type:"compound",group:"pull"},{name:"Dumbbell Bent-Over Row",muscle:"Back",type:"compound",group:"pull"},{name:"Single-Arm Dumbbell Row",muscle:"Lats",type:"compound",group:"pull"},{name:"Face Pulls (Cable)",muscle:"Rear Delts",type:"isolation",group:"pull"},{name:"Rear Delt Fly Machine",muscle:"Rear Delts",type:"isolation",group:"pull"},{name:"Cable Pullover",muscle:"Lats",type:"isolation",group:"pull"},{name:"Assisted Pull-Up Machine",muscle:"Back",type:"compound",group:"pull"},{name:"Dumbbell Bicep Curl",muscle:"Biceps",type:"isolation",group:"pull"},{name:"Cable Bicep Curl",muscle:"Biceps",type:"isolation",group:"pull"},{name:"Hammer Curl (Dumbbell)",muscle:"Biceps",type:"isolation",group:"pull"},{name:"Dumbbell Shrug",muscle:"Traps",type:"isolation",group:"pull"},{name:"Reverse Cable Fly",muscle:"Rear Delts",type:"isolation",group:"pull"},{name:"Preacher Curl Machine",muscle:"Biceps",type:"isolation",group:"pull"}],legs:[{name:"Leg Press Machine",muscle:"Quads / Glutes",type:"compound",group:"quad"},{name:"Leg Extension Machine",muscle:"Quads",type:"isolation",group:"quad"},{name:"Leg Curl Machine",muscle:"Hamstrings",type:"isolation",group:"hip"},{name:"Calf Raise Machine",muscle:"Calves",type:"isolation",group:"other"},{name:"Goblet Squat (Dumbbell)",muscle:"Quads / Glutes",type:"compound",group:"quad"},{name:"Dumbbell Romanian Deadlift",muscle:"Hamstrings / Glutes",type:"compound",group:"hip"},{name:"Hip Adductor Machine",muscle:"Adductors",type:"isolation",group:"other"},{name:"Hip Abductor Machine",muscle:"Abductors",type:"isolation",group:"other"},{name:"Smith Machine Squat",muscle:"Quads / Glutes",type:"compound",group:"quad"},{name:"Dumbbell Walking Lunges",muscle:"Quads / Glutes",type:"compound",group:"quad"},{name:"Hip Thrust Machine",muscle:"Glutes",type:"compound",group:"hip"},{name:"Dumbbell Step-Ups",muscle:"Quads / Glutes",type:"compound",group:"quad"},{name:"Seated Calf Raise",muscle:"Calves",type:"isolation",group:"other"},{name:"Dumbbell Sumo Squat",muscle:"Quads / Adductors",type:"compound",group:"quad"}]};
         const CORE_EXERCISES=[{name:"Plank Hold",muscle:"Core"},{name:"Dead Bug",muscle:"Core"},{name:"Cable Woodchop",muscle:"Obliques"},{name:"Pallof Press (Cable)",muscle:"Core"},{name:"Hanging Knee Raise",muscle:"Lower Abs"},{name:"Ab Rollout",muscle:"Core"},{name:"Bird Dog",muscle:"Core / Lower Back"},{name:"Cable Crunch",muscle:"Abs"},{name:"Side Plank",muscle:"Obliques"},{name:"Farmer's Walk",muscle:"Core / Grip"}];
         const DAY_LABELS={push:"Push Day",pull:"Pull Day",legs:"Leg Day",upper:"Upper Body",lower:"Lower Body"};
+        // ── BOXING PROGRAMS ──
+        // PROGRAM_12_ROUNDS: fixed-order (randomise off). ROUND_POOL: drawn without
+        // replacement when randomise is on. Hooks Only is guaranteed every session.
         const PROGRAM_12_ROUNDS=[{name:"Warm Up",moves:['Jab','1-2','Breathe','Light 1-2','Shake out']},{name:"1-2-3 (Straight-Straight-Hook)",moves:['1-2-3','Jab-Cross-Hook','Jab-Uppercut-Hook','Cross-Hook-Cross']},{name:"Uppercut then Hook",moves:['Lead Uppercut-Hook','Rear Uppercut-Lead Hook','Uppercut-Hook','5-3','6-2']},{name:"4 Punch Combos",moves:['1-2-3-2','1-2-5-2','Jab-Cross-Hook-Cross','1-1-2-3']},{name:"Power Singles",moves:['Power Jab','Hard Cross','Big Hook','Overhand','Body Shot']},{name:"Light 1-2s (Speed)",moves:['Fast 1-2','Touch-Touch','Jab-Cross (Fast)','High-Low']},{name:"Double Jab + Cross",moves:['1-1-2','1-1-Rear Hook','1-1-Overhand','Jab-Jab-Cross']},{name:"3 Punch Speed",moves:['Fast 1-2-3','Touch-Touch-Bang','Speed 3s']},{name:"Hooks Only",moves:['Lead Hook','Rear Hook','Body Hook','3-4','Head-Body']},{name:"Heavy 1-2s",moves:['Hard 1-2','Power 1-2','Cross-Hook','Hook-Cross']},{name:"Uppercut, Hook, Hook",moves:['Uppercut-Hook-Hook','5-3-4','6-3-2']},{name:"Constant",moves:['Non-stop','1-2-1-2','Burnout','Speed','Go Go Go']}];
         const ROUND_POOL=[{name:"Singles",moves:['Power Jab','Hard Cross','Lead Hook','Rear Uppercut','Body Shot']},{name:"Jab & Cross (1-2)",moves:['1-2','Fast 1-2','Hard 1-2','1-Body 2']},{name:"Double Jab & Cross",moves:['1-1-2','Jab-Jab-Cross','1-1-Body 2']},{name:"1-2 > Hook",moves:['1-2-3','Jab-Cross-Hook','1-2-Lead Hook']},{name:"1-2 > Uppercut",moves:['1-2-5','1-2-6','Jab-Cross-Lead Uppercut','Jab-Cross-Rear Uppercut']},{name:"4 Straight Punches",moves:['1-2-1-2','Jab-Cross-Jab-Cross','4 Fast Straights']},{name:"Hooks Only",moves:['Lead Hook','Rear Hook','Left Hook-Right Hook','Check Hook']},{name:"Power Singles",moves:['Hard Cross','Big Hook','Power Jab','Hard Uppercut']},{name:"Jab, Cross, Hook, Cross",moves:['1-2-3-2','Jab-Cross-Hook-Cross']},{name:"Lead Hook, Rear Straight",moves:['3-2','Hook-Cross','Check Hook-Cross']},{name:"High & Low (Head & Body)",moves:['Jab High-Cross Low','1-2 High-Hook Low','Head-Body-Head']},{name:"3 Punch Combos",moves:['1-2-3','2-3-2','3-2-3','5-2-3']},{name:"Non-stop Light Speed",moves:['1-2-1-2 Light','Speed punches','Fast Hands']}];
         const HOOKS_ONLY_ENTRY=ROUND_POOL.find(r=>r.name==='Hooks Only')||PROGRAM_12_ROUNDS[8];
         const ZONE_COLORS=['#3b82f6','#22c55e','#eab308','#f97316','#ef4444'],ZONE_NAMES=['Z1','Z2','Z3','Z4','Z5'],HR_HISTORY_CAP=7200;
+        // ── SETTINGS & SESSION STATE ──
         let settings={mode:'solo',rounds:12,work:60,restBase:30,randomiseMiddle:false,surpriseCount:2},prevMode='solo';
         let session={active:false,paused:false,phase:'ready',round:1,time:10,total:10,timer:null,plan:[],surpriseRoundsYou:new Set(),surpriseRoundsWife:new Set(),surpriseTriggeredYou:new Set(),surpriseTriggeredWife:new Set(),halfwayPlayed:false,last10Played:false,targetEndTime:0};
         let audioCtx=null,masterGain=null,wakeLock=null,currentGymDay=null,voiceMuted=true,soundMuted=false;
+        // BLE HR monitor handles (null when not connected)
         let hrDeviceYou=null,hrDeviceWife=null,hrCharYou=null,hrCharWife=null,hrValueYou=null,hrValueWife=null;
         let hrHistoryYou=[],hrHistoryWife=[],hrRoundYou=[],hrRoundWife=[],sessionStartTime=0,lastSparkDrawYou=0,lastSparkDrawWife=0;
         let endOfWorkHRYou=null,endOfWorkHRWife=null,recoveryDropsYou=[],recoveryDropsWife=[];
-        let peakHRYou={bpm:0,round:0},peakHRWife={bpm:0,round:0},workSecsTotal=0,restSecsTotal=0;
+        let peakHRYou={bpm:0,round:0},peakHRWife={bpm:0,round:0};
+        // ── WALL-CLOCK PHASE TIMING ──
+        // workSecsTotal/restSecsTotal are accumulated via wall-clock timestamps,
+        // not interval ticks. This means backgrounding the app (which pauses
+        // setInterval on iOS) does not corrupt the totals on the summary screen.
+        // phaseStartWall: wall time when current phase started (or was last resumed).
+        // Set to 0 while paused. accumulatePhaseTime() must be called before any
+        // phase transition or pause to snapshot elapsed time for the outgoing phase.
+        let workSecsTotal=0,restSecsTotal=0,phaseStartWall=0;
+        function accumulatePhaseTime(){
+            if(phaseStartWall<=0)return;
+            const elapsed=Math.round((Date.now()-phaseStartWall)/1000);
+            if(session.phase==='work'||session.phase==='surprise')workSecsTotal+=elapsed;
+            else if(session.phase==='rest'||session.phase==='change')restSecsTotal+=elapsed;
+            phaseStartWall=0;
+        }
         let gymRestTimer=null,gymRestSecs=90,gymRestRunning=false;
+        // ── UTILITIES ──
         function haptic(ms){try{if(navigator.vibrate)navigator.vibrate(ms||50);}catch(e){}}
         function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
-        const hasBLE=!!navigator.bluetooth;const hrSetupEl=document.getElementById('hr-setup'),btnHrYou=document.getElementById('btn-hr-you'),btnHrWife=document.getElementById('btn-hr-wife');const hrYouLabel=document.getElementById('hr-you-label'),hrWifeLabel=document.getElementById('hr-wife-label');const hrLiveYou=document.getElementById('hr-live-you'),hrLiveWife=document.getElementById('hr-live-wife');const hrYouBpm=document.getElementById('hr-you-bpm'),hrWifeBpm=document.getElementById('hr-wife-bpm');const sparkYou=document.getElementById('hr-spark-you'),sparkWife=document.getElementById('hr-spark-wife');if(hasBLE)hrSetupEl.classList.remove('hidden');
+        // ── BLE / HEART RATE ──
+        const hasBLE=!!navigator.bluetooth;
+        const hrSetupEl=document.getElementById('hr-setup'),btnHrYou=document.getElementById('btn-hr-you'),btnHrWife=document.getElementById('btn-hr-wife');
+        const hrYouLabel=document.getElementById('hr-you-label'),hrWifeLabel=document.getElementById('hr-wife-label');
+        const hrLiveYou=document.getElementById('hr-live-you'),hrLiveWife=document.getElementById('hr-live-wife');
+        const hrYouBpm=document.getElementById('hr-you-bpm'),hrWifeBpm=document.getElementById('hr-wife-bpm');
+        const sparkYou=document.getElementById('hr-spark-you'),sparkWife=document.getElementById('hr-spark-wife');
+        if(hasBLE)hrSetupEl.classList.remove('hidden');
+        // BLE HR characteristic flag byte: bit 0=0 means BPM is uint8 at byte 1;
+        // bit 0=1 means BPM is uint16 LE at bytes 1-2.
         function parseHR(v){try{const f=v.getUint8(0);return(f&0x01)?v.getUint16(1,true):v.getUint8(1);}catch(e){return null;}}
         function recordHR(who,bpm){const t=(Date.now()-sessionStartTime)/1000,e={t,bpm,round:session.round,phase:session.phase};if(who==='you'){if(hrHistoryYou.length<HR_HISTORY_CAP)hrHistoryYou.push(e);hrRoundYou.push(e);if(bpm>peakHRYou.bpm){peakHRYou.bpm=bpm;peakHRYou.round=session.round;}}else{if(hrHistoryWife.length<HR_HISTORY_CAP)hrHistoryWife.push(e);hrRoundWife.push(e);if(bpm>peakHRWife.bpm){peakHRWife.bpm=bpm;peakHRWife.round=session.round;}}}
         function onHRReading(who,bpm){if(bpm===null)return;if(who==='you'){hrValueYou=bpm;hrYouBpm.innerText=bpm;if(session.active)recordHR('you',bpm);const n=Date.now();if(n-lastSparkDrawYou>1000){lastSparkDrawYou=n;drawSpark(sparkYou,hrRoundYou,'#f87171');}}else{hrValueWife=bpm;hrWifeBpm.innerText=bpm;if(session.active)recordHR('wife',bpm);const n=Date.now();if(n-lastSparkDrawWife>1000){lastSparkDrawWife=n;drawSpark(sparkWife,hrRoundWife,'#c084fc');}}}
         async function connectHR(who){try{const d=await navigator.bluetooth.requestDevice({filters:[{services:['heart_rate']}]});await setupDevice(d,who);}catch(e){if(e.name!=='NotFoundError')console.error('BLE:',e);}}
-        async function setupDevice(device,who){const server=await device.gatt.connect();const svc=await server.getPrimaryService('heart_rate');const ch=await svc.getCharacteristic('heart_rate_measurement');await ch.startNotifications();const nm=device.name?device.name.substring(0,12):'Connected';ch.addEventListener('characteristicvaluechanged',e=>onHRReading(who,parseHR(e.target.value)));if(who==='you'){hrDeviceYou=device;hrCharYou=ch;hrYouLabel.innerText=nm;btnHrYou.classList.add('border-red-500/60');}else{hrDeviceWife=device;hrCharWife=ch;hrWifeLabel.innerText=nm;btnHrWife.classList.add('border-purple-500/60');}device.addEventListener('gattserverdisconnected',async()=>{for(let a=0;a<3;a++){try{await new Promise(r=>setTimeout(r,1000));if(!device.gatt)break;await setupDevice(device,who);return;}catch(e){}}if(who==='you'){hrDeviceYou=null;hrCharYou=null;hrValueYou=null;hrYouLabel.innerText="Liam's HR";btnHrYou.classList.remove('border-red-500/60');hrYouBpm.innerText='--';}else{hrDeviceWife=null;hrCharWife=null;hrValueWife=null;hrWifeLabel.innerText="Wife's HR";btnHrWife.classList.remove('border-purple-500/60');hrWifeBpm.innerText='--';}});}
+        async function setupDevice(device,who){
+            const server=await device.gatt.connect();
+            const svc=await server.getPrimaryService('heart_rate');
+            const ch=await svc.getCharacteristic('heart_rate_measurement');
+            await ch.startNotifications();
+            const nm=device.name?device.name.substring(0,12):'Connected';
+            ch.addEventListener('characteristicvaluechanged',e=>onHRReading(who,parseHR(e.target.value)));
+            if(who==='you'){hrDeviceYou=device;hrCharYou=ch;hrYouLabel.innerText=nm;btnHrYou.classList.add('border-red-500/60');}
+            else{hrDeviceWife=device;hrCharWife=ch;hrWifeLabel.innerText=nm;btnHrWife.classList.add('border-purple-500/60');}
+            // Auto-reconnect up to 3 times (1s delay each) on unexpected drop
+            device.addEventListener('gattserverdisconnected',async()=>{
+                for(let a=0;a<3;a++){
+                    try{await new Promise(r=>setTimeout(r,1000));if(!device.gatt)break;await setupDevice(device,who);return;}
+                    catch(e){}
+                }
+                // All reconnect attempts failed - reset state and warn user if mid-session
+                if(who==='you'){hrDeviceYou=null;hrCharYou=null;hrValueYou=null;hrYouLabel.innerText="Liam's HR";btnHrYou.classList.remove('border-red-500/60');hrYouBpm.innerText='--';}
+                else{hrDeviceWife=null;hrCharWife=null;hrValueWife=null;hrWifeLabel.innerText="Wife's HR";btnHrWife.classList.remove('border-purple-500/60');hrWifeBpm.innerText='--';}
+                showBleToast(who);
+            });
+        }
         btnHrYou.onclick=()=>{if(hrDeviceYou&&hrDeviceYou.gatt.connected)hrDeviceYou.gatt.disconnect();else connectHR('you');};
         btnHrWife.onclick=()=>{if(hrDeviceWife&&hrDeviceWife.gatt.connected)hrDeviceWife.gatt.disconnect();else connectHR('wife');};
         function updateHRVisibility(){hrLiveYou.classList.toggle('hidden',!(hrDeviceYou&&hrDeviceYou.gatt.connected));hrLiveWife.classList.toggle('hidden',!(hrDeviceWife&&hrDeviceWife.gatt.connected));}
+        // Show brief on-screen toast if HR monitor drops mid-session (only while active)
+        function showBleToast(who){
+            if(!session.active)return;
+            const name=who==='you'?"Liam's":"Wife's";
+            const toast=document.getElementById('ble-toast');
+            toast.innerText='\u26A0\uFE0F '+name+' HR monitor disconnected';
+            toast.classList.remove('hidden');
+            setTimeout(()=>toast.classList.add('hidden'),4000);
+        }
+        // ── SPARKLINE (live HR mini-chart, throttled to 1 redraw/sec) ──
         function drawSpark(c,data,color){const ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);const slice=data.length>60?data.slice(-60):data;if(slice.length<2)return;const b=slice.map(d=>d.bpm),mn=Math.min(...b)-5,mx=Math.max(...b)+5,rg=mx-mn||1;ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.lineJoin='round';const s=w/(slice.length-1);slice.forEach((d,i)=>{const x=i*s,y=h-((d.bpm-mn)/rg)*h;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();}
+        // ── AUDIO (Web Audio API) ──
+        // AudioContext created lazily on first user gesture (browser requirement).
+        // All audio routes through masterGain - tune overall volume here.
         function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();if(!masterGain){masterGain=audioCtx.createGain();masterGain.gain.value=3.0;masterGain.connect(audioCtx.destination);}}
+        // Prime speech synthesis on iOS/Safari inside user gesture or first utterance drops
         function primeSpeech(){try{const u=new SpeechSynthesisUtterance('');u.volume=0;u.rate=1;window.speechSynthesis.speak(u);}catch(e){}}
         function playBell(){if(soundMuted||!audioCtx)return;haptic(100);const now=audioCtx.currentTime;[440,880,1200].forEach((f,i)=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=i===0?'sine':'triangle';o.frequency.setValueAtTime(f,now);g.connect(masterGain);o.connect(g);g.gain.setValueAtTime(0.5/(i+1),now);g.gain.exponentialRampToValueAtTime(0.0001,now+(i===0?2:1));o.start(now);o.stop(now+2);});}
         function playDoubleBell(){playBell();setTimeout(()=>playBell(),300);}
@@ -226,20 +328,43 @@
         function speak(text){if(voiceMuted)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=1.2;u.pitch=1;u.lang='en-GB';window.speechSynthesis.speak(u);}
         document.getElementById('btn-mute-voice').onclick=()=>{voiceMuted=!voiceMuted;document.getElementById('icon-voice-on').classList.toggle('hidden',voiceMuted);document.getElementById('icon-voice-off').classList.toggle('hidden',!voiceMuted);document.getElementById('voice-label').classList.toggle('text-red-400',voiceMuted);document.getElementById('voice-label').classList.toggle('text-white/70',!voiceMuted);if(voiceMuted)window.speechSynthesis.cancel();};
         document.getElementById('btn-mute-sound').onclick=()=>{soundMuted=!soundMuted;document.getElementById('icon-sound-on').classList.toggle('hidden',soundMuted);document.getElementById('icon-sound-off').classList.toggle('hidden',!soundMuted);document.getElementById('sound-label').classList.toggle('text-red-400',soundMuted);document.getElementById('sound-label').classList.toggle('text-white/70',!soundMuted);};
+        // ── FULLSCREEN & WAKE LOCK ──
         function enterFullscreen(){try{const el=document.documentElement;if(el.requestFullscreen)el.requestFullscreen();else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();}catch(e){}}
         function exitFullscreen(){try{if(document.exitFullscreen)document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen();}catch(e){}}
+        // Re-acquire wake lock on visibility change - iOS releases it when backgrounded
         async function reacquireWakeLock(){if(session.active&&!session.paused&&document.visibilityState==='visible'){try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}}}
         document.addEventListener('visibilitychange',reacquireWakeLock);
-        function calcStats(data,person,peakInfo,recoveries){if(data.length<2)return null;const bpms=data.map(d=>d.bpm),avg=Math.round(bpms.reduce((a,b)=>a+b,0)/bpms.length),totalSecs=data[data.length-1].t-data[0].t;let cals=0;for(let i=1;i<data.length;i++){const dt=(data[i].t-data[i-1].t)/60,hr=(data[i].bpm+data[i-1].bpm)/2;let cm;if(person.sex==='male')cm=(-55.0969+0.6309*hr+0.1988*person.weight+0.2017*person.age)/4.184;else cm=(-20.4022+0.4472*hr-0.1263*person.weight+0.074*person.age)/4.184;cals+=Math.max(0,cm)*dt;}const zones=[0,0,0,0,0];for(let i=1;i<data.length;i++){const dt=data[i].t-data[i-1].t,hr=(data[i].bpm+data[i-1].bpm)/2,pct=hr/person.hrMax;let z=0;if(pct>=0.9)z=4;else if(pct>=0.8)z=3;else if(pct>=0.7)z=2;else if(pct>=0.6)z=1;zones[z]+=dt;}const avgRec=recoveries.length>0?Math.round(recoveries.reduce((a,b)=>a+b,0)/recoveries.length):null;return{avg,peak:peakInfo.bpm,peakRound:peakInfo.round,cals:Math.round(cals),zones,totalMins:Math.round(totalSecs/60),avgRecovery:avgRec};}
+        // ── SESSION STATS & SUMMARY ──
+        // Kcal formula: Keytel et al. (2005) HR-based estimation.
+        // Rate clamped to 20 kcal/min to guard against BLE noise spikes
+        // producing implausible totals (real physiological max ~22 kcal/min).
+        function calcStats(data,person,peakInfo,recoveries){
+            if(data.length<2)return null;
+            const bpms=data.map(d=>d.bpm),avg=Math.round(bpms.reduce((a,b)=>a+b,0)/bpms.length),totalSecs=data[data.length-1].t-data[0].t;
+            let cals=0;
+            for(let i=1;i<data.length;i++){
+                const dt=(data[i].t-data[i-1].t)/60,hr=(data[i].bpm+data[i-1].bpm)/2;
+                let cm;
+                if(person.sex==='male')cm=(-55.0969+0.6309*hr+0.1988*person.weight+0.2017*person.age)/4.184;
+                else cm=(-20.4022+0.4472*hr-0.1263*person.weight+0.074*person.age)/4.184;
+                // Clamp to 0-20 kcal/min to prevent BLE noise spike inflating totals
+                cals+=Math.min(Math.max(0,cm),20)*dt;
+            }
+            const zones=[0,0,0,0,0];
+            for(let i=1;i<data.length;i++){const dt=data[i].t-data[i-1].t,hr=(data[i].bpm+data[i-1].bpm)/2,pct=hr/person.hrMax;let z=0;if(pct>=0.9)z=4;else if(pct>=0.8)z=3;else if(pct>=0.7)z=2;else if(pct>=0.6)z=1;zones[z]+=dt;}
+            const avgRec=recoveries.length>0?Math.round(recoveries.reduce((a,b)=>a+b,0)/recoveries.length):null;
+            return{avg,peak:peakInfo.bpm,peakRound:peakInfo.round,cals:Math.round(cals),zones,totalMins:Math.round(totalSecs/60),avgRecovery:avgRec};
+        }
         function fmtZoneTime(s){const m=Math.floor(s/60),sc=Math.round(s%60);return m>0?`${m}m${sc>0?sc+'s':''}`:`${sc}s`;}
         function buildSummaryCard(data,person,label,color,tintBg,chartId,peakInfo,recoveries,wR,rR){const stats=calcStats(data,person,peakInfo,recoveries);if(!stats)return '';const tZ=stats.zones.reduce((a,b)=>a+b,0)||1;let zB='';stats.zones.forEach((s,i)=>{const p=(s/tZ)*100;if(p>0)zB+=`<div class="zone-segment rounded-sm" style="width:${p}%;background:${ZONE_COLORS[i]};">${p>8?fmtZoneTime(s):''}</div>`;});const wM=Math.floor(wR/60),wS=wR%60,rM=Math.floor(rR/60),rS=rR%60;let sr=`<div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.cals}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">kcal</div></div><div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.avg}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Avg bpm</div></div><div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.peak}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Peak (R${stats.peakRound})</div></div>`;if(stats.avgRecovery!==null)sr+=`<div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">-${stats.avgRecovery}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Avg Recovery (bpm)</div></div>`;const gridCls=stats.avgRecovery!==null?'grid-cols-4':'grid-cols-3';return `<div class="p-4 rounded-2xl space-y-3" style="background:${tintBg};border:1px solid rgba(255,255,255,0.08);"><div class="flex justify-between items-center"><p class="text-[10px] font-bold uppercase tracking-widest" style="color:${color}">${label}</p><span class="text-[9px] text-slate-500">Work ${wM}:${wS.toString().padStart(2,'0')} | Rest ${rM}:${rS.toString().padStart(2,'0')}</span></div><div class="grid ${gridCls} gap-1.5">${sr}</div><div><div class="flex items-center justify-between mb-1"><span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Zones</span><span class="text-[9px] text-slate-500">${stats.totalMins} min</span></div><div class="flex rounded-lg overflow-hidden">${zB}</div><div class="flex justify-between mt-1">${ZONE_NAMES.map((n,i)=>`<span class="text-[8px] font-bold" style="color:${ZONE_COLORS[i]}">${n}</span>`).join('')}</div></div><canvas id="${chartId}" class="summary-chart rounded-lg" height="120" style="width:100%;display:block;"></canvas></div>`;}
         function drawSummaryChart(cId,data,hrMax,color){const cv=document.getElementById(cId);if(!cv)return;const ctx=cv.getContext('2d');cv.width=cv.offsetWidth*2;cv.height=240;const w=cv.width,h=cv.height,pad={top:15,right:45,bottom:25,left:38},cw=w-pad.left-pad.right,ch=h-pad.top-pad.bottom;ctx.clearRect(0,0,w,h);if(data.length<2)return;const bpms=data.map(d=>d.bpm),minB=Math.floor((Math.min(...bpms)-10)/10)*10,maxB=Math.ceil((Math.max(...bpms)+10)/10)*10,bR=maxB-minB||1,maxT=data[data.length-1].t;const axisFont=Math.max(10,Math.round(w*0.022))+'px Space Mono',timeFont=Math.max(9,Math.round(w*0.018))+'px Space Mono';
-        // Draw gridlines at every 10% HR_max
         for(let pct=10;pct<=100;pct+=10){const bpm=hrMax*(pct/100);if(bpm<minB||bpm>maxB)continue;const y=pad.top+ch-(bpm-minB)/bR*ch;ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();ctx.fillStyle='#64748b';ctx.font=axisFont;ctx.textAlign='right';ctx.fillText(Math.round(bpm),pad.left-6,y+5);ctx.textAlign='left';ctx.fillText(pct+'%',pad.left+cw+6,y+5);}
         const tS=maxT>300?60:30;for(let t=0;t<=maxT;t+=tS){const x=pad.left+(t/maxT)*cw;ctx.fillStyle='#64748b';ctx.font=timeFont;ctx.textAlign='center';ctx.fillText(`${Math.floor(t/60)}:${Math.floor(t%60).toString().padStart(2,'0')}`,x,h-4);}let pR=0;ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.setLineDash([3,3]);ctx.lineWidth=1;data.forEach(d=>{if(d.round!==pR&&d.phase==='work'){const x=pad.left+(d.t/maxT)*cw;ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+ch);ctx.stroke();pR=d.round;}});ctx.setLineDash([]);ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';data.forEach((d,i)=>{const x=pad.left+(d.t/maxT)*cw,y=pad.top+ch-(d.bpm-minB)/bR*ch;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();}
         function showSummary(){const hY=hrHistoryYou.length>=2,hW=hrHistoryWife.length>=2;if(!hY&&!hW){showScreen('setup');return;}const ds=Math.round((Date.now()-sessionStartTime)/1000),dM=Math.floor(ds/60),dS=ds%60;document.getElementById('summary-duration').innerText=`${dM}:${dS.toString().padStart(2,'0')} total`;document.getElementById('summary-you').innerHTML=hY?buildSummaryCard(hrHistoryYou,YOU,'You','#4ade80','rgba(22,101,52,0.2)','chart-you',peakHRYou,recoveryDropsYou,workSecsTotal,restSecsTotal):'';document.getElementById('summary-wife').innerHTML=hW?buildSummaryCard(hrHistoryWife,WIFE,'Wife','#c084fc','rgba(107,33,168,0.2)','chart-wife',peakHRWife,recoveryDropsWife,workSecsTotal,restSecsTotal):'';showScreen('summary');setTimeout(()=>{if(hY)drawSummaryChart('chart-you',hrHistoryYou,YOU.hrMax,'#4ade80');if(hW)drawSummaryChart('chart-wife',hrHistoryWife,WIFE.hrMax,'#c084fc');},80);}
+        // Lazy-loads html2canvas on first use, then exports summary card as PNG
         document.getElementById('btn-summary-save').onclick=async()=>{const el=document.getElementById('summary-capture');if(typeof html2canvas==='undefined'){const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';document.head.appendChild(s);await new Promise((res,rej)=>{s.onload=res;s.onerror=rej;});}const cvs=el.querySelectorAll('canvas'),sw=[];cvs.forEach(c=>{const img=document.createElement('img');img.src=c.toDataURL('image/png');img.style.cssText=c.style.cssText;img.className=c.className;img.width=c.offsetWidth;img.height=c.offsetHeight;c.parentNode.replaceChild(img,c);sw.push({img,canvas:c,parent:img.parentNode});});try{const cv=await html2canvas(el,{backgroundColor:'#0f172a',scale:2,useCORS:true});const lk=document.createElement('a');lk.download=`boxing-session-${new Date().toISOString().slice(0,10)}.png`;lk.href=cv.toDataURL('image/png');lk.click();}catch(e){console.error('Save failed:',e);}sw.forEach(s=>s.parent.replaceChild(s.canvas,s.img));};
         document.getElementById('btn-summary-done').onclick=()=>{showScreen('setup');setMode(prevMode);};
+        // ── SCREEN MANAGEMENT ──
         const screens={home:document.getElementById('home-screen'),gymDay:document.getElementById('gym-day-screen'),gymWorkout:document.getElementById('gym-workout-screen'),setup:document.getElementById('setup-screen'),timer:document.getElementById('timer-screen'),summary:document.getElementById('summary-screen')};
         const ui={timerBg:document.getElementById('timer-bg'),modeSolo:document.getElementById('mode-solo'),modeWife:document.getElementById('mode-wife'),restInfo:document.getElementById('rest-info'),inRandom:document.getElementById('in-random'),randomDesc:document.getElementById('random-desc'),toggleBg:document.getElementById('toggle-bg'),gridRounds:document.getElementById('grid-rounds'),previewList:document.getElementById('round-preview'),timerDisplay:document.getElementById('timer-display'),roundCur:document.getElementById('current-round'),roundTot:document.getElementById('total-rounds'),nextUp:document.getElementById('next-up'),roundFocus:document.getElementById('round-focus'),btnStart:document.getElementById('btn-start'),btnQuickRest:document.getElementById('btn-quick-rest'),btnPause:document.getElementById('btn-pause'),btnEnd:document.getElementById('btn-end'),btnNext:document.getElementById('btn-next'),btnPrev:document.getElementById('btn-prev'),gymDayLabel:document.getElementById('gym-day-label'),gymExerciseList:document.getElementById('gym-exercise-list')};
         const surpriseStrokeTargets=[{el:ui.roundFocus,cls:'surprise-stroke'},{el:ui.timerDisplay,cls:'surprise-stroke'},{el:document.getElementById('next-up'),cls:'surprise-stroke-light'},{el:document.getElementById('round-label'),cls:'surprise-stroke-light'},{el:ui.roundCur,cls:'surprise-stroke'},{el:document.getElementById('total-rounds'),cls:'surprise-stroke-light'},{el:ui.btnPause,cls:'surprise-stroke-btn'},{el:ui.btnEnd,cls:'surprise-stroke-btn'},{el:document.getElementById('btn-prev'),cls:'surprise-stroke-btn'},{el:document.getElementById('btn-next'),cls:'surprise-stroke-btn'}];
@@ -249,7 +374,9 @@
         document.getElementById('btn-gym-back').onclick=()=>showScreen('home');
         document.getElementById('btn-boxing-back').onclick=()=>showScreen('home');
         document.getElementById('btn-gym-workout-back').onclick=()=>{clearGymRest();showScreen('gymDay');};
-        /* Structured exercise picker: compounds first, balanced groups for upper/lower */
+        // ── GYM WORKOUT LOGIC ──
+        // Upper/lower days guarantee at least one compound from each muscle group
+        // before filling remaining slots with isolations.
         function pickExercises(day){let pool;if(day==='upper')pool=[...GYM_EXERCISES.push,...GYM_EXERCISES.pull];else if(day==='lower')pool=[...GYM_EXERCISES.legs];else pool=[...GYM_EXERCISES[day]];const compounds=shuffle(pool.filter(e=>e.type==='compound'));const isolations=shuffle(pool.filter(e=>e.type==='isolation'));const picked=[];if(day==='upper'){const pushC=shuffle(compounds.filter(e=>e.group==='push'));const pullC=shuffle(compounds.filter(e=>e.group==='pull'));if(pushC.length)picked.push(pushC[0]);if(pullC.length)picked.push(pullC[0]);const rest=shuffle(compounds.filter(e=>!picked.includes(e)));while(picked.length<3&&rest.length)picked.push(rest.shift());}else if(day==='lower'){const quadC=shuffle(compounds.filter(e=>e.group==='quad'));const hipC=shuffle(compounds.filter(e=>e.group==='hip'));if(quadC.length)picked.push(quadC[0]);if(hipC.length)picked.push(hipC[0]);const rest=shuffle(compounds.filter(e=>!picked.includes(e)));while(picked.length<3&&rest.length)picked.push(rest.shift());}else{while(picked.length<3&&compounds.length)picked.push(compounds.shift());}const isoPool=shuffle(isolations.filter(e=>!picked.includes(e)));while(picked.length<5&&isoPool.length)picked.push(isoPool.shift());return picked;}
         function pickCoreExercises(){return shuffle([...CORE_EXERCISES]).slice(0,2);}
         function renderGymWorkout(day){currentGymDay=day;ui.gymDayLabel.innerText=DAY_LABELS[day];const ex=pickExercises(day);const addCore=document.getElementById('in-finisher').checked;const core=addCore?pickCoreExercises():[];const all=[...ex,...core];ui.gymExerciseList.innerHTML='';all.forEach((e,i)=>{const isCore=i>=ex.length;const c=document.createElement('div');c.className='exercise-card gym-card flex items-center bg-slate-800/50 border border-slate-700/30'+(isCore?' core-card':'');c.style.animationDelay=`${i*0.08}s`;const label=isCore?'C'+(i-ex.length+1):(i+1);c.innerHTML=`<div class="gym-card-num bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0"><span class="text-blue-400 font-black font-mono-display">${label}</span></div><div><span class="gym-card-name font-bold text-white block">${e.name}</span><span class="gym-card-muscle text-slate-400 uppercase tracking-wider">${e.muscle}</span></div>`;c.onclick=()=>{c.classList.toggle('done');haptic(30);};ui.gymExerciseList.appendChild(c);});document.getElementById('gym-rest-timer').classList.remove('hidden');clearGymRest();showScreen('gymWorkout');}
@@ -260,33 +387,149 @@
         let gymRestCurrent=0;
         gymRestToggle.onclick=()=>{if(gymRestRunning){clearGymRest();return;}initAudio();playSoftBeep();haptic(50);gymRestRunning=true;gymRestCurrent=gymRestSecs;gymRestDisplay.innerText=gymRestCurrent;gymRestToggle.innerText='Cancel';gymRestToggle.classList.remove('bg-blue-600','hover:bg-blue-500');gymRestToggle.classList.add('bg-red-600','hover:bg-red-500');gymRestTimer=setInterval(()=>{gymRestCurrent--;gymRestDisplay.innerText=Math.max(0,gymRestCurrent);if(gymRestCurrent<=3&&gymRestCurrent>0)playBeep(gymRestCurrent===1);if(gymRestCurrent<=0){playBell();clearGymRest();}},1000);};
         function clearGymRest(){if(gymRestTimer)clearInterval(gymRestTimer);gymRestTimer=null;gymRestRunning=false;gymRestDisplay.innerText=gymRestSecs;gymRestToggle.innerText='Start Rest';gymRestToggle.classList.remove('bg-red-600','hover:bg-red-500');gymRestToggle.classList.add('bg-blue-600','hover:bg-blue-500');}
+        // ── BOXING SETUP SELECTORS ──
         const format=s=>Math.max(0,s).toString();
         for(let i=1;i<=12;i++){const b=document.createElement('button');b.className=`btn-select py-1.5 rounded-lg text-[10px] sm:text-xs font-bold ${i===12?'active':''}`;b.innerText=i;b.onclick=()=>selectRound(i,b);ui.gridRounds.appendChild(b);}
         window.selectRound=(n,el)=>{settings.rounds=n;Array.from(ui.gridRounds.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');ui.randomDesc.innerText=n<=6?"Randomises ALL rounds":`Randomises middle rounds (2 to ${n-1})`;generateSessionPlan();};
         window.selectWork=(n,el)=>{settings.work=n;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
         window.selectSurprise=(n,el)=>{settings.surpriseCount=n;Array.from(document.getElementById('grid-surprise').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
         function autoSizeFocus(t){const l=t.length;if(l>30)ui.roundFocus.style.fontSize='clamp(0.7rem,2dvh,1rem)';else if(l>20)ui.roundFocus.style.fontSize='clamp(0.8rem,2.5dvh,1.2rem)';else ui.roundFocus.style.fontSize='clamp(0.9rem,3dvh,1.5rem)';}
+        // ── MODE (solo / wife) ──
         function setMode(mode){settings.mode=mode;if(mode!=='quick-rest')prevMode=mode;const root=document.documentElement;if(hasBLE)btnHrWife.classList.toggle('hidden',mode==='solo');if(mode==='solo'){ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-green-600 text-white shadow-md";ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p>`;root.style.setProperty('--theme-color','#3b82f6');root.style.setProperty('--theme-shadow','rgba(59,130,246,0.4)');ui.btnStart.classList.remove('bg-purple-600','hover:bg-purple-500');ui.btnStart.classList.add('bg-green-600','hover:bg-green-500');ui.toggleBg.classList.remove('peer-checked:bg-purple-600');ui.toggleBg.classList.add('peer-checked:bg-green-600');}else if(mode==='wife'){ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white shadow-md";ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-purple-300 font-bold uppercase tracking-widest">Partner Mode</p><p class="text-[10px] sm:text-xs text-slate-400">2x Rounds. 10s changeover.</p>`;root.style.setProperty('--theme-color','#a855f7');root.style.setProperty('--theme-shadow','rgba(168,85,247,0.4)');ui.toggleBg.classList.remove('peer-checked:bg-green-600');ui.toggleBg.classList.add('peer-checked:bg-purple-600');}generateSessionPlan();}
         ui.modeSolo.onclick=()=>setMode('solo');ui.modeWife.onclick=()=>setMode('wife');
         ui.inRandom.onchange=e=>{settings.randomiseMiddle=e.target.checked;generateSessionPlan();};
+        // ── SESSION PLAN GENERATOR ──
+        // Fixed: PROGRAM_12_ROUNDS in order. Random: ROUND_POOL without repeats,
+        // first/last fixed if >6 rounds. Hooks Only injected if not already present.
         function generateSessionPlan(){session.plan=[];const tot=settings.rounds;let tp=[...ROUND_POOL];for(let i=0;i<tot;i++){let r=null;const isF=(i===0),isL=(i===tot-1),kFL=tot>6;if(settings.randomiseMiddle){if(kFL&&isF)r=PROGRAM_12_ROUNDS[0];else if(kFL&&isL)r=PROGRAM_12_ROUNDS[11];else{if(tp.length===0)tp=[...ROUND_POOL];const x=Math.floor(Math.random()*tp.length);r=tp[x];tp.splice(x,1);}}else{r=PROGRAM_12_ROUNDS[i%PROGRAM_12_ROUNDS.length];}session.plan.push(r);}if(!session.plan.some(r=>r.name==='Hooks Only')){const s=tot>6?1:0,e=tot>6?tot-1:tot;if(e>s){const slot=s+Math.floor(Math.random()*(e-s));session.plan[slot]=HOOKS_ONLY_ENTRY;}}updatePreview();}
         function updatePreview(){ui.previewList.innerHTML='';for(let i=0;i<settings.rounds;i++){const rd=session.plan[i],rn=i+1,cc=settings.mode==='wife'?"text-purple-300":"text-slate-300";const d=document.createElement('div');d.className="text-[9px] sm:text-[10px] py-1.5 px-2 rounded bg-slate-800/40 border border-slate-700/50";d.innerHTML=`<span class="font-bold ${cc} truncate block">${rn}. ${rd.name}</span>`;ui.previewList.appendChild(d);}}
+        // ── SURPRISE ROUND PICKER ──
+        // Picks 'count' random indices from the middle of the plan (never first or last)
         function pickSurpriseIndices(count,total){const pool=[];for(let i=1;i<total-1;i++)pool.push(i);for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}return new Set(pool.slice(0,Math.min(count,pool.length)));}
         function setSurpriseStrokes(on){surpriseStrokeTargets.forEach(t=>{if(on)t.el.classList.add(t.cls);else t.el.classList.remove(t.cls);});}
-        const setPhase=(phase)=>{if((session.phase==='work'||session.phase==='surprise')&&(phase==='rest'||phase==='change')){if(hrValueYou!==null)endOfWorkHRYou=hrValueYou;if(hrValueWife!==null)endOfWorkHRWife=hrValueWife;}if((session.phase==='rest'||session.phase==='change')&&phase==='work'){if(endOfWorkHRYou!==null&&hrValueYou!==null){const d=endOfWorkHRYou-hrValueYou;if(d>0)recoveryDropsYou.push(d);}if(endOfWorkHRWife!==null&&hrValueWife!==null){const d=endOfWorkHRWife-hrValueWife;if(d>0)recoveryDropsWife.push(d);}endOfWorkHRYou=null;endOfWorkHRWife=null;}session.phase=phase;session.halfwayPlayed=false;session.last10Played=false;setSurpriseStrokes(false);ui.roundFocus.classList.remove('text-red-600');ui.timerDisplay.classList.remove('text-black');ui.timerDisplay.classList.add('text-white');ui.timerBg.classList.remove('rest-pulse');if(phase==='work'||phase==='surprise'){hrRoundYou=[];hrRoundWife=[];}const maxRounds=settings.mode==='wife'?settings.rounds*2:settings.rounds;const isFinalRound=(phase==='work')&&(session.round===maxRounds);if(phase==='ready'){session.time=20;session.total=20;ui.timerBg.className="bg-orange-600";autoSizeFocus("Gloves On");ui.roundFocus.innerText="Gloves On";ui.nextUp.innerText="Next: "+session.plan[0].name;}else if(phase==='work'){session.time=settings.work;session.total=settings.work;if(isFinalRound)playDoubleBell();else playBell();const pi=settings.mode==='wife'?Math.floor((session.round-1)/2):session.round-1;const rd=session.plan[pi];autoSizeFocus(rd.name);ui.roundFocus.innerText=rd.name;ui.roundCur.innerText=session.round;ui.nextUp.innerText="";if(settings.mode==='wife'){ui.timerBg.className=(session.round%2!==0)?"bg-green-600":"bg-purple-600";}else{ui.timerBg.className="bg-green-600";}speak(`Round ${session.round}, ${rd.name}`);}else if(phase==='rest'){const dur=settings.restBase+((session.round-1)*5);session.time=dur;session.total=dur;ui.timerBg.className="bg-red-600 rest-pulse";autoSizeFocus("Rest");ui.roundFocus.innerText="Rest";if(session.round<maxRounds){const pi=settings.mode==='wife'?Math.floor(session.round/2):session.round;ui.nextUp.innerText=`Up Next: ${session.plan[pi].name}`;}else ui.nextUp.innerText="Final Round Complete";playBell();}else if(phase==='change'){session.time=10;session.total=10;ui.timerBg.className="bg-yellow-600 rest-pulse";autoSizeFocus("Change");ui.roundFocus.innerText="Change";const mx=settings.rounds*2;if(session.round<mx){const ny=((session.round+1)%2!==0);const nn=session.plan[Math.floor(session.round/2)].name;ui.nextUp.innerText=`Up Next: ${ny?'YOU':'WIFE'} - ${nn}`;}playBell();}else if(phase==='quick-rest'){ui.timerBg.className="bg-red-600 rest-pulse";autoSizeFocus("Full Rest");ui.roundFocus.innerText="Full Rest";ui.nextUp.innerText="";playBell();}else if(phase==='surprise'){session.time=30;session.total=30;ui.timerBg.className="bg-white";ui.roundFocus.classList.add('text-red-600');ui.timerDisplay.classList.remove('text-white');ui.timerDisplay.classList.add('text-black');setSurpriseStrokes(true);const task=Math.random()>0.5?"NON-STOP STRAIGHTS":"NON-STOP HOOKS";autoSizeFocus(task);ui.roundFocus.innerText=task;if(settings.mode==='wife'){ui.nextUp.innerText=((session.round%2!==0)?"YOU":"WIFE")+" - GO GO GO!";}else{ui.nextUp.innerText="GO GO GO!";}playBell();speak("Surprise Round! "+task);}session.targetEndTime=Date.now()+(session.time*1000);updateUI();};
+        // ── PHASE STATE MACHINE ──
+        // Phases: ready -> work <-> rest (or change in wife mode) -> ... -> end
+        // Surprise phases inject between work and rest for flagged rounds.
+        // accumulatePhaseTime() MUST be called at the START of each transition
+        // so elapsed time for the outgoing phase is snapshotted before
+        // session.phase changes. phaseStartWall is then reset at the end.
+        const setPhase=(phase)=>{
+            // Snapshot outgoing phase time before anything changes
+            accumulatePhaseTime();
+            // Capture end-of-work HR for recovery calculation
+            if((session.phase==='work'||session.phase==='surprise')&&(phase==='rest'||phase==='change')){if(hrValueYou!==null)endOfWorkHRYou=hrValueYou;if(hrValueWife!==null)endOfWorkHRWife=hrValueWife;}
+            // Calculate recovery drop at start of next work round
+            if((session.phase==='rest'||session.phase==='change')&&phase==='work'){if(endOfWorkHRYou!==null&&hrValueYou!==null){const d=endOfWorkHRYou-hrValueYou;if(d>0)recoveryDropsYou.push(d);}if(endOfWorkHRWife!==null&&hrValueWife!==null){const d=endOfWorkHRWife-hrValueWife;if(d>0)recoveryDropsWife.push(d);}endOfWorkHRYou=null;endOfWorkHRWife=null;}
+            session.phase=phase;session.halfwayPlayed=false;session.last10Played=false;setSurpriseStrokes(false);ui.roundFocus.classList.remove('text-red-600');ui.timerDisplay.classList.remove('text-black');ui.timerDisplay.classList.add('text-white');ui.timerBg.classList.remove('rest-pulse');
+            if(phase==='work'||phase==='surprise'){hrRoundYou=[];hrRoundWife=[];}
+            const maxRounds=settings.mode==='wife'?settings.rounds*2:settings.rounds;
+            const isFinalRound=(phase==='work')&&(session.round===maxRounds);
+            if(phase==='ready'){session.time=20;session.total=20;ui.timerBg.className="bg-orange-600";autoSizeFocus("Gloves On");ui.roundFocus.innerText="Gloves On";ui.nextUp.innerText="Next: "+session.plan[0].name;}
+            else if(phase==='work'){session.time=settings.work;session.total=settings.work;if(isFinalRound)playDoubleBell();else playBell();const pi=settings.mode==='wife'?Math.floor((session.round-1)/2):session.round-1;const rd=session.plan[pi];autoSizeFocus(rd.name);ui.roundFocus.innerText=rd.name;ui.roundCur.innerText=session.round;ui.nextUp.innerText="";if(settings.mode==='wife'){ui.timerBg.className=(session.round%2!==0)?"bg-green-600":"bg-purple-600";}else{ui.timerBg.className="bg-green-600";}speak(`Round ${session.round}, ${rd.name}`);}
+            else if(phase==='rest'){const dur=settings.restBase+((session.round-1)*5);session.time=dur;session.total=dur;ui.timerBg.className="bg-red-600 rest-pulse";autoSizeFocus("Rest");ui.roundFocus.innerText="Rest";if(session.round<maxRounds){const pi=settings.mode==='wife'?Math.floor(session.round/2):session.round;ui.nextUp.innerText=`Up Next: ${session.plan[pi].name}`;}else ui.nextUp.innerText="Final Round Complete";playBell();}
+            else if(phase==='change'){session.time=10;session.total=10;ui.timerBg.className="bg-yellow-600 rest-pulse";autoSizeFocus("Change");ui.roundFocus.innerText="Change";const mx=settings.rounds*2;if(session.round<mx){const ny=((session.round+1)%2!==0);const nn=session.plan[Math.floor(session.round/2)].name;ui.nextUp.innerText=`Up Next: ${ny?'YOU':'WIFE'} - ${nn}`;}playBell();}
+            else if(phase==='quick-rest'){ui.timerBg.className="bg-red-600 rest-pulse";autoSizeFocus("Full Rest");ui.roundFocus.innerText="Full Rest";ui.nextUp.innerText="";playBell();}
+            else if(phase==='surprise'){session.time=30;session.total=30;ui.timerBg.className="bg-white";ui.roundFocus.classList.add('text-red-600');ui.timerDisplay.classList.remove('text-white');ui.timerDisplay.classList.add('text-black');setSurpriseStrokes(true);const task=Math.random()>0.5?"NON-STOP STRAIGHTS":"NON-STOP HOOKS";autoSizeFocus(task);ui.roundFocus.innerText=task;if(settings.mode==='wife'){ui.nextUp.innerText=((session.round%2!==0)?"YOU":"WIFE")+" - GO GO GO!";}else{ui.nextUp.innerText="GO GO GO!";}playBell();speak("Surprise Round! "+task);}
+            session.targetEndTime=Date.now()+(session.time*1000);
+            // Start wall clock for the new phase
+            phaseStartWall=Date.now();
+            updateUI();
+        };
         function updateUI(){ui.timerDisplay.innerText=format(session.time);ui.timerBg.style.height=`${(session.time/session.total)*100}%`;if(settings.mode==='quick-rest'){ui.btnPrev.innerText="-10s";ui.btnNext.innerText="+10s";}else{ui.btnPrev.innerText="\u2190 Prev";ui.btnNext.innerText="Next \u2192";}}
-        function run(){session.timer=setInterval(()=>{if(session.paused)return;const remaining=Math.round((session.targetEndTime-Date.now())/1000);session.time=remaining;if(session.phase==='work'||session.phase==='surprise')workSecsTotal++;else if(session.phase==='rest'||session.phase==='change')restSecsTotal++;if(session.phase==='work'||session.phase==='surprise'){if(session.time===Math.floor(session.total/2)&&!session.halfwayPlayed){session.halfwayPlayed=true;playDoubleBeep();}if(session.time===10&&!session.last10Played){session.last10Played=true;playWarningTone();}}if(session.phase==='rest'||session.phase==='change'){if(session.time===10&&!session.last10Played){session.last10Played=true;playWarningTone();}}if(session.time<=3&&session.time>0)playBeep(session.time===1);if(session.time<0){if(settings.mode==='quick-rest'){end();return;}stepPhase(1);}updateUI();},1000);}
+        // ── TIMER LOOP ──
+        // Uses targetEndTime (wall clock) for remaining time, so pause/resume
+        // and backgrounding do not drift the countdown display.
+        function run(){session.timer=setInterval(()=>{
+            if(session.paused)return;
+            const remaining=Math.round((session.targetEndTime-Date.now())/1000);
+            session.time=remaining;
+            if(session.phase==='work'||session.phase==='surprise'){
+                if(session.time===Math.floor(session.total/2)&&!session.halfwayPlayed){session.halfwayPlayed=true;playDoubleBeep();}
+                if(session.time===10&&!session.last10Played){session.last10Played=true;playWarningTone();}
+            }
+            if(session.phase==='rest'||session.phase==='change'){
+                if(session.time===10&&!session.last10Played){session.last10Played=true;playWarningTone();}
+            }
+            if(session.time<=3&&session.time>0)playBeep(session.time===1);
+            if(session.time<0){if(settings.mode==='quick-rest'){end();return;}stepPhase(1);}
+            updateUI();
+        },1000);}
+        // ── STEP PHASE (manual prev/next and auto-advance) ──
         function stepPhase(dir){if(settings.mode==='quick-rest'){if(dir===1){session.time+=10;session.total=Math.max(session.total,session.time);session.targetEndTime=Date.now()+(session.time*1000);}else{session.time=Math.max(0,session.time-10);session.targetEndTime=Date.now()+(session.time*1000);}updateUI();return;}const mx=settings.mode==='wife'?settings.rounds*2:settings.rounds,isW=settings.mode==='wife';if(dir===1){if(session.phase==='ready'){setPhase('work');}else if(session.phase==='work'){const pi=isW?Math.floor((session.round-1)/2):session.round-1,iy=!isW||(session.round%2!==0),ip=isW&&(session.round%2===0);let ts=false;if(iy&&session.surpriseRoundsYou.has(pi)&&!session.surpriseTriggeredYou.has(pi)){session.surpriseTriggeredYou.add(pi);ts=true;}else if(ip&&session.surpriseRoundsWife.has(pi)&&!session.surpriseTriggeredWife.has(pi)){session.surpriseTriggeredWife.add(pi);ts=true;}if(ts)setPhase('surprise');else{if(session.round>=mx)end();else setPhase(isW?'change':'rest');}}else if(session.phase==='change'||session.phase==='rest'){session.round++;setPhase('work');}else if(session.phase==='surprise'){if(session.round>=mx)end();else setPhase(isW?'change':'rest');}}else{if(session.phase==='work'){if(session.round>1){session.round--;setPhase(isW?'change':'rest');}else setPhase('ready');}else if(session.phase==='rest'||session.phase==='change'||session.phase==='surprise'){setPhase('work');}}}
-        function end(){session.active=false;clearInterval(session.timer);if(wakeLock)wakeLock.release();window.speechSynthesis.cancel();playFinishBell();screens.timer.classList.add('hidden');screens.timer.classList.remove('flex');ui.timerBg.style.height='0%';ui.timerBg.classList.remove('rest-pulse');document.body.classList.remove('timer-running');setSurpriseStrokes(false);exitFullscreen();const hasHR=(hrDeviceYou&&hrDeviceYou.gatt&&hrDeviceYou.gatt.connected)||(hrDeviceWife&&hrDeviceWife.gatt&&hrDeviceWife.gatt.connected)||hrHistoryYou.length>=2||hrHistoryWife.length>=2;if(hasHR)showSummary();else{showScreen('setup');setMode(prevMode);}}
-        ui.btnStart.onclick=async()=>{initAudio();primeSpeech();try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}enterFullscreen();document.body.classList.add('timer-running');hrHistoryYou=[];hrHistoryWife=[];hrRoundYou=[];hrRoundWife=[];endOfWorkHRYou=null;endOfWorkHRWife=null;recoveryDropsYou=[];recoveryDropsWife=[];peakHRYou={bpm:0,round:0};peakHRWife={bpm:0,round:0};workSecsTotal=0;restSecsTotal=0;sessionStartTime=Date.now();prevMode=settings.mode;showScreen('timer');ui.roundTot.innerText=settings.mode==='wife'?settings.rounds*2:settings.rounds;session.round=1;session.active=true;session.surpriseRoundsYou=pickSurpriseIndices(settings.surpriseCount,settings.rounds);session.surpriseTriggeredYou=new Set();if(settings.mode==='wife'){session.surpriseRoundsWife=pickSurpriseIndices(settings.surpriseCount,settings.rounds);session.surpriseTriggeredWife=new Set();}else{session.surpriseRoundsWife=new Set();session.surpriseTriggeredWife=new Set();}setPhase('ready');run();};
+        // ── END SESSION ──
+        function end(){
+            // Accumulate any remaining phase time before tearing down
+            accumulatePhaseTime();
+            session.active=false;clearInterval(session.timer);
+            if(wakeLock)wakeLock.release();
+            window.speechSynthesis.cancel();playFinishBell();
+            screens.timer.classList.add('hidden');screens.timer.classList.remove('flex');
+            ui.timerBg.style.height='0%';ui.timerBg.classList.remove('rest-pulse');
+            document.body.classList.remove('timer-running');setSurpriseStrokes(false);exitFullscreen();
+            const hasHR=(hrDeviceYou&&hrDeviceYou.gatt&&hrDeviceYou.gatt.connected)||(hrDeviceWife&&hrDeviceWife.gatt&&hrDeviceWife.gatt.connected)||hrHistoryYou.length>=2||hrHistoryWife.length>=2;
+            if(hasHR)showSummary();else{showScreen('setup');setMode(prevMode);}
+        }
+        // ── BEGIN SESSION ──
+        // startSession() holds the actual launch logic. btnStart.onclick first
+        // checks HR connection and shows the modal if none found, so the modal
+        // "Start Anyway" button can call startSession() directly without duplication.
+        function startSession(){
+            initAudio();primeSpeech();
+            // Request wake lock (non-blocking - failure is acceptable)
+            if('wakeLock' in navigator)navigator.wakeLock.request('screen').then(wl=>wakeLock=wl).catch(()=>{});
+            enterFullscreen();
+            document.body.classList.add('timer-running');
+            // Reset all session data
+            hrHistoryYou=[];hrHistoryWife=[];hrRoundYou=[];hrRoundWife=[];
+            endOfWorkHRYou=null;endOfWorkHRWife=null;
+            recoveryDropsYou=[];recoveryDropsWife=[];
+            peakHRYou={bpm:0,round:0};peakHRWife={bpm:0,round:0};
+            workSecsTotal=0;restSecsTotal=0;phaseStartWall=0;
+            sessionStartTime=Date.now();prevMode=settings.mode;
+            showScreen('timer');
+            ui.roundTot.innerText=settings.mode==='wife'?settings.rounds*2:settings.rounds;
+            session.round=1;session.active=true;
+            // Pick which rounds will be surprise rounds for this session
+            session.surpriseRoundsYou=pickSurpriseIndices(settings.surpriseCount,settings.rounds);
+            session.surpriseTriggeredYou=new Set();
+            if(settings.mode==='wife'){session.surpriseRoundsWife=pickSurpriseIndices(settings.surpriseCount,settings.rounds);session.surpriseTriggeredWife=new Set();}
+            else{session.surpriseRoundsWife=new Set();session.surpriseTriggeredWife=new Set();}
+            setPhase('ready');run();
+        }
+        // HR modal - shown when Begin Session tapped with no HR monitor connected
+        const hrModal=document.getElementById('hr-modal');
+        document.getElementById('hr-modal-cancel').onclick=()=>hrModal.classList.add('hidden');
+        document.getElementById('hr-modal-confirm').onclick=()=>{hrModal.classList.add('hidden');startSession();};
+        ui.btnStart.onclick=()=>{
+            const anyConnected=(hrDeviceYou&&hrDeviceYou.gatt&&hrDeviceYou.gatt.connected)||(hrDeviceWife&&hrDeviceWife.gatt&&hrDeviceWife.gatt.connected);
+            if(!anyConnected){hrModal.classList.remove('hidden');}else{startSession();}
+        };
+        // Quick Rest: free countdown timer, bypasses normal round structure
         ui.btnQuickRest.onclick=async()=>{initAudio();primeSpeech();try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}enterFullscreen();document.body.classList.add('timer-running');prevMode=settings.mode;settings.mode='quick-rest';showScreen('timer');session.time=120;session.total=120;session.round=1;ui.roundTot.innerText="-";ui.roundCur.innerText="-";session.active=true;setPhase('quick-rest');run();};
         ui.btnEnd.onclick=end;
-        ui.btnPause.onclick=()=>{session.paused=!session.paused;if(!session.paused){session.targetEndTime=Date.now()+(session.time*1000);}ui.btnPause.innerText=session.paused?"Resume":"Pause";ui.btnPause.classList.toggle('bg-white/10');};
+        // Pause: snapshot phase time before freezing so wall-clock stays accurate.
+        // Resume: reset phaseStartWall and re-anchor the countdown target.
+        ui.btnPause.onclick=()=>{
+            session.paused=!session.paused;
+            if(session.paused){
+                accumulatePhaseTime();
+            }else{
+                phaseStartWall=Date.now();
+                session.targetEndTime=Date.now()+(session.time*1000);
+            }
+            ui.btnPause.innerText=session.paused?"Resume":"Pause";
+            ui.btnPause.classList.toggle('bg-white/10');
+        };
         ui.btnNext.onclick=()=>stepPhase(1);ui.btnPrev.onclick=()=>stepPhase(-1);
+        // ── PERSONAL STATS ──
+        // Age calculated dynamically so hrMax stays accurate year-on-year.
+        // hrMax uses the Tanaka formula: 208 - (0.7 x age)
         function getAge(y,m,d){const t=new Date();let a=t.getFullYear()-y;if(t.getMonth()+1<m||(t.getMonth()+1===m&&t.getDate()<d))a--;return a;}
         const YOU={age:getAge(1991,4,5),weight:100,sex:'male',hrMax:Math.round(208-(0.7*getAge(1991,4,5)))};
         const WIFE={age:getAge(1987,4,2),weight:70,sex:'female',hrMax:Math.round(208-(0.7*getAge(1987,4,2)))};
+        // Initialise
         showScreen('home');
+        generateSessionPlan();
     });
     </script>
 </body>
