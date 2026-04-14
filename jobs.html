@@ -76,13 +76,6 @@
                 <button class="role-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-role="industry">Industry</button>
             </div>
 
-            <!-- 3. Level (always visible; placeholder shown when Role = All) -->
-            <div class="flex flex-wrap gap-2 items-center mb-3">
-                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Level:</span>
-                <span id="level-placeholder" class="text-xs text-slate-600 italic">Select a role above</span>
-                <div id="level-buttons" class="hidden flex flex-wrap gap-2"></div>
-            </div>
-
             <!-- 4. Discipline -->
             <div class="flex flex-wrap gap-2 items-center mb-3">
                 <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Discipline:</span>
@@ -180,7 +173,6 @@
     let sourceFilter = 'all';
     let countryFilter = 'all';
     let roleFilter = 'all';
-    let levelFilter = 'all';
     let disciplineFilter = 'all';
     let visibleCount = PAGE_SIZE;
 
@@ -188,29 +180,6 @@
         academia:   ['lecturer', 'professor', 'teaching fellow', 'faculty', 'academic staff'],
         research:   ['research fellow', 'postdoc', 'postdoctoral', 'studentship', 'research associate', 'doctoral researcher'],
         technician: ['technician', 'research assistant', 'lab assistant'],
-    };
-
-    const LEVEL_OPTIONS = {
-        academia: [
-            { label: 'Lecturer',         value: 'lecturer' },
-            { label: 'Senior Lecturer',  value: 'senior lecturer' },
-            { label: 'Professor / AP',   value: 'professor' },
-        ],
-        research: [
-            { label: 'Research Fellow',    value: 'research fellow' },
-            { label: 'Postdoc',            value: 'postdoc,postdoctoral' },
-            { label: 'PhD Studentship',    value: 'phd,studentship,doctoral' },
-            { label: 'Research Associate', value: 'research associate' },
-        ],
-        technician: [
-            { label: 'Lab Technician',     value: 'lab technician,laboratory technician,senior technician' },
-            { label: 'Research Assistant', value: 'research assistant' },
-        ],
-        industry: [
-            { label: 'Sport Tech',   value: 'wearable,sport tech,technology' },
-            { label: 'Performance',  value: 'performance,strength,conditioning' },
-            { label: 'Nutrition',    value: 'nutrition,dietetics' },
-        ],
     };
 
     const DISC_KEYWORDS = {
@@ -236,12 +205,6 @@
         return (ROLE_MATCH[role] || []).some(k => hay.includes(k));
     }
 
-    function matchesLevel(j, level) {
-        if (level === 'all') return true;
-        const hay = `${j.title || ''} ${j.type || ''}`.toLowerCase();
-        return level.split(',').some(t => hay.includes(t.trim()));
-    }
-
     function matchesDiscipline(j, disc) {
         if (disc === 'all') return true;
         const hay = `${j.title || ''} ${j.organisation || ''} ${j.type || ''}`.toLowerCase();
@@ -254,39 +217,6 @@
         const c = (j.country || '').toLowerCase();
         if (filter === 'canada') return c === 'canada';
         return c === 'uk' || c === '' || !j.country;
-    }
-
-    function renderLevelButtons(role) {
-        const placeholder = document.getElementById('level-placeholder');
-        const container = document.getElementById('level-buttons');
-        const opts = LEVEL_OPTIONS[role];
-
-        if (!opts) {
-            placeholder.classList.remove('hidden');
-            container.classList.add('hidden');
-            container.innerHTML = '';
-            return;
-        }
-
-        placeholder.classList.add('hidden');
-        container.classList.remove('hidden');
-        container.className = 'flex flex-wrap gap-2';
-
-        let html = `<button class="level-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition filter-active" data-level="all">All</button>`;
-        opts.forEach(opt => {
-            html += `<button class="level-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-level="${opt.value}">${opt.label}</button>`;
-        });
-        container.innerHTML = html;
-
-        container.querySelectorAll('.level-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                container.querySelectorAll('.level-btn').forEach(b => b.classList.remove('filter-active'));
-                btn.classList.add('filter-active');
-                levelFilter = btn.dataset.level;
-                visibleCount = PAGE_SIZE;
-                renderTable();
-            });
-        });
     }
 
     function deduplicateJobs(jobs) {
@@ -346,7 +276,6 @@
             if (!matchesCountry(j, countryFilter))       return false;
             if (sourceFilter !== 'all' && j.source !== sourceFilter) return false;
             if (!matchesRole(j, roleFilter))             return false;
-            if (!matchesLevel(j, levelFilter))           return false;
             if (!matchesDiscipline(j, disciplineFilter)) return false;
             const hay = `${j.title} ${j.organisation} ${j.type}`.toLowerCase();
             if (searchTerm && !hay.includes(searchTerm)) return false;
@@ -473,9 +402,7 @@
             document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('filter-active'));
             btn.classList.add('filter-active');
             roleFilter = btn.dataset.role;
-            levelFilter = 'all';
             visibleCount = PAGE_SIZE;
-            renderLevelButtons(roleFilter);
             renderTable();
         });
     });
