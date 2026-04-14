@@ -1,8 +1,11 @@
 """
-Job scraper for: Indeed (RSS), Jobs.ac.uk (RSS), LinkedIn, Bluesky
+Job scraper for: Indeed (RSS), Jobs.ac.uk (RSS), LinkedIn, Bluesky (UK)
+                 Indeed Canada (RSS), LinkedIn Canada, THEunijobs Canada (RSS),
+                 HigherEdJobs (RSS), University Affairs (HTML)
 Writes results to jobs.json
 
-Search terms tuned for: Sport Science, Nutrition, Wearable Technology, Research, Academia, Lecturing
+Search terms tuned for: Sport Science, Kinesiology, Nutrition, Wearable Technology,
+                        Research, Academia, Lecturing (UK + Canada)
 """
 
 import json
@@ -29,7 +32,8 @@ HEADERS = {
     "Accept-Language": "en-GB,en;q=0.9",
 }
 
-SEARCH_TERMS = [
+# UK-focused search terms (used for Indeed UK and LinkedIn UK)
+SEARCH_TERMS_UK = [
     "sport science lecturer",
     "exercise science lecturer",
     "sport exercise science researcher",
@@ -46,11 +50,31 @@ SEARCH_TERMS = [
     "nutrition science researcher",
 ]
 
+# Canada-focused search terms (kinesiology terminology used in Canadian HE)
+SEARCH_TERMS_CA = [
+    "kinesiology lecturer",
+    "kinesiology professor",
+    "assistant professor kinesiology",
+    "associate professor kinesiology",
+    "sport science professor",
+    "exercise science professor",
+    "human kinetics professor",
+    "exercise physiology professor",
+    "biomechanics professor",
+    "sport nutrition professor",
+    "physical education professor",
+    "health sciences sport professor",
+    "laboratory technician kinesiology",
+    "research fellow exercise science",
+]
+
 REQUIRED_KEYWORDS = [
     "sport", "exercise", "physical activity", "biomechanics", "wearable",
     "strength", "conditioning", "physiology", "fitness", "health science",
     "human movement", "rehabilitation", "performance", "kinesiology",
-    "lecturer", "senior lecturer", "professor", "research fellow", "postdoc",
+    "human kinetics", "physical education",
+    "lecturer", "senior lecturer", "professor", "assistant professor",
+    "associate professor", "research fellow", "postdoc", "postdoctoral",
     "lab technician", "laboratory", "data scientist", "python", "machine learning",
     "resistance training", "older adult", "ageing", "aging", "musculoskeletal",
     "nutrition", "dietetics", "diet",
@@ -67,6 +91,7 @@ EXCLUDE_KEYWORDS = [
     "pathology", "dentist", "dental", "veterinary",
 ]
 
+# Jobs.ac.uk RSS feeds (UK only)
 JOBSAC_RSS_FEEDS = [
     ("https://www.jobs.ac.uk/jobs/sport-and-leisure/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/laboratory-clinical-and-technician/?format=rss", "Jobs.ac.uk"),
@@ -75,12 +100,28 @@ JOBSAC_RSS_FEEDS = [
     ("https://www.jobs.ac.uk/jobs/nutrition-and-food-science/?format=rss", "Jobs.ac.uk"),
 ]
 
+# Canadian RSS feeds (THEunijobs Canada, HigherEdJobs)
+CANADA_RSS_FEEDS = [
+    (
+        "https://www.timeshighereducation.com/unijobs/listings/canada/?format=rss",
+        "THEunijobs",
+    ),
+    (
+        "https://www.higheredjobs.com/rss/articleFeed.cfm?JobCat=161&Remote=0",
+        "HigherEdJobs",
+    ),
+    (
+        "https://www.higheredjobs.com/rss/articleFeed.cfm?JobCat=43&Remote=0",
+        "HigherEdJobs",
+    ),
+]
+
 BLUESKY_ACCOUNTS = [
     "jobsinsportscience.bsky.social",
 ]
 
 OUTPUT_FILE = Path("jobs.json")
-MAX_DAYS_OLD = 90
+MAX_DAYS_OLD = 30
 
 
 def make_id(url: str, title: str) -> str:
@@ -93,8 +134,6 @@ def normalise_linkedin_url(url: str) -> str:
     if not url:
         return url
     parsed = urllib.parse.urlparse(url)
-    # LinkedIn job URLs look like linkedin.com/jobs/view/1234567890...
-    # Keep only the path, drop all query params and fragments
     return f"{parsed.scheme}://{parsed.netloc}{parsed.path}".rstrip("/")
 
 
@@ -184,7 +223,7 @@ def parse_rss_date(date_str: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Jobs.ac.uk - Official RSS feeds
+# Jobs.ac.uk - Official RSS feeds (UK)
 # ---------------------------------------------------------------------------
 
 def scrape_jobsac_rss() -> list:
@@ -226,6 +265,7 @@ def scrape_jobsac_rss() -> list:
                         "title": title,
                         "organisation": org,
                         "location": loc,
+                        "country": "UK",
                         "source": source,
                         "url": href,
                         "date_posted": date_str,
@@ -241,16 +281,22 @@ def scrape_jobsac_rss() -> list:
 
 
 # ---------------------------------------------------------------------------
-# Indeed - RSS feed
+# Indeed - RSS feed (UK and Canada)
 # ---------------------------------------------------------------------------
 
-def scrape_indeed(term: str) -> list:
+def scrape_indeed(term: str, country: str = "UK") -> list:
     jobs = []
-    url = (
-        f"https://www.indeed.co.uk/rss?q={urllib.parse.quote(term)}"
-        f"&l=United+Kingdom&sort=date&fromage=30"
-    )
-    print(f"  Indeed RSS: {term}")
+    if country == "Canada":
+        url = (
+            f"https://ca.indeed.com/rss?q={urllib.parse.quote(term)}"
+            f"&l=Canada&sort=date&fromage=30"
+        )
+    else:
+        url = (
+            f"https://www.indeed.co.uk/rss?q={urllib.parse.quote(term)}"
+            f"&l=United+Kingdom&sort=date&fromage=30"
+        )
+    print(f"  Indeed RSS ({country}): {term}")
     r = get(url)
     if not r:
         return jobs
@@ -273,7 +319,8 @@ def scrape_indeed(term: str) -> list:
                     "id": make_id(href, title),
                     "title": title,
                     "organisation": org,
-                    "location": "UK",
+                    "location": country,
+                    "country": country,
                     "source": "Indeed",
                     "url": href,
                     "date_posted": date_str,
@@ -288,16 +335,17 @@ def scrape_indeed(term: str) -> list:
 
 
 # ---------------------------------------------------------------------------
-# LinkedIn - public HTML
+# LinkedIn - public HTML (UK and Canada)
 # ---------------------------------------------------------------------------
 
-def scrape_linkedin(term: str) -> list:
+def scrape_linkedin(term: str, country: str = "UK") -> list:
     jobs = []
+    location = "Canada" if country == "Canada" else "United%20Kingdom"
     url = (
         f"https://www.linkedin.com/jobs/search/?keywords={urllib.parse.quote(term)}"
-        f"&location=United%20Kingdom&sortBy=DD&f_TPR=r2592000"
+        f"&location={location}&sortBy=DD&f_TPR=r2592000"
     )
-    print(f"  LinkedIn: {term}")
+    print(f"  LinkedIn ({country}): {term}")
     r = get(url)
     if not r:
         return jobs
@@ -324,6 +372,7 @@ def scrape_linkedin(term: str) -> list:
                 "title": title,
                 "organisation": org,
                 "location": loc,
+                "country": country,
                 "source": "LinkedIn",
                 "url": href,
                 "date_posted": date_str[:10],
@@ -332,6 +381,117 @@ def scrape_linkedin(term: str) -> list:
             })
         except Exception as e:
             print(f"    parse error: {e}")
+    return jobs
+
+
+# ---------------------------------------------------------------------------
+# Canada - RSS feeds (THEunijobs, HigherEdJobs)
+# ---------------------------------------------------------------------------
+
+def scrape_canada_rss() -> list:
+    jobs = []
+    for feed_url, source in CANADA_RSS_FEEDS:
+        print(f"  Canada RSS ({source}): {feed_url[:60]}...")
+        r = get(feed_url)
+        if not r:
+            continue
+        try:
+            soup = BeautifulSoup(r.text, "xml")
+            for item in soup.find_all("item")[:50]:
+                try:
+                    title = clean(item.find("title").get_text()) if item.find("title") else ""
+                    if not title:
+                        continue
+                    link = item.find("link")
+                    href = link.get_text().strip() if link else ""
+                    if not href and link:
+                        href = link.next_sibling
+                    desc_el = item.find("description")
+                    desc = BeautifulSoup(desc_el.get_text(), "html.parser").get_text() if desc_el else ""
+                    org = ""
+                    org_match = re.search(
+                        r"(?:Employer|Institution|Organisation|University|College):\s*(.+?)(?:\n|$)",
+                        desc, re.I
+                    )
+                    if org_match:
+                        org = org_match.group(1).strip()
+                    pub_date = item.find("pubDate")
+                    date_str = parse_rss_date(pub_date.get_text() if pub_date else "")
+                    jobs.append({
+                        "id": make_id(href, title),
+                        "title": title,
+                        "organisation": org,
+                        "location": "Canada",
+                        "country": "Canada",
+                        "source": source,
+                        "url": href,
+                        "date_posted": date_str,
+                        "closing_date": "",
+                        "type": "",
+                    })
+                except Exception as e:
+                    print(f"    item parse error: {e}")
+        except Exception as e:
+            print(f"    feed parse error ({source}): {e}")
+        time.sleep(1)
+    return jobs
+
+
+# ---------------------------------------------------------------------------
+# University Affairs - HTML scrape (Canada)
+# ---------------------------------------------------------------------------
+
+def scrape_university_affairs() -> list:
+    """Scrape the University Affairs job board (Canada's primary academic job listing)."""
+    jobs = []
+    url = "https://www.universityaffairs.ca/career-centre/job-board/"
+    print(f"  University Affairs HTML scrape...")
+    r = get(url)
+    if not r:
+        return jobs
+    try:
+        soup = BeautifulSoup(r.text, "html.parser")
+        # Job listings are typically in article or li elements with job data
+        listings = soup.select("article.job, li.job-listing, div.job-item, .views-row")
+        if not listings:
+            # Fallback: look for any links with job-like href patterns
+            listings = soup.select("h2 a, h3 a, .job-title a")
+        for item in listings[:40]:
+            try:
+                # Try to find title
+                title_el = item.select_one("h2, h3, .job-title, a") if hasattr(item, 'select_one') else item
+                if not title_el:
+                    continue
+                title = clean(title_el.get_text())
+                if not title or len(title) < 5:
+                    continue
+                # Find link
+                link_el = item.select_one("a") if hasattr(item, 'select_one') else item
+                href = ""
+                if link_el and link_el.get("href"):
+                    href = link_el["href"]
+                    if href.startswith("/"):
+                        href = "https://www.universityaffairs.ca" + href
+                # Find organisation
+                org_el = item.select_one(".institution, .employer, .university, .org")
+                org = clean(org_el.get_text()) if org_el else ""
+                jobs.append({
+                    "id": make_id(href or title, title),
+                    "title": title,
+                    "organisation": org,
+                    "location": "Canada",
+                    "country": "Canada",
+                    "source": "University Affairs",
+                    "url": href,
+                    "date_posted": datetime.date.today().isoformat(),
+                    "closing_date": "",
+                    "type": "",
+                })
+            except Exception as e:
+                print(f"    item parse error: {e}")
+        print(f"    found {len(jobs)} listings from University Affairs")
+    except Exception as e:
+        print(f"  ERROR University Affairs: {e}")
     return jobs
 
 
@@ -391,6 +551,7 @@ def scrape_bluesky() -> list:
                         "title": title,
                         "organisation": handle.replace(".bsky.social", ""),
                         "location": "",
+                        "country": "",
                         "source": "Bluesky",
                         "url": job_url,
                         "date_posted": date_str,
@@ -415,6 +576,8 @@ def main():
     existing_ids = {j["id"] for j in existing.get("jobs", [])}
     new_jobs = []
 
+    # --- UK sources ---
+
     print("  Running Jobs.ac.uk RSS scraper...")
     try:
         results = scrape_jobsac_rss()
@@ -428,25 +591,75 @@ def main():
     except Exception as e:
         print(f"  ERROR jobs.ac.uk RSS: {e}")
 
-    scrapers = [
+    print("  Running UK scrapers (Indeed + LinkedIn)...")
+    uk_scrapers = [
         ("indeed",   scrape_indeed),
         ("linkedin", scrape_linkedin),
     ]
-
-    for source_name, fn in scrapers:
-        for term in SEARCH_TERMS:
+    for source_name, fn in uk_scrapers:
+        for term in SEARCH_TERMS_UK:
             try:
-                results = fn(term)
+                results = fn(term, country="UK")
                 added = 0
                 for j in results:
                     if j["id"] not in existing_ids and passes_filter(j):
                         new_jobs.append(j)
                         existing_ids.add(j["id"])
                         added += 1
-                print(f"    +{added} new from {source_name} / '{term}'")
+                print(f"    +{added} new from {source_name} UK / '{term}'")
             except Exception as e:
-                print(f"  ERROR {source_name} '{term}': {e}")
+                print(f"  ERROR {source_name} UK '{term}': {e}")
             time.sleep(1.5)
+
+    # --- Canadian sources ---
+
+    print("  Running Canadian RSS scrapers (THEunijobs, HigherEdJobs)...")
+    try:
+        results = scrape_canada_rss()
+        added = 0
+        for j in results:
+            if j["id"] not in existing_ids and passes_filter(j):
+                new_jobs.append(j)
+                existing_ids.add(j["id"])
+                added += 1
+        print(f"    +{added} new from Canadian RSS feeds")
+    except Exception as e:
+        print(f"  ERROR Canadian RSS: {e}")
+
+    print("  Running University Affairs scraper...")
+    try:
+        results = scrape_university_affairs()
+        added = 0
+        for j in results:
+            if j["id"] not in existing_ids and passes_filter(j):
+                new_jobs.append(j)
+                existing_ids.add(j["id"])
+                added += 1
+        print(f"    +{added} new from University Affairs")
+    except Exception as e:
+        print(f"  ERROR University Affairs: {e}")
+
+    print("  Running Canadian scrapers (Indeed CA + LinkedIn CA)...")
+    ca_scrapers = [
+        ("indeed",   scrape_indeed),
+        ("linkedin", scrape_linkedin),
+    ]
+    for source_name, fn in ca_scrapers:
+        for term in SEARCH_TERMS_CA:
+            try:
+                results = fn(term, country="Canada")
+                added = 0
+                for j in results:
+                    if j["id"] not in existing_ids and passes_filter(j):
+                        new_jobs.append(j)
+                        existing_ids.add(j["id"])
+                        added += 1
+                print(f"    +{added} new from {source_name} CA / '{term}'")
+            except Exception as e:
+                print(f"  ERROR {source_name} CA '{term}': {e}")
+            time.sleep(1.5)
+
+    # --- Bluesky ---
 
     print("  Running Bluesky scraper...")
     try:
@@ -466,7 +679,6 @@ def main():
     all_jobs = deduplicate(all_jobs)
     all_jobs.sort(key=lambda j: j.get("date_posted") or "", reverse=True)
 
-    dupes_removed = len(existing.get("jobs", []) + new_jobs) - len(prune_old(existing.get("jobs", []) + new_jobs))
     print(f"\nTotal jobs: {len(all_jobs)} ({len(new_jobs)} new)")
     save({"jobs": all_jobs})
 
