@@ -91,9 +91,24 @@
             </div>
 
             <!-- Sub-role filter row (Tier 2) - shown dynamically -->
-            <div id="sub-role-row" class="flex flex-wrap gap-2 items-center mb-4 hidden">
+            <div id="sub-role-row" class="flex flex-wrap gap-2 items-center mb-3 hidden">
                 <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Level:</span>
                 <!-- Populated dynamically by JS -->
+            </div>
+
+            <!-- Discipline filter row (always visible, independent) -->
+            <div class="flex flex-wrap gap-2 items-center mb-4">
+                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Discipline:</span>
+                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition filter-active" data-disc="all">All</button>
+                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="sport science">Sport Science</button>
+                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="biomechanics">Biomechanics</button>
+                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="physiology">Physiology</button>
+                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="nutrition,diet">Nutrition</button>
+                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="strength,conditioning">S&amp;C</button>
+                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="wearable">Wearables</button>
+                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="psychology">Psychology</button>
+                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="health,public health">Health</button>
+                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="coaching,coach">Coaching</button>
             </div>
         </div>
     </header>
@@ -164,6 +179,7 @@
     let countryFilter = 'all';
     let roleFilter = 'all';
     let subRole = 'all';
+    let disciplineFilter = 'all';
     let visibleCount = PAGE_SIZE;
 
     // Keywords that define each role category (matched against title + type)
@@ -212,6 +228,12 @@
         if (sub === 'all') return true;
         const hay = `${j.title || ''} ${j.type || ''}`.toLowerCase();
         return sub.split(',').some(t => hay.includes(t.trim()));
+    }
+
+    function matchesDiscipline(j, disc) {
+        if (disc === 'all') return true;
+        const hay = `${j.title || ''} ${j.type || ''} ${j.organisation || ''}`.toLowerCase();
+        return disc.split(',').some(t => hay.includes(t.trim()));
     }
 
     // Note: jobs with no country tag (e.g. Bluesky posts) default to UK.
@@ -318,6 +340,7 @@
             if (sourceFilter !== 'all' && j.source !== sourceFilter) return false;
             if (!matchesRole(j, roleFilter)) return false;
             if (!matchesSubRole(j, subRole)) return false;
+            if (!matchesDiscipline(j, disciplineFilter)) return false;
             const hay = `${j.title} ${j.organisation} ${j.type}`.toLowerCase();
             if (searchTerm && !hay.includes(searchTerm)) return false;
             return true;
@@ -446,6 +469,17 @@
             subRole = 'all';
             visibleCount = PAGE_SIZE;
             renderSubButtons(roleFilter);
+            renderTable();
+        });
+    });
+
+    // Discipline filter (always visible, independent)
+    document.querySelectorAll('.disc-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.disc-btn').forEach(b => b.classList.remove('filter-active'));
+            btn.classList.add('filter-active');
+            disciplineFilter = btn.dataset.disc;
+            visibleCount = PAGE_SIZE;
             renderTable();
         });
     });
