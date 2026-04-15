@@ -13,12 +13,81 @@
     <meta property="og:url" content="https://liamtp-n.github.io/Consultation-Services/index.html">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Dr. Liam T. Pearson-Noseworthy",
+        "givenName": "Liam",
+        "familyName": "Pearson-Noseworthy",
+        "honorificPrefix": "Dr.",
+        "jobTitle": "Senior Laboratory Technician",
+        "affiliation": {
+            "@type": "EducationalOrganization",
+            "name": "Northumbria University",
+            "url": "https://www.northumbria.ac.uk"
+        },
+        "alumniOf": [
+            {
+                "@type": "EducationalOrganization",
+                "name": "Northumbria University"
+            }
+        ],
+        "hasCredential": [
+            {
+                "@type": "EducationalOccupationalCredential",
+                "credentialCategory": "degree",
+                "educationalLevel": "Doctoral",
+                "name": "PhD in Applied Health & Exercise Science"
+            },
+            {
+                "@type": "EducationalOccupationalCredential",
+                "credentialCategory": "degree",
+                "educationalLevel": "Masters",
+                "name": "MRes in Exercise Science"
+            },
+            {
+                "@type": "EducationalOccupationalCredential",
+                "credentialCategory": "degree",
+                "educationalLevel": "Bachelors",
+                "name": "BSc (Hons) in Applied Sports Science with Coaching"
+            }
+        ],
+        "knowsAbout": [
+            "Exercise Science",
+            "Biomechanics",
+            "Data Science",
+            "Machine Learning",
+            "R Programming",
+            "Python",
+            "Minimal-Dose Resistance Training",
+            "Healthy Ageing",
+            "Olympic Weightlifting"
+        ],
+        "url": "https://liamtp-n.github.io/Consultation-Services/",
+        "image": "https://liamtp-n.github.io/Consultation-Services/assets/images/pic.jpg",
+        "sameAs": [
+            "https://www.linkedin.com/in/liamtp-n/",
+            "https://scholar.google.com/citations?user=vXjhLEsAAAAJ&hl=en&oi=ao"
+        ],
+        "award": "Services to Sport, Health & Fitness - H.M. The Queen (2014)"
+    }
+    </script>
+
     <style>
         @keyframes pulseGlow {
             0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
             50% { box-shadow: 0 0 20px 6px rgba(34, 197, 94, 0.2); }
         }
         .btn-research { animation: pulseGlow 2.5s ease-in-out infinite; }
+
+        /* Stats counter */
+        .stat-number {
+            font-variant-numeric: tabular-nums;
+            transition: opacity 0.3s;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
@@ -64,6 +133,28 @@
             </div>
         </div>
     </header>
+
+    <!-- Animated stats counter -->
+    <section id="stats-bar" class="py-8 px-4 bg-slate-800 border-y border-slate-700/50">
+        <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div>
+                <p class="text-3xl md:text-4xl font-extrabold text-blue-400 stat-number" data-target="15" data-suffix="+">0</p>
+                <p class="text-xs text-slate-400 mt-1 uppercase tracking-wider font-medium">Years Experience</p>
+            </div>
+            <div>
+                <p class="text-3xl md:text-4xl font-extrabold text-blue-400 stat-number" data-target="10" data-suffix="+">0</p>
+                <p class="text-xs text-slate-400 mt-1 uppercase tracking-wider font-medium">Publications</p>
+            </div>
+            <div>
+                <p class="text-3xl md:text-4xl font-extrabold text-blue-400 stat-number" data-target="329" data-suffix="K+">0</p>
+                <p class="text-xs text-slate-400 mt-1 uppercase tracking-wider font-medium">Data Points Processed</p>
+            </div>
+            <div>
+                <p class="text-3xl md:text-4xl font-extrabold text-blue-400 stat-number" data-target="5" data-suffix="">0</p>
+                <p class="text-xs text-slate-400 mt-1 uppercase tracking-wider font-medium">Students Supervised</p>
+            </div>
+        </div>
+    </section>
 
     <section class="py-12 px-4 bg-gradient-to-br from-slate-900 to-slate-800 border-b border-slate-700">
         <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center">
@@ -123,5 +214,59 @@
 
     <footer id="main-footer"></footer>
     <script src="includes.js" defer></script>
+
+    <!-- Stats counter animation (homepage only) -->
+    <script>
+    (function () {
+        var counters = document.querySelectorAll('.stat-number');
+        if (!counters.length) return;
+
+        var animated = false;
+
+        function animateCounters() {
+            if (animated) return;
+            animated = true;
+
+            counters.forEach(function (el) {
+                var target = parseInt(el.getAttribute('data-target'), 10);
+                var suffix = el.getAttribute('data-suffix') || '';
+                var duration = 1600; // ms
+                var start = 0;
+                var startTime = null;
+
+                function step(timestamp) {
+                    if (!startTime) startTime = timestamp;
+                    var progress = Math.min((timestamp - startTime) / duration, 1);
+                    // Ease-out cubic
+                    var eased = 1 - Math.pow(1 - progress, 3);
+                    var current = Math.round(eased * target);
+                    el.textContent = current.toLocaleString() + suffix;
+                    if (progress < 1) {
+                        requestAnimationFrame(step);
+                    } else {
+                        el.textContent = target.toLocaleString() + suffix;
+                    }
+                }
+                requestAnimationFrame(step);
+            });
+        }
+
+        // Use IntersectionObserver to trigger when visible
+        if ('IntersectionObserver' in window) {
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        animateCounters();
+                        observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.3 });
+            observer.observe(document.getElementById('stats-bar'));
+        } else {
+            // Fallback for older browsers
+            animateCounters();
+        }
+    })();
+    </script>
 </body>
 </html>

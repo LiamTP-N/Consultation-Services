@@ -13,6 +13,84 @@
     <meta property="og:url" content="https://liamtp-n.github.io/Consultation-Services/cv.html">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
+    <style media="print">
+        /* Print stylesheet - clean CV output */
+        @page {
+            margin: 1.5cm 2cm;
+            size: A4;
+        }
+        body {
+            background: #fff !important;
+            color: #111 !important;
+            font-size: 10pt !important;
+            line-height: 1.4 !important;
+        }
+        /* Hide nav, footer, back-to-top, search overlay */
+        #main-nav,
+        #main-footer,
+        #back-to-top,
+        #site-search-overlay {
+            display: none !important;
+        }
+        /* Reset dark theme colours */
+        section {
+            background: #fff !important;
+            padding-top: 0 !important;
+            padding-bottom: 1rem !important;
+        }
+        h1 {
+            font-size: 18pt !important;
+            color: #111 !important;
+            margin-bottom: 0.25rem !important;
+        }
+        h4 {
+            font-size: 11pt !important;
+            color: #111 !important;
+            border-bottom: 1px solid #999 !important;
+            padding-bottom: 0.2rem !important;
+        }
+        p, span, li {
+            color: #333 !important;
+        }
+        .text-slate-200, .font-medium {
+            color: #111 !important;
+            font-weight: 600 !important;
+        }
+        .text-blue-400 {
+            color: #333 !important;
+        }
+        /* Pills/tags */
+        .bg-slate-800 {
+            background: #f3f3f3 !important;
+            border-color: #ccc !important;
+        }
+        .bg-slate-800 span, span.rounded-full {
+            color: #333 !important;
+        }
+        /* Tighten grid to single column for print */
+        .grid {
+            display: block !important;
+        }
+        .space-y-8 > * + * {
+            margin-top: 0.75rem !important;
+        }
+        /* Remove hover effects and animations */
+        * {
+            animation: none !important;
+            transition: none !important;
+            box-shadow: none !important;
+        }
+        /* Add print header */
+        section > div::before {
+            content: "Dr. Liam T. Pearson-Noseworthy, PhD  -  liamtp-n.github.io/Consultation-Services";
+            display: block;
+            font-size: 8pt;
+            color: #888;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 0.3rem;
+            margin-bottom: 1rem;
+        }
+    </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
 
@@ -22,6 +100,9 @@
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-6 animate-fade-in">
                 <h1 class="text-4xl md:text-5xl font-bold mb-4 text-slate-100">CV & Credentials</h1>
+                <p class="text-slate-400 max-w-2xl mx-auto">
+                    A brief overview of my academic background, professional history, and technical expertise.
+                </p>
             </div>
             <div class="grid md:grid-cols-2 gap-8 animate-fade-in">
                 <div class="space-y-8">
