@@ -10,6 +10,20 @@
 (function () {
     const page = document.querySelector('meta[name="current-page"]')?.content || '';
 
+    // --- inject shared CSS (avoids copy-pasting into every page) ---
+    const sharedCSS = document.createElement('style');
+    sharedCSS.textContent = `
+        html { scroll-behavior: smooth; }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
+        .animate-fade-in.loaded { opacity: 1; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .glow-text { text-shadow: 0 0 8px rgba(34, 197, 94, 0.4); }
+    `;
+    document.head.appendChild(sharedCSS);
+
     // --- helpers ---
     function linkClass(id) {
         if (id === 'live-research') return 'text-green-500 font-bold animate-pulse glow-text';
@@ -57,7 +71,8 @@
             </div>
         </div>`;
 
-        // scroll behaviour
+        // scroll behaviour (throttled to ~60fps)
+        let scrollTick = false;
         const handleScroll = () => {
             if (window.scrollY > 50) {
                 nav.classList.remove('bg-transparent', 'py-4');
@@ -67,7 +82,15 @@
                 nav.classList.remove('bg-slate-900/95', 'backdrop-blur-sm', 'shadow-md', 'py-3', 'border-b', 'border-slate-700');
             }
         };
-        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('scroll', () => {
+            if (!scrollTick) {
+                requestAnimationFrame(() => {
+                    handleScroll();
+                    scrollTick = false;
+                });
+                scrollTick = true;
+            }
+        });
         handleScroll();
 
         // mobile menu toggle
@@ -79,125 +102,42 @@
     }
 
     // --- build footer ---
+    // Keeps id="main-footer" intact; adds a contact anchor inside for #contact links
     const footer = document.getElementById('main-footer');
     if (footer) {
         const year = new Date().getFullYear();
-        footer.id = 'contact';
-        footer.className = 'py-12 px-4 bg-slate-800 text-white mt-auto border-t border-slate-700';
+        footer.className = 'py-8 px-4 bg-slate-800 text-white mt-auto border-t border-slate-700';
         footer.innerHTML = `
-        <div class="max-w-3xl mx-auto">
+        <div id="contact" class="max-w-6xl mx-auto">
             <div class="text-center mb-8">
-                <h2 class="text-2xl font-bold mb-2">Get in Touch</h2>
-                <p class="text-slate-400 text-sm">Whether it's a consultancy enquiry, research collaboration, or a general question - drop me a message and I'll get back to you.</p>
+                <h2 class="text-xl font-bold mb-2">Ready to optimise your training or research?</h2>
+                <p class="text-slate-400 text-sm">Get in touch to discuss how I can help.</p>
             </div>
-            <form
-                action="https://formspree.io/f/xreyqakv"
-                method="POST"
-                id="contact-form"
-                class="space-y-4"
-            >
-                <div class="grid sm:grid-cols-2 gap-4">
-                    <div>
-                        <label for="contact-name" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Name</label>
-                        <input
-                            type="text"
-                            id="contact-name"
-                            name="name"
-                            required
-                            placeholder="Your name"
-                            class="w-full bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-600 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-colors"
-                        >
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <a href="mailto:LiamTPearson@gmail.com?subject=Website%20Query" class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all shadow-md hover:shadow-blue-500/20">
+                    Email Me
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.8 5.2a2 2 0 002.4 0L21 8"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8V6a2 2 0 012-2h14a2 2 0 012 2v2"></path></svg>
+                </a>
+                <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" rel="noopener" class="flex items-center justify-center bg-slate-700 hover:bg-slate-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all shadow-md border border-slate-600">
+                    Connect on LinkedIn
+                    <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.75s.784-1.75 1.75-1.75 1.75.79 1.75 1.75-.783 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.535-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.766 7 2.062v7.173z"/></svg>
+                </a>
+                <a href="https://scholar.google.com/citations?user=vXjhLEsAAAAJ&hl=en&oi=ao" target="_blank" rel="noopener" class="flex items-center justify-center bg-slate-700 hover:bg-slate-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all shadow-md border border-slate-600">
+                    Google Scholar
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                </a>
+            </div>
+            <div class="pt-6 border-t border-slate-700/50">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="flex flex-wrap justify-center sm:justify-start gap-x-5 gap-y-1 text-xs text-slate-500">
+                        ${links.map(l => `<a href="${l.href}" class="hover:text-slate-300 transition-colors">${l.label}</a>`).join('\n                        ')}
                     </div>
-                    <div>
-                        <label for="contact-email" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Email</label>
-                        <input
-                            type="email"
-                            id="contact-email"
-                            name="email"
-                            required
-                            placeholder="your@email.com"
-                            class="w-full bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-600 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-colors"
-                        >
+                    <div class="text-slate-500 text-xs">
+                        &copy; ${year} Dr. Liam T. Pearson-Noseworthy. All rights reserved.
                     </div>
                 </div>
-                <div>
-                    <label for="contact-subject" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Subject</label>
-                    <input
-                        type="text"
-                        id="contact-subject"
-                        name="subject"
-                        placeholder="e.g. Consultancy enquiry, Research collaboration..."
-                        class="w-full bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-600 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-colors"
-                    >
-                </div>
-                <div>
-                    <label for="contact-message" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Message</label>
-                    <textarea
-                        id="contact-message"
-                        name="message"
-                        required
-                        rows="5"
-                        placeholder="Tell me what you need..."
-                        class="w-full bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-600 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition-colors resize-none"
-                    ></textarea>
-                </div>
-                <div class="flex flex-col sm:flex-row gap-3 items-center justify-between pt-2">
-                    <button
-                        type="submit"
-                        id="contact-submit"
-                        class="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3 rounded-xl text-sm transition-all duration-200 active:scale-95 border border-blue-500/50 shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2"
-                    >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                        Send Message
-                    </button>
-                    <a href="https://www.linkedin.com/in/liamtp-n/" target="_blank" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all border border-slate-600 hover:border-slate-500">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.75s.784-1.75 1.75-1.75 1.75.79 1.75 1.75-.783 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.535-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.766 7 2.062v7.173z"/></svg>
-                        Connect on LinkedIn
-                    </a>
-                </div>
-                <p id="contact-status" class="text-sm text-center hidden"></p>
-            </form>
-            <div class="pt-8 mt-8 border-t border-slate-700/50 text-slate-500 text-xs text-center">
-                &copy; ${year} Dr. Liam T. Pearson-Noseworthy. All rights reserved.
             </div>
         </div>`;
-
-        // --- Formspree AJAX submission ---
-        const form = document.getElementById('contact-form');
-        const status = document.getElementById('contact-status');
-        const submitBtn = document.getElementById('contact-submit');
-
-        if (form) {
-            form.addEventListener('submit', async function (e) {
-                e.preventDefault();
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Sending...';
-
-                try {
-                    const res = await fetch(form.action, {
-                        method: 'POST',
-                        body: new FormData(form),
-                        headers: { 'Accept': 'application/json' }
-                    });
-
-                    if (res.ok) {
-                        form.reset();
-                        status.textContent = "Message sent - I'll be in touch soon.";
-                        status.className = 'text-sm text-center text-green-400';
-                        status.classList.remove('hidden');
-                        submitBtn.textContent = 'Sent';
-                    } else {
-                        throw new Error('Server error');
-                    }
-                } catch {
-                    status.textContent = 'Something went wrong - please email me directly at LiamTPearson@gmail.com';
-                    status.className = 'text-sm text-center text-red-400';
-                    status.classList.remove('hidden');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg> Send Message';
-                }
-            });
-        }
     }
 
     // --- shared fade-in animation ---

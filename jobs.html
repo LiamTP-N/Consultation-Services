@@ -13,7 +13,6 @@
     <meta property="og:image" content="https://liamtp-n.github.io/Consultation-Services/assets/images/og-image.jpg">
     <meta property="og:url" content="https://liamtp-n.github.io/Consultation-Services/jobs.html">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css">
     <style>
         .source-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; }
         .source-indeed      { background: #1e3a5f; color: #60a5fa; }
@@ -24,8 +23,8 @@
         .source-highered    { background: #1a2f1a; color: #86efac; }
         .source-uaffairs    { background: #2d1a1a; color: #fca5a5; }
         .country-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
-        .country-uk  { background: #1e3050; color: #93c5fd; }
-        .country-ca  { background: #2d1818; color: #fca5a5; }
+        .country-uk     { background: #1e3050; color: #93c5fd; }
+        .country-ca     { background: #2d1818; color: #fca5a5; }
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable:hover { color: #60a5fa; }
         th.sorted { color: #60a5fa; }
@@ -58,7 +57,7 @@
                 </div>
             </div>
 
-            <!-- 1. Country -->
+            <!-- Country filter row -->
             <div class="flex flex-wrap gap-2 items-center mb-3">
                 <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Country:</span>
                 <button class="country-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition filter-active" data-country="all">All</button>
@@ -66,32 +65,8 @@
                 <button class="country-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-country="canada">Canada</button>
             </div>
 
-            <!-- 2. Role -->
+            <!-- Source + search row -->
             <div class="flex flex-wrap gap-2 items-center mb-3">
-                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Role:</span>
-                <button class="role-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition filter-active" data-role="all">All</button>
-                <button class="role-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-role="academia">Academia</button>
-                <button class="role-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-role="research">Research</button>
-                <button class="role-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-role="technician">Technician</button>
-                <button class="role-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-role="industry">Industry</button>
-            </div>
-
-            <!-- 4. Discipline -->
-            <div class="flex flex-wrap gap-2 items-center mb-3">
-                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Discipline:</span>
-                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition filter-active" data-disc="all">All</button>
-                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="sport science">Sport Science / Kinesiology</button>
-                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="nutrition">Nutrition</button>
-                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="exercise physiology">Exercise Physiology</button>
-                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="biomechanics">Biomechanics</button>
-                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="wearable">Wearables / Tech</button>
-                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="strength,conditioning">S&amp;C</button>
-                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="health,public health,physical activity">Health</button>
-                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="psychology">Psychology</button>
-            </div>
-
-            <!-- 5. Source + search -->
-            <div class="flex flex-wrap gap-2 items-center mb-4">
                 <select id="source-filter" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
                     <option value="all">All sources</option>
                     <option value="Indeed">Indeed</option>
@@ -103,6 +78,22 @@
                     <option value="Bluesky">Bluesky</option>
                 </select>
                 <input id="search" type="text" placeholder="Search title or organisation..." class="px-3 py-1.5 rounded-lg text-xs border border-slate-600 bg-slate-800 text-slate-300 placeholder-slate-600 focus:outline-none focus:border-blue-500 flex-1 min-w-[180px]">
+            </div>
+
+            <!-- Role type filter row (Tier 1) -->
+            <div class="flex flex-wrap gap-2 items-center mb-2">
+                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Role:</span>
+                <button class="role-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition filter-active" data-role="all">All</button>
+                <button class="role-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-role="academia">Academia</button>
+                <button class="role-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-role="research">Research</button>
+                <button class="role-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-role="technician">Technician</button>
+                <button class="role-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-role="industry">Industry</button>
+            </div>
+
+            <!-- Sub-role filter row (Tier 2) - shown dynamically -->
+            <div id="sub-role-row" class="flex flex-wrap gap-2 items-center mb-4 hidden">
+                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Level:</span>
+                <!-- Populated dynamically by JS -->
             </div>
         </div>
     </header>
@@ -134,25 +125,25 @@
             </div>
 
             <div class="mt-8 p-5 bg-slate-800 border border-slate-700 rounded-lg">
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 text-center">Live Search Links (always current)</p>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Live Search Links (always current)</p>
                 <div class="flex flex-wrap gap-2">
-                    <a href="https://www.jobs.ac.uk/search/?keywords=sport+science&sort=date" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Sport Science</a>
-                    <a href="https://www.jobs.ac.uk/search/?keywords=exercise+physiology&sort=date" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Exercise Physiology</a>
-                    <a href="https://www.jobs.ac.uk/search/?keywords=wearable+technology&sort=date" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Wearables</a>
-                    <a href="https://www.jobs.ac.uk/search/?keywords=biomechanics&sort=date" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Biomechanics</a>
-                    <a href="https://www.jobs.ac.uk/search/?keywords=sport+nutrition&sort=date" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Sport Nutrition</a>
-                    <a href="https://www.jobs.ac.uk/search/?keywords=exercise+nutrition&sort=date" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Exercise Nutrition</a>
-                    <a href="https://www.jobs.ac.uk/search/?keywords=health+nutrition&sort=date" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Health Nutrition</a>
-                    <a href="https://www.indeed.co.uk/jobs?q=sport+science+researcher&sort=date" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Indeed UK - Sport Science</a>
-                    <a href="https://www.indeed.co.uk/jobs?q=exercise+science+lecturer&sort=date" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Indeed UK - Lecturer</a>
-                    <a href="https://ca.indeed.com/jobs?q=kinesiology+professor&sort=date" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Indeed CA - Kinesiology</a>
-                    <a href="https://ca.indeed.com/jobs?q=assistant+professor+kinesiology&sort=date" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Indeed CA - Assistant Professor</a>
-                    <a href="https://www.linkedin.com/jobs/search/?keywords=sport%20science%20researcher&sortBy=DD" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">LinkedIn - Sport Science</a>
-                    <a href="https://www.linkedin.com/jobs/search/?keywords=kinesiology%20professor&location=Canada&sortBy=DD" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">LinkedIn CA - Kinesiology</a>
-                    <a href="https://www.universityaffairs.ca/career-centre/job-board/" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">University Affairs - Canada</a>
-                    <a href="https://www.timeshighereducation.com/unijobs/listings/canada/" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">THEunijobs - Canada</a>
-                    <a href="https://www.higheredjobs.com/faculty/search.cfm?JobCat=161" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">HigherEdJobs - Kinesiology</a>
-                    <a href="https://bsky.app/profile/jobsinsportscience.bsky.social" target="_blank" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Bluesky - Jobs in Sport Science</a>
+                    <a href="https://www.jobs.ac.uk/search/?keywords=sport+science&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Sport Science</a>
+                    <a href="https://www.jobs.ac.uk/search/?keywords=exercise+physiology&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Exercise Physiology</a>
+                    <a href="https://www.jobs.ac.uk/search/?keywords=wearable+technology&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Wearables</a>
+                    <a href="https://www.jobs.ac.uk/search/?keywords=biomechanics&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Biomechanics</a>
+                    <a href="https://www.jobs.ac.uk/search/?keywords=sport+nutrition&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Sport Nutrition</a>
+                    <a href="https://www.jobs.ac.uk/search/?keywords=exercise+nutrition&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Exercise Nutrition</a>
+                    <a href="https://www.jobs.ac.uk/search/?keywords=health+nutrition&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Health Nutrition</a>
+                    <a href="https://www.indeed.co.uk/jobs?q=sport+science+researcher&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Indeed UK - Sport Science</a>
+                    <a href="https://www.indeed.co.uk/jobs?q=exercise+science+lecturer&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Indeed UK - Lecturer</a>
+                    <a href="https://ca.indeed.com/jobs?q=kinesiology+professor&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Indeed CA - Kinesiology</a>
+                    <a href="https://ca.indeed.com/jobs?q=assistant+professor+kinesiology&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Indeed CA - Assistant Professor</a>
+                    <a href="https://www.linkedin.com/jobs/search/?keywords=sport%20science%20researcher&sortBy=DD" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">LinkedIn - Sport Science</a>
+                    <a href="https://www.linkedin.com/jobs/search/?keywords=kinesiology%20professor&location=Canada&sortBy=DD" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">LinkedIn CA - Kinesiology</a>
+                    <a href="https://www.universityaffairs.ca/career-centre/job-board/" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">University Affairs - Canada</a>
+                    <a href="https://www.timeshighereducation.com/unijobs/listings/canada/" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">THEunijobs - Canada</a>
+                    <a href="https://www.higheredjobs.com/faculty/search.cfm?JobCat=161" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">HigherEdJobs - Kinesiology</a>
+                    <a href="https://bsky.app/profile/jobsinsportscience.bsky.social" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Bluesky - Jobs in Sport Science</a>
                 </div>
             </div>
         </div>
@@ -167,29 +158,43 @@
 
     let allJobs = [];
     let sortCol = 'date_posted';
-    let sortDir = 1;
+    let sortDir = 1;   // 1 = descending (newest first), -1 = ascending (oldest first)
     let searchTerm = '';
     let sourceFilter = 'all';
     let countryFilter = 'all';
     let roleFilter = 'all';
-    let disciplineFilter = 'all';
+    let subRole = 'all';
     let visibleCount = PAGE_SIZE;
 
+    // Keywords that define each role category (matched against title + type)
     const ROLE_MATCH = {
         academia:   ['lecturer', 'professor', 'teaching fellow', 'faculty', 'academic staff'],
         research:   ['research fellow', 'postdoc', 'postdoctoral', 'studentship', 'research associate', 'doctoral researcher'],
         technician: ['technician', 'research assistant', 'lab assistant'],
     };
 
-    const DISC_KEYWORDS = {
-        'sport science':                      ['sport science', 'sport and exercise', 'exercise science', 'kinesiology', 'human kinetics'],
-        'nutrition':                          ['nutrition', 'diet', 'dietetics'],
-        'exercise physiology':                ['exercise physiology', 'physiology'],
-        'biomechanics':                       ['biomechanics'],
-        'wearable':                           ['wearable', 'data science', 'technology'],
-        'strength,conditioning':              ['strength', 'conditioning'],
-        'health,public health,physical activity': ['health', 'public health', 'physical activity'],
-        'psychology':                         ['psychology'],
+    // Sub-role options per role category
+    const SUB_OPTIONS = {
+        academia: [
+            { label: 'Lecturer',        value: 'lecturer' },
+            { label: 'Senior Lecturer', value: 'senior lecturer' },
+            { label: 'Professor / AP',  value: 'professor' },
+        ],
+        research: [
+            { label: 'Research Fellow',   value: 'research fellow' },
+            { label: 'Postdoc',           value: 'postdoc,postdoctoral' },
+            { label: 'PhD Studentship',   value: 'phd,studentship,doctoral' },
+            { label: 'Research Associate', value: 'research associate' },
+        ],
+        technician: [
+            { label: 'Lab Technician',    value: 'lab technician,laboratory technician,senior technician' },
+            { label: 'Research Assistant', value: 'research assistant' },
+        ],
+        industry: [
+            { label: 'Sport Tech',    value: 'wearable,sport tech,technology' },
+            { label: 'Performance',   value: 'performance,strength,conditioning' },
+            { label: 'Nutrition',     value: 'nutrition,dietetics' },
+        ],
     };
 
     function matchesRole(j, role) {
@@ -203,18 +208,56 @@
         return (ROLE_MATCH[role] || []).some(k => hay.includes(k));
     }
 
-    function matchesDiscipline(j, disc) {
-        if (disc === 'all') return true;
-        const hay = `${j.title || ''} ${j.organisation || ''} ${j.type || ''}`.toLowerCase();
-        const keywords = DISC_KEYWORDS[disc] || disc.split(',').map(t => t.trim());
-        return keywords.some(k => hay.includes(k));
+    function matchesSubRole(j, sub) {
+        if (sub === 'all') return true;
+        const hay = `${j.title || ''} ${j.type || ''}`.toLowerCase();
+        return sub.split(',').some(t => hay.includes(t.trim()));
     }
 
+    // Note: jobs with no country tag (e.g. Bluesky posts) default to UK.
+    // If a Bluesky post is actually Canadian it will appear under UK unless
+    // the scraper explicitly tags it with country: 'canada'.
     function matchesCountry(j, filter) {
         if (filter === 'all') return true;
         const c = (j.country || '').toLowerCase();
         if (filter === 'canada') return c === 'canada';
         return c === 'uk' || c === '' || !j.country;
+    }
+
+    function renderSubButtons(role) {
+        const row = document.getElementById('sub-role-row');
+        const opts = SUB_OPTIONS[role];
+        if (!opts || !opts.length) {
+            row.classList.add('hidden');
+            return;
+        }
+        row.classList.remove('hidden');
+        // Keep the label span, rebuild buttons only
+        const label = row.querySelector('span');
+        row.innerHTML = '';
+        row.appendChild(label);
+        // All button
+        const allBtn = document.createElement('button');
+        allBtn.className = 'sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition filter-active';
+        allBtn.dataset.sub = 'all';
+        allBtn.textContent = 'All';
+        row.appendChild(allBtn);
+        opts.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'sub-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition';
+            btn.dataset.sub = opt.value;
+            btn.textContent = opt.label;
+            row.appendChild(btn);
+        });
+        row.querySelectorAll('.sub-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                row.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('filter-active'));
+                btn.classList.add('filter-active');
+                subRole = btn.dataset.sub;
+                visibleCount = PAGE_SIZE;
+                renderTable();
+            });
+        });
     }
 
     function deduplicateJobs(jobs) {
@@ -251,13 +294,13 @@
     function srcClass(s) {
         if (!s) return '';
         const l = s.toLowerCase();
-        if (l.includes('indeed'))             return 'source-indeed';
-        if (l.includes('linkedin'))           return 'source-linkedin';
-        if (l.includes('jobs.ac'))            return 'source-jobsac';
+        if (l.includes('indeed'))              return 'source-indeed';
+        if (l.includes('linkedin'))            return 'source-linkedin';
+        if (l.includes('jobs.ac'))             return 'source-jobsac';
         if (l.includes('bluesky') || l.includes('bsky')) return 'source-bluesky';
         if (l.includes('thejobs') || l.includes('unijobs') || l.includes('times higher')) return 'source-thejobs';
-        if (l.includes('highered'))           return 'source-highered';
-        if (l.includes('university affairs')) return 'source-uaffairs';
+        if (l.includes('highered'))            return 'source-highered';
+        if (l.includes('university affairs'))  return 'source-uaffairs';
         return '';
     }
 
@@ -270,11 +313,11 @@
 
     function getFilteredJobs() {
         let jobs = allJobs.filter(j => {
-            if (!isRecent(j.date_posted))                return false;
-            if (!matchesCountry(j, countryFilter))       return false;
+            if (!isRecent(j.date_posted)) return false;
+            if (!matchesCountry(j, countryFilter)) return false;
             if (sourceFilter !== 'all' && j.source !== sourceFilter) return false;
-            if (!matchesRole(j, roleFilter))             return false;
-            if (!matchesDiscipline(j, disciplineFilter)) return false;
+            if (!matchesRole(j, roleFilter)) return false;
+            if (!matchesSubRole(j, subRole)) return false;
             const hay = `${j.title} ${j.organisation} ${j.type}`.toLowerCase();
             if (searchTerm && !hay.includes(searchTerm)) return false;
             return true;
@@ -394,24 +437,15 @@
         });
     });
 
-    // Role filter - also updates Level row
+    // Role type filter (Tier 1)
     document.querySelectorAll('.role-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('filter-active'));
             btn.classList.add('filter-active');
             roleFilter = btn.dataset.role;
+            subRole = 'all';
             visibleCount = PAGE_SIZE;
-            renderTable();
-        });
-    });
-
-    // Discipline filter
-    document.querySelectorAll('.disc-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.disc-btn').forEach(b => b.classList.remove('filter-active'));
-            btn.classList.add('filter-active');
-            disciplineFilter = btn.dataset.disc;
-            visibleCount = PAGE_SIZE;
+            renderSubButtons(roleFilter);
             renderTable();
         });
     });
@@ -426,14 +460,14 @@
     document.querySelectorAll('th.sortable').forEach(th => {
         th.addEventListener('click', () => {
             const col = th.dataset.col;
-            sortDir = sortCol === col ? sortDir * -1 : -1;
+            sortDir = sortCol === col ? sortDir * -1 : 1;
             sortCol = col;
             document.querySelectorAll('th.sortable').forEach(t => {
                 t.classList.remove('sorted');
                 t.querySelector('.sort-arrow').innerHTML = '&#8597;';
             });
             th.classList.add('sorted');
-            th.querySelector('.sort-arrow').innerHTML = sortDir === -1 ? '&#8595;' : '&#8593;';
+            th.querySelector('.sort-arrow').innerHTML = sortDir === 1 ? '&#8595;' : '&#8593;';
             visibleCount = PAGE_SIZE;
             renderTable();
         });
