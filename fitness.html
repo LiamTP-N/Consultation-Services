@@ -372,7 +372,7 @@
             else if(phase==='rest'){const dur=settings.restBase+((session.round-1)*5);session.time=dur;session.total=dur;ui.timerBg.className="bg-red-600 rest-pulse";autoSizeFocus("Rest");ui.roundFocus.innerText="Rest";if(session.round<maxRounds){const pi=settings.mode==='wife'?Math.floor(session.round/2):session.round;setNextUp(session.plan[pi].name);}else setNextUp('Final Round Complete');playBell();}
             else if(phase==='change'){
                 session.time=10;session.total=10;
-                ui.timerBg.className="bg-yellow-600 rest-pulse";
+                ui.timerBg.className="bg-black rest-pulse";
                 ui.roundFocus.style.fontSize='clamp(0.8rem,3dvh,1.5rem)';
                 ui.roundFocus.innerText="Change";
                 const mx=settings.rounds*2;
