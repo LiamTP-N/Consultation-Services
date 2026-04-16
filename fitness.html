@@ -136,7 +136,7 @@
             <div class="text-center mb-2 flex-shrink-0"><h1 class="text-lg sm:text-2xl font-bold text-white tracking-tight">Boxing Interval Timer</h1></div>
             <div class="glass-card p-3 sm:p-4 rounded-2xl flex-shrink-0 mb-2 sm:mb-3">
                 <div class="flex items-center gap-3">
-                    <div class="flex p-1 bg-slate-800/50 rounded-xl flex-shrink-0"><button id="mode-solo" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-green-600 text-white shadow-md">Solo</button><button id="mode-wife" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">With Wife</button></div>
+                    <div class="flex p-1 bg-slate-800/50 rounded-xl flex-shrink-0"><button id="mode-solo" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">Solo</button><button id="mode-wife" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white shadow-md">With Wife</button></div>
                     <div id="rest-info" class="flex-1 text-center bg-slate-800/30 p-1.5 rounded-lg border border-slate-700/30"><p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p></div>
                 </div>
                 <div id="hr-setup" class="hidden mt-3 pt-3 border-t border-slate-700/50"><div class="flex items-center gap-2">
@@ -257,7 +257,7 @@
         const HOOKS_ONLY_ENTRY=ROUND_POOL.find(r=>r.name==='Hooks Only')||PROGRAM_12_ROUNDS[8];
         const ZONE_COLORS=['#3b82f6','#22c55e','#eab308','#f97316','#ef4444'],ZONE_NAMES=['Z1','Z2','Z3','Z4','Z5'],HR_HISTORY_CAP=7200;
         const SURPRISE_TOTAL=35,SURPRISE_WORK=30;
-        let settings={mode:'solo',rounds:12,work:60,restBase:30,randomiseMiddle:true,surpriseCount:2},prevMode='solo';
+        let settings={mode:'wife',rounds:12,work:60,restBase:30,randomiseMiddle:true,surpriseCount:2},prevMode='wife';
         let session={active:false,paused:false,phase:'ready',round:1,time:10,total:10,timer:null,plan:[],surpriseRoundsYou:new Set(),surpriseRoundsWife:new Set(),surpriseTriggeredYou:new Set(),surpriseTriggeredWife:new Set(),halfwayPlayed:false,last10Played:false,targetEndTime:0,surpriseTask:''};
         let audioCtx=null,masterGain=null,wakeLock=null,currentGymDay=null,voiceMuted=true,soundMuted=true;
         let hrDeviceYou=null,hrDeviceWife=null,hrCharYou=null,hrCharWife=null,hrValueYou=null,hrValueWife=null;
