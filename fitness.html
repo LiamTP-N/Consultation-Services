@@ -38,13 +38,6 @@
         .t-stroke{-webkit-text-stroke:4px rgba(0,0,0,1);paint-order:stroke fill;}
         .t-stroke-heavy{-webkit-text-stroke:6px rgba(0,0,0,1);paint-order:stroke fill;}
         .t-stroke-btn{-webkit-text-stroke:2px rgba(0,0,0,1);paint-order:stroke fill;}
-        /* Surprise phase stroke classes - base strokes stripped via JS (Option A) */
-        .surprise-shadow-dark{text-shadow:-3px -3px 0 #000,3px -3px 0 #000,-3px 3px 0 #000,3px 3px 0 #000;-webkit-text-stroke:0 !important;}
-        .surprise-shadow-light{text-shadow:-3px -3px 0 #fff,3px -3px 0 #fff,-3px 3px 0 #fff,3px 3px 0 #fff;-webkit-text-stroke:0 !important;}
-        .surprise-shadow-dark-sm{text-shadow:-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000;-webkit-text-stroke:0 !important;}
-        .surprise-shadow-light-sm{text-shadow:-2px -2px 0 #fff,2px -2px 0 #fff,-2px 2px 0 #fff,2px 2px 0 #fff;-webkit-text-stroke:0 !important;}
-        .surprise-shadow-dark-xs{text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;-webkit-text-stroke:0 !important;}
-        .surprise-shadow-light-xs{text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;-webkit-text-stroke:0 !important;}
         #timer-screen{height:100vh;height:100dvh;padding:1.5dvh 0 calc(4dvh + env(safe-area-inset-bottom));}
         .timer-top{padding:0 3vw;}
         .timer-top .round-num{font-size:clamp(1.5rem,5dvh,2.5rem);}
@@ -63,7 +56,8 @@
         #next-up .next-label{display:block;font-size:clamp(1rem,2dvh,1rem);opacity:0.6;letter-spacing:0.15em;}
         #next-up .next-content{display:block;}
         #round-focus{font-size:clamp(1.5rem,6dvh,3rem) !important;}
-        #round-focus.surprise-task-mode{font-size:clamp(3rem,18dvh,8rem) !important;}
+        /* Surprise task mode: bigger than normal but capped so it fits on phone */
+        #round-focus.surprise-task-mode{font-size:clamp(2rem,10dvh,5rem) !important;}
         .timer-bottom{padding:0 3vw;gap:clamp(4px,1dvh,12px);}
         .timer-bottom .btn-row{gap:clamp(6px,1.5vw,16px);}
         .timer-bottom .btn-nav,
@@ -186,7 +180,6 @@
             </div>
             <div class="timer-bottom w-full flex flex-col flex-shrink-0">
                 <div class="btn-row grid grid-cols-2"><button id="btn-prev" class="btn-nav bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold transition-all active:scale-95 uppercase tracking-wider t-stroke-btn">&larr; Prev</button><button id="btn-next" class="btn-nav bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold transition-all active:scale-95 uppercase tracking-wider t-stroke-btn">Next &rarr;</button></div>
-                <!-- Pause: orange hue. End: stronger red. Resume state applied via JS. -->
                 <div class="btn-row grid grid-cols-2">
                     <button id="btn-pause" class="btn-main bg-orange-500/40 hover:bg-orange-500/50 backdrop-blur-md border border-orange-500/50 text-white font-bold transition-all active:scale-95 t-stroke-btn">Pause</button>
                     <button id="btn-end" class="btn-main bg-red-500/50 hover:bg-red-500/60 backdrop-blur-md border border-red-500/60 text-white font-bold transition-all active:scale-95 t-stroke-btn">End</button>
@@ -203,7 +196,7 @@
             </div>
         </div>
     </div>
-    <!-- NO HR MONITOR MODAL - subtext removed, buttons enlarged -->
+    <!-- NO HR MONITOR MODAL -->
     <div id="hr-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-6">
         <div class="bg-slate-800 border border-slate-600 rounded-2xl p-6 max-w-xs w-full text-center shadow-2xl">
             <div class="text-3xl mb-3">&#x1F493;</div>
@@ -219,11 +212,9 @@
     <script>
     if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
     document.addEventListener('DOMContentLoaded',()=>{
-        // ── GYM EXERCISE DATA ──
         const GYM_EXERCISES={push:[{name:"Chest Press Machine",muscle:"Chest",type:"compound",group:"push"},{name:"Dumbbell Bench Press",muscle:"Chest",type:"compound",group:"push"},{name:"Incline Dumbbell Press",muscle:"Upper Chest",type:"compound",group:"push"},{name:"Pec Deck / Machine Fly",muscle:"Chest",type:"isolation",group:"push"},{name:"Cable Crossover",muscle:"Chest",type:"isolation",group:"push"},{name:"Shoulder Press Machine",muscle:"Shoulders",type:"compound",group:"push"},{name:"Dumbbell Shoulder Press",muscle:"Shoulders",type:"compound",group:"push"},{name:"Dumbbell Lateral Raise",muscle:"Side Delts",type:"isolation",group:"push"},{name:"Dumbbell Front Raise",muscle:"Front Delts",type:"isolation",group:"push"},{name:"Cable Lateral Raise",muscle:"Side Delts",type:"isolation",group:"push"},{name:"Tricep Pushdown (Cable)",muscle:"Triceps",type:"isolation",group:"push"},{name:"Overhead Tricep Extension (Cable)",muscle:"Triceps",type:"isolation",group:"push"},{name:"Dumbbell Tricep Kickback",muscle:"Triceps",type:"isolation",group:"push"},{name:"Tricep Dip Machine",muscle:"Triceps",type:"compound",group:"push"}],pull:[{name:"Lat Pulldown Machine",muscle:"Lats",type:"compound",group:"pull"},{name:"Seated Cable Row",muscle:"Mid Back",type:"compound",group:"pull"},{name:"Dumbbell Bent-Over Row",muscle:"Back",type:"compound",group:"pull"},{name:"Single-Arm Dumbbell Row",muscle:"Lats",type:"compound",group:"pull"},{name:"Face Pulls (Cable)",muscle:"Rear Delts",type:"isolation",group:"pull"},{name:"Rear Delt Fly Machine",muscle:"Rear Delts",type:"isolation",group:"pull"},{name:"Cable Pullover",muscle:"Lats",type:"isolation",group:"pull"},{name:"Assisted Pull-Up Machine",muscle:"Back",type:"compound",group:"pull"},{name:"Dumbbell Bicep Curl",muscle:"Biceps",type:"isolation",group:"pull"},{name:"Cable Bicep Curl",muscle:"Biceps",type:"isolation",group:"pull"},{name:"Hammer Curl (Dumbbell)",muscle:"Biceps",type:"isolation",group:"pull"},{name:"Dumbbell Shrug",muscle:"Traps",type:"isolation",group:"pull"},{name:"Reverse Cable Fly",muscle:"Rear Delts",type:"isolation",group:"pull"},{name:"Preacher Curl Machine",muscle:"Biceps",type:"isolation",group:"pull"}],legs:[{name:"Leg Press Machine",muscle:"Quads / Glutes",type:"compound",group:"quad"},{name:"Leg Extension Machine",muscle:"Quads",type:"isolation",group:"quad"},{name:"Leg Curl Machine",muscle:"Hamstrings",type:"isolation",group:"hip"},{name:"Calf Raise Machine",muscle:"Calves",type:"isolation",group:"other"},{name:"Goblet Squat (Dumbbell)",muscle:"Quads / Glutes",type:"compound",group:"quad"},{name:"Dumbbell Romanian Deadlift",muscle:"Hamstrings / Glutes",type:"compound",group:"hip"},{name:"Hip Adductor Machine",muscle:"Adductors",type:"isolation",group:"other"},{name:"Hip Abductor Machine",muscle:"Abductors",type:"isolation",group:"other"},{name:"Smith Machine Squat",muscle:"Quads / Glutes",type:"compound",group:"quad"},{name:"Dumbbell Walking Lunges",muscle:"Quads / Glutes",type:"compound",group:"quad"},{name:"Hip Thrust Machine",muscle:"Glutes",type:"compound",group:"hip"},{name:"Dumbbell Step-Ups",muscle:"Quads / Glutes",type:"compound",group:"quad"},{name:"Seated Calf Raise",muscle:"Calves",type:"isolation",group:"other"},{name:"Dumbbell Sumo Squat",muscle:"Quads / Adductors",type:"compound",group:"quad"}]};
         const CORE_EXERCISES=[{name:"Plank Hold",muscle:"Core"},{name:"Dead Bug",muscle:"Core"},{name:"Cable Woodchop",muscle:"Obliques"},{name:"Pallof Press (Cable)",muscle:"Core"},{name:"Hanging Knee Raise",muscle:"Lower Abs"},{name:"Ab Rollout",muscle:"Core"},{name:"Bird Dog",muscle:"Core / Lower Back"},{name:"Cable Crunch",muscle:"Abs"},{name:"Side Plank",muscle:"Obliques"},{name:"Farmer's Walk",muscle:"Core / Grip"}];
         const DAY_LABELS={push:"Push Day",pull:"Pull Day",legs:"Leg Day",upper:"Upper Body",lower:"Lower Body"};
-        // ── BOXING PROGRAMS ──
         const PROGRAM_12_ROUNDS=[
             {name:"Warm Up",moves:['Jab','1-2','Breathe','1-2','Shake out']},
             {name:"1-2 > Hook",moves:['1-2-3','Jab > Cross > Hook','Jab > Uppercut > Hook','Cross > Hook > Cross']},
@@ -256,7 +247,6 @@
         const HOOKS_ONLY_ENTRY=ROUND_POOL.find(r=>r.name==='Hooks Only')||PROGRAM_12_ROUNDS[8];
         const ZONE_COLORS=['#3b82f6','#22c55e','#eab308','#f97316','#ef4444'],ZONE_NAMES=['Z1','Z2','Z3','Z4','Z5'],HR_HISTORY_CAP=7200;
         const SURPRISE_TOTAL=35,SURPRISE_WORK=30;
-        // ── SETTINGS & SESSION STATE ──
         let settings={mode:'solo',rounds:12,work:60,restBase:30,randomiseMiddle:false,surpriseCount:2},prevMode='solo';
         let session={active:false,paused:false,phase:'ready',round:1,time:10,total:10,timer:null,plan:[],surpriseRoundsYou:new Set(),surpriseRoundsWife:new Set(),surpriseTriggeredYou:new Set(),surpriseTriggeredWife:new Set(),halfwayPlayed:false,last10Played:false,targetEndTime:0,surpriseTask:''};
         let audioCtx=null,masterGain=null,wakeLock=null,currentGymDay=null,voiceMuted=true,soundMuted=true;
@@ -265,17 +255,11 @@
         let endOfWorkHRYou=null,endOfWorkHRWife=null,recoveryDropsYou=[],recoveryDropsWife=[];
         let peakHRYou={bpm:0,round:0},peakHRWife={bpm:0,round:0};
         let workSecsTotal=0,restSecsTotal=0,phaseStartWall=0;
-        function accumulatePhaseTime(){
-            if(phaseStartWall<=0)return;
-            const elapsed=Math.round((Date.now()-phaseStartWall)/1000);
-            if(session.phase==='work'||session.phase==='surprise')workSecsTotal+=elapsed;
-            else if(session.phase==='rest'||session.phase==='change')restSecsTotal+=elapsed;
-            phaseStartWall=0;
-        }
+        function accumulatePhaseTime(){if(phaseStartWall<=0)return;const elapsed=Math.round((Date.now()-phaseStartWall)/1000);if(session.phase==='work'||session.phase==='surprise')workSecsTotal+=elapsed;else if(session.phase==='rest'||session.phase==='change')restSecsTotal+=elapsed;phaseStartWall=0;}
         let gymRestTimer=null,gymRestSecs=90,gymRestRunning=false;
         function haptic(ms){try{if(navigator.vibrate)navigator.vibrate(ms||50);}catch(e){}}
         function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
-        // ── BLE / HEART RATE ──
+        // ── BLE ──
         const hasBLE=!!navigator.bluetooth;
         const hrSetupEl=document.getElementById('hr-setup'),btnHrYou=document.getElementById('btn-hr-you'),btnHrWife=document.getElementById('btn-hr-wife');
         const hrYouLabel=document.getElementById('hr-you-label'),hrWifeLabel=document.getElementById('hr-wife-label');
@@ -288,18 +272,13 @@
         function onHRReading(who,bpm){if(bpm===null)return;if(who==='you'){hrValueYou=bpm;hrYouBpm.innerText=bpm;if(session.active)recordHR('you',bpm);const n=Date.now();if(n-lastSparkDrawYou>1000){lastSparkDrawYou=n;drawSpark(sparkYou,hrRoundYou,'#f87171');}}else{hrValueWife=bpm;hrWifeBpm.innerText=bpm;if(session.active)recordHR('wife',bpm);const n=Date.now();if(n-lastSparkDrawWife>1000){lastSparkDrawWife=n;drawSpark(sparkWife,hrRoundWife,'#c084fc');}}}
         async function connectHR(who){try{const d=await navigator.bluetooth.requestDevice({filters:[{services:['heart_rate']}]});await setupDevice(d,who);}catch(e){if(e.name!=='NotFoundError')console.error('BLE:',e);}}
         async function setupDevice(device,who){
-            const server=await device.gatt.connect();
-            const svc=await server.getPrimaryService('heart_rate');
-            const ch=await svc.getCharacteristic('heart_rate_measurement');
-            await ch.startNotifications();
+            const server=await device.gatt.connect();const svc=await server.getPrimaryService('heart_rate');const ch=await svc.getCharacteristic('heart_rate_measurement');await ch.startNotifications();
             const nm=device.name?device.name.substring(0,12):'Connected';
             ch.addEventListener('characteristicvaluechanged',e=>onHRReading(who,parseHR(e.target.value)));
             if(who==='you'){hrDeviceYou=device;hrCharYou=ch;hrYouLabel.innerText=nm;btnHrYou.classList.add('border-red-500/60');}
             else{hrDeviceWife=device;hrCharWife=ch;hrWifeLabel.innerText=nm;btnHrWife.classList.add('border-purple-500/60');}
             device.addEventListener('gattserverdisconnected',async()=>{
-                for(let a=0;a<3;a++){
-                    try{await new Promise(r=>setTimeout(r,1000));if(!device.gatt)break;await setupDevice(device,who);return;}catch(e){}
-                }
+                for(let a=0;a<3;a++){try{await new Promise(r=>setTimeout(r,1000));if(!device.gatt)break;await setupDevice(device,who);return;}catch(e){}}
                 if(who==='you'){hrDeviceYou=null;hrCharYou=null;hrValueYou=null;hrYouLabel.innerText="Liam's HR";btnHrYou.classList.remove('border-red-500/60');hrYouBpm.innerText='--';}
                 else{hrDeviceWife=null;hrCharWife=null;hrValueWife=null;hrWifeLabel.innerText="Ash's HR";btnHrWife.classList.remove('border-purple-500/60');hrWifeBpm.innerText='--';}
                 showBleToast(who);
@@ -308,14 +287,7 @@
         btnHrYou.onclick=()=>{if(hrDeviceYou&&hrDeviceYou.gatt.connected)hrDeviceYou.gatt.disconnect();else connectHR('you');};
         btnHrWife.onclick=()=>{if(hrDeviceWife&&hrDeviceWife.gatt.connected)hrDeviceWife.gatt.disconnect();else connectHR('wife');};
         function updateHRVisibility(){hrLiveYou.classList.toggle('hidden',!(hrDeviceYou&&hrDeviceYou.gatt.connected));hrLiveWife.classList.toggle('hidden',!(hrDeviceWife&&hrDeviceWife.gatt.connected));}
-        function showBleToast(who){
-            if(!session.active)return;
-            const name=who==='you'?"Liam's":"Ash's";
-            const toast=document.getElementById('ble-toast');
-            toast.innerText='\u26A0\uFE0F '+name+' HR monitor disconnected';
-            toast.classList.remove('hidden');
-            setTimeout(()=>toast.classList.add('hidden'),4000);
-        }
+        function showBleToast(who){if(!session.active)return;const name=who==='you'?"Liam's":"Ash's";const toast=document.getElementById('ble-toast');toast.innerText='\u26A0\uFE0F '+name+' HR monitor disconnected';toast.classList.remove('hidden');setTimeout(()=>toast.classList.add('hidden'),4000);}
         function drawSpark(c,data,color){const ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);const slice=data.length>60?data.slice(-60):data;if(slice.length<2)return;const b=slice.map(d=>d.bpm),mn=Math.min(...b)-5,mx=Math.max(...b)+5,rg=mx-mn||1;ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.lineJoin='round';const s=w/(slice.length-1);slice.forEach((d,i)=>{const x=i*s,y=h-((d.bpm-mn)/rg)*h;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();}
         // ── AUDIO ──
         function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();if(!masterGain){masterGain=audioCtx.createGain();masterGain.gain.value=3.0;masterGain.connect(audioCtx.destination);}}
@@ -334,81 +306,25 @@
         function exitFullscreen(){try{if(document.exitFullscreen)document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen();}catch(e){}}
         async function reacquireWakeLock(){if(session.active&&!session.paused&&document.visibilityState==='visible'){try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}}}
         document.addEventListener('visibilitychange',reacquireWakeLock);
-
-        // ── SURPRISE STROKE: OPTION A ──
-        const surpriseTargets=[
-            {el:()=>ui.roundFocus,       base:['t-stroke-heavy'], dark:'surprise-shadow-dark',    light:'surprise-shadow-light'},
-            {el:()=>ui.timerDisplay,     base:['t-stroke-heavy'], dark:'surprise-shadow-dark',    light:'surprise-shadow-light'},
-            {el:()=>ui.nextUp,           base:['t-stroke'],       dark:'surprise-shadow-dark-sm', light:'surprise-shadow-light-sm'},
-            {el:()=>document.getElementById('round-label'), base:['t-stroke'],  dark:'surprise-shadow-dark-sm', light:'surprise-shadow-light-sm'},
-            {el:()=>ui.roundCur,         base:['t-stroke-heavy'], dark:'surprise-shadow-dark',    light:'surprise-shadow-light'},
-            {el:()=>document.getElementById('total-rounds'),base:['t-stroke'],  dark:'surprise-shadow-dark-sm', light:'surprise-shadow-light-sm'},
-            {el:()=>ui.btnPause,         base:['t-stroke-btn'],   dark:'surprise-shadow-dark-xs', light:'surprise-shadow-light-xs'},
-            {el:()=>ui.btnEnd,           base:['t-stroke-btn'],   dark:'surprise-shadow-dark-xs', light:'surprise-shadow-light-xs'},
-            {el:()=>document.getElementById('btn-prev'), base:['t-stroke-btn'], dark:'surprise-shadow-dark-xs', light:'surprise-shadow-light-xs'},
-            {el:()=>document.getElementById('btn-next'), base:['t-stroke-btn'], dark:'surprise-shadow-dark-xs', light:'surprise-shadow-light-xs'},
-        ];
-        function setSurpriseStrokes(on){
-            surpriseTargets.forEach(t=>{
-                const el=t.el();if(!el)return;
-                if(on){
-                    t.base.forEach(c=>el.classList.remove(c));
-                    el.classList.remove(t.light);
-                    el.classList.add(t.dark);
-                    el.style.color=el===ui.roundFocus?'#ef4444':'#ffffff';
-                }else{
-                    t.base.forEach(c=>el.classList.add(c));
-                    el.classList.remove(t.dark,t.light);
-                    el.style.color='';
-                }
-            });
+        // ── SURPRISE: just colour, no stroke changes ──
+        // Only roundFocus gets red during surprise. Everything else stays white.
+        // Normal black t-stroke-heavy stays on all elements throughout.
+        function enterSurpriseColours(){
+            ui.roundFocus.style.color='#ef4444';
         }
-        // Per-element threshold: white bg fills from bottom.
-        // Top edge of white = screenH * (1 - bgHeightPct).
-        // Element midpoint above that edge = on dark bg = light (white) shadow.
-        // Element midpoint below = still on white = dark shadow.
-        function updateSurpriseStrokeThreshold(bgHeightPct){
-            const screenH=window.innerHeight;
-            const topEdgeY=screenH*(1-bgHeightPct);
-            surpriseTargets.forEach(t=>{
-                const el=t.el();if(!el)return;
-                const rect=el.getBoundingClientRect();
-                const midY=rect.top+rect.height/2;
-                if(midY<topEdgeY){
-                    el.classList.remove(t.dark);el.classList.add(t.light);
-                }else{
-                    el.classList.remove(t.light);el.classList.add(t.dark);
-                }
-            });
+        function exitSurpriseColours(){
+            ui.roundFocus.style.color='';
+            ui.roundFocus.classList.remove('surprise-task-mode');
         }
-        function clearSurpriseStrokes(){setSurpriseStrokes(false);}
-
         // ── STATS & SUMMARY ──
-        function calcStats(data,person,peakInfo,recoveries){
-            if(data.length<2)return null;
-            const bpms=data.map(d=>d.bpm),avg=Math.round(bpms.reduce((a,b)=>a+b,0)/bpms.length),totalSecs=data[data.length-1].t-data[0].t;
-            let cals=0;
-            for(let i=1;i<data.length;i++){
-                const dt=(data[i].t-data[i-1].t)/60,hr=(data[i].bpm+data[i-1].bpm)/2;
-                let cm;
-                if(person.sex==='male')cm=(-55.0969+0.6309*hr+0.1988*person.weight+0.2017*person.age)/4.184;
-                else cm=(-20.4022+0.4472*hr-0.1263*person.weight+0.074*person.age)/4.184;
-                cals+=Math.min(Math.max(0,cm),20)*dt;
-            }
-            const zones=[0,0,0,0,0];
-            for(let i=1;i<data.length;i++){const dt=data[i].t-data[i-1].t,hr=(data[i].bpm+data[i-1].bpm)/2,pct=hr/person.hrMax;let z=0;if(pct>=0.9)z=4;else if(pct>=0.8)z=3;else if(pct>=0.7)z=2;else if(pct>=0.6)z=1;zones[z]+=dt;}
-            const avgRec=recoveries.length>0?Math.round(recoveries.reduce((a,b)=>a+b,0)/recoveries.length):null;
-            return{avg,peak:peakInfo.bpm,peakRound:peakInfo.round,cals:Math.round(cals),zones,totalMins:Math.round(totalSecs/60),avgRecovery:avgRec};
-        }
+        function calcStats(data,person,peakInfo,recoveries){if(data.length<2)return null;const bpms=data.map(d=>d.bpm),avg=Math.round(bpms.reduce((a,b)=>a+b,0)/bpms.length),totalSecs=data[data.length-1].t-data[0].t;let cals=0;for(let i=1;i<data.length;i++){const dt=(data[i].t-data[i-1].t)/60,hr=(data[i].bpm+data[i-1].bpm)/2;let cm;if(person.sex==='male')cm=(-55.0969+0.6309*hr+0.1988*person.weight+0.2017*person.age)/4.184;else cm=(-20.4022+0.4472*hr-0.1263*person.weight+0.074*person.age)/4.184;cals+=Math.min(Math.max(0,cm),20)*dt;}const zones=[0,0,0,0,0];for(let i=1;i<data.length;i++){const dt=data[i].t-data[i-1].t,hr=(data[i].bpm+data[i-1].bpm)/2,pct=hr/person.hrMax;let z=0;if(pct>=0.9)z=4;else if(pct>=0.8)z=3;else if(pct>=0.7)z=2;else if(pct>=0.6)z=1;zones[z]+=dt;}const avgRec=recoveries.length>0?Math.round(recoveries.reduce((a,b)=>a+b,0)/recoveries.length):null;return{avg,peak:peakInfo.bpm,peakRound:peakInfo.round,cals:Math.round(cals),zones,totalMins:Math.round(totalSecs/60),avgRecovery:avgRec};}
         function fmtZoneTime(s){const m=Math.floor(s/60),sc=Math.round(s%60);return m>0?`${m}m${sc>0?sc+'s':''}`:`${sc}s`;}
         function buildSummaryCard(data,person,label,color,tintBg,chartId,peakInfo,recoveries,wR,rR){const stats=calcStats(data,person,peakInfo,recoveries);if(!stats)return '';const tZ=stats.zones.reduce((a,b)=>a+b,0)||1;let zB='';stats.zones.forEach((s,i)=>{const p=(s/tZ)*100;if(p>0)zB+=`<div class="zone-segment rounded-sm" style="width:${p}%;background:${ZONE_COLORS[i]};">${p>8?fmtZoneTime(s):''}</div>`;});const wM=Math.floor(wR/60),wS=wR%60,rM=Math.floor(rR/60),rS=rR%60;let sr=`<div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.cals}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">kcal</div></div><div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.avg}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Avg bpm</div></div><div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.peak}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Peak (R${stats.peakRound})</div></div>`;if(stats.avgRecovery!==null)sr+=`<div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">-${stats.avgRecovery}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Avg Recovery (bpm)</div></div>`;const gridCls=stats.avgRecovery!==null?'grid-cols-4':'grid-cols-3';return `<div class="p-4 rounded-2xl space-y-3" style="background:${tintBg};border:1px solid rgba(255,255,255,0.08);"><div class="flex justify-between items-center"><p class="text-[10px] font-bold uppercase tracking-widest" style="color:${color}">${label}</p><span class="text-[9px] text-slate-500">Work ${wM}:${wS.toString().padStart(2,'0')} | Rest ${rM}:${rS.toString().padStart(2,'0')}</span></div><div class="grid ${gridCls} gap-1.5">${sr}</div><div><div class="flex items-center justify-between mb-1"><span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Zones</span><span class="text-[9px] text-slate-500">${stats.totalMins} min</span></div><div class="flex rounded-lg overflow-hidden">${zB}</div><div class="flex justify-between mt-1">${ZONE_NAMES.map((n,i)=>`<span class="text-[8px] font-bold" style="color:${ZONE_COLORS[i]}">${n}</span>`).join('')}</div></div><canvas id="${chartId}" class="summary-chart rounded-lg" height="120" style="width:100%;display:block;"></canvas></div>`;}
-        function drawSummaryChart(cId,data,hrMax,color){const cv=document.getElementById(cId);if(!cv)return;const ctx=cv.getContext('2d');cv.width=cv.offsetWidth*2;cv.height=240;const w=cv.width,h=cv.height,pad={top:15,right:45,bottom:25,left:38},cw=w-pad.left-pad.right,ch=h-pad.top-pad.bottom;ctx.clearRect(0,0,w,h);if(data.length<2)return;const bpms=data.map(d=>d.bpm),minB=Math.floor((Math.min(...bpms)-10)/10)*10,maxB=Math.ceil((Math.max(...bpms)+10)/10)*10,bR=maxB-minB||1,maxT=data[data.length-1].t;const axisFont=Math.max(10,Math.round(w*0.022))+'px Space Mono',timeFont=Math.max(9,Math.round(w*0.018))+'px Space Mono';
-        for(let pct=10;pct<=100;pct+=10){const bpm=hrMax*(pct/100);if(bpm<minB||bpm>maxB)continue;const y=pad.top+ch-(bpm-minB)/bR*ch;ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();ctx.fillStyle='#64748b';ctx.font=axisFont;ctx.textAlign='right';ctx.fillText(Math.round(bpm),pad.left-6,y+5);ctx.textAlign='left';ctx.fillText(pct+'%',pad.left+cw+6,y+5);}
-        const tS=maxT>300?60:30;for(let t=0;t<=maxT;t+=tS){const x=pad.left+(t/maxT)*cw;ctx.fillStyle='#64748b';ctx.font=timeFont;ctx.textAlign='center';ctx.fillText(`${Math.floor(t/60)}:${Math.floor(t%60).toString().padStart(2,'0')}`,x,h-4);}let pR=0;ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.setLineDash([3,3]);ctx.lineWidth=1;data.forEach(d=>{if(d.round!==pR&&d.phase==='work'){const x=pad.left+(d.t/maxT)*cw;ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+ch);ctx.stroke();pR=d.round;}});ctx.setLineDash([]);ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';data.forEach((d,i)=>{const x=pad.left+(d.t/maxT)*cw,y=pad.top+ch-(d.bpm-minB)/bR*ch;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();}
+        function drawSummaryChart(cId,data,hrMax,color){const cv=document.getElementById(cId);if(!cv)return;const ctx=cv.getContext('2d');cv.width=cv.offsetWidth*2;cv.height=240;const w=cv.width,h=cv.height,pad={top:15,right:45,bottom:25,left:38},cw=w-pad.left-pad.right,ch=h-pad.top-pad.bottom;ctx.clearRect(0,0,w,h);if(data.length<2)return;const bpms=data.map(d=>d.bpm),minB=Math.floor((Math.min(...bpms)-10)/10)*10,maxB=Math.ceil((Math.max(...bpms)+10)/10)*10,bR=maxB-minB||1,maxT=data[data.length-1].t;const axisFont=Math.max(10,Math.round(w*0.022))+'px Space Mono',timeFont=Math.max(9,Math.round(w*0.018))+'px Space Mono';for(let pct=10;pct<=100;pct+=10){const bpm=hrMax*(pct/100);if(bpm<minB||bpm>maxB)continue;const y=pad.top+ch-(bpm-minB)/bR*ch;ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();ctx.fillStyle='#64748b';ctx.font=axisFont;ctx.textAlign='right';ctx.fillText(Math.round(bpm),pad.left-6,y+5);ctx.textAlign='left';ctx.fillText(pct+'%',pad.left+cw+6,y+5);}const tS=maxT>300?60:30;for(let t=0;t<=maxT;t+=tS){const x=pad.left+(t/maxT)*cw;ctx.fillStyle='#64748b';ctx.font=timeFont;ctx.textAlign='center';ctx.fillText(`${Math.floor(t/60)}:${Math.floor(t%60).toString().padStart(2,'0')}`,x,h-4);}let pR=0;ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.setLineDash([3,3]);ctx.lineWidth=1;data.forEach(d=>{if(d.round!==pR&&d.phase==='work'){const x=pad.left+(d.t/maxT)*cw;ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+ch);ctx.stroke();pR=d.round;}});ctx.setLineDash([]);ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';data.forEach((d,i)=>{const x=pad.left+(d.t/maxT)*cw,y=pad.top+ch-(d.bpm-minB)/bR*ch;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();}
         function showSummary(){const hY=hrHistoryYou.length>=2,hW=hrHistoryWife.length>=2;if(!hY&&!hW){showScreen('setup');return;}const ds=Math.round((Date.now()-sessionStartTime)/1000),dM=Math.floor(ds/60),dS=ds%60;document.getElementById('summary-duration').innerText=`${dM}:${dS.toString().padStart(2,'0')} total`;document.getElementById('summary-you').innerHTML=hY?buildSummaryCard(hrHistoryYou,YOU,'You','#4ade80','rgba(22,101,52,0.2)','chart-you',peakHRYou,recoveryDropsYou,workSecsTotal,restSecsTotal):'';document.getElementById('summary-wife').innerHTML=hW?buildSummaryCard(hrHistoryWife,WIFE,'Ash','#c084fc','rgba(107,33,168,0.2)','chart-wife',peakHRWife,recoveryDropsWife,workSecsTotal,restSecsTotal):'';showScreen('summary');setTimeout(()=>{if(hY)drawSummaryChart('chart-you',hrHistoryYou,YOU.hrMax,'#4ade80');if(hW)drawSummaryChart('chart-wife',hrHistoryWife,WIFE.hrMax,'#c084fc');},80);}
         document.getElementById('btn-summary-save').onclick=async()=>{const el=document.getElementById('summary-capture');if(typeof html2canvas==='undefined'){const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';document.head.appendChild(s);await new Promise((res,rej)=>{s.onload=res;s.onerror=rej;});}const cvs=el.querySelectorAll('canvas'),sw=[];cvs.forEach(c=>{const img=document.createElement('img');img.src=c.toDataURL('image/png');img.style.cssText=c.style.cssText;img.className=c.className;img.width=c.offsetWidth;img.height=c.offsetHeight;c.parentNode.replaceChild(img,c);sw.push({img,canvas:c,parent:img.parentNode});});try{const cv=await html2canvas(el,{backgroundColor:'#0f172a',scale:2,useCORS:true});const lk=document.createElement('a');lk.download=`boxing-session-${new Date().toISOString().slice(0,10)}.png`;lk.href=cv.toDataURL('image/png');lk.click();}catch(e){console.error('Save failed:',e);}sw.forEach(s=>s.parent.replaceChild(s.canvas,s.img));};
         document.getElementById('btn-summary-done').onclick=()=>{showScreen('setup');setMode(prevMode);};
-        // ── SCREEN MANAGEMENT ──
+        // ── SCREENS ──
         const screens={home:document.getElementById('home-screen'),gymDay:document.getElementById('gym-day-screen'),gymWorkout:document.getElementById('gym-workout-screen'),setup:document.getElementById('setup-screen'),timer:document.getElementById('timer-screen'),summary:document.getElementById('summary-screen')};
         const ui={timerBg:document.getElementById('timer-bg'),modeSolo:document.getElementById('mode-solo'),modeWife:document.getElementById('mode-wife'),restInfo:document.getElementById('rest-info'),inRandom:document.getElementById('in-random'),randomDesc:document.getElementById('random-desc'),toggleBg:document.getElementById('toggle-bg'),gridRounds:document.getElementById('grid-rounds'),previewList:document.getElementById('round-preview'),timerDisplay:document.getElementById('timer-display'),roundCur:document.getElementById('current-round'),roundTot:document.getElementById('total-rounds'),nextUp:document.getElementById('next-up'),roundFocus:document.getElementById('round-focus'),btnStart:document.getElementById('btn-start'),btnQuickRest:document.getElementById('btn-quick-rest'),btnPause:document.getElementById('btn-pause'),btnEnd:document.getElementById('btn-end'),btnNext:document.getElementById('btn-next'),btnPrev:document.getElementById('btn-prev'),gymDayLabel:document.getElementById('gym-day-label'),gymExerciseList:document.getElementById('gym-exercise-list')};
         function showScreen(name){Object.values(screens).forEach(s=>{s.classList.add('hidden');s.classList.remove('flex');});screens[name].classList.remove('hidden');if(name==='timer'||name==='gymWorkout'){screens[name].classList.add('flex');}if(name==='timer')updateHRVisibility();}
@@ -441,18 +357,15 @@
         function generateSessionPlan(){session.plan=[];const tot=settings.rounds;let tp=[...ROUND_POOL];for(let i=0;i<tot;i++){let r=null;const isF=(i===0),isL=(i===tot-1),kFL=tot>6;if(settings.randomiseMiddle){if(kFL&&isF)r=PROGRAM_12_ROUNDS[0];else if(kFL&&isL)r=PROGRAM_12_ROUNDS[11];else{if(tp.length===0)tp=[...ROUND_POOL];const x=Math.floor(Math.random()*tp.length);r=tp[x];tp.splice(x,1);}}else{r=PROGRAM_12_ROUNDS[i%PROGRAM_12_ROUNDS.length];}session.plan.push(r);}if(!session.plan.some(r=>r.name==='Hooks Only')){const s=tot>6?1:0,e=tot>6?tot-1:tot;if(e>s){const slot=s+Math.floor(Math.random()*(e-s));session.plan[slot]=HOOKS_ONLY_ENTRY;}}updatePreview();}
         function updatePreview(){ui.previewList.innerHTML='';for(let i=0;i<settings.rounds;i++){const rd=session.plan[i],rn=i+1,cc=settings.mode==='wife'?"text-purple-300":"text-slate-300";const d=document.createElement('div');d.className="text-[9px] sm:text-[10px] py-1.5 px-2 rounded bg-slate-800/40 border border-slate-700/50";d.innerHTML=`<span class="font-bold ${cc} truncate block">${rn}. ${rd.name}</span>`;ui.previewList.appendChild(d);}}
         function pickSurpriseIndices(count,total){const pool=[];for(let i=1;i<total-1;i++)pool.push(i);for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}return new Set(pool.slice(0,Math.min(count,pool.length)));}
-        function setNextUp(content){
-            if(!content){ui.nextUp.innerHTML='';return;}
-            ui.nextUp.innerHTML=`<span class="next-label">UP NEXT:</span><span class="next-content">${content}</span>`;
-        }
+        function setNextUp(content){if(!content){ui.nextUp.innerHTML='';return;}ui.nextUp.innerHTML=`<span class="next-label">UP NEXT:</span><span class="next-content">${content}</span>`;}
         // ── PHASE STATE MACHINE ──
         const setPhase=(phase)=>{
             accumulatePhaseTime();
             if((session.phase==='work'||session.phase==='surprise')&&(phase==='rest'||phase==='change')){if(hrValueYou!==null)endOfWorkHRYou=hrValueYou;if(hrValueWife!==null)endOfWorkHRWife=hrValueWife;}
             if((session.phase==='rest'||session.phase==='change')&&phase==='work'){if(endOfWorkHRYou!==null&&hrValueYou!==null){const d=endOfWorkHRYou-hrValueYou;if(d>0)recoveryDropsYou.push(d);}if(endOfWorkHRWife!==null&&hrValueWife!==null){const d=endOfWorkHRWife-hrValueWife;if(d>0)recoveryDropsWife.push(d);}endOfWorkHRYou=null;endOfWorkHRWife=null;}
-            if(session.phase==='surprise')clearSurpriseStrokes();
+            // Clear surprise colour when leaving surprise phase
+            if(session.phase==='surprise')exitSurpriseColours();
             session.phase=phase;session.halfwayPlayed=false;session.last10Played=false;
-            ui.roundFocus.classList.remove('surprise-task-mode');
             ui.timerDisplay.classList.add('text-white');
             ui.timerBg.classList.remove('rest-pulse');
             if(phase==='work'||phase==='surprise'){hrRoundYou=[];hrRoundWife=[];}
@@ -467,11 +380,12 @@
             else if(phase==='surprise'){
                 session.time=SURPRISE_TOTAL;session.total=SURPRISE_TOTAL;
                 ui.timerBg.className="bg-white";
-                setSurpriseStrokes(true);
+                // Enter surprise: only roundFocus goes red, everything else white, normal black strokes throughout
+                enterSurpriseColours();
                 session.surpriseTask=Math.random()>0.5?"STRAIGHTS!":"HOOKS!";
                 autoSizeFocus("GET READY");
                 ui.roundFocus.innerText="GET READY";
-                // Up Next shows the task during GET READY, then clears once work starts
+                // Up Next shows the task during GET READY, clears once task snaps in
                 setNextUp(session.surpriseTask);
                 playBell();
                 speak("Surprise Round! Get Ready!");
@@ -484,22 +398,20 @@
         function updateUI(){
             const t=session.time;
             if(session.phase==='surprise'){
-                const bgHeightPct=t/SURPRISE_TOTAL;
                 if(t>SURPRISE_WORK){
                     ui.timerDisplay.innerText=format(t-SURPRISE_WORK);
                 }else{
-                    // Snap focus to task, clear Up Next
+                    // Snap focus to task, switch to bigger font, clear Up Next
                     if(ui.roundFocus.innerText==='GET READY'){
                         ui.roundFocus.classList.add('surprise-task-mode');
                         ui.roundFocus.innerText=session.surpriseTask;
+                        // Re-assert red in case innerText change reset it
                         ui.roundFocus.style.color='#ef4444';
-                        // Clear Up Next now that task is displayed
                         setNextUp('');
                     }
                     ui.timerDisplay.innerText=format(t);
                 }
-                ui.timerBg.style.height=`${bgHeightPct*100}%`;
-                updateSurpriseStrokeThreshold(bgHeightPct);
+                ui.timerBg.style.height=`${(t/SURPRISE_TOTAL)*100}%`;
             }else{
                 ui.timerDisplay.innerText=format(t);
                 ui.timerBg.style.height=`${(t/session.total)*100}%`;
@@ -536,7 +448,7 @@
         },1000);}
         // ── STEP PHASE ──
         function stepPhase(dir){if(settings.mode==='quick-rest'){if(dir===1){session.time+=10;session.total=Math.max(session.total,session.time);session.targetEndTime=Date.now()+(session.time*1000);}else{session.time=Math.max(0,session.time-10);session.targetEndTime=Date.now()+(session.time*1000);}updateUI();return;}const mx=settings.mode==='wife'?settings.rounds*2:settings.rounds,isW=settings.mode==='wife';if(dir===1){if(session.phase==='ready'){setPhase('work');}else if(session.phase==='work'){const pi=isW?Math.floor((session.round-1)/2):session.round-1,iy=!isW||(session.round%2!==0),ip=isW&&(session.round%2===0);let ts=false;if(iy&&session.surpriseRoundsYou.has(pi)&&!session.surpriseTriggeredYou.has(pi)){session.surpriseTriggeredYou.add(pi);ts=true;}else if(ip&&session.surpriseRoundsWife.has(pi)&&!session.surpriseTriggeredWife.has(pi)){session.surpriseTriggeredWife.add(pi);ts=true;}if(ts)setPhase('surprise');else{if(session.round>=mx)end();else setPhase(isW?'change':'rest');}}else if(session.phase==='change'||session.phase==='rest'){session.round++;setPhase('work');}else if(session.phase==='surprise'){if(session.round>=mx)end();else setPhase(isW?'change':'rest');}}else{if(session.phase==='work'){if(session.round>1){session.round--;setPhase(isW?'change':'rest');}else setPhase('ready');}else if(session.phase==='rest'||session.phase==='change'||session.phase==='surprise'){setPhase('work');}}}
-        // ── END SESSION ──
+        // ── END ──
         function end(){
             accumulatePhaseTime();
             session.active=false;clearInterval(session.timer);
@@ -545,8 +457,7 @@
             screens.timer.classList.add('hidden');screens.timer.classList.remove('flex');
             ui.timerBg.style.height='0%';ui.timerBg.classList.remove('rest-pulse');
             document.body.classList.remove('timer-running');
-            clearSurpriseStrokes();
-            ui.roundFocus.classList.remove('surprise-task-mode');
+            exitSurpriseColours();
             exitFullscreen();
             const hasHR=(hrDeviceYou&&hrDeviceYou.gatt&&hrDeviceYou.gatt.connected)||(hrDeviceWife&&hrDeviceWife.gatt&&hrDeviceWife.gatt.connected)||hrHistoryYou.length>=2||hrHistoryWife.length>=2;
             if(hasHR)showSummary();else{showScreen('setup');setMode(prevMode);}
@@ -580,7 +491,7 @@
         };
         ui.btnQuickRest.onclick=async()=>{initAudio();primeSpeech();try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}enterFullscreen();document.body.classList.add('timer-running');prevMode=settings.mode;settings.mode='quick-rest';showScreen('timer');session.time=120;session.total=120;session.round=1;ui.roundTot.innerText="-";ui.roundCur.innerText="-";session.active=true;setPhase('quick-rest');run();};
         ui.btnEnd.onclick=end;
-        // Pause: orange idle, green when paused (Resume state)
+        // Pause: orange idle, green when paused
         ui.btnPause.onclick=()=>{
             session.paused=!session.paused;
             if(session.paused){
@@ -601,6 +512,7 @@
         };
         ui.btnNext.onclick=()=>stepPhase(1);ui.btnPrev.onclick=()=>stepPhase(-1);
         // ── PERSONAL STATS ──
+        // hrMax uses Tanaka formula: 208 - (0.7 x age)
         function getAge(y,m,d){const t=new Date();let a=t.getFullYear()-y;if(t.getMonth()+1<m||(t.getMonth()+1===m&&t.getDate()<d))a--;return a;}
         const YOU={age:getAge(1991,4,5),weight:100,sex:'male',hrMax:Math.round(208-(0.7*getAge(1991,4,5)))};
         const WIFE={age:getAge(1987,4,2),weight:70,sex:'female',hrMax:Math.round(208-(0.7*getAge(1987,4,2)))};
