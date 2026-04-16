@@ -40,23 +40,26 @@
         .t-stroke-btn{-webkit-text-stroke:2px rgba(0,0,0,1);paint-order:stroke fill;}
         #timer-screen{height:100vh;height:100dvh;padding:1.5dvh 0 calc(4dvh + env(safe-area-inset-bottom));}
         .timer-top{padding:0 3vw;}
-        .timer-top .round-num{font-size:clamp(1.5rem,5dvh,2.5rem);}
-        .timer-top .round-slash{font-size:clamp(0.8rem,2.5dvh,1.25rem);}
-        .timer-top .round-label-text{font-size:clamp(0.5rem,1.2dvh,0.7rem);}
-        .timer-top .ctrl-btn{padding:clamp(2px,0.5dvh,6px) clamp(6px,1.5vw,12px);gap:clamp(2px,0.5vw,6px);}
-        .timer-top .ctrl-btn svg{width:clamp(10px,1.5dvh,16px);height:clamp(10px,1.5dvh,16px);}
-        .timer-top .ctrl-btn span{font-size:clamp(6px,1dvh,10px);}
+        /* Round label and numbers: bumped up */
+        .timer-top .round-num{font-size:clamp(2rem,6.5dvh,3.2rem);}
+        .timer-top .round-slash{font-size:clamp(1rem,3dvh,1.6rem);}
+        .timer-top .round-label-text{font-size:clamp(0.6rem,1.5dvh,0.85rem);}
+        /* Voice/Sound buttons: a little bigger */
+        .timer-top .ctrl-btn{padding:clamp(4px,0.8dvh,9px) clamp(8px,2vw,16px);gap:clamp(3px,0.6vw,8px);}
+        .timer-top .ctrl-btn svg{width:clamp(13px,2dvh,20px);height:clamp(13px,2dvh,20px);}
+        .timer-top .ctrl-btn span{font-size:clamp(8px,1.3dvh,13px);}
         .timer-top .hr-badge-box{padding:clamp(4px,1dvh,12px) clamp(6px,1.5vw,14px);}
         .timer-top .hr-badge-box svg{width:clamp(16px,2.5dvh,26px);height:clamp(16px,2.5dvh,26px);}
         .timer-top .hr-badge-box .hr-bpm{font-size:clamp(1.1rem,3.5dvh,2rem);}
         .timer-top .hr-badge-box canvas{width:clamp(70px,14vw,110px);height:clamp(20px,3.5dvh,34px);}
         #timer-middle{min-height:0;}
         #timer-display{font-size:clamp(4rem,22dvh,12rem);line-height:1;}
-        #next-up{font-size:clamp(1.3rem,4dvh,2.2rem);line-height:1.25;}
-        #next-up .next-label{display:block;font-size:clamp(1rem,2dvh,1rem);opacity:0.6;letter-spacing:0.15em;}
+        /* Up Next: bigger */
+        #next-up{font-size:clamp(1.6rem,5dvh,2.8rem);line-height:1.2;}
+        #next-up .next-label{display:block;font-size:clamp(0.8rem,1.8dvh,1.1rem);opacity:0.6;letter-spacing:0.15em;}
         #next-up .next-content{display:block;}
         #round-focus{font-size:clamp(1.5rem,6dvh,3rem) !important;}
-        /* Surprise task mode: bigger than normal but capped so it fits on phone */
+        /* Surprise task: bigger than normal focus but phone-safe */
         #round-focus.surprise-task-mode{font-size:clamp(2rem,10dvh,5rem) !important;}
         .timer-bottom{padding:0 3vw;gap:clamp(4px,1dvh,12px);}
         .timer-bottom .btn-row{gap:clamp(6px,1.5vw,16px);}
@@ -153,7 +156,7 @@
                     </div>
                 </div></div>
                 <div class="w-[140px] sm:w-[180px] md:w-[220px] flex-shrink-0 flex flex-col"><div class="glass-card p-2 sm:p-3 rounded-2xl flex flex-col flex-1 min-h-0 space-y-2">
-                    <div class="flex-shrink-0"><div class="flex items-center justify-between mb-1"><span class="text-[10px] sm:text-xs font-bold text-white">Randomise</span><label class="relative inline-flex items-center cursor-pointer flex-shrink-0"><input type="checkbox" id="in-random" class="sr-only peer"><div id="toggle-bg" class="w-9 sm:w-10 h-5 bg-slate-800 rounded-full peer peer-checked:bg-green-600 peer-checked:after:translate-x-4 sm:peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label></div><p id="random-desc" class="text-[8px] sm:text-[9px] text-slate-400 leading-tight">Randomises middle rounds (2 to 11)</p><hr class="border-slate-700/50 mt-2"></div>
+                    <div class="flex-shrink-0"><div class="flex items-center justify-between mb-1"><span class="text-[10px] sm:text-xs font-bold text-white">Randomise</span><label class="relative inline-flex items-center cursor-pointer flex-shrink-0"><input type="checkbox" id="in-random" class="sr-only peer" checked><div id="toggle-bg" class="w-9 sm:w-10 h-5 bg-slate-800 rounded-full peer peer-checked:bg-green-600 peer-checked:after:translate-x-4 sm:peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label></div><p id="random-desc" class="text-[8px] sm:text-[9px] text-slate-400 leading-tight">Randomises middle rounds (2 to 11)</p><hr class="border-slate-700/50 mt-2"></div>
                     <h3 class="font-bold text-white text-[9px] sm:text-xs uppercase tracking-widest ml-1 opacity-70 flex-shrink-0">Rounds</h3>
                     <div id="preview-scroll" class="flex-1 min-h-0 space-y-1 pr-1 custom-scrollbar"><div id="round-preview"></div></div>
                 </div></div>
@@ -247,7 +250,8 @@
         const HOOKS_ONLY_ENTRY=ROUND_POOL.find(r=>r.name==='Hooks Only')||PROGRAM_12_ROUNDS[8];
         const ZONE_COLORS=['#3b82f6','#22c55e','#eab308','#f97316','#ef4444'],ZONE_NAMES=['Z1','Z2','Z3','Z4','Z5'],HR_HISTORY_CAP=7200;
         const SURPRISE_TOTAL=35,SURPRISE_WORK=30;
-        let settings={mode:'solo',rounds:12,work:60,restBase:30,randomiseMiddle:false,surpriseCount:2},prevMode='solo';
+        // Randomise on by default
+        let settings={mode:'solo',rounds:12,work:60,restBase:30,randomiseMiddle:true,surpriseCount:2},prevMode='solo';
         let session={active:false,paused:false,phase:'ready',round:1,time:10,total:10,timer:null,plan:[],surpriseRoundsYou:new Set(),surpriseRoundsWife:new Set(),surpriseTriggeredYou:new Set(),surpriseTriggeredWife:new Set(),halfwayPlayed:false,last10Played:false,targetEndTime:0,surpriseTask:''};
         let audioCtx=null,masterGain=null,wakeLock=null,currentGymDay=null,voiceMuted=true,soundMuted=true;
         let hrDeviceYou=null,hrDeviceWife=null,hrCharYou=null,hrCharWife=null,hrValueYou=null,hrValueWife=null;
@@ -306,15 +310,13 @@
         function exitFullscreen(){try{if(document.exitFullscreen)document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen();}catch(e){}}
         async function reacquireWakeLock(){if(session.active&&!session.paused&&document.visibilityState==='visible'){try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}}}
         document.addEventListener('visibilitychange',reacquireWakeLock);
-        // ── SURPRISE: just colour, no stroke changes ──
-        // Only roundFocus gets red during surprise. Everything else stays white.
-        // Normal black t-stroke-heavy stays on all elements throughout.
-        function enterSurpriseColours(){
-            ui.roundFocus.style.color='#ef4444';
-        }
-        function exitSurpriseColours(){
-            ui.roundFocus.style.color='';
-            ui.roundFocus.classList.remove('surprise-task-mode');
+        // ── SURPRISE COLOURS ──
+        // Only roundFocus goes red. Everything else stays white. Normal black strokes throughout.
+        function enterSurpriseColours(){ui.roundFocus.style.color='#ef4444';}
+        function exitSurpriseColours(){ui.roundFocus.style.color='';ui.roundFocus.classList.remove('surprise-task-mode');}
+        // Timer display: red during GET READY countdown, white once work starts
+        function setSurpriseTimerColour(inCountdown){
+            ui.timerDisplay.style.color=inCountdown?'#ef4444':'';
         }
         // ── STATS & SUMMARY ──
         function calcStats(data,person,peakInfo,recoveries){if(data.length<2)return null;const bpms=data.map(d=>d.bpm),avg=Math.round(bpms.reduce((a,b)=>a+b,0)/bpms.length),totalSecs=data[data.length-1].t-data[0].t;let cals=0;for(let i=1;i<data.length;i++){const dt=(data[i].t-data[i-1].t)/60,hr=(data[i].bpm+data[i-1].bpm)/2;let cm;if(person.sex==='male')cm=(-55.0969+0.6309*hr+0.1988*person.weight+0.2017*person.age)/4.184;else cm=(-20.4022+0.4472*hr-0.1263*person.weight+0.074*person.age)/4.184;cals+=Math.min(Math.max(0,cm),20)*dt;}const zones=[0,0,0,0,0];for(let i=1;i<data.length;i++){const dt=data[i].t-data[i-1].t,hr=(data[i].bpm+data[i-1].bpm)/2,pct=hr/person.hrMax;let z=0;if(pct>=0.9)z=4;else if(pct>=0.8)z=3;else if(pct>=0.7)z=2;else if(pct>=0.6)z=1;zones[z]+=dt;}const avgRec=recoveries.length>0?Math.round(recoveries.reduce((a,b)=>a+b,0)/recoveries.length):null;return{avg,peak:peakInfo.bpm,peakRound:peakInfo.round,cals:Math.round(cals),zones,totalMins:Math.round(totalSecs/60),avgRecovery:avgRec};}
@@ -357,16 +359,16 @@
         function generateSessionPlan(){session.plan=[];const tot=settings.rounds;let tp=[...ROUND_POOL];for(let i=0;i<tot;i++){let r=null;const isF=(i===0),isL=(i===tot-1),kFL=tot>6;if(settings.randomiseMiddle){if(kFL&&isF)r=PROGRAM_12_ROUNDS[0];else if(kFL&&isL)r=PROGRAM_12_ROUNDS[11];else{if(tp.length===0)tp=[...ROUND_POOL];const x=Math.floor(Math.random()*tp.length);r=tp[x];tp.splice(x,1);}}else{r=PROGRAM_12_ROUNDS[i%PROGRAM_12_ROUNDS.length];}session.plan.push(r);}if(!session.plan.some(r=>r.name==='Hooks Only')){const s=tot>6?1:0,e=tot>6?tot-1:tot;if(e>s){const slot=s+Math.floor(Math.random()*(e-s));session.plan[slot]=HOOKS_ONLY_ENTRY;}}updatePreview();}
         function updatePreview(){ui.previewList.innerHTML='';for(let i=0;i<settings.rounds;i++){const rd=session.plan[i],rn=i+1,cc=settings.mode==='wife'?"text-purple-300":"text-slate-300";const d=document.createElement('div');d.className="text-[9px] sm:text-[10px] py-1.5 px-2 rounded bg-slate-800/40 border border-slate-700/50";d.innerHTML=`<span class="font-bold ${cc} truncate block">${rn}. ${rd.name}</span>`;ui.previewList.appendChild(d);}}
         function pickSurpriseIndices(count,total){const pool=[];for(let i=1;i<total-1;i++)pool.push(i);for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}return new Set(pool.slice(0,Math.min(count,pool.length)));}
-        function setNextUp(content){if(!content){ui.nextUp.innerHTML='';return;}ui.nextUp.innerHTML=`<span class="next-label">UP NEXT:</span><span class="next-content">${content}</span>`;}
+        // NEXT: label (was UP NEXT:)
+        function setNextUp(content){if(!content){ui.nextUp.innerHTML='';return;}ui.nextUp.innerHTML=`<span class="next-label">NEXT:</span><span class="next-content">${content}</span>`;}
         // ── PHASE STATE MACHINE ──
         const setPhase=(phase)=>{
             accumulatePhaseTime();
             if((session.phase==='work'||session.phase==='surprise')&&(phase==='rest'||phase==='change')){if(hrValueYou!==null)endOfWorkHRYou=hrValueYou;if(hrValueWife!==null)endOfWorkHRWife=hrValueWife;}
             if((session.phase==='rest'||session.phase==='change')&&phase==='work'){if(endOfWorkHRYou!==null&&hrValueYou!==null){const d=endOfWorkHRYou-hrValueYou;if(d>0)recoveryDropsYou.push(d);}if(endOfWorkHRWife!==null&&hrValueWife!==null){const d=endOfWorkHRWife-hrValueWife;if(d>0)recoveryDropsWife.push(d);}endOfWorkHRYou=null;endOfWorkHRWife=null;}
-            // Clear surprise colour when leaving surprise phase
-            if(session.phase==='surprise')exitSurpriseColours();
+            if(session.phase==='surprise'){exitSurpriseColours();setSurpriseTimerColour(false);}
             session.phase=phase;session.halfwayPlayed=false;session.last10Played=false;
-            ui.timerDisplay.classList.add('text-white');
+            ui.timerDisplay.style.color='';
             ui.timerBg.classList.remove('rest-pulse');
             if(phase==='work'||phase==='surprise'){hrRoundYou=[];hrRoundWife=[];}
             const maxRounds=settings.mode==='wife'?settings.rounds*2:settings.rounds;
@@ -375,17 +377,27 @@
             if(phase==='ready'){session.time=20;session.total=20;ui.timerBg.className="bg-orange-600";autoSizeFocus("Gloves On");ui.roundFocus.innerText="Gloves On";setNextUp(session.plan[0].name);}
             else if(phase==='work'){session.time=settings.work;session.total=settings.work;if(isFinalRound)playDoubleBell();else playBell();const pi=settings.mode==='wife'?Math.floor((session.round-1)/2):session.round-1;const rd=session.plan[pi];autoSizeFocus(rd.name);ui.roundFocus.innerText=rd.name;ui.roundCur.innerText=displayRound;setNextUp('');if(settings.mode==='wife'){ui.timerBg.className=(session.round%2!==0)?"bg-green-600":"bg-purple-600";}else{ui.timerBg.className="bg-green-600";}speak(`Round ${displayRound}, ${rd.name}`);}
             else if(phase==='rest'){const dur=settings.restBase+((session.round-1)*5);session.time=dur;session.total=dur;ui.timerBg.className="bg-red-600 rest-pulse";autoSizeFocus("Rest");ui.roundFocus.innerText="Rest";if(session.round<maxRounds){const pi=settings.mode==='wife'?Math.floor(session.round/2):session.round;setNextUp(session.plan[pi].name);}else setNextUp('Final Round Complete');playBell();}
-            else if(phase==='change'){session.time=10;session.total=10;ui.timerBg.className="bg-yellow-600 rest-pulse";autoSizeFocus("Change");ui.roundFocus.innerText="Change";const mx=settings.rounds*2;if(session.round<mx){const nn=session.plan[Math.floor(session.round/2)].name;setNextUp(nn);}playBell();}
+            else if(phase==='change'){
+                session.time=10;session.total=10;
+                ui.timerBg.className="bg-yellow-600 rest-pulse";
+                // Change: smaller font set directly, skip autoSizeFocus
+                ui.roundFocus.style.fontSize='clamp(0.8rem,3dvh,1.5rem)';
+                ui.roundFocus.innerText="Change";
+                const mx=settings.rounds*2;
+                if(session.round<mx){const nn=session.plan[Math.floor(session.round/2)].name;setNextUp(nn);}
+                playBell();
+            }
             else if(phase==='quick-rest'){ui.timerBg.className="bg-red-600 rest-pulse";autoSizeFocus("Full Rest");ui.roundFocus.innerText="Full Rest";setNextUp('');}
             else if(phase==='surprise'){
                 session.time=SURPRISE_TOTAL;session.total=SURPRISE_TOTAL;
                 ui.timerBg.className="bg-white";
-                // Enter surprise: only roundFocus goes red, everything else white, normal black strokes throughout
                 enterSurpriseColours();
+                // Timer display red during GET READY countdown
+                setSurpriseTimerColour(true);
                 session.surpriseTask=Math.random()>0.5?"STRAIGHTS!":"HOOKS!";
                 autoSizeFocus("GET READY");
                 ui.roundFocus.innerText="GET READY";
-                // Up Next shows the task during GET READY, clears once task snaps in
+                // NEXT: shows task during GET READY, cleared when work starts
                 setNextUp(session.surpriseTask);
                 playBell();
                 speak("Surprise Round! Get Ready!");
@@ -399,14 +411,16 @@
             const t=session.time;
             if(session.phase==='surprise'){
                 if(t>SURPRISE_WORK){
+                    // GET READY: show countdown, keep timer red
                     ui.timerDisplay.innerText=format(t-SURPRISE_WORK);
                 }else{
-                    // Snap focus to task, switch to bigger font, clear Up Next
+                    // Snap to task on first work tick
                     if(ui.roundFocus.innerText==='GET READY'){
                         ui.roundFocus.classList.add('surprise-task-mode');
                         ui.roundFocus.innerText=session.surpriseTask;
-                        // Re-assert red in case innerText change reset it
                         ui.roundFocus.style.color='#ef4444';
+                        // Timer back to white, clear NEXT:
+                        setSurpriseTimerColour(false);
                         setNextUp('');
                     }
                     ui.timerDisplay.innerText=format(t);
@@ -457,7 +471,7 @@
             screens.timer.classList.add('hidden');screens.timer.classList.remove('flex');
             ui.timerBg.style.height='0%';ui.timerBg.classList.remove('rest-pulse');
             document.body.classList.remove('timer-running');
-            exitSurpriseColours();
+            exitSurpriseColours();setSurpriseTimerColour(false);
             exitFullscreen();
             const hasHR=(hrDeviceYou&&hrDeviceYou.gatt&&hrDeviceYou.gatt.connected)||(hrDeviceWife&&hrDeviceWife.gatt&&hrDeviceWife.gatt.connected)||hrHistoryYou.length>=2||hrHistoryWife.length>=2;
             if(hasHR)showSummary();else{showScreen('setup');setMode(prevMode);}
@@ -491,7 +505,7 @@
         };
         ui.btnQuickRest.onclick=async()=>{initAudio();primeSpeech();try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}enterFullscreen();document.body.classList.add('timer-running');prevMode=settings.mode;settings.mode='quick-rest';showScreen('timer');session.time=120;session.total=120;session.round=1;ui.roundTot.innerText="-";ui.roundCur.innerText="-";session.active=true;setPhase('quick-rest');run();};
         ui.btnEnd.onclick=end;
-        // Pause: orange idle, green when paused
+        // Pause: orange idle, green when paused (Resume)
         ui.btnPause.onclick=()=>{
             session.paused=!session.paused;
             if(session.paused){
@@ -512,7 +526,7 @@
         };
         ui.btnNext.onclick=()=>stepPhase(1);ui.btnPrev.onclick=()=>stepPhase(-1);
         // ── PERSONAL STATS ──
-        // hrMax uses Tanaka formula: 208 - (0.7 x age)
+        // hrMax: Tanaka formula 208 - (0.7 x age)
         function getAge(y,m,d){const t=new Date();let a=t.getFullYear()-y;if(t.getMonth()+1<m||(t.getMonth()+1===m&&t.getDate()<d))a--;return a;}
         const YOU={age:getAge(1991,4,5),weight:100,sex:'male',hrMax:Math.round(208-(0.7*getAge(1991,4,5)))};
         const WIFE={age:getAge(1987,4,2),weight:70,sex:'female',hrMax:Math.round(208-(0.7*getAge(1987,4,2)))};
