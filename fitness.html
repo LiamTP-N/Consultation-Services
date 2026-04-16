@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+else{wrap.classList.remove('p-0');wrap.classList.add<!DOCTYPE html>
 <html lang="en-GB">
 <head>
     <meta charset="UTF-8">
@@ -108,7 +108,7 @@
 </head>
 <body class="text-slate-200 min-h-screen flex flex-col items-center justify-center">
     <div id="timer-bg" class="h-0 bg-slate-800"></div>
-    <div id="main-wrap" class="relative z-10 w-full flex flex-col items-center justify-center p-4 min-h-screen">
+    <div id="main-wrap" class="relative z-10 w-full flex flex-col items-center justify-center p-4">
         <!-- HOME -->
         <div id="home-screen" class="w-full max-w-md space-y-5">
             <div class="text-center mb-6"><h1 class="text-4xl font-bold text-white tracking-tight">What's Today's Session?</h1></div>
@@ -402,8 +402,8 @@
             if(name==='gymWorkout'){screens[name].style.display='flex';}
             if(name==='timer')updateHRVisibility();
             const wrap=document.getElementById('main-wrap');
-            if(name==='timer'||name==='gymWorkout'){wrap.classList.remove('p-4');wrap.classList.add('p-0');}
-            else{wrap.classList.remove('p-0');wrap.classList.add('p-4');}
+            if(name==='timer'||name==='gymWorkout'){wrap.classList.remove('p-4','min-h-screen','justify-center');wrap.classList.add('p-0');}
+            else{wrap.classList.remove('p-0');wrap.classList.add('p-4','min-h-screen','justify-center');}
         }
 
         document.getElementById('btn-home-boxing').onclick=()=>{showScreen('setup');setMode('wife');};
