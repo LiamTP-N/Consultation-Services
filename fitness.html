@@ -360,7 +360,7 @@
         function updatePreview(){ui.previewList.innerHTML='';for(let i=0;i<settings.rounds;i++){const rd=session.plan[i],rn=i+1,cc=settings.mode==='wife'?"text-purple-300":"text-slate-300";const d=document.createElement('div');d.className="text-[9px] sm:text-[10px] py-1.5 px-2 rounded bg-slate-800/40 border border-slate-700/50";d.innerHTML=`<span class="font-bold ${cc} truncate block">${rn}. ${rd.name}</span>`;ui.previewList.appendChild(d);}}
         function pickSurpriseIndices(count,total){const pool=[];for(let i=1;i<total-1;i++)pool.push(i);for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}return new Set(pool.slice(0,Math.min(count,pool.length)));}
         // NEXT: label (was UP NEXT:)
-        function setNextUp(content){if(!content){ui.nextUp.innerHTML='';return;}ui.nextUp.innerHTML=`<span class="next-label">NEXT:</span><span class="next-content">${content}</span>`;}
+        function setNextUp(content,red=false){if(!content){ui.nextUp.innerHTML='';return;}const col=red?'style="color:#ef4444"':'';ui.nextUp.innerHTML=`<span class="next-label" ${col}>NEXT:</span><span class="next-content" ${col}>${content}</span>`;}
         // ── PHASE STATE MACHINE ──
         const setPhase=(phase)=>{
             accumulatePhaseTime();
@@ -398,7 +398,7 @@
                 autoSizeFocus("GET READY");
                 ui.roundFocus.innerText="GET READY";
                 // NEXT: shows task during GET READY, cleared when work starts
-                setNextUp(session.surpriseTask);
+                setNextUp(session.surpriseTask,true);
                 playBell();
                 speak("Surprise Round! Get Ready!");
             }
