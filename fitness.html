@@ -314,6 +314,7 @@
             halfwayPlayed:false,last10Played:false,targetEndTime:0,surpriseTask:'',
             currentBlock:1,
             totalPlanRoundsCompleted:0
+            doubleSuprise:false
         };
         let audioCtx=null,masterGain=null,wakeLock=null,currentGymDay=null,voiceMuted=true,soundMuted=true;
         let hrDeviceYou=null,hrDeviceWife=null,hrCharYou=null,hrCharWife=null,hrValueYou=null,hrValueWife=null;
@@ -668,6 +669,8 @@
                 }
 
                 if(session.phase==='surprise'){
+                    if(!session.doubleSuprise&&Math.random()<0.05){session.doubleSuprise=true;setPhase('surprise');return;}
+                    session.doubleSuprise=false;
                     const blockRounds2=currentBlockRounds();
                     const mx2=isW?blockRounds2*2:blockRounds2;
                     if(session.round>=mx2){
