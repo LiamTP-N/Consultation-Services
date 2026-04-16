@@ -38,11 +38,13 @@
         .t-stroke{-webkit-text-stroke:4px rgba(0,0,0,1);paint-order:stroke fill;}
         .t-stroke-heavy{-webkit-text-stroke:6px rgba(0,0,0,1);paint-order:stroke fill;}
         .t-stroke-btn{-webkit-text-stroke:2px rgba(0,0,0,1);paint-order:stroke fill;}
-        /* Surprise round: dual black+white shadow readable on both white and dark backgrounds.
-           JS additionally overrides element colour each second via updateSurpriseTextColour(). */
-        .surprise-stroke{text-shadow:-3px -3px 0 #fff,3px -3px 0 #fff,-3px 3px 0 #fff,3px 3px 0 #fff,-3px -3px 0 #000,3px -3px 0 #000,-3px 3px 0 #000,3px 3px 0 #000;-webkit-text-stroke:0 !important;}
-        .surprise-stroke-light{text-shadow:-2px -2px 0 #fff,2px -2px 0 #fff,-2px 2px 0 #fff,2px 2px 0 #fff,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000;-webkit-text-stroke:0 !important;}
-        .surprise-stroke-btn{text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;-webkit-text-stroke:0 !important;}
+        /* Surprise phase stroke classes - base strokes stripped via JS (Option A) */
+        .surprise-shadow-dark{text-shadow:-3px -3px 0 #000,3px -3px 0 #000,-3px 3px 0 #000,3px 3px 0 #000;-webkit-text-stroke:0 !important;}
+        .surprise-shadow-light{text-shadow:-3px -3px 0 #fff,3px -3px 0 #fff,-3px 3px 0 #fff,3px 3px 0 #fff;-webkit-text-stroke:0 !important;}
+        .surprise-shadow-dark-sm{text-shadow:-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000;-webkit-text-stroke:0 !important;}
+        .surprise-shadow-light-sm{text-shadow:-2px -2px 0 #fff,2px -2px 0 #fff,-2px 2px 0 #fff,2px 2px 0 #fff;-webkit-text-stroke:0 !important;}
+        .surprise-shadow-dark-xs{text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;-webkit-text-stroke:0 !important;}
+        .surprise-shadow-light-xs{text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;-webkit-text-stroke:0 !important;}
         #timer-screen{height:100vh;height:100dvh;padding:1.5dvh 0 calc(4dvh + env(safe-area-inset-bottom));}
         .timer-top{padding:0 3vw;}
         .timer-top .round-num{font-size:clamp(1.5rem,5dvh,2.5rem);}
@@ -61,6 +63,7 @@
         #next-up .next-label{display:block;font-size:clamp(1rem,2dvh,1rem);opacity:0.6;letter-spacing:0.15em;}
         #next-up .next-content{display:block;}
         #round-focus{font-size:clamp(1.5rem,6dvh,3rem) !important;}
+        #round-focus.surprise-task-mode{font-size:clamp(3rem,18dvh,8rem) !important;}
         .timer-bottom{padding:0 3vw;gap:clamp(4px,1dvh,12px);}
         .timer-bottom .btn-row{gap:clamp(6px,1.5vw,16px);}
         .timer-bottom .btn-nav,
@@ -183,7 +186,11 @@
             </div>
             <div class="timer-bottom w-full flex flex-col flex-shrink-0">
                 <div class="btn-row grid grid-cols-2"><button id="btn-prev" class="btn-nav bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold transition-all active:scale-95 uppercase tracking-wider t-stroke-btn">&larr; Prev</button><button id="btn-next" class="btn-nav bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 text-white/80 font-bold transition-all active:scale-95 uppercase tracking-wider t-stroke-btn">Next &rarr;</button></div>
-                <div class="btn-row grid grid-cols-2"><button id="btn-pause" class="btn-main bg-black/30 hover:bg-black/40 backdrop-blur-md border border-white/10 text-white font-bold transition-all active:scale-95 t-stroke-btn">Pause</button><button id="btn-end" class="btn-main bg-red-500/20 hover:bg-red-500/30 backdrop-blur-md border border-red-500/30 text-red-100 font-bold transition-all active:scale-95 t-stroke-btn">End</button></div>
+                <!-- Pause: orange hue. End: stronger red. Resume state applied via JS. -->
+                <div class="btn-row grid grid-cols-2">
+                    <button id="btn-pause" class="btn-main bg-orange-500/40 hover:bg-orange-500/50 backdrop-blur-md border border-orange-500/50 text-white font-bold transition-all active:scale-95 t-stroke-btn">Pause</button>
+                    <button id="btn-end" class="btn-main bg-red-500/50 hover:bg-red-500/60 backdrop-blur-md border border-red-500/60 text-white font-bold transition-all active:scale-95 t-stroke-btn">End</button>
+                </div>
             </div>
         </div>
         <!-- SESSION SUMMARY -->
@@ -196,15 +203,14 @@
             </div>
         </div>
     </div>
-    <!-- NO HR MONITOR MODAL -->
+    <!-- NO HR MONITOR MODAL - subtext removed, buttons enlarged -->
     <div id="hr-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-6">
         <div class="bg-slate-800 border border-slate-600 rounded-2xl p-6 max-w-xs w-full text-center shadow-2xl">
             <div class="text-3xl mb-3">&#x1F493;</div>
-            <p class="text-white font-bold text-base mb-1">No HR Monitor Connected</p>
-            <p class="text-slate-400 text-sm mb-5">Train without heart rate tracking?</p>
+            <p class="text-white font-bold text-base mb-5">No HR Monitor Connected</p>
             <div class="flex gap-3">
-                <button id="hr-modal-cancel" class="flex-1 py-2.5 rounded-xl text-sm font-bold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition">Go Back</button>
-                <button id="hr-modal-confirm" class="flex-1 py-2.5 rounded-xl text-sm font-bold bg-green-600 hover:bg-green-500 text-white transition">Start Anyway</button>
+                <button id="hr-modal-cancel" class="flex-1 py-4 rounded-xl text-base font-bold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition">Go Back</button>
+                <button id="hr-modal-confirm" class="flex-1 py-4 rounded-xl text-base font-bold bg-green-600 hover:bg-green-500 text-white transition">Start Anyway</button>
             </div>
         </div>
     </div>
@@ -249,7 +255,6 @@
         ];
         const HOOKS_ONLY_ENTRY=ROUND_POOL.find(r=>r.name==='Hooks Only')||PROGRAM_12_ROUNDS[8];
         const ZONE_COLORS=['#3b82f6','#22c55e','#eab308','#f97316','#ef4444'],ZONE_NAMES=['Z1','Z2','Z3','Z4','Z5'],HR_HISTORY_CAP=7200;
-        // Surprise phase: 35s total (5s GET READY + 30s work)
         const SURPRISE_TOTAL=35,SURPRISE_WORK=30;
         // ── SETTINGS & SESSION STATE ──
         let settings={mode:'solo',rounds:12,work:60,restBase:30,randomiseMiddle:false,surpriseCount:2},prevMode='solo';
@@ -259,7 +264,6 @@
         let hrHistoryYou=[],hrHistoryWife=[],hrRoundYou=[],hrRoundWife=[],sessionStartTime=0,lastSparkDrawYou=0,lastSparkDrawWife=0;
         let endOfWorkHRYou=null,endOfWorkHRWife=null,recoveryDropsYou=[],recoveryDropsWife=[];
         let peakHRYou={bpm:0,round:0},peakHRWife={bpm:0,round:0};
-        // ── WALL-CLOCK PHASE TIMING ──
         let workSecsTotal=0,restSecsTotal=0,phaseStartWall=0;
         function accumulatePhaseTime(){
             if(phaseStartWall<=0)return;
@@ -269,7 +273,6 @@
             phaseStartWall=0;
         }
         let gymRestTimer=null,gymRestSecs=90,gymRestRunning=false;
-        // ── UTILITIES ──
         function haptic(ms){try{if(navigator.vibrate)navigator.vibrate(ms||50);}catch(e){}}
         function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
         // ── BLE / HEART RATE ──
@@ -295,8 +298,7 @@
             else{hrDeviceWife=device;hrCharWife=ch;hrWifeLabel.innerText=nm;btnHrWife.classList.add('border-purple-500/60');}
             device.addEventListener('gattserverdisconnected',async()=>{
                 for(let a=0;a<3;a++){
-                    try{await new Promise(r=>setTimeout(r,1000));if(!device.gatt)break;await setupDevice(device,who);return;}
-                    catch(e){}
+                    try{await new Promise(r=>setTimeout(r,1000));if(!device.gatt)break;await setupDevice(device,who);return;}catch(e){}
                 }
                 if(who==='you'){hrDeviceYou=null;hrCharYou=null;hrValueYou=null;hrYouLabel.innerText="Liam's HR";btnHrYou.classList.remove('border-red-500/60');hrYouBpm.innerText='--';}
                 else{hrDeviceWife=null;hrCharWife=null;hrValueWife=null;hrWifeLabel.innerText="Ash's HR";btnHrWife.classList.remove('border-purple-500/60');hrWifeBpm.innerText='--';}
@@ -314,7 +316,6 @@
             toast.classList.remove('hidden');
             setTimeout(()=>toast.classList.add('hidden'),4000);
         }
-        // ── SPARKLINE ──
         function drawSpark(c,data,color){const ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);const slice=data.length>60?data.slice(-60):data;if(slice.length<2)return;const b=slice.map(d=>d.bpm),mn=Math.min(...b)-5,mx=Math.max(...b)+5,rg=mx-mn||1;ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.lineJoin='round';const s=w/(slice.length-1);slice.forEach((d,i)=>{const x=i*s,y=h-((d.bpm-mn)/rg)*h;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();}
         // ── AUDIO ──
         function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();if(!masterGain){masterGain=audioCtx.createGain();masterGain.gain.value=3.0;masterGain.connect(audioCtx.destination);}}
@@ -329,30 +330,59 @@
         function speak(text){if(voiceMuted)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=1.2;u.pitch=1;u.lang='en-GB';window.speechSynthesis.speak(u);}
         document.getElementById('btn-mute-voice').onclick=()=>{voiceMuted=!voiceMuted;document.getElementById('icon-voice-on').classList.toggle('hidden',voiceMuted);document.getElementById('icon-voice-off').classList.toggle('hidden',!voiceMuted);document.getElementById('voice-label').classList.toggle('text-red-400',voiceMuted);document.getElementById('voice-label').classList.toggle('text-white/70',!voiceMuted);if(voiceMuted)window.speechSynthesis.cancel();};
         document.getElementById('btn-mute-sound').onclick=()=>{soundMuted=!soundMuted;document.getElementById('icon-sound-on').classList.toggle('hidden',soundMuted);document.getElementById('icon-sound-off').classList.toggle('hidden',!soundMuted);document.getElementById('sound-label').classList.toggle('text-red-400',soundMuted);document.getElementById('sound-label').classList.toggle('text-white/70',!soundMuted);};
-        // ── FULLSCREEN & WAKE LOCK ──
         function enterFullscreen(){try{const el=document.documentElement;if(el.requestFullscreen)el.requestFullscreen();else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();}catch(e){}}
         function exitFullscreen(){try{if(document.exitFullscreen)document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen();}catch(e){}}
         async function reacquireWakeLock(){if(session.active&&!session.paused&&document.visibilityState==='visible'){try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}}}
         document.addEventListener('visibilitychange',reacquireWakeLock);
-        // ── SURPRISE TEXT COLOUR ──
-        // Interpolates element colour black->white as background drains from white to black.
-        // At timeRemaining=SURPRISE_TOTAL (full white bg): channel=0 -> black text.
-        // At timeRemaining=0 (bg gone, dark behind): channel=255 -> white text.
-        const SURPRISE_TEXT_ELEMENTS=()=>[
-            ui.roundFocus,ui.timerDisplay,ui.nextUp,ui.btnPause,ui.btnEnd,
-            document.getElementById('round-label'),ui.roundCur,
-            document.getElementById('total-rounds'),
-            document.getElementById('btn-prev'),document.getElementById('btn-next')
+
+        // ── SURPRISE STROKE: OPTION A ──
+        const surpriseTargets=[
+            {el:()=>ui.roundFocus,       base:['t-stroke-heavy'], dark:'surprise-shadow-dark',    light:'surprise-shadow-light'},
+            {el:()=>ui.timerDisplay,     base:['t-stroke-heavy'], dark:'surprise-shadow-dark',    light:'surprise-shadow-light'},
+            {el:()=>ui.nextUp,           base:['t-stroke'],       dark:'surprise-shadow-dark-sm', light:'surprise-shadow-light-sm'},
+            {el:()=>document.getElementById('round-label'), base:['t-stroke'],  dark:'surprise-shadow-dark-sm', light:'surprise-shadow-light-sm'},
+            {el:()=>ui.roundCur,         base:['t-stroke-heavy'], dark:'surprise-shadow-dark',    light:'surprise-shadow-light'},
+            {el:()=>document.getElementById('total-rounds'),base:['t-stroke'],  dark:'surprise-shadow-dark-sm', light:'surprise-shadow-light-sm'},
+            {el:()=>ui.btnPause,         base:['t-stroke-btn'],   dark:'surprise-shadow-dark-xs', light:'surprise-shadow-light-xs'},
+            {el:()=>ui.btnEnd,           base:['t-stroke-btn'],   dark:'surprise-shadow-dark-xs', light:'surprise-shadow-light-xs'},
+            {el:()=>document.getElementById('btn-prev'), base:['t-stroke-btn'], dark:'surprise-shadow-dark-xs', light:'surprise-shadow-light-xs'},
+            {el:()=>document.getElementById('btn-next'), base:['t-stroke-btn'], dark:'surprise-shadow-dark-xs', light:'surprise-shadow-light-xs'},
         ];
-        function updateSurpriseTextColour(timeRemaining,total){
-            const pct=timeRemaining/total;
-            const channel=Math.round((1-pct)*255);
-            const col=`rgb(${channel},${channel},${channel})`;
-            SURPRISE_TEXT_ELEMENTS().forEach(el=>{if(el)el.style.color=col;});
+        function setSurpriseStrokes(on){
+            surpriseTargets.forEach(t=>{
+                const el=t.el();if(!el)return;
+                if(on){
+                    t.base.forEach(c=>el.classList.remove(c));
+                    el.classList.remove(t.light);
+                    el.classList.add(t.dark);
+                    el.style.color='#ef4444';
+                }else{
+                    t.base.forEach(c=>el.classList.add(c));
+                    el.classList.remove(t.dark,t.light);
+                    el.style.color='';
+                }
+            });
         }
-        function clearSurpriseTextColour(){
-            SURPRISE_TEXT_ELEMENTS().forEach(el=>{if(el)el.style.color='';});
+        // Per-element threshold: white bg fills from bottom.
+        // Top edge of white = screenH * (1 - bgHeightPct).
+        // Element midpoint above that edge = on dark bg = light (white) shadow.
+        // Element midpoint below = still on white = dark shadow.
+        function updateSurpriseStrokeThreshold(bgHeightPct){
+            const screenH=window.innerHeight;
+            const topEdgeY=screenH*(1-bgHeightPct);
+            surpriseTargets.forEach(t=>{
+                const el=t.el();if(!el)return;
+                const rect=el.getBoundingClientRect();
+                const midY=rect.top+rect.height/2;
+                if(midY<topEdgeY){
+                    el.classList.remove(t.dark);el.classList.add(t.light);
+                }else{
+                    el.classList.remove(t.light);el.classList.add(t.dark);
+                }
+            });
         }
+        function clearSurpriseStrokes(){setSurpriseStrokes(false);}
+
         // ── STATS & SUMMARY ──
         function calcStats(data,person,peakInfo,recoveries){
             if(data.length<2)return null;
@@ -381,14 +411,13 @@
         // ── SCREEN MANAGEMENT ──
         const screens={home:document.getElementById('home-screen'),gymDay:document.getElementById('gym-day-screen'),gymWorkout:document.getElementById('gym-workout-screen'),setup:document.getElementById('setup-screen'),timer:document.getElementById('timer-screen'),summary:document.getElementById('summary-screen')};
         const ui={timerBg:document.getElementById('timer-bg'),modeSolo:document.getElementById('mode-solo'),modeWife:document.getElementById('mode-wife'),restInfo:document.getElementById('rest-info'),inRandom:document.getElementById('in-random'),randomDesc:document.getElementById('random-desc'),toggleBg:document.getElementById('toggle-bg'),gridRounds:document.getElementById('grid-rounds'),previewList:document.getElementById('round-preview'),timerDisplay:document.getElementById('timer-display'),roundCur:document.getElementById('current-round'),roundTot:document.getElementById('total-rounds'),nextUp:document.getElementById('next-up'),roundFocus:document.getElementById('round-focus'),btnStart:document.getElementById('btn-start'),btnQuickRest:document.getElementById('btn-quick-rest'),btnPause:document.getElementById('btn-pause'),btnEnd:document.getElementById('btn-end'),btnNext:document.getElementById('btn-next'),btnPrev:document.getElementById('btn-prev'),gymDayLabel:document.getElementById('gym-day-label'),gymExerciseList:document.getElementById('gym-exercise-list')};
-        const surpriseStrokeTargets=[{el:ui.roundFocus,cls:'surprise-stroke'},{el:ui.timerDisplay,cls:'surprise-stroke'},{el:document.getElementById('next-up'),cls:'surprise-stroke-light'},{el:document.getElementById('round-label'),cls:'surprise-stroke-light'},{el:ui.roundCur,cls:'surprise-stroke'},{el:document.getElementById('total-rounds'),cls:'surprise-stroke-light'},{el:ui.btnPause,cls:'surprise-stroke-btn'},{el:ui.btnEnd,cls:'surprise-stroke-btn'},{el:document.getElementById('btn-prev'),cls:'surprise-stroke-btn'},{el:document.getElementById('btn-next'),cls:'surprise-stroke-btn'}];
         function showScreen(name){Object.values(screens).forEach(s=>{s.classList.add('hidden');s.classList.remove('flex');});screens[name].classList.remove('hidden');if(name==='timer'||name==='gymWorkout'){screens[name].classList.add('flex');}if(name==='timer')updateHRVisibility();}
         document.getElementById('btn-home-boxing').onclick=()=>{showScreen('setup');setMode('solo');};
         document.getElementById('btn-home-gym').onclick=()=>showScreen('gymDay');
         document.getElementById('btn-gym-back').onclick=()=>showScreen('home');
         document.getElementById('btn-boxing-back').onclick=()=>showScreen('home');
         document.getElementById('btn-gym-workout-back').onclick=()=>{clearGymRest();showScreen('gymDay');};
-        // ── GYM WORKOUT LOGIC ──
+        // ── GYM ──
         function pickExercises(day){let pool;if(day==='upper')pool=[...GYM_EXERCISES.push,...GYM_EXERCISES.pull];else if(day==='lower')pool=[...GYM_EXERCISES.legs];else pool=[...GYM_EXERCISES[day]];const compounds=shuffle(pool.filter(e=>e.type==='compound'));const isolations=shuffle(pool.filter(e=>e.type==='isolation'));const picked=[];if(day==='upper'){const pushC=shuffle(compounds.filter(e=>e.group==='push'));const pullC=shuffle(compounds.filter(e=>e.group==='pull'));if(pushC.length)picked.push(pushC[0]);if(pullC.length)picked.push(pullC[0]);const rest=shuffle(compounds.filter(e=>!picked.includes(e)));while(picked.length<3&&rest.length)picked.push(rest.shift());}else if(day==='lower'){const quadC=shuffle(compounds.filter(e=>e.group==='quad'));const hipC=shuffle(compounds.filter(e=>e.group==='hip'));if(quadC.length)picked.push(quadC[0]);if(hipC.length)picked.push(hipC[0]);const rest=shuffle(compounds.filter(e=>!picked.includes(e)));while(picked.length<3&&rest.length)picked.push(rest.shift());}else{while(picked.length<3&&compounds.length)picked.push(compounds.shift());}const isoPool=shuffle(isolations.filter(e=>!picked.includes(e)));while(picked.length<5&&isoPool.length)picked.push(isoPool.shift());return picked;}
         function pickCoreExercises(){return shuffle([...CORE_EXERCISES]).slice(0,2);}
         function renderGymWorkout(day){currentGymDay=day;ui.gymDayLabel.innerText=DAY_LABELS[day];const ex=pickExercises(day);const addCore=document.getElementById('in-finisher').checked;const core=addCore?pickCoreExercises():[];const all=[...ex,...core];ui.gymExerciseList.innerHTML='';all.forEach((e,i)=>{const isCore=i>=ex.length;const c=document.createElement('div');c.className='exercise-card gym-card flex items-center bg-slate-800/50 border border-slate-700/30'+(isCore?' core-card':'');c.style.animationDelay=`${i*0.08}s`;const label=isCore?'C'+(i-ex.length+1):(i+1);c.innerHTML=`<div class="gym-card-num bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0"><span class="text-blue-400 font-black font-mono-display">${label}</span></div><div><span class="gym-card-name font-bold text-white block">${e.name}</span><span class="gym-card-muscle text-slate-400 uppercase tracking-wider">${e.muscle}</span></div>`;c.onclick=()=>{c.classList.toggle('done');haptic(30);};ui.gymExerciseList.appendChild(c);});document.getElementById('gym-rest-timer').classList.remove('hidden');clearGymRest();showScreen('gymWorkout');}
@@ -399,24 +428,19 @@
         let gymRestCurrent=0;
         gymRestToggle.onclick=()=>{if(gymRestRunning){clearGymRest();return;}initAudio();playSoftBeep();haptic(50);gymRestRunning=true;gymRestCurrent=gymRestSecs;gymRestDisplay.innerText=gymRestCurrent;gymRestToggle.innerText='Cancel';gymRestToggle.classList.remove('bg-blue-600','hover:bg-blue-500');gymRestToggle.classList.add('bg-red-600','hover:bg-red-500');gymRestTimer=setInterval(()=>{gymRestCurrent--;gymRestDisplay.innerText=Math.max(0,gymRestCurrent);if(gymRestCurrent<=3&&gymRestCurrent>0)playBeep(gymRestCurrent===1);if(gymRestCurrent<=0){playBell();clearGymRest();}},1000);};
         function clearGymRest(){if(gymRestTimer)clearInterval(gymRestTimer);gymRestTimer=null;gymRestRunning=false;gymRestDisplay.innerText=gymRestSecs;gymRestToggle.innerText='Start Rest';gymRestToggle.classList.remove('bg-red-600','hover:bg-red-500');gymRestToggle.classList.add('bg-blue-600','hover:bg-blue-500');}
-        // ── BOXING SETUP SELECTORS ──
+        // ── BOXING SETUP ──
         const format=s=>Math.max(0,s).toString();
         for(let i=1;i<=12;i++){const b=document.createElement('button');b.className=`btn-select py-1.5 rounded-lg text-[10px] sm:text-xs font-bold ${i===12?'active':''}`;b.innerText=i;b.onclick=()=>selectRound(i,b);ui.gridRounds.appendChild(b);}
         window.selectRound=(n,el)=>{settings.rounds=n;Array.from(ui.gridRounds.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');ui.randomDesc.innerText=n<=6?"Randomises ALL rounds":`Randomises middle rounds (2 to ${n-1})`;generateSessionPlan();};
         window.selectWork=(n,el)=>{settings.work=n;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
         window.selectSurprise=(n,el)=>{settings.surpriseCount=n;Array.from(document.getElementById('grid-surprise').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
         function autoSizeFocus(t){const l=t.length;if(l>30)ui.roundFocus.style.fontSize='clamp(1rem,3dvh,1.4rem)';else if(l>20)ui.roundFocus.style.fontSize='clamp(1.1rem,3.5dvh,1.8rem)';else ui.roundFocus.style.fontSize='clamp(1.2rem,4.5dvh,2.2rem)';}
-        // ── MODE ──
         function setMode(mode){settings.mode=mode;if(mode!=='quick-rest')prevMode=mode;const root=document.documentElement;if(hasBLE)btnHrWife.classList.toggle('hidden',mode==='solo');if(mode==='solo'){ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-green-600 text-white shadow-md";ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p>`;root.style.setProperty('--theme-color','#3b82f6');root.style.setProperty('--theme-shadow','rgba(59,130,246,0.4)');ui.btnStart.classList.remove('bg-purple-600','hover:bg-purple-500');ui.btnStart.classList.add('bg-green-600','hover:bg-green-500');ui.toggleBg.classList.remove('peer-checked:bg-purple-600');ui.toggleBg.classList.add('peer-checked:bg-green-600');}else if(mode==='wife'){ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white shadow-md";ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-purple-300 font-bold uppercase tracking-widest">Partner Mode</p><p class="text-[10px] sm:text-xs text-slate-400">2x Rounds. 10s changeover.</p>`;root.style.setProperty('--theme-color','#a855f7');root.style.setProperty('--theme-shadow','rgba(168,85,247,0.4)');ui.toggleBg.classList.remove('peer-checked:bg-green-600');ui.toggleBg.classList.add('peer-checked:bg-purple-600');}generateSessionPlan();}
         ui.modeSolo.onclick=()=>setMode('solo');ui.modeWife.onclick=()=>setMode('wife');
         ui.inRandom.onchange=e=>{settings.randomiseMiddle=e.target.checked;generateSessionPlan();};
-        // ── SESSION PLAN GENERATOR ──
         function generateSessionPlan(){session.plan=[];const tot=settings.rounds;let tp=[...ROUND_POOL];for(let i=0;i<tot;i++){let r=null;const isF=(i===0),isL=(i===tot-1),kFL=tot>6;if(settings.randomiseMiddle){if(kFL&&isF)r=PROGRAM_12_ROUNDS[0];else if(kFL&&isL)r=PROGRAM_12_ROUNDS[11];else{if(tp.length===0)tp=[...ROUND_POOL];const x=Math.floor(Math.random()*tp.length);r=tp[x];tp.splice(x,1);}}else{r=PROGRAM_12_ROUNDS[i%PROGRAM_12_ROUNDS.length];}session.plan.push(r);}if(!session.plan.some(r=>r.name==='Hooks Only')){const s=tot>6?1:0,e=tot>6?tot-1:tot;if(e>s){const slot=s+Math.floor(Math.random()*(e-s));session.plan[slot]=HOOKS_ONLY_ENTRY;}}updatePreview();}
         function updatePreview(){ui.previewList.innerHTML='';for(let i=0;i<settings.rounds;i++){const rd=session.plan[i],rn=i+1,cc=settings.mode==='wife'?"text-purple-300":"text-slate-300";const d=document.createElement('div');d.className="text-[9px] sm:text-[10px] py-1.5 px-2 rounded bg-slate-800/40 border border-slate-700/50";d.innerHTML=`<span class="font-bold ${cc} truncate block">${rn}. ${rd.name}</span>`;ui.previewList.appendChild(d);}}
-        // ── SURPRISE ROUND PICKER ──
         function pickSurpriseIndices(count,total){const pool=[];for(let i=1;i<total-1;i++)pool.push(i);for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}return new Set(pool.slice(0,Math.min(count,pool.length)));}
-        function setSurpriseStrokes(on){surpriseStrokeTargets.forEach(t=>{if(on)t.el.classList.add(t.cls);else t.el.classList.remove(t.cls);});}
-        // ── NEXT-UP HELPER ──
         function setNextUp(content){
             if(!content){ui.nextUp.innerHTML='';return;}
             ui.nextUp.innerHTML=`<span class="next-label">UP NEXT:</span><span class="next-content">${content}</span>`;
@@ -426,9 +450,11 @@
             accumulatePhaseTime();
             if((session.phase==='work'||session.phase==='surprise')&&(phase==='rest'||phase==='change')){if(hrValueYou!==null)endOfWorkHRYou=hrValueYou;if(hrValueWife!==null)endOfWorkHRWife=hrValueWife;}
             if((session.phase==='rest'||session.phase==='change')&&phase==='work'){if(endOfWorkHRYou!==null&&hrValueYou!==null){const d=endOfWorkHRYou-hrValueYou;if(d>0)recoveryDropsYou.push(d);}if(endOfWorkHRWife!==null&&hrValueWife!==null){const d=endOfWorkHRWife-hrValueWife;if(d>0)recoveryDropsWife.push(d);}endOfWorkHRYou=null;endOfWorkHRWife=null;}
+            if(session.phase==='surprise')clearSurpriseStrokes();
             session.phase=phase;session.halfwayPlayed=false;session.last10Played=false;
-            setSurpriseStrokes(false);clearSurpriseTextColour();
-            ui.roundFocus.classList.remove('text-red-600');ui.timerDisplay.classList.remove('text-black');ui.timerDisplay.classList.add('text-white');ui.timerBg.classList.remove('rest-pulse');
+            ui.roundFocus.classList.remove('surprise-task-mode');
+            ui.timerDisplay.classList.add('text-white');
+            ui.timerBg.classList.remove('rest-pulse');
             if(phase==='work'||phase==='surprise'){hrRoundYou=[];hrRoundWife=[];}
             const maxRounds=settings.mode==='wife'?settings.rounds*2:settings.rounds;
             const displayRound=settings.mode==='wife'?Math.ceil(session.round/2):session.round;
@@ -439,17 +465,14 @@
             else if(phase==='change'){session.time=10;session.total=10;ui.timerBg.className="bg-yellow-600 rest-pulse";autoSizeFocus("Change");ui.roundFocus.innerText="Change";const mx=settings.rounds*2;if(session.round<mx){const nn=session.plan[Math.floor(session.round/2)].name;setNextUp(nn);}playBell();}
             else if(phase==='quick-rest'){ui.timerBg.className="bg-red-600 rest-pulse";autoSizeFocus("Full Rest");ui.roundFocus.innerText="Full Rest";setNextUp('');}
             else if(phase==='surprise'){
-                // 35s total: 5s GET READY countdown then 30s work
                 session.time=SURPRISE_TOTAL;session.total=SURPRISE_TOTAL;
                 ui.timerBg.className="bg-white";
-                // Apply strokes immediately - white bg is live from the start
                 setSurpriseStrokes(true);
-                // Text starts black (white bg fully visible)
-                updateSurpriseTextColour(SURPRISE_TOTAL,SURPRISE_TOTAL);
-                session.surpriseTask=Math.random()>0.5?"NON-STOP STRAIGHTS":"NON-STOP HOOKS";
+                session.surpriseTask=Math.random()>0.5?"STRAIGHTS!":"HOOKS!";
                 autoSizeFocus("GET READY");
                 ui.roundFocus.innerText="GET READY";
-                if(settings.mode==='wife'){setNextUp(((session.round%2!==0)?"YOU":"WIFE")+" - GO GO GO!");}else{setNextUp("GO GO GO!");}
+                // Up Next shows the task during GET READY, then clears once work starts
+                setNextUp(session.surpriseTask);
                 playBell();
                 speak("Surprise Round! Get Ready!");
             }
@@ -461,19 +484,22 @@
         function updateUI(){
             const t=session.time;
             if(session.phase==='surprise'){
+                const bgHeightPct=t/SURPRISE_TOTAL;
                 if(t>SURPRISE_WORK){
-                    // GET READY countdown: show seconds until work starts (5,4,3,2,1)
                     ui.timerDisplay.innerText=format(t-SURPRISE_WORK);
                 }else{
-                    // Work portion: snap focus to task name on first tick, show work time
+                    // Snap focus to task, clear Up Next
                     if(ui.roundFocus.innerText==='GET READY'){
-                        autoSizeFocus(session.surpriseTask);
+                        ui.roundFocus.classList.add('surprise-task-mode');
                         ui.roundFocus.innerText=session.surpriseTask;
+                        ui.roundFocus.style.color='#ef4444';
+                        // Clear Up Next now that task is displayed
+                        setNextUp('');
                     }
                     ui.timerDisplay.innerText=format(t);
                 }
-                ui.timerBg.style.height=`${(t/SURPRISE_TOTAL)*100}%`;
-                updateSurpriseTextColour(t,SURPRISE_TOTAL);
+                ui.timerBg.style.height=`${bgHeightPct*100}%`;
+                updateSurpriseStrokeThreshold(bgHeightPct);
             }else{
                 ui.timerDisplay.innerText=format(t);
                 ui.timerBg.style.height=`${(t/session.total)*100}%`;
@@ -488,11 +514,9 @@
             session.time=remaining;
             if(session.phase==='surprise'){
                 if(remaining>SURPRISE_WORK){
-                    // GET READY: beep each second of the 5-count
                     const cdSecs=remaining-SURPRISE_WORK;
                     if(cdSecs<=5&&cdSecs>0)playBeep(cdSecs===1);
                 }else{
-                    // Work portion: halfway and last-10 relative to the 30s
                     if(remaining===Math.floor(SURPRISE_WORK/2)&&!session.halfwayPlayed){session.halfwayPlayed=true;playDoubleBeep();}
                     if(remaining===10&&!session.last10Played){session.last10Played=true;playWarningTone();}
                     if(remaining<=3&&remaining>0)playBeep(remaining===1);
@@ -520,7 +544,10 @@
             window.speechSynthesis.cancel();playFinishBell();
             screens.timer.classList.add('hidden');screens.timer.classList.remove('flex');
             ui.timerBg.style.height='0%';ui.timerBg.classList.remove('rest-pulse');
-            document.body.classList.remove('timer-running');setSurpriseStrokes(false);clearSurpriseTextColour();exitFullscreen();
+            document.body.classList.remove('timer-running');
+            clearSurpriseStrokes();
+            ui.roundFocus.classList.remove('surprise-task-mode');
+            exitFullscreen();
             const hasHR=(hrDeviceYou&&hrDeviceYou.gatt&&hrDeviceYou.gatt.connected)||(hrDeviceWife&&hrDeviceWife.gatt&&hrDeviceWife.gatt.connected)||hrHistoryYou.length>=2||hrHistoryWife.length>=2;
             if(hasHR)showSummary();else{showScreen('setup');setMode(prevMode);}
         }
@@ -528,8 +555,7 @@
         function startSession(){
             initAudio();primeSpeech();
             if('wakeLock' in navigator)navigator.wakeLock.request('screen').then(wl=>wakeLock=wl).catch(()=>{});
-            enterFullscreen();
-            document.body.classList.add('timer-running');
+            enterFullscreen();document.body.classList.add('timer-running');
             hrHistoryYou=[];hrHistoryWife=[];hrRoundYou=[];hrRoundWife=[];
             endOfWorkHRYou=null;endOfWorkHRWife=null;
             recoveryDropsYou=[];recoveryDropsWife=[];
@@ -554,21 +580,30 @@
         };
         ui.btnQuickRest.onclick=async()=>{initAudio();primeSpeech();try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}enterFullscreen();document.body.classList.add('timer-running');prevMode=settings.mode;settings.mode='quick-rest';showScreen('timer');session.time=120;session.total=120;session.round=1;ui.roundTot.innerText="-";ui.roundCur.innerText="-";session.active=true;setPhase('quick-rest');run();};
         ui.btnEnd.onclick=end;
+        // Pause: orange idle, green when paused (Resume state)
         ui.btnPause.onclick=()=>{
             session.paused=!session.paused;
-            if(session.paused){accumulatePhaseTime();}
-            else{phaseStartWall=Date.now();session.targetEndTime=Date.now()+(session.time*1000);}
-            ui.btnPause.innerText=session.paused?"Resume":"Pause";
-            ui.btnPause.classList.toggle('bg-white/10');
+            if(session.paused){
+                accumulatePhaseTime();
+                ui.btnPause.innerText="Resume";
+                ui.btnPause.className=ui.btnPause.className
+                    .replace('bg-orange-500/40','bg-green-500/50')
+                    .replace('hover:bg-orange-500/50','hover:bg-green-500/60')
+                    .replace('border-orange-500/50','border-green-500/60');
+            }else{
+                phaseStartWall=Date.now();session.targetEndTime=Date.now()+(session.time*1000);
+                ui.btnPause.innerText="Pause";
+                ui.btnPause.className=ui.btnPause.className
+                    .replace('bg-green-500/50','bg-orange-500/40')
+                    .replace('hover:bg-green-500/60','hover:bg-orange-500/50')
+                    .replace('border-green-500/60','border-orange-500/50');
+            }
         };
         ui.btnNext.onclick=()=>stepPhase(1);ui.btnPrev.onclick=()=>stepPhase(-1);
         // ── PERSONAL STATS ──
-        // Age calculated dynamically so hrMax stays accurate year-on-year.
-        // hrMax uses the Tanaka formula: 208 - (0.7 x age)
         function getAge(y,m,d){const t=new Date();let a=t.getFullYear()-y;if(t.getMonth()+1<m||(t.getMonth()+1===m&&t.getDate()<d))a--;return a;}
         const YOU={age:getAge(1991,4,5),weight:100,sex:'male',hrMax:Math.round(208-(0.7*getAge(1991,4,5)))};
         const WIFE={age:getAge(1987,4,2),weight:70,sex:'female',hrMax:Math.round(208-(0.7*getAge(1987,4,2)))};
-        // Initialise
         showScreen('home');
         generateSessionPlan();
     });
