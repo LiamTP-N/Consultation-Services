@@ -23,7 +23,7 @@
         .source-highered    { background: #1a2f1a; color: #86efac; }
         .source-uaffairs    { background: #2d1a1a; color: #fca5a5; }
         .country-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
-        .country-uk     { background: #fff; font-size: 0.6rem; font-weight: 700; }
+        .country-uk     { background: #fff; color: #000; }
         .country-ca     { background: #cc0000; color: #fff; }
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable:hover { color: #60a5fa; }
@@ -328,7 +328,7 @@
     function countryBadgeHtml(j) {
         const c = (j.country || '').toLowerCase();
         if (c === 'canada') return '<span class="country-badge country-ca">CA</span>';
-        if (c === 'uk')     return '<span class="country-badge country-uk"><span style="color:#00247d">U</span><span style="color:#cc0000">K</span></span>';
+        if (c === 'uk')     return '<span class="country-badge country-uk">UK</span>';
         return '';
     }
 
