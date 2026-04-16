@@ -108,7 +108,7 @@
 </head>
 <body class="text-slate-200 min-h-screen flex flex-col items-center justify-center">
     <div id="timer-bg" class="h-0 bg-slate-800"></div>
-    <div class="relative z-10 w-full flex flex-col items-center justify-center p-4 min-h-screen">
+    <div id="main-wrap" class="relative z-10 w-full flex flex-col items-center justify-center p-4 min-h-screen">
         <!-- HOME -->
         <div id="home-screen" class="w-full max-w-md space-y-5 py-8">
             <div class="text-center mb-6"><h1 class="text-4xl font-bold text-white tracking-tight">What's Today's Session?</h1></div>
@@ -315,7 +315,6 @@
             surpriseTriggeredYouB2:new Set(),surpriseTriggeredWifeB2:new Set(),
             halfwayPlayed:false,last10Played:false,targetEndTime:0,surpriseTask:'',
             currentBlock:1,
-            // tracks total plan-rounds completed across the session for progressive rest
             totalPlanRoundsCompleted:0
         };
         let audioCtx=null,masterGain=null,wakeLock=null,currentGymDay=null,voiceMuted=true,soundMuted=true;
@@ -400,9 +399,11 @@
         function showScreen(name){
             Object.values(screens).forEach(s=>{s.classList.add('hidden');s.style.display='';});
             screens[name].classList.remove('hidden');
-            // Timer screen uses flex-col via CSS class, not Tailwind flex
             if(name==='gymWorkout'){screens[name].style.display='flex';}
             if(name==='timer')updateHRVisibility();
+            const wrap=document.getElementById('main-wrap');
+            if(name==='timer'||name==='gymWorkout'){wrap.classList.remove('p-4');wrap.classList.add('p-0');}
+            else{wrap.classList.remove('p-0');wrap.classList.add('p-4');}
         }
 
         document.getElementById('btn-home-boxing').onclick=()=>{showScreen('setup');setMode('wife');};
@@ -430,11 +431,11 @@
         for(let i=1;i<=6;i++){const b=document.createElement('button');b.className=`btn-select py-1.5 rounded-lg text-[10px] sm:text-xs font-bold ${i===6?'active':''}`;b.innerText=i;b.onclick=()=>selectRoundB2(i,b);gridRoundsB2.appendChild(b);}
 
         window.selectRound=(n,el)=>{settings.rounds=n;Array.from(ui.gridRounds.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');ui.randomDesc.innerText=n<=6?"Randomises ALL rounds":`Randomises middle rounds (2 to ${n-1})`;generateSessionPlan();};
-        window.selectRoundB2=(n,el)=>{settings.roundsB2=n;Array.from(gridRoundsB2.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
+        window.selectRoundB2=(n,el)=>{settings.roundsB2=n;Array.from(gridRoundsB2.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');generateSessionPlan();};
         window.selectWork=(n,el)=>{settings.work=n;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
         window.selectSurprise=(n,el)=>{settings.surpriseCount=n;Array.from(document.getElementById('grid-surprise').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
         window.selectSurpriseB2=(n,el)=>{settings.surpriseCountB2=n;Array.from(document.getElementById('grid-surprise-b2').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
-        window.selectBlocks=(n,el)=>{settings.blocks=n;document.getElementById('btn-block-1').classList.toggle('active',n===1);document.getElementById('btn-block-2').classList.toggle('active',n===2);document.getElementById('block2-options').classList.toggle('hidden',n===1);};
+        window.selectBlocks=(n,el)=>{settings.blocks=n;document.getElementById('btn-block-1').classList.toggle('active',n===1);document.getElementById('btn-block-2').classList.toggle('active',n===2);document.getElementById('block2-options').classList.toggle('hidden',n===1);generateSessionPlan();};
         window.selectBlockRest=(s,el)=>{settings.blockRestSecs=s;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
 
         function autoSizeFocus(t){const l=t.length;if(l>30)ui.roundFocus.style.fontSize='clamp(1rem,3dvh,1.4rem)';else if(l>20)ui.roundFocus.style.fontSize='clamp(1.1rem,3.5dvh,1.8rem)';else ui.roundFocus.style.fontSize='clamp(1.2rem,4.5dvh,2.2rem)';}
@@ -507,7 +508,6 @@
             const maxRoundsInBlock=isW?blockRounds*2:blockRounds;
             const displayRound=isW?Math.ceil(session.round/2):session.round;
             const totalPlanRounds=settings.blocks===2?(settings.rounds+settings.roundsB2):settings.rounds;
-            // Absolute round = plan-level round number across the whole session
             const absoluteRound=session.currentBlock===1?displayRound:displayRound+settings.rounds;
             const isFinalRound=(phase==='work')&&(session.round===maxRoundsInBlock)&&(settings.blocks===1||session.currentBlock===2);
 
@@ -515,13 +515,14 @@
                 session.time=20;session.total=20;
                 ui.timerBg.className="bg-orange-600";
                 autoSizeFocus("Gloves On");ui.roundFocus.innerText="Gloves On";
-                setNextUp(plan[0].name);
+                setNextUp(plan[0]?plan[0].name:'');
             }
             else if(phase==='work'){
                 session.time=settings.work;session.total=settings.work;
                 if(isFinalRound)playDoubleBell();else playBell();
                 const pi=isW?Math.floor((session.round-1)/2):session.round-1;
-                const rd=plan[pi];autoSizeFocus(rd.name);ui.roundFocus.innerText=rd.name;
+                const rd=plan[pi]||{name:'Round '+absoluteRound,moves:[]};
+                autoSizeFocus(rd.name);ui.roundFocus.innerText=rd.name;
                 ui.roundCur.innerText=absoluteRound;
                 ui.roundTot.innerText=totalPlanRounds;
                 setNextUp('');
@@ -530,7 +531,6 @@
                 speak(`Round ${absoluteRound}, ${rd.name}`);
             }
             else if(phase==='rest'){
-                // Progressive rest continues from block 1 - use totalPlanRoundsCompleted
                 const dur=settings.restBase+(session.totalPlanRoundsCompleted*5);
                 session.time=dur;session.total=dur;
                 ui.timerBg.className="bg-red-600 rest-pulse";
@@ -546,7 +546,6 @@
                 ui.timerBg.className="bg-black";
                 ui.roundFocus.style.fontSize='clamp(0.8rem,3dvh,1.5rem)';
                 ui.roundFocus.innerText="Change";
-                // Show next round name, or block/final indicator at end of block
                 if(session.round<maxRoundsInBlock){
                     const nn=plan[Math.floor(session.round/2)];
                     setNextUp(nn?nn.name:'');
@@ -631,10 +630,6 @@
         },1000);}
 
         // ── STEP PHASE ──
-        // Bug fixes:
-        // - blockRounds/mx recomputed after block switch
-        // - Prev from block-rest explicitly keeps currentBlock=1
-        // - totalPlanRoundsCompleted incremented on each plan-level round completion
         function stepPhase(dir){
             if(settings.mode==='quick-rest'){
                 if(dir===1){session.time+=10;session.total=Math.max(session.total,session.time);session.targetEndTime=Date.now()+(session.time*1000);}
@@ -647,12 +642,10 @@
                 if(session.phase==='ready'){setPhase('work');return;}
 
                 if(session.phase==='block-rest'){
-                    // Switch to block 2 then recompute mx with updated block
                     session.currentBlock=2;session.round=1;
                     setPhase('work');return;
                 }
 
-                // Recompute mx with current block (important: after any block switch above)
                 const blockRounds=currentBlockRounds();
                 const mx=isW?blockRounds*2:blockRounds;
 
@@ -672,8 +665,6 @@
                 }
 
                 if(session.phase==='change'||session.phase==='rest'){
-                    // Increment totalPlanRoundsCompleted when completing a full plan round
-                    // In wife mode: odd->even is same plan round, even->next is new plan round
                     if(!isW){session.totalPlanRoundsCompleted++;}
                     else if(session.round%2===0){session.totalPlanRoundsCompleted++;}
                     session.round++;
@@ -691,16 +682,13 @@
                 }
 
             }else{
-                // Prev
                 if(session.phase==='work'){
                     if(session.round>1){
                         session.round--;
-                        // Undo plan round counter
                         if(!isW){session.totalPlanRoundsCompleted=Math.max(0,session.totalPlanRoundsCompleted-1);}
                         else if(session.round%2===0){session.totalPlanRoundsCompleted=Math.max(0,session.totalPlanRoundsCompleted-1);}
                         setPhase(isW?'change':'rest');
                     }else if(session.currentBlock===2){
-                        // Back into block-rest (explicitly keep block 2 until block-rest -> Prev goes further back)
                         setPhase('block-rest');
                     }else{setPhase('ready');}
                     return;
@@ -709,9 +697,7 @@
                     setPhase('work');return;
                 }
                 if(session.phase==='block-rest'){
-                    // Explicitly stay in block 1 and go back to last work round
                     session.currentBlock=1;
-                    // session.round is still at end of block 1 - recompute for correct display
                     const b1mx=isW?settings.rounds*2:settings.rounds;
                     session.round=b1mx;
                     setPhase('work');return;
@@ -735,6 +721,7 @@
 
         // ── BEGIN SESSION ──
         function startSession(){
+            generateSessionPlan();
             initAudio();primeSpeech();
             if('wakeLock' in navigator)navigator.wakeLock.request('screen').then(wl=>wakeLock=wl).catch(()=>{});
             enterFullscreen();document.body.classList.add('timer-running');
@@ -748,12 +735,10 @@
             session.totalPlanRoundsCompleted=0;
             const totalDisplay=settings.blocks===2?(settings.rounds+settings.roundsB2):settings.rounds;
             ui.roundTot.innerText=totalDisplay;ui.roundCur.innerText='1';
-            // Block 1 surprise
             session.surpriseRoundsYou=pickSurpriseIndices(settings.surpriseCount,settings.rounds);
             session.surpriseTriggeredYou=new Set();
             if(settings.mode==='wife'){session.surpriseRoundsWife=pickSurpriseIndices(settings.surpriseCount,settings.rounds);session.surpriseTriggeredWife=new Set();}
             else{session.surpriseRoundsWife=new Set();session.surpriseTriggeredWife=new Set();}
-            // Block 2 surprise
             if(settings.blocks===2){
                 session.surpriseRoundsYouB2=pickSurpriseIndices(settings.surpriseCountB2,settings.roundsB2);
                 session.surpriseTriggeredYouB2=new Set();
