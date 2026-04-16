@@ -60,7 +60,7 @@
         #next-up .next-content{display:block;}
         #round-focus{font-size:clamp(1.5rem,6dvh,3rem) !important;}
         /* Surprise task: bigger than normal focus but phone-safe */
-        #round-focus.surprise-task-mode{font-size:clamp(2rem,10dvh,5rem) !important;}
+        #round-focus.surprise-task-mode{font-size:clamp(1.5rem,6dvh,3rem) !important;}
         .timer-bottom{padding:0 3vw;gap:clamp(4px,1dvh,12px);}
         .timer-bottom .btn-row{gap:clamp(6px,1.5vw,16px);}
         .timer-bottom .btn-nav,
@@ -394,7 +394,7 @@
                 enterSurpriseColours();
                 // Timer display red during GET READY countdown
                 setSurpriseTimerColour(true);
-                session.surpriseTask=Math.random()>0.5?"STRAIGHTS!":"HOOKS!";
+                session.surpriseTask=Math.random()>0.5?"STRAIGHTS":"HOOKS";
                 autoSizeFocus("GET READY");
                 ui.roundFocus.innerText="GET READY";
                 // NEXT: shows task during GET READY, cleared when work starts
