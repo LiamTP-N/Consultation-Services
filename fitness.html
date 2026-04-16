@@ -118,7 +118,7 @@
             </div>
         </div>
         <!-- GYM DAY PICKER -->
-        <div id="gym-day-screen" class="hidden w-full max-w-md space-y-5 py-8">
+        <div id="gym-day-screen" class="hidden w-full max-w-md space-y-5">
             <div class="text-center mb-2"><h1 class="text-3xl font-bold text-white tracking-tight mb-1">What Day Is It?</h1><p class="text-sm text-slate-400">Pick your split.</p></div>
             <div class="glass-card p-5 rounded-[2rem] space-y-3">
                 <button class="gym-day-btn home-btn w-full py-4 rounded-xl text-left px-5 bg-slate-800/50 border border-slate-700/30 active:scale-[0.97]" data-day="push"><span class="text-base font-bold text-white">Push</span><span class="text-xs text-slate-400 ml-2">Chest, shoulders, triceps</span></button>
@@ -240,7 +240,7 @@
             </div>
         </div>
         <!-- SESSION SUMMARY -->
-        <div id="summary-screen" class="hidden w-full max-w-lg py-6 px-2 space-y-4 overflow-y-auto">
+        <div id="summary-screen" class="hidden w-full max-w-lg py-6 px-2 space-y-4 overflow-y-auto max-h-[100dvh]">
             <div class="text-center"><h1 class="text-2xl font-bold text-white tracking-tight">Session Complete</h1><p id="summary-duration" class="text-sm text-slate-400 mt-1"></p></div>
             <div id="summary-capture" class="space-y-4"><div id="summary-you"></div><div id="summary-wife"></div></div>
             <div class="grid grid-cols-2 gap-3">
@@ -401,6 +401,11 @@
             screens[name].classList.remove('hidden');
             if(name==='gymWorkout'){screens[name].style.display='flex';}
             if(name==='timer')updateHRVisibility();
+            const wrap=document.getElementById('main-wrap');
+            if(name==='timer'||name==='gymWorkout'){wrap.classList.remove('p-4');wrap.classList.add('p-0');}
+            else{wrap.classList.remove('p-0');wrap.classList.add('p-4');}
+        }
+            
             const wrap=document.getElementById('main-wrap');
             if(name==='timer'||name==='gymWorkout'){wrap.classList.remove('p-4');wrap.classList.add('p-0');}
             else{wrap.classList.remove('p-0');wrap.classList.add('p-4');}
