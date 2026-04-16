@@ -95,8 +95,8 @@
         .gym-card .gym-card-name{font-size:clamp(11px,1.6dvh,15px);}
         .gym-card .gym-card-muscle{font-size:clamp(8px,1.1dvh,11px);}
         /* Setup screen: fixed height, inner settings panel scrolls */
-        #setup-screen{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;}
-        #setup-columns{flex:1;min-height:0;}
+        #setup-screen{max-height:100vh;max-height:100dvh;overflow-y:auto;display:flex;flex-direction:column;}
+        #setup-columns{min-height:0;}
         /* Settings scroll: takes remaining height, scrolls internally */
         #settings-scroll{overflow-y:auto;min-height:0;height:100%;}
         #preview-scroll{overflow-y:auto;min-height:0;}
@@ -110,7 +110,7 @@
     <div id="timer-bg" class="h-0 bg-slate-800"></div>
     <div id="main-wrap" class="relative z-10 w-full flex flex-col items-center justify-center p-4 min-h-screen">
         <!-- HOME -->
-        <div id="home-screen" class="w-full max-w-md space-y-5 py-8">
+        <div id="home-screen" class="w-full max-w-md space-y-5">
             <div class="text-center mb-6"><h1 class="text-4xl font-bold text-white tracking-tight">What's Today's Session?</h1></div>
             <div class="space-y-4">
                 <button id="btn-home-boxing" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-green-500/30"><div class="w-16 h-16 rounded-2xl bg-green-600/20 border border-green-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div><span class="text-2xl font-bold text-white">Boxing 🥊</span></button>
@@ -146,7 +146,7 @@
             </div>
         </div>
         <!-- BOXING SETUP -->
-        <div id="setup-screen" class="hidden w-full p-2 sm:p-4">
+        <div id="setup-screen" class="hidden w-full max-w-lg mx-auto p-2 sm:p-4">
             <div class="text-center mb-2 flex-shrink-0"><h1 class="text-lg sm:text-2xl font-bold text-white tracking-tight">Boxing Interval Timer</h1></div>
             <!-- Mode / HR row: fixed -->
             <div class="glass-card p-3 sm:p-4 rounded-2xl flex-shrink-0 mb-2 sm:mb-3">
