@@ -38,8 +38,13 @@
         .t-stroke{-webkit-text-stroke:4px rgba(0,0,0,1);paint-order:stroke fill;}
         .t-stroke-heavy{-webkit-text-stroke:6px rgba(0,0,0,1);paint-order:stroke fill;}
         .t-stroke-btn{-webkit-text-stroke:0.4px rgba(0,0,0,1);paint-order:stroke fill;}
-        #timer-screen{height:100vh;height:100dvh;padding:1.5dvh 0 calc(2dvh + env(safe-area-inset-bottom));}
-        .timer-top{padding:0 3vw;}
+        /* Timer screen: safe bottom padding, never clips buttons */
+        #timer-screen{
+            height:100vh;height:100dvh;
+            padding:1.5dvh 0 0;
+            display:flex;flex-direction:column;
+        }
+        .timer-top{padding:0 3vw;flex-shrink:0;}
         .timer-top .round-num{font-size:clamp(2rem,6.5dvh,3.2rem);}
         .timer-top .round-slash{font-size:clamp(1rem,3dvh,1.6rem);}
         .timer-top .round-label-text{font-size:clamp(0.6rem,1.5dvh,0.85rem);}
@@ -50,14 +55,19 @@
         .timer-top .hr-badge-box svg{width:clamp(16px,2.5dvh,26px);height:clamp(16px,2.5dvh,26px);}
         .timer-top .hr-badge-box .hr-bpm{font-size:clamp(1.1rem,3.5dvh,2rem);}
         .timer-top .hr-badge-box canvas{width:clamp(70px,14vw,110px);height:clamp(20px,3.5dvh,34px);}
-        #timer-middle{min-height:0;}
+        #timer-middle{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:0 1rem;}
         #timer-display{font-size:clamp(4rem,20dvh,11rem);line-height:1;}
         #next-up{font-size:clamp(1.4rem,4.5dvh,2.6rem);line-height:1.2;}
         #next-up .next-label{display:block;font-size:clamp(0.8rem,1.8dvh,1.1rem);opacity:0.6;letter-spacing:0.15em;}
         #next-up .next-content{display:block;}
         #round-focus{font-size:clamp(1.5rem,6dvh,3rem) !important;}
         #round-focus.surprise-task-mode{font-size:clamp(1.5rem,6dvh,3rem) !important;}
-        .timer-bottom{padding:0 3vw;gap:clamp(3px,0.8dvh,10px);}
+        /* Timer bottom: always visible, safe area aware */
+        .timer-bottom{
+            flex-shrink:0;
+            padding:clamp(4px,1dvh,10px) 3vw calc(env(safe-area-inset-bottom) + clamp(6px,1.5dvh,14px));
+            gap:clamp(3px,0.8dvh,8px);
+        }
         .timer-bottom .btn-row{gap:clamp(6px,1.5vw,16px);}
         .timer-bottom .btn-nav,
         .timer-bottom .btn-main{
@@ -84,9 +94,11 @@
         .gym-card .gym-card-num{width:clamp(24px,4dvh,40px);height:clamp(24px,4dvh,40px);border-radius:clamp(6px,1dvh,12px);font-size:clamp(9px,1.5dvh,14px);}
         .gym-card .gym-card-name{font-size:clamp(11px,1.6dvh,15px);}
         .gym-card .gym-card-muscle{font-size:clamp(8px,1.1dvh,11px);}
-        #setup-screen{height:100vh;height:100dvh;overflow:hidden;}
-        #setup-columns{min-height:0;flex:1;}
-        #settings-scroll{overflow-y:auto;min-height:0;}
+        /* Setup screen: fixed height, inner settings panel scrolls */
+        #setup-screen{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;}
+        #setup-columns{flex:1;min-height:0;}
+        /* Settings scroll: takes remaining height, scrolls internally */
+        #settings-scroll{overflow-y:auto;min-height:0;height:100%;}
         #preview-scroll{overflow-y:auto;min-height:0;}
         @keyframes heartPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
         .hr-pulse{animation:heartPulse 0.8s ease-in-out infinite;}
@@ -134,70 +146,73 @@
             </div>
         </div>
         <!-- BOXING SETUP -->
-        <div id="setup-screen" class="hidden w-full flex flex-col p-2 sm:p-4">
+        <div id="setup-screen" class="hidden w-full p-2 sm:p-4">
             <div class="text-center mb-2 flex-shrink-0"><h1 class="text-lg sm:text-2xl font-bold text-white tracking-tight">Boxing Interval Timer</h1></div>
+            <!-- Mode / HR row: fixed -->
             <div class="glass-card p-3 sm:p-4 rounded-2xl flex-shrink-0 mb-2 sm:mb-3">
                 <div class="flex items-center gap-3">
                     <div class="flex p-1 bg-slate-800/50 rounded-xl flex-shrink-0"><button id="mode-solo" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">Solo</button><button id="mode-wife" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white shadow-md">With Wife</button></div>
                     <div id="rest-info" class="flex-1 text-center bg-slate-800/30 p-1.5 rounded-lg border border-slate-700/30"><p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p></div>
                 </div>
                 <div id="hr-setup" class="hidden mt-3 pt-3 border-t border-slate-700/50"><div class="flex items-center gap-2">
-                    <!-- Solo: generic label. With Wife: Liam/Ash labels. Toggled via setMode(). -->
                     <button id="btn-hr-you" class="flex-1 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold bg-slate-800/50 border border-slate-700/30 hover:border-red-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-red-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-label">Heart Rate Monitor</span></button>
                     <button id="btn-hr-wife" class="hidden flex-1 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold bg-slate-800/50 border border-slate-700/30 hover:border-purple-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-label">Ash's HR</span></button>
                 </div></div>
             </div>
+            <!-- Two-column layout: left scrolls, right scrolls, Begin Session fixed at bottom -->
             <div id="setup-columns" class="flex flex-row gap-2 sm:gap-3 items-stretch">
-                <div class="flex-1 min-w-0 flex flex-col"><div id="settings-scroll" class="glass-card p-3 sm:p-4 rounded-2xl space-y-3 flex-1 custom-scrollbar">
-                    <!-- Block 1 -->
-                    <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Rounds</label><div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5" id="grid-rounds"></div></div>
-                    <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Work (Secs)</label><div class="grid grid-cols-3 gap-1.5"><button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(30,this)">30</button><button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(45,this)">45</button><button class="btn-select active py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(60,this)">60</button></div></div>
-                    <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Surprise Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-surprise">
-                        <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(1,this)">1</button>
-                        <button class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(2,this)">2</button>
-                        <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(3,this)">3</button>
-                    </div></div>
-                    <!-- Blocks toggle -->
-                    <hr class="border-slate-700/50">
-                    <div class="space-y-1.5">
-                        <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Blocks</label>
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <button id="btn-block-1" class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectBlocks(1,this)">1 Block</button>
-                            <button id="btn-block-2" class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectBlocks(2,this)">2 Blocks</button>
+                <!-- Left: settings scroll + Begin Session pinned at bottom -->
+                <div class="flex-1 min-w-0 flex flex-col min-h-0">
+                    <div id="settings-scroll" class="glass-card p-3 sm:p-4 rounded-2xl space-y-3 flex-1 custom-scrollbar overflow-y-auto">
+                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Rounds</label><div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5" id="grid-rounds"></div></div>
+                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Work (Secs)</label><div class="grid grid-cols-3 gap-1.5"><button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(30,this)">30</button><button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(45,this)">45</button><button class="btn-select active py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(60,this)">60</button></div></div>
+                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Surprise Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-surprise">
+                            <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(1,this)">1</button>
+                            <button class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(2,this)">2</button>
+                            <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(3,this)">3</button>
+                        </div></div>
+                        <hr class="border-slate-700/50">
+                        <div class="space-y-1.5">
+                            <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Blocks</label>
+                            <div class="grid grid-cols-2 gap-1.5">
+                                <button id="btn-block-1" class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectBlocks(1,this)">1 Block</button>
+                                <button id="btn-block-2" class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectBlocks(2,this)">2 Blocks</button>
+                            </div>
+                        </div>
+                        <div id="block2-options" class="hidden space-y-2 pl-2 border-l-2 border-purple-500/30">
+                            <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block Rest</label><div class="grid grid-cols-3 gap-1.5">
+                                <button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(120,this)">2m</button>
+                                <button class="btn-select active py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(180,this)">3m</button>
+                                <button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(300,this)">5m</button>
+                            </div></div>
+                            <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-rounds-b2"></div></div>
+                            <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 Surprise</label><div class="grid grid-cols-4 gap-1.5" id="grid-surprise-b2">
+                                <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(0,this)">0</button>
+                                <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(1,this)">1</button>
+                                <button class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(2,this)">2</button>
+                                <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(3,this)">3</button>
+                            </div></div>
+                        </div>
+                        <hr class="border-slate-700/50">
+                        <!-- Begin Session inside scroll so it's always reachable -->
+                        <div class="grid grid-cols-3 gap-2 pb-1">
+                            <button id="btn-quick-rest" class="col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-[10px] sm:text-xs shadow-lg active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight"><span>Quick Rest</span><span class="opacity-70 text-[9px]">(120s)</span></button>
+                            <button id="btn-start" class="col-span-2 bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-2xl text-sm sm:text-lg shadow-[0_0_20px_rgba(168,85,247,0.4)] active:scale-[0.98] transition-all">Begin Session</button>
                         </div>
                     </div>
-                    <!-- Block 2 options (hidden until 2 blocks selected) -->
-                    <div id="block2-options" class="hidden space-y-2 pl-2 border-l-2 border-purple-500/30">
-                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block Rest</label><div class="grid grid-cols-3 gap-1.5">
-                            <button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(120,this)">2m</button>
-                            <button class="btn-select active py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(180,this)">3m</button>
-                            <button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(300,this)">5m</button>
-                        </div></div>
-                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-rounds-b2"></div></div>
-                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 Surprise</label><div class="grid grid-cols-4 gap-1.5" id="grid-surprise-b2">
-                            <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(0,this)">0</button>
-                            <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(1,this)">1</button>
-                            <button class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(2,this)">2</button>
-                            <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(3,this)">3</button>
-                        </div></div>
-                    </div>
-                    <hr class="border-slate-700/50">
-                    <div class="grid grid-cols-3 gap-2">
-                        <button id="btn-quick-rest" class="col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-[10px] sm:text-xs shadow-lg active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight"><span>Quick Rest</span><span class="opacity-70 text-[9px]">(120s)</span></button>
-                        <button id="btn-start" class="col-span-2 bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-2xl text-sm sm:text-lg shadow-[0_0_20px_rgba(59,130,246,0.4)] active:scale-[0.98] transition-all">Begin Session</button>
-                    </div>
-                </div></div>
+                </div>
+                <!-- Right: preview panel -->
                 <div class="w-[140px] sm:w-[180px] md:w-[220px] flex-shrink-0 flex flex-col"><div class="glass-card p-2 sm:p-3 rounded-2xl flex flex-col flex-1 min-h-0 space-y-2">
                     <div class="flex-shrink-0"><div class="flex items-center justify-between mb-1"><span class="text-[10px] sm:text-xs font-bold text-white">Randomise</span><label class="relative inline-flex items-center cursor-pointer flex-shrink-0"><input type="checkbox" id="in-random" class="sr-only peer" checked><div id="toggle-bg" class="w-9 sm:w-10 h-5 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-4 sm:peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label></div><p id="random-desc" class="text-[8px] sm:text-[9px] text-slate-400 leading-tight">Randomises middle rounds (2 to 11)</p><hr class="border-slate-700/50 mt-2"></div>
                     <h3 class="font-bold text-white text-[9px] sm:text-xs uppercase tracking-widest ml-1 opacity-70 flex-shrink-0">Rounds</h3>
-                    <div id="preview-scroll" class="flex-1 min-h-0 space-y-1 pr-1 custom-scrollbar"><div id="round-preview"></div></div>
+                    <div id="preview-scroll" class="flex-1 min-h-0 space-y-1 pr-1 custom-scrollbar overflow-y-auto"><div id="round-preview"></div></div>
                 </div></div>
             </div>
             <button id="btn-boxing-back" class="w-full py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition-colors flex-shrink-0 mt-1">&larr; Back</button>
         </div>
-        <!-- TIMER SCREEN -->
-        <div id="timer-screen" class="hidden w-full max-w-lg flex-col">
-            <div class="timer-top w-full flex justify-between items-start flex-shrink-0">
+        <!-- TIMER SCREEN (flex-col set in CSS above) -->
+        <div id="timer-screen" class="hidden w-full max-w-lg">
+            <div class="timer-top w-full flex justify-between items-start">
                 <div class="flex flex-col items-start" style="gap:0.5dvh;">
                     <div id="hr-live-wife" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-purple-600/20 border border-purple-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-purple-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-bpm" class="hr-bpm font-black font-mono-display text-purple-300">--</span></div><canvas id="hr-spark-wife" class="rounded" style="display:block;"></canvas></div>
                     <div><p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p><div class="flex items-baseline" style="gap:0.3rem;"><span id="current-round" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span><span class="round-slash text-white/60 font-bold t-stroke">/</span><span id="total-rounds" class="round-slash text-white/60 font-bold t-stroke">12</span></div></div>
@@ -208,12 +223,12 @@
                     <button id="btn-mute-sound" class="ctrl-btn flex items-center rounded-full backdrop-blur-md bg-black/20 border border-white/10 active:scale-95 transition-all"><svg id="icon-sound-on" class="hidden text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M11 5L6 9H2v6h4l5 4V5z"/></svg><svg id="icon-sound-off" class="text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/></svg><span id="sound-label" class="font-bold uppercase tracking-wider text-red-400">Sound</span></button>
                 </div>
             </div>
-            <div id="timer-middle" class="flex-grow flex flex-col items-center justify-center w-full overflow-hidden px-4 min-h-0">
-                <div id="focus-container" class="text-center w-full flex-shrink" style="margin-bottom:1dvh;"><div id="round-focus" class="font-black text-white uppercase leading-tight drop-shadow-lg t-stroke-heavy">Warm Up</div></div>
-                <div id="timer-display" class="font-black font-mono-display text-white tracking-tighter drop-shadow-2xl t-stroke-heavy flex-shrink">0</div>
-                <div id="next-up" class="font-bold text-white uppercase tracking-widest text-center t-stroke flex-shrink-0" style="margin-top:1dvh;"></div>
+            <div id="timer-middle">
+                <div id="focus-container" class="text-center w-full" style="margin-bottom:1dvh;"><div id="round-focus" class="font-black text-white uppercase leading-tight drop-shadow-lg t-stroke-heavy">Warm Up</div></div>
+                <div id="timer-display" class="font-black font-mono-display text-white tracking-tighter drop-shadow-2xl t-stroke-heavy">0</div>
+                <div id="next-up" class="font-bold text-white uppercase tracking-widest text-center t-stroke" style="margin-top:1dvh;"></div>
             </div>
-            <div class="timer-bottom w-full flex flex-col flex-shrink-0">
+            <div class="timer-bottom w-full flex flex-col">
                 <div class="btn-row grid grid-cols-2">
                     <button id="btn-prev" class="btn-nav bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 font-bold transition-all active:scale-95 uppercase tracking-wider t-stroke-btn">&larr; Prev</button>
                     <button id="btn-next" class="btn-nav bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 font-bold transition-all active:scale-95 uppercase tracking-wider t-stroke-btn">Next &rarr;</button>
@@ -286,20 +301,22 @@
         const ZONE_COLORS=['#3b82f6','#22c55e','#eab308','#f97316','#ef4444'],ZONE_NAMES=['Z1','Z2','Z3','Z4','Z5'],HR_HISTORY_CAP=7200;
         const SURPRISE_TOTAL=35,SURPRISE_WORK=30;
 
-        // ── SETTINGS ──
         let settings={
             mode:'wife',rounds:12,work:60,restBase:30,randomiseMiddle:true,surpriseCount:2,
             blocks:1,blockRestSecs:180,roundsB2:6,surpriseCountB2:2
         },prevMode='wife';
 
-        let session={active:false,paused:false,phase:'ready',round:1,time:10,total:10,timer:null,
+        let session={
+            active:false,paused:false,phase:'ready',round:1,time:10,total:10,timer:null,
             plan:[],planB2:[],
             surpriseRoundsYou:new Set(),surpriseRoundsWife:new Set(),
             surpriseTriggeredYou:new Set(),surpriseTriggeredWife:new Set(),
             surpriseRoundsYouB2:new Set(),surpriseRoundsWifeB2:new Set(),
             surpriseTriggeredYouB2:new Set(),surpriseTriggeredWifeB2:new Set(),
             halfwayPlayed:false,last10Played:false,targetEndTime:0,surpriseTask:'',
-            currentBlock:1
+            currentBlock:1,
+            // tracks total plan-rounds completed across the session for progressive rest
+            totalPlanRoundsCompleted:0
         };
         let audioCtx=null,masterGain=null,wakeLock=null,currentGymDay=null,voiceMuted=true,soundMuted=true;
         let hrDeviceYou=null,hrDeviceWife=null,hrCharYou=null,hrCharWife=null,hrValueYou=null,hrValueWife=null;
@@ -380,9 +397,14 @@
         const screens={home:document.getElementById('home-screen'),gymDay:document.getElementById('gym-day-screen'),gymWorkout:document.getElementById('gym-workout-screen'),setup:document.getElementById('setup-screen'),timer:document.getElementById('timer-screen'),summary:document.getElementById('summary-screen')};
         const ui={timerBg:document.getElementById('timer-bg'),modeSolo:document.getElementById('mode-solo'),modeWife:document.getElementById('mode-wife'),restInfo:document.getElementById('rest-info'),inRandom:document.getElementById('in-random'),randomDesc:document.getElementById('random-desc'),toggleBg:document.getElementById('toggle-bg'),gridRounds:document.getElementById('grid-rounds'),previewList:document.getElementById('round-preview'),timerDisplay:document.getElementById('timer-display'),roundCur:document.getElementById('current-round'),roundTot:document.getElementById('total-rounds'),nextUp:document.getElementById('next-up'),roundFocus:document.getElementById('round-focus'),btnStart:document.getElementById('btn-start'),btnQuickRest:document.getElementById('btn-quick-rest'),btnPause:document.getElementById('btn-pause'),btnEnd:document.getElementById('btn-end'),btnNext:document.getElementById('btn-next'),btnPrev:document.getElementById('btn-prev'),gymDayLabel:document.getElementById('gym-day-label'),gymExerciseList:document.getElementById('gym-exercise-list')};
 
-        function showScreen(name){Object.values(screens).forEach(s=>{s.classList.add('hidden');s.classList.remove('flex');});screens[name].classList.remove('hidden');if(name==='timer'||name==='gymWorkout'){screens[name].classList.add('flex');}if(name==='timer')updateHRVisibility();}
+        function showScreen(name){
+            Object.values(screens).forEach(s=>{s.classList.add('hidden');s.style.display='';});
+            screens[name].classList.remove('hidden');
+            // Timer screen uses flex-col via CSS class, not Tailwind flex
+            if(name==='gymWorkout'){screens[name].style.display='flex';}
+            if(name==='timer')updateHRVisibility();
+        }
 
-        // Boxing home button: default to wife mode
         document.getElementById('btn-home-boxing').onclick=()=>{showScreen('setup');setMode('wife');};
         document.getElementById('btn-home-gym').onclick=()=>showScreen('gymDay');
         document.getElementById('btn-gym-back').onclick=()=>showScreen('home');
@@ -401,13 +423,9 @@
         gymRestToggle.onclick=()=>{if(gymRestRunning){clearGymRest();return;}initAudio();playSoftBeep();haptic(50);gymRestRunning=true;gymRestCurrent=gymRestSecs;gymRestDisplay.innerText=gymRestCurrent;gymRestToggle.innerText='Cancel';gymRestToggle.classList.remove('bg-blue-600','hover:bg-blue-500');gymRestToggle.classList.add('bg-red-600','hover:bg-red-500');gymRestTimer=setInterval(()=>{gymRestCurrent--;gymRestDisplay.innerText=Math.max(0,gymRestCurrent);if(gymRestCurrent<=3&&gymRestCurrent>0)playBeep(gymRestCurrent===1);if(gymRestCurrent<=0){playBell();clearGymRest();}},1000);};
         function clearGymRest(){if(gymRestTimer)clearInterval(gymRestTimer);gymRestTimer=null;gymRestRunning=false;gymRestDisplay.innerText=gymRestSecs;gymRestToggle.innerText='Start Rest';gymRestToggle.classList.remove('bg-red-600','hover:bg-red-500');gymRestToggle.classList.add('bg-blue-600','hover:bg-blue-500');}
 
-        // ── BOXING SETUP SELECTORS ──
+        // ── BOXING SETUP ──
         const format=s=>Math.max(0,s).toString();
-
-        // Block 1 rounds: 1-12
         for(let i=1;i<=12;i++){const b=document.createElement('button');b.className=`btn-select py-1.5 rounded-lg text-[10px] sm:text-xs font-bold ${i===12?'active':''}`;b.innerText=i;b.onclick=()=>selectRound(i,b);ui.gridRounds.appendChild(b);}
-
-        // Block 2 rounds: 1-6
         const gridRoundsB2=document.getElementById('grid-rounds-b2');
         for(let i=1;i<=6;i++){const b=document.createElement('button');b.className=`btn-select py-1.5 rounded-lg text-[10px] sm:text-xs font-bold ${i===6?'active':''}`;b.innerText=i;b.onclick=()=>selectRoundB2(i,b);gridRoundsB2.appendChild(b);}
 
@@ -426,7 +444,6 @@
             const root=document.documentElement;
             if(hasBLE){
                 btnHrWife.classList.toggle('hidden',mode==='solo');
-                // Solo: generic HR label. With Wife: Liam's HR label.
                 hrYouLabel.innerText=mode==='wife'?"Liam's HR":"Heart Rate Monitor";
             }
             if(mode==='solo'){
@@ -449,7 +466,7 @@
         ui.modeSolo.onclick=()=>setMode('solo');ui.modeWife.onclick=()=>setMode('wife');
         ui.inRandom.onchange=e=>{settings.randomiseMiddle=e.target.checked;generateSessionPlan();};
 
-        // ── SESSION PLAN GENERATOR ──
+        // ── SESSION PLAN ──
         function buildPlan(numRounds){
             const plan=[];let tp=[...ROUND_POOL];
             for(let i=0;i<numRounds;i++){
@@ -461,18 +478,12 @@
             if(!plan.some(r=>r.name==='Hooks Only')){const s=numRounds>6?1:0,e=numRounds>6?numRounds-1:numRounds;if(e>s){const slot=s+Math.floor(Math.random()*(e-s));plan[slot]=HOOKS_ONLY_ENTRY;}}
             return plan;
         }
-        function generateSessionPlan(){
-            session.plan=buildPlan(settings.rounds);
-            session.planB2=settings.blocks===2?buildPlan(settings.roundsB2):[];
-            updatePreview();
-        }
+        function generateSessionPlan(){session.plan=buildPlan(settings.rounds);session.planB2=settings.blocks===2?buildPlan(settings.roundsB2):[];updatePreview();}
         function updatePreview(){ui.previewList.innerHTML='';for(let i=0;i<settings.rounds;i++){const rd=session.plan[i],rn=i+1,cc=settings.mode==='wife'?"text-purple-300":"text-slate-300";const d=document.createElement('div');d.className="text-[9px] sm:text-[10px] py-1.5 px-2 rounded bg-slate-800/40 border border-slate-700/50";d.innerHTML=`<span class="font-bold ${cc} truncate block">${rn}. ${rd.name}</span>`;ui.previewList.appendChild(d);}}
-
         function pickSurpriseIndices(count,total){const pool=[];for(let i=1;i<total-1;i++)pool.push(i);for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}return new Set(pool.slice(0,Math.min(count,pool.length)));}
-
         function setNextUp(content,red=false){if(!content){ui.nextUp.innerHTML='';return;}const col=red?'style="color:#ef4444"':'';ui.nextUp.innerHTML=`<span class="next-label" ${col}>NEXT:</span><span class="next-content" ${col}>${content}</span>`;}
 
-        // ── HELPERS: current block plan/surprise sets ──
+        // ── BLOCK HELPERS ──
         function currentPlan(){return session.currentBlock===1?session.plan:session.planB2;}
         function currentSurpriseYou(){return session.currentBlock===1?session.surpriseRoundsYou:session.surpriseRoundsYouB2;}
         function currentSurpriseWife(){return session.currentBlock===1?session.surpriseRoundsWife:session.surpriseRoundsWifeB2;}
@@ -487,41 +498,47 @@
             if((session.phase==='rest'||session.phase==='change'||session.phase==='block-rest')&&phase==='work'){if(endOfWorkHRYou!==null&&hrValueYou!==null){const d=endOfWorkHRYou-hrValueYou;if(d>0)recoveryDropsYou.push(d);}if(endOfWorkHRWife!==null&&hrValueWife!==null){const d=endOfWorkHRWife-hrValueWife;if(d>0)recoveryDropsWife.push(d);}endOfWorkHRYou=null;endOfWorkHRWife=null;}
             if(session.phase==='surprise'){exitSurpriseColours();setSurpriseTimerColour(false);}
             session.phase=phase;session.halfwayPlayed=false;session.last10Played=false;
-            ui.timerDisplay.style.color='';
-            ui.timerBg.classList.remove('rest-pulse');
+            ui.timerDisplay.style.color='';ui.timerBg.classList.remove('rest-pulse');
             if(phase==='work'||phase==='surprise'){hrRoundYou=[];hrRoundWife=[];}
 
+            const isW=settings.mode==='wife';
             const plan=currentPlan();
             const blockRounds=currentBlockRounds();
-            const isW=settings.mode==='wife';
-            // Total half-rounds in current block (partner mode doubles)
             const maxRoundsInBlock=isW?blockRounds*2:blockRounds;
             const displayRound=isW?Math.ceil(session.round/2):session.round;
-            // Total rounds across all blocks for display
-            const totalRoundsDisplay=settings.blocks===2?(isW?(settings.rounds+settings.roundsB2)*2:(settings.rounds+settings.roundsB2)):isW?settings.rounds*2:settings.rounds;
+            const totalPlanRounds=settings.blocks===2?(settings.rounds+settings.roundsB2):settings.rounds;
+            // Absolute round = plan-level round number across the whole session
+            const absoluteRound=session.currentBlock===1?displayRound:displayRound+settings.rounds;
             const isFinalRound=(phase==='work')&&(session.round===maxRoundsInBlock)&&(settings.blocks===1||session.currentBlock===2);
 
-            if(phase==='ready'){session.time=20;session.total=20;ui.timerBg.className="bg-orange-600";autoSizeFocus("Gloves On");ui.roundFocus.innerText="Gloves On";setNextUp(plan[0].name);}
+            if(phase==='ready'){
+                session.time=20;session.total=20;
+                ui.timerBg.className="bg-orange-600";
+                autoSizeFocus("Gloves On");ui.roundFocus.innerText="Gloves On";
+                setNextUp(plan[0].name);
+            }
             else if(phase==='work'){
                 session.time=settings.work;session.total=settings.work;
                 if(isFinalRound)playDoubleBell();else playBell();
                 const pi=isW?Math.floor((session.round-1)/2):session.round-1;
                 const rd=plan[pi];autoSizeFocus(rd.name);ui.roundFocus.innerText=rd.name;
-                // Round display: continuous across blocks
-                const absoluteRound=session.currentBlock===1?displayRound:displayRound+(isW?settings.rounds:settings.rounds);
                 ui.roundCur.innerText=absoluteRound;
-                ui.roundTot.innerText=isW?(settings.blocks===2?(settings.rounds+settings.roundsB2):settings.rounds):(settings.blocks===2?(settings.rounds+settings.roundsB2):settings.rounds);
+                ui.roundTot.innerText=totalPlanRounds;
                 setNextUp('');
                 if(isW){ui.timerBg.className=(session.round%2!==0)?"bg-green-600":"bg-purple-600";}
                 else{ui.timerBg.className="bg-green-600";}
                 speak(`Round ${absoluteRound}, ${rd.name}`);
             }
             else if(phase==='rest'){
-                const dur=settings.restBase+((session.round-1)*5);session.time=dur;session.total=dur;
-                ui.timerBg.className="bg-red-600 rest-pulse";autoSizeFocus("Rest");ui.roundFocus.innerText="Rest";
-                if(session.round<maxRoundsInBlock){const pi=isW?Math.floor(session.round/2):session.round;setNextUp(plan[pi].name);}
-                else if(settings.blocks===2&&session.currentBlock===1)setNextUp('Block 2 Up Next');
-                else setNextUp('Final Round Complete');
+                // Progressive rest continues from block 1 - use totalPlanRoundsCompleted
+                const dur=settings.restBase+(session.totalPlanRoundsCompleted*5);
+                session.time=dur;session.total=dur;
+                ui.timerBg.className="bg-red-600 rest-pulse";
+                autoSizeFocus("Rest");ui.roundFocus.innerText="Rest";
+                if(session.round<maxRoundsInBlock){
+                    const pi=session.round;setNextUp(plan[pi]?plan[pi].name:'');
+                }else if(settings.blocks===2&&session.currentBlock===1){setNextUp('Block 2 Up Next');}
+                else{setNextUp('Final Round Complete');}
                 playBell();
             }
             else if(phase==='change'){
@@ -529,8 +546,15 @@
                 ui.timerBg.className="bg-black";
                 ui.roundFocus.style.fontSize='clamp(0.8rem,3dvh,1.5rem)';
                 ui.roundFocus.innerText="Change";
-                const mx=blockRounds*2;
-                if(session.round<mx){const nn=plan[Math.floor(session.round/2)].name;setNextUp(nn);}
+                // Show next round name, or block/final indicator at end of block
+                if(session.round<maxRoundsInBlock){
+                    const nn=plan[Math.floor(session.round/2)];
+                    setNextUp(nn?nn.name:'');
+                }else if(settings.blocks===2&&session.currentBlock===1){
+                    setNextUp('Block 2 Up Next');
+                }else{
+                    setNextUp('Final Round Complete');
+                }
                 playBell();
             }
             else if(phase==='block-rest'){
@@ -541,7 +565,10 @@
                 playDoubleBell();
                 speak("Block rest. Get ready for block 2.");
             }
-            else if(phase==='quick-rest'){ui.timerBg.className="bg-red-600 rest-pulse";autoSizeFocus("Full Rest");ui.roundFocus.innerText="Full Rest";setNextUp('');}
+            else if(phase==='quick-rest'){
+                ui.timerBg.className="bg-red-600 rest-pulse";
+                autoSizeFocus("Full Rest");ui.roundFocus.innerText="Full Rest";setNextUp('');
+            }
             else if(phase==='surprise'){
                 session.time=SURPRISE_TOTAL;session.total=SURPRISE_TOTAL;
                 ui.timerBg.className="bg-white";
@@ -604,6 +631,10 @@
         },1000);}
 
         // ── STEP PHASE ──
+        // Bug fixes:
+        // - blockRounds/mx recomputed after block switch
+        // - Prev from block-rest explicitly keeps currentBlock=1
+        // - totalPlanRoundsCompleted incremented on each plan-level round completion
         function stepPhase(dir){
             if(settings.mode==='quick-rest'){
                 if(dir===1){session.time+=10;session.total=Math.max(session.total,session.time);session.targetEndTime=Date.now()+(session.time*1000);}
@@ -611,43 +642,80 @@
                 updateUI();return;
             }
             const isW=settings.mode==='wife';
-            const blockRounds=currentBlockRounds();
-            const mx=isW?blockRounds*2:blockRounds;
 
             if(dir===1){
-                if(session.phase==='ready'){setPhase('work');}
-                else if(session.phase==='block-rest'){
-                    // Start block 2
+                if(session.phase==='ready'){setPhase('work');return;}
+
+                if(session.phase==='block-rest'){
+                    // Switch to block 2 then recompute mx with updated block
                     session.currentBlock=2;session.round=1;
-                    setPhase('work');
+                    setPhase('work');return;
                 }
-                else if(session.phase==='work'){
+
+                // Recompute mx with current block (important: after any block switch above)
+                const blockRounds=currentBlockRounds();
+                const mx=isW?blockRounds*2:blockRounds;
+
+                if(session.phase==='work'){
                     const pi=isW?Math.floor((session.round-1)/2):session.round-1;
-                    const iy=!isW||(session.round%2!==0),ip=isW&&(session.round%2===0);
+                    const iy=!isW||(session.round%2!==0);
+                    const ip=isW&&(session.round%2===0);
                     let ts=false;
                     if(iy&&currentSurpriseYou().has(pi)&&!currentTriggeredYou().has(pi)){currentTriggeredYou().add(pi);ts=true;}
                     else if(ip&&currentSurpriseWife().has(pi)&&!currentTriggeredWife().has(pi)){currentTriggeredWife().add(pi);ts=true;}
-                    if(ts){setPhase('surprise');}
-                    else if(session.round>=mx){
-                        // End of this block
-                        if(settings.blocks===2&&session.currentBlock===1){setPhase('block-rest');}
-                        else{end();}
-                    }else{setPhase(isW?'change':'rest');}
-                }
-                else if(session.phase==='change'||session.phase==='rest'){session.round++;setPhase('work');}
-                else if(session.phase==='surprise'){
+                    if(ts){setPhase('surprise');return;}
                     if(session.round>=mx){
                         if(settings.blocks===2&&session.currentBlock===1){setPhase('block-rest');}
                         else{end();}
                     }else{setPhase(isW?'change':'rest');}
+                    return;
                 }
+
+                if(session.phase==='change'||session.phase==='rest'){
+                    // Increment totalPlanRoundsCompleted when completing a full plan round
+                    // In wife mode: odd->even is same plan round, even->next is new plan round
+                    if(!isW){session.totalPlanRoundsCompleted++;}
+                    else if(session.round%2===0){session.totalPlanRoundsCompleted++;}
+                    session.round++;
+                    setPhase('work');return;
+                }
+
+                if(session.phase==='surprise'){
+                    const blockRounds2=currentBlockRounds();
+                    const mx2=isW?blockRounds2*2:blockRounds2;
+                    if(session.round>=mx2){
+                        if(settings.blocks===2&&session.currentBlock===1){setPhase('block-rest');}
+                        else{end();}
+                    }else{setPhase(isW?'change':'rest');}
+                    return;
+                }
+
             }else{
+                // Prev
                 if(session.phase==='work'){
-                    if(session.round>1){session.round--;setPhase(isW?'change':'rest');}
-                    else if(session.currentBlock===2){setPhase('block-rest');}
-                    else{setPhase('ready');}
-                }else if(session.phase==='rest'||session.phase==='change'||session.phase==='surprise'){setPhase('work');}
-                else if(session.phase==='block-rest'){setPhase('work');} // back into last round of block 1
+                    if(session.round>1){
+                        session.round--;
+                        // Undo plan round counter
+                        if(!isW){session.totalPlanRoundsCompleted=Math.max(0,session.totalPlanRoundsCompleted-1);}
+                        else if(session.round%2===0){session.totalPlanRoundsCompleted=Math.max(0,session.totalPlanRoundsCompleted-1);}
+                        setPhase(isW?'change':'rest');
+                    }else if(session.currentBlock===2){
+                        // Back into block-rest (explicitly keep block 2 until block-rest -> Prev goes further back)
+                        setPhase('block-rest');
+                    }else{setPhase('ready');}
+                    return;
+                }
+                if(session.phase==='rest'||session.phase==='change'||session.phase==='surprise'){
+                    setPhase('work');return;
+                }
+                if(session.phase==='block-rest'){
+                    // Explicitly stay in block 1 and go back to last work round
+                    session.currentBlock=1;
+                    // session.round is still at end of block 1 - recompute for correct display
+                    const b1mx=isW?settings.rounds*2:settings.rounds;
+                    session.round=b1mx;
+                    setPhase('work');return;
+                }
             }
         }
 
@@ -656,7 +724,7 @@
             accumulatePhaseTime();session.active=false;clearInterval(session.timer);
             if(wakeLock)wakeLock.release();
             window.speechSynthesis.cancel();playFinishBell();
-            screens.timer.classList.add('hidden');screens.timer.classList.remove('flex');
+            screens.timer.classList.add('hidden');
             ui.timerBg.style.height='0%';ui.timerBg.classList.remove('rest-pulse');
             document.body.classList.remove('timer-running');
             exitSurpriseColours();setSurpriseTimerColour(false);
@@ -677,6 +745,9 @@
             sessionStartTime=Date.now();prevMode=settings.mode;
             showScreen('timer');
             session.round=1;session.active=true;session.currentBlock=1;
+            session.totalPlanRoundsCompleted=0;
+            const totalDisplay=settings.blocks===2?(settings.rounds+settings.roundsB2):settings.rounds;
+            ui.roundTot.innerText=totalDisplay;ui.roundCur.innerText='1';
             // Block 1 surprise
             session.surpriseRoundsYou=pickSurpriseIndices(settings.surpriseCount,settings.rounds);
             session.surpriseTriggeredYou=new Set();
@@ -689,10 +760,6 @@
                 if(settings.mode==='wife'){session.surpriseRoundsWifeB2=pickSurpriseIndices(settings.surpriseCountB2,settings.roundsB2);session.surpriseTriggeredWifeB2=new Set();}
                 else{session.surpriseRoundsWifeB2=new Set();session.surpriseTriggeredWifeB2=new Set();}
             }
-            // Set total display
-            const totalDisplay=settings.blocks===2?(settings.rounds+settings.roundsB2):settings.rounds;
-            ui.roundTot.innerText=totalDisplay;
-            ui.roundCur.innerText='1';
             setPhase('ready');run();
         }
 
