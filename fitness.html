@@ -355,7 +355,7 @@
                     t.base.forEach(c=>el.classList.remove(c));
                     el.classList.remove(t.light);
                     el.classList.add(t.dark);
-                    el.style.color='#ef4444';
+                    el.style.color=el===ui.roundFocus?'#ef4444':'#ffffff';
                 }else{
                     t.base.forEach(c=>el.classList.add(c));
                     el.classList.remove(t.dark,t.light);
