@@ -161,7 +161,7 @@
             </div>
             <div class="grid grid-cols-3 gap-2 mb-2 sm:mb-3 flex-shrink-0">
                 <button id="btn-quick-rest" class="col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-[10px] sm:text-xs shadow-lg active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight"><span>Quick Rest</span><span class="opacity-70 text-[9px]">(120s)</span></button>
-                <button id="btn-start" class="col-span-2 bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-2xl text-sm sm:text-lg shadow-[0_0_20px_rgba(168,85,247,0.4)] active:scale-[0.98] transition-all">Begin Session</button>
+                <button id="btn-start" class="col-span-2 bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-2xl text-sm sm:text-lg shadow-[0_0_20px_rgba(34,197,94,0.4)] active:scale-[0.98] transition-all">Begin Session</button>
             </div>
             <!-- Two-column layout: left scrolls, right scrolls, Begin Session fixed at bottom -->
             <div id="setup-columns" class="flex flex-row gap-2 sm:gap-3 items-stretch">
@@ -450,14 +450,12 @@
                 ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
                 ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p>`;
                 root.style.setProperty('--theme-color','#3b82f6');root.style.setProperty('--theme-shadow','rgba(59,130,246,0.4)');
-                ui.btnStart.classList.remove('bg-purple-600','hover:bg-purple-500');ui.btnStart.classList.add('bg-green-600','hover:bg-green-500');
                 ui.toggleBg.classList.remove('peer-checked:bg-purple-600');ui.toggleBg.classList.add('peer-checked:bg-green-600');
             }else if(mode==='wife'){
                 ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white shadow-md";
                 ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
                 ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-purple-300 font-bold uppercase tracking-widest">Partner Mode</p><p class="text-[10px] sm:text-xs text-slate-400">2x Rounds. 10s changeover.</p>`;
                 root.style.setProperty('--theme-color','#a855f7');root.style.setProperty('--theme-shadow','rgba(168,85,247,0.4)');
-                ui.btnStart.classList.remove('bg-green-600','hover:bg-green-500');ui.btnStart.classList.add('bg-purple-600','hover:bg-purple-500');
                 ui.toggleBg.classList.remove('peer-checked:bg-green-600');ui.toggleBg.classList.add('peer-checked:bg-purple-600');
             }
             generateSessionPlan();
