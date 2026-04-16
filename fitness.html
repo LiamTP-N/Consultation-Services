@@ -170,14 +170,14 @@
                     <div id="settings-scroll" class="glass-card p-3 sm:p-4 rounded-2xl space-y-3 flex-1 custom-scrollbar overflow-y-auto">
                         <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Rounds</label><div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5" id="grid-rounds"></div></div>
                         <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Work (Secs)</label><div class="grid grid-cols-3 gap-1.5"><button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(30,this)">30</button><button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(45,this)">45</button><button class="btn-select active py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(60,this)">60</button></div></div>
-                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Surprise Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-surprise">
+                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">"Surprise" Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-surprise">
                             <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(1,this)">1</button>
                             <button class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(2,this)">2</button>
                             <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(3,this)">3</button>
                         </div></div>
                         <hr class="border-slate-700/50">
                         <div class="space-y-1.5">
-                            <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Blocks</label>
+                            <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Training Blocks</label>
                             <div class="grid grid-cols-2 gap-1.5">
                                 <button id="btn-block-1" class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectBlocks(1,this)">1 Block</button>
                                 <button id="btn-block-2" class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectBlocks(2,this)">2 Blocks</button>
@@ -190,7 +190,7 @@
                                 <button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(300,this)">5m</button>
                             </div></div>
                             <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-rounds-b2"></div></div>
-                            <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 Surprise</label><div class="grid grid-cols-4 gap-1.5" id="grid-surprise-b2">
+                            <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 "Surprise" Rounds</label><div class="grid grid-cols-4 gap-1.5" id="grid-surprise-b2">
                                 <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(0,this)">0</button>
                                 <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(1,this)">1</button>
                                 <button class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(2,this)">2</button>
