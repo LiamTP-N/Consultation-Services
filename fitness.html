@@ -592,8 +592,9 @@
                     ui.timerDisplay.innerText=format(t);
                 }
                 ui.timerBg.style.height=`${(t/SURPRISE_TOTAL)*100}%`;
-                if(t<=14&&t>0){ui.timerDisplay.style.color='#000000';ui.timerDisplay.style.webkitTextStrokeColor='rgba(255,255,255,1)';}
-                else if(session.phase==='surprise'&&t>14){ui.timerDisplay.style.webkitTextStrokeColor='rgba(0,0,0,1)';}
+                if(t<=14&&t>0){ui.timerDisplay.style.color='#ffffff';ui.timerDisplay.style.webkitTextStrokeColor='rgba(255,255,255,1)';}
+                else if(t<=19&&t>14){ui.timerDisplay.style.color='#000000';ui.timerDisplay.style.webkitTextStrokeColor='rgba(255,255,255,1)';}
+                else if(session.phase==='surprise'&&t>19){ui.timerDisplay.style.webkitTextStrokeColor='rgba(0,0,0,1)';}
             }else{
                 ui.timerDisplay.innerText=format(t);
                 ui.timerBg.style.height=`${(t/session.total)*100}%`;
