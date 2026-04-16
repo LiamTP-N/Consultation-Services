@@ -56,7 +56,7 @@
         .timer-top .hr-badge-box .hr-bpm{font-size:clamp(1.1rem,3.5dvh,2rem);}
         .timer-top .hr-badge-box canvas{width:clamp(70px,14vw,110px);height:clamp(20px,3.5dvh,34px);}
         #timer-middle{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:0 1rem;}
-        #timer-display{font-size:clamp(4rem,20dvh,11rem);line-height:1;transition:color 4s ease,-webkit-text-stroke-color 4s ease;}
+        #timer-display{font-size:clamp(4rem,20dvh,11rem);line-height:1;transition:color 6s ease,-webkit-text-stroke-color 6s ease;}
         #next-up{font-size:clamp(1.4rem,4.5dvh,2.6rem);line-height:1.2;}
         #next-up .next-label{display:block;font-size:clamp(0.8rem,1.8dvh,1.1rem);opacity:0.6;letter-spacing:0.15em;}
         #next-up .next-content{display:block;}
@@ -592,9 +592,9 @@
                     ui.timerDisplay.innerText=format(t);
                 }
                 ui.timerBg.style.height=`${(t/SURPRISE_TOTAL)*100}%`;
-                if(t<=18&&t>0){ui.timerDisplay.style.color='#ffffff';ui.timerDisplay.style.webkitTextStrokeColor='rgba(255,255,255,1)';}
-                else if(t<=22&&t>18){ui.timerDisplay.style.color='#000000';ui.timerDisplay.style.webkitTextStrokeColor='rgba(255,255,255,1)';}
-                else if(session.phase==='surprise'&&t>22){ui.timerDisplay.style.webkitTextStrokeColor='rgba(0,0,0,1)';}
+                if(t<=16&&t>0){ui.timerDisplay.style.color='#ffffff';ui.timerDisplay.style.webkitTextStrokeColor='rgba(255,255,255,1)';}
+                else if(t<=20&&t>16){ui.timerDisplay.style.color='#000000';ui.timerDisplay.style.webkitTextStrokeColor='rgba(255,255,255,1)';}
+                else if(session.phase==='surprise'&&t>20){ui.timerDisplay.style.webkitTextStrokeColor='rgba(0,0,0,1)';}
             }else{
                 ui.timerDisplay.innerText=format(t);
                 ui.timerBg.style.height=`${(t/session.total)*100}%`;
