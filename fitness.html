@@ -14,7 +14,7 @@
     <style>
         :root{--accent-green:#22c55e;--accent-orange:#f97316;--accent-purple:#a855f7;--accent-red:#ef4444;--theme-color:#3b82f6;--theme-shadow:rgba(59,130,246,0.4);}
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-        body{font-family:'DM Sans',system-ui,sans-serif;overscroll-behavior-y:contain;background-color:#000000;margin:0;}
+        body{font-family:'DM Sans',system-ui,sans-serif;overscroll-behavior-y:contain;background-color:#000000;margin:0;-webkit-text-stroke:1px rgba(0,0,0,1);paint-order:stroke fill;}
         body.timer-running{overflow:hidden;}
         .font-mono-display{font-family:'Space Mono',monospace;}
         .glass-card{background:rgba(30,41,59,0.4);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 8px 32px 0 rgba(0,0,0,0.37);}
@@ -22,7 +22,7 @@
         .custom-scrollbar::-webkit-scrollbar-track{background:rgba(0,0,0,0.2);}
         .custom-scrollbar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:4px;}
         .btn-select{background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;transition:all 0.2s;}
-        .btn-select.active{background:var(--theme-color);color:white;border-color:var(--theme-color);font-weight:bold;box-shadow:0 0 15px var(--theme-shadow);}
+        .btn-select.active{background:var(--theme-color);color:white;border-color:var(--theme-color);font-weight:bold;}
         .hidden{display:none !important;}
         #timer-bg{position:fixed;bottom:0;left:0;width:100%;z-index:0;transition:height 1s linear,background-color 0.3s ease;}
         @keyframes restPulse{0%,100%{opacity:1;}50%{opacity:0.8;}}
@@ -47,20 +47,22 @@
         .timer-top{padding:0 3vw;flex-shrink:0;}
         .timer-top .round-num{font-size:clamp(2rem,6.5dvh,3.2rem);}
         .timer-top .round-slash{font-size:clamp(1rem,3dvh,1.6rem);}
-        .timer-top .round-label-text{font-size:clamp(0.6rem,1.5dvh,0.85rem);}
-        .timer-top .ctrl-btn{padding:clamp(4px,0.8dvh,9px) clamp(8px,2vw,16px);gap:clamp(3px,0.6vw,8px);}
-        .timer-top .ctrl-btn svg{width:clamp(13px,2dvh,20px);height:clamp(13px,2dvh,20px);}
-        .timer-top .ctrl-btn span{font-size:clamp(8px,1.3dvh,13px);}
+        .timer-top .round-label-text{font-size:clamp(1rem,3dvh,1.6rem);}
+        .timer-top .ctrl-btn{padding:clamp(5px,1dvh,11px) clamp(10px,2.5vw,18px);gap:clamp(4px,0.8vw,10px);}
+        .timer-top .ctrl-btn svg{width:clamp(15px,2.3dvh,22px);height:clamp(15px,2.3dvh,22px);}
+        .timer-top .ctrl-btn span{font-size:clamp(9px,1.5dvh,14px);}
         .timer-top .hr-badge-box{padding:clamp(4px,1dvh,12px) clamp(6px,1.5vw,14px);}
         .timer-top .hr-badge-box svg{width:clamp(16px,2.5dvh,26px);height:clamp(16px,2.5dvh,26px);}
         .timer-top .hr-badge-box .hr-bpm{font-size:clamp(1.1rem,3.5dvh,2rem);}
         .timer-top .hr-badge-box canvas{width:clamp(70px,14vw,110px);height:clamp(20px,3.5dvh,34px);}
-        #timer-middle{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:0 1rem;}
-        #timer-display{font-size:clamp(4rem,20dvh,11rem);line-height:1;transition:color 6s ease,-webkit-text-stroke-color 6s ease;}
+        #timer-middle{flex:1;min-height:0;display:grid;grid-template-rows:1fr auto 1fr;align-items:center;justify-items:center;overflow:hidden;padding:0 1rem;}
+        #focus-container{align-self:end;text-align:center;padding-bottom:clamp(4px,1dvh,12px);}
+        #timer-display{font-size:clamp(5rem,25dvh,14rem);line-height:1;}
+        #next-up{font-size:clamp(1.4rem,4.5dvh,2.6rem);line-height:1.2;align-self:start;text-align:center;padding-top:clamp(4px,1dvh,12px);}
         #next-up{font-size:clamp(1.4rem,4.5dvh,2.6rem);line-height:1.2;}
         #next-up .next-label{display:block;font-size:clamp(0.8rem,1.8dvh,1.1rem);opacity:0.6;letter-spacing:0.15em;}
         #next-up .next-content{display:block;}
-        #round-focus{font-size:clamp(1.5rem,6dvh,3rem) !important;transition:-webkit-text-stroke-color 3s ease;}
+        #round-focus{font-size:clamp(1.5rem,6dvh,3rem) !important;}
         #round-focus.surprise-task-mode{font-size:clamp(1.5rem,6dvh,3rem) !important;}
         /* Timer bottom: always visible, safe area aware */
         .timer-bottom{
@@ -72,30 +74,33 @@
         .timer-bottom .btn-nav,
         .timer-bottom .btn-main{
             padding:clamp(10px,2dvh,22px) 0;
-            font-size:clamp(13px,2.2dvh,22px);
+            font-size:clamp(15px,2.5dvh,24px);
             border-radius:clamp(10px,2dvh,20px);
             color:#ffffff !important;
             outline:2px solid #000000;
             outline-offset:-1px;
         }
-        #gym-workout-screen{height:100vh;height:100dvh;padding:2dvh 1rem calc(3dvh + env(safe-area-inset-bottom));overflow:hidden;}
-        #gym-workout-screen .gym-header{margin-bottom:clamp(4px,1dvh,12px);}
-        #gym-workout-screen .gym-header h1{font-size:clamp(1rem,3dvh,1.75rem);}
+        #gym-workout-screen{height:100vh;height:100dvh;padding:1.5dvh 0.75rem calc(2dvh + env(safe-area-inset-bottom));overflow:hidden;}
+        #gym-workout-screen .gym-header{margin-bottom:clamp(2px,0.5dvh,6px);}
+        #gym-workout-screen .gym-header h1{font-size:clamp(1rem,2.5dvh,1.5rem);}
         #gym-workout-screen .gym-header p{font-size:clamp(8px,1.2dvh,11px);}
-        #gym-workout-screen .gym-list{padding:clamp(6px,1dvh,16px);border-radius:clamp(12px,2dvh,24px);gap:clamp(4px,0.8dvh,10px);}
-        #gym-workout-screen .gym-rest{padding:clamp(6px,1dvh,14px);border-radius:clamp(10px,1.5dvh,20px);gap:clamp(2px,0.5dvh,8px);margin-top:clamp(4px,0.8dvh,10px);}
-        #gym-workout-screen .gym-rest .gym-rest-num{font-size:clamp(1.5rem,5dvh,3.5rem);}
+        #gym-workout-screen .gym-body{display:flex;flex-direction:row;gap:clamp(4px,1vw,10px);flex:1;min-height:0;align-items:stretch;}
+        #gym-workout-screen .gym-list{padding:clamp(4px,0.8dvh,10px);border-radius:clamp(10px,1.5dvh,20px);gap:clamp(2px,0.4dvh,6px);flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-evenly;}
+        #gym-workout-screen .gym-side{width:clamp(110px,30vw,160px);flex-shrink:0;display:flex;flex-direction:column;gap:clamp(4px,0.6dvh,8px);}
+        #gym-workout-screen .gym-rest{padding:clamp(4px,0.8dvh,10px);border-radius:clamp(10px,1.5dvh,20px);gap:clamp(2px,0.4dvh,6px);}
+        #gym-workout-screen .gym-rest .gym-rest-num{font-size:clamp(2rem,6dvh,4rem);}
         #gym-workout-screen .gym-rest .gym-rest-label{font-size:clamp(7px,1dvh,10px);}
-        #gym-workout-screen .gym-rest .gym-rest-pick-btn{padding:clamp(4px,0.7dvh,10px) clamp(10px,2vw,18px);font-size:clamp(9px,1.2dvh,13px);}
-        #gym-workout-screen .gym-rest .gym-rest-go{padding:clamp(6px,1.2dvh,14px) 0;font-size:clamp(10px,1.5dvh,15px);border-radius:clamp(10px,1.5dvh,18px);}
-        #gym-workout-screen .gym-btns{gap:clamp(6px,1vw,14px);margin-top:clamp(4px,0.8dvh,10px);}
-        #gym-workout-screen .gym-btns button{padding:clamp(8px,1.5dvh,18px) 0;font-size:clamp(10px,1.5dvh,15px);border-radius:clamp(10px,1.5dvh,18px);}
-        .gym-card{padding:clamp(6px,1dvh,14px) clamp(8px,1.5vw,14px);gap:clamp(6px,1vw,14px);border-radius:clamp(8px,1.2dvh,16px);cursor:pointer;transition:opacity 0.2s ease;}
-        .gym-card .gym-card-num{width:clamp(24px,4dvh,40px);height:clamp(24px,4dvh,40px);border-radius:clamp(6px,1dvh,12px);font-size:clamp(9px,1.5dvh,14px);}
-        .gym-card .gym-card-name{font-size:clamp(11px,1.6dvh,15px);}
+        #gym-workout-screen .gym-rest .gym-rest-pick-btn{padding:clamp(3px,0.5dvh,8px) clamp(6px,1.5vw,12px);font-size:clamp(9px,1.2dvh,13px);}
+        #gym-workout-screen .gym-rest .gym-rest-go{padding:clamp(5px,1dvh,12px) 0;font-size:clamp(10px,1.5dvh,15px);border-radius:clamp(8px,1.2dvh,14px);}
+        #gym-workout-screen .gym-side-btns{display:flex;flex-direction:column;gap:clamp(3px,0.5dvh,6px);}
+        #gym-workout-screen .gym-side-btns button{padding:clamp(8px,1.5dvh,16px) 0;font-size:clamp(10px,1.4dvh,14px);border-radius:clamp(8px,1.2dvh,14px);}
+        .gym-card{padding:clamp(4px,0.7dvh,10px) clamp(6px,1vw,10px);gap:clamp(4px,0.8vw,10px);border-radius:clamp(6px,1dvh,12px);cursor:pointer;transition:opacity 0.2s ease;}
+        .gym-card .gym-card-num{width:clamp(22px,3.5dvh,36px);height:clamp(22px,3.5dvh,36px);border-radius:clamp(5px,0.8dvh,10px);font-size:clamp(9px,1.4dvh,13px);}
+        .gym-card .gym-card-name{font-size:clamp(12px,1.8dvh,17px);}
         .gym-card .gym-card-muscle{font-size:clamp(8px,1.1dvh,11px);}
         /* Setup screen: fixed height, inner settings panel scrolls */
         #setup-screen{max-height:100vh;max-height:100dvh;overflow-y:auto;display:flex;flex-direction:column;}
+        #setup-screen *{-webkit-text-stroke:0.6px rgba(0,0,0,1);paint-order:stroke fill;}
         #setup-columns{min-height:0;}
         /* Settings scroll: takes remaining height, scrolls internally */
         #settings-scroll{overflow-y:auto;min-height:0;height:100%;}
@@ -113,8 +118,8 @@
         <div id="home-screen" class="w-full max-w-md space-y-5">
             <div class="text-center mb-6"><h1 class="text-4xl font-bold text-white tracking-tight">What's Today's Session?</h1></div>
             <div class="space-y-4">
-                <button id="btn-home-boxing" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-green-500/30"><div class="w-16 h-16 rounded-2xl bg-green-600/20 border border-green-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div><span class="text-2xl font-bold text-white">Boxing 🥊</span></button>
-                <button id="btn-home-gym" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-blue-500/30"><div class="w-16 h-16 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h4v12H4zM16 6h4v12h-4zM8 11h8v2H8z"/></svg></div><span class="text-2xl font-bold text-white">Gym 💪</span></button>
+                <button id="btn-home-boxing" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-green-500/30"><div class="w-16 h-16 rounded-2xl bg-green-600/20 border border-green-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div><span class="text-3xl font-bold text-white">Boxing</span></button>
+                <button id="btn-home-gym" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-blue-500/30"><div class="w-16 h-16 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h4v12H4zM16 6h4v12h-4zM8 11h8v2H8z"/></svg></div><span class="text-3xl font-bold text-white">Gym</span></button>
             </div>
         </div>
         <!-- GYM DAY PICKER -->
@@ -127,22 +132,25 @@
                 <button class="gym-day-btn home-btn w-full py-4 rounded-xl text-left px-5 bg-slate-800/50 border border-slate-700/30 active:scale-[0.97]" data-day="upper"><span class="text-base font-bold text-white">Upper Body</span><span class="text-xs text-slate-400 ml-2">Full upper mix</span></button>
                 <button class="gym-day-btn home-btn w-full py-4 rounded-xl text-left px-5 bg-slate-800/50 border border-slate-700/30 active:scale-[0.97]" data-day="lower"><span class="text-base font-bold text-white">Lower Body</span><span class="text-xs text-slate-400 ml-2">Full lower mix</span></button>
             </div>
-            <div class="flex items-center justify-center gap-3"><span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Core Finisher</span><label class="relative inline-flex items-center cursor-pointer flex-shrink-0"><input type="checkbox" id="in-finisher" class="sr-only peer" checked><div class="w-10 h-5 bg-slate-800 rounded-full peer peer-checked:bg-orange-600 peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label></div>
-            <button id="btn-gym-back" class="w-full py-3 rounded-xl text-sm font-bold text-slate-400 hover:text-white transition-colors">&larr; Back</button>
+            <button id="btn-gym-back" class="w-full py-3 rounded-xl text-sm font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98]">&larr; Back</button>
         </div>
         <!-- GYM WORKOUT -->
         <div id="gym-workout-screen" class="hidden w-full max-w-md flex flex-col">
             <div class="gym-header text-center flex-shrink-0"><p class="font-bold text-blue-400 uppercase tracking-[0.2em]" id="gym-day-label">Push Day</p><h1 class="font-bold text-white tracking-tight">Today's Exercises</h1></div>
-            <div class="gym-list glass-card flex flex-col flex-1 min-h-0 custom-scrollbar overflow-y-auto" id="gym-exercise-list"></div>
-            <div id="gym-rest-timer" class="hidden gym-rest glass-card text-center flex flex-col flex-shrink-0">
-                <p class="gym-rest-label font-bold text-blue-400 uppercase tracking-widest">Rest Between Sets</p>
-                <div id="gym-rest-display" class="gym-rest-num font-black font-mono-display text-white">90</div>
-                <div class="flex justify-center" style="gap:clamp(4px,1vw,10px);"><button class="gym-rest-pick gym-rest-pick-btn rounded-xl font-bold bg-slate-800/50 border border-slate-700/30 hover:border-blue-500/40 transition-all" data-secs="60">60s</button><button class="gym-rest-pick gym-rest-pick-btn rounded-xl font-bold bg-blue-600 text-white border border-blue-500" data-secs="90">90s</button><button class="gym-rest-pick gym-rest-pick-btn rounded-xl font-bold bg-slate-800/50 border border-slate-700/30 hover:border-blue-500/40 transition-all" data-secs="120">120s</button></div>
-                <button id="btn-gym-rest-toggle" class="gym-rest-go w-full bg-blue-600 hover:bg-blue-500 text-white font-bold active:scale-[0.98] transition-all">Start Rest</button>
-            </div>
-            <div class="gym-btns grid grid-cols-2 flex-shrink-0">
-                <button id="btn-gym-shuffle" class="bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg active:scale-[0.98] transition-all">Shuffle Exercises</button>
-                <button id="btn-gym-workout-back" class="bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white font-bold transition-all active:scale-[0.98]">&larr; Back</button>
+            <div class="gym-body">
+                <div class="gym-list glass-card flex flex-col" id="gym-exercise-list"></div>
+                <div class="gym-side">
+                    <div id="gym-rest-timer" class="gym-rest glass-card text-center flex flex-col flex-shrink-0">
+                        <p class="gym-rest-label font-bold text-blue-400 uppercase tracking-widest">Rest</p>
+                        <div id="gym-rest-display" class="gym-rest-num font-black font-mono-display text-white">90</div>
+                        <div class="flex flex-col" style="gap:clamp(2px,0.4dvh,4px);"><div class="flex justify-center" style="gap:clamp(2px,0.5vw,6px);"><button class="gym-rest-pick gym-rest-pick-btn rounded-lg font-bold bg-slate-800/50 border border-slate-700/30 hover:border-blue-500/40 transition-all" data-secs="60">60s</button><button class="gym-rest-pick gym-rest-pick-btn rounded-lg font-bold bg-blue-600 text-white border border-blue-500" data-secs="90">90s</button><button class="gym-rest-pick gym-rest-pick-btn rounded-lg font-bold bg-slate-800/50 border border-slate-700/30 hover:border-blue-500/40 transition-all" data-secs="120">120s</button></div>
+                        <button id="btn-gym-rest-toggle" class="gym-rest-go w-full bg-green-700 hover:bg-green-600 text-white font-bold active:scale-[0.98] transition-all">Start Rest</button></div>
+                    </div>
+                    <div class="gym-side-btns flex-1">
+                        <button id="btn-gym-shuffle" class="w-full bg-orange-700 hover:bg-orange-600 text-white font-bold active:scale-[0.98] transition-all">Shuffle</button>
+                        <button id="btn-gym-workout-back" class="w-full bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white font-bold transition-all active:scale-[0.98]">&larr; Back</button>
+                    </div>
+                </div>
             </div>
         </div>
         <!-- BOXING SETUP -->
@@ -151,7 +159,7 @@
             <!-- Mode / HR row: fixed -->
             <div class="glass-card p-3 sm:p-4 rounded-2xl flex-shrink-0 mb-2 sm:mb-3">
                 <div class="flex items-center gap-3">
-                    <div class="flex p-1 bg-slate-800/50 rounded-xl flex-shrink-0"><button id="mode-solo" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">Solo</button><button id="mode-wife" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white shadow-md">With Wife</button></div>
+                    <div class="flex p-1 bg-slate-800/50 rounded-xl flex-shrink-0"><button id="mode-solo" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">Solo</button><button id="mode-wife" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white">With Wife</button></div>
                     <div id="rest-info" class="flex-1 text-center bg-slate-800/30 p-1.5 rounded-lg border border-slate-700/30"><p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p></div>
                 </div>
                 <div id="hr-setup" class="hidden mt-3 pt-3 border-t border-slate-700/50"><div class="flex items-center gap-2">
@@ -160,12 +168,12 @@
                 </div></div>
             </div>
             <div class="grid grid-cols-3 gap-2 mb-2 sm:mb-3 flex-shrink-0">
-                <button id="btn-quick-rest" class="col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-[10px] sm:text-xs shadow-lg active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight"><span>Quick Rest</span><span class="opacity-70 text-[9px]">(120s)</span></button>
-                <button id="btn-start" class="col-span-2 bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-2xl text-sm sm:text-lg shadow-[0_0_20px_rgba(34,197,94,0.4)] active:scale-[0.98] transition-all">Begin Session</button>
+                <button id="btn-quick-rest" class="col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-xs sm:text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight"><span>Quick Rest</span><span class="opacity-70 text-[10px]">(120s)</span></button>
+                <button id="btn-start" class="col-span-2 bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-2xl text-base sm:text-xl active:scale-[0.98] transition-all">Begin Session</button>
             </div>
-            <!-- Two-column layout: left scrolls, right scrolls, Begin Session fixed at bottom -->
+            <!-- Main layout: settings left, preview right starting from button row -->
             <div id="setup-columns" class="flex flex-row gap-2 sm:gap-3 items-stretch">
-                <!-- Left: settings scroll + Begin Session pinned at bottom -->
+                <!-- Left: settings -->
                 <div class="flex-1 min-w-0 flex flex-col min-h-0">
                     <div id="settings-scroll" class="glass-card p-3 sm:p-4 rounded-2xl space-y-3 flex-1 custom-scrollbar overflow-y-auto">
                         <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Rounds</label><div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5" id="grid-rounds"></div></div>
@@ -183,30 +191,39 @@
                                 <button id="btn-block-2" class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectBlocks(2,this)">2 Blocks</button>
                             </div>
                         </div>
-                        <div id="block2-options" class="hidden space-y-2 pl-2 border-l-2 border-purple-500/30">
-                            <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block Rest</label><div class="grid grid-cols-3 gap-1.5">
-                                <button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(120,this)">2m</button>
-                                <button class="btn-select active py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(180,this)">3m</button>
-                                <button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(300,this)">5m</button>
-                            </div></div>
-                            <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-rounds-b2"></div></div>
-                            <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 "Surprise" Rounds</label><div class="grid grid-cols-4 gap-1.5" id="grid-surprise-b2">
-                                <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(0,this)">0</button>
-                                <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(1,this)">1</button>
-                                <button class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(2,this)">2</button>
-                                <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(3,this)">3</button>
-                            </div></div>
-                        </div>
+                        <div id="block2-inline-summary" class="hidden text-[9px] text-slate-400 text-center py-1">Block 2: <span id="b2-summary-text">6 rds, 3m rest, 2 surprise</span> <button id="btn-b2-edit" class="text-purple-400 font-bold ml-1 underline">Edit</button></div>
                     </div>
                 </div>
                 <!-- Right: preview panel -->
-                <div class="w-[140px] sm:w-[180px] md:w-[220px] flex-shrink-0 flex flex-col"><div class="glass-card p-2 sm:p-3 rounded-2xl flex flex-col flex-1 min-h-0 space-y-2">
-                    <div class="flex-shrink-0"><div class="flex items-center justify-between mb-1"><span class="text-[10px] sm:text-xs font-bold text-white">Randomise</span><label class="relative inline-flex items-center cursor-pointer flex-shrink-0"><input type="checkbox" id="in-random" class="sr-only peer" checked><div id="toggle-bg" class="w-9 sm:w-10 h-5 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-4 sm:peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label></div><p id="random-desc" class="text-[8px] sm:text-[9px] text-slate-400 leading-tight">Randomises middle rounds (2 to 11)</p><hr class="border-slate-700/50 mt-2"></div>
+                <div class="w-[140px] sm:w-[180px] md:w-[220px] flex-shrink-0 flex flex-col"><div class="glass-card p-2 sm:p-3 rounded-2xl flex flex-col flex-1 min-h-0 space-y-1">
+                    <div class="flex-shrink-0"><div class="flex items-center justify-between mb-1"><span class="text-[10px] sm:text-xs font-bold text-white">Randomise</span><label class="relative inline-flex items-center cursor-pointer flex-shrink-0"><input type="checkbox" id="in-random" class="sr-only peer" checked><div id="toggle-bg" class="w-9 sm:w-10 h-5 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-4 sm:peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label></div><p id="random-desc" class="text-[8px] sm:text-[9px] text-slate-400 leading-tight">Randomises middle rounds (2 to 11)</p><hr class="border-slate-700/50 mt-1"></div>
                     <h3 class="font-bold text-white text-[9px] sm:text-xs uppercase tracking-widest ml-1 opacity-70 flex-shrink-0">Rounds</h3>
-                    <div id="preview-scroll" class="flex-1 min-h-0 space-y-1 pr-1 custom-scrollbar overflow-y-auto"><div id="round-preview"></div></div>
+                    <div id="preview-scroll" class="flex-1 min-h-0 space-y-0.5 pr-1 custom-scrollbar overflow-y-auto"><div id="round-preview"></div></div>
                 </div></div>
             </div>
-            <button id="btn-boxing-back" class="w-full py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition-colors flex-shrink-0 mt-1">&larr; Back</button>
+            <button id="btn-boxing-back" class="w-full py-2 rounded-xl text-xs font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98] flex-shrink-0 mt-1">&larr; Back</button>
+        </div>
+        <!-- BLOCK 2 MODAL -->
+        <div id="block2-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm px-4 pb-6">
+            <div class="bg-slate-800 border border-slate-600 rounded-2xl p-4 max-w-sm w-full shadow-2xl space-y-3">
+                <div class="flex items-center justify-between"><h3 class="text-sm font-bold text-white">Block 2 Settings</h3><button id="btn-b2-close" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button></div>
+                <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block Rest</label><div class="grid grid-cols-3 gap-1.5">
+                    <button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(120,this)">2m</button>
+                    <button class="btn-select active py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(180,this)">3m</button>
+                    <button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(300,this)">5m</button>
+                </div></div>
+                <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-rounds-b2"></div></div>
+                <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 "Surprise" Rounds</label><div class="grid grid-cols-4 gap-1.5" id="grid-surprise-b2">
+                    <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(0,this)">0</button>
+                    <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(1,this)">1</button>
+                    <button class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(2,this)">2</button>
+                    <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(3,this)">3</button>
+                </div></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="btn-b2-back" class="w-full py-3 rounded-xl text-sm font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98]">&larr; 1 Block</button>
+                    <button id="btn-b2-done" class="w-full py-3 rounded-xl text-sm font-bold bg-purple-600 hover:bg-purple-500 text-white transition-all active:scale-[0.98]">Done</button>
+                </div>
+            </div>
         </div>
         <!-- TIMER SCREEN (flex-col set in CSS above) -->
         <div id="timer-screen" class="hidden w-full max-w-lg">
@@ -222,9 +239,9 @@
                 </div>
             </div>
             <div id="timer-middle">
-                <div id="focus-container" class="text-center w-full" style="margin-bottom:1dvh;"><div id="round-focus" class="font-black text-white uppercase leading-tight drop-shadow-lg t-stroke-heavy">Warm Up</div></div>
+                <div id="focus-container"><div id="round-focus" class="font-black text-white uppercase leading-tight drop-shadow-lg t-stroke-heavy">Warm Up</div></div>
                 <div id="timer-display" class="font-black font-mono-display text-white tracking-tighter drop-shadow-2xl t-stroke-heavy">0</div>
-                <div id="next-up" class="font-bold text-white uppercase tracking-widest text-center t-stroke" style="margin-top:1dvh;"></div>
+                <div id="next-up" class="font-bold text-slate-400 uppercase tracking-widest t-stroke"></div>
             </div>
             <div class="timer-bottom w-full flex flex-col">
                 <div class="btn-row grid grid-cols-2">
@@ -251,7 +268,7 @@
     <div id="hr-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-6">
         <div class="bg-slate-800 border border-slate-600 rounded-2xl p-6 max-w-xs w-full text-center shadow-2xl">
             <div class="text-3xl mb-3">&#x1F493;</div>
-            <p class="text-white font-bold text-base mb-5">Note: No HR Monitor(s) Connected</p>
+            <p class="text-white font-bold text-base mb-5">Note:<br>No HR Monitor(s) Connected</p>
             <div class="flex gap-3">
                 <button id="hr-modal-cancel" class="flex-1 py-4 rounded-xl text-base font-bold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition">Go Back</button>
                 <button id="hr-modal-confirm" class="flex-1 py-4 rounded-xl text-base font-bold bg-green-600 hover:bg-green-500 text-white transition">Start Anyway</button>
@@ -267,35 +284,58 @@
         const CORE_EXERCISES=[{name:"Plank Hold",muscle:"Core"},{name:"Dead Bug",muscle:"Core"},{name:"Cable Woodchop",muscle:"Obliques"},{name:"Pallof Press (Cable)",muscle:"Core"},{name:"Hanging Knee Raise",muscle:"Lower Abs"},{name:"Ab Rollout",muscle:"Core"},{name:"Bird Dog",muscle:"Core / Lower Back"},{name:"Cable Crunch",muscle:"Abs"},{name:"Side Plank",muscle:"Obliques"},{name:"Farmer's Walk",muscle:"Core / Grip"}];
         const DAY_LABELS={push:"Push Day",pull:"Pull Day",legs:"Leg Day",upper:"Upper Body",lower:"Lower Body"};
         const PROGRAM_12_ROUNDS=[
-            {name:"Warm Up",moves:['Jab','1-2','Breathe','1-2','Shake out']},
-            {name:"1-2 > Hook",moves:['1-2-3','Jab > Cross > Hook','Jab > Uppercut > Hook','Cross > Hook > Cross']},
-            {name:"Uppercut > Hook",moves:['Lead Uppercut > Hook','Rear Uppercut > Lead Hook','Uppercut > Hook','5-3','6-2']},
-            {name:"4 Punch Combos",moves:['1-2-3-2','1-2-5-2','Jab > Cross > Hook > Cross','1-1-2-3']},
-            {name:"Singles (Power)",moves:['Power Jab','Hard Cross','Big Hook','Overhand','Body Shot']},
-            {name:"1-2's (Speed)",moves:['Fast 1-2','Touch-Touch','Jab > Cross (Fast)','High-Low']},
-            {name:"Double Jab > Cross",moves:['1-1-2','1-1-Rear Hook','1-1-Overhand','Jab > Jab > Cross']},
-            {name:"3 Punch Combos (Speed)",moves:['Fast 1-2-3','Touch-Touch-Bang','Speed 3s']},
-            {name:"Hooks Only",moves:['Lead Hook','Rear Hook','Body Hook','3-4','Head-Body']},
-            {name:"1-2's (Heavy)",moves:['Hard 1-2','Power 1-2','Cross > Hook','Hook > Cross']},
-            {name:"Uppercut > Hook > Hook",moves:['Uppercut > Hook > Hook','5-3-4','6-3-2']},
-            {name:"Non-stop (Speed)",moves:['Non-stop','1-2-1-2','Burnout','Speed','Go Go Go']}
+            {name:"Warm Up",family:"warmup",cat:"warmup",moves:['Jab','1-2','Breathe','1-2','Shake out']},
+            {name:"1-2 > Hook (Power)",family:"12hook",cat:"pair",moves:['Hard 1-2-3','Jab > Cross > Hook (Heavy)','Sit Down 1-2 > Hook']},
+            {name:"Uppercut > Cross (Speed)",family:"uppercross",cat:"pair",moves:['Fast Uppercut > Cross','Snap Uppercut > Jab','Quick 5-2','Quick 6-1']},
+            {name:"4 Punch Combos (Power)",family:"4punch",cat:"combo",moves:['Hard 1-2-3-2','Heavy 1-2-5-2','Big Jab > Cross > Hook > Cross']},
+            {name:"Single Shots (Power)",family:"singles",cat:"single",moves:['Power Jab','Hard Cross','Big Hook','Overhand','Body Shot']},
+            {name:"1-2's (Speed)",family:"12s",cat:"pair",moves:['Fast 1-2','Touch-Touch','Jab > Cross (Fast)','High-Low']},
+            {name:"Double Jab > Cross (Power)",family:"dbljab",cat:"pair",moves:['Hard 1-1-2','1-1 > Heavy Cross','Power 1-1-2']},
+            {name:"3 Punch Combos (Speed)",family:"3punch",cat:"combo",moves:['Fast 1-2-3','Touch-Touch-Bang','Speed 3s']},
+            {name:"Hooks Only (Power)",family:"hooks",cat:"single",moves:['Big Lead Hook','Heavy Rear Hook','Hard Body Hook','Power 3-4']},
+            {name:"Hook > Hook (Speed)",family:"hookhook",cat:"single",moves:['Fast Lead > Rear Hook','Quick 3-4','Snap Hook > Hook','Speed Double Hooks']},
+            {name:"Jab > Hook (Power)",family:"jabhook",cat:"pair",moves:['Hard Jab > Lead Hook','Power Jab > Rear Hook','Heavy 1-3']},
+            {name:"Non-stop (Speed)",family:"nonstop",cat:"burnout",moves:['Non-stop','1-2-1-2','Burnout','Speed','Go Go Go']}
         ];
         const ROUND_POOL=[
-            {name:"Singles (Power)",moves:['Power Jab','Hard Cross','Lead Hook','Rear Uppercut','Body Shot']},
-            {name:"1-2's",moves:['1-2','Fast 1-2','Hard 1-2','1 > Body 2']},
-            {name:"Double Jab > Cross",moves:['1-1-2','Jab > Jab > Cross','1-1 > Body 2']},
-            {name:"1-2 > Hook",moves:['1-2-3','Jab > Cross > Hook','1-2 > Lead Hook']},
-            {name:"1-2 > Uppercut",moves:['1-2-5','1-2-6','Jab > Cross > Lead Uppercut','Jab > Cross > Rear Uppercut']},
-            {name:"4 Straight Punches",moves:['1-2-1-2','Jab > Cross > Jab > Cross','4 Fast Straights']},
-            {name:"Hooks Only",moves:['Lead Hook','Rear Hook','Left Hook > Right Hook','Check Hook']},
-            {name:"Singles (Power)",moves:['Hard Cross','Big Hook','Power Jab','Hard Uppercut']},
-            {name:"Jab > Cross > Hook > Cross",moves:['1-2-3-2','Jab > Cross > Hook > Cross']},
-            {name:"Hook > Straight",moves:['3-2','Hook > Cross','Check Hook > Cross']},
-            {name:"Head > Body",moves:['Jab High > Cross Low','1-2 High > Hook Low','Head > Body > Head']},
-            {name:"3 Punch Combos",moves:['1-2-3','2-3-2','3-2-3','5-2-3']},
-            {name:"Non-stop (Speed)",moves:['1-2-1-2 Fast','Speed punches','Fast Hands']}
+            {name:"Single Shots (Speed)",family:"singles",cat:"single",moves:['Fast Jab','Snap Cross','Quick Hook','Speed Single Shots']},
+            {name:"Single Shots (Power)",family:"singles",cat:"single",moves:['Power Jab','Hard Cross','Big Hook','Overhand','Body Shot']},
+            {name:"1-2's (Speed)",family:"12s",cat:"pair",moves:['Fast 1-2','Touch-Touch','Jab > Cross (Fast)','High-Low']},
+            {name:"1-2's (Power)",family:"12s",cat:"pair",moves:['Hard 1-2','Power 1-2','Sit Down 1-2','Heavy Jab > Cross']},
+            {name:"Double Jab > Cross (Speed)",family:"dbljab",cat:"pair",moves:['Fast 1-1-2','Quick Jab > Jab > Cross','Snap 1-1-2']},
+            {name:"Double Jab > Cross (Power)",family:"dbljab",cat:"pair",moves:['Hard 1-1-2','1-1 > Heavy Cross','Power 1-1-2']},
+            {name:"1-2 > Hook (Speed)",family:"12hook",cat:"pair",moves:['Fast 1-2-3','Quick Jab > Cross > Hook','Snap 1-2 > Hook']},
+            {name:"1-2 > Hook (Power)",family:"12hook",cat:"pair",moves:['Hard 1-2-3','Jab > Cross > Hook (Heavy)','Sit Down 1-2 > Hook']},
+            {name:"1-2 > Uppercut (Speed)",family:"12upper",cat:"pair",moves:['Fast 1-2-5','Quick 1-2-6','Snap Jab > Cross > Uppercut']},
+            {name:"1-2 > Uppercut (Power)",family:"12upper",cat:"pair",moves:['Hard 1-2-5','Heavy 1-2-6','Big Jab > Cross > Uppercut']},
+            {name:"4 Straight Punches (Speed)",family:"4straight",cat:"combo",moves:['Fast 1-2-1-2','Quick Jab > Cross > Jab > Cross','Speed Straights']},
+            {name:"4 Straight Punches (Power)",family:"4straight",cat:"combo",moves:['Hard 1-2-1-2','Heavy Straights','Power Jab > Cross > Jab > Cross']},
+            {name:"Hooks Only (Speed)",family:"hooks",cat:"single",moves:['Fast Lead Hook','Quick Rear Hook','Snap Hooks','Speed 3-4']},
+            {name:"Hooks Only (Power)",family:"hooks",cat:"single",moves:['Big Lead Hook','Heavy Rear Hook','Hard Body Hook','Power 3-4']},
+            {name:"Jab > Cross > Hook > Cross (Speed)",family:"1232",cat:"combo",moves:['Fast 1-2-3-2','Quick Jab > Cross > Hook > Cross']},
+            {name:"Jab > Cross > Hook > Cross (Power)",family:"1232",cat:"combo",moves:['Hard 1-2-3-2','Heavy Jab > Cross > Hook > Cross']},
+            {name:"Hook > Straight (Speed)",family:"hookstr",cat:"pair",moves:['Fast 3-2','Quick Hook > Cross','Snap Hook > Straight']},
+            {name:"Hook > Straight (Power)",family:"hookstr",cat:"pair",moves:['Hard 3-2','Heavy Hook > Cross','Big Hook > Straight']},
+            {name:"Head > Body (Speed)",family:"headbody",cat:"level",moves:['Fast High-Low','Quick Head > Body','Snap Up-Down']},
+            {name:"Head > Body (Power)",family:"headbody",cat:"level",moves:['Hard High-Low','Heavy Head > Body','Big Up > Down']},
+            {name:"3 Punch Combos (Speed)",family:"3punch",cat:"combo",moves:['Fast 1-2-3','Touch-Touch-Bang','Speed 3s']},
+            {name:"3 Punch Combos (Power)",family:"3punch",cat:"combo",moves:['Hard 1-2-3','Heavy 2-3-2','Power 3-2-3','Big 5-2-3']},
+            {name:"Non-stop (Speed)",family:"nonstop",cat:"burnout",moves:['1-2-1-2 Fast','Speed Punches','Fast Hands']},
+            {name:"Non-stop (Power)",family:"nonstop",cat:"burnout",moves:['Hard Non-stop','Heavy Combos','Power Flurry']},
+            {name:"Uppercut > Cross (Speed)",family:"uppercross",cat:"pair",moves:['Fast Uppercut > Cross','Snap Uppercut > Jab','Quick 5-2','Quick 6-1']},
+            {name:"Uppercut > Cross (Power)",family:"uppercross",cat:"pair",moves:['Hard Uppercut > Cross','Heavy Uppercut > Jab','Big 5-2','Power 6-1']},
+            {name:"Hook > Hook (Speed)",family:"hookhook",cat:"single",moves:['Fast Lead > Rear Hook','Quick 3-4','Snap Hook > Hook','Speed Double Hooks']},
+            {name:"Hook > Hook (Power)",family:"hookhook",cat:"single",moves:['Hard Lead > Rear Hook','Heavy 3-4','Big Hook > Hook','Power Double Hooks']},
+            {name:"Body > Head (Speed)",family:"bodyhead",cat:"level",moves:['Fast Low-High','Quick Body > Head','Snap Down-Up']},
+            {name:"Body > Head (Power)",family:"bodyhead",cat:"level",moves:['Hard Low-High','Heavy Body > Head','Big Down > Up']},
+            {name:"Jab > Hook (Speed)",family:"jabhook",cat:"pair",moves:['Fast Jab > Lead Hook','Quick Jab > Rear Hook','Snap 1-3']},
+            {name:"Jab > Hook (Power)",family:"jabhook",cat:"pair",moves:['Hard Jab > Lead Hook','Power Jab > Rear Hook','Heavy 1-3']},
+            {name:"Cross > Uppercut > Straight (Speed)",family:"crossupper",cat:"combo",moves:['Fast Cross > Uppercut > Jab','Quick 2-5-2','Snap Cross > Upper > Straight']},
+            {name:"Cross > Uppercut > Straight (Power)",family:"crossupper",cat:"combo",moves:['Hard Cross > Uppercut > Jab','Heavy 2-5-2','Big Cross > Upper > Straight']},
+            {name:"4 Punch Combos (Speed)",family:"4punch",cat:"combo",moves:['Fast 1-2-3-2','Quick 1-2-5-2','Speed 4s']},
+            {name:"4 Punch Combos (Power)",family:"4punch",cat:"combo",moves:['Hard 1-2-3-2','Heavy 1-2-5-2','Big Jab > Cross > Hook > Cross']}
         ];
-        const HOOKS_ONLY_ENTRY=ROUND_POOL.find(r=>r.name==='Hooks Only')||PROGRAM_12_ROUNDS[8];
+        const HOOKS_ONLY_ENTRIES=ROUND_POOL.filter(r=>r.family==='hooks');
         const ZONE_COLORS=['#3b82f6','#22c55e','#eab308','#f97316','#ef4444'],ZONE_NAMES=['Z1','Z2','Z3','Z4','Z5'],HR_HISTORY_CAP=7200;
         const SURPRISE_TOTAL=35,SURPRISE_WORK=30;
 
@@ -321,9 +361,9 @@
         let hrHistoryYou=[],hrHistoryWife=[],hrRoundYou=[],hrRoundWife=[],sessionStartTime=0,lastSparkDrawYou=0,lastSparkDrawWife=0;
         let endOfWorkHRYou=null,endOfWorkHRWife=null,recoveryDropsYou=[],recoveryDropsWife=[];
         let peakHRYou={bpm:0,round:0},peakHRWife={bpm:0,round:0};
-        let workSecsTotal=0,restSecsTotal=0,phaseStartWall=0;
+        let workSecsTotal=0,restSecsTotal=0,workSecsYou=0,workSecsWife=0,restSecsYou=0,restSecsWife=0,phaseStartWall=0;
 
-        function accumulatePhaseTime(){if(phaseStartWall<=0)return;const elapsed=Math.round((Date.now()-phaseStartWall)/1000);if(session.phase==='work'||session.phase==='surprise')workSecsTotal+=elapsed;else if(session.phase==='rest'||session.phase==='change'||session.phase==='block-rest')restSecsTotal+=elapsed;phaseStartWall=0;}
+        function accumulatePhaseTime(){if(phaseStartWall<=0)return;const elapsed=Math.round((Date.now()-phaseStartWall)/1000);const isW=settings.mode==='wife';if(session.phase==='work'||session.phase==='surprise'){workSecsTotal+=elapsed;if(isW){if(session.round%2!==0)workSecsYou+=elapsed;else workSecsWife+=elapsed;}else{workSecsYou+=elapsed;}}else if(session.phase==='rest'||session.phase==='change'||session.phase==='block-rest'){restSecsTotal+=elapsed;if(isW){if(session.round%2!==0)restSecsYou+=elapsed;else restSecsWife+=elapsed;}else{restSecsYou+=elapsed;}}phaseStartWall=0;}
         let gymRestTimer=null,gymRestSecs=90,gymRestRunning=false;
         function haptic(ms){try{if(navigator.vibrate)navigator.vibrate(ms||50);}catch(e){}}
         function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
@@ -379,15 +419,15 @@
 
         // ── SURPRISE COLOURS ──
         function enterSurpriseColours(){ui.roundFocus.style.color='#ef4444';}
-        function exitSurpriseColours(){ui.roundFocus.style.color='';ui.roundFocus.classList.remove('surprise-task-mode');}
+        function exitSurpriseColours(){ui.roundFocus.style.color='';ui.roundFocus.style.webkitTextStrokeColor='';ui.timerDisplay.style.color='';ui.timerDisplay.style.webkitTextStrokeColor='';ui.roundFocus.classList.remove('surprise-task-mode');}
         function setSurpriseTimerColour(inCountdown){ui.timerDisplay.style.color=inCountdown?'#ef4444':'#6b7280';}
 
         // ── STATS & SUMMARY ──
         function calcStats(data,person,peakInfo,recoveries){if(data.length<2)return null;const bpms=data.map(d=>d.bpm),avg=Math.round(bpms.reduce((a,b)=>a+b,0)/bpms.length),totalSecs=data[data.length-1].t-data[0].t;let cals=0;for(let i=1;i<data.length;i++){const dt=(data[i].t-data[i-1].t)/60,hr=(data[i].bpm+data[i-1].bpm)/2;let cm;if(person.sex==='male')cm=(-55.0969+0.6309*hr+0.1988*person.weight+0.2017*person.age)/4.184;else cm=(-20.4022+0.4472*hr-0.1263*person.weight+0.074*person.age)/4.184;cals+=Math.min(Math.max(0,cm),20)*dt;}const zones=[0,0,0,0,0];for(let i=1;i<data.length;i++){const dt=data[i].t-data[i-1].t,hr=(data[i].bpm+data[i-1].bpm)/2,pct=hr/person.hrMax;let z=0;if(pct>=0.9)z=4;else if(pct>=0.8)z=3;else if(pct>=0.7)z=2;else if(pct>=0.6)z=1;zones[z]+=dt;}const avgRec=recoveries.length>0?Math.round(recoveries.reduce((a,b)=>a+b,0)/recoveries.length):null;return{avg,peak:peakInfo.bpm,peakRound:peakInfo.round,cals:Math.round(cals),zones,totalMins:Math.round(totalSecs/60),avgRecovery:avgRec};}
         function fmtZoneTime(s){const m=Math.floor(s/60),sc=Math.round(s%60);return m>0?`${m}m${sc>0?sc+'s':''}`:`${sc}s`;}
-        function buildSummaryCard(data,person,label,color,tintBg,chartId,peakInfo,recoveries,wR,rR){const stats=calcStats(data,person,peakInfo,recoveries);if(!stats)return '';const tZ=stats.zones.reduce((a,b)=>a+b,0)||1;let zB='';stats.zones.forEach((s,i)=>{const p=(s/tZ)*100;if(p>0)zB+=`<div class="zone-segment rounded-sm" style="width:${p}%;background:${ZONE_COLORS[i]};">${p>8?fmtZoneTime(s):''}</div>`;});const wM=Math.floor(wR/60),wS=wR%60,rM=Math.floor(rR/60),rS=rR%60;let sr=`<div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.cals}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">kcal</div></div><div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.avg}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Avg bpm</div></div><div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.peak}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Peak (R${stats.peakRound})</div></div>`;if(stats.avgRecovery!==null)sr+=`<div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">-${stats.avgRecovery}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Avg Recovery (bpm)</div></div>`;const gridCls=stats.avgRecovery!==null?'grid-cols-4':'grid-cols-3';return `<div class="p-4 rounded-2xl space-y-3" style="background:${tintBg};border:1px solid rgba(255,255,255,0.08);"><div class="flex justify-between items-center"><p class="text-[10px] font-bold uppercase tracking-widest" style="color:${color}">${label}</p><span class="text-[9px] text-slate-500">Work ${wM}:${wS.toString().padStart(2,'0')} | Rest ${rM}:${rS.toString().padStart(2,'0')}</span></div><div class="grid ${gridCls} gap-1.5">${sr}</div><div><div class="flex items-center justify-between mb-1"><span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Zones</span><span class="text-[9px] text-slate-500">${stats.totalMins} min</span></div><div class="flex rounded-lg overflow-hidden">${zB}</div><div class="flex justify-between mt-1">${ZONE_NAMES.map((n,i)=>`<span class="text-[8px] font-bold" style="color:${ZONE_COLORS[i]}">${n}</span>`).join('')}</div></div><canvas id="${chartId}" class="summary-chart rounded-lg" height="120" style="width:100%;display:block;"></canvas></div>`;}
-        function drawSummaryChart(cId,data,hrMax,color){const cv=document.getElementById(cId);if(!cv)return;const ctx=cv.getContext('2d');cv.width=cv.offsetWidth*2;cv.height=240;const w=cv.width,h=cv.height,pad={top:15,right:45,bottom:25,left:38},cw=w-pad.left-pad.right,ch=h-pad.top-pad.bottom;ctx.clearRect(0,0,w,h);if(data.length<2)return;const bpms=data.map(d=>d.bpm),minB=Math.floor((Math.min(...bpms)-10)/10)*10,maxB=Math.ceil((Math.max(...bpms)+10)/10)*10,bR=maxB-minB||1,maxT=data[data.length-1].t;const axisFont=Math.max(10,Math.round(w*0.022))+'px Space Mono',timeFont=Math.max(9,Math.round(w*0.018))+'px Space Mono';for(let pct=10;pct<=100;pct+=10){const bpm=hrMax*(pct/100);if(bpm<minB||bpm>maxB)continue;const y=pad.top+ch-(bpm-minB)/bR*ch;ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();ctx.fillStyle='#64748b';ctx.font=axisFont;ctx.textAlign='right';ctx.fillText(Math.round(bpm),pad.left-6,y+5);ctx.textAlign='left';ctx.fillText(pct+'%',pad.left+cw+6,y+5);}const tS=maxT>300?60:30;for(let t=0;t<=maxT;t+=tS){const x=pad.left+(t/maxT)*cw;ctx.fillStyle='#64748b';ctx.font=timeFont;ctx.textAlign='center';ctx.fillText(`${Math.floor(t/60)}:${Math.floor(t%60).toString().padStart(2,'0')}`,x,h-4);}let pR=0;ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.setLineDash([3,3]);ctx.lineWidth=1;data.forEach(d=>{if(d.round!==pR&&d.phase==='work'){const x=pad.left+(d.t/maxT)*cw;ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+ch);ctx.stroke();pR=d.round;}});ctx.setLineDash([]);ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';data.forEach((d,i)=>{const x=pad.left+(d.t/maxT)*cw,y=pad.top+ch-(d.bpm-minB)/bR*ch;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();}
-        function showSummary(){const hY=hrHistoryYou.length>=2,hW=hrHistoryWife.length>=2;if(!hY&&!hW){showScreen('setup');return;}const ds=Math.round((Date.now()-sessionStartTime)/1000),dM=Math.floor(ds/60),dS=ds%60;document.getElementById('summary-duration').innerText=`${dM}:${dS.toString().padStart(2,'0')} total`;document.getElementById('summary-you').innerHTML=hY?buildSummaryCard(hrHistoryYou,YOU,'You','#4ade80','rgba(22,101,52,0.2)','chart-you',peakHRYou,recoveryDropsYou,workSecsTotal,restSecsTotal):'';document.getElementById('summary-wife').innerHTML=hW?buildSummaryCard(hrHistoryWife,WIFE,'Ash','#c084fc','rgba(107,33,168,0.2)','chart-wife',peakHRWife,recoveryDropsWife,workSecsTotal,restSecsTotal):'';showScreen('summary');setTimeout(()=>{if(hY)drawSummaryChart('chart-you',hrHistoryYou,YOU.hrMax,'#4ade80');if(hW)drawSummaryChart('chart-wife',hrHistoryWife,WIFE.hrMax,'#c084fc');},80);}
+        function buildSummaryCard(data,person,label,color,tintBg,chartId,peakInfo,recoveries,wR,rR){const stats=calcStats(data,person,peakInfo,recoveries);if(!stats)return '';const tZ=stats.zones.reduce((a,b)=>a+b,0)||1;let zB='';stats.zones.forEach((s,i)=>{const p=(s/tZ)*100;if(p>0)zB+=`<div class="zone-segment rounded-sm" style="width:${p}%;background:${ZONE_COLORS[i]};">${p>8?fmtZoneTime(s):''}</div>`;});const wM=Math.floor(wR/60),wS=wR%60,rM=Math.floor(rR/60),rS=rR%60;let sr=`<div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.cals}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">kcal</div></div><div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.avg}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Avg bpm</div></div><div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.peak}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Peak bpm</div></div>`;return `<div class="p-4 rounded-2xl space-y-3" style="background:${tintBg};border:1px solid rgba(255,255,255,0.08);"><div class="flex justify-between items-center"><p class="text-[10px] font-bold uppercase tracking-widest" style="color:${color}">${label}</p><span class="text-[9px] text-slate-500">Work ${wM}:${wS.toString().padStart(2,'0')} | Rest ${rM}:${rS.toString().padStart(2,'0')}</span></div><div class="grid grid-cols-3 gap-1.5">${sr}</div><div><div class="flex items-center justify-between mb-1"><span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Zones</span><span class="text-[9px] text-slate-500">${stats.totalMins} min</span></div><div class="flex rounded-lg overflow-hidden">${zB}</div><div class="flex justify-between mt-1">${ZONE_NAMES.map((n,i)=>`<span class="text-[8px] font-bold" style="color:${ZONE_COLORS[i]}">${n}</span>`).join('')}</div></div><canvas id="${chartId}" class="summary-chart rounded-lg" height="120" style="width:100%;display:block;"></canvas></div>`;}
+        function drawSummaryChart(cId,data,hrMax,color){const cv=document.getElementById(cId);if(!cv)return;const ctx=cv.getContext('2d');cv.width=cv.offsetWidth*2;cv.height=240;const w=cv.width,h=cv.height,pad={top:15,right:45,bottom:25,left:38},cw=w-pad.left-pad.right,ch=h-pad.top-pad.bottom;ctx.clearRect(0,0,w,h);if(data.length<2)return;const bpms=data.map(d=>d.bpm),minB=Math.floor((Math.min(...bpms)-10)/10)*10,maxB=Math.ceil((Math.max(...bpms)+10)/10)*10,bR=maxB-minB||1,maxT=data[data.length-1].t;const axisFont=Math.max(10,Math.round(w*0.022))+'px Space Mono',timeFont=Math.max(9,Math.round(w*0.018))+'px Space Mono';for(let pct=10;pct<=100;pct+=10){const bpm=hrMax*(pct/100);if(bpm<minB||bpm>maxB)continue;const y=pad.top+ch-(bpm-minB)/bR*ch;ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();ctx.fillStyle='#64748b';ctx.font=axisFont;ctx.textAlign='right';ctx.fillText(Math.round(bpm),pad.left-6,y+5);ctx.textAlign='left';ctx.fillText(pct+'%',pad.left+cw+6,y+5);}let pR=0;const roundStarts=[];ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.setLineDash([3,3]);ctx.lineWidth=1;data.forEach(d=>{if(d.round!==pR&&d.phase==='work'){const x=pad.left+(d.t/maxT)*cw;ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+ch);ctx.stroke();roundStarts.push({round:d.round,x});pR=d.round;}});ctx.setLineDash([]);ctx.fillStyle='#64748b';ctx.font=timeFont;ctx.textAlign='center';roundStarts.forEach((rs,i)=>{const nextX=(i<roundStarts.length-1)?roundStarts[i+1].x:pad.left+cw;const midX=(rs.x+nextX)/2;ctx.fillText('R'+rs.round,midX,h-4);});ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';data.forEach((d,i)=>{const x=pad.left+(d.t/maxT)*cw,y=pad.top+ch-(d.bpm-minB)/bR*ch;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();}
+        function showSummary(){const hY=hrHistoryYou.length>=2,hW=hrHistoryWife.length>=2;if(!hY&&!hW){showScreen('setup');setMode(prevMode);return;}const ds=Math.round((Date.now()-sessionStartTime)/1000),dM=Math.floor(ds/60),dS=ds%60;document.getElementById('summary-duration').innerText=`${dM}:${dS.toString().padStart(2,'0')} total`;const isW=settings.mode==='wife';const wYou=isW?workSecsYou:workSecsTotal;const rYou=isW?restSecsYou:restSecsTotal;const wWife=workSecsWife;const rWife=restSecsWife;document.getElementById('summary-you').innerHTML=hY?buildSummaryCard(hrHistoryYou,YOU,'You','#4ade80','rgba(22,101,52,0.2)','chart-you',peakHRYou,recoveryDropsYou,wYou,rYou):'';document.getElementById('summary-wife').innerHTML=(isW&&hW)?buildSummaryCard(hrHistoryWife,WIFE,'Ash','#c084fc','rgba(107,33,168,0.2)','chart-wife',peakHRWife,recoveryDropsWife,wWife,rWife):'';showScreen('summary');setTimeout(()=>{if(hY)drawSummaryChart('chart-you',hrHistoryYou,YOU.hrMax,'#4ade80');if(hW)drawSummaryChart('chart-wife',hrHistoryWife,WIFE.hrMax,'#c084fc');},80);}
         document.getElementById('btn-summary-save').onclick=async()=>{const el=document.getElementById('summary-capture');if(typeof html2canvas==='undefined'){const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';document.head.appendChild(s);await new Promise((res,rej)=>{s.onload=res;s.onerror=rej;});}const cvs=el.querySelectorAll('canvas'),sw=[];cvs.forEach(c=>{const img=document.createElement('img');img.src=c.toDataURL('image/png');img.style.cssText=c.style.cssText;img.className=c.className;img.width=c.offsetWidth;img.height=c.offsetHeight;c.parentNode.replaceChild(img,c);sw.push({img,canvas:c,parent:img.parentNode});});try{const cv=await html2canvas(el,{backgroundColor:'#0f172a',scale:2,useCORS:true});const lk=document.createElement('a');lk.download=`boxing-session-${new Date().toISOString().slice(0,10)}.png`;lk.href=cv.toDataURL('image/png');lk.click();}catch(e){console.error('Save failed:',e);}sw.forEach(s=>s.parent.replaceChild(s.canvas,s.img));};
         document.getElementById('btn-summary-done').onclick=()=>{showScreen('setup');setMode(prevMode);};
 
@@ -414,14 +454,14 @@
         // ── GYM ──
         function pickExercises(day){let pool;if(day==='upper')pool=[...GYM_EXERCISES.push,...GYM_EXERCISES.pull];else if(day==='lower')pool=[...GYM_EXERCISES.legs];else pool=[...GYM_EXERCISES[day]];const compounds=shuffle(pool.filter(e=>e.type==='compound'));const isolations=shuffle(pool.filter(e=>e.type==='isolation'));const picked=[];if(day==='upper'){const pushC=shuffle(compounds.filter(e=>e.group==='push'));const pullC=shuffle(compounds.filter(e=>e.group==='pull'));if(pushC.length)picked.push(pushC[0]);if(pullC.length)picked.push(pullC[0]);const rest=shuffle(compounds.filter(e=>!picked.includes(e)));while(picked.length<3&&rest.length)picked.push(rest.shift());}else if(day==='lower'){const quadC=shuffle(compounds.filter(e=>e.group==='quad'));const hipC=shuffle(compounds.filter(e=>e.group==='hip'));if(quadC.length)picked.push(quadC[0]);if(hipC.length)picked.push(hipC[0]);const rest=shuffle(compounds.filter(e=>!picked.includes(e)));while(picked.length<3&&rest.length)picked.push(rest.shift());}else{while(picked.length<3&&compounds.length)picked.push(compounds.shift());}const isoPool=shuffle(isolations.filter(e=>!picked.includes(e)));while(picked.length<5&&isoPool.length)picked.push(isoPool.shift());return picked;}
         function pickCoreExercises(){return shuffle([...CORE_EXERCISES]).slice(0,2);}
-        function renderGymWorkout(day){currentGymDay=day;ui.gymDayLabel.innerText=DAY_LABELS[day];const ex=pickExercises(day);const addCore=document.getElementById('in-finisher').checked;const core=addCore?pickCoreExercises():[];const all=[...ex,...core];ui.gymExerciseList.innerHTML='';all.forEach((e,i)=>{const isCore=i>=ex.length;const c=document.createElement('div');c.className='exercise-card gym-card flex items-center bg-slate-800/50 border border-slate-700/30'+(isCore?' core-card':'');c.style.animationDelay=`${i*0.08}s`;const label=isCore?'C'+(i-ex.length+1):(i+1);c.innerHTML=`<div class="gym-card-num bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0"><span class="text-blue-400 font-black font-mono-display">${label}</span></div><div><span class="gym-card-name font-bold text-white block">${e.name}</span><span class="gym-card-muscle text-slate-400 uppercase tracking-wider">${e.muscle}</span></div>`;c.onclick=()=>{c.classList.toggle('done');haptic(30);};ui.gymExerciseList.appendChild(c);});document.getElementById('gym-rest-timer').classList.remove('hidden');clearGymRest();showScreen('gymWorkout');}
+        function renderGymWorkout(day){currentGymDay=day;ui.gymDayLabel.innerText=DAY_LABELS[day];const ex=pickExercises(day);const core=pickCoreExercises();const all=[...ex,...core];ui.gymExerciseList.innerHTML='';all.forEach((e,i)=>{const isCore=i>=ex.length;const c=document.createElement('div');c.className='exercise-card gym-card flex items-center bg-slate-800/50 border border-slate-700/30'+(isCore?' core-card':'');c.style.animationDelay=`${i*0.08}s`;const label=isCore?'C'+(i-ex.length+1):(i+1);c.innerHTML=`<div class="gym-card-num bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0"><span class="text-blue-400 font-black font-mono-display">${label}</span></div><div><span class="gym-card-name font-bold text-white block">${e.name}</span><span class="gym-card-muscle text-slate-400 uppercase tracking-wider">${e.muscle}</span></div>`;c.onclick=()=>{c.classList.toggle('done');haptic(30);};ui.gymExerciseList.appendChild(c);});clearGymRest();showScreen('gymWorkout');}
         document.querySelectorAll('.gym-day-btn').forEach(b=>{b.onclick=()=>renderGymWorkout(b.dataset.day);});
         document.getElementById('btn-gym-shuffle').onclick=()=>{if(currentGymDay)renderGymWorkout(currentGymDay);};
         const gymRestDisplay=document.getElementById('gym-rest-display'),gymRestToggle=document.getElementById('btn-gym-rest-toggle');
         document.querySelectorAll('.gym-rest-pick').forEach(b=>{b.onclick=()=>{if(gymRestRunning)return;gymRestSecs=parseInt(b.dataset.secs);gymRestDisplay.innerText=gymRestSecs;document.querySelectorAll('.gym-rest-pick').forEach(x=>{x.classList.remove('bg-blue-600','text-white','border-blue-500');x.classList.add('bg-slate-800/50','border-slate-700/30');});b.classList.remove('bg-slate-800/50','border-slate-700/30');b.classList.add('bg-blue-600','text-white','border-blue-500');};});
         let gymRestCurrent=0;
-        gymRestToggle.onclick=()=>{if(gymRestRunning){clearGymRest();return;}initAudio();playSoftBeep();haptic(50);gymRestRunning=true;gymRestCurrent=gymRestSecs;gymRestDisplay.innerText=gymRestCurrent;gymRestToggle.innerText='Cancel';gymRestToggle.classList.remove('bg-blue-600','hover:bg-blue-500');gymRestToggle.classList.add('bg-red-600','hover:bg-red-500');gymRestTimer=setInterval(()=>{gymRestCurrent--;gymRestDisplay.innerText=Math.max(0,gymRestCurrent);if(gymRestCurrent<=3&&gymRestCurrent>0)playBeep(gymRestCurrent===1);if(gymRestCurrent<=0){playBell();clearGymRest();}},1000);};
-        function clearGymRest(){if(gymRestTimer)clearInterval(gymRestTimer);gymRestTimer=null;gymRestRunning=false;gymRestDisplay.innerText=gymRestSecs;gymRestToggle.innerText='Start Rest';gymRestToggle.classList.remove('bg-red-600','hover:bg-red-500');gymRestToggle.classList.add('bg-blue-600','hover:bg-blue-500');}
+        gymRestToggle.onclick=()=>{if(gymRestRunning){clearGymRest();return;}initAudio();playSoftBeep();haptic(50);gymRestRunning=true;gymRestCurrent=gymRestSecs;gymRestDisplay.innerText=gymRestCurrent;gymRestToggle.innerText='Cancel';gymRestToggle.classList.remove('bg-green-700','hover:bg-green-600');gymRestToggle.classList.add('bg-red-600','hover:bg-red-500');gymRestTimer=setInterval(()=>{gymRestCurrent--;gymRestDisplay.innerText=Math.max(0,gymRestCurrent);if(gymRestCurrent<=3&&gymRestCurrent>0)playBeep(gymRestCurrent===1);if(gymRestCurrent<=0){playBell();clearGymRest();}},1000);};
+        function clearGymRest(){if(gymRestTimer)clearInterval(gymRestTimer);gymRestTimer=null;gymRestRunning=false;gymRestDisplay.innerText=gymRestSecs;gymRestToggle.innerText='Start Rest';gymRestToggle.classList.remove('bg-red-600','hover:bg-red-500');gymRestToggle.classList.add('bg-green-700','hover:bg-green-600');}
 
         // ── BOXING SETUP ──
         const format=s=>Math.max(0,s).toString();
@@ -434,10 +474,27 @@
         window.selectWork=(n,el)=>{settings.work=n;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
         window.selectSurprise=(n,el)=>{settings.surpriseCount=n;Array.from(document.getElementById('grid-surprise').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
         window.selectSurpriseB2=(n,el)=>{settings.surpriseCountB2=n;Array.from(document.getElementById('grid-surprise-b2').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
-        window.selectBlocks=(n,el)=>{settings.blocks=n;document.getElementById('btn-block-1').classList.toggle('active',n===1);document.getElementById('btn-block-2').classList.toggle('active',n===2);document.getElementById('block2-options').classList.toggle('hidden',n===1);generateSessionPlan();};
+        function updateB2Summary(){const restLabel=settings.blockRestSecs>=60?Math.floor(settings.blockRestSecs/60)+'m':settings.blockRestSecs+'s';document.getElementById('b2-summary-text').innerText=`${settings.roundsB2} rds, ${restLabel} rest, ${settings.surpriseCountB2} surprise`;}
+        window.selectBlocks=(n,el)=>{settings.blocks=n;document.getElementById('btn-block-1').classList.toggle('active',n===1);document.getElementById('btn-block-2').classList.toggle('active',n===2);document.getElementById('block2-inline-summary').classList.toggle('hidden',n===1);if(n===2){updateB2Summary();document.getElementById('block2-modal').classList.remove('hidden');}generateSessionPlan();};
+        document.getElementById('btn-b2-edit').onclick=()=>document.getElementById('block2-modal').classList.remove('hidden');
+        document.getElementById('btn-b2-close').onclick=()=>{document.getElementById('block2-modal').classList.add('hidden');updateB2Summary();};
+        document.getElementById('btn-b2-done').onclick=()=>{document.getElementById('block2-modal').classList.add('hidden');updateB2Summary();};
+        document.getElementById('btn-b2-back').onclick=()=>{document.getElementById('block2-modal').classList.add('hidden');selectBlocks(1,document.getElementById('btn-block-1'));};
         window.selectBlockRest=(s,el)=>{settings.blockRestSecs=s;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
 
         function autoSizeFocus(t){const l=t.length;if(l>30)ui.roundFocus.style.fontSize='clamp(1rem,3dvh,1.4rem)';else if(l>20)ui.roundFocus.style.fontSize='clamp(1.1rem,3.5dvh,1.8rem)';else ui.roundFocus.style.fontSize='clamp(1.2rem,4.5dvh,2.2rem)';}
+        function styledRoundName(name){
+            const emphMatch=name.match(/\s*\((Speed|Power)\)$/);
+            let base=emphMatch?name.replace(/\s*\((Speed|Power)\)$/,''):name;
+            const arrow='<span style="color:#4b5563">&gt;</span>';
+            const parts=base.split(/\s*>\s*/);
+            let result;
+            if(parts.length===4){result=parts[0]+' '+arrow+' '+parts[1]+' '+arrow+'<br>'+parts[2]+' '+arrow+' '+parts[3];}
+            else{result=parts.join(' '+arrow+' ');}
+            if(emphMatch){const col=emphMatch[1]==='Speed'?'#4ade80':'#dc2626';result+='<br><span style="font-size:0.75em">(<span style="color:'+col+'">'+emphMatch[1]+'</span>)</span>';}
+            return result;
+        }
+        function styledRoundNameInline(name){return name.replace(/>/g,'<span style="color:#4b5563">&gt;</span>').replace(/\(Speed\)/g,'(<span style="color:#4ade80">Speed</span>)').replace(/\(Power\)/g,'(<span style="color:#dc2626">Power</span>)');}
 
         function setMode(mode){
             settings.mode=mode;if(mode!=='quick-rest')prevMode=mode;
@@ -447,13 +504,13 @@
                 hrYouLabel.innerText=mode==='wife'?"Liam's HR":"Heart Rate Monitor";
             }
             if(mode==='solo'){
-                ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-green-600 text-white shadow-md";
+                ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-green-600 text-white";
                 ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
                 ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p>`;
                 root.style.setProperty('--theme-color','#3b82f6');root.style.setProperty('--theme-shadow','rgba(59,130,246,0.4)');
                 ui.toggleBg.classList.remove('peer-checked:bg-purple-600');ui.toggleBg.classList.add('peer-checked:bg-green-600');
             }else if(mode==='wife'){
-                ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white shadow-md";
+                ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white";
                 ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
                 ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-purple-300 font-bold uppercase tracking-widest">Partner Mode</p><p class="text-[10px] sm:text-xs text-slate-400">2x Rounds. 10s changeover.</p>`;
                 root.style.setProperty('--theme-color','#a855f7');root.style.setProperty('--theme-shadow','rgba(168,85,247,0.4)');
@@ -465,21 +522,44 @@
         ui.inRandom.onchange=e=>{settings.randomiseMiddle=e.target.checked;generateSessionPlan();};
 
         // ── SESSION PLAN ──
+        function getEmphasis(r){if(r.name.includes('(Speed)'))return 'speed';if(r.name.includes('(Power)'))return 'power';return null;}
+        function emphasisStreak(plan){if(plan.length<2)return 0;const e=getEmphasis(plan[plan.length-1]);if(!e)return 0;let streak=1;for(let i=plan.length-2;i>=0;i--){if(getEmphasis(plan[i])===e)streak++;else break;}return streak;}
         function buildPlan(numRounds){
-            const plan=[];let tp=[...ROUND_POOL];
-            for(let i=0;i<numRounds;i++){
-                let r=null;const isF=(i===0),isL=(i===numRounds-1),kFL=numRounds>6;
-                if(settings.randomiseMiddle){if(kFL&&isF)r=PROGRAM_12_ROUNDS[0];else if(kFL&&isL)r=PROGRAM_12_ROUNDS[11];else{if(tp.length===0)tp=[...ROUND_POOL];const x=Math.floor(Math.random()*tp.length);r=tp[x];tp.splice(x,1);}}
-                else{r=PROGRAM_12_ROUNDS[i%PROGRAM_12_ROUNDS.length];}
-                plan.push(r);
+            const plan=[];const usedFamilies=new Set();
+            if(settings.randomiseMiddle){
+                const kFL=numRounds>6;
+                for(let i=0;i<numRounds;i++){
+                    const isF=(i===0),isL=(i===numRounds-1);
+                    if(kFL&&isF){plan.push(PROGRAM_12_ROUNDS[0]);continue;}
+                    if(kFL&&isL){const last=PROGRAM_12_ROUNDS[11];plan.push(last);usedFamilies.add(last.family);continue;}
+                    const prevCat=plan.length>0?plan[plan.length-1].cat:null;
+                    const streak=emphasisStreak(plan);
+                    const blockedEmph=streak>=2?getEmphasis(plan[plan.length-1]):null;
+                    const emphOk=r=>!blockedEmph||getEmphasis(r)!==blockedEmph;
+                    // prefer unused families AND different category AND emphasis ok
+                    let candidates=ROUND_POOL.filter(r=>!usedFamilies.has(r.family)&&r.cat!==prevCat&&emphOk(r));
+                    // relax: allow same category
+                    if(candidates.length===0)candidates=ROUND_POOL.filter(r=>!usedFamilies.has(r.family)&&emphOk(r));
+                    // relax: allow used families but still avoid same category and respect emphasis
+                    if(candidates.length===0)candidates=ROUND_POOL.filter(r=>r.cat!==prevCat&&emphOk(r));
+                    // relax: just respect emphasis
+                    if(candidates.length===0)candidates=ROUND_POOL.filter(r=>emphOk(r));
+                    // final fallback
+                    if(candidates.length===0)candidates=[...ROUND_POOL];
+                    const x=Math.floor(Math.random()*candidates.length);
+                    const pick=candidates[x];
+                    plan.push(pick);usedFamilies.add(pick.family);
+                }
+            }else{
+                for(let i=0;i<numRounds;i++){plan.push(PROGRAM_12_ROUNDS[i%PROGRAM_12_ROUNDS.length]);}
             }
-            if(!plan.some(r=>r.name==='Hooks Only')){const s=numRounds>6?1:0,e=numRounds>6?numRounds-1:numRounds;if(e>s){const slot=s+Math.floor(Math.random()*(e-s));plan[slot]=HOOKS_ONLY_ENTRY;}}
+            if(!plan.some(r=>r.family==='hooks')){const s=numRounds>6?1:0,e=numRounds>6?numRounds-1:numRounds;if(e>s){const slot=s+Math.floor(Math.random()*(e-s));plan[slot]=HOOKS_ONLY_ENTRIES[Math.floor(Math.random()*HOOKS_ONLY_ENTRIES.length)];}}
             return plan;
         }
         function generateSessionPlan(){session.plan=buildPlan(settings.rounds);session.planB2=settings.blocks===2?buildPlan(settings.roundsB2):[];updatePreview();}
-        function updatePreview(){ui.previewList.innerHTML='';for(let i=0;i<settings.rounds;i++){const rd=session.plan[i],rn=i+1,cc=settings.mode==='wife'?"text-purple-300":"text-slate-300";const d=document.createElement('div');d.className="text-[9px] sm:text-[10px] py-1.5 px-2 rounded bg-slate-800/40 border border-slate-700/50";d.innerHTML=`<span class="font-bold ${cc} truncate block">${rn}. ${rd.name}</span>`;ui.previewList.appendChild(d);}}
+        function updatePreview(){ui.previewList.innerHTML='';for(let i=0;i<settings.rounds;i++){const rd=session.plan[i],rn=i+1,cc=settings.mode==='wife'?"text-purple-300":"text-slate-300";const d=document.createElement('div');d.className="text-[8px] sm:text-[9px] py-1 px-1.5 rounded bg-slate-800/40 border border-slate-700/50";d.innerHTML=`<span class="font-bold ${cc} truncate block">${rn}. ${styledRoundNameInline(rd.name)}</span>`;ui.previewList.appendChild(d);}}
         function pickSurpriseIndices(count,total){const pool=[];for(let i=1;i<total-1;i++)pool.push(i);for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}return new Set(pool.slice(0,Math.min(count,pool.length)));}
-        function setNextUp(content,red=false){if(!content){ui.nextUp.innerHTML='';return;}const col=red?'style="color:#ef4444"':'';ui.nextUp.innerHTML=`<span class="next-label" ${col}>NEXT:</span><span class="next-content" ${col}>${content}</span>`;}
+        function setNextUp(content,color=false){if(!content){ui.nextUp.innerHTML='';return;}const col=color==='black'?'style="color:#000000;-webkit-text-stroke:0"':color?'style="color:#ef4444"':'';const styled=styledRoundName(content);const label=color==='black'?'':'<span class="next-label" '+col+'>NEXT:</span>';ui.nextUp.innerHTML=`${label}<span class="next-content" ${col}>${styled}</span>`;}
 
         // ── BLOCK HELPERS ──
         function currentPlan(){return session.currentBlock===1?session.plan:session.planB2;}
@@ -498,6 +578,10 @@
             session.phase=phase;session.halfwayPlayed=false;session.last10Played=false;
             ui.timerDisplay.style.color='';ui.timerDisplay.style.webkitTextStrokeColor='';ui.roundFocus.style.webkitTextStrokeColor='';ui.timerBg.classList.remove('rest-pulse');
             if(phase==='work'||phase==='surprise'){hrRoundYou=[];hrRoundWife=[];}
+            // Hide top bar and next-up during surprise for cleaner UI
+            const timerTopEl=document.querySelector('.timer-top');
+            if(phase==='surprise'){timerTopEl.style.display='none';ui.nextUp.style.display='';}
+            else{timerTopEl.style.display='';ui.nextUp.style.display='';}
 
             const isW=settings.mode==='wife';
             const plan=currentPlan();
@@ -510,7 +594,7 @@
 
             if(phase==='ready'){
                 session.time=20;session.total=20;
-                ui.timerBg.className="bg-orange-600";
+                ui.timerBg.className="bg-black";
                 autoSizeFocus("Gloves On");ui.roundFocus.innerText="Gloves On";
                 setNextUp(plan[0]?plan[0].name:'');
             }
@@ -519,18 +603,19 @@
                 if(isFinalRound)playDoubleBell();else playBell();
                 const pi=isW?Math.floor((session.round-1)/2):session.round-1;
                 const rd=plan[pi]||{name:'Round '+absoluteRound,moves:[]};
-                autoSizeFocus(rd.name);ui.roundFocus.innerText=rd.name;
+                autoSizeFocus(rd.name);ui.roundFocus.innerHTML=styledRoundName(rd.name);
                 ui.roundCur.innerText=absoluteRound;
                 ui.roundTot.innerText=totalPlanRounds;
                 setNextUp('');
-                if(isW){ui.timerBg.className=(session.round%2!==0)?"bg-green-600":"bg-purple-600";}
-                else{ui.timerBg.className="bg-green-600";}
+                if(isW){ui.timerBg.className=(session.round%2!==0)?"bg-green-950":"bg-purple-950";}
+                else{ui.timerBg.className="bg-green-950";}
                 speak(`Round ${absoluteRound}, ${rd.name}`);
             }
             else if(phase==='rest'){
                 const dur=settings.restBase+(session.totalPlanRoundsCompleted*5);
                 session.time=dur;session.total=dur;
-                ui.timerBg.className="bg-red-600 rest-pulse";
+                if(isW){ui.timerBg.className="bg-red-600 rest-pulse";}
+                else{ui.timerBg.className="bg-black rest-pulse";}
                 autoSizeFocus("Rest");ui.roundFocus.innerText="Rest";
                 if(session.round<maxRoundsInBlock){
                     const pi=session.round;setNextUp(plan[pi]?plan[pi].name:'');
@@ -541,8 +626,8 @@
             else if(phase==='change'){
                 session.time=10;session.total=10;
                 ui.timerBg.className="bg-black";
-                ui.roundFocus.style.fontSize='clamp(0.8rem,3dvh,1.5rem)';
-                ui.roundFocus.innerText="Change";
+                ui.roundFocus.style.fontSize='clamp(8rem,35dvh,18rem)';
+                ui.roundFocus.innerHTML='&#x21C4;';
                 if(session.round<maxRoundsInBlock){
                     const nn=plan[Math.floor(session.round/2)];
                     setNextUp(nn?nn.name:'');
@@ -571,7 +656,7 @@
                 enterSurpriseColours();setSurpriseTimerColour(true);
                 session.surpriseTask=Math.random()>0.5?"STRAIGHTS":"HOOKS";
                 autoSizeFocus("GET READY");ui.roundFocus.innerText="GET READY";
-                setNextUp(session.surpriseTask,true);
+                setNextUp(session.surpriseTask,'black');
                 playBell();speak("Surprise Round! Get Ready!");
             }
             session.targetEndTime=Date.now()+(session.time*1000);
@@ -592,16 +677,22 @@
                     ui.timerDisplay.innerText=format(t);
                 }
                 ui.timerBg.style.height=`${(t/SURPRISE_TOTAL)*100}%`;
-                if(t<=16&&t>0){ui.timerDisplay.style.color='#ffffff';ui.timerDisplay.style.webkitTextStrokeColor='rgba(255,255,255,1)';}
-                else if(t<=20&&t>16){ui.timerDisplay.style.color='#000000';ui.timerDisplay.style.webkitTextStrokeColor='rgba(255,255,255,1)';}
-                else if(session.phase==='surprise'&&t>20){ui.timerDisplay.style.webkitTextStrokeColor='rgba(0,0,0,1)';}
-                if(t<=23&&t>0){ui.roundFocus.style.webkitTextStrokeColor='rgba(255,255,255,1)';}
-                else if(session.phase==='surprise'&&t>23){ui.roundFocus.style.webkitTextStrokeColor='rgba(0,0,0,1)';}
+                // Timer countdown: transition stroke to white between 23s and 17s
+                if(t<=17&&t>0){ui.timerDisplay.style.color='#ffffff';ui.timerDisplay.style.webkitTextStrokeColor='rgba(255,255,255,1)';}
+                else if(t<=23&&t>17){const p=(23-t)/6;ui.timerDisplay.style.color=`rgba(${Math.round(255*p)},${Math.round(255*p)},${Math.round(255*p)},1)`;ui.timerDisplay.style.webkitTextStrokeColor=`rgba(255,255,255,${p})`;}
+                else if(session.phase==='surprise'&&t>23){ui.timerDisplay.style.webkitTextStrokeColor='rgba(0,0,0,1)';}
+                // Focus text: transition stroke to white between 27s and 24s
+                if(t<=24&&t>0){ui.roundFocus.style.webkitTextStrokeColor='rgba(255,255,255,1)';}
+                else if(t<=27&&t>24){const p=(27-t)/3;ui.roundFocus.style.webkitTextStrokeColor=`rgba(255,255,255,${p})`;}
+                else if(session.phase==='surprise'&&t>27){ui.roundFocus.style.webkitTextStrokeColor='rgba(0,0,0,1)';}
+                // Fade surprise task text from red to black between 27s and 24s remaining
+                if(t<=SURPRISE_WORK&&t<=27&&t>=24){const p=(27-t)/3;const r=Math.round(239*(1-p));const g=Math.round(68*(1-p));const b=Math.round(68*(1-p));ui.roundFocus.style.color=`rgb(${r},${g},${b})`;}
+                else if(t<=SURPRISE_WORK&&t<24){ui.roundFocus.style.color='#000000';}
             }else{
                 ui.timerDisplay.innerText=format(t);
                 ui.timerBg.style.height=`${(t/session.total)*100}%`;
             }
-            if(settings.mode==='quick-rest'){ui.btnPrev.innerText="-10s";ui.btnNext.innerText="+10s";}
+            if(settings.mode==='quick-rest'){ui.btnPrev.innerText="+10s";ui.btnNext.innerText="-10s";}
             else{ui.btnPrev.innerText="\u2190 Prev";ui.btnNext.innerText="Next \u2192";}
         }
 
@@ -634,8 +725,8 @@
         // ── STEP PHASE ──
         function stepPhase(dir){
             if(settings.mode==='quick-rest'){
-                if(dir===1){session.time+=10;session.total=Math.max(session.total,session.time);session.targetEndTime=Date.now()+(session.time*1000);}
-                else{session.time=Math.max(0,session.time-10);session.targetEndTime=Date.now()+(session.time*1000);}
+                if(dir===1){session.time=Math.max(0,session.time-10);session.targetEndTime=Date.now()+(session.time*1000);}
+                else{session.time+=10;session.total=Math.max(session.total,session.time);session.targetEndTime=Date.now()+(session.time*1000);}
                 updateUI();return;
             }
             const isW=settings.mode==='wife';
@@ -732,7 +823,7 @@
             hrHistoryYou=[];hrHistoryWife=[];hrRoundYou=[];hrRoundWife=[];
             endOfWorkHRYou=null;endOfWorkHRWife=null;recoveryDropsYou=[];recoveryDropsWife=[];
             peakHRYou={bpm:0,round:0};peakHRWife={bpm:0,round:0};
-            workSecsTotal=0;restSecsTotal=0;phaseStartWall=0;
+            workSecsTotal=0;restSecsTotal=0;workSecsYou=0;workSecsWife=0;restSecsYou=0;restSecsWife=0;phaseStartWall=0;
             sessionStartTime=Date.now();prevMode=settings.mode;
             showScreen('timer');
             session.round=1;session.active=true;session.currentBlock=1;
