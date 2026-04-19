@@ -771,17 +771,47 @@
                 showBleToast(who);
             });
         }
-        // HR button click: toggle connect/disconnect.
-        btnHrYou.onclick=()=>{if(hrDeviceYou&&hrDeviceYou.gatt.connected)hrDeviceYou.gatt.disconnect();else connectHR('you');};
-        btnHrWife.onclick=()=>{if(hrDeviceWife&&hrDeviceWife.gatt.connected)hrDeviceWife.gatt.disconnect();else connectHR('wife');};
+        // HR button click: toggle connect/disconnect. Guard against being invoked when
+        // the browser has no Web Bluetooth support (Firefox) - the setup section is hidden
+        // in that case, but a defensive check avoids a throw if the buttons are ever shown.
+        btnHrYou.onclick=()=>{if(!hasBLE)return;if(hrDeviceYou&&hrDeviceYou.gatt.connected)hrDeviceYou.gatt.disconnect();else connectHR('you');};
+        btnHrWife.onclick=()=>{if(!hasBLE)return;if(hrDeviceWife&&hrDeviceWife.gatt.connected)hrDeviceWife.gatt.disconnect();else connectHR('wife');};
         // Show/hide the live HR badges on the timer screen based on which devices are connected.
         function updateHRVisibility(){hrLiveYou.classList.toggle('hidden',!(hrDeviceYou&&hrDeviceYou.gatt.connected));hrLiveWife.classList.toggle('hidden',!(hrDeviceWife&&hrDeviceWife.gatt.connected));}
         // Ephemeral top toast for BLE disconnect - only shows during active session.
-        function showBleToast(who){if(!session.active)return;const name=who==='you'?(settings.mode==='wife'?"Liam's":"HR"):"Ash's";const toast=document.getElementById('ble-toast');toast.innerText='\u26A0\uFE0F '+name+' HR monitor disconnected';toast.classList.remove('hidden');setTimeout(()=>toast.classList.add('hidden'),4000);}
+        // Label logic: in Wife mode use the person's name; in Solo mode just say "HR monitor disconnected"
+        // without a redundant "HR" prefix.
+        function showBleToast(who){
+            if(!session.active)return;
+            let msg;
+            if(who==='you'){msg=settings.mode==='wife'?"Liam's HR monitor disconnected":"HR monitor disconnected";}
+            else{msg="Ash's HR monitor disconnected";}
+            const toast=document.getElementById('ble-toast');
+            toast.innerText='\u26A0\uFE0F '+msg;
+            toast.classList.remove('hidden');
+            setTimeout(()=>toast.classList.add('hidden'),4000);
+        }
 
         // Draw a rolling-60-reading HR sparkline onto the small canvas in the live
         // HR badge. Auto-scales to the visible range +- 5bpm for readable variation.
-        function drawSpark(c,data,color){const ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);const slice=data.length>60?data.slice(-60):data;if(slice.length<2)return;const b=slice.map(d=>d.bpm),mn=Math.min(...b)-5,mx=Math.max(...b)+5,rg=mx-mn||1;ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.lineJoin='round';const s=w/(slice.length-1);slice.forEach((d,i)=>{const x=i*s,y=h-((d.bpm-mn)/rg)*h;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();}
+        // Canvas buffer is sized from the CSS-displayed size * devicePixelRatio so the
+        // sparkline renders crisply instead of being stretched from the default 300x150.
+        function drawSpark(c,data,color){
+            const dpr=window.devicePixelRatio||1;
+            const cssW=c.offsetWidth||90,cssH=c.offsetHeight||24;
+            // Only resize the backing store if it's changed (clears the canvas when it does).
+            const targetW=Math.round(cssW*dpr),targetH=Math.round(cssH*dpr);
+            if(c.width!==targetW||c.height!==targetH){c.width=targetW;c.height=targetH;}
+            const ctx=c.getContext('2d'),w=c.width,h=c.height;
+            ctx.clearRect(0,0,w,h);
+            const slice=data.length>60?data.slice(-60):data;
+            if(slice.length<2)return;
+            const b=slice.map(d=>d.bpm),mn=Math.min(...b)-5,mx=Math.max(...b)+5,rg=mx-mn||1;
+            ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.5*dpr;ctx.lineJoin='round';
+            const s=w/(slice.length-1);
+            slice.forEach((d,i)=>{const x=i*s,y=h-((d.bpm-mn)/rg)*h;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+            ctx.stroke();
+        }
 
         // ── AUDIO ───────────────────────────────────────────────────────────────
         // All sound synthesised via Web Audio API oscillators - no sample files,
@@ -856,6 +886,18 @@
         // (OS behaviour), re-acquired on visibilitychange back to visible.
         async function reacquireWakeLock(){if(session.active&&!session.paused&&document.visibilityState==='visible'){try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}}}
         document.addEventListener('visibilitychange',reacquireWakeLock);
+        // Background tabs throttle setInterval heavily (Chrome mobile: >1min possible),
+        // so on return-to-foreground the next tick can lag several seconds. Force an
+        // immediate UI refresh using the wall-clock targetEndTime so the display catches
+        // up without waiting for the delayed interval fire. run() itself is drift-resistant;
+        // this just smooths the visual gap.
+        document.addEventListener('visibilitychange',()=>{
+            if(document.visibilityState==='visible'&&session.active&&!session.paused){
+                const remaining=Math.round((session.targetEndTime-Date.now())/1000);
+                session.time=remaining;
+                updateUI();
+            }
+        });
 
         // ── SURPRISE VISUAL STATE ───────────────────────────────────────────────
         // Surprise rounds flip the whole screen to white background with red text,
@@ -1720,6 +1762,12 @@
                     return;
                 }
                 // From rest/change/surprise, Prev jumps back into the current work round.
+                // Note: when stepping back from 'surprise', the corresponding index in
+                // currentTriggeredYou/Wife() is intentionally NOT cleared. This is so
+                // the surprise does not immediately re-fire when the user re-advances
+                // past the same work round (a doom-loop). The trade-off is that a user
+                // who Prevs out of a surprise cannot retrigger the same surprise within
+                // this session - accepted behaviour.
                 if(session.phase==='rest'||session.phase==='change'||session.phase==='surprise'){
                     setPhase('work');return;
                 }
@@ -1750,7 +1798,9 @@
             accumulatePhaseTime();
             session.active=false;
             clearInterval(session.timer);
-            if(wakeLock)wakeLock.release();
+            // Release wake lock defensively: guard against repeat end() calls and
+            // against release() throwing on an already-released lock.
+            if(wakeLock){try{wakeLock.release();}catch(e){}wakeLock=null;}
             window.speechSynthesis.cancel();
             playFinishBell();
             screens.timer.classList.add('hidden');
@@ -1846,19 +1896,28 @@
         // work/rest time before pause, then resets phaseStartWall + targetEndTime on
         // resume so the remaining time continues correctly. Button restyled orange->green
         // while paused and label toggled Pause/Resume.
+        // Class swapping uses classList.remove/add rather than string replace so repeat
+        // pause/resume cycles can't leave both colour sets on the element at once.
+        const PAUSE_CLS_ORANGE=['bg-orange-500/40','hover:bg-orange-500/50','border-orange-500/50'];
+        const PAUSE_CLS_GREEN=['bg-green-500/50','hover:bg-green-500/60','border-green-500/60'];
         ui.btnPause.onclick=()=>{
             session.paused=!session.paused;
             if(session.paused){
                 // Freeze phase-time accumulator so paused seconds don't count as work/rest.
                 accumulatePhaseTime();
                 ui.btnPause.innerText="Resume";
-                ui.btnPause.className=ui.btnPause.className.replace('bg-orange-500/40','bg-green-500/50').replace('hover:bg-orange-500/50','hover:bg-green-500/60').replace('border-orange-500/50','border-green-500/60');
+                ui.btnPause.classList.remove(...PAUSE_CLS_ORANGE);
+                ui.btnPause.classList.add(...PAUSE_CLS_GREEN);
             }else{
                 // Re-anchor the phase end time relative to NOW so pause duration is ignored.
+                // Clamp session.time defensively - it can briefly go negative between ticks
+                // near a phase boundary, which would otherwise produce a targetEndTime in the past.
+                const resumeSecs=Math.max(0,session.time);
                 phaseStartWall=Date.now();
-                session.targetEndTime=Date.now()+(session.time*1000);
+                session.targetEndTime=Date.now()+(resumeSecs*1000);
                 ui.btnPause.innerText="Pause";
-                ui.btnPause.className=ui.btnPause.className.replace('bg-green-500/50','bg-orange-500/40').replace('hover:bg-green-500/60','hover:bg-orange-500/50').replace('border-green-500/60','border-orange-500/50');
+                ui.btnPause.classList.remove(...PAUSE_CLS_GREEN);
+                ui.btnPause.classList.add(...PAUSE_CLS_ORANGE);
             }
         };
 
