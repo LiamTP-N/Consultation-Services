@@ -1,30 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZEC to XTZ Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <style>
-        body { 
-            background-color: #121212; 
-            color: #ffffff; 
-            font-family: sans-serif; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            padding: 20px; 
-        }
-        canvas { 
-            max-width: 1000px; 
-            width: 100%; 
-        }
-    </style>
 </head>
-<body>
-    <h2>Live ZEC to XTZ Cross Rate Tracker</h2>
-    <canvas id="cryptoChart"></canvas>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col items-center justify-center p-5">
+
+    <div class="w-full max-w-5xl">
+        <canvas id="cryptoChart"></canvas>
+    </div>
 
     <script>
         // EmailJS initialisation
@@ -64,26 +52,26 @@
                 responsive: true,
                 animation: false,
                 scales: {
-                    x: { 
-                        display: true, 
-                        title: { display: true, text: 'Time', color: 'white' }, 
-                        ticks: { color: 'white' }, 
-                        grid: { display: false } 
+                    x: {
+                        display: true,
+                        title: { display: false },
+                        ticks: { color: 'white' },
+                        grid: { display: false }
                     },
-                    y: { 
-                        display: true, 
-                        title: { display: true, text: 'ZEC / XTZ Exchange Rate', color: 'white' }, 
-                        ticks: { color: 'white' }, 
-                        grid: { display: false } 
+                    y: {
+                        display: true,
+                        title: { display: false },
+                        ticks: { color: 'white' },
+                        grid: { display: false }
                     }
                 },
                 plugins: {
-                    legend: { labels: { color: 'white' } }
+                    legend: { display: false }
                 }
             }
         });
 
-        async function fetchBinanceData(symbol, interval = '1m', limit = 240) {
+        async function fetchBinanceData(symbol, interval = '1m', limit = 360) {
             const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
             const response = await fetch(url);
             const data = await response.json();
