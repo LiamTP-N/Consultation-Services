@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZEC to XTZ Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        body { 
+            background-color: #121212; 
+            color: #ffffff; 
+            font-family: sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+        }
+        canvas { 
+            max-width: 1000px; 
+            width: 100%; 
+        }
+    </style>
+</head>
+<body>
+    <h2>Live ZEC to XTZ Cross Rate Tracker</h2>
+    <canvas id="cryptoChart"></canvas>
+
+    <script>
+        // EmailJS initialisation
+        emailjs.init('YOUR_PUBLIC_KEY');
+
+        const zecHeld = 16.256;
+        const xtzTarget = 17500;
+        const targetRate = xtzTarget / zecHeld;
+        let alertSent = false;
+
+        const ctx = document.getElementById('cryptoChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Live Rate',
+                        data: [],
+                        borderColor: 'white',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.1
+                    },
+                    {
+                        label: `Target Sell Point (${targetRate.toFixed(2)})`,
+                        data: [],
+                        borderColor: 'red',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                animation: false,
+                scales: {
+                    x: { 
+                        display: true, 
+                        title: { display: true, text: 'Time', color: 'white' }, 
+                        ticks: { color: 'white' }, 
+                        grid: { display: false } 
+                    },
+                    y: { 
+                        display: true, 
+                        title: { display: true, text: 'ZEC / XTZ Exchange Rate', color: 'white' }, 
+                        ticks: { color: 'white' }, 
+                        grid: { display: false } 
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: 'white' } }
+                }
+            }
+        });
+
+        async function fetchBinanceData(symbol, interval = '1m', limit = 240) {
+            const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.map(candle => ({
+                time: new Date(candle[0]).toLocaleTimeString(),
+                close: parseFloat(candle[4])
+            }));
+        }
+
+        async function updateChart() {
+            const xtzData = await fetchBinanceData('XTZUSDT');
+            const zecData = await fetchBinanceData('ZECUSDT');
+
+            if (xtzData.length === 0 || zecData.length === 0) return;
+
+            const labels = [];
+            const rates = [];
+            const targets = [];
+
+            for (let i = 0; i < zecData.length; i++) {
+                labels.push(zecData[i].time);
+                const rate = zecData[i].close / xtzData[i].close;
+                rates.push(rate);
+                targets.push(targetRate);
+            }
+
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = rates;
+            chart.data.datasets[1].data = targets;
+            chart.update();
+
+            const latestRate = rates[rates.length - 1];
+
+            if (latestRate >= targetRate && !alertSent) {
+                sendEmailAlert(latestRate);
+                alertSent = true;
+            }
+        }
+
+        function sendEmailAlert(rate) {
+            const templateParams = {
+                message: `Target reached. The ZEC to XTZ exchange rate is currently ${rate.toFixed(2)}.`
+            };
+
+            emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+                .then(function(response) {
+                    console.log('Alert email sent successfully.', response.status, response.text);
+                }, function(error) {
+                    console.log('Failed to send email.', error);
+                });
+        }
+
+        updateChart();
+        setInterval(updateChart, 1000);
+    </script>
+</body>
+</html>
