@@ -1770,7 +1770,9 @@
         // confirm button (when no HR). Full reset of session state, then kicks
         // off setPhase('ready') which displays "Gloves On" and starts the run() loop.
         function startSession(){
-            generateSessionPlan();              // Fresh plan (in case settings changed since preview).
+            // Do NOT regenerate the plan here - the preview shown on the setup screen
+            // is the plan we want to run. Settings changes already trigger generateSessionPlan()
+            // via their onchange handlers, so session.plan is always up to date.
             initAudio();primeSpeech();          // Required user-gesture init (all browsers).
             // Acquire screen wake lock - best-effort, silent fail on unsupported browsers.
             if('wakeLock' in navigator)navigator.wakeLock.request('screen').then(wl=>wakeLock=wl).catch(()=>{});
