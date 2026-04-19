@@ -977,20 +977,25 @@
                     <p class="text-[10px] font-bold uppercase tracking-widest text-white/80">Combined HR</p>
                     <span class="text-[9px]"><span style="color:#4ade80">Liam</span> <span class="text-slate-500">|</span> <span style="color:#c084fc">Ash</span></span>
                 </div>
-                <canvas id="${chartId}" class="summary-chart rounded-lg" height="120" style="width:100%;display:block;"></canvas>
+                <canvas id="${chartId}" class="summary-chart rounded-lg" height="150" style="width:100%;display:block;"></canvas>
             </div>`;
         }
 
-        // Draw dual-axis comparison chart. Same height and round-marker style as the
-        // per-person chart, but with independent y-scales coloured to match each line.
-        function drawCombinedChart(cId,dataYou,dataWife,colorYou,colorWife){
+        // Draw dual-axis comparison chart. Independent y-scales per person (each
+        // line uses its own min-max range). Both axes show BPM and %HRmax side-by-side,
+        // coloured to match the line. No horizontal gridlines, no round markers, no
+        // x-axis labels - the HR spikes themselves show where rounds happened.
+        // BPM sits closest to the chart (raw value the line represents); %HRmax sits
+        // further out as context. Layout is symmetric: "78%  145 | chart | 145  78%".
+        function drawCombinedChart(cId,dataYou,dataWife,hrMaxYou,hrMaxWife,colorYou,colorWife){
             const cv=document.getElementById(cId);if(!cv)return;
             const ctx=cv.getContext('2d');
-            cv.width=cv.offsetWidth*2;cv.height=240;
+            // Taller canvas than the per-person chart since we gained room back from
+            // removing the bottom round-label row. 300 = 150 display px at 2x dpr.
+            cv.width=cv.offsetWidth*2;cv.height=300;
             const w=cv.width,h=cv.height;
-            // Wider left/right padding than the per-person chart to accommodate bpm
-            // labels on BOTH axes (per-person chart has bpm left + % right; we have bpm/bpm).
-            const pad={top:15,right:50,bottom:25,left:50},cw=w-pad.left-pad.right,ch=h-pad.top-pad.bottom;
+            // Wide left/right padding to fit "BPM + %HRmax" side-by-side on each axis.
+            const pad={top:18,right:150,bottom:12,left:150},cw=w-pad.left-pad.right,ch=h-pad.top-pad.bottom;
             ctx.clearRect(0,0,w,h);
             if(dataYou.length<2||dataWife.length<2)return;
             // Independent y-scales per person.
@@ -1001,48 +1006,39 @@
             // Shared x-axis: use the later of the two end-times in case one device
             // disconnected earlier than the other (line just ends short).
             const maxT=Math.max(dataYou[dataYou.length-1].t,dataWife[dataWife.length-1].t);
-            const axisFont=Math.max(10,Math.round(w*0.022))+'px Space Mono';
-            const timeFont=Math.max(9,Math.round(w*0.018))+'px Space Mono';
-            // Horizontal gridlines at 6 evenly-spaced levels (decorative only - the
-            // labels on each side use their own independent scale).
+            // Bold BPM (primary, hugs the chart line). Regular %HRmax (context, further out).
+            const bpmFont='700 '+Math.max(18,Math.round(w*0.022))+'px "Space Mono", monospace';
+            const pctFont=Math.max(16,Math.round(w*0.020))+'px "Space Mono", monospace';
             const steps=5;
-            ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;
-            for(let i=0;i<=steps;i++){
-                const y=pad.top+(ch*i/steps);
-                ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();
-            }
-            // Left y-axis: Liam (green) bpm labels.
-            ctx.font=axisFont;
+            const labelGap=12;       // Horizontal gap between BPM and %HRmax within one axis.
+            const axisGap=16;        // Gap between chart edge and nearest label (BPM).
+            const yOffset=8;         // Vertical tweak so label baselines centre on each tick line.
+            // Left y-axis: Liam (green). Right-aligned. BPM adjacent to chart, % further left.
             ctx.fillStyle=colorYou;ctx.textAlign='right';
             for(let i=0;i<=steps;i++){
                 const bpm=minY+(rY*(steps-i)/steps);
-                const y=pad.top+(ch*i/steps);
-                ctx.fillText(Math.round(bpm),pad.left-6,y+5);
+                const pct=Math.round((bpm/hrMaxYou)*100);
+                const y=pad.top+(ch*i/steps)+yOffset;
+                ctx.font=bpmFont;
+                const bpmStr=String(Math.round(bpm));
+                const bpmWidth=ctx.measureText(bpmStr).width;
+                ctx.fillText(bpmStr,pad.left-axisGap,y);
+                ctx.font=pctFont;
+                ctx.fillText(pct+'%',pad.left-axisGap-bpmWidth-labelGap,y);
             }
-            // Right y-axis: Ash (purple) bpm labels.
+            // Right y-axis: Ash (purple). Left-aligned. BPM adjacent to chart, % further right.
             ctx.fillStyle=colorWife;ctx.textAlign='left';
             for(let i=0;i<=steps;i++){
                 const bpm=minW+(rW*(steps-i)/steps);
-                const y=pad.top+(ch*i/steps);
-                ctx.fillText(Math.round(bpm),pad.left+cw+6,y+5);
+                const pct=Math.round((bpm/hrMaxWife)*100);
+                const y=pad.top+(ch*i/steps)+yOffset;
+                ctx.font=bpmFont;
+                const bpmStr=String(Math.round(bpm));
+                ctx.fillText(bpmStr,pad.left+cw+axisGap,y);
+                const bpmWidth=ctx.measureText(bpmStr).width;
+                ctx.font=pctFont;
+                ctx.fillText(pct+'%',pad.left+cw+axisGap+bpmWidth+labelGap,y);
             }
-            // Round markers based on Liam's data (both arrays share session.round transitions).
-            let pR=0;const roundStarts=[];
-            ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.setLineDash([3,3]);ctx.lineWidth=1;
-            dataYou.forEach(d=>{
-                if(d.round!==pR&&d.phase==='work'){
-                    const x=pad.left+(d.t/maxT)*cw;
-                    ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+ch);ctx.stroke();
-                    roundStarts.push({round:d.round,x});pR=d.round;
-                }
-            });
-            ctx.setLineDash([]);
-            ctx.fillStyle='#64748b';ctx.font=timeFont;ctx.textAlign='center';
-            roundStarts.forEach((rs,i)=>{
-                const nextX=(i<roundStarts.length-1)?roundStarts[i+1].x:pad.left+cw;
-                const midX=(rs.x+nextX)/2;
-                ctx.fillText('R'+rs.round,midX,h-4);
-            });
             // Liam's line (green).
             ctx.beginPath();ctx.strokeStyle=colorYou;ctx.lineWidth=2;ctx.lineJoin='round';
             dataYou.forEach((d,i)=>{
@@ -1061,7 +1057,7 @@
 
         // Render the summary screen. Delays chart draw by 80ms so the card HTML
         // has reflowed and canvas elements report correct offsetWidth.
-        function showSummary(){const hY=hrHistoryYou.length>=2,hW=hrHistoryWife.length>=2;if(!hY&&!hW){showScreen('setup');setMode(prevMode);return;}const ds=Math.round((Date.now()-sessionStartTime)/1000),dM=Math.floor(ds/60),dS=ds%60;document.getElementById('summary-duration').innerText=`${dM}:${dS.toString().padStart(2,'0')} total`;const isW=settings.mode==='wife';const wYou=isW?workSecs('you'):workSecs('total');const rYou=isW?restSecs('you'):restSecs('total');const wWife=workSecs('wife');const rWife=restSecs('wife');const hBoth=hY&&hW;document.getElementById('summary-combined').innerHTML=hBoth?buildCombinedCard('chart-combined'):'';document.getElementById('summary-you').innerHTML=hY?buildSummaryCard(hrHistoryYou,YOU,'You','#4ade80','rgba(22,101,52,0.2)','chart-you',peakHRYou,recoveryDropsYou,wYou,rYou):'';document.getElementById('summary-wife').innerHTML=(isW&&hW)?buildSummaryCard(hrHistoryWife,WIFE,'Ash','#c084fc','rgba(107,33,168,0.2)','chart-wife',peakHRWife,recoveryDropsWife,wWife,rWife):'';showScreen('summary');setTimeout(()=>{if(hBoth)drawCombinedChart('chart-combined',hrHistoryYou,hrHistoryWife,'#4ade80','#c084fc');if(hY)drawSummaryChart('chart-you',hrHistoryYou,YOU.hrMax,'#4ade80');if(hW)drawSummaryChart('chart-wife',hrHistoryWife,WIFE.hrMax,'#c084fc');},80);}
+        function showSummary(){const hY=hrHistoryYou.length>=2,hW=hrHistoryWife.length>=2;if(!hY&&!hW){showScreen('setup');setMode(prevMode);return;}const ds=Math.round((Date.now()-sessionStartTime)/1000),dM=Math.floor(ds/60),dS=ds%60;document.getElementById('summary-duration').innerText=`${dM}:${dS.toString().padStart(2,'0')} total`;const isW=settings.mode==='wife';const wYou=isW?workSecs('you'):workSecs('total');const rYou=isW?restSecs('you'):restSecs('total');const wWife=workSecs('wife');const rWife=restSecs('wife');const hBoth=hY&&hW;document.getElementById('summary-combined').innerHTML=hBoth?buildCombinedCard('chart-combined'):'';document.getElementById('summary-you').innerHTML=hY?buildSummaryCard(hrHistoryYou,YOU,'You','#4ade80','rgba(22,101,52,0.2)','chart-you',peakHRYou,recoveryDropsYou,wYou,rYou):'';document.getElementById('summary-wife').innerHTML=(isW&&hW)?buildSummaryCard(hrHistoryWife,WIFE,'Ash','#c084fc','rgba(107,33,168,0.2)','chart-wife',peakHRWife,recoveryDropsWife,wWife,rWife):'';showScreen('summary');setTimeout(()=>{if(hBoth)drawCombinedChart('chart-combined',hrHistoryYou,hrHistoryWife,YOU.hrMax,WIFE.hrMax,'#4ade80','#c084fc');if(hY)drawSummaryChart('chart-you',hrHistoryYou,YOU.hrMax,'#4ade80');if(hW)drawSummaryChart('chart-wife',hrHistoryWife,WIFE.hrMax,'#c084fc');},80);}
 
         // Export summary as PNG via html2canvas (lazy-loaded on first click).
         // Workflow: canvases replaced with <img> snapshots (html2canvas sometimes
@@ -1102,7 +1098,7 @@
             // render tick otherwise, briefly flashing empty on the summary screen.
             if(hrHistoryYou.length>=2)drawSummaryChart('chart-you',hrHistoryYou,YOU.hrMax,'#4ade80');
             if(hrHistoryWife.length>=2)drawSummaryChart('chart-wife',hrHistoryWife,WIFE.hrMax,'#c084fc');
-            if(hrHistoryYou.length>=2&&hrHistoryWife.length>=2)drawCombinedChart('chart-combined',hrHistoryYou,hrHistoryWife,'#4ade80','#c084fc');
+            if(hrHistoryYou.length>=2&&hrHistoryWife.length>=2)drawCombinedChart('chart-combined',hrHistoryYou,hrHistoryWife,YOU.hrMax,WIFE.hrMax,'#4ade80','#c084fc');
         };
         document.getElementById('btn-summary-done').onclick=()=>{showScreen('setup');setMode(prevMode);};
 
