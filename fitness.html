@@ -120,10 +120,8 @@
             background:rgba(34,197,94,0.25);
             z-index:0;
             pointer-events:none;
-            transition:height 1s linear, background-color 0.4s ease;
+            transition:height 1s linear;
         }
-        /* While running: drain fades from green to red alongside the pickers. */
-        #gym-workout-screen.rest-running .gym-rest-drain{background:rgba(220,38,38,0.3);}
         /* Ensure text content sits above the drain. */
         #gym-workout-screen .gym-rest>div{position:relative;z-index:1;}
         #gym-workout-screen .gym-rest .gym-rest-left{min-width:clamp(60px,14vw,90px);}
@@ -131,21 +129,40 @@
         #gym-workout-screen .gym-rest .gym-rest-num{font-size:clamp(2rem,5.5dvh,3.2rem);line-height:1;}
         #gym-workout-screen .gym-rest .gym-rest-right{gap:clamp(4px,0.8dvh,8px);}
         #gym-workout-screen .gym-rest .gym-rest-picks{gap:clamp(3px,0.8vw,6px);}
-        /* Pickers: default unselected (dark), selected (blue), running (red with fade). */
+        /* Pickers: default unselected (dark slate), selected (blue fill). During a
+           running timer the active picker's blue fill DRAINS top-to-bottom: at 100%
+           the whole button is blue, at 50% only the bottom half is blue with the
+           slate showing above, at 0% it looks identical to unselected. Achieved with
+           a bottom-anchored linear-gradient whose background-size Y shrinks from
+           100% to 0% driven by the --fill CSS variable (range 0..1). */
         #gym-workout-screen .gym-rest .gym-rest-pick-btn{
             padding:clamp(4px,0.8dvh,8px) 0;
             font-size:clamp(9px,1.2dvh,12px);
             flex:1 1 0;
             min-width:0;
-            background:rgba(30,41,59,0.5);
+            background-color:rgba(30,41,59,0.5);
             border:1px solid rgba(51,65,85,0.3);
             color:#94a3b8;
-            transition:background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+            transition:border-color 0.3s ease, color 0.3s ease;
         }
         #gym-workout-screen .gym-rest .gym-rest-pick-btn:hover{border-color:rgba(59,130,246,0.4);}
-        #gym-workout-screen .gym-rest .gym-rest-pick-btn.active{background:#2563eb;border-color:#3b82f6;color:#ffffff;}
-        /* While the timer is running, the active picker fades to red along with Reset. */
-        #gym-workout-screen.rest-running .gym-rest .gym-rest-pick-btn.active{background:#dc2626;border-color:#ef4444;}
+        #gym-workout-screen .gym-rest .gym-rest-pick-btn.active{
+            --fill:1;
+            /* Solid-colour gradient (same colour top + bottom) so background-size
+               Y determines how much of the button shows blue. Anchored bottom-left,
+               so size shrinkage removes the TOP of the fill first (top-to-bottom drain). */
+            background-image:linear-gradient(rgba(37,99,235,1),rgba(37,99,235,1));
+            background-repeat:no-repeat;
+            background-position:bottom left;
+            background-size:100% calc(var(--fill) * 100%);
+            /* Border and text colour crossfade in sync so at --fill:0 the button
+               is visually identical to the unselected ones. Using colour-mix keeps
+               the intermediate states readable (white-ish text on blue fill at top
+               while the drain line is below the text baseline). */
+            border-color:color-mix(in srgb, #3b82f6 calc(var(--fill) * 100%), rgba(51,65,85,0.3));
+            color:color-mix(in srgb, #ffffff calc(var(--fill) * 100%), #94a3b8);
+            transition:background-size 0.9s linear, border-color 0.9s linear, color 0.9s linear;
+        }
         /* Action buttons row (Start / Pause / Reset). */
         #gym-workout-screen .gym-rest .gym-rest-actions{gap:clamp(3px,0.8vw,6px);}
         #gym-workout-screen .gym-rest .gym-rest-go{padding:clamp(6px,1.2dvh,12px) 0;font-size:clamp(10px,1.4dvh,14px);border-radius:clamp(8px,1.2dvh,14px);transition:background-color 0.4s ease;}
@@ -174,6 +191,38 @@
         #home-screen,#gym-day-screen,#setup-screen,#summary-screen{padding-bottom:max(1rem,env(safe-area-inset-bottom));}
         /* Screen-reader-only utility (invisible to sighted users, readable by assistive tech). */
         .sr-only-a11y{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+        /* Small circular info button for field explanations (e.g. Surprise Rounds,
+           Training Blocks). Opens a modal popup rather than expanding inline so
+           the layout doesn't shift when the user taps it. */
+        .info-btn{
+            width:14px;
+            height:14px;
+            border-radius:9999px;
+            border:1px solid rgba(148,163,184,0.5);
+            background:transparent;
+            color:#94a3b8;
+            font-size:9px;
+            font-weight:700;
+            font-style:italic;
+            font-family:Georgia,serif;
+            line-height:1;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            cursor:pointer;
+            transition:all 0.2s ease;
+            padding:0;
+        }
+        .info-btn:hover{
+            border-color:#a855f7;
+            color:#c084fc;
+        }
+        /* Theme-aware button: background picks up whichever colour setMode() has
+           set on --theme-color (green for Solo, purple for With Wife). Used for
+           the "Got it" confirm buttons in info modals so they match the current
+           training mode. */
+        .theme-btn{background-color:var(--theme-color);}
+        .theme-btn:hover{filter:brightness(1.1);}
         /* Smooth surprise-phase colour transitions. The JS updates colour and
            text-stroke-color at discrete 1-second intervals; these transitions
            let the browser interpolate between them at 60fps for a smooth fade.
@@ -267,8 +316,8 @@
                 <div class="flex-1 min-w-0 flex flex-col min-h-0">
                     <div id="settings-scroll" class="glass-card p-3 sm:p-4 rounded-2xl space-y-3 flex-1 custom-scrollbar overflow-y-auto">
                         <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Rounds</label><div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5" id="grid-rounds"></div></div>
-                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Round Length (sec)</label><div class="grid grid-cols-3 gap-1.5"><button class="btn-select py-3 rounded-xl text-xs font-mono-display" onclick="selectWork(30,this)">30</button><button class="btn-select py-3 rounded-xl text-xs font-mono-display" onclick="selectWork(45,this)">45</button><button class="btn-select active py-3 rounded-xl text-xs font-mono-display" onclick="selectWork(60,this)">60</button></div></div>
-                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">"Surprise" Rounds</label><div class="grid grid-cols-4 gap-1.5" id="grid-surprise">
+                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Round Length</label><div class="grid grid-cols-3 gap-1.5"><button class="btn-select py-3 rounded-xl text-xs font-mono-display" onclick="selectWork(30,this)">30s</button><button class="btn-select py-3 rounded-xl text-xs font-mono-display" onclick="selectWork(45,this)">45s</button><button class="btn-select active py-3 rounded-xl text-xs font-mono-display" onclick="selectWork(60,this)">60s</button></div></div>
+                        <div class="space-y-1.5"><div class="flex items-center gap-1.5 ml-1"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">"Surprise" Rounds</label><button id="btn-surprise-info" type="button" aria-label="What is a surprise round?" class="info-btn">i</button></div><div class="grid grid-cols-4 gap-1.5" id="grid-surprise">
                             <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(0,this)">0</button>
                             <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(1,this)">1</button>
                             <button class="btn-select active py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(2,this)">2</button>
@@ -276,13 +325,13 @@
                         </div></div>
                         <hr class="border-slate-700/50">
                         <div class="space-y-1.5">
-                            <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Training Blocks</label>
+                            <div class="flex items-center gap-1.5 ml-1"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Training Blocks</label><button id="btn-blocks-info" type="button" aria-label="What are training blocks?" class="info-btn">i</button></div>
                             <div class="grid grid-cols-2 gap-1.5">
                                 <button id="btn-block-1" class="btn-select active py-3 rounded-xl text-xs font-bold" onclick="selectBlocks(1,this)">1 Block</button>
                                 <button id="btn-block-2" class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectBlocks(2,this)">2 Blocks</button>
                             </div>
                         </div>
-                        <div id="block2-inline-summary" class="hidden text-[9px] text-slate-400 text-center py-1">Block 2: <span id="b2-summary-text">6 rds, 3m rest, 2 surprise</span> <button id="btn-b2-edit" class="text-purple-400 font-bold ml-1 underline">Edit</button></div>
+                        <div id="block2-inline-summary" class="hidden text-[9px] text-slate-400 text-center py-1">Block 2: <span id="b2-summary-text">6 rounds, 3min rest, 2 "surprise" rounds</span> <button id="btn-b2-edit" class="text-purple-400 font-bold ml-1 underline">Edit</button></div>
                     </div>
                 </div>
                 <!-- Right: preview panel -->
@@ -314,6 +363,24 @@
                     <button id="btn-b2-back" class="w-full py-3 rounded-xl text-sm font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98]">&larr; 1 Block</button>
                     <button id="btn-b2-done" class="w-full py-3 rounded-xl text-sm font-bold bg-purple-600 hover:bg-purple-500 text-white transition-all active:scale-[0.98]">Done</button>
                 </div>
+            </div>
+        </div>
+        <!-- SURPRISE ROUNDS INFO MODAL -->
+        <div id="surprise-info-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" role="dialog" aria-modal="true" aria-labelledby="surprise-info-title">
+            <div class="bg-slate-800 border border-slate-600 rounded-2xl p-4 max-w-sm w-full shadow-2xl space-y-3">
+                <div class="flex items-center justify-between"><h3 id="surprise-info-title" class="text-sm font-bold text-white">"Surprise" Rounds</h3><button id="btn-surprise-info-close" aria-label="Close" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button></div>
+                <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed">A random burnout burst dropped into the middle of your session. The screen flashes white with a 5-second "GET READY" countdown, then 30 seconds of one task - STRAIGHTS or HOOKS (chosen at random).</p>
+                <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed">Slots fall anywhere within the middle rounds. In partner mode, each of you gets different surprise rounds at different random times.</p>
+                <button id="btn-surprise-info-done" class="theme-btn w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-[0.98]">Got it</button>
+            </div>
+        </div>
+        <!-- TRAINING BLOCKS INFO MODAL -->
+        <div id="blocks-info-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" role="dialog" aria-modal="true" aria-labelledby="blocks-info-title">
+            <div class="bg-slate-800 border border-slate-600 rounded-2xl p-4 max-w-sm w-full shadow-2xl space-y-3">
+                <div class="flex items-center justify-between"><h3 id="blocks-info-title" class="text-sm font-bold text-white">Training Blocks</h3><button id="btn-blocks-info-close" aria-label="Close" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button></div>
+                <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed">Split your session into two separate blocks with a longer rest between them - e.g. 12 rounds, 3min rest, then 4 more rounds.</p>
+                <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed">Each block gets its own round count, work length, and surprise round count. Pick "2 Blocks" to configure Block 2's settings; "1 Block" for a standard single-block session.</p>
+                <button id="btn-blocks-info-done" class="theme-btn w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-[0.98]">Got it</button>
             </div>
         </div>
         <!-- TIMER SCREEN (flex-col set in CSS above) -->
@@ -1049,9 +1116,11 @@
             }
         }
 
-        // Start Timer: begin the countdown. Activates the rest-running body class
-        // which triggers the CSS fade of active picker to red, and animates the
-        // drain fill from 100% down to 0% over the countdown duration.
+        // Start Timer: begin the countdown. Activates the rest-running body class,
+        // animates the drain fill from 100% down to 0% over the countdown duration,
+        // and fades the active picker's blue fill from 1.0 to 0 over the same period
+        // (CSS var --fill). By the time the timer reaches 0, all three pickers look
+        // visually identical (blue fill fully drained from the active one).
         const gymRestDrainEl=document.getElementById('gym-rest-drain');
         btnGymRestStart.onclick=()=>{
             initAudio();playSoftBeep();haptic(50);
@@ -1059,16 +1128,21 @@
             gymRestCurrent=gymRestSecs;
             gymRestDisplay.innerText=gymRestCurrent;
             gymWorkoutScreenEl.classList.add('rest-running');
-            // Prime drain at 100% (it'll tick down each second in the interval below).
-            // The CSS transition (1s linear) makes the drop smooth between ticks.
+            // Prime drain at 100% and active picker at full blue (--fill: 1).
             gymRestDrainEl.style.height='100%';
+            const activePick=document.querySelector('.gym-rest-pick.active');
+            if(activePick)activePick.style.setProperty('--fill','1');
             updateGymRestButtons();
             gymRestTimer=setInterval(()=>{
                 if(gymRestPaused)return;  // Hold the countdown when paused.
                 gymRestCurrent--;
                 gymRestDisplay.innerText=Math.max(0,gymRestCurrent);
-                // Update drain height = (remaining / total) * 100. Matches boxing timer-bg.
-                gymRestDrainEl.style.height=`${Math.max(0,(gymRestCurrent/gymRestSecs)*100)}%`;
+                const frac=Math.max(0,gymRestCurrent/gymRestSecs);
+                // Update drain height (matches boxing timer-bg direction).
+                gymRestDrainEl.style.height=`${frac*100}%`;
+                // Fade active picker's blue fill toward transparent.
+                const ap=document.querySelector('.gym-rest-pick.active');
+                if(ap)ap.style.setProperty('--fill',frac.toFixed(3));
                 if(gymRestCurrent<=3&&gymRestCurrent>0)playBeep(gymRestCurrent===1);
                 if(gymRestCurrent<=0){playBell();clearGymRest();}
             },1000);
@@ -1093,6 +1167,8 @@
             gymRestPaused=false;
             gymRestDisplay.innerText=gymRestSecs;
             gymRestDrainEl.style.height='0%';
+            // Restore active picker to full blue (--fill: 1) for the next run.
+            document.querySelectorAll('.gym-rest-pick').forEach(p=>p.style.removeProperty('--fill'));
             gymWorkoutScreenEl.classList.remove('rest-running');
             updateGymRestButtons();
         }
@@ -1119,9 +1195,29 @@
         window.selectRoundB2=(n,el)=>{settings.roundsB2=n;Array.from(gridRoundsB2.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');generateSessionPlan();};
         window.selectWork=(n,el)=>{settings.work=n;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
         window.selectSurprise=(n,el)=>{settings.surpriseCount=n;Array.from(document.getElementById('grid-surprise').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
+        // Info modals for "Surprise Rounds" and "Training Blocks". Tap the (i)
+        // button next to each label to open the modal; close via X or Got it.
+        // Uses the same pattern as the Block 2 settings modal so users already
+        // recognise the interaction.
+        (()=>{
+            const wire=(triggerId,modalId,closeIds)=>{
+                const trigger=document.getElementById(triggerId);
+                const modal=document.getElementById(modalId);
+                if(!trigger||!modal)return;
+                trigger.onclick=()=>modal.classList.remove('hidden');
+                closeIds.forEach(id=>{
+                    const el=document.getElementById(id);
+                    if(el)el.onclick=()=>modal.classList.add('hidden');
+                });
+                // Tapping the backdrop (but not the card itself) also closes.
+                modal.onclick=e=>{if(e.target===modal)modal.classList.add('hidden');};
+            };
+            wire('btn-surprise-info','surprise-info-modal',['btn-surprise-info-close','btn-surprise-info-done']);
+            wire('btn-blocks-info','blocks-info-modal',['btn-blocks-info-close','btn-blocks-info-done']);
+        })();
         window.selectSurpriseB2=(n,el)=>{settings.surpriseCountB2=n;Array.from(document.getElementById('grid-surprise-b2').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
         // Update the inline block-2 summary text (e.g. "6 rds, 3m rest, 2 surprise").
-        function updateB2Summary(){const restLabel=settings.blockRestSecs>=60?Math.floor(settings.blockRestSecs/60)+'m':settings.blockRestSecs+'s';document.getElementById('b2-summary-text').innerText=`${settings.roundsB2} rds, ${restLabel} rest, ${settings.surpriseCountB2} surprise`;}
+        function updateB2Summary(){const restLabel=settings.blockRestSecs>=60?Math.floor(settings.blockRestSecs/60)+'min':settings.blockRestSecs+'s';document.getElementById('b2-summary-text').innerText=`${settings.roundsB2} rounds, ${restLabel} rest, ${settings.surpriseCountB2} "surprise" rounds`;}
         // Block count toggle (1 block vs 2 blocks). Selecting "2 Blocks" opens the modal.
         window.selectBlocks=(n,el)=>{settings.blocks=n;document.getElementById('btn-block-1').classList.toggle('active',n===1);document.getElementById('btn-block-2').classList.toggle('active',n===2);document.getElementById('block2-inline-summary').classList.toggle('hidden',n===1);if(n===2){updateB2Summary();document.getElementById('block2-modal').classList.remove('hidden');}generateSessionPlan();};
         // Block 2 modal open/close handlers.
