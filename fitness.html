@@ -12,9 +12,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root{--accent-green:#22c55e;--accent-orange:#f97316;--accent-purple:#a855f7;--accent-red:#ef4444;--theme-color:#3b82f6;--theme-shadow:rgba(59,130,246,0.4);}
+        :root{--accent-green:#22c55e;--accent-orange:#f97316;--accent-purple:#a855f7;--accent-red:#ef4444;--theme-color:#a855f7;--theme-shadow:rgba(168,85,247,0.4);}
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-        body{font-family:'DM Sans',system-ui,sans-serif;overscroll-behavior-y:contain;background-color:#000000;margin:0;-webkit-text-stroke:1px rgba(0,0,0,1);paint-order:stroke fill;}
+        body{font-family:'DM Sans',system-ui,sans-serif;overscroll-behavior-y:contain;background-color:#000000;margin:0;-webkit-text-stroke:2px rgba(0,0,0,1);paint-order:stroke fill;}
         body.timer-running{overflow:hidden;}
         .font-mono-display{font-family:'Space Mono',monospace;}
         .glass-card{background:rgba(30,41,59,0.4);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 8px 32px 0 rgba(0,0,0,0.37);}
@@ -37,7 +37,7 @@
         @keyframes slideIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
         .t-stroke{-webkit-text-stroke:4px rgba(0,0,0,1);paint-order:stroke fill;}
         .t-stroke-heavy{-webkit-text-stroke:6px rgba(0,0,0,1);paint-order:stroke fill;}
-        .t-stroke-btn{-webkit-text-stroke:0.4px rgba(0,0,0,1);paint-order:stroke fill;}
+        .t-stroke-btn{-webkit-text-stroke:2px rgba(0,0,0,1);paint-order:stroke fill;}
         /* Timer screen: safe bottom padding, never clips buttons */
         #timer-screen{
             height:100vh;height:100dvh;
@@ -47,7 +47,7 @@
         .timer-top{padding:0 3vw;flex-shrink:0;}
         .timer-top .round-num{font-size:clamp(2rem,6.5dvh,3.2rem);}
         .timer-top .round-slash{font-size:clamp(1rem,3dvh,1.6rem);}
-        .timer-top .round-label-text{font-size:clamp(1rem,3dvh,1.6rem);}
+        .timer-top .round-label-text{font-size:clamp(1rem,3dvh,1.6rem);margin:0;line-height:1;}
         .timer-top .ctrl-btn{padding:clamp(5px,1dvh,11px) clamp(10px,2.5vw,18px);gap:clamp(4px,0.8vw,10px);}
         .timer-top .ctrl-btn svg{width:clamp(15px,2.3dvh,22px);height:clamp(15px,2.3dvh,22px);}
         .timer-top .ctrl-btn span{font-size:clamp(9px,1.5dvh,14px);}
@@ -80,27 +80,86 @@
             outline:2px solid #000000;
             outline-offset:-1px;
         }
-        #gym-workout-screen{height:100vh;height:100dvh;padding:1.5dvh 0.75rem calc(2dvh + env(safe-area-inset-bottom));overflow:hidden;}
-        #gym-workout-screen .gym-header{margin-bottom:clamp(2px,0.5dvh,6px);}
+        #gym-workout-screen{height:100vh;height:100dvh;padding:1.5dvh 0.75rem calc(2dvh + env(safe-area-inset-bottom));overflow:hidden;display:flex;flex-direction:column;gap:clamp(4px,0.8dvh,8px);}
+        #gym-workout-screen .gym-header{margin-bottom:0;}
         #gym-workout-screen .gym-header h1{font-size:clamp(1rem,2.5dvh,1.5rem);}
         #gym-workout-screen .gym-header p{font-size:clamp(8px,1.2dvh,11px);}
-        #gym-workout-screen .gym-body{display:flex;flex-direction:row;gap:clamp(4px,1vw,10px);flex:1;min-height:0;align-items:stretch;}
-        #gym-workout-screen .gym-list{padding:clamp(4px,0.8dvh,10px);border-radius:clamp(10px,1.5dvh,20px);gap:clamp(2px,0.4dvh,6px);flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-evenly;}
-        #gym-workout-screen .gym-side{width:clamp(110px,30vw,160px);flex-shrink:0;display:flex;flex-direction:column;gap:clamp(4px,0.6dvh,8px);}
-        #gym-workout-screen .gym-rest{padding:clamp(4px,0.8dvh,10px);border-radius:clamp(10px,1.5dvh,20px);gap:clamp(2px,0.4dvh,6px);}
-        #gym-workout-screen .gym-rest .gym-rest-num{font-size:clamp(2rem,6dvh,4rem);}
-        #gym-workout-screen .gym-rest .gym-rest-label{font-size:clamp(7px,1dvh,10px);}
-        #gym-workout-screen .gym-rest .gym-rest-pick-btn{padding:clamp(3px,0.5dvh,8px) clamp(6px,1.5vw,12px);font-size:clamp(9px,1.2dvh,13px);}
-        #gym-workout-screen .gym-rest .gym-rest-go{padding:clamp(5px,1dvh,12px) 0;font-size:clamp(10px,1.5dvh,15px);border-radius:clamp(8px,1.2dvh,14px);}
-        #gym-workout-screen .gym-side-btns{display:flex;flex-direction:column;gap:clamp(3px,0.5dvh,6px);}
-        #gym-workout-screen .gym-side-btns button{padding:clamp(8px,1.5dvh,16px) 0;font-size:clamp(10px,1.4dvh,14px);border-radius:clamp(8px,1.2dvh,14px);}
-        .gym-card{padding:clamp(4px,0.7dvh,10px) clamp(6px,1vw,10px);gap:clamp(4px,0.8vw,10px);border-radius:clamp(6px,1dvh,12px);cursor:pointer;transition:opacity 0.2s ease;}
+        /* Training note: soft yellow hue, distinct from the rest of the UI. */
+        #gym-workout-screen .gym-note{
+            background:rgba(234,179,8,0.12);
+            border:1px solid rgba(234,179,8,0.35);
+            color:#fde047;
+            padding:clamp(6px,1dvh,10px) clamp(8px,2vw,14px);
+            border-radius:clamp(8px,1.2dvh,14px);
+            font-size:clamp(10px,1.4dvh,13px);
+            font-weight:600;
+            text-align:center;
+            line-height:1.3;
+        }
+        /* Rest timer: horizontal strip. Left cluster: label stacked over the big number.
+           Right cluster: pickers on top, Start Rest button below. Subtle green tint
+           so the timer panel reads as "active work aid" distinct from the exercise list. */
+        #gym-workout-screen .gym-rest{
+            padding:clamp(6px,1dvh,12px) clamp(8px,1.5vw,14px);
+            border-radius:clamp(10px,1.5dvh,18px);
+            gap:clamp(10px,2vw,20px);
+            background:rgba(34,197,94,0.08);
+            border-color:rgba(34,197,94,0.25);
+            position:relative;
+            overflow:hidden;
+        }
+        /* Drain background: anchored to the bottom, grows upward as timer runs
+           (height = remaining %, starts at 100% on Start Timer, animates to 0 over
+           the countdown). Sits behind all other content via z-index:0. */
+        #gym-workout-screen .gym-rest-drain{
+            position:absolute;
+            left:0;
+            right:0;
+            bottom:0;
+            height:0;
+            background:rgba(34,197,94,0.25);
+            z-index:0;
+            pointer-events:none;
+            transition:height 1s linear, background-color 0.4s ease;
+        }
+        /* While running: drain fades from green to red alongside the pickers. */
+        #gym-workout-screen.rest-running .gym-rest-drain{background:rgba(220,38,38,0.3);}
+        /* Ensure text content sits above the drain. */
+        #gym-workout-screen .gym-rest>div{position:relative;z-index:1;}
+        #gym-workout-screen .gym-rest .gym-rest-left{min-width:clamp(60px,14vw,90px);}
+        #gym-workout-screen .gym-rest .gym-rest-label{font-size:clamp(9px,1.2dvh,12px);line-height:1;margin-bottom:clamp(2px,0.4dvh,4px);}
+        #gym-workout-screen .gym-rest .gym-rest-num{font-size:clamp(2rem,5.5dvh,3.2rem);line-height:1;}
+        #gym-workout-screen .gym-rest .gym-rest-right{gap:clamp(4px,0.8dvh,8px);}
+        #gym-workout-screen .gym-rest .gym-rest-picks{gap:clamp(3px,0.8vw,6px);}
+        /* Pickers: default unselected (dark), selected (blue), running (red with fade). */
+        #gym-workout-screen .gym-rest .gym-rest-pick-btn{
+            padding:clamp(4px,0.8dvh,8px) 0;
+            font-size:clamp(9px,1.2dvh,12px);
+            flex:1 1 0;
+            min-width:0;
+            background:rgba(30,41,59,0.5);
+            border:1px solid rgba(51,65,85,0.3);
+            color:#94a3b8;
+            transition:background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+        }
+        #gym-workout-screen .gym-rest .gym-rest-pick-btn:hover{border-color:rgba(59,130,246,0.4);}
+        #gym-workout-screen .gym-rest .gym-rest-pick-btn.active{background:#2563eb;border-color:#3b82f6;color:#ffffff;}
+        /* While the timer is running, the active picker fades to red along with Reset. */
+        #gym-workout-screen.rest-running .gym-rest .gym-rest-pick-btn.active{background:#dc2626;border-color:#ef4444;}
+        /* Action buttons row (Start / Pause / Reset). */
+        #gym-workout-screen .gym-rest .gym-rest-actions{gap:clamp(3px,0.8vw,6px);}
+        #gym-workout-screen .gym-rest .gym-rest-go{padding:clamp(6px,1.2dvh,12px) 0;font-size:clamp(10px,1.4dvh,14px);border-radius:clamp(8px,1.2dvh,14px);transition:background-color 0.4s ease;}
+        /* Exercise list fills remaining vertical space, cards distribute equally. */
+        #gym-workout-screen .gym-list{padding:clamp(4px,0.8dvh,10px);border-radius:clamp(10px,1.5dvh,20px);gap:clamp(3px,0.5dvh,6px);flex:1;min-height:0;display:flex;flex-direction:column;}
+        /* Shuffle + Back: same height for visual symmetry at the bottom of the screen. */
+        #gym-workout-screen .gym-shuffle-btn,
+        #gym-workout-screen .gym-back-btn{padding:clamp(8px,1.5dvh,14px) 0;font-size:clamp(11px,1.5dvh,15px);border-radius:clamp(8px,1.2dvh,14px);flex-shrink:0;}
+        .gym-card{padding:clamp(4px,0.7dvh,10px) clamp(6px,1vw,10px);gap:clamp(4px,0.8vw,10px);border-radius:clamp(6px,1dvh,12px);cursor:pointer;transition:opacity 0.2s ease;flex:1 1 0;min-height:0;display:flex;align-items:center;}
         .gym-card .gym-card-num{width:clamp(22px,3.5dvh,36px);height:clamp(22px,3.5dvh,36px);border-radius:clamp(5px,0.8dvh,10px);font-size:clamp(9px,1.4dvh,13px);}
         .gym-card .gym-card-name{font-size:clamp(12px,1.8dvh,17px);}
         .gym-card .gym-card-muscle{font-size:clamp(8px,1.1dvh,11px);}
         /* Setup screen: fixed height, inner settings panel scrolls */
         #setup-screen{max-height:100vh;max-height:100dvh;overflow-y:auto;display:flex;flex-direction:column;}
-        #setup-screen *{-webkit-text-stroke:0.6px rgba(0,0,0,1);paint-order:stroke fill;}
         #setup-columns{min-height:0;}
         /* Settings scroll: takes remaining height, scrolls internally */
         #settings-scroll{overflow-y:auto;min-height:0;height:100%;}
@@ -115,6 +174,19 @@
         #home-screen,#gym-day-screen,#setup-screen,#summary-screen{padding-bottom:max(1rem,env(safe-area-inset-bottom));}
         /* Screen-reader-only utility (invisible to sighted users, readable by assistive tech). */
         .sr-only-a11y{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+        /* Smooth surprise-phase colour transitions. The JS updates colour and
+           text-stroke-color at discrete 1-second intervals; these transitions
+           let the browser interpolate between them at 60fps for a smooth fade.
+           Applied only when body has .surprise-active class so normal phase
+           transitions remain instant. */
+        body.surprise-active #timer-display,
+        body.surprise-active #round-focus{
+            transition:color 0.9s linear, -webkit-text-stroke-color 0.9s linear;
+        }
+        /* Timer-bg fades between colours too (white surprise bg into/out of black etc.). */
+        body.surprise-active #timer-bg{
+            transition:height 1s linear, background-color 0.9s linear;
+        }
     </style>
 </head>
 <body class="text-slate-200 min-h-screen flex flex-col items-center justify-center">
@@ -143,21 +215,31 @@
         <!-- GYM WORKOUT -->
         <div id="gym-workout-screen" class="hidden w-full max-w-md flex flex-col">
             <div class="gym-header text-center flex-shrink-0"><p class="font-bold text-blue-400 uppercase tracking-[0.2em]" id="gym-day-label">Push Day</p><h1 class="font-bold text-white tracking-tight">Today's Exercises</h1></div>
-            <div class="gym-body">
-                <div class="gym-list glass-card flex flex-col" id="gym-exercise-list"></div>
-                <div class="gym-side">
-                    <div id="gym-rest-timer" class="gym-rest glass-card text-center flex flex-col flex-shrink-0">
-                        <p class="gym-rest-label font-bold text-blue-400 uppercase tracking-widest">Rest</p>
-                        <div id="gym-rest-display" class="gym-rest-num font-black font-mono-display text-white">90</div>
-                        <div class="flex flex-col" style="gap:clamp(2px,0.4dvh,4px);"><div class="flex justify-center" style="gap:clamp(2px,0.5vw,6px);"><button class="gym-rest-pick gym-rest-pick-btn rounded-lg font-bold bg-slate-800/50 border border-slate-700/30 hover:border-blue-500/40 transition-all" data-secs="60">60s</button><button class="gym-rest-pick gym-rest-pick-btn rounded-lg font-bold bg-blue-600 text-white border border-blue-500" data-secs="90">90s</button><button class="gym-rest-pick gym-rest-pick-btn rounded-lg font-bold bg-slate-800/50 border border-slate-700/30 hover:border-blue-500/40 transition-all" data-secs="120">120s</button></div>
-                        <button id="btn-gym-rest-toggle" class="gym-rest-go w-full bg-green-700 hover:bg-green-600 text-white font-bold active:scale-[0.98] transition-all">Start Rest</button></div>
-                    </div>
-                    <div class="gym-side-btns flex-1">
-                        <button id="btn-gym-shuffle" class="w-full bg-orange-700 hover:bg-orange-600 text-white font-bold active:scale-[0.98] transition-all">Shuffle</button>
-                        <button id="btn-gym-workout-back" class="w-full bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white font-bold transition-all active:scale-[0.98]">&larr; Back</button>
+            <!-- Training note: light-weight / forced-fatigue protocol reminder. -->
+            <div class="gym-note flex-shrink-0" role="note">No sets or reps to record - just lighter weights, go to forced fatigue.</div>
+            <!-- Rest timer: compact horizontal strip. -->
+            <div id="gym-rest-timer" class="gym-rest glass-card flex items-center flex-shrink-0">
+                <!-- Drain background: shrinks top-to-bottom as the timer counts down. -->
+                <div id="gym-rest-drain" class="gym-rest-drain"></div>
+                <div class="gym-rest-left flex flex-col items-center flex-shrink-0 relative">
+                    <p class="gym-rest-label font-bold text-green-400 uppercase tracking-widest">Rest</p>
+                    <div id="gym-rest-display" class="gym-rest-num font-black font-mono-display text-white">60</div>
+                </div>
+                <div class="gym-rest-right flex flex-col flex-1 min-w-0 relative">
+                    <div class="gym-rest-picks flex"><button class="gym-rest-pick gym-rest-pick-btn active rounded-lg font-bold" data-secs="60">60s</button><button class="gym-rest-pick gym-rest-pick-btn rounded-lg font-bold" data-secs="90">90s</button><button class="gym-rest-pick gym-rest-pick-btn rounded-lg font-bold" data-secs="120">120s</button></div>
+                    <div class="gym-rest-actions flex">
+                        <button id="btn-gym-rest-start" class="gym-rest-go flex-1 bg-green-700 hover:bg-green-600 text-white font-bold active:scale-[0.98] transition-all">Start Timer</button>
+                        <button id="btn-gym-rest-pause" class="gym-rest-go hidden flex-1 bg-orange-600 hover:bg-orange-500 text-white font-bold active:scale-[0.98] transition-all">Pause</button>
+                        <button id="btn-gym-rest-reset" class="gym-rest-go hidden flex-1 bg-red-600 hover:bg-red-500 text-white font-bold active:scale-[0.98] transition-all">Reset Timer</button>
                     </div>
                 </div>
             </div>
+            <!-- Exercise list. -->
+            <div class="gym-list glass-card" id="gym-exercise-list"></div>
+            <!-- Shuffle button. -->
+            <button id="btn-gym-shuffle" class="gym-shuffle-btn w-full bg-orange-700 hover:bg-orange-600 text-white font-bold active:scale-[0.98] transition-all">Shuffle Exercises</button>
+            <!-- Back button full-width bar. -->
+            <button id="btn-gym-workout-back" class="gym-back-btn w-full font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98]">&larr; Back</button>
         </div>
         <!-- BOXING SETUP -->
         <div id="setup-screen" class="hidden w-full max-w-lg mx-auto p-2 sm:p-4">
@@ -173,9 +255,11 @@
                     <button id="btn-hr-wife" aria-label="Connect partner heart rate monitor" class="hidden flex-1 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold bg-slate-800/50 border border-slate-700/30 hover:border-purple-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-purple-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-label">Ash's HR</span></button>
                 </div></div>
             </div>
-            <div class="grid grid-cols-3 gap-2 mb-2 sm:mb-3 flex-shrink-0">
-                <button id="btn-quick-rest" class="col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-xs sm:text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight"><span>Quick Rest</span><span class="opacity-70 text-[10px]">(120s)</span></button>
-                <button id="btn-start" class="col-span-2 bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-2xl text-base sm:text-xl active:scale-[0.98] transition-all">Begin Session</button>
+            <div class="grid grid-cols-6 gap-2 mb-2 sm:mb-3 flex-shrink-0">
+                <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-xs sm:text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="60"><span>Rest</span><span class="opacity-70 text-[10px]">1min</span></button>
+                <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-xs sm:text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="120"><span>Rest</span><span class="opacity-70 text-[10px]">2min</span></button>
+                <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-xs sm:text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="180"><span>Rest</span><span class="opacity-70 text-[10px]">3min</span></button>
+                <button id="btn-start" class="col-span-3 bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-2xl text-base sm:text-xl active:scale-[0.98] transition-all">Begin Session</button>
             </div>
             <!-- Main layout: settings left, preview right starting from button row -->
             <div id="setup-columns" class="flex flex-row gap-2 sm:gap-3 items-stretch">
@@ -183,18 +267,19 @@
                 <div class="flex-1 min-w-0 flex flex-col min-h-0">
                     <div id="settings-scroll" class="glass-card p-3 sm:p-4 rounded-2xl space-y-3 flex-1 custom-scrollbar overflow-y-auto">
                         <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Rounds</label><div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5" id="grid-rounds"></div></div>
-                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Work (Secs)</label><div class="grid grid-cols-3 gap-1.5"><button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(30,this)">30</button><button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(45,this)">45</button><button class="btn-select active py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(60,this)">60</button></div></div>
-                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">"Surprise" Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-surprise">
-                            <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(1,this)">1</button>
-                            <button class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(2,this)">2</button>
-                            <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(3,this)">3</button>
+                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Round Length (sec)</label><div class="grid grid-cols-3 gap-1.5"><button class="btn-select py-3 rounded-xl text-xs font-mono-display" onclick="selectWork(30,this)">30</button><button class="btn-select py-3 rounded-xl text-xs font-mono-display" onclick="selectWork(45,this)">45</button><button class="btn-select active py-3 rounded-xl text-xs font-mono-display" onclick="selectWork(60,this)">60</button></div></div>
+                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">"Surprise" Rounds</label><div class="grid grid-cols-4 gap-1.5" id="grid-surprise">
+                            <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(0,this)">0</button>
+                            <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(1,this)">1</button>
+                            <button class="btn-select active py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(2,this)">2</button>
+                            <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(3,this)">3</button>
                         </div></div>
                         <hr class="border-slate-700/50">
                         <div class="space-y-1.5">
                             <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Training Blocks</label>
                             <div class="grid grid-cols-2 gap-1.5">
-                                <button id="btn-block-1" class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectBlocks(1,this)">1 Block</button>
-                                <button id="btn-block-2" class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectBlocks(2,this)">2 Blocks</button>
+                                <button id="btn-block-1" class="btn-select active py-3 rounded-xl text-xs font-bold" onclick="selectBlocks(1,this)">1 Block</button>
+                                <button id="btn-block-2" class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectBlocks(2,this)">2 Blocks</button>
                             </div>
                         </div>
                         <div id="block2-inline-summary" class="hidden text-[9px] text-slate-400 text-center py-1">Block 2: <span id="b2-summary-text">6 rds, 3m rest, 2 surprise</span> <button id="btn-b2-edit" class="text-purple-400 font-bold ml-1 underline">Edit</button></div>
@@ -202,7 +287,7 @@
                 </div>
                 <!-- Right: preview panel -->
                 <div class="w-[140px] sm:w-[180px] md:w-[220px] flex-shrink-0 flex flex-col"><div class="glass-card p-2 sm:p-3 rounded-2xl flex flex-col flex-1 min-h-0 space-y-1">
-                    <div class="flex-shrink-0"><div class="flex items-center justify-between mb-1"><span class="text-[10px] sm:text-xs font-bold text-white">Randomise</span><label class="relative inline-flex items-center cursor-pointer flex-shrink-0"><input type="checkbox" id="in-random" class="sr-only peer" checked><div id="toggle-bg" class="w-9 sm:w-10 h-5 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-4 sm:peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label></div><p id="random-desc" class="text-[8px] sm:text-[9px] text-slate-400 leading-tight">Randomises middle rounds (2 to 11)</p><hr class="border-slate-700/50 mt-1"></div>
+                    <div class="flex-shrink-0"><div class="flex items-center justify-between mb-1"><span class="text-[10px] sm:text-xs font-bold text-white">Randomise</span><label class="relative inline-flex items-center cursor-pointer flex-shrink-0"><input type="checkbox" id="in-random" class="sr-only peer" checked><div id="toggle-bg" class="w-9 sm:w-10 h-5 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-4 sm:peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label></div><p id="random-desc" class="text-[8px] sm:text-[9px] text-slate-400 leading-tight">Randomises rounds 2 to 11</p><hr class="border-slate-700/50 mt-1"></div>
                     <h3 class="font-bold text-white text-[9px] sm:text-xs uppercase tracking-widest ml-1 opacity-70 flex-shrink-0">Rounds</h3>
                     <div id="preview-scroll" class="flex-1 min-h-0 space-y-0.5 pr-1 custom-scrollbar overflow-y-auto"><div id="round-preview"></div></div>
                 </div></div>
@@ -214,16 +299,16 @@
             <div class="bg-slate-800 border border-slate-600 rounded-2xl p-4 max-w-sm w-full shadow-2xl space-y-3">
                 <div class="flex items-center justify-between"><h3 id="block2-modal-title" class="text-sm font-bold text-white">Block 2 Settings</h3><button id="btn-b2-close" aria-label="Close Block 2 settings" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button></div>
                 <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block Rest</label><div class="grid grid-cols-3 gap-1.5">
-                    <button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(120,this)">2m</button>
-                    <button class="btn-select active py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(180,this)">3m</button>
-                    <button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(300,this)">5m</button>
+                    <button class="btn-select py-3 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(120,this)">2min</button>
+                    <button class="btn-select active py-3 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(180,this)">3min</button>
+                    <button class="btn-select py-3 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(300,this)">5min</button>
                 </div></div>
                 <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-rounds-b2"></div></div>
                 <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 "Surprise" Rounds</label><div class="grid grid-cols-4 gap-1.5" id="grid-surprise-b2">
-                    <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(0,this)">0</button>
-                    <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(1,this)">1</button>
-                    <button class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(2,this)">2</button>
-                    <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(3,this)">3</button>
+                    <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(0,this)">0</button>
+                    <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(1,this)">1</button>
+                    <button class="btn-select active py-3 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(2,this)">2</button>
+                    <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(3,this)">3</button>
                 </div></div>
                 <div class="grid grid-cols-2 gap-2">
                     <button id="btn-b2-back" class="w-full py-3 rounded-xl text-sm font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98]">&larr; 1 Block</button>
@@ -236,7 +321,7 @@
             <div class="timer-top w-full flex justify-between items-start">
                 <div class="flex flex-col items-start" style="gap:0.5dvh;">
                     <div id="hr-live-wife" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-purple-600/20 border border-purple-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-purple-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-bpm" class="hr-bpm font-black font-mono-display text-purple-300">--</span></div><canvas id="hr-spark-wife" class="rounded" style="display:block;"></canvas></div>
-                    <div><p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p><div class="flex items-baseline" style="gap:0.3rem;"><span id="current-round" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span><span class="round-slash text-white/60 font-bold t-stroke">/</span><span id="total-rounds" class="round-slash text-white/60 font-bold t-stroke">12</span></div></div>
+                    <div style="display:flex;flex-direction:column;gap:clamp(2px,0.4dvh,6px);"><p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p><div class="flex items-baseline" style="gap:0.3rem;"><span id="current-round" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span><span class="round-slash text-white/60 font-bold t-stroke">/</span><span id="total-rounds" class="round-slash text-white/60 font-bold t-stroke">12</span></div></div>
                 </div>
                 <div class="flex flex-col items-end" style="gap:0.5dvh;">
                     <div id="hr-live-you" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-red-600/20 border border-red-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-red-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-bpm" class="hr-bpm font-black font-mono-display text-red-300">--</span></div><canvas id="hr-spark-you" class="rounded" style="display:block;"></canvas></div>
@@ -434,7 +519,7 @@
         // Standalone quick-rest timer (accessed via button on setup screen).
         const QUICK_REST_SECS=120;
         // Gym rest timer defaults.
-        const GYM_REST_DEFAULT_SECS=90;
+        const GYM_REST_DEFAULT_SECS=60;
 
         // ── SETTINGS STATE ──────────────────────────────────────────────────────
         // Represents the user's current setup-screen choices. Persists for the
@@ -709,8 +794,8 @@
         // Surprise rounds flip the whole screen to white background with red text,
         // then after the GET READY countdown the task (STRAIGHTS/HOOKS) appears in
         // black on white for maximum legibility when you're gassed.
-        function enterSurpriseColours(){ui.roundFocus.style.color='#ef4444';}
-        function exitSurpriseColours(){ui.roundFocus.style.color='';ui.roundFocus.style.webkitTextStrokeColor='';ui.timerDisplay.style.color='';ui.timerDisplay.style.webkitTextStrokeColor='';ui.roundFocus.classList.remove('surprise-task-mode');}
+        function enterSurpriseColours(){ui.roundFocus.style.color='#ef4444';document.body.classList.add('surprise-active');}
+        function exitSurpriseColours(){ui.roundFocus.style.color='';ui.roundFocus.style.webkitTextStrokeColor='';ui.timerDisplay.style.color='';ui.timerDisplay.style.webkitTextStrokeColor='';ui.roundFocus.classList.remove('surprise-task-mode');document.body.classList.remove('surprise-active');}
         function setSurpriseTimerColour(inCountdown){ui.timerDisplay.style.color=inCountdown?'#ef4444':'#6b7280';}
 
         // ── STATS & SUMMARY ─────────────────────────────────────────────────────
@@ -821,7 +906,7 @@
         // screen has the `hidden` class removed; all others have it added.
         const screens={home:document.getElementById('home-screen'),gymDay:document.getElementById('gym-day-screen'),gymWorkout:document.getElementById('gym-workout-screen'),setup:document.getElementById('setup-screen'),timer:document.getElementById('timer-screen'),summary:document.getElementById('summary-screen')};
         // Shorthand cache of frequently-accessed DOM elements.
-        const ui={timerBg:document.getElementById('timer-bg'),modeSolo:document.getElementById('mode-solo'),modeWife:document.getElementById('mode-wife'),restInfo:document.getElementById('rest-info'),inRandom:document.getElementById('in-random'),randomDesc:document.getElementById('random-desc'),toggleBg:document.getElementById('toggle-bg'),gridRounds:document.getElementById('grid-rounds'),previewList:document.getElementById('round-preview'),timerDisplay:document.getElementById('timer-display'),roundCur:document.getElementById('current-round'),roundTot:document.getElementById('total-rounds'),nextUp:document.getElementById('next-up'),roundFocus:document.getElementById('round-focus'),btnStart:document.getElementById('btn-start'),btnQuickRest:document.getElementById('btn-quick-rest'),btnPause:document.getElementById('btn-pause'),btnEnd:document.getElementById('btn-end'),btnNext:document.getElementById('btn-next'),btnPrev:document.getElementById('btn-prev'),gymDayLabel:document.getElementById('gym-day-label'),gymExerciseList:document.getElementById('gym-exercise-list')};
+        const ui={timerBg:document.getElementById('timer-bg'),modeSolo:document.getElementById('mode-solo'),modeWife:document.getElementById('mode-wife'),restInfo:document.getElementById('rest-info'),inRandom:document.getElementById('in-random'),randomDesc:document.getElementById('random-desc'),toggleBg:document.getElementById('toggle-bg'),gridRounds:document.getElementById('grid-rounds'),previewList:document.getElementById('round-preview'),timerDisplay:document.getElementById('timer-display'),roundCur:document.getElementById('current-round'),roundTot:document.getElementById('total-rounds'),nextUp:document.getElementById('next-up'),roundFocus:document.getElementById('round-focus'),btnStart:document.getElementById('btn-start'),btnPause:document.getElementById('btn-pause'),btnEnd:document.getElementById('btn-end'),btnNext:document.getElementById('btn-next'),btnPrev:document.getElementById('btn-prev'),gymDayLabel:document.getElementById('gym-day-label'),gymExerciseList:document.getElementById('gym-exercise-list')};
 
         // Switch visible screen. Also toggles #main-wrap padding so the timer and
         // gym-workout screens go edge-to-edge (they manage their own padding for
@@ -919,16 +1004,98 @@
         document.getElementById('btn-gym-shuffle').onclick=()=>{if(currentGymDay)renderGymWorkout(currentGymDay);};
 
         // ── GYM REST TIMER ──────────────────────────────────────────────────────
-        // Standalone 60/90/120s rest timer on the gym workout screen. Independent
-        // of the boxing session timer - uses its own setInterval (gymRestTimer).
-        const gymRestDisplay=document.getElementById('gym-rest-display'),gymRestToggle=document.getElementById('btn-gym-rest-toggle');
-        // Rest duration picker (60/90/120s buttons). Locked while a rest is running.
-        document.querySelectorAll('.gym-rest-pick').forEach(b=>{b.onclick=()=>{if(gymRestRunning)return;gymRestSecs=parseInt(b.dataset.secs);gymRestDisplay.innerText=gymRestSecs;document.querySelectorAll('.gym-rest-pick').forEach(x=>{x.classList.remove('bg-blue-600','text-white','border-blue-500');x.classList.add('bg-slate-800/50','border-slate-700/30');});b.classList.remove('bg-slate-800/50','border-slate-700/30');b.classList.add('bg-blue-600','text-white','border-blue-500');};});
+        // Standalone rest timer on the gym workout screen. Independent of the boxing
+        // session timer - uses its own setInterval (gymRestTimer) and state flags.
+        //
+        // Three action buttons: Start Timer (idle only) -> Pause + Reset Timer (running)
+        //                      Resume + Reset Timer (paused)
+        //
+        // Picker buttons (60s/90s/120s) use the `.active` class for selection state
+        // (blue when idle, fades to red via CSS when #gym-workout-screen has .rest-running).
+        const gymRestDisplay=document.getElementById('gym-rest-display');
+        const btnGymRestStart=document.getElementById('btn-gym-rest-start');
+        const btnGymRestPause=document.getElementById('btn-gym-rest-pause');
+        const btnGymRestReset=document.getElementById('btn-gym-rest-reset');
+        const gymWorkoutScreenEl=document.getElementById('gym-workout-screen');
         let gymRestCurrent=0;
-        // Start/cancel toggle. Beeps 3-2-1 at end, then bell at 0.
-        gymRestToggle.onclick=()=>{if(gymRestRunning){clearGymRest();return;}initAudio();playSoftBeep();haptic(50);gymRestRunning=true;gymRestCurrent=gymRestSecs;gymRestDisplay.innerText=gymRestCurrent;gymRestToggle.innerText='Cancel';gymRestToggle.classList.remove('bg-green-700','hover:bg-green-600');gymRestToggle.classList.add('bg-red-600','hover:bg-red-500');gymRestTimer=setInterval(()=>{gymRestCurrent--;gymRestDisplay.innerText=Math.max(0,gymRestCurrent);if(gymRestCurrent<=3&&gymRestCurrent>0)playBeep(gymRestCurrent===1);if(gymRestCurrent<=0){playBell();clearGymRest();}},1000);};
-        // Stop the gym rest timer and restore the button to its idle state.
-        function clearGymRest(){if(gymRestTimer)clearInterval(gymRestTimer);gymRestTimer=null;gymRestRunning=false;gymRestDisplay.innerText=gymRestSecs;gymRestToggle.innerText='Start Rest';gymRestToggle.classList.remove('bg-red-600','hover:bg-red-500');gymRestToggle.classList.add('bg-green-700','hover:bg-green-600');}
+        let gymRestPaused=false;
+
+        // Rest duration picker: locked while a rest is running (user must Reset first).
+        document.querySelectorAll('.gym-rest-pick').forEach(b=>{
+            b.onclick=()=>{
+                if(gymRestRunning)return;
+                gymRestSecs=parseInt(b.dataset.secs);
+                gymRestDisplay.innerText=gymRestSecs;
+                document.querySelectorAll('.gym-rest-pick').forEach(x=>x.classList.remove('active'));
+                b.classList.add('active');
+            };
+        });
+
+        // Swap which action buttons are visible based on state.
+        // State transitions: idle -> running -> (paused <-> running) -> idle
+        function updateGymRestButtons(){
+            btnGymRestStart.classList.toggle('hidden',gymRestRunning);
+            btnGymRestPause.classList.toggle('hidden',!gymRestRunning);
+            btnGymRestReset.classList.toggle('hidden',!gymRestRunning);
+            // Pause button label and colour toggle between Pause (orange) and Resume (green).
+            if(gymRestPaused){
+                btnGymRestPause.innerText='Resume';
+                btnGymRestPause.classList.remove('bg-orange-600','hover:bg-orange-500');
+                btnGymRestPause.classList.add('bg-green-700','hover:bg-green-600');
+            }else{
+                btnGymRestPause.innerText='Pause';
+                btnGymRestPause.classList.remove('bg-green-700','hover:bg-green-600');
+                btnGymRestPause.classList.add('bg-orange-600','hover:bg-orange-500');
+            }
+        }
+
+        // Start Timer: begin the countdown. Activates the rest-running body class
+        // which triggers the CSS fade of active picker to red, and animates the
+        // drain fill from 100% down to 0% over the countdown duration.
+        const gymRestDrainEl=document.getElementById('gym-rest-drain');
+        btnGymRestStart.onclick=()=>{
+            initAudio();playSoftBeep();haptic(50);
+            gymRestRunning=true;gymRestPaused=false;
+            gymRestCurrent=gymRestSecs;
+            gymRestDisplay.innerText=gymRestCurrent;
+            gymWorkoutScreenEl.classList.add('rest-running');
+            // Prime drain at 100% (it'll tick down each second in the interval below).
+            // The CSS transition (1s linear) makes the drop smooth between ticks.
+            gymRestDrainEl.style.height='100%';
+            updateGymRestButtons();
+            gymRestTimer=setInterval(()=>{
+                if(gymRestPaused)return;  // Hold the countdown when paused.
+                gymRestCurrent--;
+                gymRestDisplay.innerText=Math.max(0,gymRestCurrent);
+                // Update drain height = (remaining / total) * 100. Matches boxing timer-bg.
+                gymRestDrainEl.style.height=`${Math.max(0,(gymRestCurrent/gymRestSecs)*100)}%`;
+                if(gymRestCurrent<=3&&gymRestCurrent>0)playBeep(gymRestCurrent===1);
+                if(gymRestCurrent<=0){playBell();clearGymRest();}
+            },1000);
+        };
+
+        // Pause / Resume: just flips the flag. The interval keeps firing but early-returns
+        // while paused, so no timing drift accumulates.
+        btnGymRestPause.onclick=()=>{
+            gymRestPaused=!gymRestPaused;
+            haptic(30);
+            updateGymRestButtons();
+        };
+
+        // Reset Timer: stop and reset to idle.
+        btnGymRestReset.onclick=()=>{clearGymRest();};
+
+        // Stop the gym rest timer and restore all UI to idle state.
+        function clearGymRest(){
+            if(gymRestTimer)clearInterval(gymRestTimer);
+            gymRestTimer=null;
+            gymRestRunning=false;
+            gymRestPaused=false;
+            gymRestDisplay.innerText=gymRestSecs;
+            gymRestDrainEl.style.height='0%';
+            gymWorkoutScreenEl.classList.remove('rest-running');
+            updateGymRestButtons();
+        }
 
         // ── BOXING SETUP SCREEN ─────────────────────────────────────────────────
         // Dynamic build of round-count button grids + all the setup-screen select
@@ -939,16 +1106,16 @@
         const format=s=>Math.max(0,s).toString();
 
         // Build block 1 round buttons (1-12). Default active = 12.
-        for(let i=1;i<=12;i++){const b=document.createElement('button');b.className=`btn-select py-1.5 rounded-lg text-[10px] sm:text-xs font-bold ${i===12?'active':''}`;b.innerText=i;b.onclick=()=>selectRound(i,b);ui.gridRounds.appendChild(b);}
+        for(let i=1;i<=12;i++){const b=document.createElement('button');b.className=`btn-select py-2.5 rounded-lg text-[10px] sm:text-xs font-bold ${i===12?'active':''}`;b.innerText=i;b.onclick=()=>selectRound(i,b);ui.gridRounds.appendChild(b);}
         // Build block 2 round buttons (1-6). Default active = 6.
         const gridRoundsB2=document.getElementById('grid-rounds-b2');
-        for(let i=1;i<=6;i++){const b=document.createElement('button');b.className=`btn-select py-1.5 rounded-lg text-[10px] sm:text-xs font-bold ${i===6?'active':''}`;b.innerText=i;b.onclick=()=>selectRoundB2(i,b);gridRoundsB2.appendChild(b);}
+        for(let i=1;i<=6;i++){const b=document.createElement('button');b.className=`btn-select py-2.5 rounded-lg text-[10px] sm:text-xs font-bold ${i===6?'active':''}`;b.innerText=i;b.onclick=()=>selectRoundB2(i,b);gridRoundsB2.appendChild(b);}
 
         // Global-scope select handlers (called from generated buttons and from inline
         // onclick= attributes in the HTML). Each toggles active styling and regenerates
         // the session plan preview where relevant.
         // Round count: also updates the "Randomise" description text (ALL rounds vs middle-only).
-        window.selectRound=(n,el)=>{settings.rounds=n;Array.from(ui.gridRounds.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');ui.randomDesc.innerText=n<=6?"Randomises ALL rounds":`Randomises middle rounds (2 to ${n-1})`;generateSessionPlan();};
+        window.selectRound=(n,el)=>{settings.rounds=n;Array.from(ui.gridRounds.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');ui.randomDesc.innerText=n<=6?"Randomises ALL rounds":`Randomises rounds 2 to ${n-1}`;generateSessionPlan();};
         window.selectRoundB2=(n,el)=>{settings.roundsB2=n;Array.from(gridRoundsB2.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');generateSessionPlan();};
         window.selectWork=(n,el)=>{settings.work=n;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
         window.selectSurprise=(n,el)=>{settings.surpriseCount=n;Array.from(document.getElementById('grid-surprise').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
@@ -1008,14 +1175,14 @@
                 ui.modeSolo.setAttribute('aria-pressed','true');
                 ui.modeWife.setAttribute('aria-pressed','false');
                 ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p>`;
-                root.style.setProperty('--theme-color','#3b82f6');root.style.setProperty('--theme-shadow','rgba(59,130,246,0.4)');
+                root.style.setProperty('--theme-color','#22c55e');root.style.setProperty('--theme-shadow','rgba(34,197,94,0.4)');
                 ui.toggleBg.classList.remove('peer-checked:bg-purple-600');ui.toggleBg.classList.add('peer-checked:bg-green-600');
             }else if(mode==='wife'){
                 ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white";
                 ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
                 ui.modeSolo.setAttribute('aria-pressed','false');
                 ui.modeWife.setAttribute('aria-pressed','true');
-                ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-purple-300 font-bold uppercase tracking-widest">Partner Mode</p><p class="text-[10px] sm:text-xs text-slate-400">2x Rounds. 10s changeover.</p>`;
+                ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-purple-300 font-bold uppercase tracking-widest">Partner Mode</p><p class="text-[10px] sm:text-xs text-slate-400">Alternates each round, 10s changeover.</p>`;
                 root.style.setProperty('--theme-color','#a855f7');root.style.setProperty('--theme-shadow','rgba(168,85,247,0.4)');
                 ui.toggleBg.classList.remove('peer-checked:bg-green-600');ui.toggleBg.classList.add('peer-checked:bg-purple-600');
             }
@@ -1147,11 +1314,20 @@
             ui.timerDisplay.style.color='';ui.timerDisplay.style.webkitTextStrokeColor='';ui.roundFocus.style.webkitTextStrokeColor='';ui.timerBg.classList.remove('rest-pulse');
             // New working phase = fresh per-round HR buffer for the sparklines.
             if(phase==='work'||phase==='surprise'){hrRoundYou=[];hrRoundWife=[];}
-            // Hide the top bar (round counter, HR badges, mute buttons) during surprise
-            // so the full screen goes to the GET READY / TASK text. Restore afterwards.
+            // Hide the top bar (round counter, HR badges, mute buttons) during
+            // active working phases - surprise AND work. During work the user is
+            // focused on the round focus text and timer; the round counter and
+            // controls are distraction. They return during rest/change/block-rest/
+            // ready phases when the user has time to glance at them.
+            //
+            // NOTE: We use `visibility:hidden` rather than `display:none` so the
+            // top bar keeps its layout space. This keeps the big timer digit
+            // locked to the same vertical position on the screen regardless of
+            // whether the top bar is visible or not - prevents the timer from
+            // "jumping" up and down at phase transitions.
             const timerTopEl=document.querySelector('.timer-top');
-            if(phase==='surprise'){timerTopEl.style.display='none';ui.nextUp.style.display='';}
-            else{timerTopEl.style.display='';ui.nextUp.style.display='';}
+            if(phase==='surprise'||phase==='work'){timerTopEl.style.visibility='hidden';timerTopEl.style.display='';ui.nextUp.style.display='';}
+            else{timerTopEl.style.visibility='';timerTopEl.style.display='';ui.nextUp.style.display='';}
 
             // ── DERIVED LOCALS FOR PHASE CONFIG ──
             const isW=settings.mode==='wife';
@@ -1544,21 +1720,26 @@
             const wifeReady=hrDeviceWife&&hrDeviceWife.gatt&&hrDeviceWife.gatt.connected&&hrValueWife!==null;
             if(!youReady&&!wifeReady){hrModal.classList.remove('hidden');}else{startSession();}
         };
-        // Quick Rest button: standalone 120s rest timer. Repurposes the timer screen
-        // and puts mode into the transient 'quick-rest' state. Next button = -10s,
-        // Prev button = +10s (handled in stepPhase quick-rest branch).
-        ui.btnQuickRest.onclick=async()=>{
-            initAudio();primeSpeech();
-            try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}
-            enterFullscreen();
-            document.body.classList.add('timer-running');
-            prevMode=settings.mode;settings.mode='quick-rest';
-            showScreen('timer');
-            session.time=QUICK_REST_SECS;session.total=QUICK_REST_SECS;session.round=1;
-            ui.roundTot.innerText="-";ui.roundCur.innerText="-";
-            session.active=true;
-            setPhase('quick-rest');run();
-        };
+        // Quick Rest buttons: standalone rest timer at 1m/2m/3m. Repurposes the timer
+        // screen and puts mode into the transient 'quick-rest' state. Duration comes
+        // from each button's data-secs attribute. Next button = -10s, Prev button = +10s
+        // (handled in stepPhase quick-rest branch). QUICK_REST_SECS is retained as a
+        // sensible fallback only - active buttons always override it.
+        document.querySelectorAll('.btn-quick-rest').forEach(btn=>{
+            btn.onclick=async()=>{
+                const secs=parseInt(btn.dataset.secs)||QUICK_REST_SECS;
+                initAudio();primeSpeech();
+                try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}
+                enterFullscreen();
+                document.body.classList.add('timer-running');
+                prevMode=settings.mode;settings.mode='quick-rest';
+                showScreen('timer');
+                session.time=secs;session.total=secs;session.round=1;
+                ui.roundTot.innerText="-";ui.roundCur.innerText="-";
+                session.active=true;
+                setPhase('quick-rest');run();
+            };
+        });
 
         // End button: manual session termination.
         ui.btnEnd.onclick=end;
