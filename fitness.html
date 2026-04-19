@@ -1516,7 +1516,7 @@
                 // Standalone 120s rest timer - accessed via "Quick Rest" button on setup
                 // screen. Shows red pulse, no next-up. Caller initialises session.time.
                 ui.timerBg.className="bg-red-600 rest-pulse";
-                autoSizeFocus("Full Rest");ui.roundFocus.innerText="Full Rest";setNextUp('');
+                autoSizeFocus("");ui.roundFocus.innerText="";setNextUp('');
             }
             else if(phase==='surprise'){
                 // Surprise burst: flash-to-white background, SURPRISE_TOTAL (35s) including
