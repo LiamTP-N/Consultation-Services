@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Fitness</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--accent-green:#22c55e;--accent-orange:#f97316;--accent-purple:#a855f7;--accent-red:#ef4444;--theme-color:#3b82f6;--theme-shadow:rgba(59,130,246,0.4);}
+        *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+        body{font-family:'DM Sans',system-ui,sans-serif;overscroll-behavior-y:contain;background-color:#000000;margin:0;-webkit-text-stroke:1px rgba(0,0,0,1);paint-order:stroke fill;}
+        body.timer-running{overflow:hidden;}
+        .font-mono-display{font-family:'Space Mono',monospace;}
+        .glass-card{background:rgba(30,41,59,0.4);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 8px 32px 0 rgba(0,0,0,0.37);}
+        .custom-scrollbar::-webkit-scrollbar{width:4px;}
+        .custom-scrollbar::-webkit-scrollbar-track{background:rgba(0,0,0,0.2);}
+        .custom-scrollbar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:4px;}
+        .btn-select{background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;transition:all 0.2s;}
+        .btn-select.active{background:var(--theme-color);color:white;border-color:var(--theme-color);font-weight:bold;}
+        .hidden{display:none !important;}
+        #timer-bg{position:fixed;bottom:0;left:0;width:100%;z-index:0;transition:height 1s linear,background-color 0.3s ease;}
+        @keyframes restPulse{0%,100%{opacity:1;}50%{opacity:0.8;}}
+        .rest-pulse{animation:restPulse 4s ease-in-out infinite;}
+        .home-btn{transition:all 0.2s ease;position:relative;overflow:hidden;}
+        .home-btn:active{transform:scale(0.97);}
+        .exercise-card{animation:slideIn 0.3s ease forwards;opacity:0;}
+        .exercise-card.done{opacity:0.4 !important;}
+        .exercise-card.done .gym-card-name{text-decoration:line-through;text-decoration-color:rgba(255,255,255,0.3);}
+        .exercise-card.core-card .gym-card-num{background:rgba(249,115,22,0.2) !important;border-color:rgba(249,115,22,0.3) !important;}
+        .exercise-card.core-card .gym-card-num span{color:#fb923c !important;}
+        @keyframes slideIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+        .t-stroke{-webkit-text-stroke:4px rgba(0,0,0,1);paint-order:stroke fill;}
+        .t-stroke-heavy{-webkit-text-stroke:6px rgba(0,0,0,1);paint-order:stroke fill;}
+        .t-stroke-btn{-webkit-text-stroke:0.4px rgba(0,0,0,1);paint-order:stroke fill;}
+        /* Timer screen: safe bottom padding, never clips buttons */
+        #timer-screen{
+            height:100vh;height:100dvh;
+            padding:1.5dvh 0 0;
+            display:flex;flex-direction:column;
+        }
+        .timer-top{padding:0 3vw;flex-shrink:0;}
+        .timer-top .round-num{font-size:clamp(2rem,6.5dvh,3.2rem);}
+        .timer-top .round-slash{font-size:clamp(1rem,3dvh,1.6rem);}
+        .timer-top .round-label-text{font-size:clamp(1rem,3dvh,1.6rem);}
+        .timer-top .ctrl-btn{padding:clamp(5px,1dvh,11px) clamp(10px,2.5vw,18px);gap:clamp(4px,0.8vw,10px);}
+        .timer-top .ctrl-btn svg{width:clamp(15px,2.3dvh,22px);height:clamp(15px,2.3dvh,22px);}
+        .timer-top .ctrl-btn span{font-size:clamp(9px,1.5dvh,14px);}
+        .timer-top .hr-badge-box{padding:clamp(4px,1dvh,12px) clamp(6px,1.5vw,14px);}
+        .timer-top .hr-badge-box svg{width:clamp(16px,2.5dvh,26px);height:clamp(16px,2.5dvh,26px);}
+        .timer-top .hr-badge-box .hr-bpm{font-size:clamp(1.1rem,3.5dvh,2rem);}
+        .timer-top .hr-badge-box canvas{width:clamp(70px,14vw,110px);height:clamp(20px,3.5dvh,34px);}
+        #timer-middle{flex:1;min-height:0;display:grid;grid-template-rows:1fr auto 1fr;align-items:center;justify-items:center;overflow:hidden;padding:0 1rem;}
+        #focus-container{align-self:end;text-align:center;padding-bottom:clamp(4px,1dvh,12px);}
+        #timer-display{font-size:clamp(5rem,25dvh,14rem);line-height:1;}
+        #next-up{font-size:clamp(1.4rem,4.5dvh,2.6rem);line-height:1.2;align-self:start;text-align:center;padding-top:clamp(4px,1dvh,12px);}
+        #next-up{font-size:clamp(1.4rem,4.5dvh,2.6rem);line-height:1.2;}
+        #next-up .next-label{display:block;font-size:clamp(0.8rem,1.8dvh,1.1rem);opacity:0.6;letter-spacing:0.15em;}
+        #next-up .next-content{display:block;}
+        #round-focus{font-size:clamp(1.5rem,6dvh,3rem) !important;}
+        #round-focus.surprise-task-mode{font-size:clamp(1.5rem,6dvh,3rem) !important;}
+        /* Timer bottom: always visible, safe area aware */
+        .timer-bottom{
+            flex-shrink:0;
+            padding:clamp(4px,1dvh,10px) 3vw calc(env(safe-area-inset-bottom) + clamp(6px,1.5dvh,14px));
+            gap:clamp(3px,0.8dvh,8px);
+        }
+        .timer-bottom .btn-row{gap:clamp(6px,1.5vw,16px);}
+        .timer-bottom .btn-nav,
+        .timer-bottom .btn-main{
+            padding:clamp(10px,2dvh,22px) 0;
+            font-size:clamp(15px,2.5dvh,24px);
+            border-radius:clamp(10px,2dvh,20px);
+            color:#ffffff !important;
+            outline:2px solid #000000;
+            outline-offset:-1px;
+        }
+        #gym-workout-screen{height:100vh;height:100dvh;padding:1.5dvh 0.75rem calc(2dvh + env(safe-area-inset-bottom));overflow:hidden;}
+        #gym-workout-screen .gym-header{margin-bottom:clamp(2px,0.5dvh,6px);}
+        #gym-workout-screen .gym-header h1{font-size:clamp(1rem,2.5dvh,1.5rem);}
+        #gym-workout-screen .gym-header p{font-size:clamp(8px,1.2dvh,11px);}
+        #gym-workout-screen .gym-body{display:flex;flex-direction:row;gap:clamp(4px,1vw,10px);flex:1;min-height:0;align-items:stretch;}
+        #gym-workout-screen .gym-list{padding:clamp(4px,0.8dvh,10px);border-radius:clamp(10px,1.5dvh,20px);gap:clamp(2px,0.4dvh,6px);flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-evenly;}
+        #gym-workout-screen .gym-side{width:clamp(110px,30vw,160px);flex-shrink:0;display:flex;flex-direction:column;gap:clamp(4px,0.6dvh,8px);}
+        #gym-workout-screen .gym-rest{padding:clamp(4px,0.8dvh,10px);border-radius:clamp(10px,1.5dvh,20px);gap:clamp(2px,0.4dvh,6px);}
+        #gym-workout-screen .gym-rest .gym-rest-num{font-size:clamp(2rem,6dvh,4rem);}
+        #gym-workout-screen .gym-rest .gym-rest-label{font-size:clamp(7px,1dvh,10px);}
+        #gym-workout-screen .gym-rest .gym-rest-pick-btn{padding:clamp(3px,0.5dvh,8px) clamp(6px,1.5vw,12px);font-size:clamp(9px,1.2dvh,13px);}
+        #gym-workout-screen .gym-rest .gym-rest-go{padding:clamp(5px,1dvh,12px) 0;font-size:clamp(10px,1.5dvh,15px);border-radius:clamp(8px,1.2dvh,14px);}
+        #gym-workout-screen .gym-side-btns{display:flex;flex-direction:column;gap:clamp(3px,0.5dvh,6px);}
+        #gym-workout-screen .gym-side-btns button{padding:clamp(8px,1.5dvh,16px) 0;font-size:clamp(10px,1.4dvh,14px);border-radius:clamp(8px,1.2dvh,14px);}
+        .gym-card{padding:clamp(4px,0.7dvh,10px) clamp(6px,1vw,10px);gap:clamp(4px,0.8vw,10px);border-radius:clamp(6px,1dvh,12px);cursor:pointer;transition:opacity 0.2s ease;}
+        .gym-card .gym-card-num{width:clamp(22px,3.5dvh,36px);height:clamp(22px,3.5dvh,36px);border-radius:clamp(5px,0.8dvh,10px);font-size:clamp(9px,1.4dvh,13px);}
+        .gym-card .gym-card-name{font-size:clamp(12px,1.8dvh,17px);}
+        .gym-card .gym-card-muscle{font-size:clamp(8px,1.1dvh,11px);}
+        /* Setup screen: fixed height, inner settings panel scrolls */
+        #setup-screen{max-height:100vh;max-height:100dvh;overflow-y:auto;display:flex;flex-direction:column;}
+        #setup-screen *{-webkit-text-stroke:0.6px rgba(0,0,0,1);paint-order:stroke fill;}
+        #setup-columns{min-height:0;}
+        /* Settings scroll: takes remaining height, scrolls internally */
+        #settings-scroll{overflow-y:auto;min-height:0;height:100%;}
+        #preview-scroll{overflow-y:auto;min-height:0;}
+        @keyframes heartPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
+        .hr-pulse{animation:heartPulse 0.8s ease-in-out infinite;}
+        .hr-badge{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:all 0.3s ease;}
+        .zone-segment{height:24px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:rgba(0,0,0,0.6);min-width:0;overflow:hidden;}
+        /* Safe-area padding for devices with notches, gesture bars, or system
+           overlays (applies on modern Android Chrome as well as any browser that
+           honours env(safe-area-inset-bottom)). */
+        #home-screen,#gym-day-screen,#setup-screen,#summary-screen{padding-bottom:max(1rem,env(safe-area-inset-bottom));}
+        /* Screen-reader-only utility (invisible to sighted users, readable by assistive tech). */
+        .sr-only-a11y{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen flex flex-col items-center justify-center">
+    <div id="timer-bg" class="h-0 bg-slate-800"></div>
+    <div id="main-wrap" class="relative z-10 w-full flex flex-col items-center justify-center p-4">
+        <!-- HOME -->
+        <div id="home-screen" class="w-full max-w-md space-y-5">
+            <div class="text-center mb-6"><h1 class="text-4xl font-bold text-white tracking-tight">What's Today's Session?</h1></div>
+            <div class="space-y-4">
+                <button id="btn-home-boxing" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-green-500/30"><div class="w-16 h-16 rounded-2xl bg-green-600/20 border border-green-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div><span class="text-3xl font-bold text-white">Boxing</span></button>
+                <button id="btn-home-gym" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-blue-500/30"><div class="w-16 h-16 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h4v12H4zM16 6h4v12h-4zM8 11h8v2H8z"/></svg></div><span class="text-3xl font-bold text-white">Gym</span></button>
+            </div>
+        </div>
+        <!-- GYM DAY PICKER -->
+        <div id="gym-day-screen" class="hidden w-full max-w-md space-y-5">
+            <div class="text-center mb-2"><h1 class="text-3xl font-bold text-white tracking-tight mb-1">What Day Is It?</h1><p class="text-sm text-slate-400">Pick your split.</p></div>
+            <div class="glass-card p-5 rounded-[2rem] space-y-3">
+                <button class="gym-day-btn home-btn w-full py-4 rounded-xl text-left px-5 bg-slate-800/50 border border-slate-700/30 active:scale-[0.97]" data-day="push"><span class="text-base font-bold text-white">Push</span><span class="text-xs text-slate-400 ml-2">Chest, shoulders, triceps</span></button>
+                <button class="gym-day-btn home-btn w-full py-4 rounded-xl text-left px-5 bg-slate-800/50 border border-slate-700/30 active:scale-[0.97]" data-day="pull"><span class="text-base font-bold text-white">Pull</span><span class="text-xs text-slate-400 ml-2">Back, biceps, rear delts</span></button>
+                <button class="gym-day-btn home-btn w-full py-4 rounded-xl text-left px-5 bg-slate-800/50 border border-slate-700/30 active:scale-[0.97]" data-day="legs"><span class="text-base font-bold text-white">Legs</span><span class="text-xs text-slate-400 ml-2">Quads, hamstrings, glutes, calves</span></button>
+                <button class="gym-day-btn home-btn w-full py-4 rounded-xl text-left px-5 bg-slate-800/50 border border-slate-700/30 active:scale-[0.97]" data-day="upper"><span class="text-base font-bold text-white">Upper Body</span><span class="text-xs text-slate-400 ml-2">Full upper mix</span></button>
+                <button class="gym-day-btn home-btn w-full py-4 rounded-xl text-left px-5 bg-slate-800/50 border border-slate-700/30 active:scale-[0.97]" data-day="lower"><span class="text-base font-bold text-white">Lower Body</span><span class="text-xs text-slate-400 ml-2">Full lower mix</span></button>
+            </div>
+            <button id="btn-gym-back" class="w-full py-3 rounded-xl text-sm font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98]">&larr; Back</button>
+        </div>
+        <!-- GYM WORKOUT -->
+        <div id="gym-workout-screen" class="hidden w-full max-w-md flex flex-col">
+            <div class="gym-header text-center flex-shrink-0"><p class="font-bold text-blue-400 uppercase tracking-[0.2em]" id="gym-day-label">Push Day</p><h1 class="font-bold text-white tracking-tight">Today's Exercises</h1></div>
+            <div class="gym-body">
+                <div class="gym-list glass-card flex flex-col" id="gym-exercise-list"></div>
+                <div class="gym-side">
+                    <div id="gym-rest-timer" class="gym-rest glass-card text-center flex flex-col flex-shrink-0">
+                        <p class="gym-rest-label font-bold text-blue-400 uppercase tracking-widest">Rest</p>
+                        <div id="gym-rest-display" class="gym-rest-num font-black font-mono-display text-white">90</div>
+                        <div class="flex flex-col" style="gap:clamp(2px,0.4dvh,4px);"><div class="flex justify-center" style="gap:clamp(2px,0.5vw,6px);"><button class="gym-rest-pick gym-rest-pick-btn rounded-lg font-bold bg-slate-800/50 border border-slate-700/30 hover:border-blue-500/40 transition-all" data-secs="60">60s</button><button class="gym-rest-pick gym-rest-pick-btn rounded-lg font-bold bg-blue-600 text-white border border-blue-500" data-secs="90">90s</button><button class="gym-rest-pick gym-rest-pick-btn rounded-lg font-bold bg-slate-800/50 border border-slate-700/30 hover:border-blue-500/40 transition-all" data-secs="120">120s</button></div>
+                        <button id="btn-gym-rest-toggle" class="gym-rest-go w-full bg-green-700 hover:bg-green-600 text-white font-bold active:scale-[0.98] transition-all">Start Rest</button></div>
+                    </div>
+                    <div class="gym-side-btns flex-1">
+                        <button id="btn-gym-shuffle" class="w-full bg-orange-700 hover:bg-orange-600 text-white font-bold active:scale-[0.98] transition-all">Shuffle</button>
+                        <button id="btn-gym-workout-back" class="w-full bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white font-bold transition-all active:scale-[0.98]">&larr; Back</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- BOXING SETUP -->
+        <div id="setup-screen" class="hidden w-full max-w-lg mx-auto p-2 sm:p-4">
+            <div class="text-center mb-2 flex-shrink-0"><h1 class="text-lg sm:text-2xl font-bold text-white tracking-tight">Boxing Interval Timer</h1></div>
+            <!-- Mode / HR row: fixed -->
+            <div class="glass-card p-3 sm:p-4 rounded-2xl flex-shrink-0 mb-2 sm:mb-3">
+                <div class="flex items-center gap-3">
+                    <div class="flex p-1 bg-slate-800/50 rounded-xl flex-shrink-0" role="group" aria-label="Training mode"><button id="mode-solo" aria-pressed="false" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">Solo</button><button id="mode-wife" aria-pressed="true" class="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white">With Wife</button></div>
+                    <div id="rest-info" class="flex-1 text-center bg-slate-800/30 p-1.5 rounded-lg border border-slate-700/30"><p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p></div>
+                </div>
+                <div id="hr-setup" class="hidden mt-3 pt-3 border-t border-slate-700/50"><div class="flex items-center gap-2">
+                    <button id="btn-hr-you" aria-label="Connect your heart rate monitor" class="flex-1 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold bg-slate-800/50 border border-slate-700/30 hover:border-red-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-red-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-label">Heart Rate Monitor</span></button>
+                    <button id="btn-hr-wife" aria-label="Connect partner heart rate monitor" class="hidden flex-1 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold bg-slate-800/50 border border-slate-700/30 hover:border-purple-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-purple-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-label">Ash's HR</span></button>
+                </div></div>
+            </div>
+            <div class="grid grid-cols-3 gap-2 mb-2 sm:mb-3 flex-shrink-0">
+                <button id="btn-quick-rest" class="col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-xs sm:text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight"><span>Quick Rest</span><span class="opacity-70 text-[10px]">(120s)</span></button>
+                <button id="btn-start" class="col-span-2 bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-2xl text-base sm:text-xl active:scale-[0.98] transition-all">Begin Session</button>
+            </div>
+            <!-- Main layout: settings left, preview right starting from button row -->
+            <div id="setup-columns" class="flex flex-row gap-2 sm:gap-3 items-stretch">
+                <!-- Left: settings -->
+                <div class="flex-1 min-w-0 flex flex-col min-h-0">
+                    <div id="settings-scroll" class="glass-card p-3 sm:p-4 rounded-2xl space-y-3 flex-1 custom-scrollbar overflow-y-auto">
+                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Rounds</label><div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5" id="grid-rounds"></div></div>
+                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Work (Secs)</label><div class="grid grid-cols-3 gap-1.5"><button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(30,this)">30</button><button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(45,this)">45</button><button class="btn-select active py-2 rounded-xl text-xs font-mono-display" onclick="selectWork(60,this)">60</button></div></div>
+                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">"Surprise" Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-surprise">
+                            <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(1,this)">1</button>
+                            <button class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(2,this)">2</button>
+                            <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurprise(3,this)">3</button>
+                        </div></div>
+                        <hr class="border-slate-700/50">
+                        <div class="space-y-1.5">
+                            <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Training Blocks</label>
+                            <div class="grid grid-cols-2 gap-1.5">
+                                <button id="btn-block-1" class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectBlocks(1,this)">1 Block</button>
+                                <button id="btn-block-2" class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectBlocks(2,this)">2 Blocks</button>
+                            </div>
+                        </div>
+                        <div id="block2-inline-summary" class="hidden text-[9px] text-slate-400 text-center py-1">Block 2: <span id="b2-summary-text">6 rds, 3m rest, 2 surprise</span> <button id="btn-b2-edit" class="text-purple-400 font-bold ml-1 underline">Edit</button></div>
+                    </div>
+                </div>
+                <!-- Right: preview panel -->
+                <div class="w-[140px] sm:w-[180px] md:w-[220px] flex-shrink-0 flex flex-col"><div class="glass-card p-2 sm:p-3 rounded-2xl flex flex-col flex-1 min-h-0 space-y-1">
+                    <div class="flex-shrink-0"><div class="flex items-center justify-between mb-1"><span class="text-[10px] sm:text-xs font-bold text-white">Randomise</span><label class="relative inline-flex items-center cursor-pointer flex-shrink-0"><input type="checkbox" id="in-random" class="sr-only peer" checked><div id="toggle-bg" class="w-9 sm:w-10 h-5 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-4 sm:peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label></div><p id="random-desc" class="text-[8px] sm:text-[9px] text-slate-400 leading-tight">Randomises middle rounds (2 to 11)</p><hr class="border-slate-700/50 mt-1"></div>
+                    <h3 class="font-bold text-white text-[9px] sm:text-xs uppercase tracking-widest ml-1 opacity-70 flex-shrink-0">Rounds</h3>
+                    <div id="preview-scroll" class="flex-1 min-h-0 space-y-0.5 pr-1 custom-scrollbar overflow-y-auto"><div id="round-preview"></div></div>
+                </div></div>
+            </div>
+            <button id="btn-boxing-back" class="w-full py-2 rounded-xl text-xs font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98] flex-shrink-0 mt-1">&larr; Back</button>
+        </div>
+        <!-- BLOCK 2 MODAL -->
+        <div id="block2-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm px-4 pb-6" role="dialog" aria-modal="true" aria-labelledby="block2-modal-title">
+            <div class="bg-slate-800 border border-slate-600 rounded-2xl p-4 max-w-sm w-full shadow-2xl space-y-3">
+                <div class="flex items-center justify-between"><h3 id="block2-modal-title" class="text-sm font-bold text-white">Block 2 Settings</h3><button id="btn-b2-close" aria-label="Close Block 2 settings" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button></div>
+                <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block Rest</label><div class="grid grid-cols-3 gap-1.5">
+                    <button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(120,this)">2m</button>
+                    <button class="btn-select active py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(180,this)">3m</button>
+                    <button class="btn-select py-2 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(300,this)">5m</button>
+                </div></div>
+                <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-rounds-b2"></div></div>
+                <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 "Surprise" Rounds</label><div class="grid grid-cols-4 gap-1.5" id="grid-surprise-b2">
+                    <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(0,this)">0</button>
+                    <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(1,this)">1</button>
+                    <button class="btn-select active py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(2,this)">2</button>
+                    <button class="btn-select py-2 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(3,this)">3</button>
+                </div></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="btn-b2-back" class="w-full py-3 rounded-xl text-sm font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98]">&larr; 1 Block</button>
+                    <button id="btn-b2-done" class="w-full py-3 rounded-xl text-sm font-bold bg-purple-600 hover:bg-purple-500 text-white transition-all active:scale-[0.98]">Done</button>
+                </div>
+            </div>
+        </div>
+        <!-- TIMER SCREEN (flex-col set in CSS above) -->
+        <div id="timer-screen" class="hidden w-full max-w-lg">
+            <div class="timer-top w-full flex justify-between items-start">
+                <div class="flex flex-col items-start" style="gap:0.5dvh;">
+                    <div id="hr-live-wife" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-purple-600/20 border border-purple-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-purple-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-bpm" class="hr-bpm font-black font-mono-display text-purple-300">--</span></div><canvas id="hr-spark-wife" class="rounded" style="display:block;"></canvas></div>
+                    <div><p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p><div class="flex items-baseline" style="gap:0.3rem;"><span id="current-round" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span><span class="round-slash text-white/60 font-bold t-stroke">/</span><span id="total-rounds" class="round-slash text-white/60 font-bold t-stroke">12</span></div></div>
+                </div>
+                <div class="flex flex-col items-end" style="gap:0.5dvh;">
+                    <div id="hr-live-you" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-red-600/20 border border-red-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-red-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-bpm" class="hr-bpm font-black font-mono-display text-red-300">--</span></div><canvas id="hr-spark-you" class="rounded" style="display:block;"></canvas></div>
+                    <button id="btn-mute-voice" aria-label="Toggle voice announcements" aria-pressed="true" class="ctrl-btn flex items-center rounded-full backdrop-blur-md bg-black/20 border border-white/10 active:scale-95 transition-all"><svg id="icon-voice-on" class="hidden text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M11 5L6 9H2v6h4l5 4V5z"/></svg><svg id="icon-voice-off" class="text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/></svg><span id="voice-label" class="font-bold uppercase tracking-wider text-red-400">Voice</span></button>
+                    <button id="btn-mute-sound" aria-label="Toggle sound effects" aria-pressed="true" class="ctrl-btn flex items-center rounded-full backdrop-blur-md bg-black/20 border border-white/10 active:scale-95 transition-all"><svg id="icon-sound-on" class="hidden text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M11 5L6 9H2v6h4l5 4V5z"/></svg><svg id="icon-sound-off" class="text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/></svg><span id="sound-label" class="font-bold uppercase tracking-wider text-red-400">Sound</span></button>
+                </div>
+            </div>
+            <div id="timer-middle">
+                <div id="focus-container"><div id="round-focus" class="font-black text-white uppercase leading-tight drop-shadow-lg t-stroke-heavy" aria-live="polite">Warm Up</div></div>
+                <div id="timer-display" class="font-black font-mono-display text-white tracking-tighter drop-shadow-2xl t-stroke-heavy" aria-live="off" aria-label="Seconds remaining">0</div>
+                <div id="next-up" class="font-bold text-slate-400 uppercase tracking-widest t-stroke" aria-live="polite"></div>
+            </div>
+            <div class="timer-bottom w-full flex flex-col">
+                <div class="btn-row grid grid-cols-2">
+                    <button id="btn-prev" class="btn-nav bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 font-bold transition-all active:scale-95 uppercase tracking-wider t-stroke-btn">&larr; Prev</button>
+                    <button id="btn-next" class="btn-nav bg-slate-700/50 hover:bg-slate-700/70 backdrop-blur-md border border-white/5 font-bold transition-all active:scale-95 uppercase tracking-wider t-stroke-btn">Next &rarr;</button>
+                </div>
+                <div class="btn-row grid grid-cols-2">
+                    <button id="btn-pause" class="btn-main bg-orange-500/40 hover:bg-orange-500/50 backdrop-blur-md border border-orange-500/50 font-bold transition-all active:scale-95 t-stroke-btn">Pause</button>
+                    <button id="btn-end" class="btn-main bg-red-500/50 hover:bg-red-500/60 backdrop-blur-md border border-red-500/60 font-bold transition-all active:scale-95 t-stroke-btn">End</button>
+                </div>
+            </div>
+        </div>
+        <!-- SESSION SUMMARY -->
+        <div id="summary-screen" class="hidden w-full max-w-lg py-6 px-2 space-y-4 overflow-y-auto max-h-[100dvh]">
+            <div class="text-center"><h1 class="text-2xl font-bold text-white tracking-tight">Session Complete</h1><p id="summary-duration" class="text-sm text-slate-400 mt-1"></p></div>
+            <div id="summary-capture" class="space-y-4"><div id="summary-you"></div><div id="summary-wife"></div></div>
+            <div class="grid grid-cols-2 gap-3">
+                <button id="btn-summary-save" class="bg-slate-700/50 hover:bg-slate-700/70 border border-white/5 text-white font-bold py-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 3v12m0 0l-4-4m4 4l4-4"/></svg>Save Image</button>
+                <button id="btn-summary-done" class="bg-slate-700/50 hover:bg-slate-700/70 border border-white/5 text-white font-bold py-4 rounded-2xl transition-all active:scale-[0.98]">Done</button>
+            </div>
+        </div>
+    </div>
+    <!-- NO HR MONITOR MODAL -->
+    <div id="hr-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-6" role="dialog" aria-modal="true" aria-labelledby="hr-modal-title">
+        <div class="bg-slate-800 border border-slate-600 rounded-2xl p-6 max-w-xs w-full text-center shadow-2xl">
+            <div class="text-3xl mb-3">&#x1F493;</div>
+            <p id="hr-modal-title" class="text-white font-bold text-base mb-5">Note:<br>No HR Monitor(s) Connected</p>
+            <div class="flex gap-3">
+                <button id="hr-modal-cancel" class="flex-1 py-4 rounded-xl text-base font-bold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition">Go Back</button>
+                <button id="hr-modal-confirm" class="flex-1 py-4 rounded-xl text-base font-bold bg-green-600 hover:bg-green-500 text-white transition">Start Anyway</button>
+            </div>
+        </div>
+    </div>
+    <!-- BLE DISCONNECT TOAST -->
+    <div id="ble-toast" class="hidden fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl bg-red-600/95 backdrop-blur-sm text-white text-sm font-bold shadow-xl pointer-events-none text-center whitespace-nowrap" role="status" aria-live="assertive"></div>
+    <script>
+    /* ============================================================================
+       FITNESS WEB APP - Boxing Interval Timer + Gym Workout Generator
+       ============================================================================
+       AUTHOR CONTEXT
+       Built by Liam (LTP-N) for personal use in a public gym. Used by Liam and
+       his wife Ash, both on Android. Installed to Android home screen as a PWA
+       via a Chrome "add to home screen" pointing at a GitHub Pages URL.
+       Chrome is required (not Firefox) because the heart-rate monitor feature
+       uses Web Bluetooth, which Firefox does not support. Everything else can
+       be opened in any browser.
+       Single-file HTML app - no build step, no framework, Tailwind via CDN.
+
+       ARCHITECTURE OVERVIEW
+       - Everything runs inside one DOMContentLoaded handler below.
+       - State lives in closure variables: `settings`, `session`, plus HR/audio state.
+       - Screens are top-level <div>s swapped in/out via showScreen() - hidden class
+         toggling, no router.
+       - Audio via Web Audio API (oscillators, no sample files).
+       - HR via Web Bluetooth LE heart_rate GATT service (0x180D).
+       - Screen wake via Wake Lock API (with fullscreen fallback attempt).
+       - Session summary rendered to canvas then exported via html2canvas (lazy-loaded).
+
+       TWO MAIN MODES
+       1. BOXING - interval timer with rounds + rest, optional "surprise" burst rounds,
+          optional 2-block session (e.g. 12 rounds heavy, then 6 rounds speed).
+          Two sub-modes:
+            - SOLO: one round, then rest (30s base + 5s per completed round = progressive).
+            - WIFE: user works odd rounds, wife works even rounds, with 10s changeover
+              between (no rest block - my work IS her rest by design).
+       2. GYM - picks 5 exercises (3 compound + 2 isolation, balanced by muscle group)
+          plus 2 core finishers, with a standalone 60/90/120s rest timer.
+
+       PHASE STATE MACHINE (boxing)
+       ready -> work -> [surprise?] -> rest/change -> work -> ... -> [block-rest] -> work -> end
+       Each phase transition goes through setPhase() which:
+       - accumulates time spent in prior phase (for summary stats)
+       - captures end-of-work HR (for recovery drop calculation)
+       - sets timer duration, background colour, focus text, next-up text
+       - triggers appropriate sound/speech cue
+
+       HR TRACKING
+       - Per-person readings stored in hrHistoryYou / hrHistoryWife (capped).
+       - Per-round readings in hrRoundYou / hrRoundWife (reset each work/surprise phase).
+       - Peak tracked in peakHRYou / peakHRWife.
+       - Recovery drops = HR at end of work minus HR at start of next work (if positive).
+       - Zones calculated against Tanaka HRmax (208 - 0.7 * age).
+       - Calorie calculation uses Keytel (2005) formula, clamped 0-20 kcal/min.
+
+       IMPORTANT GOTCHAS FOR FUTURE EDITS
+       - "Wife mode" displays `session.round` going 1..(rounds*2) internally but shows
+         the user `Math.ceil(round/2)`. Plan lookups use `Math.floor((round-1)/2)`.
+       - `totalPlanRoundsCompleted` drives progressive rest in Solo. In Wife mode it
+         only increments on even rounds (when the pair is complete).
+       - `doubleSurprise` capability exists in state but is currently disabled
+         (DOUBLE_SURPRISE_CHANCE = 0). Previously fired randomly, caused glitches.
+       - `session.time` can briefly go negative between ticks - all consumers must clamp.
+       - Surprise rounds have their own timer (SURPRISE_TOTAL = 35s, of which first 5s
+         is "GET READY" countdown, then SURPRISE_WORK = 30s of the actual drill).
+       ============================================================================ */
+
+    // Register service worker for PWA offline capability. Silent fail is fine -
+    // the app works without it, just won't cache when offline.
+    if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}
+
+    document.addEventListener('DOMContentLoaded',()=>{
+        const GYM_EXERCISES={push:[{name:"Chest Press Machine",muscle:"Chest",type:"compound",group:"push"},{name:"Dumbbell Bench Press",muscle:"Chest",type:"compound",group:"push"},{name:"Incline Dumbbell Press",muscle:"Upper Chest",type:"compound",group:"push"},{name:"Pec Deck / Machine Fly",muscle:"Chest",type:"isolation",group:"push"},{name:"Cable Crossover",muscle:"Chest",type:"isolation",group:"push"},{name:"Shoulder Press Machine",muscle:"Shoulders",type:"compound",group:"push"},{name:"Dumbbell Shoulder Press",muscle:"Shoulders",type:"compound",group:"push"},{name:"Dumbbell Lateral Raise",muscle:"Side Delts",type:"isolation",group:"push"},{name:"Dumbbell Front Raise",muscle:"Front Delts",type:"isolation",group:"push"},{name:"Cable Lateral Raise",muscle:"Side Delts",type:"isolation",group:"push"},{name:"Tricep Pushdown (Cable)",muscle:"Triceps",type:"isolation",group:"push"},{name:"Overhead Tricep Extension (Cable)",muscle:"Triceps",type:"isolation",group:"push"},{name:"Dumbbell Tricep Kickback",muscle:"Triceps",type:"isolation",group:"push"},{name:"Tricep Dip Machine",muscle:"Triceps",type:"compound",group:"push"}],pull:[{name:"Lat Pulldown Machine",muscle:"Lats",type:"compound",group:"pull"},{name:"Seated Cable Row",muscle:"Mid Back",type:"compound",group:"pull"},{name:"Dumbbell Bent-Over Row",muscle:"Back",type:"compound",group:"pull"},{name:"Single-Arm Dumbbell Row",muscle:"Lats",type:"compound",group:"pull"},{name:"Face Pulls (Cable)",muscle:"Rear Delts",type:"isolation",group:"pull"},{name:"Rear Delt Fly Machine",muscle:"Rear Delts",type:"isolation",group:"pull"},{name:"Cable Pullover",muscle:"Lats",type:"isolation",group:"pull"},{name:"Assisted Pull-Up Machine",muscle:"Back",type:"compound",group:"pull"},{name:"Dumbbell Bicep Curl",muscle:"Biceps",type:"isolation",group:"pull"},{name:"Cable Bicep Curl",muscle:"Biceps",type:"isolation",group:"pull"},{name:"Hammer Curl (Dumbbell)",muscle:"Biceps",type:"isolation",group:"pull"},{name:"Dumbbell Shrug",muscle:"Traps",type:"isolation",group:"pull"},{name:"Reverse Cable Fly",muscle:"Rear Delts",type:"isolation",group:"pull"},{name:"Preacher Curl Machine",muscle:"Biceps",type:"isolation",group:"pull"}],legs:[{name:"Leg Press Machine",muscle:"Quads / Glutes",type:"compound",group:"quad"},{name:"Leg Extension Machine",muscle:"Quads",type:"isolation",group:"quad"},{name:"Leg Curl Machine",muscle:"Hamstrings",type:"isolation",group:"hip"},{name:"Calf Raise Machine",muscle:"Calves",type:"isolation",group:"other"},{name:"Goblet Squat (Dumbbell)",muscle:"Quads / Glutes",type:"compound",group:"quad"},{name:"Dumbbell Romanian Deadlift",muscle:"Hamstrings / Glutes",type:"compound",group:"hip"},{name:"Hip Adductor Machine",muscle:"Adductors",type:"isolation",group:"other"},{name:"Hip Abductor Machine",muscle:"Abductors",type:"isolation",group:"other"},{name:"Smith Machine Squat",muscle:"Quads / Glutes",type:"compound",group:"quad"},{name:"Dumbbell Walking Lunges",muscle:"Quads / Glutes",type:"compound",group:"quad"},{name:"Hip Thrust Machine",muscle:"Glutes",type:"compound",group:"hip"},{name:"Dumbbell Step-Ups",muscle:"Quads / Glutes",type:"compound",group:"quad"},{name:"Seated Calf Raise",muscle:"Calves",type:"isolation",group:"other"},{name:"Dumbbell Sumo Squat",muscle:"Quads / Adductors",type:"compound",group:"quad"}]};
+        const CORE_EXERCISES=[{name:"Plank Hold",muscle:"Core"},{name:"Dead Bug",muscle:"Core"},{name:"Cable Woodchop",muscle:"Obliques"},{name:"Pallof Press (Cable)",muscle:"Core"},{name:"Hanging Knee Raise",muscle:"Lower Abs"},{name:"Ab Rollout",muscle:"Core"},{name:"Bird Dog",muscle:"Core / Lower Back"},{name:"Cable Crunch",muscle:"Abs"},{name:"Side Plank",muscle:"Obliques"},{name:"Farmer's Walk",muscle:"Core / Grip"}];
+        const DAY_LABELS={push:"Push Day",pull:"Pull Day",legs:"Leg Day",upper:"Upper Body",lower:"Lower Body"};
+        const PROGRAM_12_ROUNDS=[
+            {name:"Warm Up",family:"warmup",cat:"warmup",moves:['Jab','1-2','Breathe','1-2','Shake out']},
+            {name:"1-2 > Hook (Power)",family:"12hook",cat:"pair",moves:['Hard 1-2-3','Jab > Cross > Hook (Heavy)','Sit Down 1-2 > Hook']},
+            {name:"Uppercut > Cross (Speed)",family:"uppercross",cat:"pair",moves:['Fast Uppercut > Cross','Snap Uppercut > Jab','Quick 5-2','Quick 6-1']},
+            {name:"4 Punch Combos (Power)",family:"4punch",cat:"combo",moves:['Hard 1-2-3-2','Heavy 1-2-5-2','Big Jab > Cross > Hook > Cross']},
+            {name:"Single Shots (Power)",family:"singles",cat:"single",moves:['Power Jab','Hard Cross','Big Hook','Overhand','Body Shot']},
+            {name:"1-2's (Speed)",family:"12s",cat:"pair",moves:['Fast 1-2','Touch-Touch','Jab > Cross (Fast)','High-Low']},
+            {name:"Double Jab > Cross (Power)",family:"dbljab",cat:"pair",moves:['Hard 1-1-2','1-1 > Heavy Cross','Power 1-1-2']},
+            {name:"3 Punch Combos (Speed)",family:"3punch",cat:"combo",moves:['Fast 1-2-3','Touch-Touch-Bang','Speed 3s']},
+            {name:"Hooks Only (Power)",family:"hooks",cat:"single",moves:['Big Lead Hook','Heavy Rear Hook','Hard Body Hook','Power 3-4']},
+            {name:"Hook > Hook (Speed)",family:"hookhook",cat:"single",moves:['Fast Lead > Rear Hook','Quick 3-4','Snap Hook > Hook','Speed Double Hooks']},
+            {name:"Jab > Hook (Power)",family:"jabhook",cat:"pair",moves:['Hard Jab > Lead Hook','Power Jab > Rear Hook','Heavy 1-3']},
+            {name:"Non-stop (Speed)",family:"nonstop",cat:"burnout",moves:['Non-stop','1-2-1-2','Burnout','Speed','Go Go Go']}
+        ];
+        const ROUND_POOL=[
+            {name:"Single Shots (Speed)",family:"singles",cat:"single",moves:['Fast Jab','Snap Cross','Quick Hook','Speed Single Shots']},
+            {name:"Single Shots (Power)",family:"singles",cat:"single",moves:['Power Jab','Hard Cross','Big Hook','Overhand','Body Shot']},
+            {name:"1-2's (Speed)",family:"12s",cat:"pair",moves:['Fast 1-2','Touch-Touch','Jab > Cross (Fast)','High-Low']},
+            {name:"1-2's (Power)",family:"12s",cat:"pair",moves:['Hard 1-2','Power 1-2','Sit Down 1-2','Heavy Jab > Cross']},
+            {name:"Double Jab > Cross (Speed)",family:"dbljab",cat:"pair",moves:['Fast 1-1-2','Quick Jab > Jab > Cross','Snap 1-1-2']},
+            {name:"Double Jab > Cross (Power)",family:"dbljab",cat:"pair",moves:['Hard 1-1-2','1-1 > Heavy Cross','Power 1-1-2']},
+            {name:"1-2 > Hook (Speed)",family:"12hook",cat:"pair",moves:['Fast 1-2-3','Quick Jab > Cross > Hook','Snap 1-2 > Hook']},
+            {name:"1-2 > Hook (Power)",family:"12hook",cat:"pair",moves:['Hard 1-2-3','Jab > Cross > Hook (Heavy)','Sit Down 1-2 > Hook']},
+            {name:"1-2 > Uppercut (Speed)",family:"12upper",cat:"pair",moves:['Fast 1-2-5','Quick 1-2-6','Snap Jab > Cross > Uppercut']},
+            {name:"1-2 > Uppercut (Power)",family:"12upper",cat:"pair",moves:['Hard 1-2-5','Heavy 1-2-6','Big Jab > Cross > Uppercut']},
+            {name:"4 Straight Punches (Speed)",family:"4straight",cat:"combo",moves:['Fast 1-2-1-2','Quick Jab > Cross > Jab > Cross','Speed Straights']},
+            {name:"4 Straight Punches (Power)",family:"4straight",cat:"combo",moves:['Hard 1-2-1-2','Heavy Straights','Power Jab > Cross > Jab > Cross']},
+            {name:"Hooks Only (Speed)",family:"hooks",cat:"single",moves:['Fast Lead Hook','Quick Rear Hook','Snap Hooks','Speed 3-4']},
+            {name:"Hooks Only (Power)",family:"hooks",cat:"single",moves:['Big Lead Hook','Heavy Rear Hook','Hard Body Hook','Power 3-4']},
+            {name:"Jab > Cross > Hook > Cross (Speed)",family:"1232",cat:"combo",moves:['Fast 1-2-3-2','Quick Jab > Cross > Hook > Cross']},
+            {name:"Jab > Cross > Hook > Cross (Power)",family:"1232",cat:"combo",moves:['Hard 1-2-3-2','Heavy Jab > Cross > Hook > Cross']},
+            {name:"Hook > Straight (Speed)",family:"hookstr",cat:"pair",moves:['Fast 3-2','Quick Hook > Cross','Snap Hook > Straight']},
+            {name:"Hook > Straight (Power)",family:"hookstr",cat:"pair",moves:['Hard 3-2','Heavy Hook > Cross','Big Hook > Straight']},
+            {name:"Head > Body (Speed)",family:"headbody",cat:"level",moves:['Fast High-Low','Quick Head > Body','Snap Up-Down']},
+            {name:"Head > Body (Power)",family:"headbody",cat:"level",moves:['Hard High-Low','Heavy Head > Body','Big Up > Down']},
+            {name:"3 Punch Combos (Speed)",family:"3punch",cat:"combo",moves:['Fast 1-2-3','Touch-Touch-Bang','Speed 3s']},
+            {name:"3 Punch Combos (Power)",family:"3punch",cat:"combo",moves:['Hard 1-2-3','Heavy 2-3-2','Power 3-2-3','Big 5-2-3']},
+            {name:"Non-stop (Speed)",family:"nonstop",cat:"burnout",moves:['1-2-1-2 Fast','Speed Punches','Fast Hands']},
+            {name:"Non-stop (Power)",family:"nonstop",cat:"burnout",moves:['Hard Non-stop','Heavy Combos','Power Flurry']},
+            {name:"Uppercut > Cross (Speed)",family:"uppercross",cat:"pair",moves:['Fast Uppercut > Cross','Snap Uppercut > Jab','Quick 5-2','Quick 6-1']},
+            {name:"Uppercut > Cross (Power)",family:"uppercross",cat:"pair",moves:['Hard Uppercut > Cross','Heavy Uppercut > Jab','Big 5-2','Power 6-1']},
+            {name:"Hook > Hook (Speed)",family:"hookhook",cat:"single",moves:['Fast Lead > Rear Hook','Quick 3-4','Snap Hook > Hook','Speed Double Hooks']},
+            {name:"Hook > Hook (Power)",family:"hookhook",cat:"single",moves:['Hard Lead > Rear Hook','Heavy 3-4','Big Hook > Hook','Power Double Hooks']},
+            {name:"Body > Head (Speed)",family:"bodyhead",cat:"level",moves:['Fast Low-High','Quick Body > Head','Snap Down-Up']},
+            {name:"Body > Head (Power)",family:"bodyhead",cat:"level",moves:['Hard Low-High','Heavy Body > Head','Big Down > Up']},
+            {name:"Jab > Hook (Speed)",family:"jabhook",cat:"pair",moves:['Fast Jab > Lead Hook','Quick Jab > Rear Hook','Snap 1-3']},
+            {name:"Jab > Hook (Power)",family:"jabhook",cat:"pair",moves:['Hard Jab > Lead Hook','Power Jab > Rear Hook','Heavy 1-3']},
+            {name:"Cross > Uppercut > Straight (Speed)",family:"crossupper",cat:"combo",moves:['Fast Cross > Uppercut > Jab','Quick 2-5-2','Snap Cross > Upper > Straight']},
+            {name:"Cross > Uppercut > Straight (Power)",family:"crossupper",cat:"combo",moves:['Hard Cross > Uppercut > Jab','Heavy 2-5-2','Big Cross > Upper > Straight']},
+            {name:"4 Punch Combos (Speed)",family:"4punch",cat:"combo",moves:['Fast 1-2-3-2','Quick 1-2-5-2','Speed 4s']},
+            {name:"4 Punch Combos (Power)",family:"4punch",cat:"combo",moves:['Hard 1-2-3-2','Heavy 1-2-5-2','Big Jab > Cross > Hook > Cross']}
+        ];
+        const HOOKS_ONLY_ENTRIES=ROUND_POOL.filter(r=>r.family==='hooks');
+
+        // ── NAMED CONSTANTS ─────────────────────────────────────────────────────
+        // HR zone colours (Z1 blue = recovery, Z5 red = max effort).
+        const ZONE_COLORS=['#3b82f6','#22c55e','#eab308','#f97316','#ef4444'];
+        const ZONE_NAMES=['Z1','Z2','Z3','Z4','Z5'];
+        // Cap HR readings stored per person (2 hours at 1 reading/sec).
+        const HR_HISTORY_CAP=7200;
+        // Surprise round: SURPRISE_TOTAL is full duration including "GET READY"
+        // countdown. SURPRISE_WORK is the working portion (task displayed).
+        // So GET_READY = SURPRISE_TOTAL - SURPRISE_WORK = 5 seconds.
+        const SURPRISE_TOTAL=35,SURPRISE_WORK=30;
+        // Probability (0..1) that completing a surprise round triggers another
+        // surprise immediately. Set to 0 to disable. Previously 0.05 but logic
+        // was buggy - keeping the hook in place but disabled for now.
+        const DOUBLE_SURPRISE_CHANCE=0;
+        // Emphasis streak cap: after this many consecutive Speed or Power rounds,
+        // the planner blocks another of the same emphasis. Keeps sessions varied.
+        const EMPHASIS_STREAK_CAP=2;
+        // Progressive rest: Solo mode starts at restBase seconds, adds this many
+        // seconds for each completed round. Wife mode does NOT use this (partner
+        // changeover is fixed 10s because user's work IS wife's rest).
+        const PROGRESSIVE_REST_INCREMENT_SECS=5;
+        // Partner mode changeover between work rounds (user work -> wife work).
+        const PARTNER_CHANGEOVER_SECS=10;
+        // "Get ready" countdown at session start.
+        const READY_PHASE_SECS=20;
+        // Standalone quick-rest timer (accessed via button on setup screen).
+        const QUICK_REST_SECS=120;
+        // Gym rest timer defaults.
+        const GYM_REST_DEFAULT_SECS=90;
+
+        // ── SETTINGS STATE ──────────────────────────────────────────────────────
+        // Represents the user's current setup-screen choices. Persists for the
+        // life of the page (not saved to localStorage - intentional: fresh
+        // start each session). `mode` is 'solo' | 'wife' | 'quick-rest' (the last
+        // is a transient mode for the standalone 120s rest timer).
+        let settings={
+            mode:'wife',           // 'solo' (user only) | 'wife' (partner mode) | 'quick-rest'
+            rounds:12,             // Block 1 round count (1-12)
+            work:60,               // Work interval duration per round (30/45/60s)
+            restBase:30,           // Solo mode base rest before progressive increment
+            randomiseMiddle:true,  // Shuffle middle rounds (keeps warm-up / burnout fixed when >6 rounds)
+            surpriseCount:2,       // Number of "surprise" bursts injected into block 1
+            blocks:1,              // 1 or 2 training blocks
+            blockRestSecs:180,     // Rest between block 1 and block 2 (120/180/300s)
+            roundsB2:6,            // Block 2 round count
+            surpriseCountB2:2      // Block 2 surprise count
+        },prevMode='wife';
+
+        // ── SESSION STATE ───────────────────────────────────────────────────────
+        // Represents the LIVE session as it runs. Reset at startSession().
+        let session={
+            active:false,          // true between startSession() and end()
+            paused:false,          // true when pause button pressed
+            phase:'ready',         // 'ready'|'work'|'rest'|'change'|'surprise'|'block-rest'|'quick-rest'
+            round:1,               // Internal round counter. In Wife mode 1..(rounds*2); user sees ceil(round/2).
+            time:10,               // Seconds remaining in current phase (countdown)
+            total:10,              // Total seconds of current phase (for UI height %)
+            timer:null,            // setInterval handle
+            plan:[],               // Block 1 planned rounds (array of ROUND_POOL entries)
+            planB2:[],             // Block 2 planned rounds
+            // Surprise tracking - which round-indices (0-based within plan) should
+            // fire a surprise, and which have already triggered.
+            surpriseRoundsYou:new Set(),surpriseRoundsWife:new Set(),
+            surpriseTriggeredYou:new Set(),surpriseTriggeredWife:new Set(),
+            surpriseRoundsYouB2:new Set(),surpriseRoundsWifeB2:new Set(),
+            surpriseTriggeredYouB2:new Set(),surpriseTriggeredWifeB2:new Set(),
+            halfwayPlayed:false,   // Prevents double-playing the halfway beep
+            last10Played:false,    // Prevents double-playing the 10s warning tone
+            targetEndTime:0,       // Wall-clock ms when current phase ends (drift-resistant)
+            surpriseTask:'',       // 'STRAIGHTS' or 'HOOKS' (randomised per surprise)
+            currentBlock:1,        // 1 or 2 - which block we're currently in
+            totalPlanRoundsCompleted:0,  // Drives progressive rest escalation in Solo mode
+            doubleSurprise:false   // Flag: current surprise is a chained second surprise. See DOUBLE_SURPRISE_CHANCE.
+        };
+        let audioCtx=null,masterGain=null,wakeLock=null,currentGymDay=null,voiceMuted=true,soundMuted=true;
+        let hrDeviceYou=null,hrDeviceWife=null,hrCharYou=null,hrCharWife=null,hrValueYou=null,hrValueWife=null;
+        let hrHistoryYou=[],hrHistoryWife=[],hrRoundYou=[],hrRoundWife=[],sessionStartTime=0,lastSparkDrawYou=0,lastSparkDrawWife=0;
+        let endOfWorkHRYou=null,endOfWorkHRWife=null,recoveryDropsYou=[],recoveryDropsWife=[];
+        let peakHRYou={bpm:0,round:0},peakHRWife={bpm:0,round:0};
+        // Phase-time tracking. Stored internally in milliseconds to avoid cumulative
+        // rounding drift across many phase transitions - a 12-round session has ~24
+        // phase changes, each previously losing up to 0.5s to Math.round(). Now we
+        // accumulate exact ms and round only when reading out for the summary.
+        let workMsTotal=0,restMsTotal=0,workMsYou=0,workMsWife=0,restMsYou=0,restMsWife=0,phaseStartWall=0;
+        // Backwards-compat getters: the summary code reads *Secs* properties. Wrap the
+        // ms counters in a Proxy-free read-only accessor style. We just expose helpers.
+        function workSecs(kind){
+            // kind: 'total'|'you'|'wife'
+            const ms=kind==='total'?workMsTotal:kind==='you'?workMsYou:workMsWife;
+            return Math.round(ms/1000);
+        }
+        function restSecs(kind){
+            const ms=kind==='total'?restMsTotal:kind==='you'?restMsYou:restMsWife;
+            return Math.round(ms/1000);
+        }
+
+        // Accumulate time spent in the just-finished phase before transitioning.
+        // Called from setPhase() at the start of every transition, and from pause
+        // handler (to freeze the accumulator while paused), and from end().
+        // Work-kind phases: 'work','surprise'. Rest-kind phases: 'rest','change','block-rest'.
+        // In Wife mode, odd rounds are attributed to user, even to wife.
+        function accumulatePhaseTime(){
+            if(phaseStartWall<=0)return;
+            const elapsedMs=Date.now()-phaseStartWall;
+            const isW=settings.mode==='wife';
+            if(session.phase==='work'||session.phase==='surprise'){
+                workMsTotal+=elapsedMs;
+                if(isW){if(session.round%2!==0)workMsYou+=elapsedMs;else workMsWife+=elapsedMs;}
+                else{workMsYou+=elapsedMs;}
+            }else if(session.phase==='rest'||session.phase==='change'||session.phase==='block-rest'){
+                restMsTotal+=elapsedMs;
+                if(isW){if(session.round%2!==0)restMsYou+=elapsedMs;else restMsWife+=elapsedMs;}
+                else{restMsYou+=elapsedMs;}
+            }
+            phaseStartWall=0;
+        }
+
+        // Gym rest timer state (separate from boxing timer - used on the gym workout screen).
+        let gymRestTimer=null,gymRestSecs=GYM_REST_DEFAULT_SECS,gymRestRunning=false;
+
+        // Short haptic buzz via Vibration API. Supported on Android Chrome (the
+        // target platform). Silent no-op on browsers that don't expose it.
+        function haptic(ms){try{if(navigator.vibrate)navigator.vibrate(ms||50);}catch(e){}}
+
+        // Non-mutating shuffle (Fisher-Yates on a copy). Returns a new array;
+        // original input is untouched. Previously mutated in place, which was
+        // safe only because every caller already spread-copied the source.
+        function shuffle(arr){
+            const out=arr.slice();
+            for(let i=out.length-1;i>0;i--){
+                const j=Math.floor(Math.random()*(i+1));
+                [out[i],out[j]]=[out[j],out[i]];
+            }
+            return out;
+        }
+
+        // ── BLE / HEART RATE ────────────────────────────────────────────────────
+        // Uses Web Bluetooth to connect to standard HR monitors (Polar, Wahoo, Garmin,
+        // most chest straps). Service UUID 'heart_rate' = 0x180D, characteristic
+        // 'heart_rate_measurement' = 0x2A37.
+        const hasBLE=!!navigator.bluetooth;
+        const hrSetupEl=document.getElementById('hr-setup'),btnHrYou=document.getElementById('btn-hr-you'),btnHrWife=document.getElementById('btn-hr-wife');
+        const hrYouLabel=document.getElementById('hr-you-label'),hrWifeLabel=document.getElementById('hr-wife-label');
+        const hrLiveYou=document.getElementById('hr-live-you'),hrLiveWife=document.getElementById('hr-live-wife');
+        const hrYouBpm=document.getElementById('hr-you-bpm'),hrWifeBpm=document.getElementById('hr-wife-bpm');
+        const sparkYou=document.getElementById('hr-spark-you'),sparkWife=document.getElementById('hr-spark-wife');
+        // Only reveal the HR setup section if the browser supports Web Bluetooth.
+        // Firefox does NOT support Web Bluetooth - which is why this app needs
+        // Chrome specifically. Android Chrome (the target platform) is fully supported.
+        // Defensive null check: element should always exist but guards against DOM changes.
+        if(hasBLE&&hrSetupEl)hrSetupEl.classList.remove('hidden');
+
+        // Parse HR measurement characteristic per Bluetooth spec 3.106 section 4.2.
+        // First byte = flags; bit 0 tells us whether HR value is 8-bit or 16-bit.
+        function parseHR(v){try{const f=v.getUint8(0);return(f&0x01)?v.getUint16(1,true):v.getUint8(1);}catch(e){return null;}}
+
+        // Record an HR reading into history (for summary charts) and round-local
+        // buffer (for the live sparkline during a working phase).
+        function recordHR(who,bpm){
+            const t=(Date.now()-sessionStartTime)/1000,e={t,bpm,round:session.round,phase:session.phase};
+            if(who==='you'){
+                if(hrHistoryYou.length<HR_HISTORY_CAP)hrHistoryYou.push(e);
+                hrRoundYou.push(e);
+                if(bpm>peakHRYou.bpm){peakHRYou.bpm=bpm;peakHRYou.round=session.round;}
+            }else{
+                if(hrHistoryWife.length<HR_HISTORY_CAP)hrHistoryWife.push(e);
+                hrRoundWife.push(e);
+                if(bpm>peakHRWife.bpm){peakHRWife.bpm=bpm;peakHRWife.round=session.round;}
+            }
+        }
+
+        // Handle inbound HR reading from BLE characteristic. Updates live BPM display
+        // and (if session active) persists to history. Sparkline redraws throttled to 1Hz.
+        function onHRReading(who,bpm){
+            if(bpm===null)return;
+            if(who==='you'){
+                hrValueYou=bpm;hrYouBpm.innerText=bpm;
+                if(session.active)recordHR('you',bpm);
+                const n=Date.now();
+                if(n-lastSparkDrawYou>1000){lastSparkDrawYou=n;drawSpark(sparkYou,hrRoundYou,'#f87171');}
+            }else{
+                hrValueWife=bpm;hrWifeBpm.innerText=bpm;
+                if(session.active)recordHR('wife',bpm);
+                const n=Date.now();
+                if(n-lastSparkDrawWife>1000){lastSparkDrawWife=n;drawSpark(sparkWife,hrRoundWife,'#c084fc');}
+            }
+        }
+
+        // Trigger the browser's BLE device picker. Filters to devices advertising
+        // the standard HR service. User cancellation (NotFoundError) is silent.
+        async function connectHR(who){try{const d=await navigator.bluetooth.requestDevice({filters:[{services:['heart_rate']}]});await setupDevice(d,who);}catch(e){if(e.name!=='NotFoundError')console.error('BLE:',e);}}
+
+        // Wire up a picked device: connect, subscribe to notifications, install
+        // disconnect handler. On disconnect, try up to 3 auto-reconnect attempts
+        // before giving up and showing the toast.
+        async function setupDevice(device,who){
+            const server=await device.gatt.connect();
+            const svc=await server.getPrimaryService('heart_rate');
+            const ch=await svc.getCharacteristic('heart_rate_measurement');
+            await ch.startNotifications();
+            const nm=device.name?device.name.substring(0,12):'Connected';
+            ch.addEventListener('characteristicvaluechanged',e=>onHRReading(who,parseHR(e.target.value)));
+            if(who==='you'){hrDeviceYou=device;hrCharYou=ch;hrYouLabel.innerText=settings.mode==='wife'?"Liam's HR":nm;btnHrYou.classList.add('border-red-500/60');}
+            else{hrDeviceWife=device;hrCharWife=ch;hrWifeLabel.innerText=nm;btnHrWife.classList.add('border-purple-500/60');}
+            device.addEventListener('gattserverdisconnected',async()=>{
+                // Auto-reconnect attempts: 3 retries, 1s apart. Silent during attempts.
+                for(let a=0;a<3;a++){try{await new Promise(r=>setTimeout(r,1000));if(!device.gatt)break;await setupDevice(device,who);return;}catch(e){}}
+                // All retries failed: clear state and notify via toast.
+                if(who==='you'){hrDeviceYou=null;hrCharYou=null;hrValueYou=null;hrYouLabel.innerText=settings.mode==='wife'?"Liam's HR":"Heart Rate Monitor";btnHrYou.classList.remove('border-red-500/60');hrYouBpm.innerText='--';}
+                else{hrDeviceWife=null;hrCharWife=null;hrValueWife=null;hrWifeLabel.innerText="Ash's HR";btnHrWife.classList.remove('border-purple-500/60');hrWifeBpm.innerText='--';}
+                showBleToast(who);
+            });
+        }
+        // HR button click: toggle connect/disconnect.
+        btnHrYou.onclick=()=>{if(hrDeviceYou&&hrDeviceYou.gatt.connected)hrDeviceYou.gatt.disconnect();else connectHR('you');};
+        btnHrWife.onclick=()=>{if(hrDeviceWife&&hrDeviceWife.gatt.connected)hrDeviceWife.gatt.disconnect();else connectHR('wife');};
+        // Show/hide the live HR badges on the timer screen based on which devices are connected.
+        function updateHRVisibility(){hrLiveYou.classList.toggle('hidden',!(hrDeviceYou&&hrDeviceYou.gatt.connected));hrLiveWife.classList.toggle('hidden',!(hrDeviceWife&&hrDeviceWife.gatt.connected));}
+        // Ephemeral top toast for BLE disconnect - only shows during active session.
+        function showBleToast(who){if(!session.active)return;const name=who==='you'?(settings.mode==='wife'?"Liam's":"HR"):"Ash's";const toast=document.getElementById('ble-toast');toast.innerText='\u26A0\uFE0F '+name+' HR monitor disconnected';toast.classList.remove('hidden');setTimeout(()=>toast.classList.add('hidden'),4000);}
+
+        // Draw a rolling-60-reading HR sparkline onto the small canvas in the live
+        // HR badge. Auto-scales to the visible range +- 5bpm for readable variation.
+        function drawSpark(c,data,color){const ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);const slice=data.length>60?data.slice(-60):data;if(slice.length<2)return;const b=slice.map(d=>d.bpm),mn=Math.min(...b)-5,mx=Math.max(...b)+5,rg=mx-mn||1;ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.lineJoin='round';const s=w/(slice.length-1);slice.forEach((d,i)=>{const x=i*s,y=h-((d.bpm-mn)/rg)*h;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();}
+
+        // ── AUDIO ───────────────────────────────────────────────────────────────
+        // All sound synthesised via Web Audio API oscillators - no sample files,
+        // keeps the app tiny and offline-capable. Mute state is `soundMuted` (default
+        // true; user unmutes via the sound icon on the timer screen).
+        //
+        // Gain note: masterGain is set to 3.0 which is hotter than typical (1.0 is
+        // full scale). Web Audio does NOT hard-clip at 1.0 so this produces audible
+        // output on gym phones in noisy environments. Some devices may distort on
+        // transients - acceptable trade-off for audibility over a boxing bag.
+        //
+        // All browsers require a user gesture to start AudioContext - initAudio()
+        // is called from onclick handlers (Begin Session, Quick Rest, etc.).
+
+        // Create or resume the shared AudioContext and master gain. Idempotent -
+        // safe to call on every user interaction.
+        function initAudio(){
+            if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+            if(audioCtx.state==='suspended')audioCtx.resume();
+            if(!masterGain){masterGain=audioCtx.createGain();masterGain.gain.value=3.0;masterGain.connect(audioCtx.destination);}
+        }
+        // "Prime" speech synthesis with a silent dummy utterance on first gesture -
+        // some browsers require this before subsequent speak() calls will produce audio.
+        function primeSpeech(){try{const u=new SpeechSynthesisUtterance('');u.volume=0;u.rate=1;window.speechSynthesis.speak(u);}catch(e){}}
+
+        // Bell: three-layered oscillator stack (fundamental sine + two triangle
+        // harmonics) with exponential decay. Phase-transition cue.
+        function playBell(){if(soundMuted||!audioCtx)return;haptic(100);const now=audioCtx.currentTime;[440,880,1200].forEach((f,i)=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=i===0?'sine':'triangle';o.frequency.setValueAtTime(f,now);g.connect(masterGain);o.connect(g);g.gain.setValueAtTime(0.5/(i+1),now);g.gain.exponentialRampToValueAtTime(0.0001,now+(i===0?2:1));o.start(now);o.stop(now+2);});}
+        // Double bell: two bells 300ms apart - used for block rest and final round.
+        function playDoubleBell(){playBell();setTimeout(()=>playBell(),300);}
+        // Finish: C-E-G major triad played three times in sequence - session end.
+        function playFinishBell(){if(soundMuted||!audioCtx)return;haptic(200);const now=audioCtx.currentTime;[0,0.25,0.5].forEach(off=>{[523,659,784].forEach((f,i)=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.setValueAtTime(f,now+off);g.connect(masterGain);o.connect(g);g.gain.setValueAtTime(0.3/(i+1),now+off);g.gain.exponentialRampToValueAtTime(0.0001,now+off+1.5);o.start(now+off);o.stop(now+off+1.5);});});}
+        // Short beep: 600Hz normal, 1000Hz on the "high" flag - final 3-2-1 countdown (1 is high).
+        function playBeep(high=false){if(soundMuted||!audioCtx)return;const now=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.setValueAtTime(high?1000:600,now);g.connect(masterGain);o.connect(g);g.gain.setValueAtTime(0.2,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.1);o.start(now);o.stop(now+0.1);}
+        // Soft beep: low-volume 500Hz - used when user starts the gym rest timer.
+        function playSoftBeep(){if(soundMuted||!audioCtx)return;const now=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.setValueAtTime(500,now);g.connect(masterGain);o.connect(g);g.gain.setValueAtTime(0.08,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.15);o.start(now);o.stop(now+0.15);}
+        // Double beep: two 800Hz pulses 150ms apart - halfway cue during work.
+        function playDoubleBeep(){if(soundMuted||!audioCtx)return;const now=audioCtx.currentTime;[0,0.15].forEach(off=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.setValueAtTime(800,now+off);g.connect(masterGain);o.connect(g);g.gain.setValueAtTime(0.25,now+off);g.gain.exponentialRampToValueAtTime(0.0001,now+off+0.12);o.start(now+off);o.stop(now+off+0.15);});}
+        // Warning tone: 500Hz sliding up to 700Hz over 300ms - "10 seconds left".
+        function playWarningTone(){if(soundMuted||!audioCtx)return;const now=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='triangle';o.frequency.setValueAtTime(500,now);o.frequency.linearRampToValueAtTime(700,now+0.3);g.connect(masterGain);o.connect(g);g.gain.setValueAtTime(0.3,now);g.gain.exponentialRampToValueAtTime(0.0001,now+0.4);o.start(now);o.stop(now+0.4);}
+        // Voice announcements via SpeechSynthesis. Rate 1.2 (slightly brisk) to fit
+        // round-name announcements before the round starts. en-GB voice preference.
+        function speak(text){if(voiceMuted)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=1.2;u.pitch=1;u.lang='en-GB';window.speechSynthesis.speak(u);}
+
+        // Voice/sound mute toggles on the timer screen. Swap icons and update
+        // aria-pressed for assistive tech.
+        document.getElementById('btn-mute-voice').onclick=()=>{
+            voiceMuted=!voiceMuted;
+            document.getElementById('icon-voice-on').classList.toggle('hidden',voiceMuted);
+            document.getElementById('icon-voice-off').classList.toggle('hidden',!voiceMuted);
+            document.getElementById('voice-label').classList.toggle('text-red-400',voiceMuted);
+            document.getElementById('voice-label').classList.toggle('text-white/70',!voiceMuted);
+            document.getElementById('btn-mute-voice').setAttribute('aria-pressed',String(voiceMuted));
+            if(voiceMuted)window.speechSynthesis.cancel();
+        };
+        document.getElementById('btn-mute-sound').onclick=()=>{
+            soundMuted=!soundMuted;
+            document.getElementById('icon-sound-on').classList.toggle('hidden',soundMuted);
+            document.getElementById('icon-sound-off').classList.toggle('hidden',!soundMuted);
+            document.getElementById('sound-label').classList.toggle('text-red-400',soundMuted);
+            document.getElementById('sound-label').classList.toggle('text-white/70',!soundMuted);
+            document.getElementById('btn-mute-sound').setAttribute('aria-pressed',String(soundMuted));
+        };
+
+        // Fullscreen request - best-effort. Android Chrome honours it on the
+        // documentElement; any browser that rejects the call is silently swallowed
+        // by the try/catch (the app still works in windowed mode).
+        function enterFullscreen(){try{const el=document.documentElement;if(el.requestFullscreen)el.requestFullscreen();else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();}catch(e){}}
+        function exitFullscreen(){try{if(document.exitFullscreen)document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen();}catch(e){}}
+
+        // Wake Lock API: keeps screen on during the session. Released when tab hides
+        // (OS behaviour), re-acquired on visibilitychange back to visible.
+        async function reacquireWakeLock(){if(session.active&&!session.paused&&document.visibilityState==='visible'){try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}}}
+        document.addEventListener('visibilitychange',reacquireWakeLock);
+
+        // ── SURPRISE VISUAL STATE ───────────────────────────────────────────────
+        // Surprise rounds flip the whole screen to white background with red text,
+        // then after the GET READY countdown the task (STRAIGHTS/HOOKS) appears in
+        // black on white for maximum legibility when you're gassed.
+        function enterSurpriseColours(){ui.roundFocus.style.color='#ef4444';}
+        function exitSurpriseColours(){ui.roundFocus.style.color='';ui.roundFocus.style.webkitTextStrokeColor='';ui.timerDisplay.style.color='';ui.timerDisplay.style.webkitTextStrokeColor='';ui.roundFocus.classList.remove('surprise-task-mode');}
+        function setSurpriseTimerColour(inCountdown){ui.timerDisplay.style.color=inCountdown?'#ef4444':'#6b7280';}
+
+        // ── STATS & SUMMARY ─────────────────────────────────────────────────────
+        // Post-session analytics. Shown on the summary screen if any HR data was
+        // captured (else skip summary and return to setup).
+        //
+        // CALORIE FORMULA: Keytel et al. 2005 - estimates kcal/min from HR, age,
+        // weight, and sex. Output is divided by 4.184 (kJ per kcal) and clamped
+        // 0-20 kcal/min to catch bad readings. These are estimates, not metabolic cart.
+        //   Male:   kcal/min = (-55.0969 + 0.6309*HR + 0.1988*weight + 0.2017*age) / 4.184
+        //   Female: kcal/min = (-20.4022 + 0.4472*HR - 0.1263*weight + 0.0740*age) / 4.184
+        //
+        // ZONE BOUNDARIES as % of HRmax (Tanaka: 208 - 0.7 * age):
+        //   Z1: <60% (recovery)   Z2: 60-70% (aerobic base)   Z3: 70-80% (tempo)
+        //   Z4: 80-90% (threshold)                            Z5: >=90% (VO2/anaerobic)
+        //
+        // RECOVERY DROP: HR at end of work phase minus HR at start of next work
+        // phase. A larger drop = better cardiac recovery. Only positive drops counted.
+
+        // Compute summary stats for one person from their HR history.
+        function calcStats(data,person,peakInfo,recoveries){
+            if(data.length<2)return null;
+            const bpms=data.map(d=>d.bpm);
+            const avg=Math.round(bpms.reduce((a,b)=>a+b,0)/bpms.length);
+            const totalSecs=data[data.length-1].t-data[0].t;
+            // Calorie integration: trapezoidal over HR samples.
+            let cals=0;
+            for(let i=1;i<data.length;i++){
+                const dt=(data[i].t-data[i-1].t)/60;  // minutes
+                const hr=(data[i].bpm+data[i-1].bpm)/2;
+                let cm;
+                if(person.sex==='male')cm=(-55.0969+0.6309*hr+0.1988*person.weight+0.2017*person.age)/4.184;
+                else cm=(-20.4022+0.4472*hr-0.1263*person.weight+0.074*person.age)/4.184;
+                cals+=Math.min(Math.max(0,cm),20)*dt;
+            }
+            // Zone time accumulation: which bucket did the average HR fall in during each sample interval?
+            const zones=[0,0,0,0,0];
+            for(let i=1;i<data.length;i++){
+                const dt=data[i].t-data[i-1].t;
+                const hr=(data[i].bpm+data[i-1].bpm)/2;
+                const pct=hr/person.hrMax;
+                let z=0;
+                if(pct>=0.9)z=4;else if(pct>=0.8)z=3;else if(pct>=0.7)z=2;else if(pct>=0.6)z=1;
+                zones[z]+=dt;
+            }
+            const avgRec=recoveries.length>0?Math.round(recoveries.reduce((a,b)=>a+b,0)/recoveries.length):null;
+            return{avg,peak:peakInfo.bpm,peakRound:peakInfo.round,cals:Math.round(cals),zones,totalMins:Math.round(totalSecs/60),avgRecovery:avgRec};
+        }
+        // Format seconds as "Xm Ys" or "Ys" for zone bar labels.
+        function fmtZoneTime(s){const m=Math.floor(s/60),sc=Math.round(s%60);return m>0?`${m}m${sc>0?sc+'s':''}`:`${sc}s`;}
+
+        // Build the HTML for one summary card (You or Ash). Includes kcal/avg/peak,
+        // zone bar, and a placeholder canvas for the HR-over-time chart (drawn separately).
+        function buildSummaryCard(data,person,label,color,tintBg,chartId,peakInfo,recoveries,wR,rR){const stats=calcStats(data,person,peakInfo,recoveries);if(!stats)return '';const tZ=stats.zones.reduce((a,b)=>a+b,0)||1;let zB='';stats.zones.forEach((s,i)=>{const p=(s/tZ)*100;if(p>0)zB+=`<div class="zone-segment rounded-sm" style="width:${p}%;background:${ZONE_COLORS[i]};">${p>8?fmtZoneTime(s):''}</div>`;});const wM=Math.floor(wR/60),wS=wR%60,rM=Math.floor(rR/60),rS=rR%60;let sr=`<div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.cals}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">kcal</div></div><div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.avg}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Avg bpm</div></div><div class="bg-slate-900/50 rounded-xl py-2 px-1 text-center"><div class="text-xl font-black font-mono-display text-white">${stats.peak}</div><div class="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Peak bpm</div></div>`;return `<div class="p-4 rounded-2xl space-y-3" style="background:${tintBg};border:1px solid rgba(255,255,255,0.08);"><div class="flex justify-between items-center"><p class="text-[10px] font-bold uppercase tracking-widest" style="color:${color}">${label}</p><span class="text-[9px] text-slate-500">Work ${wM}:${wS.toString().padStart(2,'0')} | Rest ${rM}:${rS.toString().padStart(2,'0')}</span></div><div class="grid grid-cols-3 gap-1.5">${sr}</div><div><div class="flex items-center justify-between mb-1"><span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Zones</span><span class="text-[9px] text-slate-500">${stats.totalMins} min</span></div><div class="flex rounded-lg overflow-hidden">${zB}</div><div class="flex justify-between mt-1">${ZONE_NAMES.map((n,i)=>`<span class="text-[8px] font-bold" style="color:${ZONE_COLORS[i]}">${n}</span>`).join('')}</div></div><canvas id="${chartId}" class="summary-chart rounded-lg" height="120" style="width:100%;display:block;"></canvas></div>`;}
+
+        // Draw the HR-over-time line chart into the card's canvas. Y-axis shows
+        // BPM and % of HRmax as dual labels. Dashed vertical lines mark round starts.
+        function drawSummaryChart(cId,data,hrMax,color){const cv=document.getElementById(cId);if(!cv)return;const ctx=cv.getContext('2d');cv.width=cv.offsetWidth*2;cv.height=240;const w=cv.width,h=cv.height,pad={top:15,right:45,bottom:25,left:38},cw=w-pad.left-pad.right,ch=h-pad.top-pad.bottom;ctx.clearRect(0,0,w,h);if(data.length<2)return;const bpms=data.map(d=>d.bpm),minB=Math.floor((Math.min(...bpms)-10)/10)*10,maxB=Math.ceil((Math.max(...bpms)+10)/10)*10,bR=maxB-minB||1,maxT=data[data.length-1].t;const axisFont=Math.max(10,Math.round(w*0.022))+'px Space Mono',timeFont=Math.max(9,Math.round(w*0.018))+'px Space Mono';for(let pct=10;pct<=100;pct+=10){const bpm=hrMax*(pct/100);if(bpm<minB||bpm>maxB)continue;const y=pad.top+ch-(bpm-minB)/bR*ch;ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();ctx.fillStyle='#64748b';ctx.font=axisFont;ctx.textAlign='right';ctx.fillText(Math.round(bpm),pad.left-6,y+5);ctx.textAlign='left';ctx.fillText(pct+'%',pad.left+cw+6,y+5);}let pR=0;const roundStarts=[];ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.setLineDash([3,3]);ctx.lineWidth=1;data.forEach(d=>{if(d.round!==pR&&d.phase==='work'){const x=pad.left+(d.t/maxT)*cw;ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+ch);ctx.stroke();roundStarts.push({round:d.round,x});pR=d.round;}});ctx.setLineDash([]);ctx.fillStyle='#64748b';ctx.font=timeFont;ctx.textAlign='center';roundStarts.forEach((rs,i)=>{const nextX=(i<roundStarts.length-1)?roundStarts[i+1].x:pad.left+cw;const midX=(rs.x+nextX)/2;ctx.fillText('R'+rs.round,midX,h-4);});ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';data.forEach((d,i)=>{const x=pad.left+(d.t/maxT)*cw,y=pad.top+ch-(d.bpm-minB)/bR*ch;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();}
+
+        // Render the summary screen. Delays chart draw by 80ms so the card HTML
+        // has reflowed and canvas elements report correct offsetWidth.
+        function showSummary(){const hY=hrHistoryYou.length>=2,hW=hrHistoryWife.length>=2;if(!hY&&!hW){showScreen('setup');setMode(prevMode);return;}const ds=Math.round((Date.now()-sessionStartTime)/1000),dM=Math.floor(ds/60),dS=ds%60;document.getElementById('summary-duration').innerText=`${dM}:${dS.toString().padStart(2,'0')} total`;const isW=settings.mode==='wife';const wYou=isW?workSecs('you'):workSecs('total');const rYou=isW?restSecs('you'):restSecs('total');const wWife=workSecs('wife');const rWife=restSecs('wife');document.getElementById('summary-you').innerHTML=hY?buildSummaryCard(hrHistoryYou,YOU,'You','#4ade80','rgba(22,101,52,0.2)','chart-you',peakHRYou,recoveryDropsYou,wYou,rYou):'';document.getElementById('summary-wife').innerHTML=(isW&&hW)?buildSummaryCard(hrHistoryWife,WIFE,'Ash','#c084fc','rgba(107,33,168,0.2)','chart-wife',peakHRWife,recoveryDropsWife,wWife,rWife):'';showScreen('summary');setTimeout(()=>{if(hY)drawSummaryChart('chart-you',hrHistoryYou,YOU.hrMax,'#4ade80');if(hW)drawSummaryChart('chart-wife',hrHistoryWife,WIFE.hrMax,'#c084fc');},80);}
+
+        // Export summary as PNG via html2canvas (lazy-loaded on first click).
+        // Workflow: canvases replaced with <img> snapshots (html2canvas sometimes
+        // renders canvas contents blank), then html2canvas captures the DOM, then
+        // the real canvases are restored AND re-drawn (the restored canvas would
+        // otherwise be blank until the next HR update or screen change).
+        document.getElementById('btn-summary-save').onclick=async()=>{
+            const el=document.getElementById('summary-capture');
+            // Lazy-load html2canvas on first use.
+            if(typeof html2canvas==='undefined'){
+                const s=document.createElement('script');
+                s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                document.head.appendChild(s);
+                await new Promise((res,rej)=>{s.onload=res;s.onerror=rej;});
+            }
+            // Replace live canvases with static img snapshots for reliable capture.
+            const cvs=el.querySelectorAll('canvas'),sw=[];
+            cvs.forEach(c=>{
+                const img=document.createElement('img');
+                img.src=c.toDataURL('image/png');
+                img.style.cssText=c.style.cssText;
+                img.className=c.className;
+                img.width=c.offsetWidth;
+                img.height=c.offsetHeight;
+                c.parentNode.replaceChild(img,c);
+                sw.push({img,canvas:c,parent:img.parentNode});
+            });
+            try{
+                const cv=await html2canvas(el,{backgroundColor:'#0f172a',scale:2,useCORS:true});
+                const lk=document.createElement('a');
+                lk.download=`boxing-session-${new Date().toISOString().slice(0,10)}.png`;
+                lk.href=cv.toDataURL('image/png');
+                lk.click();
+            }catch(e){console.error('Save failed:',e);}
+            // Restore real canvases.
+            sw.forEach(s=>s.parent.replaceChild(s.canvas,s.img));
+            // Re-draw the restored canvases immediately - they're blank until the next
+            // render tick otherwise, briefly flashing empty on the summary screen.
+            if(hrHistoryYou.length>=2)drawSummaryChart('chart-you',hrHistoryYou,YOU.hrMax,'#4ade80');
+            if(hrHistoryWife.length>=2)drawSummaryChart('chart-wife',hrHistoryWife,WIFE.hrMax,'#c084fc');
+        };
+        document.getElementById('btn-summary-done').onclick=()=>{showScreen('setup');setMode(prevMode);};
+
+        // ── SCREENS ─────────────────────────────────────────────────────────────
+        // App is a single-page set of swappable <div> screens; no router. Active
+        // screen has the `hidden` class removed; all others have it added.
+        const screens={home:document.getElementById('home-screen'),gymDay:document.getElementById('gym-day-screen'),gymWorkout:document.getElementById('gym-workout-screen'),setup:document.getElementById('setup-screen'),timer:document.getElementById('timer-screen'),summary:document.getElementById('summary-screen')};
+        // Shorthand cache of frequently-accessed DOM elements.
+        const ui={timerBg:document.getElementById('timer-bg'),modeSolo:document.getElementById('mode-solo'),modeWife:document.getElementById('mode-wife'),restInfo:document.getElementById('rest-info'),inRandom:document.getElementById('in-random'),randomDesc:document.getElementById('random-desc'),toggleBg:document.getElementById('toggle-bg'),gridRounds:document.getElementById('grid-rounds'),previewList:document.getElementById('round-preview'),timerDisplay:document.getElementById('timer-display'),roundCur:document.getElementById('current-round'),roundTot:document.getElementById('total-rounds'),nextUp:document.getElementById('next-up'),roundFocus:document.getElementById('round-focus'),btnStart:document.getElementById('btn-start'),btnQuickRest:document.getElementById('btn-quick-rest'),btnPause:document.getElementById('btn-pause'),btnEnd:document.getElementById('btn-end'),btnNext:document.getElementById('btn-next'),btnPrev:document.getElementById('btn-prev'),gymDayLabel:document.getElementById('gym-day-label'),gymExerciseList:document.getElementById('gym-exercise-list')};
+
+        // Switch visible screen. Also toggles #main-wrap padding so the timer and
+        // gym-workout screens go edge-to-edge (they manage their own padding for
+        // safe-area and dvh sizing), while other screens get comfortable padding.
+        function showScreen(name){
+            Object.values(screens).forEach(s=>{s.classList.add('hidden');s.style.display='';});
+            screens[name].classList.remove('hidden');
+            // gymWorkout uses flex layout - override any stale display from the reset above.
+            if(name==='gymWorkout'){screens[name].style.display='flex';}
+            // Ensure HR badges visibility matches current BLE connection state when entering the timer.
+            if(name==='timer')updateHRVisibility();
+            const wrap=document.getElementById('main-wrap');
+            if(name==='timer'||name==='gymWorkout'){wrap.classList.remove('p-4','min-h-screen','justify-center');wrap.classList.add('p-0');}
+            else{wrap.classList.remove('p-0');wrap.classList.add('p-4','min-h-screen','justify-center');}
+        }
+
+        // Home screen button wiring.
+        document.getElementById('btn-home-boxing').onclick=()=>{showScreen('setup');setMode('wife');};
+        document.getElementById('btn-home-gym').onclick=()=>showScreen('gymDay');
+        document.getElementById('btn-gym-back').onclick=()=>showScreen('home');
+        document.getElementById('btn-boxing-back').onclick=()=>showScreen('home');
+        // Leaving the gym workout cancels any running rest timer before navigating back.
+        document.getElementById('btn-gym-workout-back').onclick=()=>{clearGymRest();showScreen('gymDay');};
+
+        // ── GYM WORKOUT GENERATOR ───────────────────────────────────────────────
+        // Picks a balanced workout based on the selected day (push/pull/legs/upper/lower).
+        // Output: 3 compounds + 2 isolations + 2 core finishers = 7 exercises total.
+        //
+        // Upper/lower days use the push+pull and legs pools respectively, with
+        // mandatory coverage of sub-group pairings (push+pull for upper;
+        // quad+hip for lower) to guarantee balance.
+        function pickExercises(day){
+            // Build the candidate pool for this day.
+            let pool;
+            if(day==='upper')pool=[...GYM_EXERCISES.push,...GYM_EXERCISES.pull];
+            else if(day==='lower')pool=[...GYM_EXERCISES.legs];
+            else pool=[...GYM_EXERCISES[day]];
+            const compounds=shuffle(pool.filter(e=>e.type==='compound'));
+            const isolations=shuffle(pool.filter(e=>e.type==='isolation'));
+            const picked=[];
+            if(day==='upper'){
+                // Force one push compound + one pull compound, then fill to 3 from remaining.
+                const pushC=shuffle(compounds.filter(e=>e.group==='push'));
+                const pullC=shuffle(compounds.filter(e=>e.group==='pull'));
+                if(pushC.length)picked.push(pushC[0]);
+                if(pullC.length)picked.push(pullC[0]);
+                const rest=shuffle(compounds.filter(e=>!picked.includes(e)));
+                while(picked.length<3&&rest.length)picked.push(rest.shift());
+            }else if(day==='lower'){
+                // Force one quad-dominant compound + one hip-dominant compound, then fill to 3.
+                const quadC=shuffle(compounds.filter(e=>e.group==='quad'));
+                const hipC=shuffle(compounds.filter(e=>e.group==='hip'));
+                if(quadC.length)picked.push(quadC[0]);
+                if(hipC.length)picked.push(hipC[0]);
+                const rest=shuffle(compounds.filter(e=>!picked.includes(e)));
+                while(picked.length<3&&rest.length)picked.push(rest.shift());
+            }else{
+                // Push/pull/legs days: just take 3 random compounds.
+                while(picked.length<3&&compounds.length)picked.push(compounds.shift());
+            }
+            // Add 2 isolations, avoiding anything already picked.
+            const isoPool=shuffle(isolations.filter(e=>!picked.includes(e)));
+            while(picked.length<5&&isoPool.length)picked.push(isoPool.shift());
+            return picked;
+        }
+        // Pick 2 core finishers from the shared CORE_EXERCISES pool.
+        function pickCoreExercises(){return shuffle([...CORE_EXERCISES]).slice(0,2);}
+
+        // Render the selected day's workout as tappable cards. Cards 1-5 are the
+        // main lifts (blue numbered chip); cards C1-C2 are core (orange chip).
+        // Tapping a card toggles a "done" strike-through state for live session tracking.
+        function renderGymWorkout(day){
+            currentGymDay=day;
+            ui.gymDayLabel.innerText=DAY_LABELS[day];
+            const ex=pickExercises(day);
+            const core=pickCoreExercises();
+            const all=[...ex,...core];
+            ui.gymExerciseList.innerHTML='';
+            all.forEach((e,i)=>{
+                const isCore=i>=ex.length;
+                const c=document.createElement('div');
+                c.className='exercise-card gym-card flex items-center bg-slate-800/50 border border-slate-700/30'+(isCore?' core-card':'');
+                c.style.animationDelay=`${i*0.08}s`;
+                const label=isCore?'C'+(i-ex.length+1):(i+1);
+                c.innerHTML=`<div class="gym-card-num bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0"><span class="text-blue-400 font-black font-mono-display">${label}</span></div><div><span class="gym-card-name font-bold text-white block">${e.name}</span><span class="gym-card-muscle text-slate-400 uppercase tracking-wider">${e.muscle}</span></div>`;
+                c.onclick=()=>{c.classList.toggle('done');haptic(30);};
+                ui.gymExerciseList.appendChild(c);
+            });
+            clearGymRest();
+            showScreen('gymWorkout');
+        }
+        // Day buttons on the gym day picker screen.
+        document.querySelectorAll('.gym-day-btn').forEach(b=>{b.onclick=()=>renderGymWorkout(b.dataset.day);});
+        // Shuffle re-rolls the current day's workout.
+        document.getElementById('btn-gym-shuffle').onclick=()=>{if(currentGymDay)renderGymWorkout(currentGymDay);};
+
+        // ── GYM REST TIMER ──────────────────────────────────────────────────────
+        // Standalone 60/90/120s rest timer on the gym workout screen. Independent
+        // of the boxing session timer - uses its own setInterval (gymRestTimer).
+        const gymRestDisplay=document.getElementById('gym-rest-display'),gymRestToggle=document.getElementById('btn-gym-rest-toggle');
+        // Rest duration picker (60/90/120s buttons). Locked while a rest is running.
+        document.querySelectorAll('.gym-rest-pick').forEach(b=>{b.onclick=()=>{if(gymRestRunning)return;gymRestSecs=parseInt(b.dataset.secs);gymRestDisplay.innerText=gymRestSecs;document.querySelectorAll('.gym-rest-pick').forEach(x=>{x.classList.remove('bg-blue-600','text-white','border-blue-500');x.classList.add('bg-slate-800/50','border-slate-700/30');});b.classList.remove('bg-slate-800/50','border-slate-700/30');b.classList.add('bg-blue-600','text-white','border-blue-500');};});
+        let gymRestCurrent=0;
+        // Start/cancel toggle. Beeps 3-2-1 at end, then bell at 0.
+        gymRestToggle.onclick=()=>{if(gymRestRunning){clearGymRest();return;}initAudio();playSoftBeep();haptic(50);gymRestRunning=true;gymRestCurrent=gymRestSecs;gymRestDisplay.innerText=gymRestCurrent;gymRestToggle.innerText='Cancel';gymRestToggle.classList.remove('bg-green-700','hover:bg-green-600');gymRestToggle.classList.add('bg-red-600','hover:bg-red-500');gymRestTimer=setInterval(()=>{gymRestCurrent--;gymRestDisplay.innerText=Math.max(0,gymRestCurrent);if(gymRestCurrent<=3&&gymRestCurrent>0)playBeep(gymRestCurrent===1);if(gymRestCurrent<=0){playBell();clearGymRest();}},1000);};
+        // Stop the gym rest timer and restore the button to its idle state.
+        function clearGymRest(){if(gymRestTimer)clearInterval(gymRestTimer);gymRestTimer=null;gymRestRunning=false;gymRestDisplay.innerText=gymRestSecs;gymRestToggle.innerText='Start Rest';gymRestToggle.classList.remove('bg-red-600','hover:bg-red-500');gymRestToggle.classList.add('bg-green-700','hover:bg-green-600');}
+
+        // ── BOXING SETUP SCREEN ─────────────────────────────────────────────────
+        // Dynamic build of round-count button grids + all the setup-screen select
+        // handlers. These mutate `settings`, regenerate the plan preview, and
+        // update button styling to reflect the active choice.
+
+        // format(): defensively clamps display-time to >=0. Used by updateUI for the timer text.
+        const format=s=>Math.max(0,s).toString();
+
+        // Build block 1 round buttons (1-12). Default active = 12.
+        for(let i=1;i<=12;i++){const b=document.createElement('button');b.className=`btn-select py-1.5 rounded-lg text-[10px] sm:text-xs font-bold ${i===12?'active':''}`;b.innerText=i;b.onclick=()=>selectRound(i,b);ui.gridRounds.appendChild(b);}
+        // Build block 2 round buttons (1-6). Default active = 6.
+        const gridRoundsB2=document.getElementById('grid-rounds-b2');
+        for(let i=1;i<=6;i++){const b=document.createElement('button');b.className=`btn-select py-1.5 rounded-lg text-[10px] sm:text-xs font-bold ${i===6?'active':''}`;b.innerText=i;b.onclick=()=>selectRoundB2(i,b);gridRoundsB2.appendChild(b);}
+
+        // Global-scope select handlers (called from generated buttons and from inline
+        // onclick= attributes in the HTML). Each toggles active styling and regenerates
+        // the session plan preview where relevant.
+        // Round count: also updates the "Randomise" description text (ALL rounds vs middle-only).
+        window.selectRound=(n,el)=>{settings.rounds=n;Array.from(ui.gridRounds.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');ui.randomDesc.innerText=n<=6?"Randomises ALL rounds":`Randomises middle rounds (2 to ${n-1})`;generateSessionPlan();};
+        window.selectRoundB2=(n,el)=>{settings.roundsB2=n;Array.from(gridRoundsB2.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');generateSessionPlan();};
+        window.selectWork=(n,el)=>{settings.work=n;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
+        window.selectSurprise=(n,el)=>{settings.surpriseCount=n;Array.from(document.getElementById('grid-surprise').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
+        window.selectSurpriseB2=(n,el)=>{settings.surpriseCountB2=n;Array.from(document.getElementById('grid-surprise-b2').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
+        // Update the inline block-2 summary text (e.g. "6 rds, 3m rest, 2 surprise").
+        function updateB2Summary(){const restLabel=settings.blockRestSecs>=60?Math.floor(settings.blockRestSecs/60)+'m':settings.blockRestSecs+'s';document.getElementById('b2-summary-text').innerText=`${settings.roundsB2} rds, ${restLabel} rest, ${settings.surpriseCountB2} surprise`;}
+        // Block count toggle (1 block vs 2 blocks). Selecting "2 Blocks" opens the modal.
+        window.selectBlocks=(n,el)=>{settings.blocks=n;document.getElementById('btn-block-1').classList.toggle('active',n===1);document.getElementById('btn-block-2').classList.toggle('active',n===2);document.getElementById('block2-inline-summary').classList.toggle('hidden',n===1);if(n===2){updateB2Summary();document.getElementById('block2-modal').classList.remove('hidden');}generateSessionPlan();};
+        // Block 2 modal open/close handlers.
+        document.getElementById('btn-b2-edit').onclick=()=>document.getElementById('block2-modal').classList.remove('hidden');
+        document.getElementById('btn-b2-close').onclick=()=>{document.getElementById('block2-modal').classList.add('hidden');updateB2Summary();};
+        document.getElementById('btn-b2-done').onclick=()=>{document.getElementById('block2-modal').classList.add('hidden');updateB2Summary();};
+        // "Back to 1 Block" button inside the modal: reverts blocks=1 and closes modal.
+        document.getElementById('btn-b2-back').onclick=()=>{document.getElementById('block2-modal').classList.add('hidden');selectBlocks(1,document.getElementById('btn-block-1'));};
+        window.selectBlockRest=(s,el)=>{settings.blockRestSecs=s;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
+
+        // Responsive font-sizing for the main "round focus" text, based on length.
+        // Prevents long round names from overflowing on narrow phone screens.
+        function autoSizeFocus(t){const l=t.length;if(l>30)ui.roundFocus.style.fontSize='clamp(1rem,3dvh,1.4rem)';else if(l>20)ui.roundFocus.style.fontSize='clamp(1.1rem,3.5dvh,1.8rem)';else ui.roundFocus.style.fontSize='clamp(1.2rem,4.5dvh,2.2rem)';}
+
+        // styledRoundName(): format a round name for the BIG focus display.
+        // - Detects the trailing "(Speed)" or "(Power)" emphasis tag and colours it
+        //   (green for Speed, red for Power) on its own line below the moves.
+        // - Splits on " > " separators and renders them as greyed-out chevrons.
+        // - Wraps to 2 lines if there are 4 parts (so it reads as "A > B / C > D").
+        // Returns HTML for direct innerHTML assignment.
+        function styledRoundName(name){
+            const emphMatch=name.match(/\s*\((Speed|Power)\)$/);
+            let base=emphMatch?name.replace(/\s*\((Speed|Power)\)$/,''):name;
+            const arrow='<span style="color:#4b5563">&gt;</span>';
+            const parts=base.split(/\s*>\s*/);
+            let result;
+            if(parts.length===4){result=parts[0]+' '+arrow+' '+parts[1]+' '+arrow+'<br>'+parts[2]+' '+arrow+' '+parts[3];}
+            else{result=parts.join(' '+arrow+' ');}
+            if(emphMatch){const col=emphMatch[1]==='Speed'?'#4ade80':'#dc2626';result+='<br><span style="font-size:0.75em">(<span style="color:'+col+'">'+emphMatch[1]+'</span>)</span>';}
+            return result;
+        }
+        // Inline variant for the round-preview sidebar: no line breaking, just inline
+        // colouring of chevrons and emphasis tags.
+        function styledRoundNameInline(name){return name.replace(/>/g,'<span style="color:#4b5563">&gt;</span>').replace(/\(Speed\)/g,'(<span style="color:#4ade80">Speed</span>)').replace(/\(Power\)/g,'(<span style="color:#dc2626">Power</span>)');}
+
+        // Toggle between Solo and Wife mode. Updates the UI chrome (active button
+        // styling, rest-info text, theme colour variables for the randomise toggle)
+        // and regenerates the session plan preview. 'quick-rest' is a transient
+        // pseudo-mode - we don't update UI for it here; it's set briefly by the
+        // quick-rest button and restored via `prevMode` when the rest ends.
+        function setMode(mode){
+            settings.mode=mode;if(mode!=='quick-rest')prevMode=mode;
+            const root=document.documentElement;
+            if(hasBLE){
+                btnHrWife.classList.toggle('hidden',mode==='solo');
+                hrYouLabel.innerText=mode==='wife'?"Liam's HR":"Heart Rate Monitor";
+            }
+            if(mode==='solo'){
+                ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-green-600 text-white";
+                ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
+                ui.modeSolo.setAttribute('aria-pressed','true');
+                ui.modeWife.setAttribute('aria-pressed','false');
+                ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p>`;
+                root.style.setProperty('--theme-color','#3b82f6');root.style.setProperty('--theme-shadow','rgba(59,130,246,0.4)');
+                ui.toggleBg.classList.remove('peer-checked:bg-purple-600');ui.toggleBg.classList.add('peer-checked:bg-green-600');
+            }else if(mode==='wife'){
+                ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white";
+                ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
+                ui.modeSolo.setAttribute('aria-pressed','false');
+                ui.modeWife.setAttribute('aria-pressed','true');
+                ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-purple-300 font-bold uppercase tracking-widest">Partner Mode</p><p class="text-[10px] sm:text-xs text-slate-400">2x Rounds. 10s changeover.</p>`;
+                root.style.setProperty('--theme-color','#a855f7');root.style.setProperty('--theme-shadow','rgba(168,85,247,0.4)');
+                ui.toggleBg.classList.remove('peer-checked:bg-green-600');ui.toggleBg.classList.add('peer-checked:bg-purple-600');
+            }
+            generateSessionPlan();
+        }
+        ui.modeSolo.onclick=()=>setMode('solo');ui.modeWife.onclick=()=>setMode('wife');
+        ui.inRandom.onchange=e=>{settings.randomiseMiddle=e.target.checked;generateSessionPlan();};
+
+        // ── SESSION PLAN ────────────────────────────────────────────────────────
+        // Plan building: generates an array of ROUND_POOL entries for the session.
+        // Two modes:
+        //   - Fixed: rounds taken sequentially from PROGRAM_12_ROUNDS (the curated order).
+        //   - Randomised: draws from ROUND_POOL with variety constraints:
+        //       * Different 'family' (technique) vs previous round where possible
+        //       * Different 'cat' (category: pair/combo/single/level/burnout) vs prev
+        //       * No more than EMPHASIS_STREAK_CAP consecutive Speed or Power rounds
+        //     When >6 rounds, round 1 is forced warm-up and last is forced burnout.
+        //     A "hooks only" round is guaranteed to appear somewhere in the plan.
+
+        // Extract Speed/Power emphasis tag from a round name, or null if neither.
+        function getEmphasis(r){if(r.name.includes('(Speed)'))return 'speed';if(r.name.includes('(Power)'))return 'power';return null;}
+        // Count how many rounds at the end of the current plan share the same emphasis.
+        // Used by buildPlan to enforce EMPHASIS_STREAK_CAP.
+        function emphasisStreak(plan){if(plan.length<2)return 0;const e=getEmphasis(plan[plan.length-1]);if(!e)return 0;let streak=1;for(let i=plan.length-2;i>=0;i--){if(getEmphasis(plan[i])===e)streak++;else break;}return streak;}
+        // Build a plan of `numRounds` rounds. Greedy selection with progressively
+        // relaxing constraints if the ideal candidate set is empty.
+        function buildPlan(numRounds){
+            const plan=[];const usedFamilies=new Set();
+            if(settings.randomiseMiddle){
+                // kFL = "keep first/last": only when >6 rounds do we force the
+                // warm-up (round 1) and burnout (last round). Shorter sessions
+                // skip the fixed bookends - user typically wants all-work.
+                const kFL=numRounds>6;
+                for(let i=0;i<numRounds;i++){
+                    const isF=(i===0),isL=(i===numRounds-1);
+                    if(kFL&&isF){plan.push(PROGRAM_12_ROUNDS[0]);continue;}
+                    if(kFL&&isL){const last=PROGRAM_12_ROUNDS[11];plan.push(last);usedFamilies.add(last.family);continue;}
+                    const prevCat=plan.length>0?plan[plan.length-1].cat:null;
+                    const streak=emphasisStreak(plan);
+                    // If we've hit the streak cap, exclude further rounds of the same emphasis.
+                    const blockedEmph=streak>=EMPHASIS_STREAK_CAP?getEmphasis(plan[plan.length-1]):null;
+                    const emphOk=r=>!blockedEmph||getEmphasis(r)!==blockedEmph;
+                    // Candidate selection cascade - tries strictest first, relaxes as needed:
+                    //   1. Ideal: unused family + different category + emphasis OK
+                    let candidates=ROUND_POOL.filter(r=>!usedFamilies.has(r.family)&&r.cat!==prevCat&&emphOk(r));
+                    //   2. Relax: allow same category (but still unused family + emphasis OK)
+                    if(candidates.length===0)candidates=ROUND_POOL.filter(r=>!usedFamilies.has(r.family)&&emphOk(r));
+                    //   3. Relax: allow repeat families (but avoid same category + emphasis OK)
+                    if(candidates.length===0)candidates=ROUND_POOL.filter(r=>r.cat!==prevCat&&emphOk(r));
+                    //   4. Relax: just respect emphasis streak
+                    if(candidates.length===0)candidates=ROUND_POOL.filter(r=>emphOk(r));
+                    //   5. Final fallback: anything at all
+                    if(candidates.length===0)candidates=[...ROUND_POOL];
+                    const x=Math.floor(Math.random()*candidates.length);
+                    const pick=candidates[x];
+                    plan.push(pick);usedFamilies.add(pick.family);
+                }
+            }else{
+                // Fixed order: use PROGRAM_12_ROUNDS sequentially, wrapping if >12.
+                for(let i=0;i<numRounds;i++){plan.push(PROGRAM_12_ROUNDS[i%PROGRAM_12_ROUNDS.length]);}
+            }
+            // Hooks-only guarantee: if no hooks-family round made it into the plan,
+            // swap a random middle slot for a hooks-only round from HOOKS_ONLY_ENTRIES.
+            // When >6 rounds the fixed first/last slots are excluded.
+            if(!plan.some(r=>r.family==='hooks')){
+                const s=numRounds>6?1:0,e=numRounds>6?numRounds-1:numRounds;
+                if(e>s){
+                    const slot=s+Math.floor(Math.random()*(e-s));
+                    plan[slot]=HOOKS_ONLY_ENTRIES[Math.floor(Math.random()*HOOKS_ONLY_ENTRIES.length)];
+                }
+            }
+            return plan;
+        }
+        // Rebuild both block plans from current settings and refresh the sidebar preview.
+        // Called whenever any setup control changes.
+        function generateSessionPlan(){session.plan=buildPlan(settings.rounds);session.planB2=settings.blocks===2?buildPlan(settings.roundsB2):[];updatePreview();}
+        // Render the round-by-round preview list in the right sidebar of the setup screen.
+        // Colour coded: purple text in Wife mode, grey in Solo.
+        function updatePreview(){ui.previewList.innerHTML='';for(let i=0;i<settings.rounds;i++){const rd=session.plan[i],rn=i+1,cc=settings.mode==='wife'?"text-purple-300":"text-slate-300";const d=document.createElement('div');d.className="text-[8px] sm:text-[9px] py-1 px-1.5 rounded bg-slate-800/40 border border-slate-700/50";d.innerHTML=`<span class="font-bold ${cc} truncate block">${rn}. ${styledRoundNameInline(rd.name)}</span>`;ui.previewList.appendChild(d);}}
+        // Pick `count` distinct round indices (0-based) to fire surprise bursts on.
+        // Excludes the first (index 0) and last (index total-1) rounds - no surprises
+        // on warm-up or burnout. Pool size is `total-2`; if `count` exceeds that
+        // we silently cap. UI limits count to 0-3 so this only matters if total<4.
+        function pickSurpriseIndices(count,total){
+            const pool=[];
+            for(let i=1;i<total-1;i++)pool.push(i);
+            // Fisher-Yates shuffle.
+            for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+            return new Set(pool.slice(0,Math.min(count,pool.length)));
+        }
+        // Write the "NEXT: ..." text below the timer. `color` values:
+        //   false (default) = slate grey label, styled arrows
+        //   true            = red text (used for transitions to coloured backgrounds)
+        //   'black'         = pure black, no "NEXT:" label, for surprise task on white bg
+        function setNextUp(content,color=false){if(!content){ui.nextUp.innerHTML='';return;}const col=color==='black'?'style="color:#000000;-webkit-text-stroke:0"':color?'style="color:#ef4444"':'';const styled=styledRoundName(content);const label=color==='black'?'':'<span class="next-label" '+col+'>NEXT:</span>';ui.nextUp.innerHTML=`${label}<span class="next-content" ${col}>${styled}</span>`;}
+
+        // ── BLOCK HELPERS ───────────────────────────────────────────────────────
+        // Thin accessors that return the right state bucket based on currentBlock.
+        // A 2-block session maintains parallel plan/surprise-sets for block 1 and 2;
+        // these helpers hide that switching from the rest of the code.
+        function currentPlan(){return session.currentBlock===1?session.plan:session.planB2;}
+        function currentSurpriseYou(){return session.currentBlock===1?session.surpriseRoundsYou:session.surpriseRoundsYouB2;}
+        function currentSurpriseWife(){return session.currentBlock===1?session.surpriseRoundsWife:session.surpriseRoundsWifeB2;}
+        function currentTriggeredYou(){return session.currentBlock===1?session.surpriseTriggeredYou:session.surpriseTriggeredYouB2;}
+        function currentTriggeredWife(){return session.currentBlock===1?session.surpriseTriggeredWife:session.surpriseTriggeredWifeB2;}
+        function currentBlockRounds(){return session.currentBlock===1?settings.rounds:settings.roundsB2;}
+
+        // ── PHASE STATE MACHINE ─────────────────────────────────────────────────
+        // Every phase transition goes through setPhase(). Responsibilities:
+        //   1. Accumulate time spent in the outgoing phase (for summary stats).
+        //   2. If leaving a work phase: capture end-of-work HR (for recovery drop calc).
+        //   3. If entering a work phase from rest: compute recovery drop (HR fall during rest).
+        //   4. Reset per-phase flags (halfway/last10 played) and cosmetic state.
+        //   5. Reset per-round HR buffer if starting a new work/surprise phase.
+        //   6. Hide top nav during surprise for maximum screen real estate on the task.
+        //   7. Configure phase-specific timer duration, background colour, focus text,
+        //      next-up text, and trigger appropriate sound/speech cue.
+        //   8. Update targetEndTime (wall-clock based, drift-resistant).
+        const setPhase=(phase)=>{
+            accumulatePhaseTime();
+            // End-of-work HR capture: used for recovery drop calculation.
+            if((session.phase==='work'||session.phase==='surprise')&&(phase==='rest'||phase==='change'||phase==='block-rest')){if(hrValueYou!==null)endOfWorkHRYou=hrValueYou;if(hrValueWife!==null)endOfWorkHRWife=hrValueWife;}
+            // Recovery drop: difference between end-of-work HR and current HR when work resumes.
+            // Only positive drops are recorded (negative would be a sensor glitch or slow recovery).
+            if((session.phase==='rest'||session.phase==='change'||session.phase==='block-rest')&&phase==='work'){if(endOfWorkHRYou!==null&&hrValueYou!==null){const d=endOfWorkHRYou-hrValueYou;if(d>0)recoveryDropsYou.push(d);}if(endOfWorkHRWife!==null&&hrValueWife!==null){const d=endOfWorkHRWife-hrValueWife;if(d>0)recoveryDropsWife.push(d);}endOfWorkHRYou=null;endOfWorkHRWife=null;}
+            if(session.phase==='surprise'){exitSurpriseColours();setSurpriseTimerColour(false);}
+            session.phase=phase;session.halfwayPlayed=false;session.last10Played=false;
+            // Reset cosmetic state left over from surprise / 10s warning transitions.
+            ui.timerDisplay.style.color='';ui.timerDisplay.style.webkitTextStrokeColor='';ui.roundFocus.style.webkitTextStrokeColor='';ui.timerBg.classList.remove('rest-pulse');
+            // New working phase = fresh per-round HR buffer for the sparklines.
+            if(phase==='work'||phase==='surprise'){hrRoundYou=[];hrRoundWife=[];}
+            // Hide the top bar (round counter, HR badges, mute buttons) during surprise
+            // so the full screen goes to the GET READY / TASK text. Restore afterwards.
+            const timerTopEl=document.querySelector('.timer-top');
+            if(phase==='surprise'){timerTopEl.style.display='none';ui.nextUp.style.display='';}
+            else{timerTopEl.style.display='';ui.nextUp.style.display='';}
+
+            // ── DERIVED LOCALS FOR PHASE CONFIG ──
+            const isW=settings.mode==='wife';
+            const plan=currentPlan();
+            const blockRounds=currentBlockRounds();
+            // In Wife mode each plan-round = 2 session-rounds (user then wife).
+            const maxRoundsInBlock=isW?blockRounds*2:blockRounds;
+            // Display round number shown to the user (1..blockRounds), collapsing pairs in Wife mode.
+            const displayRound=isW?Math.ceil(session.round/2):session.round;
+            // Total plan rounds across both blocks (for the "X / Y" counter).
+            const totalPlanRounds=settings.blocks===2?(settings.rounds+settings.roundsB2):settings.rounds;
+            // Absolute round (1..totalPlanRounds) accounting for block 2 offset.
+            const absoluteRound=session.currentBlock===1?displayRound:displayRound+settings.rounds;
+            // isFinalRound triggers the double-bell instead of single bell on the last work phase.
+            const isFinalRound=(phase==='work')&&(session.round===maxRoundsInBlock)&&(settings.blocks===1||session.currentBlock===2);
+
+            if(phase==='ready'){
+                // "Gloves On" countdown at very start of session.
+                session.time=READY_PHASE_SECS;session.total=READY_PHASE_SECS;
+                ui.timerBg.className="bg-black";
+                autoSizeFocus("Gloves On");ui.roundFocus.innerText="Gloves On";
+                setNextUp(plan[0]?plan[0].name:'');
+            }
+            else if(phase==='work'){
+                // Work interval. Plan index `pi` converts from 1-based display round to
+                // 0-based plan index. In Wife mode each plan round drives TWO session rounds
+                // (user then wife), so we divide by 2.
+                session.time=settings.work;session.total=settings.work;
+                if(isFinalRound)playDoubleBell();else playBell();
+                const pi=isW?Math.floor((session.round-1)/2):session.round-1;
+                const rd=plan[pi]||{name:'Round '+absoluteRound,moves:[]};
+                autoSizeFocus(rd.name);ui.roundFocus.innerHTML=styledRoundName(rd.name);
+                ui.roundCur.innerText=absoluteRound;
+                ui.roundTot.innerText=totalPlanRounds;
+                setNextUp('');
+                // Background colour cue: green = user's work, purple = wife's work (Wife mode),
+                // plain green in Solo. Odd rounds = user, even = wife.
+                if(isW){ui.timerBg.className=(session.round%2!==0)?"bg-green-950":"bg-purple-950";}
+                else{ui.timerBg.className="bg-green-950";}
+                speak(`Round ${absoluteRound}, ${rd.name}`);
+            }
+            else if(phase==='rest'){
+                // Solo mode only - progressive rest escalates by PROGRESSIVE_REST_INCREMENT_SECS
+                // per completed plan round. E.g. restBase=30, after 3 rounds = 30 + 3*5 = 45s.
+                // Wife mode does NOT enter 'rest' - it uses 'change' (10s) because user's work
+                // IS wife's rest by design.
+                const dur=settings.restBase+(session.totalPlanRoundsCompleted*PROGRESSIVE_REST_INCREMENT_SECS);
+                session.time=dur;session.total=dur;
+                if(isW){ui.timerBg.className="bg-red-600 rest-pulse";}
+                else{ui.timerBg.className="bg-black rest-pulse";}
+                autoSizeFocus("Rest");ui.roundFocus.innerText="Rest";
+                if(session.round<maxRoundsInBlock){
+                    const pi=session.round;setNextUp(plan[pi]?plan[pi].name:'');
+                }else if(settings.blocks===2&&session.currentBlock===1){setNextUp('Block 2 Up Next');}
+                else{setNextUp('Final Round Complete');}
+                playBell();
+            }
+            else if(phase==='change'){
+                // Wife mode only - 10s changeover between user and wife working the same
+                // plan round. Big swap-arrow glyph shown as focus.
+                session.time=PARTNER_CHANGEOVER_SECS;session.total=PARTNER_CHANGEOVER_SECS;
+                ui.timerBg.className="bg-black";
+                ui.roundFocus.style.fontSize='clamp(8rem,35dvh,18rem)';
+                ui.roundFocus.innerHTML='&#x21C4;';
+                // Next-up lookup: change phase only entered in Wife mode, where each plan
+                // round spans 2 session rounds. Floor(round/2) gives the NEXT plan index.
+                // Guard with isW for safety even though change is Wife-only today.
+                if(session.round<maxRoundsInBlock){
+                    const nextPlanIdx=isW?Math.floor(session.round/2):session.round;
+                    const nn=plan[nextPlanIdx];
+                    setNextUp(nn?nn.name:'');
+                }else if(settings.blocks===2&&session.currentBlock===1){
+                    setNextUp('Block 2 Up Next');
+                }else{
+                    setNextUp('Final Round Complete');
+                }
+                playBell();
+            }
+            else if(phase==='block-rest'){
+                // Inter-block rest (only when settings.blocks===2). Red pulsing bg.
+                // Announces start of block 2 via speech. Duration from user setting.
+                session.time=settings.blockRestSecs;session.total=settings.blockRestSecs;
+                ui.timerBg.className="bg-red-600 rest-pulse";
+                autoSizeFocus("Block Rest");ui.roundFocus.innerText="Block Rest";
+                setNextUp(session.planB2[0]?session.planB2[0].name:'');
+                playDoubleBell();
+                speak("Block rest. Get ready for block 2.");
+            }
+            else if(phase==='quick-rest'){
+                // Standalone 120s rest timer - accessed via "Quick Rest" button on setup
+                // screen. Shows red pulse, no next-up. Caller initialises session.time.
+                ui.timerBg.className="bg-red-600 rest-pulse";
+                autoSizeFocus("Full Rest");ui.roundFocus.innerText="Full Rest";setNextUp('');
+            }
+            else if(phase==='surprise'){
+                // Surprise burst: flash-to-white background, SURPRISE_TOTAL (35s) including
+                // 5s GET READY countdown then 30s of task. Task randomised STRAIGHTS or HOOKS.
+                // Full top-bar hidden so user sees only the huge task text + timer.
+                session.time=SURPRISE_TOTAL;session.total=SURPRISE_TOTAL;
+                ui.timerBg.className="bg-white";
+                enterSurpriseColours();setSurpriseTimerColour(true);
+                session.surpriseTask=Math.random()>0.5?"STRAIGHTS":"HOOKS";
+                autoSizeFocus("GET READY");ui.roundFocus.innerText="GET READY";
+                setNextUp(session.surpriseTask,'black');
+                playBell();speak("Surprise Round! Get Ready!");
+            }
+            // Anchor the phase end to wall clock so background throttling or pause/resume
+            // doesn't accumulate drift over a long session. run() reads this on every tick.
+            session.targetEndTime=Date.now()+(session.time*1000);
+            phaseStartWall=Date.now();
+            updateUI();
+        };
+
+        // ── UPDATE UI ───────────────────────────────────────────────────────────
+        // Called from run() every 1s and immediately after every phase transition.
+        // Responsibilities per tick:
+        //   - Render the countdown number (clamped to >=0 via format()).
+        //   - Update the bottom-to-top progress bar height (timer-bg).
+        //   - For surprise phase: switch between "GET READY" text and the task,
+        //     and cross-fade the text stroke white-to-black as the background
+        //     colour transitions.
+        //   - For quick-rest mode: re-label the Next/Prev buttons as +10s / -10s.
+        function updateUI(){
+            const t=session.time;
+            if(session.phase==='surprise'){
+                if(t>SURPRISE_WORK){ui.timerDisplay.innerText=format(t-SURPRISE_WORK);}
+                else{
+                    if(ui.roundFocus.innerText==='GET READY'){
+                        ui.roundFocus.classList.add('surprise-task-mode');ui.roundFocus.innerText=session.surpriseTask;
+                        ui.roundFocus.style.color='#ef4444';setSurpriseTimerColour(false);setNextUp('');
+                    }
+                    ui.timerDisplay.innerText=format(t);
+                }
+                // Clamp height to [0, 100] - session.time briefly goes negative
+                // between the final tick and the phase advance (run() loop condition).
+                // Browser would clamp CSS anyway but being explicit prevents any edge-case render.
+                const h1=Math.max(0,Math.min(100,(t/SURPRISE_TOTAL)*100));
+                ui.timerBg.style.height=`${h1}%`;
+                // Timer countdown: transition stroke to white between 23s and 17s
+                if(t<=17&&t>0){ui.timerDisplay.style.color='#ffffff';ui.timerDisplay.style.webkitTextStrokeColor='rgba(255,255,255,1)';}
+                else if(t<=23&&t>17){const p=(23-t)/6;ui.timerDisplay.style.color=`rgba(${Math.round(255*p)},${Math.round(255*p)},${Math.round(255*p)},1)`;ui.timerDisplay.style.webkitTextStrokeColor=`rgba(255,255,255,${p})`;}
+                else if(session.phase==='surprise'&&t>23){ui.timerDisplay.style.webkitTextStrokeColor='rgba(0,0,0,1)';}
+                // Focus text: transition stroke to white between 27s and 24s
+                if(t<=24&&t>0){ui.roundFocus.style.webkitTextStrokeColor='rgba(255,255,255,1)';}
+                else if(t<=27&&t>24){const p=(27-t)/3;ui.roundFocus.style.webkitTextStrokeColor=`rgba(255,255,255,${p})`;}
+                else if(session.phase==='surprise'&&t>27){ui.roundFocus.style.webkitTextStrokeColor='rgba(0,0,0,1)';}
+                // Fade surprise task text from red to black between 27s and 24s remaining
+                if(t<=SURPRISE_WORK&&t<=27&&t>=24){const p=(27-t)/3;const r=Math.round(239*(1-p));const g=Math.round(68*(1-p));const b=Math.round(68*(1-p));ui.roundFocus.style.color=`rgb(${r},${g},${b})`;}
+                else if(t<=SURPRISE_WORK&&t<24){ui.roundFocus.style.color='#000000';}
+            }else{
+                ui.timerDisplay.innerText=format(t);
+                // Clamp height calculation defensively (see note above).
+                const h2=Math.max(0,Math.min(100,(t/session.total)*100));
+                ui.timerBg.style.height=`${h2}%`;
+            }
+            if(settings.mode==='quick-rest'){ui.btnPrev.innerText="+10s";ui.btnNext.innerText="-10s";}
+            else{ui.btnPrev.innerText="\u2190 Prev";ui.btnNext.innerText="Next \u2192";}
+        }
+
+        // ── TIMER LOOP ──────────────────────────────────────────────────────────
+        // The timer runs on setInterval 1Hz, but uses wall-clock comparison against
+        // `targetEndTime` to avoid drift. If the phone throttles background tabs
+        // or the interval slows, the displayed time still reflects real elapsed time.
+        // Sound cues fire exactly once per phase via the halfwayPlayed / last10Played
+        // latches (reset in setPhase). Terminal beeps at 3-2-1s with higher pitch on 1.
+        function run(){session.timer=setInterval(()=>{
+            if(session.paused)return;
+            // Wall-clock derived remaining seconds (rounded, so can be negative for
+            // one tick as the phase expires - that triggers stepPhase below).
+            const remaining=Math.round((session.targetEndTime-Date.now())/1000);
+            session.time=remaining;
+            if(session.phase==='surprise'){
+                // Surprise has two sub-phases: GET READY countdown (5s) then WORK (30s).
+                // During countdown we only beep 5-4-3-2-1.
+                if(remaining>SURPRISE_WORK){const cdSecs=remaining-SURPRISE_WORK;if(cdSecs<=5&&cdSecs>0)playBeep(cdSecs===1);}
+                else{
+                    // Halfway double-beep and 10s warning tone during the WORK portion.
+                    if(remaining===Math.floor(SURPRISE_WORK/2)&&!session.halfwayPlayed){session.halfwayPlayed=true;playDoubleBeep();}
+                    if(remaining===10&&!session.last10Played){session.last10Played=true;playWarningTone();}
+                    if(remaining<=3&&remaining>0)playBeep(remaining===1);
+                }
+            }else{
+                // Work phase: halfway double-beep cue and 10s warning tone.
+                if(session.phase==='work'){
+                    if(session.time===Math.floor(session.total/2)&&!session.halfwayPlayed){session.halfwayPlayed=true;playDoubleBeep();}
+                    if(session.time===10&&!session.last10Played){session.last10Played=true;playWarningTone();}
+                }
+                // Rest/change/block-rest: only the 10s warning before work resumes.
+                if(session.phase==='rest'||session.phase==='change'||session.phase==='block-rest'){
+                    if(session.time===10&&!session.last10Played){session.last10Played=true;playWarningTone();}
+                }
+                // Final 3-2-1 countdown beeps (higher pitch on 1).
+                if(session.time<=3&&session.time>0)playBeep(session.time===1);
+            }
+            // Phase expired. Quick-rest mode ends the session; all others advance via stepPhase.
+            if(session.time<0){if(settings.mode==='quick-rest'){end();return;}stepPhase(1);}
+            updateUI();
+        },1000);}
+
+        // ── STEP PHASE ──────────────────────────────────────────────────────────
+        // Advances (dir=1) or reverses (dir=-1) through the phase state machine.
+        // Called from:
+        //   - run() when session.time goes negative (auto-advance at phase end)
+        //   - Next/Prev buttons on the timer screen (manual override)
+        //
+        // Quick-rest mode has its own handling: Next subtracts 10s, Prev adds 10s
+        // (accessed via the repurposed Next/Prev buttons while in quick-rest).
+        //
+        // Main mode transitions on dir=1:
+        //   ready -> work
+        //   work  -> [surprise if scheduled] | rest/change (more rounds) | block-rest | end
+        //   rest|change -> work (increments round counter, bumps progressive-rest counter)
+        //   surprise -> rest/change | block-rest | end (matches post-work logic)
+        //   block-rest -> work (of block 2 from round 1)
+        //
+        // On dir=-1 the state machine steps backward, decrementing round counters as needed.
+        function stepPhase(dir){
+            if(settings.mode==='quick-rest'){
+                // Quick-rest button repurposing: Next = -10s, Prev = +10s (extend).
+                if(dir===1){session.time=Math.max(0,session.time-10);session.targetEndTime=Date.now()+(session.time*1000);}
+                else{session.time+=10;session.total=Math.max(session.total,session.time);session.targetEndTime=Date.now()+(session.time*1000);}
+                updateUI();return;
+            }
+            const isW=settings.mode==='wife';
+
+            if(dir===1){
+                // Forward: ready -> work (session start).
+                if(session.phase==='ready'){setPhase('work');return;}
+
+                // Forward: end of block-rest -> start of block 2.
+                if(session.phase==='block-rest'){
+                    session.currentBlock=2;session.round=1;
+                    setPhase('work');return;
+                }
+
+                const blockRounds=currentBlockRounds();
+                const mx=isW?blockRounds*2:blockRounds;
+
+                if(session.phase==='work'){
+                    // At end of work round: check if a surprise is scheduled for this plan index
+                    // (and person - in Wife mode surprise sets are per-person).
+                    const pi=isW?Math.floor((session.round-1)/2):session.round-1;
+                    const iy=!isW||(session.round%2!==0);  // "is you's round"
+                    const ip=isW&&(session.round%2===0);   // "is partner's round"
+                    let ts=false;
+                    if(iy&&currentSurpriseYou().has(pi)&&!currentTriggeredYou().has(pi)){currentTriggeredYou().add(pi);ts=true;}
+                    else if(ip&&currentSurpriseWife().has(pi)&&!currentTriggeredWife().has(pi)){currentTriggeredWife().add(pi);ts=true;}
+                    if(ts){setPhase('surprise');return;}
+                    // No surprise - either end the block or go to rest/change.
+                    if(session.round>=mx){
+                        if(settings.blocks===2&&session.currentBlock===1){setPhase('block-rest');}
+                        else{end();}
+                    }else{setPhase(isW?'change':'rest');}
+                    return;
+                }
+
+                if(session.phase==='change'||session.phase==='rest'){
+                    // End of rest/change: advance round counter. In Wife mode only even rounds
+                    // (pair complete) bump the "plan rounds completed" counter that drives progressive rest.
+                    if(!isW){session.totalPlanRoundsCompleted++;}
+                    else if(session.round%2===0){session.totalPlanRoundsCompleted++;}
+                    session.round++;
+                    setPhase('work');return;
+                }
+
+                if(session.phase==='surprise'){
+                    // Double-surprise chaining: currently disabled via DOUBLE_SURPRISE_CHANCE=0.
+                    // If ever re-enabled, note that re-entering 'surprise' here does NOT advance
+                    // the round counter, so the chained surprise counts against the same round.
+                    if(!session.doubleSurprise&&Math.random()<DOUBLE_SURPRISE_CHANCE){session.doubleSurprise=true;setPhase('surprise');return;}
+                    session.doubleSurprise=false;
+                    const blockRounds2=currentBlockRounds();
+                    const mx2=isW?blockRounds2*2:blockRounds2;
+                    if(session.round>=mx2){
+                        if(settings.blocks===2&&session.currentBlock===1){setPhase('block-rest');}
+                        else{end();}
+                    }else{setPhase(isW?'change':'rest');}
+                    return;
+                }
+
+            }else{
+                // Reverse (Prev button). Steps backward through the state machine.
+                if(session.phase==='work'){
+                    if(session.round>1){
+                        // Rewind one round and go back to the rest/change that preceded it.
+                        session.round--;
+                        if(!isW){session.totalPlanRoundsCompleted=Math.max(0,session.totalPlanRoundsCompleted-1);}
+                        else if(session.round%2===0){session.totalPlanRoundsCompleted=Math.max(0,session.totalPlanRoundsCompleted-1);}
+                        setPhase(isW?'change':'rest');
+                    }else if(session.currentBlock===2){
+                        // At round 1 of block 2: go back to block-rest.
+                        setPhase('block-rest');
+                    }else{setPhase('ready');}  // Round 1 of block 1: back to ready.
+                    return;
+                }
+                // From rest/change/surprise, Prev jumps back into the current work round.
+                if(session.phase==='rest'||session.phase==='change'||session.phase==='surprise'){
+                    setPhase('work');return;
+                }
+                if(session.phase==='block-rest'){
+                    // User pressed Prev during block-rest: rewind to the end of block 1.
+                    // Set round to last round of block 1 and restore progressive-rest counter
+                    // to what it would have been at that point (all block 1 rounds completed).
+                    session.currentBlock=1;
+                    const b1mx=isW?settings.rounds*2:settings.rounds;
+                    session.round=b1mx;
+                    // In Solo mode, every round increments; in Wife mode only even (pair completed).
+                    session.totalPlanRoundsCompleted=isW?Math.floor(b1mx/2):b1mx;
+                    setPhase('work');return;
+                }
+            }
+        }
+
+        // ── END SESSION ─────────────────────────────────────────────────────────
+        // Called on natural session completion (last round) OR when user presses
+        // the End button. Responsibilities:
+        //   1. Finalise the outstanding phase-time accumulator.
+        //   2. Kill the 1Hz timer and release the screen wake lock.
+        //   3. Cancel any in-flight speech synthesis.
+        //   4. Play the triumphant finish bell (major triad x3).
+        //   5. Reset visual state (timer bg, body class, surprise colours, fullscreen).
+        //   6. If HR data was captured, show the summary screen; otherwise return to setup.
+        function end(){
+            accumulatePhaseTime();
+            session.active=false;
+            clearInterval(session.timer);
+            if(wakeLock)wakeLock.release();
+            window.speechSynthesis.cancel();
+            playFinishBell();
+            screens.timer.classList.add('hidden');
+            ui.timerBg.style.height='0%';ui.timerBg.classList.remove('rest-pulse');
+            document.body.classList.remove('timer-running');
+            exitSurpriseColours();setSurpriseTimerColour(false);
+            exitFullscreen();
+            // Show summary if either device is still connected OR we have history data
+            // captured during the session (covers the case where the device disconnected
+            // mid-session but we still want to show what was recorded).
+            const hasHR=(hrDeviceYou&&hrDeviceYou.gatt&&hrDeviceYou.gatt.connected)||(hrDeviceWife&&hrDeviceWife.gatt&&hrDeviceWife.gatt.connected)||hrHistoryYou.length>=2||hrHistoryWife.length>=2;
+            if(hasHR)showSummary();else{showScreen('setup');setMode(prevMode);}
+        }
+
+        // ── BEGIN SESSION ───────────────────────────────────────────────────────
+        // Called either directly (when HR ready) or via the "Start Anyway" modal
+        // confirm button (when no HR). Full reset of session state, then kicks
+        // off setPhase('ready') which displays "Gloves On" and starts the run() loop.
+        function startSession(){
+            generateSessionPlan();              // Fresh plan (in case settings changed since preview).
+            initAudio();primeSpeech();          // Required user-gesture init (all browsers).
+            // Acquire screen wake lock - best-effort, silent fail on unsupported browsers.
+            if('wakeLock' in navigator)navigator.wakeLock.request('screen').then(wl=>wakeLock=wl).catch(()=>{});
+            enterFullscreen();document.body.classList.add('timer-running');
+            // Reset all HR tracking state for this session.
+            hrHistoryYou=[];hrHistoryWife=[];hrRoundYou=[];hrRoundWife=[];
+            endOfWorkHRYou=null;endOfWorkHRWife=null;recoveryDropsYou=[];recoveryDropsWife=[];
+            peakHRYou={bpm:0,round:0};peakHRWife={bpm:0,round:0};
+            // Reset phase-time counters (ms-based to avoid drift - see accumulatePhaseTime).
+            workMsTotal=0;restMsTotal=0;workMsYou=0;workMsWife=0;restMsYou=0;restMsWife=0;phaseStartWall=0;
+            sessionStartTime=Date.now();prevMode=settings.mode;
+            showScreen('timer');
+            session.round=1;session.active=true;session.currentBlock=1;
+            session.totalPlanRoundsCompleted=0;
+            const totalDisplay=settings.blocks===2?(settings.rounds+settings.roundsB2):settings.rounds;
+            ui.roundTot.innerText=totalDisplay;ui.roundCur.innerText='1';
+            // Pick surprise round indices for block 1 (always) and block 2 (if 2 blocks).
+            // Per-person sets in Wife mode - user and wife may each get surprise rounds
+            // at different indices (adds unpredictability for the partner too).
+            session.surpriseRoundsYou=pickSurpriseIndices(settings.surpriseCount,settings.rounds);
+            session.surpriseTriggeredYou=new Set();
+            if(settings.mode==='wife'){session.surpriseRoundsWife=pickSurpriseIndices(settings.surpriseCount,settings.rounds);session.surpriseTriggeredWife=new Set();}
+            else{session.surpriseRoundsWife=new Set();session.surpriseTriggeredWife=new Set();}
+            if(settings.blocks===2){
+                session.surpriseRoundsYouB2=pickSurpriseIndices(settings.surpriseCountB2,settings.roundsB2);
+                session.surpriseTriggeredYouB2=new Set();
+                if(settings.mode==='wife'){session.surpriseRoundsWifeB2=pickSurpriseIndices(settings.surpriseCountB2,settings.roundsB2);session.surpriseTriggeredWifeB2=new Set();}
+                else{session.surpriseRoundsWifeB2=new Set();session.surpriseTriggeredWifeB2=new Set();}
+            }
+            setPhase('ready');run();
+        }
+
+        // HR modal handlers: cancel just hides; confirm ("Start Anyway") starts without HR.
+        const hrModal=document.getElementById('hr-modal');
+        document.getElementById('hr-modal-cancel').onclick=()=>hrModal.classList.add('hidden');
+        document.getElementById('hr-modal-confirm').onclick=()=>{hrModal.classList.add('hidden');startSession();};
+
+        // Begin Session handler: check we have AT LEAST ONE working HR connection
+        // with an actual reading (not just a device that's connected but silent).
+        // If not, show the modal asking the user whether to proceed without HR data.
+        ui.btnStart.onclick=()=>{
+            const youReady=hrDeviceYou&&hrDeviceYou.gatt&&hrDeviceYou.gatt.connected&&hrValueYou!==null;
+            const wifeReady=hrDeviceWife&&hrDeviceWife.gatt&&hrDeviceWife.gatt.connected&&hrValueWife!==null;
+            if(!youReady&&!wifeReady){hrModal.classList.remove('hidden');}else{startSession();}
+        };
+        // Quick Rest button: standalone 120s rest timer. Repurposes the timer screen
+        // and puts mode into the transient 'quick-rest' state. Next button = -10s,
+        // Prev button = +10s (handled in stepPhase quick-rest branch).
+        ui.btnQuickRest.onclick=async()=>{
+            initAudio();primeSpeech();
+            try{if('wakeLock' in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){}
+            enterFullscreen();
+            document.body.classList.add('timer-running');
+            prevMode=settings.mode;settings.mode='quick-rest';
+            showScreen('timer');
+            session.time=QUICK_REST_SECS;session.total=QUICK_REST_SECS;session.round=1;
+            ui.roundTot.innerText="-";ui.roundCur.innerText="-";
+            session.active=true;
+            setPhase('quick-rest');run();
+        };
+
+        // End button: manual session termination.
+        ui.btnEnd.onclick=end;
+
+        // Pause button: freezes the timer. Uses accumulatePhaseTime to capture elapsed
+        // work/rest time before pause, then resets phaseStartWall + targetEndTime on
+        // resume so the remaining time continues correctly. Button restyled orange->green
+        // while paused and label toggled Pause/Resume.
+        ui.btnPause.onclick=()=>{
+            session.paused=!session.paused;
+            if(session.paused){
+                // Freeze phase-time accumulator so paused seconds don't count as work/rest.
+                accumulatePhaseTime();
+                ui.btnPause.innerText="Resume";
+                ui.btnPause.className=ui.btnPause.className.replace('bg-orange-500/40','bg-green-500/50').replace('hover:bg-orange-500/50','hover:bg-green-500/60').replace('border-orange-500/50','border-green-500/60');
+            }else{
+                // Re-anchor the phase end time relative to NOW so pause duration is ignored.
+                phaseStartWall=Date.now();
+                session.targetEndTime=Date.now()+(session.time*1000);
+                ui.btnPause.innerText="Pause";
+                ui.btnPause.className=ui.btnPause.className.replace('bg-green-500/50','bg-orange-500/40').replace('hover:bg-green-500/60','hover:bg-orange-500/50').replace('border-green-500/60','border-orange-500/50');
+            }
+        };
+
+        // Next/Prev buttons wire to the stepPhase state machine (quick-rest has its own
+        // handling inside stepPhase that repurposes these as +10s/-10s).
+        ui.btnNext.onclick=()=>stepPhase(1);ui.btnPrev.onclick=()=>stepPhase(-1);
+
+        // ── PERSONAL STATS ──────────────────────────────────────────────────────
+        // Static profile objects used by calcStats for calorie and zone calculations.
+        // Age is computed from fixed birthdates, so it ticks over automatically on each
+        // birthday without requiring a code change. Weight is hardcoded (no in-app UI
+        // to edit) - update the constants below if body weight changes significantly.
+        //
+        // HRmax uses the Tanaka formula: 208 - (0.7 * age).
+        // Prefer this over the older Fox formula (220 - age) - better empirical fit,
+        // particularly for adults over 40.
+
+        // Age calculator: accounts for whether this year's birthday has passed yet.
+        function getAge(y,m,d){
+            const t=new Date();
+            let a=t.getFullYear()-y;
+            // If the birthday this year hasn't happened yet, subtract 1.
+            if(t.getMonth()+1<m||(t.getMonth()+1===m&&t.getDate()<d))a--;
+            return a;
+        }
+        // YOU = Liam. Birthdate 1991-04-05, 100kg, male.
+        const YOU={age:getAge(1991,4,5),weight:100,sex:'male',hrMax:Math.round(208-(0.7*getAge(1991,4,5)))};
+        // WIFE = Ash. Birthdate 1987-04-02, 70kg, female.
+        const WIFE={age:getAge(1987,4,2),weight:70,sex:'female',hrMax:Math.round(208-(0.7*getAge(1987,4,2)))};
+
+        // ── INIT ────────────────────────────────────────────────────────────────
+        // Show home screen, build the default plan preview, and apply Wife mode styling.
+        generateSessionPlan();
+        setMode('wife');
+    });
+    </script>
+</body>
+</html>
