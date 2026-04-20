@@ -53,23 +53,6 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
         }
-        .timeframe-btn {
-            padding: 0.25rem 0.65rem;
-            border-radius: 6px;
-            background: rgba(51, 65, 85, 0.5);
-            border: 1px solid rgba(148, 163, 184, 0.1);
-            color: #cbd5e1;
-            font-weight: 500;
-            transition: all 0.15s ease;
-            cursor: pointer;
-            font-size: 0.75rem;
-        }
-        .timeframe-btn:hover { background: rgba(51, 65, 85, 0.8); }
-        .timeframe-btn.active {
-            background: #22d3ee;
-            color: #0f172a;
-            border-color: #22d3ee;
-        }
         .progress-bar {
             height: 5px;
             background: rgba(51, 65, 85, 0.6);
@@ -166,20 +149,52 @@
             </div>
         </section>
 
-        <!-- CHART + TIMEFRAME (flex-1 fills remaining space) -->
-        <section class="glass-card p-3 flex-1 min-h-0 flex flex-col">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-2 flex-none">
-                <h2 class="text-sm font-semibold text-slate-200">Rate Chart</h2>
-                <div class="flex flex-wrap gap-1.5" id="timeframeButtons">
-                    <button class="timeframe-btn" data-tf="1h">1h</button>
-                    <button class="timeframe-btn" data-tf="6h">6h</button>
-                    <button class="timeframe-btn active" data-tf="12h">12h</button>
-                    <button class="timeframe-btn" data-tf="24h">24h</button>
-                    <button class="timeframe-btn" data-tf="7d">7d</button>
+        <!-- TIMEFRAME PANELS (fill remaining vertical space) -->
+        <section class="grid grid-cols-5 gap-2 flex-1 min-h-0">
+            <div class="glass-card p-2 flex flex-col min-h-0">
+                <div class="flex items-center justify-between mb-1 flex-none">
+                    <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">15m</span>
+                    <span id="move_15m" class="text-xs font-semibold">-</span>
+                </div>
+                <div class="flex-1 min-h-0 relative">
+                    <canvas id="chart_15m"></canvas>
                 </div>
             </div>
-            <div class="flex-1 min-h-0 relative">
-                <canvas id="cryptoChart"></canvas>
+            <div class="glass-card p-2 flex flex-col min-h-0">
+                <div class="flex items-center justify-between mb-1 flex-none">
+                    <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">1h</span>
+                    <span id="move_1h" class="text-xs font-semibold">-</span>
+                </div>
+                <div class="flex-1 min-h-0 relative">
+                    <canvas id="chart_1h"></canvas>
+                </div>
+            </div>
+            <div class="glass-card p-2 flex flex-col min-h-0">
+                <div class="flex items-center justify-between mb-1 flex-none">
+                    <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">12h</span>
+                    <span id="move_12h" class="text-xs font-semibold">-</span>
+                </div>
+                <div class="flex-1 min-h-0 relative">
+                    <canvas id="chart_12h"></canvas>
+                </div>
+            </div>
+            <div class="glass-card p-2 flex flex-col min-h-0">
+                <div class="flex items-center justify-between mb-1 flex-none">
+                    <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">24h</span>
+                    <span id="move_24h" class="text-xs font-semibold">-</span>
+                </div>
+                <div class="flex-1 min-h-0 relative">
+                    <canvas id="chart_24h"></canvas>
+                </div>
+            </div>
+            <div class="glass-card p-2 flex flex-col min-h-0">
+                <div class="flex items-center justify-between mb-1 flex-none">
+                    <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">7d</span>
+                    <span id="move_7d" class="text-xs font-semibold">-</span>
+                </div>
+                <div class="flex-1 min-h-0 relative">
+                    <canvas id="chart_7d"></canvas>
+                </div>
             </div>
         </section>
 
@@ -188,7 +203,7 @@
             <div class="glass-card p-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">ZEC / USD <span class="text-cyan-400/70 normal-case">· <span id="zecTf">12h</span></span></p>
+                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">ZEC / USD <span class="text-cyan-400/70 normal-case">· 24h</span></p>
                         <p id="zecPrice" class="text-lg font-bold leading-tight">-</p>
                     </div>
                     <p id="zecChange" class="text-xs font-semibold">-</p>
@@ -206,7 +221,7 @@
             <div class="glass-card p-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">XTZ / USD <span class="text-cyan-400/70 normal-case">· <span id="xtzTf">12h</span></span></p>
+                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">XTZ / USD <span class="text-cyan-400/70 normal-case">· 24h</span></p>
                         <p id="xtzPrice" class="text-lg font-bold leading-tight">-</p>
                     </div>
                     <p id="xtzChange" class="text-xs font-semibold">-</p>
@@ -271,7 +286,16 @@
                     <div class="flex justify-between"><span class="text-slate-400">Email</span><span id="alertStatus" class="font-semibold">Armed</span></div>
                     <div class="flex justify-between"><span class="text-slate-400">ZEC 24h</span><span id="altZecChange" class="font-semibold">-</span></div>
                     <div class="flex justify-between"><span class="text-slate-400">XTZ 24h</span><span id="altXtzChange" class="font-semibold">-</span></div>
-                    <div class="flex justify-between col-span-2 pt-1 border-t border-slate-700/50"><span id="rateMoveLabel" class="text-slate-400">Rate move</span><span id="rateMoveChange" class="font-semibold">-</span></div>
+                    <div class="col-span-2 pt-1.5 mt-1 border-t border-slate-700/50">
+                        <p class="text-slate-400 text-[10px] mb-1">Rate move by timeframe</p>
+                        <div class="grid grid-cols-5 gap-1 text-center">
+                            <div><p class="text-slate-500 text-[9px] uppercase">15m</p><p id="strip_15m" class="text-[11px] font-semibold">-</p></div>
+                            <div><p class="text-slate-500 text-[9px] uppercase">1h</p><p id="strip_1h" class="text-[11px] font-semibold">-</p></div>
+                            <div><p class="text-slate-500 text-[9px] uppercase">12h</p><p id="strip_12h" class="text-[11px] font-semibold">-</p></div>
+                            <div><p class="text-slate-500 text-[9px] uppercase">24h</p><p id="strip_24h" class="text-[11px] font-semibold">-</p></div>
+                            <div><p class="text-slate-500 text-[9px] uppercase">7d</p><p id="strip_7d" class="text-[11px] font-semibold">-</p></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -296,13 +320,14 @@
         // STATE
         // --------------------------------------------------------------
         const TIMEFRAMES = {
+            '15m': { interval: '1m', limit: 15  },
             '1h':  { interval: '1m', limit: 60  },
-            '6h':  { interval: '1m', limit: 360 },
             '12h': { interval: '1m', limit: 720 },
             '24h': { interval: '5m', limit: 288 },
             '7d':  { interval: '1h', limit: 168 }
         };
-        let currentTimeframe = '12h';
+        const TF_KEYS = ['15m', '1h', '12h', '24h', '7d'];
+
         const sessionStart = new Date();
         let sessionOpenRate = null;
         let sessionHigh = -Infinity;
@@ -361,7 +386,7 @@
             const sec = s % 60;
             return (h ? h + 'h ' : '') + ((m || h) ? m + 'm ' : '') + sec + 's';
         }
-        // Compute timeframe-scoped H/L/V/change from kline array
+        // Timeframe-scoped H/L/V/change from kline array
         function klineStats(klines) {
             const high = Math.max(...klines.map(c => parseFloat(c[2])));
             const low = Math.min(...klines.map(c => parseFloat(c[3])));
@@ -373,69 +398,32 @@
         }
 
         // --------------------------------------------------------------
-        // MAIN CHART
+        // PANEL MINI-CHARTS (one per timeframe)
         // --------------------------------------------------------------
-        const ctx = document.getElementById('cryptoChart').getContext('2d');
-        const mainChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [
-                    {
-                        label: 'Live Rate',
-                        data: [],
-                        borderColor: '#22d3ee',
-                        backgroundColor: 'rgba(34, 211, 238, 0.08)',
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        tension: 0.2,
-                        fill: true
-                    },
-                    {
-                        label: `Target (${targetRate.toFixed(2)})`,
-                        data: [],
-                        borderColor: '#fb7185',
-                        borderWidth: 1.5,
-                        borderDash: [6, 6],
-                        pointRadius: 0,
-                        fill: false
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                interaction: { intersect: false, mode: 'index' },
-                scales: {
-                    x: {
-                        display: true,
-                        ticks: { color: '#64748b', maxRotation: 0, autoSkipPadding: 40, font: { size: 10 } },
-                        grid: { display: false }
-                    },
-                    y: {
-                        display: true,
-                        position: 'right',
-                        ticks: { color: '#64748b', font: { size: 10 } },
-                        grid: { color: 'rgba(148, 163, 184, 0.08)' }
-                    }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                        borderColor: 'rgba(148, 163, 184, 0.2)',
-                        borderWidth: 1,
-                        titleColor: '#cbd5e1',
-                        bodyColor: '#f1f5f9',
-                        padding: 8
-                    }
+        function makePanelChart(canvasId) {
+            return new Chart(document.getElementById(canvasId).getContext('2d'), {
+                type: 'line',
+                data: { labels: [], datasets: [{
+                    data: [],
+                    borderColor: '#22d3ee',
+                    backgroundColor: 'rgba(34, 211, 238, 0.08)',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    tension: 0.2,
+                    fill: true
+                }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false, animation: false,
+                    scales: { x: { display: false }, y: { display: false } },
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
                 }
-            }
-        });
+            });
+        }
+        const panelCharts = {};
+        TF_KEYS.forEach(tf => { panelCharts[tf] = makePanelChart('chart_' + tf); });
 
         // --------------------------------------------------------------
-        // SPARKLINES
+        // SPARKLINES (ZEC / XTZ USD cards)
         // --------------------------------------------------------------
         function makeSparkline(canvasId, colour) {
             return new Chart(document.getElementById(canvasId).getContext('2d'), {
@@ -450,16 +438,6 @@
         }
         const zecSpark = makeSparkline('zecSpark', '#a78bfa');
         const xtzSpark = makeSparkline('xtzSpark', '#60a5fa');
-
-        // --------------------------------------------------------------
-        // TIMEFRAME BUTTONS
-        // --------------------------------------------------------------
-        document.getElementById('timeframeButtons').addEventListener('click', e => {
-            if (!e.target.dataset.tf) return;
-            currentTimeframe = e.target.dataset.tf;
-            document.querySelectorAll('.timeframe-btn').forEach(b => b.classList.toggle('active', b.dataset.tf === currentTimeframe));
-            updateAll();
-        });
 
         // --------------------------------------------------------------
         // DATA FETCH
@@ -478,34 +456,47 @@
         // --------------------------------------------------------------
         async function updateAll() {
             try {
-                const { interval, limit } = TIMEFRAMES[currentTimeframe];
-                const [zecK, xtzK, zecT, xtzT] = await Promise.all([
-                    fetchKlines('ZECUSDT', interval, limit),
-                    fetchKlines('XTZUSDT', interval, limit),
-                    fetch24h('ZECUSDT'),
-                    fetch24h('XTZUSDT')
-                ]);
+                // Build request list: kline pairs for each TF, then two 24h tickers
+                const requests = [];
+                TF_KEYS.forEach(tf => {
+                    requests.push(fetchKlines('ZECUSDT', TIMEFRAMES[tf].interval, TIMEFRAMES[tf].limit));
+                    requests.push(fetchKlines('XTZUSDT', TIMEFRAMES[tf].interval, TIMEFRAMES[tf].limit));
+                });
+                requests.push(fetch24h('ZECUSDT'));
+                requests.push(fetch24h('XTZUSDT'));
+                const results = await Promise.all(requests);
 
-                const labels = zecK.map(c => new Date(c[0]).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }));
-                const zecClose = zecK.map(c => parseFloat(c[4]));
-                const xtzClose = xtzK.map(c => parseFloat(c[4]));
-                const rates = zecClose.map((z, i) => z / xtzClose[i]);
-                const targets = rates.map(() => targetRate);
+                // Slice out per-TF klines
+                const panelData = {};
+                TF_KEYS.forEach((tf, i) => {
+                    const zecK = results[i * 2];
+                    const xtzK = results[i * 2 + 1];
+                    const zecClose = zecK.map(c => parseFloat(c[4]));
+                    const xtzClose = xtzK.map(c => parseFloat(c[4]));
+                    const rates = zecClose.map((z, j) => z / xtzClose[j]);
+                    panelData[tf] = { zecK, xtzK, zecClose, xtzClose, rates };
+                });
+                const zecT = results[TF_KEYS.length * 2];
+                const xtzT = results[TF_KEYS.length * 2 + 1];
 
-                mainChart.data.labels = labels;
-                mainChart.data.datasets[0].data = rates;
-                mainChart.data.datasets[1].data = targets;
-                mainChart.update();
+                // Update each panel chart + move % + strip cell
+                TF_KEYS.forEach(tf => {
+                    const d = panelData[tf];
+                    const chart = panelCharts[tf];
+                    chart.data.labels = Array(d.rates.length).fill('');
+                    chart.data.datasets[0].data = d.rates;
+                    chart.update();
+                    const move = ((d.rates[d.rates.length - 1] / d.rates[0]) - 1) * 100;
+                    const moveEl = document.getElementById('move_' + tf);
+                    moveEl.textContent = fmtPct(move);
+                    setChangeColour(moveEl, move);
+                    const stripEl = document.getElementById('strip_' + tf);
+                    stripEl.textContent = fmtPct(move);
+                    setChangeColour(stripEl, move);
+                });
 
-                const sparkLen = Math.min(60, zecClose.length);
-                zecSpark.data.labels = Array(sparkLen).fill('');
-                zecSpark.data.datasets[0].data = zecClose.slice(-sparkLen);
-                zecSpark.update();
-                xtzSpark.data.labels = Array(sparkLen).fill('');
-                xtzSpark.data.datasets[0].data = xtzClose.slice(-sparkLen);
-                xtzSpark.update();
-
-                const latestRate = rates[rates.length - 1];
+                // Freshest rate comes from 15m (1m klines, newest partial)
+                const latestRate = panelData['15m'].rates[panelData['15m'].rates.length - 1];
                 if (sessionOpenRate === null) sessionOpenRate = latestRate;
                 if (latestRate > sessionHigh) sessionHigh = latestRate;
                 if (latestRate < sessionLow) sessionLow = latestRate;
@@ -524,13 +515,12 @@
                 document.getElementById('heroProgress').textContent = fmt(progressPct, 1) + '%';
                 document.getElementById('heroProgressBar').style.width = progressPct + '%';
 
-                // Timeframe-scoped stats for ZEC and XTZ cards
-                const zecStats = klineStats(zecK);
-                const xtzStats = klineStats(xtzK);
+                // ZEC / XTZ cards (pinned to 24h kline data)
+                const d24 = panelData['24h'];
+                const zecStats = klineStats(d24.zecK);
+                const xtzStats = klineStats(d24.xtzK);
 
-                // ZEC card
                 const zecPrice = parseFloat(zecT.lastPrice);
-                document.getElementById('zecTf').textContent = currentTimeframe;
                 document.getElementById('zecPrice').textContent = fmtUsd(zecPrice);
                 const zecChangeEl = document.getElementById('zecChange');
                 zecChangeEl.textContent = (zecStats.pct >= 0 ? '▲ ' : '▼ ') + fmt(Math.abs(zecStats.pct), 2) + '%';
@@ -539,9 +529,7 @@
                 document.getElementById('zecLow').textContent = fmtUsd(zecStats.low);
                 document.getElementById('zecVol').textContent = fmtVol(zecStats.vol);
 
-                // XTZ card
                 const xtzPrice = parseFloat(xtzT.lastPrice);
-                document.getElementById('xtzTf').textContent = currentTimeframe;
                 document.getElementById('xtzPrice').textContent = fmtUsd(xtzPrice);
                 const xtzChangeEl = document.getElementById('xtzChange');
                 xtzChangeEl.textContent = (xtzStats.pct >= 0 ? '▲ ' : '▼ ') + fmt(Math.abs(xtzStats.pct), 2) + '%';
@@ -549,6 +537,15 @@
                 document.getElementById('xtzHigh').textContent = fmtUsd(xtzStats.high);
                 document.getElementById('xtzLow').textContent = fmtUsd(xtzStats.low);
                 document.getElementById('xtzVol').textContent = fmtVol(xtzStats.vol);
+
+                // Sparklines use 24h kline closes
+                const sparkLen = Math.min(60, d24.zecClose.length);
+                zecSpark.data.labels = Array(sparkLen).fill('');
+                zecSpark.data.datasets[0].data = d24.zecClose.slice(-sparkLen);
+                zecSpark.update();
+                xtzSpark.data.labels = Array(sparkLen).fill('');
+                xtzSpark.data.datasets[0].data = d24.xtzClose.slice(-sparkLen);
+                xtzSpark.update();
 
                 // Holdings
                 const holdingsUsd = zecHeld * zecPrice;
@@ -571,13 +568,12 @@
                 document.getElementById('sessionHigh').textContent = fmt(sessionHigh, 2);
                 document.getElementById('sessionLow').textContent = fmt(sessionLow, 2);
                 const sessionDelta = latestRate - sessionOpenRate;
-                const sessionDeltaPct = (sessionDelta / sessionOpenRate) * 100;
                 const deltaEl = document.getElementById('sessionDelta');
                 deltaEl.textContent = (sessionDelta >= 0 ? '+' : '') + fmt(sessionDelta, 2);
                 deltaEl.className = 'font-semibold ' + (sessionDelta >= 0 ? 'text-emerald-400' : 'text-rose-400');
                 document.getElementById('sessionBestDistance').textContent = fmtPct(sessionBestDistance);
 
-                // Alert panel (24h values from ticker endpoint, explicitly labelled as 24h)
+                // Alert panel (24h values from ticker endpoint)
                 const zec24hPct = parseFloat(zecT.priceChangePercent);
                 const xtz24hPct = parseFloat(xtzT.priceChangePercent);
                 document.getElementById('alertTarget').textContent = fmt(targetRate, 2);
@@ -590,18 +586,13 @@
                 const altXtz = document.getElementById('altXtzChange');
                 altXtz.textContent = fmtPct(xtz24hPct);
                 setChangeColour(altXtz, xtz24hPct);
-                document.getElementById('rateMoveLabel').textContent = 'Rate ' + currentTimeframe + ' move';
-                const rateMove = ((latestRate / rates[0]) - 1) * 100;
-                const rateMoveEl = document.getElementById('rateMoveChange');
-                rateMoveEl.textContent = fmtPct(rateMove);
-                setChangeColour(rateMoveEl, rateMove);
 
                 // Header status
                 document.getElementById('lastUpdated').textContent = 'Updated just now';
                 document.getElementById('liveDot').classList.remove('stale', 'error');
                 document.getElementById('liveStatus').textContent = 'Live';
 
-                // Tab title (always shows live rate, regardless of privacy state)
+                // Tab title (always shows live rate, regardless of privacy)
                 document.title = `${latestRate.toFixed(2)} / ${targetRate.toFixed(2)}`;
 
                 // Alert trigger
