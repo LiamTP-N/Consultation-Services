@@ -13,20 +13,57 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #0f172a;
             font-family: sans-serif;
             color: white;
+        }
+        body.chart-mode {
+            background: #0f172a;
+        }
+        body.widget-mode {
+            background: transparent;
         }
         #chartContainer {
             width: 100vw;
             height: 100vh;
         }
+        #widgetContainer {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+        }
+        #widgetNumber {
+            font-size: 12vmin;
+            font-weight: bold;
+            line-height: 1;
+            white-space: nowrap;
+        }
+        #widgetDistance {
+            font-size: 7vmin;
+            margin-top: 2vmin;
+            opacity: 0.9;
+        }
+        .above-target {
+            color: #22c55e;
+        }
+        .below-target {
+            color: white;
+        }
     </style>
 </head>
 <body>
 
-    <div id="chartContainer">
+    <div id="chartContainer" style="display: none;">
         <canvas id="cryptoChart"></canvas>
+    </div>
+
+    <div id="widgetContainer" style="display: none;">
+        <div id="widgetNumber"></div>
+        <div id="widgetDistance"></div>
     </div>
 
     <script>
@@ -38,8 +75,71 @@
         const targetRate = xtzTarget / zecHeld;
         let alertSent = false;
 
-        // Custom plugin: draws a small box in the centre of the chart
-        // showing the current live rate.
+        // Mode detection via URL parameter
+        const isWidget = new URLSearchParams(window.location.search).get('widget') === '1';
+        document.body.className = isWidget ? 'widget-mode' : 'chart-mode';
+
+        function formatTitleAndDisplay(rate) {
+            return `${rate.toFixed(2)}/${targetRate.toFixed(2)}`;
+        }
+
+        function sendEmailAlert(rate) {
+            const templateParams = {
+                message: `Target reached. The ZEC to XTZ exchange rate is currently ${rate.toFixed(2)}.`
+            };
+            emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+                .then(function(response) {
+                    console.log('Alert email sent successfully.', response.status, response.text);
+                }, function(error) {
+                    console.log('Failed to send email.', error);
+                });
+        }
+
+        // -----------------------------------------------------------
+        // WIDGET MODE: lightweight ticker endpoint, big centred number
+        // -----------------------------------------------------------
+        async function fetchTickerPrice(symbol) {
+            const url = `https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            return parseFloat(data.price);
+        }
+
+        async function updateWidget() {
+            try {
+                const [xtzPrice, zecPrice] = await Promise.all([
+                    fetchTickerPrice('XTZUSDT'),
+                    fetchTickerPrice('ZECUSDT')
+                ]);
+                if (!xtzPrice || !zecPrice) return;
+
+                const rate = zecPrice / xtzPrice;
+                const distancePct = ((rate / targetRate) - 1) * 100;
+                const aboveTarget = rate >= targetRate;
+
+                const numEl = document.getElementById('widgetNumber');
+                const distEl = document.getElementById('widgetDistance');
+                const containerEl = document.getElementById('widgetContainer');
+
+                numEl.textContent = formatTitleAndDisplay(rate);
+                const sign = distancePct >= 0 ? '+' : '';
+                distEl.textContent = `${sign}${distancePct.toFixed(1)}%`;
+                containerEl.className = aboveTarget ? 'above-target' : 'below-target';
+
+                document.title = formatTitleAndDisplay(rate);
+
+                if (aboveTarget && !alertSent) {
+                    sendEmailAlert(rate);
+                    alertSent = true;
+                }
+            } catch (e) {
+                console.error('Widget update failed', e);
+            }
+        }
+
+        // -----------------------------------------------------------
+        // CHART MODE: full chart + centre-label plugin
+        // -----------------------------------------------------------
         const centreLabelPlugin = {
             id: 'centreLabel',
             afterDatasetsDraw(chart) {
@@ -49,7 +149,7 @@
                 const value = dataset.data[dataset.data.length - 1];
                 if (value == null) return;
 
-                const text = value.toFixed(2);
+                const text = formatTitleAndDisplay(value);
                 ctx.save();
                 ctx.font = 'bold 16px sans-serif';
                 const paddingX = 8;
@@ -72,45 +172,49 @@
             }
         };
 
-        const ctx = document.getElementById('cryptoChart').getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [
-                    {
-                        label: 'Live Rate',
-                        data: [],
-                        borderColor: 'white',
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        tension: 0.1
-                    },
-                    {
-                        label: `Target Sell Point (${targetRate.toFixed(2)})`,
-                        data: [],
-                        borderColor: 'red',
-                        borderWidth: 2,
-                        borderDash: [5, 5],
-                        pointRadius: 0,
-                        fill: false
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                scales: {
-                    x: { display: false },
-                    y: { display: false }
+        let chart;
+
+        function initChart() {
+            const ctx = document.getElementById('cryptoChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Live Rate',
+                            data: [],
+                            borderColor: 'white',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.1
+                        },
+                        {
+                            label: `Target Sell Point (${targetRate.toFixed(2)})`,
+                            data: [],
+                            borderColor: 'red',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
                 },
-                plugins: {
-                    legend: { display: false }
-                }
-            },
-            plugins: [centreLabelPlugin]
-        });
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                },
+                plugins: [centreLabelPlugin]
+            });
+        }
 
         async function fetchBinanceData(symbol, interval = '1m', limit = 720) {
             const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
@@ -145,9 +249,7 @@
             chart.update();
 
             const latestRate = rates[rates.length - 1];
-
-            // Update the browser tab title with the live rate
-            document.title = latestRate.toFixed(2) + ' ZEC/XTZ';
+            document.title = formatTitleAndDisplay(latestRate);
 
             if (latestRate >= targetRate && !alertSent) {
                 sendEmailAlert(latestRate);
@@ -155,21 +257,19 @@
             }
         }
 
-        function sendEmailAlert(rate) {
-            const templateParams = {
-                message: `Target reached. The ZEC to XTZ exchange rate is currently ${rate.toFixed(2)}.`
-            };
-
-            emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
-                .then(function(response) {
-                    console.log('Alert email sent successfully.', response.status, response.text);
-                }, function(error) {
-                    console.log('Failed to send email.', error);
-                });
+        // -----------------------------------------------------------
+        // Bootstrap: choose which mode to run
+        // -----------------------------------------------------------
+        if (isWidget) {
+            document.getElementById('widgetContainer').style.display = 'flex';
+            updateWidget();
+            setInterval(updateWidget, 5000);
+        } else {
+            document.getElementById('chartContainer').style.display = 'block';
+            initChart();
+            updateChart();
+            setInterval(updateChart, 1000);
         }
-
-        updateChart();
-        setInterval(updateChart, 1000);
     </script>
 </body>
 </html>
