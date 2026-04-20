@@ -13,7 +13,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: transparent;
+            background: #0f172a;
             font-family: sans-serif;
             color: white;
         }
@@ -145,6 +145,9 @@
             chart.update();
 
             const latestRate = rates[rates.length - 1];
+
+            // Update the browser tab title with the live rate
+            document.title = latestRate.toFixed(2) + ' ZEC/XTZ';
 
             if (latestRate >= targetRate && !alertSent) {
                 sendEmailAlert(latestRate);
