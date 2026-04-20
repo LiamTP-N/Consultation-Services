@@ -298,6 +298,13 @@
         document.addEventListener('keydown', e => {
             if ((e.key === 'v' || e.key === 'V') && !e.repeat) {
                 e.preventDefault();
+                // If a 30s timed reveal is active, single tap cancels it and hides
+                if (timedRevealTimer !== null) {
+                    clearTimedReveal();
+                    hidePrivacy();
+                    lastVTapTime = 0;
+                    return;
+                }
                 const now = Date.now();
                 if (now - lastVTapTime <= DOUBLE_TAP_WINDOW_MS) {
                     // Second tap within window: start 30s timed reveal
