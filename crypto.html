@@ -291,15 +291,11 @@
         // --------------------------------------------------------------
         // PRIVACY
         // --------------------------------------------------------------
-        const HIDDEN_TITLE = 'New Tab';
-        let liveTitle = HIDDEN_TITLE;
         function hidePrivacy() {
             document.body.classList.remove('revealed');
-            document.title = HIDDEN_TITLE;
         }
         function revealPrivacy() {
             document.body.classList.add('revealed');
-            document.title = liveTitle;
         }
         function togglePrivacy() {
             if (document.body.classList.contains('revealed')) hidePrivacy();
@@ -561,9 +557,8 @@
                 document.getElementById('liveDot').classList.remove('stale', 'error');
                 document.getElementById('liveStatus').textContent = 'Live';
 
-                // Tab title (respect privacy state)
-                liveTitle = `${latestRate.toFixed(2)} / ${targetRate.toFixed(2)}`;
-                if (document.body.classList.contains('revealed')) document.title = liveTitle;
+                // Tab title (always shows live rate, regardless of privacy state)
+                document.title = `${latestRate.toFixed(2)} / ${targetRate.toFixed(2)}`;
 
                 // Alert trigger
                 if (aboveTarget && !alertSent) {
