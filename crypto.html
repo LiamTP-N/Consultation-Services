@@ -280,7 +280,7 @@
 
     <!-- Privacy overlay + toggle (discreet) -->
     <div id="privacyOverlay" class="privacy-overlay"></div>
-    <button id="privacyToggle" class="privacy-toggle" title="Toggle visibility (Ctrl+Shift+H)" aria-label="Toggle visibility"></button>
+    <button id="privacyToggle" class="privacy-toggle" title="Hold V to reveal" aria-label="Toggle visibility"></button>
 
     <script>
         // --------------------------------------------------------------
@@ -311,6 +311,7 @@
 
         // --------------------------------------------------------------
         // PRIVACY
+        // Hold 'V' to reveal, release to hide. Click toggle dot still works.
         // --------------------------------------------------------------
         function hidePrivacy() {
             document.body.classList.remove('revealed');
@@ -324,9 +325,15 @@
         }
         document.getElementById('privacyToggle').addEventListener('click', togglePrivacy);
         document.addEventListener('keydown', e => {
-            if (e.ctrlKey && e.shiftKey && (e.key === 'H' || e.key === 'h')) {
+            if ((e.key === 'v' || e.key === 'V') && !e.repeat) {
                 e.preventDefault();
-                togglePrivacy();
+                revealPrivacy();
+            }
+        });
+        document.addEventListener('keyup', e => {
+            if (e.key === 'v' || e.key === 'V') {
+                e.preventDefault();
+                hidePrivacy();
             }
         });
         document.addEventListener('visibilitychange', () => {
