@@ -90,6 +90,14 @@
         body.revealed .privacy-toggle {
             background: rgba(34, 211, 238, 0.4);
         }
+
+        /* Mobile: skip privacy overlay entirely (no keyboard to reveal with) */
+        @media (hover: none) and (pointer: coarse) {
+            .privacy-overlay,
+            .privacy-toggle {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body class="text-slate-100 p-2 md:p-3 flex flex-col">
