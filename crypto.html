@@ -23,6 +23,42 @@
         const targetRate = xtzTarget / zecHeld;
         let alertSent = false;
 
+        // Custom plugin: draws a small box at the end of the live rate line
+        // showing its current value.
+        const endLabelPlugin = {
+            id: 'endLabel',
+            afterDatasetsDraw(chart) {
+                const { ctx } = chart;
+                const dataset = chart.data.datasets[0];
+                const meta = chart.getDatasetMeta(0);
+                if (!meta.data || meta.data.length === 0) return;
+
+                const lastPoint = meta.data[meta.data.length - 1];
+                const value = dataset.data[dataset.data.length - 1];
+                if (value == null || !lastPoint) return;
+
+                const text = value.toFixed(2);
+                ctx.save();
+                ctx.font = 'bold 12px sans-serif';
+                const paddingX = 6;
+                const paddingY = 4;
+                const textWidth = ctx.measureText(text).width;
+                const boxWidth = textWidth + paddingX * 2;
+                const boxHeight = 20;
+                const x = lastPoint.x + 6;
+                const y = lastPoint.y - boxHeight / 2;
+
+                ctx.fillStyle = 'white';
+                ctx.fillRect(x, y, boxWidth, boxHeight);
+
+                ctx.fillStyle = 'black';
+                ctx.textBaseline = 'middle';
+                ctx.textAlign = 'left';
+                ctx.fillText(text, x + paddingX, y + boxHeight / 2);
+                ctx.restore();
+            }
+        };
+
         const ctx = document.getElementById('cryptoChart').getContext('2d');
         const chart = new Chart(ctx, {
             type: 'line',
@@ -51,11 +87,14 @@
             options: {
                 responsive: true,
                 animation: false,
+                layout: {
+                    padding: { right: 70 }
+                },
                 scales: {
                     x: {
                         display: true,
                         title: { display: false },
-                        ticks: { color: 'white' },
+                        ticks: { display: false },
                         grid: { display: false }
                     },
                     y: {
@@ -68,10 +107,11 @@
                 plugins: {
                     legend: { display: false }
                 }
-            }
+            },
+            plugins: [endLabelPlugin]
         });
 
-        async function fetchBinanceData(symbol, interval = '1m', limit = 360) {
+        async function fetchBinanceData(symbol, interval = '1m', limit = 720) {
             const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
             const response = await fetch(url);
             const data = await response.json();
