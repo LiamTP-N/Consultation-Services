@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZEC to XTZ Tracker</title>
+    <title>New Tab</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
+        html, body { height: 100%; overflow: hidden; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: radial-gradient(ellipse at top, #1e293b 0%, #0f172a 50%, #020617 100%);
-            min-height: 100vh;
             font-variant-numeric: tabular-nums;
         }
         .glass-card {
@@ -19,7 +19,7 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(148, 163, 184, 0.15);
-            border-radius: 16px;
+            border-radius: 12px;
         }
         .live-dot {
             width: 8px; height: 8px; border-radius: 50%;
@@ -34,15 +34,15 @@
             50% { opacity: 0.4; }
         }
         .timeframe-btn {
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
             background: rgba(51, 65, 85, 0.5);
             border: 1px solid rgba(148, 163, 184, 0.1);
             color: #cbd5e1;
             font-weight: 500;
             transition: all 0.15s ease;
             cursor: pointer;
-            font-size: 0.875rem;
+            font-size: 0.75rem;
         }
         .timeframe-btn:hover { background: rgba(51, 65, 85, 0.8); }
         .timeframe-btn.active {
@@ -51,7 +51,7 @@
             border-color: #22d3ee;
         }
         .progress-bar {
-            height: 8px;
+            height: 5px;
             background: rgba(51, 65, 85, 0.6);
             border-radius: 999px;
             overflow: hidden;
@@ -62,22 +62,55 @@
             border-radius: 999px;
             transition: width 0.6s ease;
         }
+
+        /* Privacy overlay */
+        .privacy-overlay {
+            position: fixed;
+            inset: 0;
+            background: #020617;
+            z-index: 9998;
+            transition: opacity 0.15s ease;
+        }
+        body.revealed .privacy-overlay {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .privacy-toggle {
+            position: fixed;
+            bottom: 6px;
+            right: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(100, 116, 139, 0.25);
+            border: none;
+            cursor: pointer;
+            z-index: 9999;
+            padding: 0;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .privacy-toggle:hover {
+            background: rgba(148, 163, 184, 0.6);
+            transform: scale(1.3);
+        }
+        body.revealed .privacy-toggle {
+            background: rgba(34, 211, 238, 0.4);
+        }
     </style>
 </head>
-<body class="text-slate-100 p-4 md:p-8">
-    <div class="max-w-7xl mx-auto space-y-6">
+<body class="text-slate-100 p-2 md:p-3 flex flex-col">
+    <div class="max-w-7xl mx-auto w-full flex-1 flex flex-col gap-2 min-h-0">
 
         <!-- HEADER -->
-        <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <header class="flex items-center justify-between gap-3 flex-none">
             <div>
-                <h1 class="text-3xl md:text-4xl font-bold tracking-tight">
+                <h1 class="text-xl md:text-2xl font-bold tracking-tight leading-tight">
                     <span class="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">ZEC → XTZ</span>
-                    <span class="text-slate-400 text-xl font-normal ml-2">Tracker</span>
+                    <span class="text-slate-400 text-base font-normal ml-1">Tracker</span>
                 </h1>
-                <p class="text-slate-500 text-sm mt-1">Private rate monitor · holdings converter · target alert</p>
             </div>
-            <div class="flex items-center gap-3 text-sm">
-                <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 text-xs">
+                <div class="flex items-center gap-1.5">
                     <span id="liveDot" class="live-dot"></span>
                     <span id="liveStatus" class="text-slate-400">Live</span>
                 </div>
@@ -87,36 +120,36 @@
         </header>
 
         <!-- HERO STATS -->
-        <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="glass-card p-5">
-                <p class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Current Rate</p>
-                <p id="heroRate" class="text-4xl font-bold mt-2">-</p>
-                <p class="text-slate-500 text-xs mt-1">XTZ per ZEC</p>
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-2 flex-none">
+            <div class="glass-card p-3">
+                <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Current Rate</p>
+                <p id="heroRate" class="text-2xl font-bold mt-0.5 leading-tight">-</p>
+                <p class="text-slate-500 text-[10px]">XTZ per ZEC</p>
             </div>
-            <div class="glass-card p-5">
-                <p class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Target Rate</p>
-                <p id="heroTarget" class="text-4xl font-bold mt-2 text-rose-300">-</p>
-                <p class="text-slate-500 text-xs mt-1">17,500 XTZ ÷ holdings</p>
+            <div class="glass-card p-3">
+                <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Target Rate</p>
+                <p id="heroTarget" class="text-2xl font-bold mt-0.5 text-rose-300 leading-tight">-</p>
+                <p class="text-slate-500 text-[10px]">17,500 XTZ ÷ holdings</p>
             </div>
-            <div class="glass-card p-5">
-                <p class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Distance</p>
-                <p id="heroDistance" class="text-4xl font-bold mt-2">-</p>
-                <p id="heroDistanceLabel" class="text-slate-500 text-xs mt-1">to target</p>
+            <div class="glass-card p-3">
+                <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Distance</p>
+                <p id="heroDistance" class="text-2xl font-bold mt-0.5 leading-tight">-</p>
+                <p id="heroDistanceLabel" class="text-slate-500 text-[10px]">to target</p>
             </div>
-            <div class="glass-card p-5">
-                <p class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Progress</p>
-                <p id="heroProgress" class="text-4xl font-bold mt-2">-</p>
-                <div class="progress-bar mt-3">
+            <div class="glass-card p-3">
+                <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Progress</p>
+                <p id="heroProgress" class="text-2xl font-bold mt-0.5 leading-tight">-</p>
+                <div class="progress-bar mt-1.5">
                     <div id="heroProgressBar" class="progress-fill" style="width: 0%"></div>
                 </div>
             </div>
         </section>
 
-        <!-- CHART + TIMEFRAME -->
-        <section class="glass-card p-5">
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-                <h2 class="text-lg font-semibold text-slate-200">Rate Chart</h2>
-                <div class="flex flex-wrap gap-2" id="timeframeButtons">
+        <!-- CHART + TIMEFRAME (flex-1 fills remaining space) -->
+        <section class="glass-card p-3 flex-1 min-h-0 flex flex-col">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2 flex-none">
+                <h2 class="text-sm font-semibold text-slate-200">Rate Chart</h2>
+                <div class="flex flex-wrap gap-1.5" id="timeframeButtons">
                     <button class="timeframe-btn" data-tf="1h">1h</button>
                     <button class="timeframe-btn" data-tf="6h">6h</button>
                     <button class="timeframe-btn active" data-tf="12h">12h</button>
@@ -124,129 +157,109 @@
                     <button class="timeframe-btn" data-tf="7d">7d</button>
                 </div>
             </div>
-            <div style="height: 360px;">
+            <div class="flex-1 min-h-0 relative">
                 <canvas id="cryptoChart"></canvas>
             </div>
         </section>
 
         <!-- SECONDARY GRID: ZEC / XTZ / Holdings -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="glass-card p-5">
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-2 flex-none">
+            <div class="glass-card p-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-slate-400 text-xs uppercase tracking-wider font-semibold">ZEC / USD</p>
-                        <p id="zecPrice" class="text-2xl font-bold mt-1">-</p>
+                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">ZEC / USD</p>
+                        <p id="zecPrice" class="text-lg font-bold leading-tight">-</p>
                     </div>
-                    <p id="zecChange" class="text-sm font-semibold">-</p>
+                    <p id="zecChange" class="text-xs font-semibold">-</p>
                 </div>
-                <div style="height: 48px;" class="mt-2">
+                <div style="height: 28px;" class="mt-1">
                     <canvas id="zecSpark"></canvas>
                 </div>
-                <div class="flex justify-between text-xs text-slate-500 mt-2">
-                    <span>24h H: <span id="zecHigh" class="text-slate-300">-</span></span>
-                    <span>24h L: <span id="zecLow" class="text-slate-300">-</span></span>
-                    <span>Vol: <span id="zecVol" class="text-slate-300">-</span></span>
+                <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                    <span>H: <span id="zecHigh" class="text-slate-300">-</span></span>
+                    <span>L: <span id="zecLow" class="text-slate-300">-</span></span>
+                    <span>V: <span id="zecVol" class="text-slate-300">-</span></span>
                 </div>
             </div>
 
-            <div class="glass-card p-5">
+            <div class="glass-card p-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-slate-400 text-xs uppercase tracking-wider font-semibold">XTZ / USD</p>
-                        <p id="xtzPrice" class="text-2xl font-bold mt-1">-</p>
+                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">XTZ / USD</p>
+                        <p id="xtzPrice" class="text-lg font-bold leading-tight">-</p>
                     </div>
-                    <p id="xtzChange" class="text-sm font-semibold">-</p>
+                    <p id="xtzChange" class="text-xs font-semibold">-</p>
                 </div>
-                <div style="height: 48px;" class="mt-2">
+                <div style="height: 28px;" class="mt-1">
                     <canvas id="xtzSpark"></canvas>
                 </div>
-                <div class="flex justify-between text-xs text-slate-500 mt-2">
-                    <span>24h H: <span id="xtzHigh" class="text-slate-300">-</span></span>
-                    <span>24h L: <span id="xtzLow" class="text-slate-300">-</span></span>
-                    <span>Vol: <span id="xtzVol" class="text-slate-300">-</span></span>
+                <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                    <span>H: <span id="xtzHigh" class="text-slate-300">-</span></span>
+                    <span>L: <span id="xtzLow" class="text-slate-300">-</span></span>
+                    <span>V: <span id="xtzVol" class="text-slate-300">-</span></span>
                 </div>
             </div>
 
-            <div class="glass-card p-5">
-                <p class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Holdings</p>
-                <p class="text-2xl font-bold mt-1"><span id="holdingsZec">16.256</span> <span class="text-slate-400 text-lg">ZEC</span></p>
-                <div class="mt-3 space-y-2 text-sm">
-                    <div class="flex justify-between"><span class="text-slate-400">USD value</span><span id="holdingsUsd" class="font-semibold">-</span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">Current XTZ equivalent</span><span id="holdingsXtz" class="font-semibold">-</span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">Target XTZ</span><span class="font-semibold text-rose-300">17,500</span></div>
-                    <div class="flex justify-between pt-2 border-t border-slate-700/50"><span class="text-slate-400">Shortfall</span><span id="holdingsShortfall" class="font-semibold">-</span></div>
+            <div class="glass-card p-3">
+                <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Holdings</p>
+                <p class="text-lg font-bold leading-tight"><span id="holdingsZec">16.256</span> <span class="text-slate-400 text-sm">ZEC</span></p>
+                <div class="mt-1 space-y-0.5 text-xs">
+                    <div class="flex justify-between"><span class="text-slate-400">USD</span><span id="holdingsUsd" class="font-semibold">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">XTZ now</span><span id="holdingsXtz" class="font-semibold">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Shortfall</span><span id="holdingsShortfall" class="font-semibold">-</span></div>
                 </div>
             </div>
         </section>
 
         <!-- SESSION STATS + ALERT STATUS -->
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="glass-card p-5">
-                <p class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Session Stats</p>
-                <div class="grid grid-cols-2 gap-3 mt-3 text-sm">
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-2 flex-none">
+            <div class="glass-card p-3">
+                <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold mb-1.5">Session Stats</p>
+                <div class="grid grid-cols-3 gap-2 text-xs">
                     <div>
-                        <p class="text-slate-500 text-xs">Opened at</p>
-                        <p id="sessionOpen" class="font-semibold text-lg">-</p>
+                        <p class="text-slate-500 text-[10px]">Opened</p>
+                        <p id="sessionOpen" class="font-semibold">-</p>
                     </div>
                     <div>
-                        <p class="text-slate-500 text-xs">Duration</p>
-                        <p id="sessionDuration" class="font-semibold text-lg">-</p>
+                        <p class="text-slate-500 text-[10px]">Duration</p>
+                        <p id="sessionDuration" class="font-semibold">-</p>
                     </div>
                     <div>
-                        <p class="text-slate-500 text-xs">Session high</p>
-                        <p id="sessionHigh" class="font-semibold text-lg text-emerald-300">-</p>
+                        <p class="text-slate-500 text-[10px]">Change</p>
+                        <p id="sessionDelta" class="font-semibold">-</p>
                     </div>
                     <div>
-                        <p class="text-slate-500 text-xs">Session low</p>
-                        <p id="sessionLow" class="font-semibold text-lg text-rose-300">-</p>
+                        <p class="text-slate-500 text-[10px]">High</p>
+                        <p id="sessionHigh" class="font-semibold text-emerald-300">-</p>
                     </div>
                     <div>
-                        <p class="text-slate-500 text-xs">Session change</p>
-                        <p id="sessionDelta" class="font-semibold text-lg">-</p>
+                        <p class="text-slate-500 text-[10px]">Low</p>
+                        <p id="sessionLow" class="font-semibold text-rose-300">-</p>
                     </div>
                     <div>
-                        <p class="text-slate-500 text-xs">Best distance</p>
-                        <p id="sessionBestDistance" class="font-semibold text-lg">-</p>
+                        <p class="text-slate-500 text-[10px]">Best dist</p>
+                        <p id="sessionBestDistance" class="font-semibold">-</p>
                     </div>
                 </div>
             </div>
 
-            <div class="glass-card p-5">
-                <p class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Alert Status</p>
-                <div class="mt-3 space-y-2 text-sm">
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-400">Target rate</span>
-                        <span id="alertTarget" class="font-semibold text-rose-300">-</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-400">Target value</span>
-                        <span class="font-semibold">17,500 XTZ</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-400">Email alert</span>
-                        <span id="alertStatus" class="font-semibold">Armed</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-400">ZEC 24h change</span>
-                        <span id="altZecChange" class="font-semibold">-</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-400">XTZ 24h change</span>
-                        <span id="altXtzChange" class="font-semibold">-</span>
-                    </div>
-                    <div class="flex justify-between items-center pt-2 border-t border-slate-700/50">
-                        <span id="rateMoveLabel" class="text-slate-400">Rate move</span>
-                        <span id="rateMoveChange" class="font-semibold">-</span>
-                    </div>
+            <div class="glass-card p-3">
+                <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold mb-1.5">Alert Status</p>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs">
+                    <div class="flex justify-between"><span class="text-slate-400">Target</span><span id="alertTarget" class="font-semibold text-rose-300">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Email</span><span id="alertStatus" class="font-semibold">Armed</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">ZEC 24h</span><span id="altZecChange" class="font-semibold">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">XTZ 24h</span><span id="altXtzChange" class="font-semibold">-</span></div>
+                    <div class="flex justify-between col-span-2 pt-1 border-t border-slate-700/50"><span id="rateMoveLabel" class="text-slate-400">Rate move</span><span id="rateMoveChange" class="font-semibold">-</span></div>
                 </div>
             </div>
         </section>
 
-        <footer class="text-center text-slate-600 text-xs py-4">
-            Data: Binance public API · Updates every second · Private page
-        </footer>
-
     </div>
+
+    <!-- Privacy overlay + toggle (discreet) -->
+    <div id="privacyOverlay" class="privacy-overlay"></div>
+    <button id="privacyToggle" class="privacy-toggle" title="Toggle visibility (Ctrl+Shift+H)" aria-label="Toggle visibility"></button>
 
     <script>
         // --------------------------------------------------------------
@@ -274,6 +287,37 @@
         let sessionHigh = -Infinity;
         let sessionLow = Infinity;
         let sessionBestDistance = -Infinity;
+
+        // --------------------------------------------------------------
+        // PRIVACY
+        // --------------------------------------------------------------
+        const HIDDEN_TITLE = 'New Tab';
+        let liveTitle = HIDDEN_TITLE;
+        function hidePrivacy() {
+            document.body.classList.remove('revealed');
+            document.title = HIDDEN_TITLE;
+        }
+        function revealPrivacy() {
+            document.body.classList.add('revealed');
+            document.title = liveTitle;
+        }
+        function togglePrivacy() {
+            if (document.body.classList.contains('revealed')) hidePrivacy();
+            else revealPrivacy();
+        }
+        document.getElementById('privacyToggle').addEventListener('click', togglePrivacy);
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey && e.shiftKey && (e.key === 'H' || e.key === 'h')) {
+                e.preventDefault();
+                togglePrivacy();
+            }
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) hidePrivacy();
+        });
+        window.addEventListener('blur', hidePrivacy);
+        // Start hidden by default
+        hidePrivacy();
 
         // --------------------------------------------------------------
         // HELPERS
@@ -332,13 +376,13 @@
                 scales: {
                     x: {
                         display: true,
-                        ticks: { color: '#64748b', maxRotation: 0, autoSkipPadding: 40 },
+                        ticks: { color: '#64748b', maxRotation: 0, autoSkipPadding: 40, font: { size: 10 } },
                         grid: { display: false }
                     },
                     y: {
                         display: true,
                         position: 'right',
-                        ticks: { color: '#64748b' },
+                        ticks: { color: '#64748b', font: { size: 10 } },
                         grid: { color: 'rgba(148, 163, 184, 0.08)' }
                     }
                 },
@@ -350,7 +394,7 @@
                         borderWidth: 1,
                         titleColor: '#cbd5e1',
                         bodyColor: '#f1f5f9',
-                        padding: 10
+                        padding: 8
                     }
                 }
             }
@@ -440,7 +484,7 @@
                 document.getElementById('heroTarget').textContent = fmt(targetRate, 2);
                 const heroDist = document.getElementById('heroDistance');
                 heroDist.textContent = fmtPct(distancePct);
-                heroDist.className = 'text-4xl font-bold mt-2 ' + (aboveTarget ? 'text-emerald-400' : 'text-rose-400');
+                heroDist.className = 'text-2xl font-bold mt-0.5 leading-tight ' + (aboveTarget ? 'text-emerald-400' : 'text-rose-400');
                 document.getElementById('heroDistanceLabel').textContent = aboveTarget ? 'above target' : 'below target';
                 const progressPct = Math.min(100, Math.max(0, (latestRate / targetRate) * 100));
                 document.getElementById('heroProgress').textContent = fmt(progressPct, 1) + '%';
@@ -491,8 +535,8 @@
                 const sessionDelta = latestRate - sessionOpenRate;
                 const sessionDeltaPct = (sessionDelta / sessionOpenRate) * 100;
                 const deltaEl = document.getElementById('sessionDelta');
-                deltaEl.textContent = (sessionDelta >= 0 ? '+' : '') + fmt(sessionDelta, 2) + ' (' + fmtPct(sessionDeltaPct) + ')';
-                deltaEl.className = 'font-semibold text-lg ' + (sessionDelta >= 0 ? 'text-emerald-400' : 'text-rose-400');
+                deltaEl.textContent = (sessionDelta >= 0 ? '+' : '') + fmt(sessionDelta, 2);
+                deltaEl.className = 'font-semibold ' + (sessionDelta >= 0 ? 'text-emerald-400' : 'text-rose-400');
                 document.getElementById('sessionBestDistance').textContent = fmtPct(sessionBestDistance);
 
                 // Alert panel
@@ -517,8 +561,9 @@
                 document.getElementById('liveDot').classList.remove('stale', 'error');
                 document.getElementById('liveStatus').textContent = 'Live';
 
-                // Tab title
-                document.title = `${latestRate.toFixed(2)} / ${targetRate.toFixed(2)}`;
+                // Tab title (respect privacy state)
+                liveTitle = `${latestRate.toFixed(2)} / ${targetRate.toFixed(2)}`;
+                if (document.body.classList.contains('revealed')) document.title = liveTitle;
 
                 // Alert trigger
                 if (aboveTarget && !alertSent) {
