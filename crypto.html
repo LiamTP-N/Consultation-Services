@@ -80,7 +80,7 @@
         document.body.className = isWidget ? 'widget-mode' : 'chart-mode';
 
         function formatTitleAndDisplay(rate) {
-            return `${rate.toFixed(2)}/${targetRate.toFixed(2)}`;
+            return `${rate.toFixed(2)} / ${targetRate.toFixed(2)}`;
         }
 
         function sendEmailAlert(rate) {
