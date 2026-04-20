@@ -53,18 +53,6 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
         }
-        .progress-bar {
-            height: 5px;
-            background: rgba(51, 65, 85, 0.6);
-            border-radius: 999px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #22d3ee, #22c55e);
-            border-radius: 999px;
-            transition: width 0.6s ease;
-        }
 
         /* Privacy overlay */
         .privacy-overlay {
@@ -124,28 +112,20 @@
         </header>
 
         <!-- HERO STATS -->
-        <section class="grid grid-cols-2 lg:grid-cols-4 gap-2 flex-none">
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-2 flex-none">
             <div class="glass-card-accent p-3">
-                <p class="text-emerald-300/80 text-[10px] uppercase tracking-wider font-semibold">Current Rate</p>
-                <p id="heroRate" class="text-2xl font-bold mt-0.5 leading-tight text-emerald-300">-</p>
+                <p class="text-emerald-300/80 text-[10px] uppercase tracking-wider font-semibold">Current / Target</p>
+                <p class="text-2xl font-bold mt-0.5 leading-tight">
+                    <span id="heroRate" class="text-emerald-300">-</span>
+                    <span class="text-slate-500 mx-1">/</span>
+                    <span id="heroTarget" class="text-rose-300">-</span>
+                </p>
                 <p class="text-emerald-400/60 text-[10px]">XTZ per ZEC</p>
-            </div>
-            <div class="glass-card p-3">
-                <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Target Rate</p>
-                <p id="heroTarget" class="text-2xl font-bold mt-0.5 text-rose-300 leading-tight">-</p>
-                <p class="text-slate-500 text-[10px]">17,500 XTZ ÷ holdings</p>
             </div>
             <div class="glass-card p-3">
                 <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Distance</p>
                 <p id="heroDistance" class="text-2xl font-bold mt-0.5 leading-tight">-</p>
-                <p id="heroDistanceLabel" class="text-slate-500 text-[10px]">to target</p>
-            </div>
-            <div class="glass-card p-3">
-                <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Progress</p>
-                <p id="heroProgress" class="text-2xl font-bold mt-0.5 leading-tight">-</p>
-                <div class="progress-bar mt-1.5">
-                    <div id="heroProgressBar" class="progress-fill" style="width: 0%"></div>
-                </div>
+                <p class="text-slate-500 text-[10px]">to target</p>
             </div>
         </section>
 
@@ -248,39 +228,6 @@
             </div>
         </section>
 
-        <!-- SESSION STATS -->
-        <section class="flex-none">
-            <div class="glass-card p-3">
-                <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold mb-1.5">Session Stats</p>
-                <div class="grid grid-cols-3 md:grid-cols-6 gap-2 text-xs">
-                    <div>
-                        <p class="text-slate-500 text-[10px]">Opened</p>
-                        <p id="sessionOpen" class="font-semibold">-</p>
-                    </div>
-                    <div>
-                        <p class="text-slate-500 text-[10px]">Duration</p>
-                        <p id="sessionDuration" class="font-semibold">-</p>
-                    </div>
-                    <div>
-                        <p class="text-slate-500 text-[10px]">Change</p>
-                        <p id="sessionDelta" class="font-semibold">-</p>
-                    </div>
-                    <div>
-                        <p class="text-slate-500 text-[10px]">High</p>
-                        <p id="sessionHigh" class="font-semibold text-emerald-300">-</p>
-                    </div>
-                    <div>
-                        <p class="text-slate-500 text-[10px]">Low</p>
-                        <p id="sessionLow" class="font-semibold text-rose-300">-</p>
-                    </div>
-                    <div>
-                        <p class="text-slate-500 text-[10px]">Best dist</p>
-                        <p id="sessionBestDistance" class="font-semibold">-</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
     </div>
 
     <!-- Privacy overlay + toggle (discreet) -->
@@ -309,12 +256,6 @@
         };
         const TF_KEYS = ['15m', '1h', '12h', '24h', '7d'];
 
-        const sessionStart = new Date();
-        let sessionOpenRate = null;
-        let sessionHigh = -Infinity;
-        let sessionLow = Infinity;
-        let sessionBestDistance = -Infinity;
-
         // --------------------------------------------------------------
         // PRIVACY
         // Hold 'V' to reveal, release to hide. Click toggle dot still works.
@@ -326,26 +267,66 @@
             document.body.classList.add('revealed');
         }
         function togglePrivacy() {
+            clearTimedReveal();
             if (document.body.classList.contains('revealed')) hidePrivacy();
             else revealPrivacy();
         }
+
+        // Timed reveal state (double-tap V = 30s window)
+        const TIMED_REVEAL_MS = 30000;
+        const DOUBLE_TAP_WINDOW_MS = 400;
+        let timedRevealTimer = null;
+        let lastVTapTime = 0;
+
+        function clearTimedReveal() {
+            if (timedRevealTimer !== null) {
+                clearTimeout(timedRevealTimer);
+                timedRevealTimer = null;
+            }
+        }
+        function startTimedReveal() {
+            clearTimedReveal();
+            revealPrivacy();
+            timedRevealTimer = setTimeout(() => {
+                timedRevealTimer = null;
+                hidePrivacy();
+            }, TIMED_REVEAL_MS);
+        }
+
         document.getElementById('privacyToggle').addEventListener('click', togglePrivacy);
+
         document.addEventListener('keydown', e => {
             if ((e.key === 'v' || e.key === 'V') && !e.repeat) {
                 e.preventDefault();
-                revealPrivacy();
+                const now = Date.now();
+                if (now - lastVTapTime <= DOUBLE_TAP_WINDOW_MS) {
+                    // Second tap within window: start 30s timed reveal
+                    startTimedReveal();
+                    lastVTapTime = 0;
+                } else {
+                    // First tap (or too slow): treat as hold-to-reveal
+                    revealPrivacy();
+                    lastVTapTime = now;
+                }
             }
         });
         document.addEventListener('keyup', e => {
             if (e.key === 'v' || e.key === 'V') {
                 e.preventDefault();
-                hidePrivacy();
+                // Don't hide if a 30s timed reveal is active
+                if (timedRevealTimer === null) hidePrivacy();
             }
         });
         document.addEventListener('visibilitychange', () => {
-            if (document.hidden) hidePrivacy();
+            if (document.hidden) {
+                clearTimedReveal();
+                hidePrivacy();
+            }
         });
-        window.addEventListener('blur', hidePrivacy);
+        window.addEventListener('blur', () => {
+            clearTimedReveal();
+            hidePrivacy();
+        });
         // Start hidden by default
         hidePrivacy();
 
@@ -360,13 +341,6 @@
         function setChangeColour(el, pct) {
             el.classList.remove('text-emerald-400', 'text-rose-400');
             el.classList.add(pct >= 0 ? 'text-emerald-400' : 'text-rose-400');
-        }
-        function durationStr(ms) {
-            const s = Math.floor(ms / 1000);
-            const h = Math.floor(s / 3600);
-            const m = Math.floor((s % 3600) / 60);
-            const sec = s % 60;
-            return (h ? h + 'h ' : '') + ((m || h) ? m + 'm ' : '') + sec + 's';
         }
         // Timeframe-scoped H/L/V/change from kline array
         function klineStats(klines) {
@@ -479,11 +453,7 @@
 
                 // Freshest rate comes from 15m (1m klines, newest partial)
                 const latestRate = panelData['15m'].rates[panelData['15m'].rates.length - 1];
-                if (sessionOpenRate === null) sessionOpenRate = latestRate;
-                if (latestRate > sessionHigh) sessionHigh = latestRate;
-                if (latestRate < sessionLow) sessionLow = latestRate;
                 const distancePct = ((latestRate / targetRate) - 1) * 100;
-                if (distancePct > sessionBestDistance) sessionBestDistance = distancePct;
                 const aboveTarget = latestRate >= targetRate;
 
                 // HERO
@@ -492,10 +462,6 @@
                 const heroDist = document.getElementById('heroDistance');
                 heroDist.textContent = fmtPct(distancePct);
                 heroDist.className = 'text-2xl font-bold mt-0.5 leading-tight ' + (aboveTarget ? 'text-emerald-400' : 'text-rose-400');
-                document.getElementById('heroDistanceLabel').textContent = aboveTarget ? 'above target' : 'below target';
-                const progressPct = Math.min(100, Math.max(0, (latestRate / targetRate) * 100));
-                document.getElementById('heroProgress').textContent = fmt(progressPct, 1) + '%';
-                document.getElementById('heroProgressBar').style.width = progressPct + '%';
 
                 // ZEC / XTZ cards (pinned to 24h kline data)
                 const d24 = panelData['24h'];
@@ -545,17 +511,6 @@
                     shortEl.textContent = fmt(shortfall, 0) + ' XTZ';
                     shortEl.className = 'font-semibold text-slate-200';
                 }
-
-                // Session stats
-                document.getElementById('sessionOpen').textContent = fmt(sessionOpenRate, 2);
-                document.getElementById('sessionDuration').textContent = durationStr(Date.now() - sessionStart.getTime());
-                document.getElementById('sessionHigh').textContent = fmt(sessionHigh, 2);
-                document.getElementById('sessionLow').textContent = fmt(sessionLow, 2);
-                const sessionDelta = latestRate - sessionOpenRate;
-                const deltaEl = document.getElementById('sessionDelta');
-                deltaEl.textContent = (sessionDelta >= 0 ? '+' : '') + fmt(sessionDelta, 2);
-                deltaEl.className = 'font-semibold ' + (sessionDelta >= 0 ? 'text-emerald-400' : 'text-rose-400');
-                document.getElementById('sessionBestDistance').textContent = fmtPct(sessionBestDistance);
 
                 // Header status
                 document.getElementById('lastUpdated').textContent = 'Updated just now';
