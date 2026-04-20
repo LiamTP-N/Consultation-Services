@@ -400,7 +400,7 @@
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission().catch(() => {});
         }
-        function fireTargetNotification(rate) {
+        function fireBrowserNotification(rate) {
             if (!('Notification' in window)) return;
             if (Notification.permission !== 'granted') return;
             try {
@@ -409,6 +409,28 @@
                     tag: 'zec-xtz-target'
                 });
             } catch (e) { /* ignore */ }
+        }
+
+        // --------------------------------------------------------------
+        // TELEGRAM NOTIFICATION
+        // --------------------------------------------------------------
+        const TELEGRAM_TOKEN = '8471305313:AAFbrJGU1i9VWQI3e7NDobzFBUCEXj0YdAI';
+        const TELEGRAM_CHAT_ID = '5097919336';
+        function fireTelegramNotification(rate) {
+            if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) return;
+            const text = `🎯 Target reached! ZEC→XTZ rate is ${rate.toFixed(2)} (target ${targetRate.toFixed(2)}).`;
+            const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: text })
+            }).catch(e => console.error('Telegram send failed', e));
+        }
+
+        // Combined alert on target hit
+        function fireTargetAlert(rate) {
+            fireBrowserNotification(rate);
+            fireTelegramNotification(rate);
         }
 
         // --------------------------------------------------------------
@@ -729,9 +751,9 @@
                 // Favicon
                 setFavicon(aboveTarget);
 
-                // Alert trigger (notification + title only, no email)
+                // Alert trigger (browser notification + Telegram)
                 if (aboveTarget && !alertSent) {
-                    fireTargetNotification(latestRate);
+                    fireTargetAlert(latestRate);
                     alertSent = true;
                 }
 
