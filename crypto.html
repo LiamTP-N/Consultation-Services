@@ -241,17 +241,18 @@
                 <p class="text-lg font-bold leading-tight"><span id="holdingsZec">16.256</span> <span class="text-slate-400 text-sm">ZEC</span></p>
                 <div class="mt-1 space-y-0.5 text-xs">
                     <div class="flex justify-between"><span class="text-slate-400">USD</span><span id="holdingsUsd" class="font-semibold">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">GBP</span><span id="holdingsGbp" class="font-semibold">-</span></div>
                     <div class="flex justify-between"><span class="text-slate-400">XTZ now</span><span id="holdingsXtz" class="font-semibold">-</span></div>
                     <div class="flex justify-between"><span class="text-slate-400">Shortfall</span><span id="holdingsShortfall" class="font-semibold">-</span></div>
                 </div>
             </div>
         </section>
 
-        <!-- SESSION STATS + ALERT STATUS -->
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-2 flex-none">
+        <!-- SESSION STATS -->
+        <section class="flex-none">
             <div class="glass-card p-3">
                 <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold mb-1.5">Session Stats</p>
-                <div class="grid grid-cols-3 gap-2 text-xs">
+                <div class="grid grid-cols-3 md:grid-cols-6 gap-2 text-xs">
                     <div>
                         <p class="text-slate-500 text-[10px]">Opened</p>
                         <p id="sessionOpen" class="font-semibold">-</p>
@@ -275,26 +276,6 @@
                     <div>
                         <p class="text-slate-500 text-[10px]">Best dist</p>
                         <p id="sessionBestDistance" class="font-semibold">-</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-card p-3">
-                <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold mb-1.5">Alert Status</p>
-                <div class="grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs">
-                    <div class="flex justify-between"><span class="text-slate-400">Target</span><span id="alertTarget" class="font-semibold text-rose-300">-</span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">Email</span><span id="alertStatus" class="font-semibold">Armed</span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">ZEC 24h</span><span id="altZecChange" class="font-semibold">-</span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">XTZ 24h</span><span id="altXtzChange" class="font-semibold">-</span></div>
-                    <div class="col-span-2 pt-1.5 mt-1 border-t border-slate-700/50">
-                        <p class="text-slate-400 text-[10px] mb-1">Rate move by timeframe</p>
-                        <div class="grid grid-cols-5 gap-1 text-center">
-                            <div><p class="text-slate-500 text-[9px] uppercase">15m</p><p id="strip_15m" class="text-[11px] font-semibold">-</p></div>
-                            <div><p class="text-slate-500 text-[9px] uppercase">1h</p><p id="strip_1h" class="text-[11px] font-semibold">-</p></div>
-                            <div><p class="text-slate-500 text-[9px] uppercase">12h</p><p id="strip_12h" class="text-[11px] font-semibold">-</p></div>
-                            <div><p class="text-slate-500 text-[9px] uppercase">24h</p><p id="strip_24h" class="text-[11px] font-semibold">-</p></div>
-                            <div><p class="text-slate-500 text-[9px] uppercase">7d</p><p id="strip_7d" class="text-[11px] font-semibold">-</p></div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -373,6 +354,7 @@
         // --------------------------------------------------------------
         const fmt = (n, d = 2) => Number(n).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
         const fmtUsd = (n) => '$' + fmt(n, n < 1 ? 4 : 2);
+        const fmtGbp = (n) => '£' + fmt(n, n < 1 ? 4 : 2);
         const fmtPct = (n) => (n >= 0 ? '+' : '') + fmt(n, 2) + '%';
         const fmtVol = (n) => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : Math.round(n).toString();
         function setChangeColour(el, pct) {
@@ -456,7 +438,7 @@
         // --------------------------------------------------------------
         async function updateAll() {
             try {
-                // Build request list: kline pairs for each TF, then two 24h tickers
+                // Build request list: kline pairs for each TF, then 24h tickers (ZEC, XTZ, GBP)
                 const requests = [];
                 TF_KEYS.forEach(tf => {
                     requests.push(fetchKlines('ZECUSDT', TIMEFRAMES[tf].interval, TIMEFRAMES[tf].limit));
@@ -464,6 +446,7 @@
                 });
                 requests.push(fetch24h('ZECUSDT'));
                 requests.push(fetch24h('XTZUSDT'));
+                requests.push(fetch24h('GBPUSDT'));
                 const results = await Promise.all(requests);
 
                 // Slice out per-TF klines
@@ -478,6 +461,8 @@
                 });
                 const zecT = results[TF_KEYS.length * 2];
                 const xtzT = results[TF_KEYS.length * 2 + 1];
+                const gbpT = results[TF_KEYS.length * 2 + 2];
+                const usdToGbp = 1 / parseFloat(gbpT.lastPrice);
 
                 // Update each panel chart + move % + strip cell
                 TF_KEYS.forEach(tf => {
@@ -490,9 +475,6 @@
                     const moveEl = document.getElementById('move_' + tf);
                     moveEl.textContent = fmtPct(move);
                     setChangeColour(moveEl, move);
-                    const stripEl = document.getElementById('strip_' + tf);
-                    stripEl.textContent = fmtPct(move);
-                    setChangeColour(stripEl, move);
                 });
 
                 // Freshest rate comes from 15m (1m klines, newest partial)
@@ -549,9 +531,11 @@
 
                 // Holdings
                 const holdingsUsd = zecHeld * zecPrice;
+                const holdingsGbp = holdingsUsd * usdToGbp;
                 const holdingsXtzNow = zecHeld * latestRate;
                 const shortfall = xtzTarget - holdingsXtzNow;
                 document.getElementById('holdingsUsd').textContent = fmtUsd(holdingsUsd);
+                document.getElementById('holdingsGbp').textContent = fmtGbp(holdingsGbp);
                 document.getElementById('holdingsXtz').textContent = fmt(holdingsXtzNow, 0) + ' XTZ';
                 const shortEl = document.getElementById('holdingsShortfall');
                 if (shortfall <= 0) {
@@ -572,20 +556,6 @@
                 deltaEl.textContent = (sessionDelta >= 0 ? '+' : '') + fmt(sessionDelta, 2);
                 deltaEl.className = 'font-semibold ' + (sessionDelta >= 0 ? 'text-emerald-400' : 'text-rose-400');
                 document.getElementById('sessionBestDistance').textContent = fmtPct(sessionBestDistance);
-
-                // Alert panel (24h values from ticker endpoint)
-                const zec24hPct = parseFloat(zecT.priceChangePercent);
-                const xtz24hPct = parseFloat(xtzT.priceChangePercent);
-                document.getElementById('alertTarget').textContent = fmt(targetRate, 2);
-                const alertEl = document.getElementById('alertStatus');
-                alertEl.textContent = alertSent ? 'Sent ✓' : 'Armed';
-                alertEl.className = 'font-semibold ' + (alertSent ? 'text-emerald-400' : 'text-slate-300');
-                const altZec = document.getElementById('altZecChange');
-                altZec.textContent = fmtPct(zec24hPct);
-                setChangeColour(altZec, zec24hPct);
-                const altXtz = document.getElementById('altXtzChange');
-                altXtz.textContent = fmtPct(xtz24hPct);
-                setChangeColour(altXtz, xtz24hPct);
 
                 // Header status
                 document.getElementById('lastUpdated').textContent = 'Updated just now';
