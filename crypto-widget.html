@@ -12,9 +12,11 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: transparent;
             font-family: sans-serif;
             color: white;
+        }
+        body {
+            background: rgba(0, 0, 0, 0.55);
         }
         #widgetContainer {
             width: 100vw;
@@ -35,13 +37,19 @@
         #widgetDistance {
             font-size: 7vmin;
             margin-top: 2vmin;
-            opacity: 0.9;
+            opacity: 0.95;
         }
-        .above-target {
+        .above-target #widgetNumber {
             color: #22c55e;
         }
-        .below-target {
+        .below-target #widgetNumber {
             color: white;
+        }
+        #widgetDistance.change-up {
+            color: #22c55e;
+        }
+        #widgetDistance.change-down {
+            color: #ef4444;
         }
     </style>
 </head>
@@ -77,22 +85,26 @@
                 });
         }
 
-        async function fetchTickerPrice(symbol) {
-            const url = `https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`;
+        async function fetch24hrTicker(symbol) {
+            const url = `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`;
             const response = await fetch(url);
             const data = await response.json();
-            return parseFloat(data.price);
+            return {
+                last: parseFloat(data.lastPrice),
+                open: parseFloat(data.openPrice)
+            };
         }
 
         async function updateWidget() {
             try {
-                const [xtzPrice, zecPrice] = await Promise.all([
-                    fetchTickerPrice('XTZUSDT'),
-                    fetchTickerPrice('ZECUSDT')
+                const [xtz, zec] = await Promise.all([
+                    fetch24hrTicker('XTZUSDT'),
+                    fetch24hrTicker('ZECUSDT')
                 ]);
-                if (!xtzPrice || !zecPrice) return;
+                if (!xtz.last || !zec.last) return;
 
-                const rate = zecPrice / xtzPrice;
+                const rate = zec.last / xtz.last;
+                const rate24hAgo = (xtz.open && zec.open) ? zec.open / xtz.open : null;
                 const distancePct = ((rate / targetRate) - 1) * 100;
                 const aboveTarget = rate >= targetRate;
 
@@ -104,6 +116,15 @@
                 const sign = distancePct >= 0 ? '+' : '';
                 distEl.textContent = `${sign}${distancePct.toFixed(1)}%`;
                 containerEl.className = aboveTarget ? 'above-target' : 'below-target';
+
+                distEl.classList.remove('change-up', 'change-down');
+                if (rate24hAgo !== null) {
+                    if (rate > rate24hAgo) {
+                        distEl.classList.add('change-up');
+                    } else if (rate < rate24hAgo) {
+                        distEl.classList.add('change-down');
+                    }
+                }
 
                 document.title = formatTitleAndDisplay(rate);
 
