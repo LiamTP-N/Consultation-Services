@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Tab</title>
+    <link id="favicon" rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         html, body { height: 100%; overflow: hidden; }
         body {
@@ -53,6 +53,9 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
         }
+
+        /* Stale data dimming on hero numbers */
+        .stale-dim { opacity: 0.5; transition: opacity 0.3s ease; }
 
         /* Privacy overlay */
         .privacy-overlay {
@@ -117,7 +120,7 @@
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-2 flex-none">
             <div class="glass-card-accent p-3">
                 <p class="text-emerald-300/80 text-[10px] uppercase tracking-wider font-semibold">Current / Target</p>
-                <p class="text-2xl font-bold mt-0.5 leading-tight">
+                <p id="heroRateBlock" class="text-2xl font-bold mt-0.5 leading-tight">
                     <span id="heroRate" class="text-emerald-300">-</span>
                     <span class="text-slate-500 mx-1">/</span>
                     <span id="heroTarget" class="text-rose-300">-</span>
@@ -224,6 +227,7 @@
                 <div class="mt-1 space-y-0.5 text-xs">
                     <div class="flex justify-between"><span class="text-slate-400">USD</span><span id="holdingsUsd" class="font-semibold">-</span></div>
                     <div class="flex justify-between"><span class="text-slate-400">GBP</span><span id="holdingsGbp" class="font-semibold">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Today</span><span id="holdingsToday" class="font-semibold">-</span></div>
                     <div class="flex justify-between"><span class="text-slate-400">XTZ now</span><span id="holdingsXtz" class="font-semibold">-</span></div>
                     <div class="flex justify-between"><span class="text-slate-400">Shortfall</span><span id="holdingsShortfall" class="font-semibold">-</span></div>
                 </div>
@@ -240,11 +244,12 @@
         // --------------------------------------------------------------
         // CONFIG (preserved)
         // --------------------------------------------------------------
-        emailjs.init('YOUR_PUBLIC_KEY');
         const zecHeld = 16.256;
         const xtzTarget = 17500;
         const targetRate = xtzTarget / zecHeld;
         let alertSent = false;
+        let lastSuccessTs = 0;
+        const STALE_MS = 5000;
 
         // --------------------------------------------------------------
         // STATE
@@ -259,7 +264,7 @@
         const TF_KEYS = ['15m', '1h', '12h', '24h', '7d'];
 
         // --------------------------------------------------------------
-        // TIMEFRAME VIEW (1-5 keys, defaults to 24h)
+        // TIMEFRAME VIEW (1-5 keys, 0 to reset, defaults to 7d)
         // --------------------------------------------------------------
         const KEY_TO_TF = { '1': '15m', '2': '1h', '3': '12h', '4': '24h', '5': '7d' };
         const DEFAULT_TF = '7d';
@@ -338,6 +343,12 @@
                 setTF(KEY_TO_TF[e.key]);
                 return;
             }
+            // 0 resets to default
+            if (e.key === '0' && !e.repeat) {
+                e.preventDefault();
+                resetTF();
+                return;
+            }
 
             if ((e.key === 'v' || e.key === 'V') && !e.repeat) {
                 e.preventDefault();
@@ -384,6 +395,46 @@
         hidePrivacy();
 
         // --------------------------------------------------------------
+        // BROWSER NOTIFICATIONS (request once on load, silently)
+        // --------------------------------------------------------------
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission().catch(() => {});
+        }
+        function fireTargetNotification(rate) {
+            if (!('Notification' in window)) return;
+            if (Notification.permission !== 'granted') return;
+            try {
+                new Notification('Target reached', {
+                    body: `ZEC to XTZ rate is ${rate.toFixed(2)} (target ${targetRate.toFixed(2)}).`,
+                    tag: 'zec-xtz-target'
+                });
+            } catch (e) { /* ignore */ }
+        }
+
+        // --------------------------------------------------------------
+        // DYNAMIC FAVICON (green dot above target, red below)
+        // --------------------------------------------------------------
+        const faviconEl = document.getElementById('favicon');
+        const favCanvas = document.createElement('canvas');
+        favCanvas.width = 32; favCanvas.height = 32;
+        let lastFavColour = null;
+        function setFavicon(aboveTarget) {
+            const colour = aboveTarget ? '#22c55e' : '#ef4444';
+            if (colour === lastFavColour) return;
+            lastFavColour = colour;
+            const ctx = favCanvas.getContext('2d');
+            ctx.clearRect(0, 0, 32, 32);
+            ctx.fillStyle = colour;
+            ctx.beginPath();
+            ctx.arc(16, 16, 13, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            faviconEl.href = favCanvas.toDataURL('image/png');
+        }
+
+        // --------------------------------------------------------------
         // HELPERS
         // --------------------------------------------------------------
         const fmt = (n, d = 2) => Number(n).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -407,7 +458,44 @@
         }
 
         // --------------------------------------------------------------
+        // CUSTOM CHART.JS PLUGIN: dashed horizontal target line
+        // --------------------------------------------------------------
+        const targetLinePlugin = {
+            id: 'targetLine',
+            afterDatasetsDraw(chart) {
+                const yScale = chart.scales.y;
+                if (!yScale) return;
+                // Only draw if target sits within the visible y-range
+                if (targetRate < yScale.min || targetRate > yScale.max) return;
+                const ctx = chart.ctx;
+                const y = yScale.getPixelForValue(targetRate);
+                const xLeft = chart.chartArea.left;
+                const xRight = chart.chartArea.right;
+                ctx.save();
+                ctx.strokeStyle = 'rgba(251, 113, 133, 0.7)'; // rose-400 @ 70%
+                ctx.lineWidth = 1;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(xLeft, y);
+                ctx.lineTo(xRight, y);
+                ctx.stroke();
+                // Tiny label on the right
+                ctx.setLineDash([]);
+                ctx.fillStyle = 'rgba(251, 113, 133, 0.85)';
+                ctx.font = '10px -apple-system, sans-serif';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText('target ' + fmt(targetRate, 2), xRight - 4, y - 2);
+                ctx.restore();
+            }
+        };
+
+        // --------------------------------------------------------------
         // PANEL MINI-CHARTS (one per timeframe)
+        //   - tooltip enabled (rate at cursor)
+        //   - tight y-axis with ~5% padding either side of data range,
+        //     extended to include targetRate when reasonably nearby
+        //   - target line plugin
         // --------------------------------------------------------------
         function makePanelChart(canvasId) {
             return new Chart(document.getElementById(canvasId).getContext('2d'), {
@@ -418,14 +506,42 @@
                     backgroundColor: 'rgba(34, 211, 238, 0.08)',
                     borderWidth: 1.5,
                     pointRadius: 0,
+                    pointHoverRadius: 4,
+                    pointHoverBackgroundColor: '#22d3ee',
+                    pointHoverBorderColor: '#0f172a',
+                    pointHoverBorderWidth: 2,
                     tension: 0.2,
                     fill: true
                 }] },
                 options: {
                     responsive: true, maintainAspectRatio: false, animation: false,
-                    scales: { x: { display: false }, y: { display: false } },
-                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
-                }
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            displayColors: false,
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            borderColor: 'rgba(34, 211, 238, 0.4)',
+                            borderWidth: 1,
+                            titleColor: '#94a3b8',
+                            bodyColor: '#e2e8f0',
+                            titleFont: { size: 10, weight: '600' },
+                            bodyFont: { size: 12, weight: '700' },
+                            padding: 8,
+                            cornerRadius: 6,
+                            callbacks: {
+                                title: () => 'rate',
+                                label: (ctx) => fmt(ctx.parsed.y, 2) + ' XTZ/ZEC'
+                            }
+                        }
+                    }
+                },
+                plugins: [targetLinePlugin]
             });
         }
         const panelCharts = {};
@@ -494,13 +610,30 @@
                 const gbpT = results[TF_KEYS.length * 2 + 2];
                 const usdToGbp = 1 / parseFloat(gbpT.lastPrice);
 
-                // Update each panel chart + move % + strip cell
+                // Update each panel chart + move % + tight y-axis
                 TF_KEYS.forEach(tf => {
                     const d = panelData[tf];
                     const chart = panelCharts[tf];
                     chart.data.labels = Array(d.rates.length).fill('');
                     chart.data.datasets[0].data = d.rates;
+
+                    // Tight y-axis with ~5% padding, expanded to include target if nearby
+                    const dataMin = Math.min(...d.rates);
+                    const dataMax = Math.max(...d.rates);
+                    const range = (dataMax - dataMin) || (dataMax * 0.01) || 1;
+                    const pad = range * 0.05;
+                    let yMin = dataMin - pad;
+                    let yMax = dataMax + pad;
+                    // If target sits within ~25% beyond the data range either side, include it
+                    const includeTargetMargin = range * 0.25;
+                    if (targetRate >= dataMin - includeTargetMargin && targetRate <= dataMax + includeTargetMargin) {
+                        yMin = Math.min(yMin, targetRate - pad);
+                        yMax = Math.max(yMax, targetRate + pad);
+                    }
+                    chart.options.scales.y.min = yMin;
+                    chart.options.scales.y.max = yMax;
                     chart.update();
+
                     const move = ((d.rates[d.rates.length - 1] / d.rates[0]) - 1) * 100;
                     const moveEl = document.getElementById('move_' + tf);
                     moveEl.textContent = fmtPct(move);
@@ -551,7 +684,7 @@
                 xtzSpark.data.datasets[0].data = d24.xtzClose.slice(-sparkLen);
                 xtzSpark.update();
 
-                // Holdings
+                // Holdings (current values)
                 const holdingsUsd = zecHeld * zecPrice;
                 const holdingsGbp = holdingsUsd * usdToGbp;
                 const holdingsXtzNow = zecHeld * latestRate;
@@ -559,6 +692,19 @@
                 document.getElementById('holdingsUsd').textContent = fmtUsd(holdingsUsd);
                 document.getElementById('holdingsGbp').textContent = fmtGbp(holdingsGbp);
                 document.getElementById('holdingsXtz').textContent = fmt(holdingsXtzNow, 0) + ' XTZ';
+
+                // Holdings "Today" change in GBP - both absolute and percent.
+                // Reconstruct yesterday's ZEC price from the 24h pct change:
+                //   pct = ((current - prev) / prev) * 100  =>  prev = current / (1 + pct/100)
+                const zecPriceYesterday = zecPrice / (1 + zecStats.pct / 100);
+                const holdingsGbpYesterday = (zecHeld * zecPriceYesterday) * usdToGbp;
+                const todayDeltaGbp = holdingsGbp - holdingsGbpYesterday;
+                const todayDeltaPct = ((holdingsGbp / holdingsGbpYesterday) - 1) * 100;
+                const todayEl = document.getElementById('holdingsToday');
+                const sign = todayDeltaGbp >= 0 ? '+' : '-';
+                todayEl.textContent = sign + '£' + fmt(Math.abs(todayDeltaGbp), 2) + ' / ' + fmtPct(todayDeltaPct);
+                todayEl.className = 'font-semibold ' + (todayDeltaGbp >= 0 ? 'text-emerald-400' : 'text-rose-400');
+
                 const shortEl = document.getElementById('holdingsShortfall');
                 if (shortfall <= 0) {
                     shortEl.textContent = 'TARGET REACHED';
@@ -569,16 +715,23 @@
                 }
 
                 // Header status
+                lastSuccessTs = Date.now();
                 document.getElementById('lastUpdated').textContent = 'Updated just now';
                 document.getElementById('liveDot').classList.remove('stale', 'error');
                 document.getElementById('liveStatus').textContent = 'Live';
+                // Clear any stale-dim
+                document.getElementById('heroRateBlock').classList.remove('stale-dim');
+                document.getElementById('heroDistance').classList.remove('stale-dim');
 
-                // Tab title (always shows live rate, regardless of privacy)
-                document.title = `${latestRate.toFixed(2)} / ${targetRate.toFixed(2)}`;
+                // Tab title (always shows live rate + distance, regardless of privacy)
+                document.title = `${latestRate.toFixed(2)} / ${targetRate.toFixed(2)} (${fmtPct(distancePct)})`;
 
-                // Alert trigger
+                // Favicon
+                setFavicon(aboveTarget);
+
+                // Alert trigger (notification + title only, no email)
                 if (aboveTarget && !alertSent) {
-                    sendEmailAlert(latestRate);
+                    fireTargetNotification(latestRate);
                     alertSent = true;
                 }
 
@@ -589,14 +742,28 @@
             }
         }
 
-        function sendEmailAlert(rate) {
-            const templateParams = {
-                message: `Target reached. The ZEC to XTZ exchange rate is currently ${rate.toFixed(2)}.`
-            };
-            emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
-                .then(r => console.log('Alert email sent.', r.status, r.text))
-                .catch(e => console.log('Failed to send email.', e));
-        }
+        // --------------------------------------------------------------
+        // STALE WATCHER (separate from main fetch loop)
+        //   - dims hero numbers and amber-marks the live dot if no
+        //     successful fetch in the last STALE_MS
+        // --------------------------------------------------------------
+        setInterval(() => {
+            if (lastSuccessTs === 0) return; // not yet had a first success
+            const ageMs = Date.now() - lastSuccessTs;
+            const liveDot = document.getElementById('liveDot');
+            const liveStatus = document.getElementById('liveStatus');
+            const rateBlock = document.getElementById('heroRateBlock');
+            const distEl = document.getElementById('heroDistance');
+            if (ageMs > STALE_MS) {
+                if (!liveDot.classList.contains('error')) {
+                    liveDot.classList.add('stale');
+                    liveStatus.textContent = 'Stale';
+                }
+                rateBlock.classList.add('stale-dim');
+                distEl.classList.add('stale-dim');
+                document.getElementById('lastUpdated').textContent = `Updated ${Math.floor(ageMs / 1000)}s ago`;
+            }
+        }, 1000);
 
         // Kick off
         updateAll();
