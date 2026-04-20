@@ -21,6 +21,26 @@
             border: 1px solid rgba(148, 163, 184, 0.15);
             border-radius: 12px;
         }
+        .glass-card-accent {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(30, 41, 59, 0.5));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(34, 197, 94, 0.5);
+            border-radius: 12px;
+            box-shadow: 0 0 14px rgba(34, 197, 94, 0.18);
+        }
+        .zec-gradient {
+            background: linear-gradient(to right, #fde047, #b8860b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .xtz-gradient {
+            background: linear-gradient(to right, #1e3a8a, #2dd4bf);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
         .live-dot {
             width: 8px; height: 8px; border-radius: 50%;
             background: #22c55e;
@@ -105,8 +125,9 @@
         <header class="flex items-center justify-between gap-3 flex-none">
             <div>
                 <h1 class="text-xl md:text-2xl font-bold tracking-tight leading-tight">
-                    <span class="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">ZEC → XTZ</span>
-                    <span class="text-slate-400 text-base font-normal ml-1">Tracker</span>
+                    <span class="zec-gradient">ZEC</span>
+                    <span class="text-slate-400 mx-1">→</span>
+                    <span class="xtz-gradient">XTZ</span>
                 </h1>
             </div>
             <div class="flex items-center gap-2 text-xs">
@@ -121,10 +142,10 @@
 
         <!-- HERO STATS -->
         <section class="grid grid-cols-2 lg:grid-cols-4 gap-2 flex-none">
-            <div class="glass-card p-3">
-                <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Current Rate</p>
-                <p id="heroRate" class="text-2xl font-bold mt-0.5 leading-tight">-</p>
-                <p class="text-slate-500 text-[10px]">XTZ per ZEC</p>
+            <div class="glass-card-accent p-3">
+                <p class="text-emerald-300/80 text-[10px] uppercase tracking-wider font-semibold">Current Rate</p>
+                <p id="heroRate" class="text-2xl font-bold mt-0.5 leading-tight text-emerald-300">-</p>
+                <p class="text-emerald-400/60 text-[10px]">XTZ per ZEC</p>
             </div>
             <div class="glass-card p-3">
                 <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Target Rate</p>
@@ -167,7 +188,7 @@
             <div class="glass-card p-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">ZEC / USD</p>
+                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">ZEC / USD <span class="text-cyan-400/70 normal-case">· <span id="zecTf">12h</span></span></p>
                         <p id="zecPrice" class="text-lg font-bold leading-tight">-</p>
                     </div>
                     <p id="zecChange" class="text-xs font-semibold">-</p>
@@ -185,7 +206,7 @@
             <div class="glass-card p-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">XTZ / USD</p>
+                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">XTZ / USD <span class="text-cyan-400/70 normal-case">· <span id="xtzTf">12h</span></span></p>
                         <p id="xtzPrice" class="text-lg font-bold leading-tight">-</p>
                     </div>
                     <p id="xtzChange" class="text-xs font-semibold">-</p>
@@ -332,6 +353,16 @@
             const m = Math.floor((s % 3600) / 60);
             const sec = s % 60;
             return (h ? h + 'h ' : '') + ((m || h) ? m + 'm ' : '') + sec + 's';
+        }
+        // Compute timeframe-scoped H/L/V/change from kline array
+        function klineStats(klines) {
+            const high = Math.max(...klines.map(c => parseFloat(c[2])));
+            const low = Math.min(...klines.map(c => parseFloat(c[3])));
+            const vol = klines.reduce((s, c) => s + parseFloat(c[5]), 0);
+            const firstClose = parseFloat(klines[0][4]);
+            const lastClose = parseFloat(klines[klines.length - 1][4]);
+            const pct = ((lastClose - firstClose) / firstClose) * 100;
+            return { high, low, vol, pct };
         }
 
         // --------------------------------------------------------------
@@ -486,27 +517,31 @@
                 document.getElementById('heroProgress').textContent = fmt(progressPct, 1) + '%';
                 document.getElementById('heroProgressBar').style.width = progressPct + '%';
 
+                // Timeframe-scoped stats for ZEC and XTZ cards
+                const zecStats = klineStats(zecK);
+                const xtzStats = klineStats(xtzK);
+
                 // ZEC card
                 const zecPrice = parseFloat(zecT.lastPrice);
-                const zecPct = parseFloat(zecT.priceChangePercent);
+                document.getElementById('zecTf').textContent = currentTimeframe;
                 document.getElementById('zecPrice').textContent = fmtUsd(zecPrice);
                 const zecChangeEl = document.getElementById('zecChange');
-                zecChangeEl.textContent = (zecPct >= 0 ? '▲ ' : '▼ ') + fmt(Math.abs(zecPct), 2) + '%';
-                setChangeColour(zecChangeEl, zecPct);
-                document.getElementById('zecHigh').textContent = fmtUsd(parseFloat(zecT.highPrice));
-                document.getElementById('zecLow').textContent = fmtUsd(parseFloat(zecT.lowPrice));
-                document.getElementById('zecVol').textContent = fmtVol(parseFloat(zecT.volume));
+                zecChangeEl.textContent = (zecStats.pct >= 0 ? '▲ ' : '▼ ') + fmt(Math.abs(zecStats.pct), 2) + '%';
+                setChangeColour(zecChangeEl, zecStats.pct);
+                document.getElementById('zecHigh').textContent = fmtUsd(zecStats.high);
+                document.getElementById('zecLow').textContent = fmtUsd(zecStats.low);
+                document.getElementById('zecVol').textContent = fmtVol(zecStats.vol);
 
                 // XTZ card
                 const xtzPrice = parseFloat(xtzT.lastPrice);
-                const xtzPct = parseFloat(xtzT.priceChangePercent);
+                document.getElementById('xtzTf').textContent = currentTimeframe;
                 document.getElementById('xtzPrice').textContent = fmtUsd(xtzPrice);
                 const xtzChangeEl = document.getElementById('xtzChange');
-                xtzChangeEl.textContent = (xtzPct >= 0 ? '▲ ' : '▼ ') + fmt(Math.abs(xtzPct), 2) + '%';
-                setChangeColour(xtzChangeEl, xtzPct);
-                document.getElementById('xtzHigh').textContent = fmtUsd(parseFloat(xtzT.highPrice));
-                document.getElementById('xtzLow').textContent = fmtUsd(parseFloat(xtzT.lowPrice));
-                document.getElementById('xtzVol').textContent = fmtVol(parseFloat(xtzT.volume));
+                xtzChangeEl.textContent = (xtzStats.pct >= 0 ? '▲ ' : '▼ ') + fmt(Math.abs(xtzStats.pct), 2) + '%';
+                setChangeColour(xtzChangeEl, xtzStats.pct);
+                document.getElementById('xtzHigh').textContent = fmtUsd(xtzStats.high);
+                document.getElementById('xtzLow').textContent = fmtUsd(xtzStats.low);
+                document.getElementById('xtzVol').textContent = fmtVol(xtzStats.vol);
 
                 // Holdings
                 const holdingsUsd = zecHeld * zecPrice;
@@ -535,17 +570,19 @@
                 deltaEl.className = 'font-semibold ' + (sessionDelta >= 0 ? 'text-emerald-400' : 'text-rose-400');
                 document.getElementById('sessionBestDistance').textContent = fmtPct(sessionBestDistance);
 
-                // Alert panel
+                // Alert panel (24h values from ticker endpoint, explicitly labelled as 24h)
+                const zec24hPct = parseFloat(zecT.priceChangePercent);
+                const xtz24hPct = parseFloat(xtzT.priceChangePercent);
                 document.getElementById('alertTarget').textContent = fmt(targetRate, 2);
                 const alertEl = document.getElementById('alertStatus');
                 alertEl.textContent = alertSent ? 'Sent ✓' : 'Armed';
                 alertEl.className = 'font-semibold ' + (alertSent ? 'text-emerald-400' : 'text-slate-300');
                 const altZec = document.getElementById('altZecChange');
-                altZec.textContent = fmtPct(zecPct);
-                setChangeColour(altZec, zecPct);
+                altZec.textContent = fmtPct(zec24hPct);
+                setChangeColour(altZec, zec24hPct);
                 const altXtz = document.getElementById('altXtzChange');
-                altXtz.textContent = fmtPct(xtzPct);
-                setChangeColour(altXtz, xtzPct);
+                altXtz.textContent = fmtPct(xtz24hPct);
+                setChangeColour(altXtz, xtz24hPct);
                 document.getElementById('rateMoveLabel').textContent = 'Rate ' + currentTimeframe + ' move';
                 const rateMove = ((latestRate / rates[0]) - 1) * 100;
                 const rateMoveEl = document.getElementById('rateMoveChange');
