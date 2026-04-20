@@ -102,6 +102,8 @@
                 </h1>
             </div>
             <div class="flex items-center gap-2 text-xs">
+                <span id="tfIndicator" class="px-1.5 py-0.5 rounded bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 font-semibold uppercase tracking-wider text-[10px]">24h</span>
+                <span class="text-slate-600">·</span>
                 <div class="flex items-center gap-1.5">
                     <span id="liveDot" class="live-dot"></span>
                     <span id="liveStatus" class="text-slate-400">Live</span>
@@ -130,8 +132,8 @@
         </section>
 
         <!-- TIMEFRAME PANELS (fill remaining vertical space) -->
-        <section class="grid grid-cols-5 gap-2 flex-1 min-h-0">
-            <div class="glass-card p-2 flex flex-col min-h-0">
+        <section id="tfRow" class="grid grid-cols-5 gap-2 flex-1 min-h-0">
+            <div id="panel_15m" class="glass-card p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-between mb-1 flex-none">
                     <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">15m</span>
                     <span id="move_15m" class="text-xs font-semibold">-</span>
@@ -140,7 +142,7 @@
                     <canvas id="chart_15m"></canvas>
                 </div>
             </div>
-            <div class="glass-card p-2 flex flex-col min-h-0">
+            <div id="panel_1h" class="glass-card p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-between mb-1 flex-none">
                     <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">1h</span>
                     <span id="move_1h" class="text-xs font-semibold">-</span>
@@ -149,7 +151,7 @@
                     <canvas id="chart_1h"></canvas>
                 </div>
             </div>
-            <div class="glass-card p-2 flex flex-col min-h-0">
+            <div id="panel_12h" class="glass-card p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-between mb-1 flex-none">
                     <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">12h</span>
                     <span id="move_12h" class="text-xs font-semibold">-</span>
@@ -158,7 +160,7 @@
                     <canvas id="chart_12h"></canvas>
                 </div>
             </div>
-            <div class="glass-card p-2 flex flex-col min-h-0">
+            <div id="panel_24h" class="glass-card p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-between mb-1 flex-none">
                     <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">24h</span>
                     <span id="move_24h" class="text-xs font-semibold">-</span>
@@ -167,7 +169,7 @@
                     <canvas id="chart_24h"></canvas>
                 </div>
             </div>
-            <div class="glass-card p-2 flex flex-col min-h-0">
+            <div id="panel_7d" class="glass-card p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-between mb-1 flex-none">
                     <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">7d</span>
                     <span id="move_7d" class="text-xs font-semibold">-</span>
@@ -257,6 +259,37 @@
         const TF_KEYS = ['15m', '1h', '12h', '24h', '7d'];
 
         // --------------------------------------------------------------
+        // TIMEFRAME VIEW (1-5 keys, defaults to 24h)
+        // --------------------------------------------------------------
+        const KEY_TO_TF = { '1': '15m', '2': '1h', '3': '12h', '4': '24h', '5': '7d' };
+        const DEFAULT_TF = '24h';
+        let currentTF = DEFAULT_TF;
+
+        function setTF(tf) {
+            if (!TF_KEYS.includes(tf)) return;
+            currentTF = tf;
+            TF_KEYS.forEach(k => {
+                const panel = document.getElementById('panel_' + k);
+                if (k === tf) {
+                    panel.classList.remove('hidden');
+                    panel.classList.add('col-span-5');
+                } else {
+                    panel.classList.add('hidden');
+                    panel.classList.remove('col-span-5');
+                }
+            });
+            const ind = document.getElementById('tfIndicator');
+            if (ind) ind.textContent = tf;
+            // Resize the now-visible chart so it fills the new width
+            if (typeof panelCharts !== 'undefined' && panelCharts[tf]) {
+                panelCharts[tf].resize();
+            }
+        }
+        function resetTF() {
+            if (currentTF !== DEFAULT_TF) setTF(DEFAULT_TF);
+        }
+
+        // --------------------------------------------------------------
         // PRIVACY
         // Hold 'V' to reveal, release to hide. Click toggle dot still works.
         // --------------------------------------------------------------
@@ -296,8 +329,19 @@
         document.getElementById('privacyToggle').addEventListener('click', togglePrivacy);
 
         document.addEventListener('keydown', e => {
+            // Ignore if any modifier is held (avoid hijacking shortcuts)
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+            // Number keys 1-5 switch the visible timeframe
+            if (KEY_TO_TF[e.key] && !e.repeat) {
+                e.preventDefault();
+                setTF(KEY_TO_TF[e.key]);
+                return;
+            }
+
             if ((e.key === 'v' || e.key === 'V') && !e.repeat) {
                 e.preventDefault();
+                resetTF();
                 // If a 30s timed reveal is active, single tap cancels it and hides
                 if (timedRevealTimer !== null) {
                     clearTimedReveal();
@@ -328,14 +372,17 @@
             if (document.hidden) {
                 clearTimedReveal();
                 hidePrivacy();
+                resetTF();
             }
         });
         window.addEventListener('blur', () => {
             clearTimedReveal();
             hidePrivacy();
+            resetTF();
         });
-        // Start hidden by default
+        // Start hidden by default, default TF
         hidePrivacy();
+        setTF(DEFAULT_TF);
 
         // --------------------------------------------------------------
         // HELPERS
