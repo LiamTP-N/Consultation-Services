@@ -295,7 +295,7 @@
 
     <!-- Privacy overlay + toggle (discreet) -->
     <div id="privacyOverlay" class="privacy-overlay"></div>
-    <button id="privacyToggle" class="privacy-toggle" title="Hold V to reveal" aria-label="Toggle visibility"></button>
+    <button id="privacyToggle" class="privacy-toggle" title="Click to reveal for 3 min" aria-label="Toggle visibility"></button>
 
     <script>
         // --------------------------------------------------------------
@@ -371,8 +371,8 @@
             else revealPrivacy();
         }
 
-        // Timed reveal state (double-tap V = 30s window)
-        const TIMED_REVEAL_MS = 30000;
+        // Timed reveal state (double-tap V or click dot = 3 min window)
+        const TIMED_REVEAL_MS = 180000;
         const DOUBLE_TAP_WINDOW_MS = 400;
         let timedRevealTimer = null;
         let lastVTapTime = 0;
@@ -392,7 +392,14 @@
             }, TIMED_REVEAL_MS);
         }
 
-        document.getElementById('privacyToggle').addEventListener('click', togglePrivacy);
+        document.getElementById('privacyToggle').addEventListener('click', () => {
+            if (document.body.classList.contains('revealed')) {
+                clearTimedReveal();
+                hidePrivacy();
+            } else {
+                startTimedReveal();
+            }
+        });
 
         document.addEventListener('keydown', e => {
             // Ignore if any modifier is held (avoid hijacking shortcuts)
