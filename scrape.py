@@ -10,6 +10,7 @@ Search terms tuned for: Sport Science, Kinesiology, Nutrition, Wearable Technolo
 
 import json
 import hashlib
+import html as html_module
 import time
 import datetime
 import re
@@ -123,6 +124,10 @@ BLUESKY_ACCOUNTS = [
 OUTPUT_FILE = Path("jobs.json")
 MAX_DAYS_OLD = 30
 
+# Max characters we'll keep for any single field - prevents runaway payloads
+# and keeps jobs.json a sensible size.
+MAX_FIELD_LEN = 500
+
 
 def make_id(url: str, title: str) -> str:
     return hashlib.md5(f"{url}{title}".encode()).hexdigest()[:16]
@@ -138,9 +143,55 @@ def normalise_linkedin_url(url: str) -> str:
 
 
 def clean(text: str) -> str:
+    """Sanitise a text field pulled from an external source.
+
+    Steps:
+      1. Strip any HTML tags (script/style tags and their contents removed).
+      2. Decode HTML entities (&amp; -> &, &#39; -> ', etc).
+      3. Collapse all whitespace to single spaces.
+      4. Remove ASCII control characters (null bytes, backspaces etc.).
+      5. Cap length at MAX_FIELD_LEN characters.
+    """
     if not text:
         return ""
-    return re.sub(r"\s+", " ", text).strip()
+    # 1. Strip tags via BeautifulSoup (handles malformed HTML, drops script/style)
+    try:
+        soup = BeautifulSoup(str(text), "html.parser")
+        for bad in soup(["script", "style"]):
+            bad.decompose()
+        stripped = soup.get_text(separator=" ")
+    except Exception:
+        stripped = str(text)
+    # 2. Decode entities twice in case of double-encoded payloads
+    stripped = html_module.unescape(html_module.unescape(stripped))
+    # 3. Normalise whitespace
+    stripped = re.sub(r"\s+", " ", stripped).strip()
+    # 4. Drop control characters (keep tab/newline/cr already handled by step 3)
+    stripped = "".join(ch for ch in stripped if ord(ch) >= 32 or ch in "\t")
+    # 5. Cap length
+    if len(stripped) > MAX_FIELD_LEN:
+        stripped = stripped[:MAX_FIELD_LEN].rstrip() + "..."
+    return stripped
+
+
+def clean_url(url: str) -> str:
+    """Only accept http/https URLs. Strip anything else (javascript:, data:,
+    vbscript:, file:, etc.) so a poisoned listing cannot inject an active
+    scheme into the front-end."""
+    if not url:
+        return ""
+    url = str(url).strip()
+    # Control character check - reject outright
+    if any(ord(ch) < 32 for ch in url):
+        return ""
+    try:
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme.lower() in ("http", "https") and parsed.netloc:
+            # Rebuild a clean URL to normalise it
+            return urllib.parse.urlunparse(parsed)
+    except Exception:
+        pass
+    return ""
 
 
 def passes_filter(job: dict) -> bool:
@@ -244,20 +295,21 @@ def scrape_jobsac_rss() -> list:
                     href = link.get_text().strip() if link else ""
                     if not href and link:
                         href = link.next_sibling
+                    href = clean_url(href)
                     desc_el = item.find("description")
                     desc = BeautifulSoup(desc_el.get_text(), "html.parser").get_text() if desc_el else ""
                     org = ""
                     org_match = re.search(r"(?:Employer|Institution|Organisation):\s*(.+?)(?:\n|$)", desc, re.I)
                     if org_match:
-                        org = org_match.group(1).strip()
+                        org = clean(org_match.group(1))
                     loc = ""
                     loc_match = re.search(r"(?:Location|Place):\s*(.+?)(?:\n|$)", desc, re.I)
                     if loc_match:
-                        loc = loc_match.group(1).strip()
+                        loc = clean(loc_match.group(1))
                     closing = ""
                     close_match = re.search(r"(?:Closing date|Closes):\s*(.+?)(?:\n|$)", desc, re.I)
                     if close_match:
-                        closing = close_match.group(1).strip()
+                        closing = clean(close_match.group(1))
                     pub_date = item.find("pubDate")
                     date_str = parse_rss_date(pub_date.get_text() if pub_date else "")
                     jobs.append({
@@ -308,13 +360,14 @@ def scrape_indeed(term: str, country: str = "UK") -> list:
                 if not title:
                     continue
                 href = item.find("link").get_text().strip() if item.find("link") else ""
+                href = clean_url(href)
                 pub_date = item.find("pubDate")
                 date_str = parse_rss_date(pub_date.get_text() if pub_date else "")
                 org = ""
                 if " - " in title:
                     parts = title.rsplit(" - ", 1)
-                    title = parts[0].strip()
-                    org = parts[1].strip()
+                    title = clean(parts[0])
+                    org = clean(parts[1])
                 jobs.append({
                     "id": make_id(href, title),
                     "title": title,
@@ -360,7 +413,7 @@ def scrape_linkedin(term: str, country: str = "UK") -> list:
                 continue
             link_el = item.select_one("a.base-card__full-link, a")
             href = link_el.get("href", "") if link_el else ""
-            href = normalise_linkedin_url(href)
+            href = clean_url(normalise_linkedin_url(href))
             org_el = item.select_one("h4.base-search-card__subtitle a, a.hidden-nested-link")
             org = clean(org_el.get_text()) if org_el else ""
             loc_el = item.select_one("span.job-search-card__location")
@@ -406,6 +459,7 @@ def scrape_canada_rss() -> list:
                     href = link.get_text().strip() if link else ""
                     if not href and link:
                         href = link.next_sibling
+                    href = clean_url(href)
                     desc_el = item.find("description")
                     desc = BeautifulSoup(desc_el.get_text(), "html.parser").get_text() if desc_el else ""
                     org = ""
@@ -414,7 +468,7 @@ def scrape_canada_rss() -> list:
                         desc, re.I
                     )
                     if org_match:
-                        org = org_match.group(1).strip()
+                        org = clean(org_match.group(1))
                     pub_date = item.find("pubDate")
                     date_str = parse_rss_date(pub_date.get_text() if pub_date else "")
                     jobs.append({
@@ -472,6 +526,7 @@ def scrape_university_affairs() -> list:
                     href = link_el["href"]
                     if href.startswith("/"):
                         href = "https://www.universityaffairs.ca" + href
+                href = clean_url(href)
                 # Find organisation
                 org_el = item.select_one(".institution, .employer, .university, .org")
                 org = clean(org_el.get_text()) if org_el else ""
@@ -544,12 +599,16 @@ def scrape_bluesky() -> list:
                                 if uri_val and not uri_val.startswith("https://bsky.app"):
                                     job_url = uri_val
                                     break
+                    job_url = clean_url(job_url) or clean_url(post_url)
+                    post_url = clean_url(post_url)
                     first_line = text.split("\n")[0].strip()
-                    title = first_line[:120] if first_line else text[:120]
+                    title = clean(first_line[:120] if first_line else text[:120])
+                    if not title:
+                        continue
                     jobs.append({
                         "id": make_id(post_url, title),
                         "title": title,
-                        "organisation": handle.replace(".bsky.social", ""),
+                        "organisation": clean(handle.replace(".bsky.social", "")),
                         "location": "",
                         "country": "",
                         "source": "Bluesky",

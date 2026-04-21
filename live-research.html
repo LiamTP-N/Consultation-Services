@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="current-page" content="live-research">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>LIVE Research & Studies | Dr. Liam T. Pearson-Noseworthy, PhD</title>
     <meta name="description" content="Browse current research studies recruiting participants in sport science, physiology, biomechanics, nutrition, and more. Submit your own study via the portal.">
     <meta property="og:type" content="website">
@@ -58,7 +60,7 @@
     <nav id="main-nav"></nav>
 
     <!-- Poster lightbox -->
-    <div id="poster-modal" class="poster-overlay hidden" onclick="closePoster()">
+    <div id="poster-modal" class="poster-overlay hidden">
         <img id="poster-modal-img" src="" alt="Study poster">
     </div>
 
@@ -240,9 +242,28 @@
         return isClosingSoon(d) ? 'closing-soon' : 'closing-ok';
     }
 
+    // ---- Security helpers ----
+    // Escape every HTML-significant character, including single quote,
+    // so submitted values cannot break out of attributes or inject tags.
     function escHtml(str) {
-        if (!str) return '';
-        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+    // Only allow http(s) URLs to reach the DOM - strips javascript:, data:, vbscript: etc.
+    function safeUrl(u) {
+        if (!u) return '';
+        try {
+            const parsed = new URL(u, window.location.href);
+            if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+                return parsed.href;
+            }
+        } catch (e) { /* fall through */ }
+        return '';
     }
 
     // ---- Filtering ----
@@ -303,8 +324,9 @@
         document.getElementById('results-count').textContent = `Showing ${page.length} of ${studies.length} ${studies.length === 1 ? 'study' : 'studies'}`;
 
         grid.innerHTML = page.map(s => {
-            const posterHtml = s.poster_url
-                ? `<img src="${escHtml(s.poster_url)}" alt="Study poster" class="card-poster cursor-pointer hover:opacity-80 transition-opacity" onclick="openPoster('${escHtml(s.poster_url)}')" loading="lazy" onerror="this.style.display='none'">`
+            const safePoster = safeUrl(s.poster_url);
+            const posterHtml = safePoster
+                ? `<img src="${escHtml(safePoster)}" alt="Study poster" class="card-poster poster-thumb cursor-pointer hover:opacity-80 transition-opacity" data-poster="${escHtml(safePoster)}" loading="lazy" onerror="this.style.display='none'">`
                 : '';
 
             const closingHtml = s.closing_date
@@ -319,6 +341,9 @@
                        ${escHtml(s.compensation)}
                    </div>`
                 : '';
+
+            const safeSignup = safeUrl(s.signup_url);
+            const signupHref = safeSignup ? escHtml(safeSignup) : '#';
 
             return `
             <div class="bg-slate-800/60 border border-green-900/20 rounded-xl overflow-hidden hover:border-green-700/40 transition-all duration-300 hover:shadow-lg hover:shadow-green-900/10 flex flex-col">
@@ -342,7 +367,7 @@
                         <div><span class="text-slate-600">Time:</span> ${escHtml(s.time_commitment)}</div>
                         ${compensationHtml}
                     </div>
-                    <a href="${escHtml(s.signup_url)}" target="_blank" rel="noopener"
+                    <a href="${signupHref}" target="_blank" rel="noopener"
                        class="mt-2 inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold text-sm px-5 py-3 rounded-xl transition-all active:scale-95 border border-green-500/50 w-full">
                         Participate / More Info
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
@@ -350,6 +375,11 @@
                 </div>
             </div>`;
         }).join('');
+
+        // Wire up poster thumbnails (replaces inline onclick for CSP compatibility)
+        grid.querySelectorAll('.poster-thumb').forEach(img => {
+            img.addEventListener('click', () => openPoster(img.dataset.poster));
+        });
 
         updateLoadMore(page.length, studies.length);
         updateStats();
@@ -378,7 +408,9 @@
     // ---- Poster lightbox ----
 
     function openPoster(url) {
-        document.getElementById('poster-modal-img').src = url;
+        const safe = safeUrl(url);
+        if (!safe) return;
+        document.getElementById('poster-modal-img').src = safe;
         document.getElementById('poster-modal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
@@ -387,6 +419,9 @@
         document.getElementById('poster-modal').classList.add('hidden');
         document.body.style.overflow = '';
     }
+
+    // Close modal on overlay click (replaces inline onclick for CSP compatibility)
+    document.getElementById('poster-modal').addEventListener('click', closePoster);
 
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closePoster(); });
 
@@ -405,8 +440,10 @@
 
             renderCards();
         } catch (e) {
-            document.getElementById('studies-grid').innerHTML =
-                `<div class="col-span-full text-center py-16 text-slate-500 text-sm">Could not load research data.<br><span class="text-xs text-slate-600">${e.message}</span></div>`;
+            const grid = document.getElementById('studies-grid');
+            grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-500 text-sm">Could not load research data.<br><span class="text-xs text-slate-600" id="err-msg"></span></div>`;
+            const errEl = document.getElementById('err-msg');
+            if (errEl) errEl.textContent = e.message;
         }
         updateStats();
     }

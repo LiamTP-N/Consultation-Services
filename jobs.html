@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="current-page" content="jobs">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Job Tracker | Dr. Liam T. Pearson-Noseworthy</title>
     <meta name="description" content="Daily-updated job board for sport science, nutrition, wearable technology, research, and academia roles. Scraped from Indeed, LinkedIn, Jobs.ac.uk, and Bluesky.">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -12,8 +14,7 @@
     <meta property="og:description" content="Daily-updated job board for sport science, nutrition, wearable technology, research, and academia roles.">
     <meta property="og:image" content="https://liamtp-n.github.io/Consultation-Services/assets/images/og-image.jpg">
     <meta property="og:url" content="https://liamtp-n.github.io/Consultation-Services/jobs.html">
-     <link rel="icon" href="favicon.ico" type="image/x-icon">
-     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .source-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; }
         .source-indeed      { background: #1e3a5f; color: #60a5fa; }
@@ -24,8 +25,8 @@
         .source-highered    { background: #1a2f1a; color: #86efac; }
         .source-uaffairs    { background: #2d1a1a; color: #fca5a5; }
         .country-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
-        .country-uk     { background: #fff; color: #000; }
-        .country-ca     { background: #cc0000; color: #fff; }
+        .country-uk     { background: #1e3050; color: #93c5fd; }
+        .country-ca     { background: #2d1818; color: #fca5a5; }
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable:hover { color: #60a5fa; }
         th.sorted { color: #60a5fa; }
@@ -41,6 +42,7 @@
             <h1 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight mb-2">
                 Jobs in <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text">Sport &amp; Exercise Science</span>
             </h1>
+            <p class="text-slate-400 text-sm mb-6">UK &amp; Canada &middot; Sport Science &middot; Kinesiology &middot; Nutrition &middot; Research &middot; Academia - scraped daily at 07:00 UTC. Showing roles posted in the last 30 days.</p>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                 <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
@@ -100,7 +102,7 @@
             <div class="flex flex-wrap gap-2 items-center mb-4">
                 <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Discipline:</span>
                 <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition filter-active" data-disc="all">All</button>
-                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="sport science,kinesiology,exercise science">Sport Science / Kinesiology</button>
+                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="sport science,kinesiology,exercise science">Sport Science</button>
                 <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="biomechanics,movement science,motor control,gait">Biomechanics</button>
                 <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="physiology">Physiology</button>
                 <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="nutrition,diet,dietetics,dietitian">Nutrition</button>
@@ -181,6 +183,30 @@
     let subRole = 'all';
     let disciplineFilter = 'all';
     let visibleCount = PAGE_SIZE;
+
+    // ---- Security helpers ----
+    // Escape every HTML-significant character so scraped values can never
+    // break out of attributes or inject tags.
+    function escHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+    // Only allow http(s) URLs to reach the DOM - strips javascript:, data:, vbscript: etc.
+    function safeUrl(u) {
+        if (!u) return '#';
+        try {
+            const parsed = new URL(u, window.location.href);
+            if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+                return parsed.href;
+            }
+        } catch (e) { /* fall through */ }
+        return '#';
+    }
 
     // Keywords that define each role category (matched against title + type)
     const ROLE_MATCH = {
@@ -377,15 +403,15 @@
             return `<tr class="border-b border-slate-700/50 hover:bg-slate-800/60 transition-colors">
                 <td class="px-4 py-3">
                     <div>
-                        <a href="${j.url || '#'}" target="_blank" rel="noopener"
-                           class="font-semibold text-slate-200 hover:text-blue-400 transition-colors text-sm">${j.title}</a>
+                        <a href="${escHtml(safeUrl(j.url))}" target="_blank" rel="noopener"
+                           class="font-semibold text-slate-200 hover:text-blue-400 transition-colors text-sm">${escHtml(j.title)}</a>
                         ${isToday(j.date_posted) ? `<span class="ml-2 text-xs bg-blue-600/30 text-blue-400 px-2 py-0.5 rounded font-semibold">New</span>` : ''}
-                        ${j.type ? `<div class="text-xs text-slate-500 mt-0.5">${j.type}</div>` : ''}
+                        ${j.type ? `<div class="text-xs text-slate-500 mt-0.5">${escHtml(j.type)}</div>` : ''}
                     </div>
                 </td>
-                <td class="px-4 py-3 text-slate-400 text-xs hidden md:table-cell">${j.organisation || '-'}</td>
+                <td class="px-4 py-3 text-slate-400 text-xs hidden md:table-cell">${escHtml(j.organisation) || '-'}</td>
                 <td class="px-4 py-3 whitespace-nowrap">
-                    <span class="source-badge ${srcClass(j.source)}">${j.source || '-'}</span>${countryBadgeHtml(j)}
+                    <span class="source-badge ${srcClass(j.source)}">${escHtml(j.source) || '-'}</span>${countryBadgeHtml(j)}
                 </td>
                 <td class="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">${fmtDate(j.date_posted)}</td>
             </tr>`;
@@ -429,8 +455,10 @@
                 renderTable();
             }
         } catch (e) {
-            document.getElementById('jobs-body').innerHTML =
-                `<tr><td colspan="4" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load jobs.json.<br><span class="text-xs text-slate-600">${e.message}</span></td></tr>`;
+            const tbody = document.getElementById('jobs-body');
+            tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load jobs.json.<br><span class="text-xs text-slate-600" id="err-msg"></span></td></tr>`;
+            const errEl = document.getElementById('err-msg');
+            if (errEl) errEl.textContent = e.message;
         }
         updateStats();
     }
