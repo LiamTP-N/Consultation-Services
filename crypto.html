@@ -875,8 +875,8 @@
                 // Clear any stale-dim
                 document.getElementById('heroRateBlock').classList.remove('stale-dim');
 
-                // Tab title: rate | ZEC | XTZ | BTC (XTZ keeps 2dp; rest as integers with comma separators)
-                document.title = `${fmtInt(latestRate)} | ${fmtInt(zecPrice)} | ${xtzPrice.toFixed(2)} | ${fmtInt(btcPrice)}`;
+                // Tab title: rate: z[ZEC] | x[XTZ] | b[BTC]
+                document.title = `${fmtInt(latestRate)}: z${fmtInt(zecPrice)} | x${xtzPrice.toFixed(2)} | b${fmtInt(btcPrice)}`;
 
                 // Favicon
                 setFavicon(aboveTarget);
