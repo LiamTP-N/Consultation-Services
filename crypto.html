@@ -620,10 +620,10 @@
                 yAxisID: "y"
             },
             // BTC black underlay - drawn first (underneath) to create a 1px stroke
-            { label: "BTC_stroke", data: [], borderColor: "#000000", backgroundColor: "transparent", borderWidth: 4, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yBtc" },
+            { label: "BTC_stroke", data: [], borderColor: "#000000", backgroundColor: "transparent", borderWidth: 4.5, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yBtc" },
             { label: "ZEC", data: [], borderColor: "#fff147", backgroundColor: "#fff147", pointBackgroundColor: "#fff147", borderWidth: 1.25, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yZec" },
             { label: "XTZ", data: [], borderColor: "rgba(45, 212, 191, 0.85)", backgroundColor: "rgba(45, 212, 191, 0.85)", pointBackgroundColor: "rgba(45, 212, 191, 0.85)", borderWidth: 1.25, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yXtz" },
-            { label: "BTC", data: [], borderColor: "#c2410c", backgroundColor: "#c2410c", pointBackgroundColor: "#c2410c", borderWidth: 2.5, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yBtc" }
+            { label: "BTC", data: [], borderColor: "#c2410c", backgroundColor: "#c2410c", pointBackgroundColor: "#c2410c", borderWidth: 3, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yBtc" }
             ];
             return new Chart(document.getElementById(canvasId).getContext("2d"), {
                 type: "line",
