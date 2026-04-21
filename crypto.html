@@ -134,8 +134,8 @@
         }
     </style>
 </head>
-<body class="text-slate-100 p-1.5 md:p-3 flex flex-col">
-    <div class="max-w-7xl mx-auto w-full flex-1 flex flex-col gap-1.5 md:gap-2 min-h-0">
+<body class="text-slate-100 p-1 md:p-3 flex flex-col">
+    <div class="max-w-7xl mx-auto w-full flex-1 flex flex-col gap-1 md:gap-2 min-h-0">
 
         <!-- HEADER -->
         <header class="flex items-center justify-between gap-3 flex-none">
@@ -159,8 +159,8 @@
         </header>
 
         <!-- HERO: Current / Target + Holdings side-by-side on desktop -->
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-1.5 md:gap-2 flex-none">
-            <div id="heroRateBlock" class="glass-card-accent p-2 md:p-3">
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-2 flex-none">
+            <div id="heroRateBlock" class="glass-card-accent p-1.5 md:p-3">
                 <p class="text-emerald-300/80 text-[10px] uppercase tracking-wider font-semibold">
                     Current / Target
                 </p>
@@ -171,7 +171,7 @@
                     <span class="text-slate-500 text-xl md:text-2xl">(</span><span id="heroDistance" class="text-xl md:text-2xl">-</span><span class="text-slate-500 text-xl md:text-2xl">)</span>
                 </p>
             </div>
-            <div class="glass-card p-2 md:p-3">
+            <div class="glass-card p-1.5 md:p-3">
                 <div class="flex items-baseline justify-between">
                     <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Holdings</p>
                     <p class="text-lg font-bold leading-tight"><span id="holdingsZec">16.256</span> <span class="text-slate-400 text-sm">ZEC</span></p>
@@ -186,8 +186,8 @@
         </section>
 
         <!-- TIMEFRAME PANELS (fill remaining vertical space on desktop; fixed 220px on mobile) -->
-        <section id="tfRow" class="grid grid-cols-5 gap-1.5 md:gap-2 flex-1 min-h-0">
-            <div id="panel_15m" class="glass-card p-1.5 md:p-2 flex flex-col min-h-0">
+        <section id="tfRow" class="grid grid-cols-5 gap-1 md:gap-2 flex-1 min-h-0 max-h-[180px] md:max-h-none">
+            <div id="panel_15m" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-between mb-1 flex-none">
                     <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">15m</span>
                     <span id="move_15m" class="text-xs font-semibold">-</span>
@@ -196,7 +196,7 @@
                     <canvas id="chart_15m"></canvas>
                 </div>
             </div>
-            <div id="panel_1h" class="glass-card p-1.5 md:p-2 flex flex-col min-h-0">
+            <div id="panel_1h" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-between mb-1 flex-none">
                     <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">1h</span>
                     <span id="move_1h" class="text-xs font-semibold">-</span>
@@ -205,7 +205,7 @@
                     <canvas id="chart_1h"></canvas>
                 </div>
             </div>
-            <div id="panel_12h" class="glass-card p-1.5 md:p-2 flex flex-col min-h-0">
+            <div id="panel_12h" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-between mb-1 flex-none">
                     <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">12h</span>
                     <span id="move_12h" class="text-xs font-semibold">-</span>
@@ -214,7 +214,7 @@
                     <canvas id="chart_12h"></canvas>
                 </div>
             </div>
-            <div id="panel_24h" class="glass-card p-1.5 md:p-2 flex flex-col min-h-0">
+            <div id="panel_24h" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-between mb-1 flex-none">
                     <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">24h</span>
                     <span id="move_24h" class="text-xs font-semibold">-</span>
@@ -223,7 +223,7 @@
                     <canvas id="chart_24h"></canvas>
                 </div>
             </div>
-            <div id="panel_7d" class="glass-card p-1.5 md:p-2 flex flex-col min-h-0">
+            <div id="panel_7d" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-between mb-1 flex-none">
                     <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">7d</span>
                     <span id="move_7d" class="text-xs font-semibold">-</span>
@@ -235,8 +235,8 @@
         </section>
 
         <!-- SECONDARY GRID: ZEC / XTZ / BTC -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-1.5 md:gap-2 flex-none">
-            <div class="glass-card-zec p-2 md:p-3">
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-2 flex-none">
+            <div class="glass-card-zec p-1.5 md:p-3">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">ZEC / USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
@@ -254,7 +254,7 @@
                 </div>
             </div>
 
-            <div class="glass-card-xtz p-2 md:p-3">
+            <div class="glass-card-xtz p-1.5 md:p-3">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">XTZ / USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
@@ -272,7 +272,7 @@
                 </div>
             </div>
 
-            <div class="glass-card-btc p-2 md:p-3">
+            <div class="glass-card-btc p-1.5 md:p-3">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">BTC / USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
