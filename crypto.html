@@ -8,12 +8,21 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* Desktop: locked viewport, no scroll */
         html, body { height: 100%; overflow: hidden; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: radial-gradient(ellipse at top, #1e293b 0%, #0f172a 50%, #020617 100%);
+            /* Solid black base with a subtle grey-blue wash at top */
+            background: #000 radial-gradient(ellipse at top, rgba(71, 85, 105, 0.35) 0%, rgba(30, 41, 59, 0.15) 40%, transparent 75%) no-repeat;
             font-variant-numeric: tabular-nums;
         }
+
+        /* Mobile: allow scroll, fix chart panel height so it's always visible */
+        @media (max-width: 767px) {
+            html, body { height: auto; overflow: auto; }
+            #tfRow { height: 220px; flex: none; }
+        }
+
         .glass-card {
             background: rgba(30, 41, 59, 0.5);
             backdrop-filter: blur(12px);
@@ -22,12 +31,29 @@
             border-radius: 12px;
         }
         .glass-card-accent {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(30, 41, 59, 0.5));
+            /* Gentler green: reduced gradient opacity, softer border + glow */
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.10), rgba(30, 41, 59, 0.5));
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(34, 197, 94, 0.5);
+            border: 1px solid rgba(34, 197, 94, 0.25);
             border-radius: 12px;
-            box-shadow: 0 0 14px rgba(34, 197, 94, 0.18);
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.08);
+        }
+        /* ZEC card: yellow/gold tint matching the ZEC wordmark gradient */
+        .glass-card-zec {
+            background: linear-gradient(135deg, rgba(253, 224, 71, 0.08), rgba(30, 41, 59, 0.5));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(253, 224, 71, 0.22);
+            border-radius: 12px;
+        }
+        /* XTZ card: navy/teal tint matching the XTZ wordmark gradient */
+        .glass-card-xtz {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.22), rgba(45, 212, 191, 0.10));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(45, 212, 191, 0.22);
+            border-radius: 12px;
         }
         .zec-gradient {
             background: linear-gradient(to right, #fde047, #b8860b);
@@ -108,41 +134,38 @@
             <div>
                 <h1 class="text-xl md:text-2xl font-bold tracking-tight leading-tight">
                     <span class="zec-gradient">ZEC</span>
-                    <span class="text-slate-400 mx-1">→</span>
+                    <span class="text-slate-400 mx-1">&rarr;</span>
                     <span class="xtz-gradient">XTZ</span>
                 </h1>
             </div>
             <div class="flex items-center gap-2 text-xs">
                 <span id="tfIndicator" class="px-1.5 py-0.5 rounded bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 font-semibold uppercase tracking-wider text-[10px]">7d</span>
-                <span class="text-slate-600">·</span>
+                <span class="text-slate-600">&middot;</span>
                 <div class="flex items-center gap-1.5">
                     <span id="liveDot" class="live-dot"></span>
                     <span id="liveStatus" class="text-slate-400">Live</span>
                 </div>
-                <span class="text-slate-600">·</span>
+                <span class="text-slate-600">&middot;</span>
                 <span id="lastUpdated" class="text-slate-400">-</span>
             </div>
         </header>
 
-        <!-- HERO STATS -->
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-2 flex-none">
-            <div class="glass-card-accent p-3">
-                <p class="text-emerald-300/80 text-[10px] uppercase tracking-wider font-semibold">Current / Target</p>
-                <p id="heroRateBlock" class="text-2xl font-bold mt-0.5 leading-tight">
-                    <span id="heroRate" class="text-emerald-300">-</span>
-                    <span class="text-slate-500 mx-1">/</span>
-                    <span id="heroTarget" class="text-rose-300">-</span>
+        <!-- HERO: Current / Target (fee-adjusted) with inline distance -->
+        <section class="flex-none">
+            <div id="heroRateBlock" class="glass-card-accent p-3">
+                <p class="text-emerald-300/80 text-[10px] uppercase tracking-wider font-semibold">
+                    Current / Target <span class="text-emerald-400/60 normal-case">&middot; fee-adjusted</span>
                 </p>
-                <p class="text-emerald-400/60 text-[10px]">XTZ per ZEC</p>
-            </div>
-            <div class="glass-card p-3">
-                <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Distance</p>
-                <p id="heroDistance" class="text-2xl font-bold mt-0.5 leading-tight">-</p>
-                <p class="text-slate-500 text-[10px]">to target</p>
+                <p class="text-2xl md:text-3xl font-bold mt-0.5 leading-tight flex flex-wrap items-baseline gap-x-2">
+                    <span id="heroRate" class="text-emerald-300">-</span>
+                    <span class="text-slate-500">/</span>
+                    <span id="heroTarget" class="text-rose-300">-</span>
+                    <span class="text-slate-500 text-xl md:text-2xl">(</span><span id="heroDistance" class="text-xl md:text-2xl">-</span><span class="text-slate-500 text-xl md:text-2xl">)</span>
+                </p>
             </div>
         </section>
 
-        <!-- TIMEFRAME PANELS (fill remaining vertical space) -->
+        <!-- TIMEFRAME PANELS (fill remaining vertical space on desktop; fixed 220px on mobile) -->
         <section id="tfRow" class="grid grid-cols-5 gap-2 flex-1 min-h-0">
             <div id="panel_15m" class="glass-card p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-between mb-1 flex-none">
@@ -191,12 +214,12 @@
             </div>
         </section>
 
-        <!-- SECONDARY GRID: ZEC / XTZ / Holdings -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-2 flex-none">
-            <div class="glass-card p-3">
+        <!-- SECONDARY GRID: ZEC / XTZ / BTC / Holdings -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 flex-none">
+            <div class="glass-card-zec p-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">ZEC / USD <span class="text-cyan-400/70 normal-case">· 24h</span></p>
+                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">ZEC / USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
                         <p id="zecPrice" class="text-lg font-bold leading-tight">-</p>
                     </div>
                     <p id="zecChange" class="text-xs font-semibold">-</p>
@@ -211,10 +234,10 @@
                 </div>
             </div>
 
-            <div class="glass-card p-3">
+            <div class="glass-card-xtz p-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">XTZ / USD <span class="text-cyan-400/70 normal-case">· 24h</span></p>
+                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">XTZ / USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
                         <p id="xtzPrice" class="text-lg font-bold leading-tight">-</p>
                     </div>
                     <p id="xtzChange" class="text-xs font-semibold">-</p>
@@ -230,6 +253,24 @@
             </div>
 
             <div class="glass-card p-3">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">BTC / USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
+                        <p id="btcPrice" class="text-lg font-bold leading-tight">-</p>
+                    </div>
+                    <p id="btcChange" class="text-xs font-semibold">-</p>
+                </div>
+                <div style="height: 28px;" class="mt-1">
+                    <canvas id="btcSpark"></canvas>
+                </div>
+                <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                    <span>H: <span id="btcHigh" class="text-slate-300">-</span></span>
+                    <span>L: <span id="btcLow" class="text-slate-300">-</span></span>
+                    <span>V: <span id="btcVol" class="text-slate-300">-</span></span>
+                </div>
+            </div>
+
+            <div class="glass-card p-3">
                 <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Holdings</p>
                 <p class="text-lg font-bold leading-tight"><span id="holdingsZec">16.256</span> <span class="text-slate-400 text-sm">ZEC</span></p>
                 <div class="mt-1 space-y-0.5 text-xs">
@@ -237,7 +278,6 @@
                     <div class="flex justify-between"><span class="text-slate-400">GBP</span><span id="holdingsGbp" class="font-semibold">-</span></div>
                     <div class="flex justify-between"><span class="text-slate-400">Today</span><span id="holdingsToday" class="font-semibold">-</span></div>
                     <div class="flex justify-between"><span class="text-slate-400">XTZ now</span><span id="holdingsXtz" class="font-semibold">-</span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">Shortfall</span><span id="holdingsShortfall" class="font-semibold">-</span></div>
                 </div>
             </div>
         </section>
@@ -250,11 +290,15 @@
 
     <script>
         // --------------------------------------------------------------
-        // CONFIG (preserved)
+        // CONFIG
         // --------------------------------------------------------------
         const zecHeld = 16.256;
         const xtzTarget = 17500;
-        const targetRate = xtzTarget / zecHeld;
+        // Binance worst-case fee: 0.1% taker per trade, two market orders
+        // (ZEC -> USDT -> XTZ) = 0.2% total drag, no BNB discount assumed.
+        const TOTAL_FEE = 0.002;
+        const rawTargetRate = xtzTarget / zecHeld;           // 1076.53 (pre-fee)
+        const targetRate = rawTargetRate / (1 - TOTAL_FEE);  // ~1078.69 (fee-adjusted, used everywhere)
         let alertSent = false;
         let lastSuccessTs = 0;
         const STALE_MS = 5000;
@@ -413,7 +457,7 @@
             if (Notification.permission !== 'granted') return;
             try {
                 new Notification('Target reached', {
-                    body: `ZEC to XTZ rate is ${rate.toFixed(2)} (target ${targetRate.toFixed(2)}).`,
+                    body: `ZEC to XTZ rate is ${rate.toFixed(2)} (fee-adjusted target ${targetRate.toFixed(2)}).`,
                     tag: 'zec-xtz-target'
                 });
             } catch (e) { /* ignore */ }
@@ -426,7 +470,7 @@
         const TELEGRAM_CHAT_ID = '5097919336';
         function fireTelegramNotification(rate) {
             if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) return;
-            const text = `🎯 Target reached! ZEC→XTZ rate is ${rate.toFixed(2)} (target ${targetRate.toFixed(2)}).`;
+            const text = `🎯 Target reached! ZEC→XTZ rate is ${rate.toFixed(2)} (fee-adjusted target ${targetRate.toFixed(2)}).`;
             const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
             fetch(url, {
                 method: 'POST',
@@ -472,6 +516,8 @@
         const fmtGbp = (n) => '£' + fmt(n, n < 1 ? 4 : 2);
         const fmtPct = (n) => (n >= 0 ? '+' : '') + fmt(n, 2) + '%';
         const fmtVol = (n) => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : Math.round(n).toString();
+        // Integer formatter for big display numbers (hero rate/target, BTC price)
+        const fmtInt = (n) => Math.round(Number(n)).toLocaleString('en-GB');
         function setChangeColour(el, pct) {
             el.classList.remove('text-emerald-400', 'text-rose-400');
             el.classList.add(pct >= 0 ? 'text-emerald-400' : 'text-rose-400');
@@ -489,6 +535,7 @@
 
         // --------------------------------------------------------------
         // CUSTOM CHART.JS PLUGIN: dashed horizontal target line
+        // (uses fee-adjusted targetRate)
         // --------------------------------------------------------------
         const targetLinePlugin = {
             id: 'targetLine',
@@ -522,10 +569,6 @@
 
         // --------------------------------------------------------------
         // PANEL MINI-CHARTS (one per timeframe)
-        //   - tooltip enabled (rate at cursor)
-        //   - tight y-axis with ~5% padding either side of data range,
-        //     extended to include targetRate when reasonably nearby
-        //   - target line plugin
         // --------------------------------------------------------------
         function makePanelChart(canvasId) {
             return new Chart(document.getElementById(canvasId).getContext('2d'), {
@@ -578,12 +621,23 @@
         TF_KEYS.forEach(tf => { panelCharts[tf] = makePanelChart('chart_' + tf); });
 
         // --------------------------------------------------------------
-        // SPARKLINES (ZEC / XTZ USD cards)
+        // SPARKLINES (ZEC / XTZ / BTC USD cards)
+        // Accepts either a solid colour string or an array of [stop, colour]
+        // pairs so the line stroke can mirror the wordmark gradient.
         // --------------------------------------------------------------
         function makeSparkline(canvasId, colour) {
-            return new Chart(document.getElementById(canvasId).getContext('2d'), {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            let borderColor = colour;
+            if (Array.isArray(colour)) {
+                // Build horizontal gradient across the canvas width
+                const grad = ctx.createLinearGradient(0, 0, canvas.width || 200, 0);
+                colour.forEach(([stop, col]) => grad.addColorStop(stop, col));
+                borderColor = grad;
+            }
+            return new Chart(ctx, {
                 type: 'line',
-                data: { labels: [], datasets: [{ data: [], borderColor: colour, borderWidth: 2, pointRadius: 0, tension: 0.3, fill: false }] },
+                data: { labels: [], datasets: [{ data: [], borderColor: borderColor, borderWidth: 2, pointRadius: 0, tension: 0.3, fill: false }] },
                 options: {
                     responsive: true, maintainAspectRatio: false, animation: false,
                     scales: { x: { display: false }, y: { display: false } },
@@ -591,8 +645,12 @@
                 }
             });
         }
-        const zecSpark = makeSparkline('zecSpark', '#a78bfa');
-        const xtzSpark = makeSparkline('xtzSpark', '#60a5fa');
+        // ZEC: yellow -> dark gold (mirrors .zec-gradient)
+        const zecSpark = makeSparkline('zecSpark', [[0, '#fde047'], [1, '#b8860b']]);
+        // XTZ: navy -> teal (mirrors .xtz-gradient)
+        const xtzSpark = makeSparkline('xtzSpark', [[0, '#1e3a8a'], [1, '#2dd4bf']]);
+        // BTC: solid orange
+        const btcSpark = makeSparkline('btcSpark', '#f97316');
 
         // All charts now exist with correct initial dimensions; safe to apply default TF.
         setTF(DEFAULT_TF);
@@ -614,7 +672,8 @@
         // --------------------------------------------------------------
         async function updateAll() {
             try {
-                // Build request list: kline pairs for each TF, then 24h tickers (ZEC, XTZ, GBP)
+                // Build request list: kline pairs for each TF, then 24h tickers (ZEC, XTZ, GBP, BTC),
+                // plus BTC 24h klines for its sparkline.
                 const requests = [];
                 TF_KEYS.forEach(tf => {
                     requests.push(fetchKlines('ZECUSDT', TIMEFRAMES[tf].interval, TIMEFRAMES[tf].limit));
@@ -623,6 +682,8 @@
                 requests.push(fetch24h('ZECUSDT'));
                 requests.push(fetch24h('XTZUSDT'));
                 requests.push(fetch24h('GBPUSDT'));
+                requests.push(fetch24h('BTCUSDT'));
+                requests.push(fetchKlines('BTCUSDT', TIMEFRAMES['24h'].interval, TIMEFRAMES['24h'].limit));
                 const results = await Promise.all(requests);
 
                 // Slice out per-TF klines
@@ -635,9 +696,12 @@
                     const rates = zecClose.map((z, j) => z / xtzClose[j]);
                     panelData[tf] = { zecK, xtzK, zecClose, xtzClose, rates };
                 });
-                const zecT = results[TF_KEYS.length * 2];
-                const xtzT = results[TF_KEYS.length * 2 + 1];
-                const gbpT = results[TF_KEYS.length * 2 + 2];
+                const tickerBase = TF_KEYS.length * 2;
+                const zecT = results[tickerBase];
+                const xtzT = results[tickerBase + 1];
+                const gbpT = results[tickerBase + 2];
+                const btcT = results[tickerBase + 3];
+                const btcK24 = results[tickerBase + 4];
                 const usdToGbp = 1 / parseFloat(gbpT.lastPrice);
 
                 // Update each panel chart + move % + tight y-axis
@@ -675,17 +739,18 @@
                 const distancePct = ((latestRate / targetRate) - 1) * 100;
                 const aboveTarget = latestRate >= targetRate;
 
-                // HERO
-                document.getElementById('heroRate').textContent = fmt(latestRate, 2);
-                document.getElementById('heroTarget').textContent = fmt(targetRate, 2);
+                // HERO - integer display, precise distance %
+                document.getElementById('heroRate').textContent = fmtInt(latestRate);
+                document.getElementById('heroTarget').textContent = fmtInt(targetRate);
                 const heroDist = document.getElementById('heroDistance');
                 heroDist.textContent = fmtPct(distancePct);
-                heroDist.className = 'text-2xl font-bold mt-0.5 leading-tight ' + (aboveTarget ? 'text-emerald-400' : 'text-rose-400');
+                heroDist.className = 'text-xl md:text-2xl font-bold ' + (aboveTarget ? 'text-emerald-400' : 'text-rose-400');
 
-                // ZEC / XTZ cards (pinned to 24h kline data)
+                // ZEC / XTZ / BTC cards (pinned to 24h kline data)
                 const d24 = panelData['24h'];
                 const zecStats = klineStats(d24.zecK);
                 const xtzStats = klineStats(d24.xtzK);
+                const btcStats = klineStats(btcK24);
 
                 const zecPrice = parseFloat(zecT.lastPrice);
                 document.getElementById('zecPrice').textContent = fmtUsd(zecPrice);
@@ -705,6 +770,16 @@
                 document.getElementById('xtzLow').textContent = fmtUsd(xtzStats.low);
                 document.getElementById('xtzVol').textContent = fmtVol(xtzStats.vol);
 
+                const btcPrice = parseFloat(btcT.lastPrice);
+                // BTC is big - display as integer dollars
+                document.getElementById('btcPrice').textContent = '$' + fmtInt(btcPrice);
+                const btcChangeEl = document.getElementById('btcChange');
+                btcChangeEl.textContent = (btcStats.pct >= 0 ? '▲ ' : '▼ ') + fmt(Math.abs(btcStats.pct), 2) + '%';
+                setChangeColour(btcChangeEl, btcStats.pct);
+                document.getElementById('btcHigh').textContent = '$' + fmtInt(btcStats.high);
+                document.getElementById('btcLow').textContent = '$' + fmtInt(btcStats.low);
+                document.getElementById('btcVol').textContent = fmtVol(btcStats.vol);
+
                 // Sparklines use 24h kline closes
                 const sparkLen = Math.min(60, d24.zecClose.length);
                 zecSpark.data.labels = Array(sparkLen).fill('');
@@ -713,19 +788,21 @@
                 xtzSpark.data.labels = Array(sparkLen).fill('');
                 xtzSpark.data.datasets[0].data = d24.xtzClose.slice(-sparkLen);
                 xtzSpark.update();
+                const btcClose = btcK24.map(c => parseFloat(c[4]));
+                const btcSparkLen = Math.min(60, btcClose.length);
+                btcSpark.data.labels = Array(btcSparkLen).fill('');
+                btcSpark.data.datasets[0].data = btcClose.slice(-btcSparkLen);
+                btcSpark.update();
 
                 // Holdings (current values)
                 const holdingsUsd = zecHeld * zecPrice;
                 const holdingsGbp = holdingsUsd * usdToGbp;
                 const holdingsXtzNow = zecHeld * latestRate;
-                const shortfall = xtzTarget - holdingsXtzNow;
                 document.getElementById('holdingsUsd').textContent = fmtUsd(holdingsUsd);
                 document.getElementById('holdingsGbp').textContent = fmtGbp(holdingsGbp);
                 document.getElementById('holdingsXtz').textContent = fmt(holdingsXtzNow, 0) + ' XTZ';
 
                 // Holdings "Today" change in GBP - both absolute and percent.
-                // Reconstruct yesterday's ZEC price from the 24h pct change:
-                //   pct = ((current - prev) / prev) * 100  =>  prev = current / (1 + pct/100)
                 const zecPriceYesterday = zecPrice / (1 + zecStats.pct / 100);
                 const holdingsGbpYesterday = (zecHeld * zecPriceYesterday) * usdToGbp;
                 const todayDeltaGbp = holdingsGbp - holdingsGbpYesterday;
@@ -735,15 +812,6 @@
                 todayEl.textContent = sign + '£' + fmt(Math.abs(todayDeltaGbp), 2) + ' / ' + fmtPct(todayDeltaPct);
                 todayEl.className = 'font-semibold ' + (todayDeltaGbp >= 0 ? 'text-emerald-400' : 'text-rose-400');
 
-                const shortEl = document.getElementById('holdingsShortfall');
-                if (shortfall <= 0) {
-                    shortEl.textContent = 'TARGET REACHED';
-                    shortEl.className = 'font-semibold text-emerald-400';
-                } else {
-                    shortEl.textContent = fmt(shortfall, 0) + ' XTZ';
-                    shortEl.className = 'font-semibold text-slate-200';
-                }
-
                 // Header status
                 lastSuccessTs = Date.now();
                 document.getElementById('lastUpdated').textContent = 'Updated just now';
@@ -751,9 +819,8 @@
                 document.getElementById('liveStatus').textContent = 'Live';
                 // Clear any stale-dim
                 document.getElementById('heroRateBlock').classList.remove('stale-dim');
-                document.getElementById('heroDistance').classList.remove('stale-dim');
 
-                // Tab title (always shows live rate + distance, regardless of privacy)
+                // Tab title (always shows live rate + fee-adjusted target + distance)
                 document.title = `${latestRate.toFixed(2)} / ${targetRate.toFixed(2)} (${fmtPct(distancePct)})`;
 
                 // Favicon
@@ -774,8 +841,6 @@
 
         // --------------------------------------------------------------
         // STALE WATCHER (separate from main fetch loop)
-        //   - dims hero numbers and amber-marks the live dot if no
-        //     successful fetch in the last STALE_MS
         // --------------------------------------------------------------
         setInterval(() => {
             if (lastSuccessTs === 0) return; // not yet had a first success
@@ -783,14 +848,12 @@
             const liveDot = document.getElementById('liveDot');
             const liveStatus = document.getElementById('liveStatus');
             const rateBlock = document.getElementById('heroRateBlock');
-            const distEl = document.getElementById('heroDistance');
             if (ageMs > STALE_MS) {
                 if (!liveDot.classList.contains('error')) {
                     liveDot.classList.add('stale');
                     liveStatus.textContent = 'Stale';
                 }
                 rateBlock.classList.add('stale-dim');
-                distEl.classList.add('stale-dim');
                 document.getElementById('lastUpdated').textContent = `Updated ${Math.floor(ageMs / 1000)}s ago`;
             }
         }, 1000);
