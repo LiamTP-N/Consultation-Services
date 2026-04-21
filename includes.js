@@ -197,7 +197,7 @@
     if (nav) {
         nav.className = 'fixed w-full z-50 transition-all duration-300 bg-transparent py-4';
         nav.innerHTML = `
-        <div class="max-w-6xl mx-auto px-4">
+        <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center">
                 <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
                     Dr. Liam T. Pearson-Noseworthy
@@ -260,7 +260,7 @@
         const year = new Date().getFullYear();
         footer.className = 'py-8 px-4 bg-slate-800 text-white mt-auto border-t border-slate-700';
         footer.innerHTML = `
-        <div id="contact" class="max-w-6xl mx-auto">
+        <div id="contact" class="max-w-7xl mx-auto">
             <div class="text-center mb-8">
                 <h2 class="text-xl font-bold mb-2">Ready to optimise your training or research?</h2>
                 <p class="text-slate-400 text-sm">Get in touch to discuss how I can help.</p>
