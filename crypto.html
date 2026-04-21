@@ -875,8 +875,8 @@
                 // Clear any stale-dim
                 document.getElementById('heroRateBlock').classList.remove('stale-dim');
 
-                // Tab title (always shows live rate + fee-adjusted target + distance, no decimals)
-                document.title = `${Math.round(latestRate)} / ${Math.round(targetRate)} (${distInt >= 0 ? '+' : ''}${distInt}%)`;
+                // Tab title: rate, ZEC, XTZ, BTC (no decimals, no symbols)
+                document.title = `${Math.round(latestRate)}, ${Math.round(zecPrice)}, ${Math.round(xtzPrice)}, ${Math.round(btcPrice)}`;
 
                 // Favicon
                 setFavicon(aboveTarget);
