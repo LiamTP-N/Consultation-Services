@@ -875,8 +875,9 @@
                 // Clear any stale-dim
                 document.getElementById('heroRateBlock').classList.remove('stale-dim');
 
-                // Tab title: rate: z[ZEC] | ꜩ[XTZ] | ₿[BTC]
-                document.title = `${fmtInt(latestRate)}: z${fmtInt(zecPrice)} | ꜩ${xtzPrice.toFixed(2)} | ₿${fmtInt(btcPrice)}`;
+                // Tab title: [progress%]: z[ZEC] | ꜩ[XTZ] | ₿[BTC]
+                const progressPct = Math.round((latestRate / targetRate) * 100);
+                document.title = `${progressPct}%: z${fmtInt(zecPrice)} | ꜩ${xtzPrice.toFixed(2)} | ₿${fmtInt(btcPrice)}`;
 
                 // Favicon
                 setFavicon(aboveTarget);
