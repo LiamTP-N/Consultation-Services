@@ -62,6 +62,15 @@
             border: 1px solid rgba(247, 147, 26, 0.25);
             border-radius: 12px;
         }
+        /* ZEC holdings card: gold tint right-to-left, mirroring accent layout */
+        .glass-card-zec-right {
+            background: linear-gradient(315deg, rgba(253, 224, 71, 0.12) 0%, rgba(3, 5, 10, 0.92) 60%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(253, 224, 71, 0.25);
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(253, 224, 71, 0.06);
+        }
         .zec-gradient {
             background: linear-gradient(to right, #fde047, #ca8a04);
             -webkit-background-clip: text;
@@ -185,7 +194,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="glass-card p-1.5 md:p-3">
+            <div class="glass-card-zec-right p-1.5 md:p-3">
                 <div class="flex items-baseline justify-end">
                     <p class="text-lg font-bold leading-tight"><span id="holdingsZec">16.256</span> <span class="zec-gradient text-sm">ZEC</span></p>
                 </div>
