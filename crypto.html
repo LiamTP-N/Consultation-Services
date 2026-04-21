@@ -64,7 +64,7 @@
             border-radius: 12px;
         }
         .zec-gradient {
-            background: linear-gradient(to right, #fde047, #b8860b);
+            background: linear-gradient(to right, #fde047, #ca8a04);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -76,7 +76,7 @@
             color: transparent;
         }
         .btc-gradient {
-            background: linear-gradient(to right, #f7931a, #ffb74d);
+            background: linear-gradient(to right, #fb923c, #ea580c);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -159,6 +159,10 @@
                 </div>
                 <span class="text-slate-600">&middot;</span>
                 <span id="lastUpdated" class="text-slate-400">-</span>
+                <span id="ipHintWrap" class="hidden items-center gap-2">
+                    <span class="text-slate-600">&middot;</span>
+                    <span id="ipHint" class="text-amber-400 text-[10px] font-mono">-</span>
+                </span>
             </div>
         </header>
 
@@ -226,9 +230,10 @@
             <div id="panel_7d" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-between mb-1 flex-none text-xs font-semibold gap-2">
                     <div class="flex items-center gap-2 md:gap-3 text-[10px]">
+                        <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#ec4899;"></span><span class="text-pink-300">RATE</span></span>
                         <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#fde047;"></span><span class="zec-gradient">ZEC</span></span>
                         <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#2dd4bf;"></span><span class="xtz-gradient">XTZ</span></span>
-                        <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#f97316;"></span><span class="btc-gradient">BTC</span></span>
+                        <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#f7931a;"></span><span class="btc-gradient">BTC</span></span>
                     </div>
                     <div>
                         <span class="text-[10px] uppercase tracking-wider text-slate-400">7d,&nbsp;</span>
@@ -244,10 +249,6 @@
         <!-- COMBINED COIN TABLE: ZEC / XTZ / BTC -->
         <section class="flex-none">
             <div class="glass-card p-1.5 md:p-3">
-                <div class="flex items-center justify-between text-[10px] uppercase tracking-wider text-slate-400 font-semibold mb-1.5">
-                    <span>Coins</span>
-                    <span class="normal-case">Prices in USD &middot; 24h H/L/V</span>
-                </div>
                 <table class="w-full text-xs md:text-sm">
                     <thead>
                         <tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-700/50">
@@ -257,7 +258,6 @@
                             <th class="text-right font-semibold pb-1.5 hidden sm:table-cell">H</th>
                             <th class="text-right font-semibold pb-1.5 hidden sm:table-cell">L</th>
                             <th class="text-right font-semibold pb-1.5 hidden sm:table-cell">V</th>
-                            <th class="text-right font-semibold pb-1.5 w-20 md:w-32">Trend</th>
                         </tr>
                     </thead>
                     <tbody class="font-semibold">
@@ -268,7 +268,6 @@
                             <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="zecHigh">-</td>
                             <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="zecLow">-</td>
                             <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="zecVol">-</td>
-                            <td class="py-1.5 pl-2"><div class="relative" style="height:22px;"><canvas id="zecSpark"></canvas></div></td>
                         </tr>
                         <tr class="border-b border-slate-700/30">
                             <td class="py-1.5 text-base md:text-lg"><span class="xtz-gradient">XTZ</span></td>
@@ -277,7 +276,6 @@
                             <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="xtzHigh">-</td>
                             <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="xtzLow">-</td>
                             <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="xtzVol">-</td>
-                            <td class="py-1.5 pl-2"><div class="relative" style="height:22px;"><canvas id="xtzSpark"></canvas></div></td>
                         </tr>
                         <tr>
                             <td class="py-1.5 text-base md:text-lg"><span class="btc-gradient">BTC</span></td>
@@ -286,7 +284,6 @@
                             <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="btcHigh">-</td>
                             <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="btcLow">-</td>
                             <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="btcVol">-</td>
-                            <td class="py-1.5 pl-2"><div class="relative" style="height:22px;"><canvas id="btcSpark"></canvas></div></td>
                         </tr>
                     </tbody>
                 </table>
@@ -313,6 +310,22 @@
         let alertSent = false;
         let lastSuccessTs = 0;
         const STALE_MS = 5000;
+
+        // --------------------------------------------------------------
+        // NETWORK CONTEXT
+        // Privacy mode is ON only when on a listed work IP.
+        // Default elsewhere (home, mobile, anywhere): no privacy.
+        // To add a new work IP: load the page from that network, copy
+        // the IP shown in the top-right of the header into WORK_IPS,
+        // commit + push. Privacy will activate there from then on.
+        // Entries can be exact IPs ('193.63.36.242') OR prefixes
+        // ('193.63.36' matches a /24, '193.63' matches a /16).
+        // --------------------------------------------------------------
+        const WORK_IPS = [
+            '193.63.36.242'  // Northumbria University
+        ];
+        let detectedIp = null;
+        let isWorkNetwork = false;
 
         // --------------------------------------------------------------
         // STATE
@@ -362,6 +375,8 @@
         // Hold 'V' to reveal, release to hide. Click toggle dot still works.
         // --------------------------------------------------------------
         function hidePrivacy() {
+            // Suppress hide when we've confirmed we're NOT on a work network
+            if (detectedIp !== null && !isWorkNetwork) return;
             document.body.classList.remove('revealed');
         }
         function revealPrivacy() {
@@ -463,6 +478,46 @@
         });
         // Start hidden by default
         hidePrivacy();
+
+        // --------------------------------------------------------------
+        // NETWORK DETECTION (runs once on load)
+        // --------------------------------------------------------------
+        async function detectNetwork() {
+            try {
+                const r = await fetch('https://api.ipify.org?format=json');
+                const data = await r.json();
+                detectedIp = data.ip;
+                isWorkNetwork = WORK_IPS.some(ip =>
+                    detectedIp === ip || detectedIp.startsWith(ip + '.')
+                );
+                console.log('[Network] IP:', detectedIp, '| Work:', isWorkNetwork);
+
+                // Always show IP in header (subtle, useful for spotting new work IPs)
+                const wrap = document.getElementById('ipHintWrap');
+                const hint = document.getElementById('ipHint');
+                if (wrap && hint) {
+                    hint.textContent = detectedIp;
+                    hint.title = isWorkNetwork
+                        ? 'Work network detected - privacy on'
+                        : 'Not on a work network - privacy off';
+                    wrap.classList.remove('hidden');
+                    wrap.classList.add('flex');
+                }
+
+                if (!isWorkNetwork) {
+                    // Not at work: kill privacy entirely
+                    document.body.classList.add('revealed');
+                    clearTimedReveal();
+                    const ov = document.getElementById('privacyOverlay');
+                    const tg = document.getElementById('privacyToggle');
+                    if (ov) ov.style.display = 'none';
+                    if (tg) tg.style.display = 'none';
+                }
+            } catch (e) {
+                console.warn('[Network] IP detection failed - keeping privacy on', e);
+            }
+        }
+        detectNetwork();
 
         // --------------------------------------------------------------
         // BROWSER NOTIFICATIONS (request once on load, silently)
@@ -588,12 +643,13 @@
             const datasets = [{
                 label: 'XTZ/ZEC',
                 data: [],
-                borderColor: '#22d3ee',
-                backgroundColor: 'rgba(34, 211, 238, 0.08)',
+                borderColor: '#ec4899',
+                backgroundColor: 'rgba(236, 72, 153, 0.10)',
                 borderWidth: 1.5,
                 pointRadius: 0,
                 pointHoverRadius: 4,
-                pointHoverBackgroundColor: '#22d3ee',
+                pointStyle: 'circle',
+                pointHoverBackgroundColor: '#ec4899',
                 pointHoverBorderColor: '#0f172a',
                 pointHoverBorderWidth: 2,
                 tension: 0.2,
@@ -602,9 +658,9 @@
             }];
             if (isSevenDay) {
                 datasets.push(
-                    { label: 'ZEC %', data: [], borderColor: 'rgba(253, 224, 71, 0.85)', borderWidth: 1.25, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'yPct' },
-                    { label: 'XTZ %', data: [], borderColor: 'rgba(45, 212, 191, 0.85)', borderWidth: 1.25, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'yPct' },
-                    { label: 'BTC %', data: [], borderColor: 'rgba(249, 115, 22, 0.85)', borderWidth: 1.25, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'yPct' }
+                    { label: 'ZEC %', data: [], borderColor: 'rgba(253, 224, 71, 0.95)', backgroundColor: 'rgba(253, 224, 71, 0.95)', borderWidth: 1.25, pointRadius: 0, pointStyle: 'circle', tension: 0.2, fill: false, yAxisID: 'yPct' },
+                    { label: 'XTZ %', data: [], borderColor: 'rgba(45, 212, 191, 0.85)', backgroundColor: 'rgba(45, 212, 191, 0.85)', borderWidth: 1.25, pointRadius: 0, pointStyle: 'circle', tension: 0.2, fill: false, yAxisID: 'yPct' },
+                    { label: 'BTC %', data: [], borderColor: 'rgba(247, 147, 26, 0.95)', backgroundColor: 'rgba(247, 147, 26, 0.95)', borderWidth: 1.25, pointRadius: 0, pointStyle: 'circle', tension: 0.2, fill: false, yAxisID: 'yPct' }
                 );
             }
             return new Chart(document.getElementById(canvasId).getContext('2d'), {
@@ -623,8 +679,11 @@
                         tooltip: {
                             enabled: true,
                             displayColors: isSevenDay,
+                            usePointStyle: true,
+                            boxWidth: 8,
+                            boxHeight: 8,
                             backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                            borderColor: 'rgba(34, 211, 238, 0.4)',
+                            borderColor: 'rgba(236, 72, 153, 0.4)',
                             borderWidth: 1,
                             titleColor: '#94a3b8',
                             bodyColor: '#e2e8f0',
@@ -674,12 +733,7 @@
                 }
             });
         }
-        // ZEC: yellow -> dark gold (mirrors .zec-gradient)
-        const zecSpark = makeSparkline('zecSpark', [[0, '#fde047'], [1, '#b8860b']]);
-        // XTZ: navy -> teal (mirrors .xtz-gradient)
-        const xtzSpark = makeSparkline('xtzSpark', [[0, '#1e3a8a'], [1, '#2dd4bf']]);
-        // BTC: solid orange
-        const btcSpark = makeSparkline('btcSpark', '#f97316');
+        // ZEC / XTZ / BTC sparklines removed - replaced by 7d chart overlay legend.
 
         // All charts now exist with correct initial dimensions; safe to apply default TF.
         setTF(DEFAULT_TF);
@@ -830,20 +884,6 @@
                 document.getElementById('btcHigh').textContent = '$' + fmtInt(btcStats.high);
                 document.getElementById('btcLow').textContent = '$' + fmtInt(btcStats.low);
                 document.getElementById('btcVol').textContent = fmtVol(btcStats.vol);
-
-                // Sparklines use 24h kline closes
-                const sparkLen = Math.min(60, d24.zecClose.length);
-                zecSpark.data.labels = Array(sparkLen).fill('');
-                zecSpark.data.datasets[0].data = d24.zecClose.slice(-sparkLen);
-                zecSpark.update();
-                xtzSpark.data.labels = Array(sparkLen).fill('');
-                xtzSpark.data.datasets[0].data = d24.xtzClose.slice(-sparkLen);
-                xtzSpark.update();
-                const btcClose = btcK24.map(c => parseFloat(c[4]));
-                const btcSparkLen = Math.min(60, btcClose.length);
-                btcSpark.data.labels = Array(btcSparkLen).fill('');
-                btcSpark.data.datasets[0].data = btcClose.slice(-btcSparkLen);
-                btcSpark.update();
 
                 // Holdings (current values)
                 const holdingsUsd = zecHeld * zecPrice;
