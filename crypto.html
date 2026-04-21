@@ -144,7 +144,7 @@
     <div class="max-w-7xl mx-auto w-full flex-1 flex flex-col gap-1 md:gap-2 min-h-0">
 
         <!-- HEADER -->
-        <header class="relative flex items-center justify-start gap-3 flex-none p-4">
+        <header class="relative flex items-center justify-start gap-3 flex-none">
             <h1 class="text-xl md:text-2xl font-bold tracking-tight leading-tight">
                 <span class="zec-gradient">ZEC</span>
                 <span class="text-slate-400 mx-1">&rarr;</span>
@@ -239,7 +239,7 @@
             <div class="glass-card-zec p-1.5 md:p-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold"><span class="zec-gradient">ZEC</span> : USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
+                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold"><span class="zec-gradient">ZEC</span> / USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
                         <p id="zecPrice" class="text-lg font-bold leading-tight">-</p>
                     </div>
                     <p id="zecChange" class="text-xs font-semibold">-</p>
@@ -257,7 +257,7 @@
             <div class="glass-card-xtz p-1.5 md:p-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold"><span class="xtz-gradient">XTZ</span> : USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
+                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold"><span class="xtz-gradient">XTZ</span> / USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
                         <p id="xtzPrice" class="text-lg font-bold leading-tight">-</p>
                     </div>
                     <p id="xtzChange" class="text-xs font-semibold">-</p>
@@ -275,7 +275,7 @@
             <div class="glass-card-btc p-1.5 md:p-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold"><span class="btc-gradient">BTC</span> : USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
+                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold"><span class="btc-gradient">BTC</span> / USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
                         <p id="btcPrice" class="text-lg font-bold leading-tight">-</p>
                     </div>
                     <p id="btcChange" class="text-xs font-semibold">-</p>
@@ -580,33 +580,47 @@
         // PANEL MINI-CHARTS (one per timeframe)
         // --------------------------------------------------------------
         function makePanelChart(canvasId) {
+            const isSevenDay = canvasId === 'chart_7d';
+            // Primary dataset = ZEC/XTZ rate (left/default y-axis).
+            // On 7d only, add three secondary % overlays (ZEC, XTZ, BTC) on a hidden right axis.
+            const datasets = [{
+                label: 'XTZ/ZEC',
+                data: [],
+                borderColor: '#22d3ee',
+                backgroundColor: 'rgba(34, 211, 238, 0.08)',
+                borderWidth: 1.5,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                pointHoverBackgroundColor: '#22d3ee',
+                pointHoverBorderColor: '#0f172a',
+                pointHoverBorderWidth: 2,
+                tension: 0.2,
+                fill: true,
+                yAxisID: 'y'
+            }];
+            if (isSevenDay) {
+                datasets.push(
+                    { label: 'ZEC %', data: [], borderColor: 'rgba(253, 224, 71, 0.85)', borderWidth: 1.25, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'yPct' },
+                    { label: 'XTZ %', data: [], borderColor: 'rgba(45, 212, 191, 0.85)', borderWidth: 1.25, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'yPct' },
+                    { label: 'BTC %', data: [], borderColor: 'rgba(249, 115, 22, 0.85)', borderWidth: 1.25, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'yPct' }
+                );
+            }
             return new Chart(document.getElementById(canvasId).getContext('2d'), {
                 type: 'line',
-                data: { labels: [], datasets: [{
-                    data: [],
-                    borderColor: '#22d3ee',
-                    backgroundColor: 'rgba(34, 211, 238, 0.08)',
-                    borderWidth: 1.5,
-                    pointRadius: 0,
-                    pointHoverRadius: 4,
-                    pointHoverBackgroundColor: '#22d3ee',
-                    pointHoverBorderColor: '#0f172a',
-                    pointHoverBorderWidth: 2,
-                    tension: 0.2,
-                    fill: true
-                }] },
+                data: { labels: [], datasets: datasets },
                 options: {
                     responsive: true, maintainAspectRatio: false, animation: false,
                     interaction: { mode: 'index', intersect: false },
                     scales: {
                         x: { display: false },
-                        y: { display: false }
+                        y: { display: false },
+                        ...(isSevenDay ? { yPct: { display: false, position: 'right' } } : {})
                     },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
                             enabled: true,
-                            displayColors: false,
+                            displayColors: isSevenDay,
                             backgroundColor: 'rgba(15, 23, 42, 0.95)',
                             borderColor: 'rgba(34, 211, 238, 0.4)',
                             borderWidth: 1,
@@ -617,8 +631,12 @@
                             padding: 8,
                             cornerRadius: 6,
                             callbacks: {
-                                title: () => 'rate',
-                                label: (ctx) => fmt(ctx.parsed.y, 2) + ' XTZ/ZEC'
+                                title: () => isSevenDay ? '7d view' : 'rate',
+                                label: (ctx) => {
+                                    const ds = ctx.dataset.label || '';
+                                    if (ds === 'XTZ/ZEC') return fmt(ctx.parsed.y, 2) + ' XTZ/ZEC';
+                                    return ds + ' ' + (ctx.parsed.y >= 0 ? '+' : '') + ctx.parsed.y.toFixed(2) + '%';
+                                }
                             }
                         }
                     }
@@ -693,6 +711,7 @@
                 requests.push(fetch24h('GBPUSDT'));
                 requests.push(fetch24h('BTCUSDT'));
                 requests.push(fetchKlines('BTCUSDT', TIMEFRAMES['24h'].interval, TIMEFRAMES['24h'].limit));
+                requests.push(fetchKlines('BTCUSDT', TIMEFRAMES['7d'].interval, TIMEFRAMES['7d'].limit));
                 const results = await Promise.all(requests);
 
                 // Slice out per-TF klines
@@ -711,6 +730,8 @@
                 const gbpT = results[tickerBase + 2];
                 const btcT = results[tickerBase + 3];
                 const btcK24 = results[tickerBase + 4];
+                const btcK7d = results[tickerBase + 5];
+                panelData['7d'].btcClose = btcK7d.map(c => parseFloat(c[4]));
                 const usdToGbp = 1 / parseFloat(gbpT.lastPrice);
 
                 // Update each panel chart + move % + tight y-axis
@@ -735,6 +756,25 @@
                     }
                     chart.options.scales.y.min = yMin;
                     chart.options.scales.y.max = yMax;
+
+                    // 7d only: populate normalised % overlays for ZEC, XTZ, BTC
+                    if (tf === '7d' && d.btcClose) {
+                        const toPct = (arr) => {
+                            const base = arr[0];
+                            return arr.map(v => ((v / base) - 1) * 100);
+                        };
+                        chart.data.datasets[1].data = toPct(d.zecClose);
+                        chart.data.datasets[2].data = toPct(d.xtzClose);
+                        chart.data.datasets[3].data = toPct(d.btcClose);
+                        // Symmetric % axis around 0 so all three lines share visual context
+                        const allPct = chart.data.datasets[1].data
+                            .concat(chart.data.datasets[2].data)
+                            .concat(chart.data.datasets[3].data);
+                        const pctMax = Math.max(Math.abs(Math.min(...allPct)), Math.abs(Math.max(...allPct))) || 1;
+                        chart.options.scales.yPct.min = -pctMax * 1.1;
+                        chart.options.scales.yPct.max = pctMax * 1.1;
+                    }
+
                     chart.update();
 
                     const move = ((d.rates[d.rates.length - 1] / d.rates[0]) - 1) * 100;
