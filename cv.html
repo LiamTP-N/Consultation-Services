@@ -15,6 +15,22 @@
     <meta property="og:url" content="https://liamtp-n.github.io/Consultation-Services/cv.html">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes queenGlow {
+            0%, 100% {
+                text-shadow: 0 0 6px rgba(250, 204, 21, 0.5), 0 0 12px rgba(250, 204, 21, 0.3);
+                opacity: 1;
+            }
+            50% {
+                text-shadow: 0 0 14px rgba(250, 204, 21, 0.9), 0 0 28px rgba(250, 204, 21, 0.5), 0 0 40px rgba(250, 204, 21, 0.2);
+                opacity: 0.88;
+            }
+        }
+        .queen-glow {
+            animation: queenGlow 2.8s ease-in-out infinite;
+            color: #fde68a;
+        }
+    </style>
     <style media="print">
         /* Print stylesheet - clean CV output */
         @page {
@@ -92,25 +108,30 @@
             padding-bottom: 0.3rem;
             margin-bottom: 1rem;
         }
+        .queen-glow {
+            animation: none !important;
+            color: #111 !important;
+            text-shadow: none !important;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
 
     <nav id="main-nav"></nav>
 
-    <section class="pt-24 pb-20 px-4 bg-slate-900 min-h-screen">
+    <section class="pt-20 pb-12 px-4 bg-slate-900 min-h-screen">
         <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-6 animate-fade-in">
-                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-slate-100">CV & Credentials</h1>
+            <div class="text-center mb-5 animate-fade-in">
+                <h1 class="text-4xl md:text-5xl font-bold mb-3 text-slate-100">CV & Credentials</h1>
                 <p class="text-slate-400 max-w-2xl mx-auto">
                     A brief overview of my academic background, professional history, and technical expertise.
                 </p>
             </div>
-            <div class="grid md:grid-cols-2 gap-8 animate-fade-in">
-                <div class="space-y-8">
+            <div class="grid md:grid-cols-2 gap-7 animate-fade-in">
+                <div class="space-y-7">
                     <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Employment & Expertise</h4>
-                        <ul class="space-y-3 text-sm text-slate-400 list-none pl-0">
+                        <h4 class="text-lg font-bold text-white mb-3 border-b border-slate-700 pb-2">Employment & Expertise</h4>
+                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2025: Reviewing Editor, <span class="text-slate-200 font-medium">Springer Nature</span></span></li>
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2022: Non-Executive Director, <span class="text-slate-200 font-medium">Power Through Sport CIC</span></span></li>
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>2021: Senior Laboratory Technician, <span class="text-slate-200 font-medium">Northumbria University</span></span></li>
@@ -129,18 +150,28 @@
                         </ul>
                     </div>
                     <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Supervision</h4>
-                        <ul class="space-y-3 text-sm text-slate-400 list-none pl-0">
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span><span class="text-slate-200 font-medium">Alejandro De La Rosa</span> (PhD, Northumbria University): Understanding Perceived Intimidation Through Kinematic Cues in Human Gait, Observer Context, and Crowd-Simulation Prediction</span></li>
+                        <h4 class="text-lg font-bold text-white mb-3 border-b border-slate-700 pb-2">Supervision</h4>
+
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-1">PhD</p>
+                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0 mb-4">
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span><span class="text-slate-200 font-medium">Alejandro De La Rosa</span> (Northumbria University): Understanding Perceived Intimidation Through Kinematic Cues in Human Gait, Observer Context, and Crowd-Simulation Prediction</span></li>
+                        </ul>
+
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Postgraduate</p>
+                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0 mb-4">
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span><span class="text-slate-200 font-medium">Grace D.</span> (Placement, Northumbria University): 100-hour non-clinical placement supervising older adults using RBE app</span></li>
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span><span class="text-slate-200 font-medium">George L.</span> (PG Dissertation, Northumbria University): How do weightlifting coaches develop and maintain influence with their athletes?</span></li>
+                        </ul>
+
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Undergraduate</p>
+                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span><span class="text-slate-200 font-medium">Kieran B.</span> (UG Dissertation, Northumbria University): Differential effects of Percentage Based Training & Velocity Based Training on power, counter movement jump height and fatigue</span></li>
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span><span class="text-slate-200 font-medium">Ethan H.</span> (UG Dissertation, Northumbria University): The effect of attentional focus technique on muscle activity during bent over barbell row in resistance trained individuals</span></li>
                         </ul>
                     </div>
                     <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Leadership & Professional Roles</h4>
-                        <ul class="space-y-3 text-sm text-slate-400 list-none pl-0">
+                        <h4 class="text-lg font-bold text-white mb-3 border-b border-slate-700 pb-2">Leadership & Professional Roles</h4>
+                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Academic Board Member, <span class="text-slate-200 font-medium">Northumbria University</span></span></li>
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>A.I. Working Group Member, <span class="text-slate-200 font-medium">Northumbria University</span></span></li>
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Research Approver, <span class="text-slate-200 font-medium">Northumbria University</span></span></li>
@@ -152,9 +183,9 @@
                         </ul>
                     </div>
                 </div>
-                <div class="space-y-8">
+                <div class="space-y-7">
                     <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Academic Qualifications</h4>
+                        <h4 class="text-lg font-bold text-white mb-3 border-b border-slate-700 pb-2">Academic Qualifications</h4>
                         <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span><span>2025: <span class="text-slate-200 font-medium">PhD</span>, Applied Health & Exercise Science</span></li>
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span><span>2019: <span class="text-slate-200 font-medium">MRes</span>, Exercise Science</span></li>
@@ -165,24 +196,34 @@
                         </ul>
                     </div>
                     <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Awards</h4>
+                        <h4 class="text-lg font-bold text-white mb-3 border-b border-slate-700 pb-2">Awards</h4>
                         <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span><span>2025: <span class="text-slate-200 font-medium">Distinguished Teaching Fellow</span>, Northumbria University</span></li>
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span><span>2022: <span class="text-slate-200 font-medium">Senior Fellowship (SFHEA)</span>, Advance HE</span></li>
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span><span>2020: <span class="text-slate-200 font-medium">Associate Fellowship</span>, Advance HE</span></li>
-                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span><span>2014: <span class="text-slate-200 font-medium">Services to Sport, Health & Fitness</span>, H.M. The Queen</span></li>
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span><span class="queen-glow">2014: <span class="font-medium">Services to Sport, Health & Fitness</span>, H.M. The Queen</span></li>
                         </ul>
                     </div>
                     <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Grants & Funding</h4>
-                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
+                        <h4 class="text-lg font-bold text-white mb-3 border-b border-slate-700 pb-2">Grants & Funding</h4>
+
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-1">Awarded</p>
+                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0 mb-4">
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span><span><span class="text-slate-200 font-medium">BBSRC #845818</span> (Co-I, £25,178): Blue Zone Consortium - AI-based bike fitting tool for older adult cyclists</span></li>
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span><span><span class="text-slate-200 font-medium">National Lottery Community Fund #20305666</span> (Co-I, £111,000): Community health outreach via Power Through Sport CIC</span></li>
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span><span><span class="text-slate-200 font-medium">Health Innovation NENC</span>: App development support programme for ROM-Based Exercise (RBE) application and NHS integration pathway</span></li>
                         </ul>
+
+                        <!-- PENDING GRANTS - add entries here once confirmed -->
+                        <!--
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Pending</p>
+                        <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
+                            <li class="flex items-start"><span class="text-blue-400 mr-2">•</span><span><span class="text-slate-200 font-medium">FUNDER NAME</span> (Role, £amount): Description</span></li>
+                        </ul>
+                        -->
                     </div>
                     <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Professional Status</h4>
+                        <h4 class="text-lg font-bold text-white mb-3 border-b border-slate-700 pb-2">Professional Status</h4>
                         <ul class="space-y-2 text-sm text-slate-400 list-none pl-0">
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Senior Fellow (SFHEA)</span></li>
                             <li class="flex items-start"><span class="text-blue-400 mr-2">•</span> <span>Distinguished Teaching Fellow</span></li>
@@ -196,7 +237,7 @@
                         </ul>
                     </div>
                     <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Vocational Qualifications</h4>
+                        <h4 class="text-lg font-bold text-white mb-3 border-b border-slate-700 pb-2">Vocational Qualifications</h4>
                         <div class="flex flex-wrap gap-2">
                             <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">Phlebotomist</span>
                             <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:border-blue-500 hover:text-white transition-all duration-300 cursor-default">L3 Olympic Weightlifting Coach</span>
@@ -209,8 +250,8 @@
                         </div>
                     </div>
                     <div>
-                        <h4 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">Technical Skills & Safety</h4>
-                        <p class="text-sm text-slate-400 mb-3">
+                        <h4 class="text-lg font-bold text-white mb-3 border-b border-slate-700 pb-2">Technical Skills & Safety</h4>
+                        <p class="text-sm text-slate-400 mb-2">
                             <strong class="text-slate-300">Analysis:</strong> R (inc. dplyr), Python, MATLAB (Onramp), Isokinetic II - Advanced Interpretation, Wattbike Workshop.
                         </p>
                         <p class="text-sm text-slate-400">

@@ -191,7 +191,7 @@
     ];
 
     // ---------------------------------------------------------------
-    // Navigation (with search icon)
+    // Navigation (no search icon)
     // ---------------------------------------------------------------
     const nav = document.getElementById('main-nav');
     if (nav) {
@@ -204,15 +204,9 @@
                 </a>
                 <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
                     ${links.map(l => `<a href="${l.href}" class="${linkClass(l.id)}">${l.label}</a>`).join('\n                    ')}
-                    <button id="search-btn" class="hover:text-blue-400 transition-colors p-1" aria-label="Search site" title="Search site">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </button>
                     <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Get in Touch</a>
                 </div>
                 <div class="md:hidden flex items-center gap-3">
-                    <button id="search-btn-mobile" class="text-slate-300 hover:text-white p-1" aria-label="Search site">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </button>
                     <button id="mobile-menu-btn" class="text-slate-300 hover:text-white focus:outline-none">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -335,7 +329,7 @@
     })();
 
     // ---------------------------------------------------------------
-    // Site search
+    // Site search (Ctrl/Cmd+K still works, just no visible button)
     // ---------------------------------------------------------------
     (function initSiteSearch() {
         // Build overlay
@@ -366,12 +360,6 @@
             overlay.classList.remove('open');
             activeIdx = -1;
         }
-
-        // Bind triggers
-        ['search-btn', 'search-btn-mobile'].forEach(function (id) {
-            var el = document.getElementById(id);
-            if (el) el.addEventListener('click', openSearch);
-        });
 
         // Close on overlay click (not box)
         overlay.addEventListener('click', function (e) {

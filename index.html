@@ -7,10 +7,10 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Dr. Liam T. Pearson-Noseworthy | Applied Health & Exercise Scientist</title>
-    <meta name="description" content="Dr. Liam T. Pearson-Noseworthy, PhD. Applied health and exercise scientist. Senior Laboratory Technician at Northumbria University and Reviewing Editor at Springer Nature.">
+    <meta name="description" content="Dr. Liam T. Pearson-Noseworthy, PhD. Applied health and exercise scientist working in applied health, exercise science, and data science.">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Dr. Liam T. Pearson-Noseworthy | Applied Health & Exercise Scientist">
-    <meta property="og:description" content="Applied health and exercise scientist. Senior Laboratory Technician at Northumbria University and Reviewing Editor at Springer Nature.">
+    <meta property="og:description" content="Applied health and exercise scientist working in applied health, exercise science, and data science.">
     <meta property="og:image" content="https://liamtp-n.github.io/Consultation-Services/assets/images/og-image.jpg">
     <meta property="og:url" content="https://liamtp-n.github.io/Consultation-Services/index.html">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -21,6 +21,12 @@
             50% { box-shadow: 0 0 20px 6px rgba(34, 197, 94, 0.2); }
         }
         .btn-research { animation: pulseGlow 2.5s ease-in-out infinite; }
+        .name-gradient {
+            background: linear-gradient(to right, #60a5fa, #22d3ee, #34d399);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
@@ -28,20 +34,17 @@
     <nav id="main-nav"></nav>
 
     <!-- HERO -->
-    <header class="pt-24 pb-10 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
-        <div class="max-w-6xl mx-auto grid md:grid-cols-12 gap-8 md:gap-10 items-start">
+    <header class="pt-20 pb-7 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-12 gap-6 md:gap-8 items-start">
             <div class="md:col-span-8 order-2 md:order-1 md:text-left text-center animate-fade-in">
-                <h1 class="text-3xl md:text-5xl font-extrabold text-slate-100 tracking-tight mb-4 leading-tight">
-                    Dr. Liam T. Pearson-Noseworthy
+                <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-3 leading-tight">
+                    <span class="name-gradient">Dr. Liam T. Pearson-Noseworthy</span>
                 </h1>
-                <p class="text-lg md:text-xl text-slate-300 font-medium mb-2">
+                <p class="text-lg md:text-xl text-slate-300 font-medium mb-4">
                     Applied Health & Exercise Scientist
                 </p>
-                <p class="text-sm md:text-base text-slate-400 mb-6">
-                    Senior Laboratory Technician, Northumbria University &middot; Reviewing Editor, Springer Nature
-                </p>
-                <p class="text-base md:text-lg text-slate-400 mb-6 max-w-3xl md:mx-0 mx-auto leading-relaxed">
-                    PhD-trained researcher working at the intersection of applied health, exercise science, and data science. Published, peer-reviewed, and grant-funded - with an active focus on minimal-dose resistance training, biomechanics, and translating research into tools people can actually use.
+                <p class="text-base md:text-lg text-slate-400 mb-5 max-w-3xl md:mx-0 mx-auto leading-relaxed">
+                    PhD researcher working in applied health, exercise science, and data science. Published, peer-reviewed, and grant-funded - with an active focus on minimal-dose resistance training, biomechanics, app-based exercise and translating research into tools people can <em>actually</em> use.
                 </p>
                 <div class="flex flex-wrap gap-3 justify-center md:justify-start">
                     <a href="cv.html" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-md">
@@ -64,7 +67,7 @@
                 </div>
             </div>
             <div class="md:col-span-4 order-1 md:order-2">
-                <div class="w-48 md:w-64 mx-auto h-auto animate-fade-in mt-2">
+                <div class="w-44 md:w-60 mx-auto h-auto animate-fade-in mt-2">
                     <div class="aspect-[4/5] rounded-2xl bg-slate-700 overflow-hidden relative border border-slate-700 shadow-xl">
                         <img src="assets/images/pic.jpg" alt="Dr. Pearson-Noseworthy" class="w-full h-full object-cover block" />
                     </div>
@@ -74,9 +77,9 @@
     </header>
 
     <!-- OVERVIEW -->
-    <section class="py-10 px-4 bg-slate-800 border-y border-slate-700">
+    <section class="py-6 px-4 bg-slate-800 border-y border-slate-700">
         <div class="max-w-6xl mx-auto">
-            <p class="text-xs font-bold text-slate-500 mb-4 uppercase tracking-wider text-center md:text-left">Overview</p>
+            <p class="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider text-center md:text-left">Overview</p>
             <div class="flex flex-col gap-y-2 text-sm text-slate-300">
                 <div class="flex flex-wrap gap-x-6 gap-y-2 justify-center md:justify-start">
                     <span class="flex items-center"><span class="text-blue-500 mr-2">✓</span> 15+ Years Applied Experience</span>
@@ -97,15 +100,15 @@
     </section>
 
     <!-- CURRENT FOCUS -->
-    <section class="py-12 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
+    <section class="py-8 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
         <div class="max-w-6xl mx-auto">
-            <h2 class="text-2xl md:text-3xl font-bold text-slate-100 mb-4">Current Focus</h2>
-            <div class="space-y-4 text-slate-400 leading-relaxed max-w-4xl">
+            <h2 class="text-2xl md:text-3xl font-bold text-slate-100 mb-3">Current Focus</h2>
+            <div class="space-y-3 text-slate-400 leading-relaxed max-w-4xl">
                 <p>
                     My doctoral research developed a minimal-dose, range-of-motion-based resistance training protocol for older adults, and I'm now translating that work into the <a href="app.html" class="text-blue-400 hover:text-blue-300 underline">ROM-Based Exercise app</a> - a free, pose-estimation-driven home exercise tool built for mobility, fall prevention, and independence.
                 </p>
                 <p>
-                    Alongside the app, I run ongoing biomechanics and wearable-sensor work at Northumbria, peer-review manuscripts as a Reviewing Editor for Springer Nature, and maintain an automated jobs board and live-research feed as open resources for the field.
+                    Alongside the app, I run ongoing biomechanics and wearable-sensor work at Northumbria, peer-review manuscripts as a Reviewing Editor for Springer Nature, and maintain a jobs board and live-research feed as open resources for the field - a small way of giving something back to students and early-career researchers.
                 </p>
                 <p>
                     Open to collaboration, consultancy, and editorial enquiries - particularly around exercise science, data pipelines (R / Python / machine learning), and research translation.
@@ -115,18 +118,18 @@
     </section>
 
     <!-- RBE APP FEATURE -->
-    <section class="py-12 px-4 bg-slate-800 border-y border-slate-700">
-        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center">
+    <section class="py-8 px-4 bg-slate-800 border-y border-slate-700">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center">
             <div class="rounded-2xl overflow-hidden border border-green-500/20 shadow-2xl shadow-green-900/20">
                 <img src="assets/images/ROM-Based App.jpg" alt="ROM-Based Exercise App" class="w-full object-cover" />
             </div>
             <div class="md:text-left text-center">
                 <span class="inline-block text-xs font-bold uppercase tracking-widest text-green-400 mb-3 border border-green-500/30 px-3 py-1 rounded-full">Free Tool - Live Now</span>
-                <h2 class="text-2xl md:text-3xl font-extrabold text-slate-100 tracking-tight mb-4 leading-tight">
+                <h2 class="text-2xl md:text-3xl font-extrabold text-slate-100 tracking-tight mb-3 leading-tight">
                     ROM-Based Exercise App<br>
                     <span class="bg-gradient-to-r from-green-400 to-cyan-400 text-transparent bg-clip-text">Auto-Regulated by Your Range of Motion</span>
                 </h2>
-                <p class="text-slate-400 mb-6 leading-relaxed">
+                <p class="text-slate-400 mb-5 leading-relaxed">
                     A free home exercise tool that adapts to your mobility in real time. Built on doctoral research in minimal-dose resistance training for older adults. No equipment. No sign-up. Just open it and move.
                 </p>
                 <a href="app.html" class="btn-research inline-flex items-center gap-3 bg-green-600 hover:bg-green-500 text-white font-bold px-7 py-4 rounded-xl text-base transition-all duration-200 active:scale-95 border border-green-500/50">
@@ -138,24 +141,24 @@
     </section>
 
     <!-- PROJECTS / EXPLORE -->
-    <section class="py-12 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
+    <section class="py-8 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
         <div class="max-w-6xl mx-auto">
-            <h2 class="text-2xl md:text-3xl font-bold text-slate-100 mb-8 text-center md:text-left">Explore</h2>
-            <div class="grid md:grid-cols-3 gap-6">
-                <a href="portfolio.html" class="group bg-slate-900/50 p-6 rounded-xl border border-slate-700/50 hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-900/30 transition-all duration-300 hover:-translate-y-1 block">
-                    <svg class="w-10 h-10 text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                    <h3 class="text-white font-bold text-lg mb-2 group-hover:text-blue-300 transition-colors">Portfolio</h3>
+            <h2 class="text-2xl md:text-3xl font-bold text-slate-100 mb-6 text-center md:text-left">Explore</h2>
+            <div class="grid md:grid-cols-3 gap-5">
+                <a href="portfolio.html" class="group bg-slate-900/50 p-5 rounded-xl border border-slate-700/50 hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-900/30 transition-all duration-300 hover:-translate-y-1 block">
+                    <svg class="w-9 h-9 text-blue-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    <h3 class="text-white font-bold text-lg mb-1.5 group-hover:text-blue-300 transition-colors">Portfolio</h3>
                     <p class="text-slate-400 text-sm leading-relaxed">Research outputs, grant-funded projects, peer-reviewed publications, and data analytics work - including analysis of 2.2m+ competition records.</p>
                 </a>
-                <a href="live-research.html" class="group bg-slate-900/50 p-6 rounded-xl border border-slate-700/50 hover:border-green-500/50 hover:shadow-2xl hover:shadow-green-900/30 transition-all duration-300 hover:-translate-y-1 block">
-                    <svg class="w-10 h-10 text-green-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3h6v4l4.5 9a3 3 0 01-2.7 4.5H7.2a3 3 0 01-2.7-4.5L9 7V3z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 3h8"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.5 13h11"></path></svg>
-                    <h3 class="text-white font-bold text-lg mb-2 group-hover:text-green-300 transition-colors">Live Research</h3>
+                <a href="live-research.html" class="group bg-slate-900/50 p-5 rounded-xl border border-slate-700/50 hover:border-green-500/50 hover:shadow-2xl hover:shadow-green-900/30 transition-all duration-300 hover:-translate-y-1 block">
+                    <svg class="w-9 h-9 text-green-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3h6v4l4.5 9a3 3 0 01-2.7 4.5H7.2a3 3 0 01-2.7-4.5L9 7V3z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 3h8"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.5 13h11"></path></svg>
+                    <h3 class="text-white font-bold text-lg mb-1.5 group-hover:text-green-300 transition-colors">Live Research</h3>
                     <p class="text-slate-400 text-sm leading-relaxed">Browse current research studies actively recruiting participants across sport science, physiology, biomechanics, and nutrition.</p>
                 </a>
-                <a href="jobs.html" class="group bg-slate-900/50 p-6 rounded-xl border border-slate-700/50 hover:border-cyan-500/50 hover:shadow-2xl hover:shadow-cyan-900/30 transition-all duration-300 hover:-translate-y-1 block">
-                    <svg class="w-10 h-10 text-cyan-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                    <h3 class="text-white font-bold text-lg mb-2 group-hover:text-cyan-300 transition-colors">Jobs Board</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed">Automated jobs board for sport science, exercise science, kinesiology, and related health disciplines - UK and Canada. Scraped and refreshed daily.</p>
+                <a href="jobs.html" class="group bg-slate-900/50 p-5 rounded-xl border border-slate-700/50 hover:border-cyan-500/50 hover:shadow-2xl hover:shadow-cyan-900/30 transition-all duration-300 hover:-translate-y-1 block">
+                    <svg class="w-9 h-9 text-cyan-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <h3 class="text-white font-bold text-lg mb-1.5 group-hover:text-cyan-300 transition-colors">Jobs Board</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">A passion project - a jobs board for sport science, exercise science, kinesiology, and related health disciplines covering the UK and Canada. Something to give back to students and early-career researchers.</p>
                 </a>
             </div>
         </div>
