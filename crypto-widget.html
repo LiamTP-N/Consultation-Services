@@ -93,14 +93,13 @@
 
                 const rate = zec.last / xtz.last;
                 const rate24hAgo = (xtz.open && zec.open) ? zec.open / xtz.open : null;
-                const distancePct = ((rate / targetRate) - 1) * 100;
+                const progressPct = (rate / targetRate) * 100;
                 const aboveTarget = rate >= targetRate;
 
                 const numEl = document.getElementById('widgetNumber');
                 const containerEl = document.getElementById('widgetContainer');
 
-                const sign = distancePct >= 0 ? '+' : '';
-                const pctText = `${sign}${distancePct.toFixed(1)}%`;
+                const pctText = `${progressPct.toFixed(1)}%`;
                 numEl.textContent = pctText;
                 containerEl.className = aboveTarget ? 'above-target' : 'below-target';
 
