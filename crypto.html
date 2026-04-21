@@ -595,74 +595,72 @@
         // PANEL MINI-CHARTS (one per timeframe)
         // --------------------------------------------------------------
         function makePanelChart(canvasId) {
-            const isSevenDay = canvasId === 'chart_7d';
             // Primary dataset = ZEC/XTZ rate (left/default y-axis).
-            // On 7d: add three coin overlays, each on its OWN hidden axis so
-            // their raw USD price ranges (XTZ ~$1, ZEC ~$100, BTC ~$100k)
-            // each use the full vertical space and show their trend shape.
+            // All timeframes: add three coin overlays (ZEC, XTZ, BTC),
+            // each on its OWN hidden axis so their raw USD price ranges
+            // (XTZ ~$1, ZEC ~$100, BTC ~$100k) each use the full vertical
+            // space and show their trend shape.
+            // BTC has a black underlay dataset drawn first for a 1px outline.
             const datasets = [{
-                label: 'XTZ/ZEC',
+                label: "XTZ/ZEC",
                 data: [],
-                borderColor: '#ec4899',
-                backgroundColor: 'rgba(236, 72, 153, 0.10)',
-                pointBackgroundColor: '#ec4899',
-                pointBorderColor: '#ec4899',
+                borderColor: "#ec4899",
+                backgroundColor: "rgba(236, 72, 153, 0.10)",
+                pointBackgroundColor: "#ec4899",
+                pointBorderColor: "#ec4899",
                 borderWidth: 1.5,
                 pointRadius: 0,
                 pointHoverRadius: 4,
-                pointStyle: 'circle',
-                pointHoverBackgroundColor: '#ec4899',
-                pointHoverBorderColor: '#0f172a',
+                pointStyle: "circle",
+                pointHoverBackgroundColor: "#ec4899",
+                pointHoverBorderColor: "#0f172a",
                 pointHoverBorderWidth: 2,
                 tension: 0.2,
                 fill: true,
-                yAxisID: 'y'
-            }];
-            if (isSevenDay) {
-                datasets.push(
-                    { label: 'ZEC', data: [], borderColor: 'rgba(253, 224, 71, 0.95)', backgroundColor: 'rgba(253, 224, 71, 0.95)', pointBackgroundColor: 'rgba(253, 224, 71, 0.95)', borderWidth: 1.25, pointRadius: 0, pointStyle: 'circle', tension: 0.2, fill: false, yAxisID: 'yZec' },
-                    { label: 'XTZ', data: [], borderColor: 'rgba(45, 212, 191, 0.85)', backgroundColor: 'rgba(45, 212, 191, 0.85)', pointBackgroundColor: 'rgba(45, 212, 191, 0.85)', borderWidth: 1.25, pointRadius: 0, pointStyle: 'circle', tension: 0.2, fill: false, yAxisID: 'yXtz' },
-                    { label: 'BTC', data: [], borderColor: 'rgba(247, 147, 26, 0.95)', backgroundColor: 'rgba(247, 147, 26, 0.95)', pointBackgroundColor: 'rgba(247, 147, 26, 0.95)', borderWidth: 1.25, pointRadius: 0, pointStyle: 'circle', tension: 0.2, fill: false, yAxisID: 'yBtc' }
-                );
-            }
-            return new Chart(document.getElementById(canvasId).getContext('2d'), {
-                type: 'line',
+                yAxisID: "y"
+            },
+            // BTC black underlay - drawn first (underneath) to create a 1px stroke
+            { label: "BTC_stroke", data: [], borderColor: "#000000", backgroundColor: "transparent", borderWidth: 4, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yBtc" },
+            { label: "ZEC", data: [], borderColor: "#fff147", backgroundColor: "#fff147", pointBackgroundColor: "#fff147", borderWidth: 1.25, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yZec" },
+            { label: "XTZ", data: [], borderColor: "rgba(45, 212, 191, 0.85)", backgroundColor: "rgba(45, 212, 191, 0.85)", pointBackgroundColor: "rgba(45, 212, 191, 0.85)", borderWidth: 1.25, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yXtz" },
+            { label: "BTC", data: [], borderColor: "#c2410c", backgroundColor: "#c2410c", pointBackgroundColor: "#c2410c", borderWidth: 2.5, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yBtc" }
+            ];
+            return new Chart(document.getElementById(canvasId).getContext("2d"), {
+                type: "line",
                 data: { labels: [], datasets: datasets },
                 options: {
                     responsive: true, maintainAspectRatio: false, animation: false,
-                    interaction: { mode: 'index', intersect: false },
+                    interaction: { mode: "index", intersect: false },
                     scales: {
                         x: { display: false },
                         y: { display: false },
-                        ...(isSevenDay ? {
-                            yZec: { display: false, position: 'right' },
-                            yXtz: { display: false, position: 'right' },
-                            yBtc: { display: false, position: 'right' }
-                        } : {})
+                        yZec: { display: false, position: "right" },
+                        yXtz: { display: false, position: "right" },
+                        yBtc: { display: false, position: "right" }
                     },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
                             enabled: true,
-                            displayColors: isSevenDay,
+                            displayColors: true,
                             usePointStyle: true,
                             boxWidth: 8,
                             boxHeight: 8,
-                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                            borderColor: 'rgba(236, 72, 153, 0.4)',
+                            backgroundColor: "rgba(15, 23, 42, 0.95)",
+                            borderColor: "rgba(236, 72, 153, 0.4)",
                             borderWidth: 1,
-                            titleColor: '#94a3b8',
-                            bodyColor: '#e2e8f0',
-                            titleFont: { size: 10, weight: '600' },
-                            bodyFont: { size: 12, weight: '700' },
+                            titleColor: "#94a3b8",
+                            bodyColor: "#e2e8f0",
+                            titleFont: { size: 10, weight: "600" },
+                            bodyFont: { size: 12, weight: "700" },
                             padding: 8,
                             cornerRadius: 6,
+                            filter: (ctx) => ctx.dataset.label !== "BTC_stroke",
                             callbacks: {
-                                title: (ctx) => isSevenDay ? '7D · ' + (ctx[0]?.label || '') : 'rate',
                                 label: (ctx) => {
-                                    const ds = ctx.dataset.label || '';
-                                    if (ds === 'XTZ/ZEC') return fmt(ctx.parsed.y, 2) + ' XTZ/ZEC';
-                                    return ds + '  ' + fmtUsd(ctx.parsed.y);
+                                    const ds = ctx.dataset.label || "";
+                                    if (ds === "XTZ/ZEC") return fmt(ctx.parsed.y, 2) + " XTZ/ZEC";
+                                    return ds + "  " + fmtUsd(ctx.parsed.y);
                                 }
                             }
                         }
@@ -721,61 +719,56 @@
         // --------------------------------------------------------------
         async function updateAll() {
             try {
-                // Build request list: kline pairs for each TF, then 24h tickers (ZEC, XTZ, GBP, BTC),
-                // plus BTC 24h klines for its sparkline.
+                // Build request list: kline triples (ZEC/XTZ/BTC) for each TF,
+                // then 24h tickers (ZEC, XTZ, GBP, BTC).
                 const requests = [];
                 TF_KEYS.forEach(tf => {
-                    requests.push(fetchKlines('ZECUSDT', TIMEFRAMES[tf].interval, TIMEFRAMES[tf].limit));
-                    requests.push(fetchKlines('XTZUSDT', TIMEFRAMES[tf].interval, TIMEFRAMES[tf].limit));
+                    requests.push(fetchKlines("ZECUSDT", TIMEFRAMES[tf].interval, TIMEFRAMES[tf].limit));
+                    requests.push(fetchKlines("XTZUSDT", TIMEFRAMES[tf].interval, TIMEFRAMES[tf].limit));
+                    requests.push(fetchKlines("BTCUSDT", TIMEFRAMES[tf].interval, TIMEFRAMES[tf].limit));
                 });
-                requests.push(fetch24h('ZECUSDT'));
-                requests.push(fetch24h('XTZUSDT'));
-                requests.push(fetch24h('GBPUSDT'));
-                requests.push(fetch24h('BTCUSDT'));
-                requests.push(fetchKlines('BTCUSDT', TIMEFRAMES['24h'].interval, TIMEFRAMES['24h'].limit));
-                requests.push(fetchKlines('BTCUSDT', TIMEFRAMES['7d'].interval, TIMEFRAMES['7d'].limit));
+                requests.push(fetch24h("ZECUSDT"));
+                requests.push(fetch24h("XTZUSDT"));
+                requests.push(fetch24h("GBPUSDT"));
+                requests.push(fetch24h("BTCUSDT"));
                 const results = await Promise.all(requests);
 
-                // Slice out per-TF klines
+                // Slice out per-TF klines (ZEC, XTZ, BTC per TF)
                 const panelData = {};
                 TF_KEYS.forEach((tf, i) => {
-                    const zecK = results[i * 2];
-                    const xtzK = results[i * 2 + 1];
+                    const zecK = results[i * 3];
+                    const xtzK = results[i * 3 + 1];
+                    const btcK = results[i * 3 + 2];
                     const zecClose = zecK.map(c => parseFloat(c[4]));
                     const xtzClose = xtzK.map(c => parseFloat(c[4]));
+                    const btcClose = btcK.map(c => parseFloat(c[4]));
                     const rates = zecClose.map((z, j) => z / xtzClose[j]);
-                    panelData[tf] = { zecK, xtzK, zecClose, xtzClose, rates };
+                    panelData[tf] = { zecK, xtzK, btcK, zecClose, xtzClose, btcClose, rates };
                 });
-                const tickerBase = TF_KEYS.length * 2;
+                const tickerBase = TF_KEYS.length * 3;
                 const zecT = results[tickerBase];
                 const xtzT = results[tickerBase + 1];
                 const gbpT = results[tickerBase + 2];
                 const btcT = results[tickerBase + 3];
-                const btcK24 = results[tickerBase + 4];
-                const btcK7d = results[tickerBase + 5];
-                panelData['7d'].btcClose = btcK7d.map(c => parseFloat(c[4]));
+                const btcK24 = panelData["24h"].btcK;
                 const usdToGbp = 1 / parseFloat(gbpT.lastPrice);
 
                 // Update each panel chart + move % + tight y-axis
                 TF_KEYS.forEach(tf => {
                     const d = panelData[tf];
                     const chart = panelCharts[tf];
-                    // 7d uses timestamp labels so tooltip can show date/time of hovered point
-                    if (tf === '7d') {
-                        chart.data.labels = d.zecK.map(k => {
-                            const dt = new Date(k[0]);
-                            return dt.toLocaleString('en-GB', {
-                                weekday: 'short',
-                                day: 'numeric',
-                                month: 'short',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: false
-                            });
+                    // All timeframes: use timestamp labels so tooltip shows date/time of hovered point
+                    chart.data.labels = d.zecK.map(k => {
+                        const dt = new Date(k[0]);
+                        return dt.toLocaleString("en-GB", {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false
                         });
-                    } else {
-                        chart.data.labels = Array(d.rates.length).fill('');
-                    }
+                    });
                     chart.data.datasets[0].data = d.rates;
 
                     // Tight y-axis with ~5% padding, expanded to include target if nearby
@@ -794,44 +787,44 @@
                     chart.options.scales.y.min = yMin;
                     chart.options.scales.y.max = yMax;
 
-                    // 7d only: populate raw USD price overlays for ZEC, XTZ, BTC,
-                    // each on its own hidden axis, auto-scaled tight to its range
-                    if (tf === '7d' && d.btcClose) {
-                        chart.data.datasets[1].data = d.zecClose;
-                        chart.data.datasets[2].data = d.xtzClose;
-                        chart.data.datasets[3].data = d.btcClose;
-                        const setAxis = (axisId, arr) => {
-                            const aMin = Math.min(...arr);
-                            const aMax = Math.max(...arr);
-                            const aRange = (aMax - aMin) || (aMax * 0.01) || 1;
-                            const aPad = aRange * 0.10;
-                            chart.options.scales[axisId].min = aMin - aPad;
-                            chart.options.scales[axisId].max = aMax + aPad;
-                        };
-                        setAxis('yZec', d.zecClose);
-                        setAxis('yXtz', d.xtzClose);
-                        setAxis('yBtc', d.btcClose);
-                    }
+                    // All timeframes: populate raw USD price overlays for ZEC, XTZ, BTC,
+                    // each on its own hidden axis, auto-scaled tight to its range.
+                    // Dataset order: [0] rate, [1] BTC_stroke (black), [2] ZEC, [3] XTZ, [4] BTC
+                    chart.data.datasets[1].data = d.btcClose;
+                    chart.data.datasets[2].data = d.zecClose;
+                    chart.data.datasets[3].data = d.xtzClose;
+                    chart.data.datasets[4].data = d.btcClose;
+                    const setAxis = (axisId, arr) => {
+                        const aMin = Math.min(...arr);
+                        const aMax = Math.max(...arr);
+                        const aRange = (aMax - aMin) || (aMax * 0.01) || 1;
+                        const aPad = aRange * 0.10;
+                        chart.options.scales[axisId].min = aMin - aPad;
+                        chart.options.scales[axisId].max = aMax + aPad;
+                    };
+                    setAxis("yZec", d.zecClose);
+                    setAxis("yXtz", d.xtzClose);
+                    setAxis("yBtc", d.btcClose);
 
                     chart.update();
 
                     const move = ((d.rates[d.rates.length - 1] / d.rates[0]) - 1) * 100;
-                    const moveEl = document.getElementById('move_' + tf);
+                    const moveEl = document.getElementById("move_" + tf);
                     moveEl.textContent = fmtPct(move);
                     setChangeColour(moveEl, move);
                 });
 
                 // Freshest rate comes from 15m (1m klines, newest partial)
                 const latestRate = panelData['15m'].rates[panelData['15m'].rates.length - 1];
-                const distancePct = ((latestRate / targetRate) - 1) * 100;
+                const progressPctExact = (latestRate / targetRate) * 100;
                 const aboveTarget = latestRate >= targetRate;
 
-                // HERO - integer display, precise distance %
+                // HERO - integer display, progress-to-target % (positive)
                 document.getElementById('heroRate').textContent = fmtInt(latestRate);
                 document.getElementById('heroTarget').textContent = fmtInt(targetRate);
                 const heroDist = document.getElementById('heroDistance');
-                const distInt = Math.round(distancePct);
-                heroDist.textContent = (distInt >= 0 ? '+' : '') + distInt + '%';
+                const progInt = Math.round(progressPctExact);
+                heroDist.textContent = progInt + '%';
                 heroDist.className = 'text-xl md:text-2xl font-bold ' + (aboveTarget ? 'text-emerald-400' : 'text-rose-400');
 
                 // ZEC / XTZ / BTC cards (pinned to 24h kline data)
@@ -876,7 +869,7 @@
                 document.getElementById('heroRateBlock').classList.remove('stale-dim');
 
                 // Tab title: [progress%]: z[ZEC] | ꜩ[XTZ] | ₿[BTC]
-                const progressPct = Math.round((latestRate / targetRate) * 100);
+                const progressPct = Math.round(progressPctExact);
                 document.title = `${progressPct}%: z${fmtInt(zecPrice)} | ꜩ${xtzPrice.toFixed(2)} | ₿${fmtInt(btcPrice)}`;
 
                 // Favicon
