@@ -55,6 +55,14 @@
             border: 1px solid rgba(45, 212, 191, 0.22);
             border-radius: 12px;
         }
+        /* BTC card: orange tint matching Bitcoin brand colour */
+        .glass-card-btc {
+            background: linear-gradient(135deg, rgba(247, 147, 26, 0.14), rgba(30, 41, 59, 0.5));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(247, 147, 26, 0.25);
+            border-radius: 12px;
+        }
         .zec-gradient {
             background: linear-gradient(to right, #fde047, #b8860b);
             -webkit-background-clip: text;
@@ -150,11 +158,11 @@
             </div>
         </header>
 
-        <!-- HERO: Current / Target (fee-adjusted) with inline distance -->
-        <section class="flex-none">
+        <!-- HERO: Current / Target + Holdings side-by-side on desktop -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-2 flex-none">
             <div id="heroRateBlock" class="glass-card-accent p-3">
                 <p class="text-emerald-300/80 text-[10px] uppercase tracking-wider font-semibold">
-                    Current / Target <span class="text-emerald-400/60 normal-case">&middot; fee-adjusted</span>
+                    Current / Target
                 </p>
                 <p class="text-2xl md:text-3xl font-bold mt-0.5 leading-tight flex flex-wrap items-baseline gap-x-2">
                     <span id="heroRate" class="text-emerald-300">-</span>
@@ -162,6 +170,18 @@
                     <span id="heroTarget" class="text-rose-300">-</span>
                     <span class="text-slate-500 text-xl md:text-2xl">(</span><span id="heroDistance" class="text-xl md:text-2xl">-</span><span class="text-slate-500 text-xl md:text-2xl">)</span>
                 </p>
+            </div>
+            <div class="glass-card p-3">
+                <div class="flex items-baseline justify-between">
+                    <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Holdings</p>
+                    <p class="text-lg font-bold leading-tight"><span id="holdingsZec">16.256</span> <span class="text-slate-400 text-sm">ZEC</span></p>
+                </div>
+                <div class="mt-1 grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs">
+                    <div class="flex justify-between"><span class="text-slate-400">USD</span><span id="holdingsUsd" class="font-semibold">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">GBP</span><span id="holdingsGbp" class="font-semibold">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Today</span><span id="holdingsToday" class="font-semibold">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">XTZ now</span><span id="holdingsXtz" class="font-semibold">-</span></div>
+                </div>
             </div>
         </section>
 
@@ -214,8 +234,8 @@
             </div>
         </section>
 
-        <!-- SECONDARY GRID: ZEC / XTZ / BTC / Holdings -->
-        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 flex-none">
+        <!-- SECONDARY GRID: ZEC / XTZ / BTC -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-2 flex-none">
             <div class="glass-card-zec p-3">
                 <div class="flex items-center justify-between">
                     <div>
@@ -252,7 +272,7 @@
                 </div>
             </div>
 
-            <div class="glass-card p-3">
+            <div class="glass-card-btc p-3">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">BTC / USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
@@ -267,17 +287,6 @@
                     <span>H: <span id="btcHigh" class="text-slate-300">-</span></span>
                     <span>L: <span id="btcLow" class="text-slate-300">-</span></span>
                     <span>V: <span id="btcVol" class="text-slate-300">-</span></span>
-                </div>
-            </div>
-
-            <div class="glass-card p-3">
-                <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Holdings</p>
-                <p class="text-lg font-bold leading-tight"><span id="holdingsZec">16.256</span> <span class="text-slate-400 text-sm">ZEC</span></p>
-                <div class="mt-1 space-y-0.5 text-xs">
-                    <div class="flex justify-between"><span class="text-slate-400">USD</span><span id="holdingsUsd" class="font-semibold">-</span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">GBP</span><span id="holdingsGbp" class="font-semibold">-</span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">Today</span><span id="holdingsToday" class="font-semibold">-</span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">XTZ now</span><span id="holdingsXtz" class="font-semibold">-</span></div>
                 </div>
             </div>
         </section>
@@ -556,13 +565,6 @@
                 ctx.moveTo(xLeft, y);
                 ctx.lineTo(xRight, y);
                 ctx.stroke();
-                // Tiny label on the right
-                ctx.setLineDash([]);
-                ctx.fillStyle = 'rgba(251, 113, 133, 0.85)';
-                ctx.font = '10px -apple-system, sans-serif';
-                ctx.textAlign = 'right';
-                ctx.textBaseline = 'bottom';
-                ctx.fillText('target ' + fmt(targetRate, 2), xRight - 4, y - 2);
                 ctx.restore();
             }
         };
