@@ -4,7 +4,7 @@
  *        <nav id="main-nav"></nav>           (place where nav should render)
  *        <footer id="main-footer"></footer>  (place where footer should render)
  *
- * Each page sets:  <meta name="current-page" content="index">  (or services, live-research, portfolio, cv, jobs, etc.)
+ * Each page sets:  <meta name="current-page" content="index">  (or live-research, portfolio, cv, jobs, etc.)
  *
  * Also injects:
  *   - Twitter/X card meta tags (derived from existing OG tags)
@@ -186,7 +186,6 @@
         { id: 'index', label: 'Home', href: 'index.html' },
         { id: 'portfolio', label: 'Portfolio', href: 'portfolio.html' },
         { id: 'cv', label: 'CV', href: 'cv.html' },
-        { id: 'services', label: 'Services', href: 'services.html' },
         { id: 'live-research', label: 'LIVE Research', href: 'live-research.html' },
         { id: 'jobs', label: 'Jobs', href: 'jobs.html' },
     ];
