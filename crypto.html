@@ -168,13 +168,29 @@
 
         <!-- HERO: Current / Target + Holdings side-by-side on desktop -->
         <section class="grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-2 flex-none">
-            <div id="heroRateBlock" class="glass-card-accent p-1.5 md:p-3 flex items-center">
-                <p class="text-2xl md:text-3xl font-bold leading-tight flex flex-wrap items-baseline gap-x-2">
+            <div id="heroRateBlock" class="glass-card-accent p-1.5 md:p-3 flex items-center justify-between gap-3 md:gap-5">
+                <p class="text-2xl md:text-3xl font-bold leading-tight flex flex-wrap items-baseline gap-x-2 flex-none">
                     <span id="heroRate" class="text-emerald-300">-</span>
                     <span class="text-slate-500">/</span>
                     <span id="heroTarget" class="text-rose-300">-</span>
                     <span class="text-slate-500 text-xl md:text-2xl">(</span><span id="heroDistance" class="text-xl md:text-2xl">-</span><span class="text-slate-500 text-xl md:text-2xl">)</span>
                 </p>
+                <table class="text-[10px] md:text-xs font-semibold border-l border-slate-700/40 pl-2 md:pl-4">
+                    <tbody>
+                        <tr>
+                            <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="zec-gradient">ZEC</span></td>
+                            <td class="text-right py-px text-slate-100" id="zecPrice">-</td>
+                        </tr>
+                        <tr>
+                            <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="xtz-gradient">XTZ</span></td>
+                            <td class="text-right py-px text-slate-100" id="xtzPrice">-</td>
+                        </tr>
+                        <tr>
+                            <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="btc-gradient">BTC</span></td>
+                            <td class="text-right py-px text-slate-100" id="btcPrice">-</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
             <div class="glass-card p-1.5 md:p-3">
                 <div class="flex items-baseline justify-end">
@@ -246,49 +262,7 @@
             </div>
         </section>
 
-        <!-- COMBINED COIN TABLE: ZEC / XTZ / BTC -->
-        <section class="flex-none">
-            <div class="glass-card p-1.5 md:p-3">
-                <table class="w-full text-xs md:text-sm">
-                    <thead>
-                        <tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-700/50">
-                            <th class="text-left font-semibold pb-1.5"></th>
-                            <th class="text-right font-semibold pb-1.5">Price</th>
-                            <th class="text-right font-semibold pb-1.5">24h</th>
-                            <th class="text-right font-semibold pb-1.5 hidden sm:table-cell">H</th>
-                            <th class="text-right font-semibold pb-1.5 hidden sm:table-cell">L</th>
-                            <th class="text-right font-semibold pb-1.5 hidden sm:table-cell">V</th>
-                        </tr>
-                    </thead>
-                    <tbody class="font-semibold">
-                        <tr class="border-b border-slate-700/30">
-                            <td class="py-1.5 text-base md:text-lg"><span class="zec-gradient">ZEC</span></td>
-                            <td class="text-right" id="zecPrice">-</td>
-                            <td class="text-right text-xs" id="zecChange">-</td>
-                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="zecHigh">-</td>
-                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="zecLow">-</td>
-                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="zecVol">-</td>
-                        </tr>
-                        <tr class="border-b border-slate-700/30">
-                            <td class="py-1.5 text-base md:text-lg"><span class="xtz-gradient">XTZ</span></td>
-                            <td class="text-right" id="xtzPrice">-</td>
-                            <td class="text-right text-xs" id="xtzChange">-</td>
-                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="xtzHigh">-</td>
-                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="xtzLow">-</td>
-                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="xtzVol">-</td>
-                        </tr>
-                        <tr>
-                            <td class="py-1.5 text-base md:text-lg"><span class="btc-gradient">BTC</span></td>
-                            <td class="text-right" id="btcPrice">-</td>
-                            <td class="text-right text-xs" id="btcChange">-</td>
-                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="btcHigh">-</td>
-                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="btcLow">-</td>
-                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="btcVol">-</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+        <!-- COIN INFO now lives inside heroRateBlock above -->
 
     </div>
 
@@ -639,12 +613,16 @@
         function makePanelChart(canvasId) {
             const isSevenDay = canvasId === 'chart_7d';
             // Primary dataset = ZEC/XTZ rate (left/default y-axis).
-            // On 7d only, add three secondary % overlays (ZEC, XTZ, BTC) on a hidden right axis.
+            // On 7d: add three coin overlays, each on its OWN hidden axis so
+            // their raw USD price ranges (XTZ ~$1, ZEC ~$100, BTC ~$100k)
+            // each use the full vertical space and show their trend shape.
             const datasets = [{
                 label: 'XTZ/ZEC',
                 data: [],
                 borderColor: '#ec4899',
                 backgroundColor: 'rgba(236, 72, 153, 0.10)',
+                pointBackgroundColor: '#ec4899',
+                pointBorderColor: '#ec4899',
                 borderWidth: 1.5,
                 pointRadius: 0,
                 pointHoverRadius: 4,
@@ -658,9 +636,9 @@
             }];
             if (isSevenDay) {
                 datasets.push(
-                    { label: 'ZEC %', data: [], borderColor: 'rgba(253, 224, 71, 0.95)', backgroundColor: 'rgba(253, 224, 71, 0.95)', borderWidth: 1.25, pointRadius: 0, pointStyle: 'circle', tension: 0.2, fill: false, yAxisID: 'yPct' },
-                    { label: 'XTZ %', data: [], borderColor: 'rgba(45, 212, 191, 0.85)', backgroundColor: 'rgba(45, 212, 191, 0.85)', borderWidth: 1.25, pointRadius: 0, pointStyle: 'circle', tension: 0.2, fill: false, yAxisID: 'yPct' },
-                    { label: 'BTC %', data: [], borderColor: 'rgba(247, 147, 26, 0.95)', backgroundColor: 'rgba(247, 147, 26, 0.95)', borderWidth: 1.25, pointRadius: 0, pointStyle: 'circle', tension: 0.2, fill: false, yAxisID: 'yPct' }
+                    { label: 'ZEC', data: [], borderColor: 'rgba(253, 224, 71, 0.95)', backgroundColor: 'rgba(253, 224, 71, 0.95)', pointBackgroundColor: 'rgba(253, 224, 71, 0.95)', borderWidth: 1.25, pointRadius: 0, pointStyle: 'circle', tension: 0.2, fill: false, yAxisID: 'yZec' },
+                    { label: 'XTZ', data: [], borderColor: 'rgba(45, 212, 191, 0.85)', backgroundColor: 'rgba(45, 212, 191, 0.85)', pointBackgroundColor: 'rgba(45, 212, 191, 0.85)', borderWidth: 1.25, pointRadius: 0, pointStyle: 'circle', tension: 0.2, fill: false, yAxisID: 'yXtz' },
+                    { label: 'BTC', data: [], borderColor: 'rgba(247, 147, 26, 0.95)', backgroundColor: 'rgba(247, 147, 26, 0.95)', pointBackgroundColor: 'rgba(247, 147, 26, 0.95)', borderWidth: 1.25, pointRadius: 0, pointStyle: 'circle', tension: 0.2, fill: false, yAxisID: 'yBtc' }
                 );
             }
             return new Chart(document.getElementById(canvasId).getContext('2d'), {
@@ -672,7 +650,11 @@
                     scales: {
                         x: { display: false },
                         y: { display: false },
-                        ...(isSevenDay ? { yPct: { display: false, position: 'right' } } : {})
+                        ...(isSevenDay ? {
+                            yZec: { display: false, position: 'right' },
+                            yXtz: { display: false, position: 'right' },
+                            yBtc: { display: false, position: 'right' }
+                        } : {})
                     },
                     plugins: {
                         legend: { display: false },
@@ -692,11 +674,11 @@
                             padding: 8,
                             cornerRadius: 6,
                             callbacks: {
-                                title: () => isSevenDay ? '7d view' : 'rate',
+                                title: (ctx) => isSevenDay ? '7D · ' + (ctx[0]?.label || '') : 'rate',
                                 label: (ctx) => {
                                     const ds = ctx.dataset.label || '';
                                     if (ds === 'XTZ/ZEC') return fmt(ctx.parsed.y, 2) + ' XTZ/ZEC';
-                                    return ds + ' ' + (ctx.parsed.y >= 0 ? '+' : '') + ctx.parsed.y.toFixed(2) + '%';
+                                    return ds + '  ' + fmtUsd(ctx.parsed.y);
                                 }
                             }
                         }
@@ -794,7 +776,22 @@
                 TF_KEYS.forEach(tf => {
                     const d = panelData[tf];
                     const chart = panelCharts[tf];
-                    chart.data.labels = Array(d.rates.length).fill('');
+                    // 7d uses timestamp labels so tooltip can show date/time of hovered point
+                    if (tf === '7d') {
+                        chart.data.labels = d.zecK.map(k => {
+                            const dt = new Date(k[0]);
+                            return dt.toLocaleString('en-GB', {
+                                weekday: 'short',
+                                day: 'numeric',
+                                month: 'short',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false
+                            });
+                        });
+                    } else {
+                        chart.data.labels = Array(d.rates.length).fill('');
+                    }
                     chart.data.datasets[0].data = d.rates;
 
                     // Tight y-axis with ~5% padding, expanded to include target if nearby
@@ -813,22 +810,23 @@
                     chart.options.scales.y.min = yMin;
                     chart.options.scales.y.max = yMax;
 
-                    // 7d only: populate normalised % overlays for ZEC, XTZ, BTC
+                    // 7d only: populate raw USD price overlays for ZEC, XTZ, BTC,
+                    // each on its own hidden axis, auto-scaled tight to its range
                     if (tf === '7d' && d.btcClose) {
-                        const toPct = (arr) => {
-                            const base = arr[0];
-                            return arr.map(v => ((v / base) - 1) * 100);
+                        chart.data.datasets[1].data = d.zecClose;
+                        chart.data.datasets[2].data = d.xtzClose;
+                        chart.data.datasets[3].data = d.btcClose;
+                        const setAxis = (axisId, arr) => {
+                            const aMin = Math.min(...arr);
+                            const aMax = Math.max(...arr);
+                            const aRange = (aMax - aMin) || (aMax * 0.01) || 1;
+                            const aPad = aRange * 0.10;
+                            chart.options.scales[axisId].min = aMin - aPad;
+                            chart.options.scales[axisId].max = aMax + aPad;
                         };
-                        chart.data.datasets[1].data = toPct(d.zecClose);
-                        chart.data.datasets[2].data = toPct(d.xtzClose);
-                        chart.data.datasets[3].data = toPct(d.btcClose);
-                        // Symmetric % axis around 0 so all three lines share visual context
-                        const allPct = chart.data.datasets[1].data
-                            .concat(chart.data.datasets[2].data)
-                            .concat(chart.data.datasets[3].data);
-                        const pctMax = Math.max(Math.abs(Math.min(...allPct)), Math.abs(Math.max(...allPct))) || 1;
-                        chart.options.scales.yPct.min = -pctMax * 1.1;
-                        chart.options.scales.yPct.max = pctMax * 1.1;
+                        setAxis('yZec', d.zecClose);
+                        setAxis('yXtz', d.xtzClose);
+                        setAxis('yBtc', d.btcClose);
                     }
 
                     chart.update();
@@ -848,7 +846,8 @@
                 document.getElementById('heroRate').textContent = fmtInt(latestRate);
                 document.getElementById('heroTarget').textContent = fmtInt(targetRate);
                 const heroDist = document.getElementById('heroDistance');
-                heroDist.textContent = fmtPct(distancePct);
+                const distInt = Math.round(distancePct);
+                heroDist.textContent = (distInt >= 0 ? '+' : '') + distInt + '%';
                 heroDist.className = 'text-xl md:text-2xl font-bold ' + (aboveTarget ? 'text-emerald-400' : 'text-rose-400');
 
                 // ZEC / XTZ / BTC cards (pinned to 24h kline data)
@@ -859,38 +858,20 @@
 
                 const zecPrice = parseFloat(zecT.lastPrice);
                 document.getElementById('zecPrice').textContent = fmtUsd(zecPrice);
-                const zecChangeEl = document.getElementById('zecChange');
-                zecChangeEl.textContent = (zecStats.pct >= 0 ? '▲ ' : '▼ ') + fmt(Math.abs(zecStats.pct), 2) + '%';
-                setChangeColour(zecChangeEl, zecStats.pct);
-                document.getElementById('zecHigh').textContent = fmtUsd(zecStats.high);
-                document.getElementById('zecLow').textContent = fmtUsd(zecStats.low);
-                document.getElementById('zecVol').textContent = fmtVol(zecStats.vol);
 
                 const xtzPrice = parseFloat(xtzT.lastPrice);
                 document.getElementById('xtzPrice').textContent = fmtUsd(xtzPrice);
-                const xtzChangeEl = document.getElementById('xtzChange');
-                xtzChangeEl.textContent = (xtzStats.pct >= 0 ? '▲ ' : '▼ ') + fmt(Math.abs(xtzStats.pct), 2) + '%';
-                setChangeColour(xtzChangeEl, xtzStats.pct);
-                document.getElementById('xtzHigh').textContent = fmtUsd(xtzStats.high);
-                document.getElementById('xtzLow').textContent = fmtUsd(xtzStats.low);
-                document.getElementById('xtzVol').textContent = fmtVol(xtzStats.vol);
 
                 const btcPrice = parseFloat(btcT.lastPrice);
                 // BTC is big - display as integer dollars
                 document.getElementById('btcPrice').textContent = '$' + fmtInt(btcPrice);
-                const btcChangeEl = document.getElementById('btcChange');
-                btcChangeEl.textContent = (btcStats.pct >= 0 ? '▲ ' : '▼ ') + fmt(Math.abs(btcStats.pct), 2) + '%';
-                setChangeColour(btcChangeEl, btcStats.pct);
-                document.getElementById('btcHigh').textContent = '$' + fmtInt(btcStats.high);
-                document.getElementById('btcLow').textContent = '$' + fmtInt(btcStats.low);
-                document.getElementById('btcVol').textContent = fmtVol(btcStats.vol);
 
                 // Holdings (current values)
                 const holdingsUsd = zecHeld * zecPrice;
                 const holdingsGbp = holdingsUsd * usdToGbp;
                 const holdingsXtzNow = zecHeld * latestRate;
-                document.getElementById('holdingsUsd').textContent = fmtUsd(holdingsUsd);
-                document.getElementById('holdingsGbp').textContent = fmtGbp(holdingsGbp);
+                document.getElementById('holdingsUsd').textContent = '$' + fmtInt(holdingsUsd);
+                document.getElementById('holdingsGbp').textContent = '£' + fmtInt(holdingsGbp);
                 document.getElementById('holdingsXtz').innerHTML = fmt(holdingsXtzNow, 0) + ' <span class="xtz-gradient">XTZ</span>';
 
                 // Holdings "Today" change in GBP - both absolute and percent.
@@ -911,8 +892,8 @@
                 // Clear any stale-dim
                 document.getElementById('heroRateBlock').classList.remove('stale-dim');
 
-                // Tab title (always shows live rate + fee-adjusted target + distance)
-                document.title = `${latestRate.toFixed(2)} / ${targetRate.toFixed(2)} (${fmtPct(distancePct)})`;
+                // Tab title (always shows live rate + fee-adjusted target + distance, no decimals)
+                document.title = `${Math.round(latestRate)} / ${Math.round(targetRate)} (${distInt >= 0 ? '+' : ''}${distInt}%)`;
 
                 // Favicon
                 setFavicon(aboveTarget);
