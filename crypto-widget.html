@@ -99,7 +99,7 @@
                 const numEl = document.getElementById('widgetNumber');
                 const containerEl = document.getElementById('widgetContainer');
 
-                const pctText = `${progressPct.toFixed(1)}%`;
+                const pctText = `${progressPct.toFixed(0)}%`;
                 numEl.textContent = pctText;
                 containerEl.className = aboveTarget ? 'above-target' : 'below-target';
 
