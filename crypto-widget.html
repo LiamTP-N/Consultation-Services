@@ -27,15 +27,10 @@
             text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
         }
         #widgetNumber {
-            font-size: 12vmin;
+            font-size: 20vmin;
             font-weight: bold;
             line-height: 1;
             white-space: nowrap;
-        }
-        #widgetDistance {
-            font-size: 7vmin;
-            margin-top: 2vmin;
-            opacity: 0.95;
         }
         .above-target #widgetNumber {
             color: #22c55e;
@@ -43,10 +38,10 @@
         .below-target #widgetNumber {
             color: white;
         }
-        #widgetDistance.change-up {
+        #widgetNumber.change-up {
             color: #22c55e;
         }
-        #widgetDistance.change-down {
+        #widgetNumber.change-down {
             color: #ef4444;
         }
     </style>
@@ -55,7 +50,6 @@
 
     <div id="widgetContainer">
         <div id="widgetNumber"></div>
-        <div id="widgetDistance"></div>
     </div>
 
     <script>
@@ -66,10 +60,6 @@
         const xtzTarget = 17500;
         const targetRate = xtzTarget / zecHeld;
         let alertSent = false;
-
-        function formatTitleAndDisplay(rate) {
-            return `${rate.toFixed(2)} / ${targetRate.toFixed(2)}`;
-        }
 
         function sendEmailAlert(rate) {
             const templateParams = {
@@ -107,24 +97,23 @@
                 const aboveTarget = rate >= targetRate;
 
                 const numEl = document.getElementById('widgetNumber');
-                const distEl = document.getElementById('widgetDistance');
                 const containerEl = document.getElementById('widgetContainer');
 
-                numEl.textContent = formatTitleAndDisplay(rate);
                 const sign = distancePct >= 0 ? '+' : '';
-                distEl.textContent = `${sign}${distancePct.toFixed(1)}%`;
+                const pctText = `${sign}${distancePct.toFixed(1)}%`;
+                numEl.textContent = pctText;
                 containerEl.className = aboveTarget ? 'above-target' : 'below-target';
 
-                distEl.classList.remove('change-up', 'change-down');
-                if (rate24hAgo !== null) {
+                numEl.classList.remove('change-up', 'change-down');
+                if (!aboveTarget && rate24hAgo !== null) {
                     if (rate > rate24hAgo) {
-                        distEl.classList.add('change-up');
+                        numEl.classList.add('change-up');
                     } else if (rate < rate24hAgo) {
-                        distEl.classList.add('change-down');
+                        numEl.classList.add('change-down');
                     }
                 }
 
-                document.title = formatTitleAndDisplay(rate);
+                document.title = pctText;
 
                 if (aboveTarget && !alertSent) {
                     sendEmailAlert(rate);
