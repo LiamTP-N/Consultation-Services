@@ -157,12 +157,6 @@
                     <span id="liveDot" class="live-dot"></span>
                     <span id="liveStatus" class="text-slate-400">Live</span>
                 </div>
-                <span class="text-slate-600">&middot;</span>
-                <span id="lastUpdated" class="text-slate-400">-</span>
-                <span id="ipHintWrap" class="hidden items-center gap-2">
-                    <span class="text-slate-600">&middot;</span>
-                    <span id="ipHint" class="text-amber-400 text-[10px] font-mono">-</span>
-                </span>
             </div>
         </header>
 
@@ -464,19 +458,9 @@
                 isWorkNetwork = WORK_IPS.some(ip =>
                     detectedIp === ip || detectedIp.startsWith(ip + '.')
                 );
+                // Logged to console only (no on-screen indicator).
+                // To find a new work IP: open DevTools, look for [Network] log.
                 console.log('[Network] IP:', detectedIp, '| Work:', isWorkNetwork);
-
-                // Always show IP in header (subtle, useful for spotting new work IPs)
-                const wrap = document.getElementById('ipHintWrap');
-                const hint = document.getElementById('ipHint');
-                if (wrap && hint) {
-                    hint.textContent = detectedIp;
-                    hint.title = isWorkNetwork
-                        ? 'Work network detected - privacy on'
-                        : 'Not on a work network - privacy off';
-                    wrap.classList.remove('hidden');
-                    wrap.classList.add('flex');
-                }
 
                 if (!isWorkNetwork) {
                     // Not at work: kill privacy entirely
@@ -886,7 +870,6 @@
 
                 // Header status
                 lastSuccessTs = Date.now();
-                document.getElementById('lastUpdated').textContent = 'Updated just now';
                 document.getElementById('liveDot').classList.remove('stale', 'error');
                 document.getElementById('liveStatus').textContent = 'Live';
                 // Clear any stale-dim
@@ -926,7 +909,6 @@
                     liveStatus.textContent = 'Stale';
                 }
                 rateBlock.classList.add('stale-dim');
-                document.getElementById('lastUpdated').textContent = `Updated ${Math.floor(ageMs / 1000)}s ago`;
             }
         }, 1000);
 
