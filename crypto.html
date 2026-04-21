@@ -164,8 +164,8 @@
 
         <!-- HERO: Current / Target + Holdings side-by-side on desktop -->
         <section class="grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-2 flex-none">
-            <div id="heroRateBlock" class="glass-card-accent p-1.5 md:p-3">
-                <p class="text-2xl md:text-3xl font-bold mt-0.5 leading-tight flex flex-wrap items-baseline gap-x-2">
+            <div id="heroRateBlock" class="glass-card-accent p-1.5 md:p-3 flex items-center">
+                <p class="text-2xl md:text-3xl font-bold leading-tight flex flex-wrap items-baseline gap-x-2">
                     <span id="heroRate" class="text-emerald-300">-</span>
                     <span class="text-slate-500">/</span>
                     <span id="heroTarget" class="text-rose-300">-</span>
@@ -811,7 +811,7 @@
                 const todayDeltaPct = ((holdingsGbp / holdingsGbpYesterday) - 1) * 100;
                 const todayEl = document.getElementById('holdingsToday');
                 const sign = todayDeltaGbp >= 0 ? '+' : '-';
-                todayEl.textContent = sign + '£' + fmt(Math.abs(todayDeltaGbp), 2) + ' / ' + fmtPct(todayDeltaPct);
+                todayEl.innerHTML = sign + '£' + fmt(Math.abs(todayDeltaGbp), 2) + ' <span class="text-slate-100">/</span> ' + fmtPct(todayDeltaPct);
                 todayEl.className = 'font-semibold ' + (todayDeltaGbp >= 0 ? 'text-emerald-400' : 'text-rose-400');
 
                 // Header status
