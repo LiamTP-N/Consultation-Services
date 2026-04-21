@@ -224,9 +224,16 @@
                 </div>
             </div>
             <div id="panel_7d" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
-                <div class="flex items-center justify-end mb-1 flex-none text-xs font-semibold">
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">7d,&nbsp;</span>
-                    <span id="move_7d">-</span>
+                <div class="flex items-center justify-between mb-1 flex-none text-xs font-semibold gap-2">
+                    <div class="flex items-center gap-2 md:gap-3 text-[10px]">
+                        <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#fde047;"></span><span class="zec-gradient">ZEC</span></span>
+                        <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#2dd4bf;"></span><span class="xtz-gradient">XTZ</span></span>
+                        <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#f97316;"></span><span class="btc-gradient">BTC</span></span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400">7d,&nbsp;</span>
+                        <span id="move_7d">-</span>
+                    </div>
                 </div>
                 <div class="flex-1 min-h-0 relative">
                     <canvas id="chart_7d"></canvas>
@@ -234,60 +241,55 @@
             </div>
         </section>
 
-        <!-- SECONDARY GRID: ZEC / XTZ / BTC -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-2 flex-none">
-            <div class="glass-card-zec p-1.5 md:p-3">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold"><span class="zec-gradient">ZEC</span> / USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
-                        <p id="zecPrice" class="text-lg font-bold leading-tight">-</p>
-                    </div>
-                    <p id="zecChange" class="text-xs font-semibold">-</p>
+        <!-- COMBINED COIN TABLE: ZEC / XTZ / BTC -->
+        <section class="flex-none">
+            <div class="glass-card p-1.5 md:p-3">
+                <div class="flex items-center justify-between text-[10px] uppercase tracking-wider text-slate-400 font-semibold mb-1.5">
+                    <span>Coins</span>
+                    <span class="normal-case">Prices in USD &middot; 24h H/L/V</span>
                 </div>
-                <div style="height: 28px;" class="mt-1">
-                    <canvas id="zecSpark"></canvas>
-                </div>
-                <div class="flex justify-between text-[10px] text-slate-500 mt-1">
-                    <span>H: <span id="zecHigh" class="text-slate-300">-</span></span>
-                    <span>L: <span id="zecLow" class="text-slate-300">-</span></span>
-                    <span>V: <span id="zecVol" class="text-slate-300">-</span></span>
-                </div>
-            </div>
-
-            <div class="glass-card-xtz p-1.5 md:p-3">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold"><span class="xtz-gradient">XTZ</span> / USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
-                        <p id="xtzPrice" class="text-lg font-bold leading-tight">-</p>
-                    </div>
-                    <p id="xtzChange" class="text-xs font-semibold">-</p>
-                </div>
-                <div style="height: 28px;" class="mt-1">
-                    <canvas id="xtzSpark"></canvas>
-                </div>
-                <div class="flex justify-between text-[10px] text-slate-500 mt-1">
-                    <span>H: <span id="xtzHigh" class="text-slate-300">-</span></span>
-                    <span>L: <span id="xtzLow" class="text-slate-300">-</span></span>
-                    <span>V: <span id="xtzVol" class="text-slate-300">-</span></span>
-                </div>
-            </div>
-
-            <div class="glass-card-btc p-1.5 md:p-3">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold"><span class="btc-gradient">BTC</span> / USD <span class="text-cyan-400/70 normal-case">&middot; 24h</span></p>
-                        <p id="btcPrice" class="text-lg font-bold leading-tight">-</p>
-                    </div>
-                    <p id="btcChange" class="text-xs font-semibold">-</p>
-                </div>
-                <div style="height: 28px;" class="mt-1">
-                    <canvas id="btcSpark"></canvas>
-                </div>
-                <div class="flex justify-between text-[10px] text-slate-500 mt-1">
-                    <span>H: <span id="btcHigh" class="text-slate-300">-</span></span>
-                    <span>L: <span id="btcLow" class="text-slate-300">-</span></span>
-                    <span>V: <span id="btcVol" class="text-slate-300">-</span></span>
-                </div>
+                <table class="w-full text-xs md:text-sm">
+                    <thead>
+                        <tr class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-700/50">
+                            <th class="text-left font-semibold pb-1.5"></th>
+                            <th class="text-right font-semibold pb-1.5">Price</th>
+                            <th class="text-right font-semibold pb-1.5">24h</th>
+                            <th class="text-right font-semibold pb-1.5 hidden sm:table-cell">H</th>
+                            <th class="text-right font-semibold pb-1.5 hidden sm:table-cell">L</th>
+                            <th class="text-right font-semibold pb-1.5 hidden sm:table-cell">V</th>
+                            <th class="text-right font-semibold pb-1.5 w-20 md:w-32">Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody class="font-semibold">
+                        <tr class="border-b border-slate-700/30">
+                            <td class="py-1.5 text-base md:text-lg"><span class="zec-gradient">ZEC</span></td>
+                            <td class="text-right" id="zecPrice">-</td>
+                            <td class="text-right text-xs" id="zecChange">-</td>
+                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="zecHigh">-</td>
+                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="zecLow">-</td>
+                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="zecVol">-</td>
+                            <td class="py-1.5 pl-2"><div class="relative" style="height:22px;"><canvas id="zecSpark"></canvas></div></td>
+                        </tr>
+                        <tr class="border-b border-slate-700/30">
+                            <td class="py-1.5 text-base md:text-lg"><span class="xtz-gradient">XTZ</span></td>
+                            <td class="text-right" id="xtzPrice">-</td>
+                            <td class="text-right text-xs" id="xtzChange">-</td>
+                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="xtzHigh">-</td>
+                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="xtzLow">-</td>
+                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="xtzVol">-</td>
+                            <td class="py-1.5 pl-2"><div class="relative" style="height:22px;"><canvas id="xtzSpark"></canvas></div></td>
+                        </tr>
+                        <tr>
+                            <td class="py-1.5 text-base md:text-lg"><span class="btc-gradient">BTC</span></td>
+                            <td class="text-right" id="btcPrice">-</td>
+                            <td class="text-right text-xs" id="btcChange">-</td>
+                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="btcHigh">-</td>
+                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="btcLow">-</td>
+                            <td class="text-right text-slate-300 text-xs hidden sm:table-cell" id="btcVol">-</td>
+                            <td class="py-1.5 pl-2"><div class="relative" style="height:22px;"><canvas id="btcSpark"></canvas></div></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
 
