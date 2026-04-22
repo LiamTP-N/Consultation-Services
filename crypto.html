@@ -182,14 +182,17 @@
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="zec-gradient">ZEC</span></td>
                             <td class="text-right py-px text-slate-100" id="zecPrice">-</td>
+                            <td class="pl-1.5 md:pl-2 py-px text-slate-500">(<span id="zecPct">-</span>)</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="xtz-gradient">XTZ</span></td>
                             <td class="text-right py-px text-slate-100" id="xtzPrice">-</td>
+                            <td class="pl-1.5 md:pl-2 py-px text-slate-500">(<span id="xtzPct">-</span>)</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="btc-gradient">BTC</span></td>
                             <td class="text-right py-px text-slate-100" id="btcPrice">-</td>
+                            <td class="pl-1.5 md:pl-2 py-px text-slate-500">(<span id="btcPct">-</span>)</td>
                         </tr>
                     </tbody>
                 </table>
@@ -843,13 +846,25 @@
 
                 const zecPrice = parseFloat(zecT.lastPrice);
                 document.getElementById('zecPrice').textContent = fmtUsd(zecPrice);
+                const zecPct24 = parseFloat(zecT.priceChangePercent);
+                const zecPctEl = document.getElementById('zecPct');
+                zecPctEl.textContent = fmtPct(zecPct24);
+                setChangeColour(zecPctEl, zecPct24);
 
                 const xtzPrice = parseFloat(xtzT.lastPrice);
                 document.getElementById('xtzPrice').textContent = fmtUsd(xtzPrice);
+                const xtzPct24 = parseFloat(xtzT.priceChangePercent);
+                const xtzPctEl = document.getElementById('xtzPct');
+                xtzPctEl.textContent = fmtPct(xtzPct24);
+                setChangeColour(xtzPctEl, xtzPct24);
 
                 const btcPrice = parseFloat(btcT.lastPrice);
                 // BTC is big - display as integer dollars
                 document.getElementById('btcPrice').textContent = '$' + fmtInt(btcPrice);
+                const btcPct24 = parseFloat(btcT.priceChangePercent);
+                const btcPctEl = document.getElementById('btcPct');
+                btcPctEl.textContent = fmtPct(btcPct24);
+                setChangeColour(btcPctEl, btcPct24);
 
                 // Holdings (current values)
                 const holdingsUsd = zecHeld * zecPrice;
