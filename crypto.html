@@ -178,21 +178,53 @@
                     <span class="text-slate-500 text-xl md:text-2xl">(</span><span id="heroDistance" class="text-xl md:text-2xl">-</span><span class="text-slate-500 text-xl md:text-2xl">)</span>
                 </p>
                 <table class="text-[10px] md:text-xs font-semibold border-l border-slate-700/40 pl-2 md:pl-4">
+                    <thead>
+                        <tr class="text-[9px] md:text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                            <th class="pr-2 md:pr-3 py-px text-left">&nbsp;</th>
+                            <th class="pr-2 md:pr-3 py-px text-right">Price</th>
+                            <th class="px-1 md:px-1.5 py-px text-right">15m</th>
+                            <th class="px-1 md:px-1.5 py-px text-right">1h</th>
+                            <th class="px-1 md:px-1.5 py-px text-right">12h</th>
+                            <th class="px-1 md:px-1.5 py-px text-right">24h</th>
+                            <th class="pl-1 md:pl-1.5 py-px text-right">7d</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         <tr>
+                            <td class="pr-2 md:pr-3 py-px text-sm md:text-base text-pink-300">RATE</td>
+                            <td class="pr-2 md:pr-3 py-px text-right text-slate-600">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="ratePct_15m">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="ratePct_1h">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="ratePct_12h">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="ratePct_24h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="ratePct_7d">-</td>
+                        </tr>
+                        <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="zec-gradient">ZEC</span></td>
-                            <td class="text-right py-px text-slate-100" id="zecPrice">-</td>
-                            <td class="pl-1.5 md:pl-2 py-px text-slate-500">(<span id="zecPct">-</span>)</td>
+                            <td class="pr-2 md:pr-3 py-px text-right text-slate-100" id="zecPrice">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="zecPct_15m">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="zecPct_1h">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="zecPct_12h">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="zecPct_24h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_7d">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="xtz-gradient">XTZ</span></td>
-                            <td class="text-right py-px text-slate-100" id="xtzPrice">-</td>
-                            <td class="pl-1.5 md:pl-2 py-px text-slate-500">(<span id="xtzPct">-</span>)</td>
+                            <td class="pr-2 md:pr-3 py-px text-right text-slate-100" id="xtzPrice">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="xtzPct_15m">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="xtzPct_1h">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="xtzPct_12h">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="xtzPct_24h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_7d">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="btc-gradient">BTC</span></td>
-                            <td class="text-right py-px text-slate-100" id="btcPrice">-</td>
-                            <td class="pl-1.5 md:pl-2 py-px text-slate-500">(<span id="btcPct">-</span>)</td>
+                            <td class="pr-2 md:pr-3 py-px text-right text-slate-100" id="btcPrice">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="btcPct_15m">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="btcPct_1h">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="btcPct_12h">-</td>
+                            <td class="px-1 md:px-1.5 py-px text-right" id="btcPct_24h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_7d">-</td>
                         </tr>
                     </tbody>
                 </table>
@@ -564,6 +596,19 @@
             el.classList.remove('text-emerald-400', 'text-rose-400');
             el.classList.add(pct >= 0 ? 'text-emerald-400' : 'text-rose-400');
         }
+        // Helper: write a % into a cell and colour it
+        function writePct(elId, pct) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            el.textContent = fmtPct(pct);
+            setChangeColour(el, pct);
+        }
+        // % change between first and last close in a closes array
+        function pctFromCloses(closes) {
+            const first = closes[0];
+            const last = closes[closes.length - 1];
+            return ((last / first) - 1) * 100;
+        }
         // Timeframe-scoped H/L/V/change from kline array
         function klineStats(klines) {
             const high = Math.max(...klines.map(c => parseFloat(c[2])));
@@ -823,6 +868,12 @@
                     const moveEl = document.getElementById("move_" + tf);
                     moveEl.textContent = fmtPct(move);
                     setChangeColour(moveEl, move);
+
+                    // Multi-timeframe table cells (rate + per-coin %change)
+                    writePct("ratePct_" + tf, move);
+                    writePct("zecPct_" + tf, pctFromCloses(d.zecClose));
+                    writePct("xtzPct_" + tf, pctFromCloses(d.xtzClose));
+                    writePct("btcPct_" + tf, pctFromCloses(d.btcClose));
                 });
 
                 // Freshest rate comes from 15m (1m klines, newest partial)
@@ -846,25 +897,13 @@
 
                 const zecPrice = parseFloat(zecT.lastPrice);
                 document.getElementById('zecPrice').textContent = fmtUsd(zecPrice);
-                const zecPct24 = parseFloat(zecT.priceChangePercent);
-                const zecPctEl = document.getElementById('zecPct');
-                zecPctEl.textContent = fmtPct(zecPct24);
-                setChangeColour(zecPctEl, zecPct24);
 
                 const xtzPrice = parseFloat(xtzT.lastPrice);
                 document.getElementById('xtzPrice').textContent = fmtUsd(xtzPrice);
-                const xtzPct24 = parseFloat(xtzT.priceChangePercent);
-                const xtzPctEl = document.getElementById('xtzPct');
-                xtzPctEl.textContent = fmtPct(xtzPct24);
-                setChangeColour(xtzPctEl, xtzPct24);
 
                 const btcPrice = parseFloat(btcT.lastPrice);
                 // BTC is big - display as integer dollars
                 document.getElementById('btcPrice').textContent = '$' + fmtInt(btcPrice);
-                const btcPct24 = parseFloat(btcT.priceChangePercent);
-                const btcPctEl = document.getElementById('btcPct');
-                btcPctEl.textContent = fmtPct(btcPct24);
-                setChangeColour(btcPctEl, btcPct24);
 
                 // Holdings (current values)
                 const holdingsUsd = zecHeld * zecPrice;
