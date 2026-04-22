@@ -160,12 +160,11 @@
                 <span class="text-slate-500 text-base md:text-xl">(</span><span id="heroDistance" class="text-base md:text-xl">-</span><span class="text-slate-500 text-base md:text-xl">)</span>
             </h1>
             <div class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 text-xs">
-                <span id="tfIndicator" class="px-1.5 py-0.5 rounded bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 font-semibold uppercase tracking-wider text-[10px]">7d</span>
-                <span class="text-slate-600">&middot;</span>
                 <div class="flex items-center gap-1.5">
                     <span id="liveDot" class="live-dot"></span>
                     <span id="liveStatus" class="text-slate-400">Live</span>
                 </div>
+                <span id="alertLog" class="hidden text-[10px] text-slate-500 border-l border-slate-700/40 pl-2"></span>
             </div>
         </header>
 
@@ -356,8 +355,6 @@
                     panel.classList.remove('col-span-5');
                 }
             });
-            const ind = document.getElementById('tfIndicator');
-            if (ind) ind.textContent = tf;
             // Resize the now-visible chart so it fills the new width
             if (typeof panelCharts !== 'undefined' && panelCharts[tf]) {
                 panelCharts[tf].resize();
@@ -562,6 +559,13 @@
         function fireTargetAlert(rate) {
             fireBrowserNotification(rate);
             fireTelegramNotification(rate);
+            const el = document.getElementById('alertLog');
+            if (el) {
+                const now = new Date();
+                const ts = now.toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
+                el.textContent = '🎯 Alert fired ' + ts + ' @ ' + fmtInt(rate);
+                el.classList.remove('hidden');
+            }
         }
 
         // --------------------------------------------------------------
