@@ -172,50 +172,51 @@
         <!-- HERO: full width single card -->
         <section class="flex-none">
             <div id="heroRateBlock" class="glass-card-accent p-1.5 md:p-3 flex items-center justify-between gap-3 md:gap-5">
-                <!-- Holdings + FX stacked -->
-                <div class="flex flex-col gap-1 text-xs text-slate-300 flex-none">
-                    <div class="flex items-center gap-2">
-                        <span class="text-slate-500">USD</span> <span id="holdingsUsd" class="font-semibold">-</span>
-                        <span class="text-slate-600">&middot;</span>
-                        <span class="text-slate-500">GBP</span> <span id="holdingsGbp" class="font-semibold">-</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-slate-400">
-                        <span>GBP/USD</span> <span id="fxGbpUsd" class="font-semibold text-slate-200">-</span>
-                        <span class="text-slate-600">&middot;</span>
-                        <span>GBP/🇨🇦</span> <span id="fxGbpCad" class="font-semibold text-slate-200">-</span>
-                    </div>
-                </div>
-                <table class="text-[10px] md:text-xs font-semibold border-l border-slate-700/40 pl-2 md:pl-4">
+                <!-- Primary: price table -->
+                <table class="text-[10px] md:text-xs font-semibold flex-none">
                     <thead>
                         <tr class="text-[9px] md:text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
                             <th class="pr-2 md:pr-3 py-px text-left">&nbsp;</th>
                             <th class="pr-2 md:pr-3 py-px text-right">Price</th>
-                            <th class="px-1 md:px-1.5 py-px text-right">24h</th>
+                            <th class="pl-1 md:pl-1.5 py-px text-right">24h</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base text-pink-300">RATE</td>
                             <td class="pr-2 md:pr-3 py-px text-right text-slate-600">-</td>
-                            <td class="px-1 md:px-1.5 py-px text-right" id="ratePct_24h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="ratePct_24h">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="zec-gradient">ZEC</span></td>
                             <td class="pr-2 md:pr-3 py-px text-right text-slate-100" id="zecPrice">-</td>
-                            <td class="px-1 md:px-1.5 py-px text-right" id="zecPct_24h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_24h">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="xtz-gradient">XTZ</span></td>
                             <td class="pr-2 md:pr-3 py-px text-right text-slate-100" id="xtzPrice">-</td>
-                            <td class="px-1 md:px-1.5 py-px text-right" id="xtzPct_24h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_24h">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="btc-gradient">BTC</span></td>
                             <td class="pr-2 md:pr-3 py-px text-right text-slate-100" id="btcPrice">-</td>
-                            <td class="px-1 md:px-1.5 py-px text-right" id="btcPct_24h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_24h">-</td>
                         </tr>
                     </tbody>
                 </table>
+                <!-- Secondary: holdings + FX, right-aligned, stacked -->
+                <div class="flex flex-col items-end gap-1.5 flex-none border-l border-slate-700/40 pl-3 md:pl-5">
+                    <div class="flex items-center gap-2 text-sm md:text-base font-semibold text-slate-100">
+                        <span class="text-slate-500 text-xs">USD</span> <span id="holdingsUsd">-</span>
+                        <span class="text-slate-600">&middot;</span>
+                        <span class="text-slate-500 text-xs">GBP</span> <span id="holdingsGbp">-</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-[11px] text-slate-400">
+                        <span>GBP/USD</span> <span id="fxGbpUsd" class="font-semibold text-slate-300">-</span>
+                        <span class="text-slate-600">&middot;</span>
+                        <span>GBP/🇨🇦</span> <span id="fxGbpCad" class="font-semibold text-slate-300">-</span>
+                    </div>
+                </div>
             </div>
         </section>
 
