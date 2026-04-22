@@ -229,16 +229,68 @@
                     </tbody>
                 </table>
             </div>
-            <div class="glass-card-zec-right p-1.5 md:p-3">
-                <div class="flex items-baseline justify-end">
+            <div class="glass-card-zec-right p-1.5 md:p-3 flex flex-col gap-1.5">
+                <!-- Top: holding amount + headline values -->
+                <div class="flex items-baseline justify-between gap-3">
                     <p class="text-lg font-bold leading-tight"><span id="holdingsZec">16.256</span> <span class="zec-gradient text-sm">ZEC</span></p>
+                    <div class="text-xs text-slate-300 flex items-center gap-2">
+                        <span><span class="text-slate-400">USD</span> <span id="holdingsUsd" class="font-semibold">-</span></span>
+                        <span class="text-slate-600">&middot;</span>
+                        <span><span class="text-slate-400">GBP</span> <span id="holdingsGbp" class="font-semibold">-</span></span>
+                    </div>
                 </div>
-                <div class="mt-1 grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs">
-                    <div class="flex justify-between"><span class="text-slate-400">USD</span><span id="holdingsUsd" class="font-semibold">-</span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">GBP</span><span id="holdingsGbp" class="font-semibold">-</span></div>
-                    <div class="flex justify-between"><span class="text-slate-400">Today</span><span id="holdingsToday" class="font-semibold">-</span></div>
-                    <div class="flex justify-between"><span><span class="xtz-gradient">XTZ</span> now</span><span id="holdingsXtz" class="font-semibold">-</span></div>
+                <!-- XTZ now (raw + post-fee) + FX rates row -->
+                <div class="grid grid-cols-2 gap-x-4 text-[11px] leading-tight">
+                    <div class="flex justify-between">
+                        <span><span class="xtz-gradient">XTZ</span> now</span>
+                        <span class="text-right"><span id="holdingsXtz" class="font-semibold">-</span> <span class="text-slate-500">/</span> <span id="holdingsXtzNet" class="font-semibold text-slate-300">-</span></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">GBP/USD</span>
+                        <span id="fxGbpUsd" class="font-semibold">-</span>
+                    </div>
                 </div>
+                <div class="grid grid-cols-2 gap-x-4 text-[11px] leading-tight">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">vs cost (<span id="costBasisLabel">-</span>)</span>
+                        <span id="costPL" class="font-semibold">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">GBP/CAD</span>
+                        <span id="fxGbpCad" class="font-semibold">-</span>
+                    </div>
+                </div>
+
+                <!-- Holdings GBP change across timeframes (mirrors left card columns) -->
+                <table class="w-full text-[10px] md:text-[11px] font-semibold border-t border-slate-700/40 pt-1 mt-0.5">
+                    <thead>
+                        <tr class="text-[9px] md:text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                            <th class="pr-1 py-px text-left">Holdings</th>
+                            <th class="px-1 py-px text-right">15m</th>
+                            <th class="px-1 py-px text-right">1h</th>
+                            <th class="px-1 py-px text-right">12h</th>
+                            <th class="px-1 py-px text-right">24h</th>
+                            <th class="pl-1 py-px text-right">7d</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="pr-1 py-px text-slate-400 align-top" rowspan="2">GBP</td>
+                            <td class="px-1 py-px text-right" id="holdGbp_15m">-</td>
+                            <td class="px-1 py-px text-right" id="holdGbp_1h">-</td>
+                            <td class="px-1 py-px text-right" id="holdGbp_12h">-</td>
+                            <td class="px-1 py-px text-right" id="holdGbp_24h">-</td>
+                            <td class="pl-1 py-px text-right" id="holdGbp_7d">-</td>
+                        </tr>
+                        <tr class="text-[9px] md:text-[10px]">
+                            <td class="px-1 py-px text-right" id="holdPct_15m">-</td>
+                            <td class="px-1 py-px text-right" id="holdPct_1h">-</td>
+                            <td class="px-1 py-px text-right" id="holdPct_12h">-</td>
+                            <td class="px-1 py-px text-right" id="holdPct_24h">-</td>
+                            <td class="pl-1 py-px text-right" id="holdPct_7d">-</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
 
@@ -313,6 +365,9 @@
         // --------------------------------------------------------------
         const zecHeld = 16.256;
         const xtzTarget = 17500;
+        // Rough cost basis (GBP). Estimate of total GBP put in across many
+        // swaps since 2019 - update here if you ever pin it down properly.
+        const COST_BASIS_GBP = 35000;
         // Binance worst-case fee: 0.1% taker per trade, two market orders
         // (ZEC -> USDT -> XTZ) = 0.2% total drag, no BNB discount assumed.
         const TOTAL_FEE = 0.002;
@@ -592,6 +647,8 @@
         const fmtVol = (n) => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : Math.round(n).toString();
         // Integer formatter for big display numbers (hero rate/target, BTC price)
         const fmtInt = (n) => Math.round(Number(n)).toLocaleString('en-GB');
+        // Signed integer GBP formatter for holdings deltas (e.g. "+£124", "-£12")
+        const fmtGbpDeltaInt = (n) => (n >= 0 ? '+' : '-') + '£' + fmtInt(Math.abs(n));
         function setChangeColour(el, pct) {
             el.classList.remove('text-emerald-400', 'text-rose-400');
             el.classList.add(pct >= 0 ? 'text-emerald-400' : 'text-rose-400');
@@ -602,6 +659,13 @@
             if (!el) return;
             el.textContent = fmtPct(pct);
             setChangeColour(el, pct);
+        }
+        // Helper: write a signed GBP integer delta and colour it
+        function writeGbpDelta(elId, gbp) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            el.textContent = fmtGbpDeltaInt(gbp);
+            setChangeColour(el, gbp);
         }
         // % change between first and last close in a closes array
         function pctFromCloses(closes) {
@@ -758,6 +822,9 @@
         // All charts now exist with correct initial dimensions; safe to apply default TF.
         setTF(DEFAULT_TF);
 
+        // Cost basis label on first paint
+        document.getElementById('costBasisLabel').textContent = '~£' + fmtInt(COST_BASIS_GBP);
+
         // --------------------------------------------------------------
         // DATA FETCH
         // --------------------------------------------------------------
@@ -776,7 +843,7 @@
         async function updateAll() {
             try {
                 // Build request list: kline triples (ZEC/XTZ/BTC) for each TF,
-                // then 24h tickers (ZEC, XTZ, GBP, BTC).
+                // then 24h tickers (ZEC, XTZ, GBP, BTC, CAD).
                 const requests = [];
                 TF_KEYS.forEach(tf => {
                     requests.push(fetchKlines("ZECUSDT", TIMEFRAMES[tf].interval, TIMEFRAMES[tf].limit));
@@ -787,6 +854,12 @@
                 requests.push(fetch24h("XTZUSDT"));
                 requests.push(fetch24h("GBPUSDT"));
                 requests.push(fetch24h("BTCUSDT"));
+                // GBPUSDT kline series for per-timeframe holdings GBP deltas (matches each TF)
+                TF_KEYS.forEach(tf => {
+                    requests.push(fetchKlines("GBPUSDT", TIMEFRAMES[tf].interval, TIMEFRAMES[tf].limit));
+                });
+                // CAD spot for GBP/CAD display (USDTCAD - USDT pegged to USD)
+                requests.push(fetch24h("USDTCAD"));
                 const results = await Promise.all(requests);
 
                 // Slice out per-TF klines (ZEC, XTZ, BTC per TF)
@@ -806,8 +879,17 @@
                 const xtzT = results[tickerBase + 1];
                 const gbpT = results[tickerBase + 2];
                 const btcT = results[tickerBase + 3];
+                const gbpKlinesBase = tickerBase + 4;
+                // Attach GBPUSDT kline closes to each panelData entry
+                TF_KEYS.forEach((tf, i) => {
+                    const gbpK = results[gbpKlinesBase + i];
+                    panelData[tf].gbpClose = gbpK.map(c => parseFloat(c[4]));
+                });
+                const cadT = results[gbpKlinesBase + TF_KEYS.length];
                 const btcK24 = panelData["24h"].btcK;
-                const usdToGbp = 1 / parseFloat(gbpT.lastPrice);
+                const usdToGbp = 1 / parseFloat(gbpT.lastPrice);   // GBPUSDT lastPrice = USD per GBP
+                const usdToCad = parseFloat(cadT.lastPrice);        // USDTCAD lastPrice = CAD per USD
+                const gbpToCad = parseFloat(gbpT.lastPrice) * usdToCad; // (USD per GBP) * (CAD per USD)
 
                 // Update each panel chart + move % + tight y-axis
                 TF_KEYS.forEach(tf => {
@@ -874,6 +956,16 @@
                     writePct("zecPct_" + tf, pctFromCloses(d.zecClose));
                     writePct("xtzPct_" + tf, pctFromCloses(d.xtzClose));
                     writePct("btcPct_" + tf, pctFromCloses(d.btcClose));
+
+                    // Holdings GBP delta + % over the timeframe.
+                    // Holdings GBP at each point = zecHeld * zecCloseUsd / gbpCloseUsd
+                    // (gbpClose is USD per GBP, so divide USD by it to get GBP).
+                    const gbpFirst = zecHeld * d.zecClose[0] / d.gbpClose[0];
+                    const gbpLast = zecHeld * d.zecClose[d.zecClose.length - 1] / d.gbpClose[d.gbpClose.length - 1];
+                    const gbpDelta = gbpLast - gbpFirst;
+                    const gbpDeltaPct = ((gbpLast / gbpFirst) - 1) * 100;
+                    writeGbpDelta("holdGbp_" + tf, gbpDelta);
+                    writePct("holdPct_" + tf, gbpDeltaPct);
                 });
 
                 // Freshest rate comes from 15m (1m klines, newest partial)
@@ -909,19 +1001,23 @@
                 const holdingsUsd = zecHeld * zecPrice;
                 const holdingsGbp = holdingsUsd * usdToGbp;
                 const holdingsXtzNow = zecHeld * latestRate;
+                const holdingsXtzNet = holdingsXtzNow * (1 - TOTAL_FEE); // post 0.2% swap drag
                 document.getElementById('holdingsUsd').textContent = '$' + fmtInt(holdingsUsd);
                 document.getElementById('holdingsGbp').textContent = '£' + fmtInt(holdingsGbp);
-                document.getElementById('holdingsXtz').innerHTML = fmt(holdingsXtzNow, 0) + ' <span class="xtz-gradient">XTZ</span>';
+                document.getElementById('holdingsXtz').textContent = fmt(holdingsXtzNow, 0);
+                document.getElementById('holdingsXtzNet').textContent = fmt(holdingsXtzNet, 0);
 
-                // Holdings "Today" change in GBP - both absolute and percent.
-                const zecPriceYesterday = zecPrice / (1 + zecStats.pct / 100);
-                const holdingsGbpYesterday = (zecHeld * zecPriceYesterday) * usdToGbp;
-                const todayDeltaGbp = holdingsGbp - holdingsGbpYesterday;
-                const todayDeltaPct = ((holdingsGbp / holdingsGbpYesterday) - 1) * 100;
-                const todayEl = document.getElementById('holdingsToday');
-                const sign = todayDeltaGbp >= 0 ? '+' : '-';
-                todayEl.innerHTML = sign + '£' + fmt(Math.abs(todayDeltaGbp), 2) + ' <span class="text-slate-100">/</span> ' + fmtPct(todayDeltaPct);
-                todayEl.className = 'font-semibold ' + (todayDeltaGbp >= 0 ? 'text-emerald-400' : 'text-rose-400');
+                // FX rates (tiny, in the row beneath holdings)
+                const gbpUsdRate = parseFloat(gbpT.lastPrice);   // USD per 1 GBP
+                document.getElementById('fxGbpUsd').textContent = fmt(gbpUsdRate, 4);
+                document.getElementById('fxGbpCad').textContent = fmt(gbpToCad, 4);
+
+                // Cost basis P/L (vs hardcoded COST_BASIS_GBP)
+                const plGbp = holdingsGbp - COST_BASIS_GBP;
+                const plPct = ((holdingsGbp / COST_BASIS_GBP) - 1) * 100;
+                const plEl = document.getElementById('costPL');
+                plEl.textContent = fmtGbpDeltaInt(plGbp) + ' / ' + fmtPct(plPct);
+                setChangeColour(plEl, plGbp);
 
                 // Header status
                 lastSuccessTs = Date.now();
