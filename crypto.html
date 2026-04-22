@@ -597,7 +597,7 @@
         const fmt = (n, d = 2) => Number(n).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
         const fmtUsd = (n) => '$' + fmt(n, n < 1 ? 4 : 2);
         const fmtGbp = (n) => '£' + fmt(n, n < 1 ? 4 : 2);
-        const fmtPct = (n) => (n >= 0 ? '+' : '') + fmt(n, 2) + '%';
+        const fmtPct = (n) => (n >= 0 ? '+' : '') + fmt(n, 0) + '%';
         const fmtVol = (n) => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : Math.round(n).toString();
         // Integer formatter for big display numbers (hero rate/target, BTC price)
         const fmtInt = (n) => Math.round(Number(n)).toLocaleString('en-GB');
