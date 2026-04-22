@@ -153,10 +153,11 @@
 
         <!-- HEADER -->
         <header class="relative flex items-center justify-start gap-3 flex-none">
-            <h1 class="text-xl md:text-2xl font-bold tracking-tight leading-tight">
+            <h1 class="text-xl md:text-2xl font-bold tracking-tight leading-tight flex items-baseline gap-x-2">
                 <span class="zec-gradient">ZEC</span>
                 <span class="text-slate-400 mx-1">&rarr;</span>
                 <span class="xtz-gradient">XTZ</span>
+                <span class="text-slate-500 text-base md:text-xl">(</span><span id="heroDistance" class="text-base md:text-xl">-</span><span class="text-slate-500 text-base md:text-xl">)</span>
             </h1>
             <div class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 text-xs">
                 <span id="tfIndicator" class="px-1.5 py-0.5 rounded bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 font-semibold uppercase tracking-wider text-[10px]">7d</span>
@@ -168,15 +169,27 @@
             </div>
         </header>
 
-        <!-- HERO: Current / Target + Holdings side-by-side on desktop -->
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-2 flex-none">
+        <!-- HERO: full width single card -->
+        <section class="flex-none">
             <div id="heroRateBlock" class="glass-card-accent p-1.5 md:p-3 flex items-center justify-between gap-3 md:gap-5">
                 <p class="text-lg md:text-3xl font-bold leading-tight flex flex-wrap items-baseline gap-x-2 flex-none">
                     <span id="heroRate" class="text-emerald-300">-</span>
                     <span class="text-slate-500">/</span>
                     <span id="heroTarget" class="text-slate-100">-</span>
-                    <span class="text-slate-500 text-base md:text-2xl">(</span><span id="heroDistance" class="text-base md:text-2xl">-</span><span class="text-slate-500 text-base md:text-2xl">)</span>
                 </p>
+                <!-- Holdings + FX -->
+                <div class="flex items-center gap-4 md:gap-6 text-xs text-slate-300 flex-none">
+                    <div class="flex items-center gap-2">
+                        <span class="text-slate-500">USD</span> <span id="holdingsUsd" class="font-semibold">-</span>
+                        <span class="text-slate-600">&middot;</span>
+                        <span class="text-slate-500">GBP</span> <span id="holdingsGbp" class="font-semibold">-</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-slate-400">
+                        <span>GBP/USD</span> <span id="fxGbpUsd" class="font-semibold text-slate-200">-</span>
+                        <span class="text-slate-600">&middot;</span>
+                        <span>GBP/🇨🇦</span> <span id="fxGbpCad" class="font-semibold text-slate-200">-</span>
+                    </div>
+                </div>
                 <table class="text-[10px] md:text-xs font-semibold border-l border-slate-700/40 pl-2 md:pl-4">
                     <thead>
                         <tr class="text-[9px] md:text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
@@ -208,38 +221,6 @@
                         </tr>
                     </tbody>
                 </table>
-            </div>
-            <div class="glass-card-zec-right p-1.5 md:p-3 flex flex-col gap-1.5">
-                <!-- Top: holding amount + headline values -->
-                <div class="flex items-baseline justify-between gap-3">
-                    <p class="text-lg font-bold leading-tight"><span id="holdingsZec">16.256</span> <span class="zec-gradient text-sm">ZEC</span></p>
-                    <div class="text-xs text-slate-300 flex items-center gap-2">
-                        <span><span class="text-slate-400">USD</span> <span id="holdingsUsd" class="font-semibold">-</span></span>
-                        <span class="text-slate-600">&middot;</span>
-                        <span><span class="text-slate-400">GBP</span> <span id="holdingsGbp" class="font-semibold">-</span></span>
-                    </div>
-                </div>
-                <!-- XTZ now (raw + post-fee) + FX rates row -->
-                <div class="grid grid-cols-2 gap-x-4 text-[11px] leading-tight">
-                    <div class="flex justify-between">
-                        <span><span class="xtz-gradient">XTZ</span> now</span>
-                        <span class="text-right"><span id="holdingsXtz" class="font-semibold">-</span> <span class="text-slate-500">/</span> <span id="holdingsXtzNet" class="font-semibold text-slate-300">-</span></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-slate-400">GBP/USD</span>
-                        <span id="fxGbpUsd" class="font-semibold">-</span>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-x-4 text-[11px] leading-tight">
-                    <div class="flex justify-between">
-                        <span></span>
-                        <span id="costPL" class="font-semibold">-</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-slate-400">GBP/🇨🇦</span>
-                        <span id="fxGbpCad" class="font-semibold">-</span>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -942,13 +923,13 @@
                 const progressPctExact = (latestRate / targetRate) * 100;
                 const aboveTarget = latestRate >= targetRate;
 
-                // HERO - integer display, progress-to-target % (positive)
+                // HERO - integer display
                 document.getElementById('heroRate').textContent = fmtInt(latestRate);
                 document.getElementById('heroTarget').textContent = fmtInt(targetRate);
                 const heroDist = document.getElementById('heroDistance');
                 const progInt = Math.round(progressPctExact);
                 heroDist.textContent = progInt + '%';
-                heroDist.className = 'text-xl md:text-2xl font-bold ' + (aboveTarget ? 'text-emerald-400' : 'text-rose-400');
+                heroDist.className = 'text-base md:text-xl font-bold ' + (aboveTarget ? 'text-emerald-400' : 'text-rose-400');
 
                 // ZEC / XTZ / BTC cards (pinned to 24h kline data)
                 const d24 = panelData['24h'];
@@ -973,20 +954,10 @@
                 const holdingsXtzNet = holdingsXtzNow * (1 - TOTAL_FEE); // post 0.2% swap drag
                 document.getElementById('holdingsUsd').textContent = '$' + fmtInt(holdingsUsd * (1 - TOTAL_FEE));
                 document.getElementById('holdingsGbp').textContent = '£' + fmtInt(holdingsGbp * (1 - TOTAL_FEE));
-                document.getElementById('holdingsXtz').textContent = fmt(holdingsXtzNow, 0);
-                document.getElementById('holdingsXtzNet').textContent = fmt(holdingsXtzNet, 0);
 
-                // FX rates (tiny, in the row beneath holdings)
-                const gbpUsdRate = parseFloat(gbpT.lastPrice);   // USD per 1 GBP
+                // FX rates
+                const gbpUsdRate = parseFloat(gbpT.lastPrice);
                 document.getElementById('fxGbpUsd').textContent = fmt(gbpUsdRate, 4);
-                // GBP/CAD is updated by refreshGbpCad() independently.
-
-                // Cost basis P/L (vs hardcoded COST_BASIS_GBP)
-                const plGbp = holdingsGbp - COST_BASIS_GBP;
-                const plPct = ((holdingsGbp / COST_BASIS_GBP) - 1) * 100;
-                const plEl = document.getElementById('costPL');
-                plEl.textContent = fmtGbpDeltaInt(plGbp) + ' / ' + fmtPct(plPct);
-                setChangeColour(plEl, plGbp);
 
                 // Header status
                 lastSuccessTs = Date.now();
