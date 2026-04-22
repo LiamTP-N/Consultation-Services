@@ -678,11 +678,11 @@
             const datasets = [{
                 label: "XTZ/ZEC",
                 data: [],
-                borderColor: "#ec4899",
+                borderColor: "transparent",
                 backgroundColor: "rgba(236, 72, 153, 0.10)",
                 pointBackgroundColor: "#ec4899",
                 pointBorderColor: "#ec4899",
-                borderWidth: 1.5,
+                borderWidth: 0,
                 pointRadius: 0,
                 pointHoverRadius: 4,
                 pointStyle: "circle",
@@ -694,10 +694,10 @@
                 yAxisID: "y"
             },
             // BTC orange underlay - drawn first (underneath) to create a 1px stroke
-            { label: "BTC_stroke", data: [], borderColor: "#c2410c", backgroundColor: "transparent", borderWidth: 4.5, borderDash: [6, 3], pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yBtc" },
-            { label: "ZEC", data: [], borderColor: "#fff147", backgroundColor: "#fff147", pointBackgroundColor: "#fff147", borderWidth: 1.25, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yZec" },
-            { label: "XTZ", data: [], borderColor: "rgba(45, 212, 191, 0.85)", backgroundColor: "rgba(45, 212, 191, 0.85)", pointBackgroundColor: "rgba(45, 212, 191, 0.85)", borderWidth: 1.25, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yXtz" },
-            { label: "BTC", data: [], borderColor: "#f97316", backgroundColor: "#f97316", pointBackgroundColor: "#f97316", borderWidth: 3, borderDash: [6, 3], pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yBtc" }
+            { label: "BTC_stroke", data: [], borderColor: "#c2410c", backgroundColor: "transparent", borderWidth: 2.75, borderDash: [6, 3], pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yBtc" },
+            { label: "ZEC", data: [], borderColor: "#fff147", backgroundColor: "#fff147", pointBackgroundColor: "#fff147", borderWidth: 2.5, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yZec" },
+            { label: "XTZ", data: [], borderColor: "rgba(45, 212, 191, 0.65)", backgroundColor: "rgba(45, 212, 191, 0.65)", pointBackgroundColor: "rgba(45, 212, 191, 0.65)", borderWidth: 1.25, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yXtz" },
+            { label: "BTC", data: [], borderColor: "rgba(249, 115, 22, 0.80)", backgroundColor: "rgba(249, 115, 22, 0.80)", pointBackgroundColor: "rgba(249, 115, 22, 0.80)", borderWidth: 1.25, borderDash: [6, 3], pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yBtc" }
             ];
             return new Chart(document.getElementById(canvasId).getContext("2d"), {
                 type: "line",
