@@ -200,7 +200,7 @@
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center">
                 <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
-                    Dr. Liam T. Pearson-Noseworthy
+                    ${page === 'index' ? '' : 'Dr. Liam T. Pearson-Noseworthy'}
                 </a>
                 <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
                     ${links.map(l => `<a href="${l.href}" class="${linkClass(l.id)}">${l.label}</a>`).join('\n                    ')}
