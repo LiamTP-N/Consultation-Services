@@ -232,7 +232,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-x-4 text-[11px] leading-tight">
                     <div class="flex justify-between">
-                        <span class="text-slate-400">vs cost</span>
+                        <span></span>
                         <span id="costPL" class="font-semibold">-</span>
                     </div>
                     <div class="flex justify-between">
@@ -971,8 +971,8 @@
                 const holdingsGbp = holdingsUsd * usdToGbp;
                 const holdingsXtzNow = zecHeld * latestRate;
                 const holdingsXtzNet = holdingsXtzNow * (1 - TOTAL_FEE); // post 0.2% swap drag
-                document.getElementById('holdingsUsd').textContent = '$' + fmtInt(holdingsUsd);
-                document.getElementById('holdingsGbp').textContent = '£' + fmtInt(holdingsGbp);
+                document.getElementById('holdingsUsd').textContent = '$' + fmtInt(holdingsUsd * (1 - TOTAL_FEE));
+                document.getElementById('holdingsGbp').textContent = '£' + fmtInt(holdingsGbp * (1 - TOTAL_FEE));
                 document.getElementById('holdingsXtz').textContent = fmt(holdingsXtzNow, 0);
                 document.getElementById('holdingsXtzNet').textContent = fmt(holdingsXtzNet, 0);
 
