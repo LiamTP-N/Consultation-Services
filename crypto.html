@@ -24,14 +24,14 @@
         }
 
         .glass-card {
-            background: rgba(3, 5, 10, 0.88);
+            background: #000;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(148, 163, 184, 0.12);
             border-radius: 12px;
         }
         .glass-card-accent {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.12) 0%, rgba(3, 5, 10, 0.92) 60%);
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.12) 0%, #000 60%);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(34, 197, 94, 0.25);
@@ -40,7 +40,7 @@
         }
         /* ZEC card: yellow/gold tint matching the ZEC wordmark gradient */
         .glass-card-zec {
-            background: linear-gradient(135deg, rgba(253, 224, 71, 0.10) 0%, rgba(3, 5, 10, 0.92) 60%);
+            background: linear-gradient(135deg, rgba(253, 224, 71, 0.10) 0%, #000 60%);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(253, 224, 71, 0.22);
@@ -48,7 +48,7 @@
         }
         /* XTZ card: navy/teal tint matching the XTZ wordmark gradient */
         .glass-card-xtz {
-            background: linear-gradient(135deg, rgba(45, 212, 191, 0.12) 0%, rgba(3, 5, 10, 0.92) 60%);
+            background: linear-gradient(135deg, rgba(45, 212, 191, 0.12) 0%, #000 60%);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(45, 212, 191, 0.22);
@@ -56,7 +56,7 @@
         }
         /* BTC card: orange tint matching Bitcoin brand colour */
         .glass-card-btc {
-            background: linear-gradient(135deg, rgba(247, 147, 26, 0.14) 0%, rgba(3, 5, 10, 0.92) 60%);
+            background: linear-gradient(135deg, rgba(247, 147, 26, 0.14) 0%, #000 60%);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(247, 147, 26, 0.25);
@@ -64,7 +64,7 @@
         }
         /* ZEC holdings card: gold tint right-to-left, mirroring accent layout */
         .glass-card-zec-right {
-            background: linear-gradient(315deg, rgba(253, 224, 71, 0.12) 0%, rgba(3, 5, 10, 0.92) 60%);
+            background: linear-gradient(315deg, rgba(253, 224, 71, 0.12) 0%, #000 60%);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(253, 224, 71, 0.25);
@@ -182,49 +182,29 @@
                         <tr class="text-[9px] md:text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
                             <th class="pr-2 md:pr-3 py-px text-left">&nbsp;</th>
                             <th class="pr-2 md:pr-3 py-px text-right">Price</th>
-                            <th class="hidden md:table-cell px-1 md:px-1.5 py-px text-right">15m</th>
-                            <th class="hidden md:table-cell px-1 md:px-1.5 py-px text-right">1h</th>
-                            <th class="hidden md:table-cell px-1 md:px-1.5 py-px text-right">12h</th>
                             <th class="px-1 md:px-1.5 py-px text-right">24h</th>
-                            <th class="hidden md:table-cell pl-1 md:pl-1.5 py-px text-right">7d</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base text-pink-300">RATE</td>
                             <td class="pr-2 md:pr-3 py-px text-right text-slate-600">-</td>
-                            <td class="hidden md:table-cell px-1 md:px-1.5 py-px text-right" id="ratePct_15m">-</td>
-                            <td class="hidden md:table-cell px-1 md:px-1.5 py-px text-right" id="ratePct_1h">-</td>
-                            <td class="hidden md:table-cell px-1 md:px-1.5 py-px text-right" id="ratePct_12h">-</td>
                             <td class="px-1 md:px-1.5 py-px text-right" id="ratePct_24h">-</td>
-                            <td class="hidden md:table-cell pl-1 md:pl-1.5 py-px text-right" id="ratePct_7d">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="zec-gradient">ZEC</span></td>
                             <td class="pr-2 md:pr-3 py-px text-right text-slate-100" id="zecPrice">-</td>
-                            <td class="hidden md:table-cell px-1 md:px-1.5 py-px text-right" id="zecPct_15m">-</td>
-                            <td class="hidden md:table-cell px-1 md:px-1.5 py-px text-right" id="zecPct_1h">-</td>
-                            <td class="hidden md:table-cell px-1 md:px-1.5 py-px text-right" id="zecPct_12h">-</td>
                             <td class="px-1 md:px-1.5 py-px text-right" id="zecPct_24h">-</td>
-                            <td class="hidden md:table-cell pl-1 md:pl-1.5 py-px text-right" id="zecPct_7d">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="xtz-gradient">XTZ</span></td>
                             <td class="pr-2 md:pr-3 py-px text-right text-slate-100" id="xtzPrice">-</td>
-                            <td class="hidden md:table-cell px-1 md:px-1.5 py-px text-right" id="xtzPct_15m">-</td>
-                            <td class="hidden md:table-cell px-1 md:px-1.5 py-px text-right" id="xtzPct_1h">-</td>
-                            <td class="hidden md:table-cell px-1 md:px-1.5 py-px text-right" id="xtzPct_12h">-</td>
                             <td class="px-1 md:px-1.5 py-px text-right" id="xtzPct_24h">-</td>
-                            <td class="hidden md:table-cell pl-1 md:pl-1.5 py-px text-right" id="xtzPct_7d">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="btc-gradient">BTC</span></td>
                             <td class="pr-2 md:pr-3 py-px text-right text-slate-100" id="btcPrice">-</td>
-                            <td class="hidden md:table-cell px-1 md:px-1.5 py-px text-right" id="btcPct_15m">-</td>
-                            <td class="hidden md:table-cell px-1 md:px-1.5 py-px text-right" id="btcPct_1h">-</td>
-                            <td class="hidden md:table-cell px-1 md:px-1.5 py-px text-right" id="btcPct_12h">-</td>
                             <td class="px-1 md:px-1.5 py-px text-right" id="btcPct_24h">-</td>
-                            <td class="hidden md:table-cell pl-1 md:pl-1.5 py-px text-right" id="btcPct_7d">-</td>
                         </tr>
                     </tbody>
                 </table>
@@ -252,45 +232,14 @@
                 </div>
                 <div class="grid grid-cols-2 gap-x-4 text-[11px] leading-tight">
                     <div class="flex justify-between">
-                        <span class="text-slate-400">vs cost (<span id="costBasisLabel">-</span>)</span>
+                        <span class="text-slate-400">vs cost</span>
                         <span id="costPL" class="font-semibold">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-slate-400">GBP/CAD</span>
+                        <span class="text-slate-400">GBP/🇨🇦</span>
                         <span id="fxGbpCad" class="font-semibold">-</span>
                     </div>
                 </div>
-
-                <!-- Holdings GBP change across timeframes (mirrors left card columns) -->
-                <table class="w-full text-[10px] md:text-[11px] font-semibold border-t border-slate-700/40 pt-1 mt-0.5">
-                    <thead>
-                        <tr class="text-[9px] md:text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
-                            <th class="pr-1 py-px text-left">Holdings</th>
-                            <th class="px-1 py-px text-right">15m</th>
-                            <th class="px-1 py-px text-right">1h</th>
-                            <th class="px-1 py-px text-right">12h</th>
-                            <th class="px-1 py-px text-right">24h</th>
-                            <th class="pl-1 py-px text-right">7d</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="pr-1 py-px text-slate-400 align-top" rowspan="2">GBP</td>
-                            <td class="px-1 py-px text-right" id="holdGbp_15m">-</td>
-                            <td class="px-1 py-px text-right" id="holdGbp_1h">-</td>
-                            <td class="px-1 py-px text-right" id="holdGbp_12h">-</td>
-                            <td class="px-1 py-px text-right" id="holdGbp_24h">-</td>
-                            <td class="pl-1 py-px text-right" id="holdGbp_7d">-</td>
-                        </tr>
-                        <tr class="text-[9px] md:text-[10px]">
-                            <td class="px-1 py-px text-right" id="holdPct_15m">-</td>
-                            <td class="px-1 py-px text-right" id="holdPct_1h">-</td>
-                            <td class="px-1 py-px text-right" id="holdPct_12h">-</td>
-                            <td class="px-1 py-px text-right" id="holdPct_24h">-</td>
-                            <td class="pl-1 py-px text-right" id="holdPct_7d">-</td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
         </section>
 
@@ -790,7 +739,7 @@
                             usePointStyle: true,
                             boxWidth: 8,
                             boxHeight: 8,
-                            backgroundColor: "rgba(15, 23, 42, 0.95)",
+                            backgroundColor: "rgba(0, 0, 0, 0.95)",
                             borderColor: "rgba(236, 72, 153, 0.4)",
                             borderWidth: 1,
                             titleColor: "#94a3b8",
@@ -846,8 +795,7 @@
         // All charts now exist with correct initial dimensions; safe to apply default TF.
         setTF(DEFAULT_TF);
 
-        // Cost basis label on first paint
-        document.getElementById('costBasisLabel').textContent = '~£' + fmtInt(COST_BASIS_GBP);
+        // Cost basis label on first paint - no longer displayed, kept for P/L calc reference only.
 
         // Kick off GBP/CAD fetcher (independent of Binance loop)
         refreshGbpCad();
@@ -974,7 +922,7 @@
                     moveEl.textContent = fmtPct(move);
                     setChangeColour(moveEl, move);
 
-                    // Multi-timeframe table cells (rate + per-coin %change)
+                    // Multi-timeframe table cells (rate + per-coin %change) - 24h only now
                     writePct("ratePct_" + tf, move);
                     writePct("zecPct_" + tf, pctFromCloses(d.zecClose));
                     writePct("xtzPct_" + tf, pctFromCloses(d.xtzClose));
@@ -987,8 +935,6 @@
                     const gbpLast = zecHeld * d.zecClose[d.zecClose.length - 1] / d.gbpClose[d.gbpClose.length - 1];
                     const gbpDelta = gbpLast - gbpFirst;
                     const gbpDeltaPct = ((gbpLast / gbpFirst) - 1) * 100;
-                    writeGbpDelta("holdGbp_" + tf, gbpDelta);
-                    writePct("holdPct_" + tf, gbpDeltaPct);
                 });
 
                 // Freshest rate comes from 15m (1m klines, newest partial)
