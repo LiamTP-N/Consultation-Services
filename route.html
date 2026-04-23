@@ -895,11 +895,30 @@ function formatDuration(mins) {
   return m ? h + "h " + m + "m" : h + "h";
 }
 
-function buildGoogleMapsUrl(origin, destination, viaTunnel) {
+function sampleWaypoints(coords, count) {
+  // Pick N evenly-spaced points from the polyline, excluding the start and end.
+  // coords are [lng, lat] pairs from ORS GeoJSON.
+  if (!coords || coords.length < count + 2) return [];
+  var points = [];
+  for (var i = 1; i <= count; i++) {
+    var idx = Math.floor((coords.length - 1) * (i / (count + 1)));
+    var c = coords[idx];
+    // Round to 4dp (~11m) to keep URL short
+    points.push(c[1].toFixed(4) + "," + c[0].toFixed(4));
+  }
+  return points;
+}
+
+function buildGoogleMapsUrl(origin, destination, route) {
   var o = origin.lat + "," + origin.lng;
   var d = destination.lat + "," + destination.lng;
   var base = "https://www.google.com/maps/dir/?api=1&origin=" + o + "&destination=" + d + "&travelmode=driving";
-  if (viaTunnel) base += "&waypoints=54.998,-1.460";
+  // Sample 3 waypoints from the actual route polyline so Google is much more
+  // likely to pick the same path (including tunnel vs no-tunnel choice).
+  var waypoints = route && route.coords ? sampleWaypoints(route.coords, 3) : [];
+  if (waypoints.length) {
+    base += "&waypoints=" + waypoints.join("%7C");
+  }
   return base;
 }
 
@@ -980,8 +999,8 @@ function renderComparison(tunnelRoute, noTollRoute, origin, destination) {
   var timeDiff = winner.durationMin - loser.durationMin;
   var timeNote = timeDiff > 0 ? (timeDiff + "m slower") : (timeDiff < 0 ? (-timeDiff + "m faster") : "same time");
 
-  var gmapWinner = buildGoogleMapsUrl(origin, destination, winner.usesTyneTunnel);
-  var gmapLoser = buildGoogleMapsUrl(origin, destination, loser.usesTyneTunnel);
+  var gmapWinner = buildGoogleMapsUrl(origin, destination, winner);
+  var gmapLoser = buildGoogleMapsUrl(origin, destination, loser);
 
   area.innerHTML = ''
     + '<div id="map"></div>'
@@ -1000,7 +1019,7 @@ function renderComparison(tunnelRoute, noTollRoute, origin, destination) {
     + '<div class="result-card" id="detailCard"></div>';
 
   function renderDetail(route, isWinner) {
-    var gmap = buildGoogleMapsUrl(origin, destination, route.usesTyneTunnel);
+    var gmap = buildGoogleMapsUrl(origin, destination, route);
     var roads = route.keyRoads.length ? "via " + route.keyRoads.join(" \u2192 ") : "direct";
     var label = route.usesTyneTunnel ? "Via Tyne Tunnel" : "Avoiding Tyne Tunnel";
     var card = document.getElementById("detailCard");
@@ -1043,7 +1062,7 @@ function renderComparison(tunnelRoute, noTollRoute, origin, destination) {
 function renderResult(winner, alternatives, origin, destination) {
   var area = document.getElementById("resultsArea");
   var roads = winner.keyRoads.length ? "via " + winner.keyRoads.join(" \u2192 ") : "direct";
-  var gmap = buildGoogleMapsUrl(origin, destination, winner.usesTyneTunnel);
+  var gmap = buildGoogleMapsUrl(origin, destination, winner);
 
   var altHtml = "";
   if (alternatives.length) {
