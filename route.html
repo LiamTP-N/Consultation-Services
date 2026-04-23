@@ -163,7 +163,7 @@ input::placeholder { color: var(--text-muted); }
   margin-bottom: 12px;
   position: relative;
 }
-.result-card::before {
+.result-card.result-card-solo::before {
   content: 'CHEAPEST ROUTE HOME';
   position: absolute;
   top: -10px;
@@ -432,6 +432,81 @@ input[type="number"] {
   line-height: 1.6;
 }
 .meta a { color: var(--text-muted); text-decoration: underline; }
+
+/* TABS for toll/no-toll comparison */
+.tab-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.tab-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  font-family: inherit;
+  color: var(--text);
+  position: relative;
+}
+.tab-btn:active { transform: scale(0.98); }
+.tab-btn.active {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, rgba(255, 214, 10, 0.08) 0%, var(--surface) 100%);
+}
+.tab-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.tab-btn.active .tab-label { color: var(--accent); }
+.tab-cost {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  color: var(--text);
+  line-height: 1;
+}
+.tab-btn.active .tab-cost { color: var(--accent); }
+.tab-diff {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.tab-badge {
+  position: absolute;
+  top: -7px;
+  right: 10px;
+  background: var(--accent);
+  color: #000;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.route-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.result-card-loser {
+  border-color: var(--border);
+}
+.result-card-loser::before { display: none; }
+.result-card-loser .result-cost { color: var(--text); }
 </style>
 </head>
 <body>
@@ -727,17 +802,22 @@ async function resolveOrigin() {
   throw new Error("Tap GPS or type an origin");
 }
 
-async function computeRoutes(origin, destination) {
+async function computeRoutes(origin, destination, opts) {
+  opts = opts || {};
   var key = state.settings.apiKey;
   var url = "https://api.openrouteservice.org/v2/directions/driving-car/geojson";
   var body = {
     coordinates: [[origin.lng, origin.lat], [destination.lng, destination.lat]],
-    alternative_routes: { target_count: 3, weight_factor: 1.8, share_factor: 0.5 },
     instructions: true,
     preference: "fastest",
     units: "m",
     language: "en"
   };
+  if (opts.avoidTolls) {
+    body.options = { avoid_features: ["tollways"] };
+  } else {
+    body.alternative_routes = { target_count: 3, weight_factor: 1.8, share_factor: 0.5 };
+  }
   var resp = await fetch(url, {
     method: "POST",
     headers: {
@@ -889,7 +969,76 @@ function renderMap(winner, origin, destination) {
 }
 
 // ============================================================
-// RENDER
+// RENDER - COMPARISON (toll vs no-toll)
+// ============================================================
+function renderComparison(tunnelRoute, noTollRoute, origin, destination) {
+  var area = document.getElementById("resultsArea");
+
+  var winner = tunnelRoute.totalGBP <= noTollRoute.totalGBP ? tunnelRoute : noTollRoute;
+  var loser = winner === tunnelRoute ? noTollRoute : tunnelRoute;
+  var saving = loser.totalGBP - winner.totalGBP;
+  var timeDiff = winner.durationMin - loser.durationMin;
+  var timeNote = timeDiff > 0 ? (timeDiff + "m slower") : (timeDiff < 0 ? (-timeDiff + "m faster") : "same time");
+
+  var gmapWinner = buildGoogleMapsUrl(origin, destination, winner.usesTyneTunnel);
+  var gmapLoser = buildGoogleMapsUrl(origin, destination, loser.usesTyneTunnel);
+
+  area.innerHTML = ''
+    + '<div id="map"></div>'
+    + '<div class="tab-row">'
+    +   '<button class="tab-btn active" data-view="winner">'
+    +     '<div class="tab-label">' + (winner === tunnelRoute ? "Via Tunnel" : "Avoid Tunnel") + '</div>'
+    +     '<div class="tab-cost">&pound;' + winner.totalGBP.toFixed(2) + '</div>'
+    +     '<div class="tab-badge">CHEAPEST</div>'
+    +   '</button>'
+    +   '<button class="tab-btn" data-view="loser">'
+    +     '<div class="tab-label">' + (loser === tunnelRoute ? "Via Tunnel" : "Avoid Tunnel") + '</div>'
+    +     '<div class="tab-cost">&pound;' + loser.totalGBP.toFixed(2) + '</div>'
+    +     '<div class="tab-diff">+&pound;' + saving.toFixed(2) + ' &middot; ' + timeNote + '</div>'
+    +   '</button>'
+    + '</div>'
+    + '<div class="result-card" id="detailCard"></div>';
+
+  function renderDetail(route, isWinner) {
+    var gmap = buildGoogleMapsUrl(origin, destination, route.usesTyneTunnel);
+    var roads = route.keyRoads.length ? "via " + route.keyRoads.join(" \u2192 ") : "direct";
+    var label = route.usesTyneTunnel ? "Via Tyne Tunnel" : "Avoiding Tyne Tunnel";
+    var card = document.getElementById("detailCard");
+    card.className = "result-card" + (isWinner ? "" : " result-card-loser");
+    card.innerHTML = ''
+      + '<div class="route-label">' + label + '</div>'
+      + '<div class="result-top">'
+      +   '<div class="result-roads">' + escapeHtml(roads) + '</div>'
+      +   '<div class="result-cost">&pound;' + route.totalGBP.toFixed(2) + '</div>'
+      + '</div>'
+      + '<div class="result-summary">' + route.distanceMiles.toFixed(1) + ' mi &middot; ' + formatDuration(route.durationMin) + '</div>'
+      + '<div class="result-breakdown">'
+      +   '<div><div class="breakdown-label">Fuel</div><div class="breakdown-value">&pound;' + route.fuelCostGBP.toFixed(2) + '</div></div>'
+      +   '<div><div class="breakdown-label">Toll</div><div class="breakdown-value ' + (route.tollGBP > 0 ? "has-toll" : "") + '">' + (route.tollGBP > 0 ? "&pound;" + route.tollGBP.toFixed(2) : "-") + '</div></div>'
+      +   '<div><div class="breakdown-label">Litres</div><div class="breakdown-value">' + route.litres.toFixed(2) + '</div></div>'
+      + '</div>'
+      + '<a class="go-btn" href="' + gmap + '" target="_blank" rel="noopener">Drive it &rarr;</a>';
+  }
+
+  renderDetail(winner, true);
+  renderMap(winner, origin, destination);
+
+  // Tab wiring
+  var tabs = area.querySelectorAll(".tab-btn");
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      tabs.forEach(function (t) { t.classList.remove("active"); });
+      tab.classList.add("active");
+      var isWinnerView = tab.getAttribute("data-view") === "winner";
+      var route = isWinnerView ? winner : loser;
+      renderDetail(route, isWinnerView);
+      renderMap(route, origin, destination);
+    });
+  });
+}
+
+// ============================================================
+// RENDER - SINGLE RESULT (no tunnel in any option)
 // ============================================================
 function renderResult(winner, alternatives, origin, destination) {
   var area = document.getElementById("resultsArea");
@@ -911,7 +1060,7 @@ function renderResult(winner, alternatives, origin, destination) {
 
   area.innerHTML = ''
     + '<div id="map"></div>'
-    + '<div class="result-card">'
+    + '<div class="result-card result-card-solo">'
     +   '<div class="result-top">'
     +     '<div class="result-roads">' + escapeHtml(roads) + '</div>'
     +     '<div class="result-cost">&pound;' + winner.totalGBP.toFixed(2) + '</div>'
@@ -964,14 +1113,40 @@ async function handleCheck() {
     var origin = results[0];
     var destination = results[1];
 
-    var routes = await computeRoutes(origin, destination);
+    var routes = await computeRoutes(origin, destination, {});
     var calculated = routes.map(function (f, i) { return calculateRouteCost(f, i); });
     var sorted = calculated.slice().sort(function (a, b) { return a.totalGBP - b.totalGBP; });
-    var winner = sorted[0];
-    var alternatives = sorted.slice(1);
+
+    // If any route uses the tunnel, get a guaranteed no-toll route too.
+    var anyTunnel = calculated.some(function (r) { return r.usesTyneTunnel; });
+    var tunnelRoute = null;
+    var noTollRoute = null;
+
+    if (anyTunnel) {
+      tunnelRoute = calculated.find(function (r) { return r.usesTyneTunnel; });
+      // Try existing alternatives for a non-tunnel option
+      noTollRoute = calculated.find(function (r) { return !r.usesTyneTunnel; });
+      // If all alternatives use the tunnel, force a second call
+      if (!noTollRoute) {
+        try {
+          var avoidedRoutes = await computeRoutes(origin, destination, { avoidTolls: true });
+          var avoidedCalc = avoidedRoutes.map(function (f, i) { return calculateRouteCost(f, i); });
+          noTollRoute = avoidedCalc[0];
+        } catch (e) {
+          // If the avoidance call fails (e.g. no alternative exists), carry on without it
+          noTollRoute = null;
+        }
+      }
+    }
 
     setStatus("");
-    renderResult(winner, alternatives, origin, destination);
+    if (anyTunnel && noTollRoute) {
+      renderComparison(tunnelRoute, noTollRoute, origin, destination);
+    } else {
+      var winner = sorted[0];
+      var alternatives = sorted.slice(1);
+      renderResult(winner, alternatives, origin, destination);
+    }
   } catch (err) {
     setStatus(escapeHtml(err.message), "error");
   } finally {
