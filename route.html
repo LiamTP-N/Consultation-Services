@@ -17,6 +17,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+
 <style>
 :root {
   --bg: #0a0a0a;
@@ -29,7 +31,6 @@
   --accent: #ffd60a;
   --green: #4ade80;
   --red: #f87171;
-  --blue: #60a5fa;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -56,13 +57,13 @@ body {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--border);
 }
 .header h1 {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 32px;
+  font-size: 28px;
   letter-spacing: 0.02em;
   color: var(--text);
 }
@@ -77,96 +78,41 @@ body {
   cursor: pointer;
   border-radius: 4px;
   letter-spacing: 0.05em;
-  transition: all 0.15s;
 }
-.settings-btn:hover, .settings-btn:active { border-color: var(--accent); color: var(--accent); }
+.settings-btn:active { border-color: var(--accent); color: var(--accent); }
 
-.fuel-strip {
-  background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+.origin-card {
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 14px 16px;
-  margin-bottom: 16px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.origin-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: 8px;
+  align-items: stretch;
 }
-.fuel-strip-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-.fuel-strip-store {
+
+.gps-btn {
+  background: var(--accent);
+  border: none;
+  color: #000;
+  padding: 0 18px;
   font-size: 13px;
-  color: var(--text-dim);
-  font-weight: 500;
-}
-.fuel-strip-price {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 42px;
-  color: var(--accent);
-  line-height: 1;
-  letter-spacing: 0.01em;
-}
-.fuel-strip-price .unit {
-  font-size: 16px;
-  color: var(--text-dim);
-  margin-left: 2px;
   font-family: 'JetBrains Mono', monospace;
-}
-.fuel-strip-price .p-edit {
-  font-size: 18px;
-  color: var(--text-dim);
-  margin-left: 6px;
-  cursor: pointer;
-  user-select: none;
-}
-.fuel-strip.loading .fuel-strip-price { color: var(--text-muted); }
-.fuel-strip.error .fuel-strip-price { color: var(--red); font-size: 18px; font-family: 'Inter', sans-serif; }
-
-.toll-strip {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 10px 14px;
-  margin-bottom: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-  color: var(--text-dim);
-  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
   letter-spacing: 0.05em;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
 }
-.toll-strip strong { color: var(--accent); font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 0.02em; font-weight: normal; }
+.gps-btn:active { opacity: 0.85; }
+.gps-btn.active { background: var(--green); }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-}
-
-.field { margin-bottom: 12px; }
-.field:last-child { margin-bottom: 0; }
-
-.field-label {
-  display: block;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.field-row { display: flex; gap: 8px; }
-
-input[type="text"], input[type="number"], input[type="datetime-local"] {
+input[type="text"] {
   flex: 1;
   background: var(--surface-2);
   border: 1px solid var(--border);
@@ -176,46 +122,28 @@ input[type="text"], input[type="number"], input[type="datetime-local"] {
   font-family: 'Inter', sans-serif;
   border-radius: 6px;
   outline: none;
-  transition: border-color 0.15s;
   min-width: 0;
 }
-input[type="text"]:focus, input[type="number"]:focus, input[type="datetime-local"]:focus { border-color: var(--accent); }
+input[type="text"]:focus { border-color: var(--accent); }
 input::placeholder { color: var(--text-muted); }
-input[type="datetime-local"] {
-  color-scheme: dark;
-}
-
-.icon-btn {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  padding: 0 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-.icon-btn:hover, .icon-btn:active { border-color: var(--accent); color: var(--accent); }
 
 .check-btn {
   width: 100%;
   background: var(--accent);
   border: none;
   color: #000;
-  padding: 16px;
-  font-size: 14px;
+  padding: 18px;
+  font-size: 15px;
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.1s, opacity 0.15s;
-  margin-top: 4px;
+  margin-bottom: 16px;
 }
-.check-btn:active { transform: scale(0.98); }
-.check-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.check-btn:active { transform: scale(0.99); }
+.check-btn:disabled { opacity: 0.4; }
 
 .status {
   padding: 12px 14px;
@@ -227,34 +155,19 @@ input[type="datetime-local"] {
 .status.error { border-color: var(--red); color: var(--red); background: rgba(248, 113, 113, 0.05); }
 .status.info { color: var(--text-dim); }
 
-.results-header {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin: 20px 0 10px;
-  padding-left: 4px;
-}
-
-.route {
+.result-card {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 10px;
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 12px;
   position: relative;
-  transition: border-color 0.15s;
 }
-.route.winner {
-  border-color: var(--accent);
-  background: linear-gradient(180deg, rgba(255, 214, 10, 0.04) 0%, var(--surface) 100%);
-}
-.route.winner::before {
-  content: 'CHEAPEST';
+.result-card::before {
+  content: 'CHEAPEST ROUTE HOME';
   position: absolute;
-  top: -8px;
-  left: 14px;
+  top: -10px;
+  left: 16px;
   background: var(--accent);
   color: #000;
   font-family: 'JetBrains Mono', monospace;
@@ -265,22 +178,39 @@ input[type="datetime-local"] {
   border-radius: 3px;
 }
 
-.route-top {
+.result-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 10px;
   gap: 12px;
+  margin-bottom: 6px;
 }
-.route-roads {
+
+.result-cost {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 44px;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.result-roads {
   font-size: 13px;
   color: var(--text);
   font-family: 'JetBrains Mono', monospace;
-  margin-bottom: 4px;
   line-height: 1.5;
   font-weight: 500;
+  flex: 1;
+  padding-top: 4px;
 }
-.route-tunnel-badge {
+
+.result-summary {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 6px;
+}
+
+.result-tunnel-badge {
   display: inline-block;
   background: rgba(255, 214, 10, 0.15);
   border: 1px solid rgba(255, 214, 10, 0.3);
@@ -288,33 +218,22 @@ input[type="datetime-local"] {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.1em;
-  padding: 2px 6px;
+  padding: 3px 7px;
   border-radius: 3px;
-  margin-top: 4px;
+  margin-top: 6px;
   text-transform: uppercase;
 }
-.route-summary {
-  font-size: 12px;
-  color: var(--text-dim);
-  font-family: 'JetBrains Mono', monospace;
-}
-.route-cost {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 34px;
-  color: var(--text);
-  line-height: 1;
-  white-space: nowrap;
-}
-.route.winner .route-cost { color: var(--accent); }
 
-.route-breakdown {
+.result-breakdown {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-  padding-top: 12px;
+  padding: 12px 0;
+  margin-top: 10px;
   border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
 }
-.breakdown-item { text-align: left; }
 .breakdown-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
@@ -331,42 +250,83 @@ input[type="datetime-local"] {
 }
 .breakdown-value.has-toll { color: var(--accent); }
 
-.savings {
-  margin-top: 12px;
-  padding: 10px 12px;
-  background: rgba(74, 222, 128, 0.08);
-  border: 1px solid rgba(74, 222, 128, 0.2);
-  border-radius: 6px;
-  font-size: 13px;
-  color: var(--green);
-  text-align: center;
-}
-
-.route-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-}
-.route-action {
-  flex: 1;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 10px;
-  border-radius: 6px;
-  cursor: pointer;
+.alt-line {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  letter-spacing: 0.05em;
-  text-decoration: none;
-  text-align: center;
-  transition: all 0.15s;
-  display: block;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  line-height: 1.6;
 }
-.route-action:hover, .route-action:active { border-color: var(--accent); color: var(--accent); }
-.route-action.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
-.route-action.primary:hover, .route-action.primary:active { opacity: 0.9; color: #000; }
 
+.go-btn {
+  display: block;
+  width: 100%;
+  background: var(--accent);
+  color: #000;
+  padding: 16px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 8px;
+  margin-top: 14px;
+  transition: opacity 0.15s;
+}
+.go-btn:active { opacity: 0.85; }
+
+#map {
+  width: 100%;
+  height: 280px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: #111;
+  z-index: 1;
+}
+.leaflet-container { background: #111; }
+.leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9); }
+
+/* Fuel + toll compact strip */
+.info-strip {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.info-box {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+.info-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.info-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--accent);
+  line-height: 1;
+}
+.info-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 3px;
+}
+
+/* MODAL */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -374,7 +334,7 @@ input[type="datetime-local"] {
   display: none;
   align-items: flex-end;
   justify-content: center;
-  z-index: 100;
+  z-index: 1000;
   padding: 16px;
   overflow-y: auto;
 }
@@ -386,7 +346,6 @@ input[type="datetime-local"] {
   padding: 20px;
   width: 100%;
   max-width: 520px;
-  margin-bottom: env(safe-area-inset-bottom);
   max-height: calc(100dvh - 32px);
   overflow-y: auto;
 }
@@ -396,20 +355,16 @@ input[type="datetime-local"] {
   letter-spacing: 0.02em;
   margin-bottom: 16px;
 }
-.modal-close {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 10px;
-  width: 100%;
-  border-radius: 6px;
-  cursor: pointer;
+.field { margin-bottom: 12px; }
+.field-label {
+  display: block;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-size: 10px;
   letter-spacing: 0.1em;
-  margin-top: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
 }
-
 .help-text {
   font-size: 12px;
   color: var(--text-muted);
@@ -417,23 +372,39 @@ input[type="datetime-local"] {
   line-height: 1.4;
 }
 .help-text a { color: var(--text-dim); text-decoration: underline; }
-
 .checkbox-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 0;
+  padding: 8px 0;
 }
 .checkbox-row input[type="checkbox"] {
   width: 18px;
   height: 18px;
   accent-color: var(--accent);
+}
+.modal-close {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px;
+  width: 100%;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  margin-top: 12px;
   cursor: pointer;
 }
-.checkbox-row label {
-  font-size: 13px;
+input[type="number"] {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
   color: var(--text);
-  cursor: pointer;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
 }
 
 .spinner {
@@ -450,8 +421,8 @@ input[type="datetime-local"] {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .meta {
-  margin-top: 24px;
-  padding-top: 16px;
+  margin-top: 16px;
+  padding-top: 14px;
   border-top: 1px solid var(--border);
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
@@ -466,95 +437,79 @@ input[type="datetime-local"] {
 <body>
 
 <div class="header">
-  <h1>ROUTE<span>&middot;</span>CHECK</h1>
+  <h1>ROUTE<span>&middot;</span>HOME</h1>
   <button class="settings-btn" id="settingsBtn">SETTINGS</button>
 </div>
 
-<div class="fuel-strip loading" id="fuelStrip">
-  <div>
-    <div class="fuel-strip-label">Unleaded E10</div>
-    <div class="fuel-strip-store" id="fuelStore">Loading...</div>
+<div class="info-strip">
+  <div class="info-box">
+    <div class="info-label">Fuel E10</div>
+    <div class="info-value" id="fuelValue">---</div>
+    <div class="info-sub" id="fuelSub">Loading...</div>
   </div>
-  <div class="fuel-strip-price" id="fuelPrice">---<span class="unit">p/L</span><span class="p-edit" id="priceEdit" title="Override">&#9998;</span></div>
+  <div class="info-box">
+    <div class="info-label">Tyne Tunnel</div>
+    <div class="info-value" id="tollValue">&pound;2.25</div>
+    <div class="info-sub" id="tollSub">Class 2, account</div>
+  </div>
 </div>
 
-<div class="toll-strip" id="tollStrip">
-  <span>Tyne Tunnel (Class 2, account)</span>
-  <strong id="tollDisplay">&pound;2.25</strong>
+<div class="origin-card">
+  <div class="origin-row">
+    <button class="gps-btn active" id="gpsBtn">GPS</button>
+    <input type="text" id="origin" placeholder="Or type a postcode / address" autocomplete="off">
+  </div>
 </div>
 
-<div class="card">
-  <div class="field">
-    <label class="field-label">From</label>
-    <div class="field-row">
-      <input type="text" id="origin" placeholder="Current location" autocomplete="off">
-      <button class="icon-btn" id="geoBtn" title="Use GPS">&#9678;</button>
-    </div>
-  </div>
-  <div class="field">
-    <label class="field-label">To</label>
-    <div class="field-row">
-      <input type="text" id="destination" placeholder="Postcode or address" autocomplete="off">
-      <button class="icon-btn" id="homeBtn" title="Set/use home">&#8962;</button>
-    </div>
-  </div>
-  <div class="field">
-    <label class="field-label">Time of travel</label>
-    <div class="checkbox-row" style="padding:4px 0 8px">
-      <input type="checkbox" id="nowInput" checked>
-      <label for="nowInput">Leaving now</label>
-    </div>
-    <input type="datetime-local" id="departureInput" style="display:none">
-  </div>
-  <button class="check-btn" id="checkBtn">Compare routes</button>
-</div>
+<button class="check-btn" id="checkBtn">Find cheapest route home</button>
 
 <div id="statusArea"></div>
 <div id="resultsArea"></div>
 
-<div class="meta" id="meta">
-  Prices from <a href="https://checkfuelprices.co.uk" target="_blank" rel="noopener">checkfuelprices.co.uk</a>
+<div class="meta">
+  Home: <span id="homeDisplay">loading</span> &middot; Prices from <a href="https://checkfuelprices.co.uk" target="_blank" rel="noopener">checkfuelprices.co.uk</a>
 </div>
 
+<!-- SETTINGS MODAL -->
 <div class="modal-backdrop" id="settingsModal">
   <div class="modal">
     <h2>Settings</h2>
     <div class="field">
-      <label class="field-label">OpenRouteService API Key</label>
-      <input type="text" id="apiKeyInput" placeholder="eyJvcmciOi...">
-      <div class="help-text">Free, no card needed. <a href="https://openrouteservice.org/dev/#/signup" target="_blank" rel="noopener">Sign up</a>. Limit 2,000 requests/day.</div>
-    </div>
-    <div class="field">
-      <label class="field-label">Vehicle MPG (combined)</label>
-      <input type="number" id="mpgInput" placeholder="31" step="0.1" min="5" max="200">
-      <div class="help-text">Default 31 for 2019 Jaguar E-Pace P200 AWD.</div>
-    </div>
-    <div class="field">
       <label class="field-label">Home address</label>
-      <input type="text" id="homeInput" placeholder="e.g. 36 Imeary Street, South Shields">
+      <input type="text" id="homeInput" placeholder="36 Imeary Street, South Shields">
+    </div>
+    <div class="field">
+      <label class="field-label">Vehicle MPG</label>
+      <input type="number" id="mpgInput" placeholder="31" step="0.1" min="5" max="200">
     </div>
     <div class="field">
       <label class="field-label">Fuel search postcode</label>
       <input type="text" id="postcodeInput" placeholder="NE33 1AZ">
-      <div class="help-text">Used to find the nearest ASDA for pricing. Leave as NE33 for South Shields.</div>
+      <div class="help-text">Used to find the nearest station for live pricing.</div>
     </div>
     <div class="field">
-      <label class="field-label">Preferred fuel station brand</label>
+      <label class="field-label">Preferred fuel brand</label>
       <input type="text" id="brandInput" placeholder="ASDA">
-      <div class="help-text">First match wins. Falls back to cheapest nearby if not found.</div>
+      <div class="help-text">First match within 5 miles wins, else cheapest nearby.</div>
+    </div>
+    <div class="field">
+      <label class="field-label">OpenRouteService API Key</label>
+      <input type="text" id="apiKeyInput" placeholder="eyJvcmciOi...">
+      <div class="help-text"><a href="https://openrouteservice.org/dev/#/signup" target="_blank" rel="noopener">Free key</a>. 2,000 requests/day.</div>
     </div>
     <div class="field">
       <label class="field-label">Tyne Tunnel</label>
       <div class="checkbox-row">
         <input type="checkbox" id="accountInput">
-        <label for="accountInput">I have a TT2 Pre-Paid Account (10% off)</label>
+        <label for="accountInput">TT2 Pre-Paid Account (10% off)</label>
       </div>
-      <div class="help-text">Class 2 (car) &middot; one-way &middot; auto-detected from route geometry. Schedule updates automatically on 1 May 2026.</div>
+      <div class="help-text">Class 2, one-way. Auto-switches to &pound;2.60 on 1 May 2026.</div>
     </div>
     <button class="modal-close" id="modalClose">SAVE &amp; CLOSE</button>
   </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
 // ============================================================
 // CONFIG & STATE
@@ -572,8 +527,10 @@ var DEFAULTS = {
 var state = {
   settings: Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem("routeCheck.settings") || "{}")),
   fuelPencePerLitre: null,
-  fuelStoreName: null,
-  fuelUpdatedText: null
+  useGps: true,
+  map: null,
+  routeLayer: null,
+  markersLayer: null
 };
 
 var LITRES_PER_GALLON = 4.54609;
@@ -591,7 +548,7 @@ var TYNE_TUNNEL_BOX = {
 };
 
 // ============================================================
-// TOLL LOGIC
+// TOLL
 // ============================================================
 function getCurrentTollGBP() {
   var today = new Date().toISOString().slice(0, 10);
@@ -602,9 +559,8 @@ function getCurrentTollGBP() {
 
 function updateTollDisplay() {
   var toll = getCurrentTollGBP();
-  var label = state.settings.tt2Account ? "Class 2, account" : "Class 2, pay as you go";
-  document.getElementById("tollDisplay").textContent = "\u00a3" + toll.toFixed(2);
-  document.querySelector("#tollStrip span").textContent = "Tyne Tunnel (" + label + ")";
+  document.getElementById("tollValue").textContent = "\u00a3" + toll.toFixed(2);
+  document.getElementById("tollSub").textContent = state.settings.tt2Account ? "Class 2, account" : "Class 2, pay as you go";
 }
 
 function routePassesThroughTyneTunnel(coords) {
@@ -627,29 +583,32 @@ function saveSettings() {
 }
 
 function loadSettingsIntoUI() {
-  document.getElementById("apiKeyInput").value = state.settings.apiKey || "";
-  document.getElementById("mpgInput").value = state.settings.mpg;
   document.getElementById("homeInput").value = state.settings.home;
+  document.getElementById("mpgInput").value = state.settings.mpg;
   document.getElementById("postcodeInput").value = state.settings.postcode;
   document.getElementById("brandInput").value = state.settings.brand;
+  document.getElementById("apiKeyInput").value = state.settings.apiKey || "";
   document.getElementById("accountInput").checked = state.settings.tt2Account;
 }
 
 function readSettingsFromUI() {
-  state.settings.apiKey = document.getElementById("apiKeyInput").value.trim();
-  state.settings.mpg = parseFloat(document.getElementById("mpgInput").value) || DEFAULTS.mpg;
   state.settings.home = document.getElementById("homeInput").value.trim() || DEFAULTS.home;
+  state.settings.mpg = parseFloat(document.getElementById("mpgInput").value) || DEFAULTS.mpg;
   state.settings.postcode = document.getElementById("postcodeInput").value.trim() || DEFAULTS.postcode;
   state.settings.brand = document.getElementById("brandInput").value.trim() || DEFAULTS.brand;
+  state.settings.apiKey = document.getElementById("apiKeyInput").value.trim();
   state.settings.tt2Account = document.getElementById("accountInput").checked;
   saveSettings();
   updateTollDisplay();
+  updateHomeDisplay();
+}
+
+function updateHomeDisplay() {
+  document.getElementById("homeDisplay").textContent = state.settings.home;
 }
 
 // ============================================================
-// FUEL PRICE - checkfuelprices.co.uk live API
-// Data sourced from UK Gov Fuel Finder + CMA retailer feeds.
-// CORS-enabled, no key required.
+// FUEL
 // ============================================================
 async function postcodeToCoords(postcode) {
   var clean = postcode.replace(/\s+/g, "");
@@ -661,7 +620,6 @@ async function postcodeToCoords(postcode) {
 }
 
 function formatUpdated(dateStr) {
-  // dateStr is format "DD/MM/YYYY HH:MM:SS"
   if (!dateStr) return null;
   var parts = dateStr.split(" ");
   if (parts.length !== 2) return dateStr;
@@ -674,22 +632,17 @@ function formatUpdated(dateStr) {
   var hours = Math.floor(ms / (1000 * 60 * 60));
   if (hours < 1) return "just now";
   if (hours < 24) return hours + "h ago";
-  var days = Math.floor(hours / 24);
-  return days + "d ago";
+  return Math.floor(hours / 24) + "d ago";
 }
 
 async function fetchFuelPrice() {
-  var strip = document.getElementById("fuelStrip");
-  var priceEl = document.getElementById("fuelPrice");
-  var storeEl = document.getElementById("fuelStore");
+  var valEl = document.getElementById("fuelValue");
+  var subEl = document.getElementById("fuelSub");
 
   if (state.settings.priceOverride) {
     state.fuelPencePerLitre = state.settings.priceOverride;
-    state.fuelStoreName = "Manual override";
-    priceEl.innerHTML = state.fuelPencePerLitre.toFixed(1) + '<span class="unit">p/L</span><span class="p-edit" id="priceEdit">&#9998;</span>';
-    storeEl.textContent = "Manual override";
-    strip.classList.remove("loading", "error");
-    attachPriceEditHandler();
+    valEl.textContent = state.fuelPencePerLitre.toFixed(1) + "p";
+    subEl.textContent = "Manual";
     return;
   }
 
@@ -698,13 +651,10 @@ async function fetchFuelPrice() {
     var apiUrl = "https://checkfuelprices.co.uk/api/widget/stations?lat=" + coords.lat
       + "&lng=" + coords.lng + "&fuel=E10";
     var resp = await fetch(apiUrl);
-    if (!resp.ok) throw new Error("Fuel API HTTP " + resp.status);
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
     var data = await resp.json();
-    if (!data.success || !data.stations || !data.stations.length) {
-      throw new Error("No fuel stations returned");
-    }
+    if (!data.success || !data.stations || !data.stations.length) throw new Error("No stations");
 
-    // Prefer the configured brand, fall back to cheapest overall
     var brandMatch = null;
     var brandLower = (state.settings.brand || "").toLowerCase();
     if (brandLower) {
@@ -715,46 +665,28 @@ async function fetchFuelPrice() {
     var chosen = brandMatch || data.stations[0];
 
     state.fuelPencePerLitre = chosen.price;
-    state.fuelStoreName = (chosen.brand || "") + " " + (chosen.address || "").split(",")[0];
-    state.fuelUpdatedText = formatUpdated(chosen.price_updated);
-
-    priceEl.innerHTML = state.fuelPencePerLitre.toFixed(1) + '<span class="unit">p/L</span><span class="p-edit" id="priceEdit">&#9998;</span>';
-    var note = state.fuelUpdatedText ? " \u00b7 " + state.fuelUpdatedText : "";
-    storeEl.textContent = state.fuelStoreName + note;
-    strip.classList.remove("loading", "error");
-    attachPriceEditHandler();
+    valEl.textContent = state.fuelPencePerLitre.toFixed(1) + "p";
+    var updated = formatUpdated(chosen.price_updated);
+    subEl.textContent = (chosen.brand || "Station") + (updated ? " \u00b7 " + updated : "");
   } catch (err) {
-    strip.classList.remove("loading");
-    strip.classList.add("error");
-    priceEl.innerHTML = '<span style="font-size:16px;font-family:Inter,sans-serif">Tap to enter manually</span>';
-    storeEl.textContent = err.message;
-    strip.style.cursor = "pointer";
-    strip.onclick = promptManualPrice;
+    valEl.textContent = "---";
+    subEl.textContent = "Tap to enter";
+    valEl.parentElement.style.cursor = "pointer";
+    valEl.parentElement.onclick = promptManualPrice;
   }
-}
-
-function attachPriceEditHandler() {
-  var el = document.getElementById("priceEdit");
-  if (el) el.onclick = function (e) { e.stopPropagation(); promptManualPrice(); };
 }
 
 function promptManualPrice() {
   var current = state.fuelPencePerLitre ? state.fuelPencePerLitre.toFixed(1) : "";
-  var input = prompt("Enter fuel price in pence per litre (e.g. 155.7). Leave blank to restore live feed.", current);
+  var input = prompt("Enter fuel price in pence per litre. Leave blank to restore live feed.", current);
   if (input === null) return;
   if (input.trim() === "") {
     state.settings.priceOverride = null;
   } else {
     var val = parseFloat(input);
-    if (!isNaN(val) && val > 50 && val < 300) {
-      state.settings.priceOverride = val;
-    }
+    if (!isNaN(val) && val > 50 && val < 300) state.settings.priceOverride = val;
   }
   saveSettings();
-  document.getElementById("fuelStrip").classList.add("loading");
-  document.getElementById("fuelStrip").classList.remove("error");
-  document.getElementById("fuelStrip").style.cursor = "";
-  document.getElementById("fuelStrip").onclick = null;
   fetchFuelPrice();
 }
 
@@ -773,7 +705,7 @@ function getCurrentPosition() {
 }
 
 // ============================================================
-// OPENROUTESERVICE API
+// ORS
 // ============================================================
 async function geocode(address) {
   var key = state.settings.apiKey;
@@ -781,62 +713,31 @@ async function geocode(address) {
     + "&text=" + encodeURIComponent(address)
     + "&boundary.country=GB&size=1";
   var resp = await fetch(url);
-  if (!resp.ok) {
-    var errText = await resp.text();
-    throw new Error("Geocoding HTTP " + resp.status + ": " + errText.slice(0, 150));
-  }
+  if (!resp.ok) throw new Error("Geocoding HTTP " + resp.status);
   var data = await resp.json();
-  if (!data.features || !data.features.length) {
-    throw new Error('No match for "' + address + '"');
-  }
-  var coords = data.features[0].geometry.coordinates;
-  return { lat: coords[1], lng: coords[0], formatted: data.features[0].properties.label };
+  if (!data.features || !data.features.length) throw new Error('Address not found');
+  var c = data.features[0].geometry.coordinates;
+  return { lat: c[1], lng: c[0] };
 }
 
 async function resolveOrigin() {
-  var input = document.getElementById("origin").value.trim();
-  if (!input) return await getCurrentPosition();
-  return await geocode(input);
+  var typed = document.getElementById("origin").value.trim();
+  if (typed) return await geocode(typed);
+  if (state.useGps) return await getCurrentPosition();
+  throw new Error("Tap GPS or type an origin");
 }
 
-async function resolveDestination() {
-  var input = document.getElementById("destination").value.trim();
-  if (!input) throw new Error("Destination required");
-  return await geocode(input);
-}
-
-function getDepartureISO() {
-  var nowChecked = document.getElementById("nowInput").checked;
-  if (nowChecked) return null;
-  var val = document.getElementById("departureInput").value;
-  if (!val) return null;
-  // datetime-local returns "YYYY-MM-DDTHH:MM" in local time.
-  // ORS expects "YYYY-MM-DDTHH:MM:SS" (local, no zone).
-  return val + ":00";
-}
-
-async function computeRoutes(origin, destination, departureISO) {
+async function computeRoutes(origin, destination) {
   var key = state.settings.apiKey;
   var url = "https://api.openrouteservice.org/v2/directions/driving-car/geojson";
-
   var body = {
-    coordinates: [
-      [origin.lng, origin.lat],
-      [destination.lng, destination.lat]
-    ],
-    alternative_routes: {
-      target_count: 3,
-      weight_factor: 1.8,
-      share_factor: 0.5
-    },
+    coordinates: [[origin.lng, origin.lat], [destination.lng, destination.lat]],
+    alternative_routes: { target_count: 3, weight_factor: 1.8, share_factor: 0.5 },
     instructions: true,
     preference: "fastest",
     units: "m",
     language: "en"
   };
-
-  if (departureISO) body.departure = departureISO;
-
   var resp = await fetch(url, {
     method: "POST",
     headers: {
@@ -846,26 +747,23 @@ async function computeRoutes(origin, destination, departureISO) {
     },
     body: JSON.stringify(body)
   });
-
   if (!resp.ok) {
     var err = await resp.text();
     throw new Error("ORS " + resp.status + ": " + err.slice(0, 200));
   }
-
   var data = await resp.json();
   if (!data.features || !data.features.length) throw new Error("No routes returned");
   return data.features;
 }
 
 // ============================================================
-// ROUTE SUMMARISATION
+// ROADS
 // ============================================================
 function extractKeyRoads(feature) {
   var segments = (feature.properties && feature.properties.segments) || [];
   var roadUsage = {};
   var roadOrder = {};
   var stepIdx = 0;
-
   segments.forEach(function (seg) {
     (seg.steps || []).forEach(function (step) {
       var name = step.name;
@@ -875,51 +773,37 @@ function extractKeyRoads(feature) {
       stepIdx++;
     });
   });
-
-  var entries = Object.keys(roadUsage)
+  return Object.keys(roadUsage)
     .map(function (k) { return { name: k, dist: roadUsage[k], order: roadOrder[k] }; })
     .filter(function (e) { return e.dist >= 200; })
     .sort(function (a, b) { return b.dist - a.dist; })
     .slice(0, 3)
-    .sort(function (a, b) { return a.order - b.order; });
-
-  return entries.map(function (e) { return e.name; });
+    .sort(function (a, b) { return a.order - b.order; })
+    .map(function (e) { return e.name; });
 }
 
 // ============================================================
-// COST CALCULATION
+// COSTS
 // ============================================================
 function calculateRouteCost(feature, idx) {
   var props = feature.properties || {};
   var summary = props.summary || {};
   var coords = (feature.geometry && feature.geometry.coordinates) || [];
-
-  var distanceMetres = summary.distance || 0;
-  var durationSec = summary.duration || 0;
-
-  var distanceKm = distanceMetres / 1000;
-  var distanceMiles = distanceKm * 0.621371;
-  var gallons = distanceMiles / state.settings.mpg;
-  var litres = gallons * LITRES_PER_GALLON;
+  var distanceMiles = (summary.distance || 0) / 1000 * 0.621371;
+  var litres = (distanceMiles / state.settings.mpg) * LITRES_PER_GALLON;
   var fuelCostGBP = (litres * state.fuelPencePerLitre) / 100;
-
   var usesTyneTunnel = routePassesThroughTyneTunnel(coords);
   var tollGBP = usesTyneTunnel ? getCurrentTollGBP() : 0;
-
-  var totalGBP = fuelCostGBP + tollGBP;
-  var keyRoads = extractKeyRoads(feature);
-
   return {
     distanceMiles: distanceMiles,
-    distanceKm: distanceKm,
     fuelCostGBP: fuelCostGBP,
     tollGBP: tollGBP,
-    totalGBP: totalGBP,
-    durationSec: durationSec,
-    durationMin: Math.round(durationSec / 60),
+    totalGBP: fuelCostGBP + tollGBP,
+    durationMin: Math.round((summary.duration || 0) / 60),
     litres: litres,
     usesTyneTunnel: usesTyneTunnel,
-    keyRoads: keyRoads,
+    keyRoads: extractKeyRoads(feature),
+    coords: coords,
     idx: idx
   };
 }
@@ -931,7 +815,7 @@ function formatDuration(mins) {
   return m ? h + "h " + m + "m" : h + "h";
 }
 
-function buildGoogleMapsUrl(origin, destination, viaTunnel, departureISO) {
+function buildGoogleMapsUrl(origin, destination, viaTunnel) {
   var o = origin.lat + "," + origin.lng;
   var d = destination.lat + "," + destination.lng;
   var base = "https://www.google.com/maps/dir/?api=1&origin=" + o + "&destination=" + d + "&travelmode=driving";
@@ -939,74 +823,113 @@ function buildGoogleMapsUrl(origin, destination, viaTunnel, departureISO) {
   return base;
 }
 
-function formatDepartureLabel(iso) {
-  if (!iso) return "now";
-  var d = new Date(iso);
-  if (isNaN(d)) return iso;
-  var today = new Date();
-  var sameDay = d.getFullYear() === today.getFullYear() &&
-                d.getMonth() === today.getMonth() &&
-                d.getDate() === today.getDate();
-  var time = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-  if (sameDay) return "today " + time;
-  var dateStr = d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
-  return dateStr + " " + time;
+// ============================================================
+// MAP
+// ============================================================
+function ensureMap() {
+  if (state.map) return state.map;
+
+  // Create the container div
+  var mapDiv = document.createElement("div");
+  mapDiv.id = "map";
+  var resultsArea = document.getElementById("resultsArea");
+  return mapDiv;
+}
+
+function renderMap(winner, origin, destination) {
+  // Ensure #map exists inside the result card
+  var mapContainer = document.getElementById("map");
+  if (!mapContainer) return;
+
+  if (!state.map) {
+    state.map = L.map("map", {
+      zoomControl: true,
+      attributionControl: false,
+      tap: true
+    });
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: ""
+    }).addTo(state.map);
+    L.control.attribution({ prefix: false }).addAttribution("&copy; OSM").addTo(state.map);
+  }
+
+  // Clear old layers
+  if (state.routeLayer) { state.map.removeLayer(state.routeLayer); state.routeLayer = null; }
+  if (state.markersLayer) { state.map.removeLayer(state.markersLayer); state.markersLayer = null; }
+
+  // Draw the route polyline (coords are [lng, lat], Leaflet wants [lat, lng])
+  var latlngs = winner.coords.map(function (c) { return [c[1], c[0]]; });
+  state.routeLayer = L.polyline(latlngs, {
+    color: "#ffd60a",
+    weight: 5,
+    opacity: 0.9,
+    lineJoin: "round"
+  }).addTo(state.map);
+
+  // Add start/end markers
+  state.markersLayer = L.layerGroup().addTo(state.map);
+  var startIcon = L.divIcon({
+    className: "",
+    html: '<div style="background:#4ade80;border:2px solid #0a0a0a;width:16px;height:16px;border-radius:50%;box-shadow:0 0 0 2px #4ade80"></div>',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8]
+  });
+  var endIcon = L.divIcon({
+    className: "",
+    html: '<div style="background:#ffd60a;border:2px solid #0a0a0a;width:18px;height:18px;border-radius:50%;box-shadow:0 0 0 2px #ffd60a"></div>',
+    iconSize: [18, 18],
+    iconAnchor: [9, 9]
+  });
+  L.marker([origin.lat, origin.lng], { icon: startIcon }).addTo(state.markersLayer);
+  L.marker([destination.lat, destination.lng], { icon: endIcon }).addTo(state.markersLayer);
+
+  // Fit map to route
+  state.map.fitBounds(state.routeLayer.getBounds(), { padding: [24, 24] });
 }
 
 // ============================================================
-// RENDERING
+// RENDER
 // ============================================================
-function renderRoutes(calculated, origin, destination, departureISO) {
+function renderResult(winner, alternatives, origin, destination) {
   var area = document.getElementById("resultsArea");
-  var sorted = calculated.slice().sort(function (a, b) { return a.totalGBP - b.totalGBP; });
+  var roads = winner.keyRoads.length ? "via " + winner.keyRoads.join(" \u2192 ") : "direct";
+  var gmap = buildGoogleMapsUrl(origin, destination, winner.usesTyneTunnel);
 
-  var html = '<div class="results-header">RECOMMENDATIONS &middot; ' + formatDepartureLabel(departureISO).toUpperCase() + '</div>';
+  var altHtml = "";
+  if (alternatives.length) {
+    altHtml = '<div class="alt-line">';
+    alternatives.forEach(function (a) {
+      var diff = a.totalGBP - winner.totalGBP;
+      var timeDiff = a.durationMin - winner.durationMin;
+      var roadLabel = a.keyRoads.length ? a.keyRoads[0] : "alt";
+      altHtml += 'vs ' + escapeHtml(roadLabel) + ': &pound;' + a.totalGBP.toFixed(2)
+        + ' (+&pound;' + diff.toFixed(2) + ', ' + (timeDiff >= 0 ? timeDiff + 'm slower' : (-timeDiff) + 'm faster') + ')<br>';
+    });
+    altHtml += '</div>';
+  }
 
-  sorted.forEach(function (r, i) {
-    var isWinner = i === 0 && sorted.length > 1;
-    var savingsVsNext = isWinner ? sorted[1].totalGBP - r.totalGBP : 0;
-    var timeDiff = isWinner ? r.durationMin - sorted[1].durationMin : 0;
+  area.innerHTML = ''
+    + '<div id="map"></div>'
+    + '<div class="result-card">'
+    +   '<div class="result-top">'
+    +     '<div class="result-roads">' + escapeHtml(roads) + '</div>'
+    +     '<div class="result-cost">&pound;' + winner.totalGBP.toFixed(2) + '</div>'
+    +   '</div>'
+    +   '<div class="result-summary">' + winner.distanceMiles.toFixed(1) + ' mi &middot; ' + formatDuration(winner.durationMin) + '</div>'
+    +   (winner.usesTyneTunnel ? '<div class="result-tunnel-badge">Tyne Tunnel</div>' : '')
+    +   '<div class="result-breakdown">'
+    +     '<div><div class="breakdown-label">Fuel</div><div class="breakdown-value">&pound;' + winner.fuelCostGBP.toFixed(2) + '</div></div>'
+    +     '<div><div class="breakdown-label">Toll</div><div class="breakdown-value ' + (winner.tollGBP > 0 ? "has-toll" : "") + '">' + (winner.tollGBP > 0 ? "&pound;" + winner.tollGBP.toFixed(2) : "-") + '</div></div>'
+    +     '<div><div class="breakdown-label">Litres</div><div class="breakdown-value">' + winner.litres.toFixed(2) + '</div></div>'
+    +   '</div>'
+    +   altHtml
+    +   '<a class="go-btn" href="' + gmap + '" target="_blank" rel="noopener">Drive it &rarr;</a>'
+    + '</div>';
 
-    var timeNote = "";
-    if (timeDiff > 0) timeNote = " (" + timeDiff + "m slower)";
-    else if (timeDiff < 0) timeNote = " (" + (-timeDiff) + "m faster)";
-
-    var roadsLine = r.keyRoads.length
-      ? "via " + r.keyRoads.map(escapeHtml).join(" \u2192 ")
-      : "route " + (r.idx + 1);
-
-    var gmapUrl = buildGoogleMapsUrl(origin, destination, r.usesTyneTunnel, departureISO);
-
-    html += ''
-      + '<div class="route ' + (isWinner ? "winner" : "") + '">'
-      +   '<div class="route-top">'
-      +     '<div style="flex:1;min-width:0">'
-      +       '<div class="route-roads">' + roadsLine + '</div>'
-      +       '<div class="route-summary">' + r.distanceMiles.toFixed(1) + ' mi &middot; ' + formatDuration(r.durationMin) + '</div>'
-      +       (r.usesTyneTunnel ? '<div class="route-tunnel-badge">Tyne Tunnel</div>' : '')
-      +     '</div>'
-      +     '<div class="route-cost">&pound;' + r.totalGBP.toFixed(2) + '</div>'
-      +   '</div>'
-      +   '<div class="route-breakdown">'
-      +     '<div class="breakdown-item"><div class="breakdown-label">Fuel</div><div class="breakdown-value">&pound;' + r.fuelCostGBP.toFixed(2) + '</div></div>'
-      +     '<div class="breakdown-item"><div class="breakdown-label">Toll</div><div class="breakdown-value ' + (r.tollGBP > 0 ? "has-toll" : "") + '">' + (r.tollGBP > 0 ? "&pound;" + r.tollGBP.toFixed(2) : "-") + '</div></div>'
-      +     '<div class="breakdown-item"><div class="breakdown-label">Litres</div><div class="breakdown-value">' + r.litres.toFixed(2) + '</div></div>'
-      +   '</div>'
-      +   (isWinner && savingsVsNext > 0.01 ? '<div class="savings">Saves &pound;' + savingsVsNext.toFixed(2) + ' vs. next cheapest' + timeNote + '</div>' : '')
-      +   '<div class="route-actions">'
-      +     '<a class="route-action ' + (isWinner ? "primary" : "") + '" href="' + gmapUrl + '" target="_blank" rel="noopener">Open in Google Maps</a>'
-      +   '</div>'
-      + '</div>';
-  });
-
-  area.innerHTML = html;
-
-  var meta = document.getElementById("meta");
-  meta.innerHTML = "Checked " + new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
-    + " \u00b7 " + (state.fuelPencePerLitre ? state.fuelPencePerLitre.toFixed(1) : "?") + "p/L"
-    + " \u00b7 " + state.settings.mpg + " mpg"
-    + " \u00b7 " + formatDepartureLabel(departureISO)
-    + '<br>Prices from <a href="https://checkfuelprices.co.uk" target="_blank" rel="noopener">checkfuelprices.co.uk</a>';
+  // Move the map div to sit above the result card (already in order in HTML above)
+  // Now initialise Leaflet on the #map div
+  renderMap(winner, origin, destination);
 }
 
 function escapeHtml(s) {
@@ -1026,24 +949,29 @@ function setStatus(msg, type) {
 async function handleCheck() {
   var btn = document.getElementById("checkBtn");
   btn.disabled = true;
-  setStatus('<span class="spinner"></span>Fetching routes...');
+  setStatus('<span class="spinner"></span>Finding cheapest route...');
   document.getElementById("resultsArea").innerHTML = "";
+  // Reset map state so Leaflet re-inits on a fresh div
+  state.map = null;
+  state.routeLayer = null;
+  state.markersLayer = null;
 
   try {
     if (!state.settings.apiKey) throw new Error("Add your OpenRouteService API key in Settings first.");
-    if (!state.fuelPencePerLitre) throw new Error("No fuel price available. Tap the price strip to enter manually.");
+    if (!state.fuelPencePerLitre) throw new Error("No fuel price available. Tap the fuel box to enter manually.");
 
-    var departureISO = getDepartureISO();
-
-    var results = await Promise.all([resolveOrigin(), resolveDestination()]);
+    var results = await Promise.all([resolveOrigin(), geocode(state.settings.home)]);
     var origin = results[0];
     var destination = results[1];
 
-    var routes = await computeRoutes(origin, destination, departureISO);
+    var routes = await computeRoutes(origin, destination);
     var calculated = routes.map(function (f, i) { return calculateRouteCost(f, i); });
+    var sorted = calculated.slice().sort(function (a, b) { return a.totalGBP - b.totalGBP; });
+    var winner = sorted[0];
+    var alternatives = sorted.slice(1);
 
     setStatus("");
-    renderRoutes(calculated, origin, destination, departureISO);
+    renderResult(winner, alternatives, origin, destination);
   } catch (err) {
     setStatus(escapeHtml(err.message), "error");
   } finally {
@@ -1052,22 +980,28 @@ async function handleCheck() {
 }
 
 // ============================================================
-// EVENT WIRING
+// EVENTS
 // ============================================================
 document.getElementById("checkBtn").addEventListener("click", handleCheck);
 
-document.getElementById("geoBtn").addEventListener("click", function () {
+document.getElementById("gpsBtn").addEventListener("click", function () {
+  state.useGps = true;
   document.getElementById("origin").value = "";
-  document.getElementById("origin").placeholder = "Current location (GPS)";
+  document.getElementById("gpsBtn").classList.add("active");
 });
 
-document.getElementById("homeBtn").addEventListener("click", function () {
-  var destInput = document.getElementById("destination");
-  if (destInput.value === state.settings.home) {
-    destInput.value = "";
+document.getElementById("origin").addEventListener("input", function (e) {
+  if (e.target.value.trim()) {
+    state.useGps = false;
+    document.getElementById("gpsBtn").classList.remove("active");
   } else {
-    destInput.value = state.settings.home;
+    state.useGps = true;
+    document.getElementById("gpsBtn").classList.add("active");
   }
+});
+
+document.getElementById("origin").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") handleCheck();
 });
 
 document.getElementById("settingsBtn").addEventListener("click", function () {
@@ -1078,7 +1012,6 @@ document.getElementById("settingsBtn").addEventListener("click", function () {
 document.getElementById("modalClose").addEventListener("click", function () {
   readSettingsFromUI();
   document.getElementById("settingsModal").classList.remove("open");
-  document.getElementById("fuelStrip").classList.add("loading");
   fetchFuelPrice();
 });
 
@@ -1089,34 +1022,12 @@ document.getElementById("settingsModal").addEventListener("click", function (e) 
   }
 });
 
-["origin", "destination"].forEach(function (id) {
-  document.getElementById(id).addEventListener("keydown", function (e) {
-    if (e.key === "Enter") handleCheck();
-  });
-});
-
-document.getElementById("nowInput").addEventListener("change", function (e) {
-  var picker = document.getElementById("departureInput");
-  if (e.target.checked) {
-    picker.style.display = "none";
-  } else {
-    picker.style.display = "block";
-    // Default to 1 hour from now if empty
-    if (!picker.value) {
-      var d = new Date(Date.now() + 60 * 60 * 1000);
-      d.setSeconds(0, 0);
-      var pad = function (n) { return String(n).padStart(2, "0"); };
-      picker.value = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate())
-        + "T" + pad(d.getHours()) + ":" + pad(d.getMinutes());
-    }
-  }
-});
-
 // ============================================================
 // INIT
 // ============================================================
 (function init() {
   updateTollDisplay();
+  updateHomeDisplay();
   fetchFuelPrice();
 })();
 </script>
