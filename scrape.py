@@ -1,11 +1,106 @@
 """
-Job scraper for: Indeed (RSS), Jobs.ac.uk (RSS), LinkedIn, Bluesky (UK)
-                 Indeed Canada (RSS), LinkedIn Canada, THEunijobs Canada (RSS),
-                 HigherEdJobs (RSS), University Affairs (HTML)
-Writes results to jobs.json
+================================================================
+SCRAPE.PY - automated job scraper for the consultancy jobs board
+================================================================
 
-Search terms tuned for: Sport Science, Kinesiology, Nutrition, Wearable Technology,
-                        Research, Academia, Lecturing (UK + Canada)
+Purpose
+-------
+Pulls fresh job postings from multiple UK and Canadian sources,
+filters them against a keyword list tuned for applied health and
+exercise science, dedupes across sources, and writes the result
+to jobs.json for the static site (jobs.html) to render client-side.
+
+Sources
+-------
+UK:
+  - Indeed UK     (RSS per search term)
+  - Jobs.ac.uk    (RSS, academic-focused)
+  - LinkedIn UK   (HTML scrape per search term)
+  - Bluesky       (@jobsinsportscience.bsky.social feed)
+
+Canada:
+  - Indeed Canada         (RSS)
+  - LinkedIn Canada       (HTML)
+  - THEunijobs Canada     (RSS)
+  - HigherEdJobs          (RSS)
+  - University Affairs    (HTML)
+
+Search terms live in SEARCH_TERMS_UK / SEARCH_TERMS_CA near the
+top of the file - edit there to tune what's pulled.
+
+Filtering
+---------
+Each candidate job passes through passes_filter():
+  - REQUIRED_KEYWORDS: at least one must match title/org/type
+  - EXCLUDE_KEYWORDS:  any match rejects the job
+This is coarse by design - the jobs.html frontend can refilter
+interactively.
+
+Dedup strategy
+--------------
+Two layers:
+  1. make_id(url, title) -> stable 16-char hash, used to merge
+     the same posting scraped repeatedly across daily runs.
+  2. deduplicate() runs at the end on (title, organisation, source)
+     tuples to kill cross-term duplicates within a single run
+     (e.g. the same Indeed job surfaced by two search terms).
+LinkedIn URLs are normalised first (query string stripped) so
+tracking params don't defeat the URL-based id.
+
+Output: jobs.json
+-----------------
+Shape:
+  {
+    "last_updated": "2026-04-24T07:00:00Z",  # ISO-8601 UTC
+    "jobs": [
+      {
+        "id":            "<16-char md5>",
+        "title":         str,
+        "organisation":  str,
+        "location":      str,
+        "type":          str,     # full-time/part-time/etc where available
+        "url":           str,
+        "source":        str,     # "Indeed UK", "Jobs.ac.uk", etc.
+        "date_posted":   str,     # ISO-8601, may be empty
+        "description":   str,     # truncated to MAX_FIELD_LEN
+        "country":       str      # "UK" or "Canada"
+      },
+      ...
+    ]
+  }
+
+Retention
+---------
+MAX_DAYS_OLD = 30. prune_old() drops anything older than that on
+each run to stop jobs.json growing unbounded. Jobs without a
+parseable date_posted are kept (erring on the side of visibility).
+
+Scheduling
+----------
+Run daily at 07:00 UTC by .github/workflows/scrape.yml on a
+GitHub Actions ubuntu-latest runner. The workflow commits the
+updated jobs.json back to main with retry-on-conflict (up to 5
+attempts with rebase), so the static site updates without a
+redeploy.
+
+Run manually:
+    python scrape.py
+
+Or trigger the workflow via the Actions tab (workflow_dispatch).
+
+Dependencies
+------------
+requests, beautifulsoup4, lxml. Installed by the workflow via
+pip; for local runs: pip install requests beautifulsoup4 lxml
+
+Notes
+-----
+- HEADERS sets a desktop-Chrome UA and en-GB accept-language.
+  LinkedIn in particular blocks default python-requests UA.
+- Each scraper function is self-contained and returns a list[dict]
+  in the unified shape above, so sources can be added or removed
+  by editing main() without touching anything else.
+- All timestamps stored UTC with "Z" suffix for consistency.
 """
 
 import json

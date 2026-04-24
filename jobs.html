@@ -7,11 +7,11 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Job Tracker | Dr. Liam T. Pearson-Noseworthy</title>
-    <meta name="description" content="A jobs board for sport science, nutrition, wearable technology, research, and academia roles across the UK and Canada. A passion project - something to give back to students and early-career researchers.">
+    <meta name="description" content="Daily-updated job board for sport science, nutrition, wearable technology, research, and academia roles. Scraped from Indeed, LinkedIn, Jobs.ac.uk, and Bluesky.">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Jobs in Sport & Exercise Science | Dr. Liam T. Pearson-Noseworthy">
-    <meta property="og:description" content="A jobs board for sport science, nutrition, wearable technology, research, and academia roles across the UK and Canada.">
+    <meta property="og:description" content="Daily-updated job board for sport science, nutrition, wearable technology, research, and academia roles.">
     <meta property="og:image" content="https://liamtp-n.github.io/Consultation-Services/assets/images/og-image.jpg">
     <meta property="og:url" content="https://liamtp-n.github.io/Consultation-Services/jobs.html">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -38,12 +38,11 @@
     <nav id="main-nav"></nav>
 
     <header class="pt-28 pb-8 px-4 bg-gradient-to-br from-slate-900 to-slate-800 animate-fade-in">
-        <div class="max-w-7xl mx-auto">
+        <div class="max-w-6xl mx-auto">
             <h1 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight mb-2">
                 Jobs in <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text">Sport &amp; Exercise Science</span>
             </h1>
-            <p class="text-slate-400 text-sm mb-3">UK &amp; Canada &middot; Sport Science &middot; Kinesiology &middot; Nutrition &middot; Research &middot; Academia</p>
-            <p class="text-slate-500 text-sm mb-6">A personal passion project - a small way of giving something back to students and early-career researchers in the field. Roles from the last 30 days, refreshed daily.</p>
+            <p class="text-slate-400 text-sm mb-6">UK &amp; Canada &middot; Sport Science &middot; Kinesiology &middot; Nutrition &middot; Research &middot; Academia - scraped daily at 07:00 UTC. Showing roles posted in the last 30 days.</p>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                 <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
@@ -117,7 +116,7 @@
     </header>
 
     <main class="flex-1 px-4 py-6">
-        <div class="max-w-7xl mx-auto">
+        <div class="max-w-6xl mx-auto">
             <div class="overflow-x-auto rounded-lg border border-slate-700">
                 <table class="w-full text-sm">
                     <thead>
@@ -171,6 +170,51 @@
 
     <script src="includes.js" defer></script>
     <script>
+    // ==============================================================
+    // JOBS.HTML - public jobs board (consumes scrape.py output)
+    // ==============================================================
+    // Purpose: browsable, filterable, searchable table of job
+    // postings in sport/exercise science, kinesiology, nutrition,
+    // and related academic roles. Client-side only - no backend.
+    //
+    // Data source: jobs.json (sibling file in the repo).
+    //   Produced daily by scrape.py, run via .github/workflows/
+    //   scrape.yml on a GitHub Actions cron at 07:00 UTC. That
+    //   workflow commits the updated jobs.json back to main, so
+    //   this page gets fresh data without a manual redeploy.
+    //   See scrape.py's module docstring for the full jobs.json
+    //   schema (last_updated + jobs[] with id/title/organisation/
+    //   location/type/url/source/date_posted/description/country).
+    //
+    // Filter model (all AND-ed together):
+    //   - searchTerm        free-text, matched against title + org
+    //   - sourceFilter      'all' or a specific source name
+    //   - countryFilter     'all' | 'uk' | 'canada'
+    //   - roleFilter        'all' | 'academia' | 'research' | 'technician'
+    //                       (matched via ROLE_MATCH keyword lists
+    //                       against title + type)
+    //   - subRole           tier-2, only shown when a roleFilter is
+    //                       picked; options come from SUB_OPTIONS
+    //   - disciplineFilter  independent of role; matched against
+    //                       title + type + organisation
+    //
+    // UI state:
+    //   - MAX_AGE_DAYS = 30 caps visible jobs (matches scrape.py's
+    //     prune_old cutoff, so this is belt-and-braces).
+    //   - PAGE_SIZE = 30, with a "load more" button bumping
+    //     visibleCount. No virtualisation - the dataset is small
+    //     enough that rendering all filtered rows is fine.
+    //   - sortCol + sortDir drive header-click sorting.
+    //
+    // Security:
+    //   - All scraped strings go through escHtml() before reaching
+    //     the DOM. Never trust scraped content.
+    //   - safeUrl() whitelists http(s) only - blocks javascript:,
+    //     data:, vbscript: etc. that might sneak through a feed.
+    //
+    // Nav/footer: uses includes.js (standard public-site pattern).
+    // ==============================================================
+
     const MAX_AGE_DAYS = 30;
     const PAGE_SIZE = 30;
 

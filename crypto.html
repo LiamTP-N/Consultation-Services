@@ -302,6 +302,42 @@
     <button id="privacyToggle" class="privacy-toggle" title="Click to reveal for 3 min" aria-label="Toggle visibility"></button>
 
     <script>
+        // ==============================================================
+        // CRYPTO.HTML - personal ZEC->XTZ swap monitor (private page)
+        // ==============================================================
+        // Purpose: live dashboard tracking when the ZEC/XTZ rate hits a
+        // target that would let me swap my ZEC holdings for a chosen
+        // amount of XTZ (cost-basis-aware, fee-adjusted).
+        //
+        // Data sources (all free, no API keys):
+        //   - Binance public REST API: spot prices + kline history for
+        //     ZECUSDT, XTZUSDT, BTCUSDT, GBPUSDT. Polled every 1s.
+        //   - Frankfurter (ECB): GBP/CAD FX rate. Refreshed every 5 min.
+        //   - ipify: public IP detection (one-shot on load) to decide
+        //     whether we're on a work network and should start in
+        //     privacy mode.
+        //
+        // Alert delivery (client-side only - tab must be open):
+        //   - Browser Notification API (native desktop notification)
+        //   - Telegram Bot API (POSTs to sendMessage)
+        //   Both fire at 90/95/98/100% of the fee-adjusted target rate,
+        //   each threshold once per page load. Reload to re-arm.
+        //
+        // Privacy model:
+        //   - If IP matches WORK_IPS -> start hidden behind a black
+        //     overlay; hold V (or tap the corner dot) to reveal.
+        //   - If IP doesn't match -> overlay disabled entirely.
+        //   - Mobile: overlay disabled regardless (no keyboard).
+        //
+        // Keyboard shortcuts:
+        //   1-5 = switch visible timeframe panel (15m/1h/12h/24h/7d)
+        //   0   = reset to default (24h)
+        //   V   = hold to reveal; double-tap for 3-min timed reveal
+        //
+        // No persistence: all state is in-memory. Closing the tab
+        // clears everything including fired-alert history.
+        // ==============================================================
+
         // --------------------------------------------------------------
         // CONFIG
         // --------------------------------------------------------------
@@ -701,6 +737,19 @@
             // (XTZ ~$1, ZEC ~$100, BTC ~$100k) each use the full vertical
             // space and show their trend shape.
             // BTC has a black underlay dataset drawn first for a 1px outline.
+            //
+            // Dataset index map (order matters - referenced by index in updateAll):
+            //   [0] "XTZ/ZEC"   - the rate line (pink, filled area), axis: y
+            //   [1] "BTC_stroke" - darker orange underlay drawn FIRST,   axis: yBtc
+            //                      gives BTC line a 1px outline against
+            //                      the background; filtered out of tooltip.
+            //   [2] "ZEC"        - yellow overlay,                       axis: yZec
+            //   [3] "XTZ"        - teal overlay,                         axis: yXtz
+            //   [4] "BTC"        - orange dashed overlay (over stroke),  axis: yBtc
+            //
+            // Each of yZec/yXtz/yBtc is a separate hidden axis so coin
+            // prices at wildly different scales share the panel without
+            // one flattening the others.
             const datasets = [{
                 label: "XTZ/ZEC",
                 data: [],
@@ -844,6 +893,16 @@
                 const results = await Promise.all(requests);
 
                 // Slice out per-TF klines (ZEC, XTZ, BTC per TF)
+                // panelData[tf] holds everything needed to render one
+                // timeframe panel and compute its stats. Shape per tf:
+                //   {
+                //     zecK, xtzK, btcK   - raw Binance kline arrays
+                //                          (each kline: [openTime, open, high, low, close, volume, ...])
+                //     zecClose, xtzClose, btcClose  - extracted close prices (USD)
+                //     rates              - derived ZEC/XTZ rate per candle
+                //     gbpClose           - GBPUSDT closes (USD per GBP),
+                //                          attached in the second pass below
+                //   }
                 const panelData = {};
                 TF_KEYS.forEach((tf, i) => {
                     const zecK = results[i * 3];

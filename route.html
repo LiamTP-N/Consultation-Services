@@ -586,6 +586,54 @@ input[type="number"] {
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
+// ==============================================================
+// ROUTE.HTML - personal driving cost comparator (private page)
+// ==============================================================
+// Purpose: compare the real total cost (fuel + toll) of driving
+// home via different routes. Specifically built to answer "is it
+// actually cheaper to avoid the Tyne Tunnel?" given today's ASDA
+// fuel price and my car's mpg.
+//
+// Data sources (all free, no paid keys):
+//   - Openrouteservice REST API (geocoding + driving-car routing).
+//     Free tier key lives in DEFAULTS.apiKey; user can override in
+//     the settings modal. 2,000 requests/day limit.
+//   - checkfuelprices.co.uk widget API for live forecourt prices.
+//     Filtered to the user's preferred brand (defaults to ASDA).
+//   - Browser Geolocation API for the starting point (with a
+//     manual "use home postcode" fallback if denied).
+//   - Leaflet + OpenStreetMap tiles for the map display.
+//
+// Cost model:
+//   fuel_cost = (distance_miles / mpg) * (litres_per_gallon * pence_per_litre / 100)
+//   total_cost = fuel_cost + toll_if_route_passes_through_tyne_tunnel
+// LITRES_PER_GALLON uses the UK imperial gallon (4.54609).
+//
+// Tyne Tunnel toll:
+//   - TT2_SCHEDULE hardcodes class-2 rates with effective-from
+//     dates (most recent first). getCurrentTollGBP() picks the
+//     rate active today. Update this table when TT2 raises prices.
+//   - A 10% discount applies if tt2Account is true (pre-paid).
+//   - routePassesThroughTyneTunnel() does a geometric test on the
+//     route polyline against a bounding box around the tunnel.
+//
+// Persistence:
+//   - localStorage key "routeCheck.settings" holds user overrides
+//     (mpg, home address, postcode, brand, API key, price override,
+//     TT2 account flag). Survives reloads.
+//
+// PWA:
+//   - Inline manifest (data: URI in <head>) so this works as an
+//     installable standalone app on mobile home screens.
+//   - No service worker - online-only by design (needs live data).
+//
+// Privacy: meta robots=noindex,nofollow. Not linked from anywhere
+// public. Not in sitemap.
+//
+// Nav/footer: does NOT use includes.js - this is a standalone tool,
+// not part of the public consultancy site navigation.
+// ==============================================================
+
 // ============================================================
 // CONFIG & STATE
 // ============================================================

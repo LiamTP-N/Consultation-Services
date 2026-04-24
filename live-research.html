@@ -178,6 +178,72 @@
     <script src="includes.js" defer></script>
 
     <script>
+    // ==============================================================
+    // LIVE-RESEARCH.HTML - public live studies directory
+    // ==============================================================
+    // Purpose: browsable list of active research studies looking for
+    // participants (surveys, interviews, lab studies, PhD recruitment,
+    // etc.) in sport/exercise science, nutrition, and related fields.
+    // Researchers submit via a public Google Form; this page renders
+    // the submissions as filterable cards.
+    //
+    // Data pipeline:
+    //   1. Researcher submits the Google Form (link in
+    //      `Google_Form_for_Research_Submission` in the repo).
+    //   2. Responses land in a Google Sheet (owned account).
+    //   3. A Google Apps Script web app (deployed as /exec) reads
+    //      the sheet and returns JSON. Deployment ID is embedded
+    //      below in DATA_URL.
+    //   4. This page fetches that JSON on load and renders cards.
+    //
+    // DATA_URL response shape:
+    //   {
+    //     "last_updated": "<ISO string>",
+    //     "submissions": [
+    //       {
+    //         "title":            str,  // study title
+    //         "researcher":       str,  // lead researcher name
+    //         "institution":      str,
+    //         "study_type":       str,  // e.g. "Survey", "Lab study"
+    //         "format":           str,  // e.g. "Online", "In-person"
+    //         "subject":          str,  // discipline tag for filter
+    //         "description":      str,
+    //         "eligibility":      str,
+    //         "time_commitment":  str,
+    //         "compensation":     str,
+    //         "location":         str,
+    //         "date_submitted":   str,  // ISO; drives isTooOld()
+    //         "closing_date":     str,  // ISO; drives isExpired() and isClosingSoon()
+    //         "signup_url":       str,
+    //         "poster_url":       str   // optional; image shown in modal
+    //       },
+    //       ...
+    //     ]
+    //   }
+    //
+    // Filter model (all AND-ed):
+    //   - searchTerm       free-text over title + researcher + description
+    //   - typeFilter       matches study_type
+    //   - formatFilter     matches format
+    //   - subjectFilter    matches subject
+    //
+    // Lifecycle rules:
+    //   - MAX_AGE_DAYS = 90: submissions older than this are hidden
+    //     regardless of closing_date (keeps the directory fresh).
+    //   - Expired (closing_date in the past) studies are hidden.
+    //   - Closing within 14 days gets a "closing soon" badge.
+    //   - PAGE_SIZE = 10 with a "load more" button.
+    //
+    // Security:
+    //   - CSP (see <head>) restricts connect-src to self + the two
+    //     script.google.com domains Apps Script uses. Anything else
+    //     (including other third-party trackers) is blocked.
+    //   - escHtml() sanitises every submitted string before DOM.
+    //   - safeUrl() whitelists http(s) only for signup_url / poster_url.
+    //
+    // Nav/footer: uses includes.js.
+    // ==============================================================
+
     // =============================================
     //  CONFIG
     // =============================================
