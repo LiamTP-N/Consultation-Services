@@ -223,43 +223,27 @@
         <!-- TIMEFRAME PANELS (fill remaining vertical space on desktop; fixed 220px on mobile) -->
         <section id="tfRow" class="grid grid-cols-5 gap-1 md:gap-2 flex-1 min-h-0 max-h-[180px] md:max-h-none">
             <div id="panel_15m" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
-                <div class="flex items-center justify-end mb-1 flex-none text-xs font-semibold">
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">15m,&nbsp;</span>
-                    <span id="move_15m">-</span>
-                </div>
                 <div class="flex-1 min-h-0 relative">
                     <canvas id="chart_15m"></canvas>
                 </div>
             </div>
             <div id="panel_1h" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
-                <div class="flex items-center justify-end mb-1 flex-none text-xs font-semibold">
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">1h,&nbsp;</span>
-                    <span id="move_1h">-</span>
-                </div>
                 <div class="flex-1 min-h-0 relative">
                     <canvas id="chart_1h"></canvas>
                 </div>
             </div>
             <div id="panel_12h" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
-                <div class="flex items-center justify-end mb-1 flex-none text-xs font-semibold">
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">12h,&nbsp;</span>
-                    <span id="move_12h">-</span>
-                </div>
                 <div class="flex-1 min-h-0 relative">
                     <canvas id="chart_12h"></canvas>
                 </div>
             </div>
             <div id="panel_24h" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
-                <div class="flex items-center justify-between mb-1 flex-none text-xs font-semibold gap-2">
+                <div class="flex items-center justify-start mb-1 flex-none text-xs font-semibold gap-2">
                     <div class="flex items-center gap-2 md:gap-3 text-[10px]">
                         <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#ec4899;"></span><span class="text-pink-300">RATE</span></span>
                         <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#fde047;"></span><span class="zec-gradient">ZEC</span></span>
                         <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#2dd4bf;"></span><span class="xtz-gradient">XTZ</span></span>
                         <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#f7931a;"></span><span class="btc-gradient">BTC</span></span>
-                    </div>
-                    <div>
-                        <span class="text-[10px] uppercase tracking-wider text-slate-400">24h,&nbsp;</span>
-                        <span id="move_24h">-</span>
                     </div>
                 </div>
                 <div class="flex-1 min-h-0 relative">
@@ -267,13 +251,45 @@
                 </div>
             </div>
             <div id="panel_7d" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
-                <div class="flex items-center justify-end mb-1 flex-none text-xs font-semibold">
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">7d,&nbsp;</span>
-                    <span id="move_7d">-</span>
-                </div>
                 <div class="flex-1 min-h-0 relative">
                     <canvas id="chart_7d"></canvas>
                 </div>
+            </div>
+        </section>
+
+        <!-- TIMEFRAME MOVES CARD: % and GBP holdings change across all timeframes -->
+        <section class="flex-none">
+            <div class="glass-card p-1.5 md:p-3">
+                <table class="w-full text-[10px] md:text-xs font-semibold">
+                    <thead>
+                        <tr class="text-[9px] md:text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                            <th class="py-px text-left">&nbsp;</th>
+                            <th class="py-px text-right">15m</th>
+                            <th class="py-px text-right">1h</th>
+                            <th class="py-px text-right">12h</th>
+                            <th class="py-px text-right">24h</th>
+                            <th class="py-px text-right">7d</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="py-px text-left text-pink-300">RATE</td>
+                            <td class="py-px text-right" id="tfRatePct_15m">-</td>
+                            <td class="py-px text-right" id="tfRatePct_1h">-</td>
+                            <td class="py-px text-right" id="tfRatePct_12h">-</td>
+                            <td class="py-px text-right" id="tfRatePct_24h">-</td>
+                            <td class="py-px text-right" id="tfRatePct_7d">-</td>
+                        </tr>
+                        <tr>
+                            <td class="py-px text-left text-slate-300">GBP</td>
+                            <td class="py-px text-right" id="tfGbpDelta_15m">-</td>
+                            <td class="py-px text-right" id="tfGbpDelta_1h">-</td>
+                            <td class="py-px text-right" id="tfGbpDelta_12h">-</td>
+                            <td class="py-px text-right" id="tfGbpDelta_24h">-</td>
+                            <td class="py-px text-right" id="tfGbpDelta_7d">-</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
 
@@ -900,9 +916,6 @@
                     chart.update();
 
                     const move = ((d.rates[d.rates.length - 1] / d.rates[0]) - 1) * 100;
-                    const moveEl = document.getElementById("move_" + tf);
-                    moveEl.textContent = fmtPct(move);
-                    setChangeColour(moveEl, move);
 
                     // Multi-timeframe table cells (rate + per-coin %change) - 24h only now
                     writePct("ratePct_" + tf, move);
@@ -917,6 +930,10 @@
                     const gbpLast = zecHeld * d.zecClose[d.zecClose.length - 1] / d.gbpClose[d.gbpClose.length - 1];
                     const gbpDelta = gbpLast - gbpFirst;
                     const gbpDeltaPct = ((gbpLast / gbpFirst) - 1) * 100;
+
+                    // Timeframe moves card (below chart): rate % + GBP holdings delta per TF
+                    writePct("tfRatePct_" + tf, move);
+                    writeGbpDelta("tfGbpDelta_" + tf, gbpDelta);
                 });
 
                 // Freshest rate comes from 15m (1m klines, newest partial)
