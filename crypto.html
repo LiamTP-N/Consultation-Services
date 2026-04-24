@@ -179,29 +179,49 @@
                         <tr class="text-[9px] md:text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
                             <th class="pr-2 md:pr-3 py-px text-left">&nbsp;</th>
                             <th class="pr-2 md:pr-3 py-px text-right">Price</th>
+                            <th class="pl-1 md:pl-1.5 py-px text-right">15m</th>
+                            <th class="pl-1 md:pl-1.5 py-px text-right">1h</th>
+                            <th class="pl-1 md:pl-1.5 py-px text-right">12h</th>
                             <th class="pl-1 md:pl-1.5 py-px text-right">24h</th>
+                            <th class="pl-1 md:pl-1.5 py-px text-right">7d</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base text-pink-300">RATE</td>
                             <td class="pr-2 md:pr-3 py-px text-right text-slate-600">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="ratePct_15m">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="ratePct_1h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="ratePct_12h">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="ratePct_24h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="ratePct_7d">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="zec-gradient">ZEC</span></td>
                             <td class="pr-2 md:pr-3 py-px text-right text-slate-100" id="zecPrice">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_15m">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_1h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_12h">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_24h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_7d">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="xtz-gradient">XTZ</span></td>
                             <td class="pr-2 md:pr-3 py-px text-right text-slate-100" id="xtzPrice">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_15m">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_1h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_12h">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_24h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_7d">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="btc-gradient">BTC</span></td>
                             <td class="pr-2 md:pr-3 py-px text-right text-slate-100" id="btcPrice">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_15m">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_1h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_12h">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_24h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_7d">-</td>
                         </tr>
                     </tbody>
                 </table>
@@ -225,8 +245,7 @@
         <section id="tfRow" class="grid grid-cols-5 gap-1 md:gap-2 flex-1 min-h-0 max-h-[180px] md:max-h-none">
             <div id="panel_15m" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-end mb-1 flex-none text-xs font-semibold">
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">15m,&nbsp;</span>
-                    <span id="move_15m">-</span>
+                    <span class="text-[10px] uppercase tracking-wider text-slate-400">15m</span>
                 </div>
                 <div class="flex-1 min-h-0 relative">
                     <canvas id="chart_15m"></canvas>
@@ -234,8 +253,7 @@
             </div>
             <div id="panel_1h" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-end mb-1 flex-none text-xs font-semibold">
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">1h,&nbsp;</span>
-                    <span id="move_1h">-</span>
+                    <span class="text-[10px] uppercase tracking-wider text-slate-400">1h</span>
                 </div>
                 <div class="flex-1 min-h-0 relative">
                     <canvas id="chart_1h"></canvas>
@@ -243,8 +261,7 @@
             </div>
             <div id="panel_12h" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-end mb-1 flex-none text-xs font-semibold">
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">12h,&nbsp;</span>
-                    <span id="move_12h">-</span>
+                    <span class="text-[10px] uppercase tracking-wider text-slate-400">12h</span>
                 </div>
                 <div class="flex-1 min-h-0 relative">
                     <canvas id="chart_12h"></canvas>
@@ -259,8 +276,7 @@
                         <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#f7931a;"></span><span class="btc-gradient">BTC</span></span>
                     </div>
                     <div>
-                        <span class="text-[10px] uppercase tracking-wider text-slate-400">24h,&nbsp;</span>
-                        <span id="move_24h">-</span>
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400">24h</span>
                     </div>
                 </div>
                 <div class="flex-1 min-h-0 relative">
@@ -269,8 +285,7 @@
             </div>
             <div id="panel_7d" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-end mb-1 flex-none text-xs font-semibold">
-                    <span class="text-[10px] uppercase tracking-wider text-slate-400">7d,&nbsp;</span>
-                    <span id="move_7d">-</span>
+                    <span class="text-[10px] uppercase tracking-wider text-slate-400">7d</span>
                 </div>
                 <div class="flex-1 min-h-0 relative">
                     <canvas id="chart_7d"></canvas>
@@ -902,10 +917,12 @@
 
                     const move = ((d.rates[d.rates.length - 1] / d.rates[0]) - 1) * 100;
                     const moveEl = document.getElementById("move_" + tf);
-                    moveEl.textContent = fmtPct(move);
-                    setChangeColour(moveEl, move);
+                    if (moveEl) {
+                        moveEl.textContent = fmtPct(move);
+                        setChangeColour(moveEl, move);
+                    }
 
-                    // Multi-timeframe table cells (rate + per-coin %change) - 24h only now
+                    // Multi-timeframe table cells (rate + per-coin %change, all 5 TFs)
                     writePct("ratePct_" + tf, move);
                     writePct("zecPct_" + tf, pctFromCloses(d.zecClose));
                     writePct("xtzPct_" + tf, pctFromCloses(d.xtzClose));
