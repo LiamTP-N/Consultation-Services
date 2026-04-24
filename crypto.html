@@ -315,7 +315,10 @@
         const TOTAL_FEE = 0.002;
         const rawTargetRate = xtzTarget / zecHeld;           // 1076.53 (pre-fee)
         const targetRate = rawTargetRate / (1 - TOTAL_FEE);  // ~1078.69 (fee-adjusted, used everywhere)
-        let alertSent = false;
+        // Progress-based alert thresholds (% of fee-adjusted target rate).
+        // Each fires once per page load; reload to re-arm.
+        const ALERT_THRESHOLDS = [90, 95, 98, 100];
+        const alertsFired = new Set();
         let lastSuccessTs = 0;
         const STALE_MS = 5000;
 
@@ -545,13 +548,14 @@
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission().catch(() => {});
         }
-        function fireBrowserNotification(rate) {
+        function fireBrowserNotification(rate, threshold) {
             if (!('Notification' in window)) return;
             if (Notification.permission !== 'granted') return;
+            const title = threshold >= 100 ? 'Target reached' : `At ${threshold}% of target`;
             try {
-                new Notification('Target reached', {
+                new Notification(title, {
                     body: `ZEC to XTZ rate is ${rate.toFixed(2)} (fee-adjusted target ${targetRate.toFixed(2)}).`,
-                    tag: 'zec-xtz-target'
+                    tag: `zec-xtz-${threshold}`
                 });
             } catch (e) { /* ignore */ }
         }
@@ -561,9 +565,13 @@
         // --------------------------------------------------------------
         const TELEGRAM_TOKEN = '8471305313:AAFbrJGU1i9VWQI3e7NDobzFBUCEXj0YdAI';
         const TELEGRAM_CHAT_ID = '5097919336';
-        function fireTelegramNotification(rate) {
+        function fireTelegramNotification(rate, threshold) {
             if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) return;
-            const text = `🎯 Target reached! ZEC→XTZ rate is ${rate.toFixed(2)} (fee-adjusted target ${targetRate.toFixed(2)}).`;
+            const icon = threshold >= 100 ? "\u{1F3AF}" : "\u{1F4C8}";
+            const headline = threshold >= 100
+                ? "Target reached!"
+                : `At ${threshold}% of target.`;
+            const text = `${icon} ${headline} ZEC\u2192XTZ rate is ${rate.toFixed(2)} (fee-adjusted target ${targetRate.toFixed(2)}).`;
             const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
             fetch(url, {
                 method: 'POST',
@@ -572,15 +580,16 @@
             }).catch(e => console.error('Telegram send failed', e));
         }
 
-        // Combined alert on target hit
-        function fireTargetAlert(rate) {
-            fireBrowserNotification(rate);
-            fireTelegramNotification(rate);
+        // Combined alert at a given threshold (90/95/98/100)
+        function fireTargetAlert(rate, threshold) {
+            fireBrowserNotification(rate, threshold);
+            fireTelegramNotification(rate, threshold);
             const el = document.getElementById('alertLog');
             if (el) {
                 const now = new Date();
                 const ts = now.toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
-                el.textContent = '🎯 Alert fired ' + ts + ' @ ' + fmtInt(rate);
+                const icon = threshold >= 100 ? "\u{1F3AF}" : "\u{1F4C8}";
+                el.textContent = `${icon} ${threshold}% alert ${ts} @ ${fmtInt(rate)}`;
                 el.classList.remove('hidden');
             }
         }
@@ -990,10 +999,14 @@
                 // Favicon
                 setFavicon(aboveTarget);
 
-                // Alert trigger (browser notification + Telegram)
-                if (aboveTarget && !alertSent) {
-                    fireTargetAlert(latestRate);
-                    alertSent = true;
+                // Alert triggers at 90%, 95%, 98%, 100% of fee-adjusted target.
+                // Each fires once per page load. Uses progressPctExact so a
+                // brief dip below doesn't rearm an already-fired threshold.
+                for (const t of ALERT_THRESHOLDS) {
+                    if (progressPctExact >= t && !alertsFired.has(t)) {
+                        fireTargetAlert(latestRate, t);
+                        alertsFired.add(t);
+                    }
                 }
 
             } catch (err) {
