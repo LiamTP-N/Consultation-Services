@@ -66,6 +66,9 @@
         #next-up .next-content{display:block;}
         #round-focus{font-size:clamp(1.5rem,6dvh,3rem) !important;}
         #round-focus.surprise-task-mode{font-size:clamp(1.5rem,6dvh,3rem) !important;}
+        /* Change-phase swap-arrow glyph: at least 3x larger than the default round-focus
+           cap (which is 3rem). Uses !important to beat the rule above. */
+        #round-focus.change-icon{font-size:clamp(9rem,40dvh,22rem) !important;line-height:1;}
         /* Timer bottom: always visible, safe area aware */
         .timer-bottom{
             flex-shrink:0;
@@ -238,6 +241,19 @@
         body.surprise-active #timer-bg{
             transition:height 1s linear, background-color 0.9s linear;
         }
+        /* Change phase: dim everything inside the timer screen by 30% so the only
+           thing fully visible is the next-up text (which announces what's coming).
+           The orange #timer-bg sits behind #main-wrap and stays at full opacity so
+           the colour cue still reads strongly. Inside the timer screen we dim the
+           top bar, the round-focus arrow icon, the timer digits and the bottom
+           buttons, but leave #next-up at full opacity. */
+        body.change-active #timer-screen .timer-top,
+        body.change-active #timer-screen #focus-container,
+        body.change-active #timer-screen #timer-display,
+        body.change-active #timer-screen .timer-bottom{
+            opacity:0.3;
+        }
+        body.change-active #timer-screen #next-up{opacity:1 !important;}
     </style>
 </head>
 <body class="text-slate-200 min-h-screen flex flex-col items-center justify-center">
@@ -249,6 +265,7 @@
             <div class="space-y-4">
                 <button id="btn-home-boxing" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-green-500/30"><div class="w-16 h-16 rounded-2xl bg-green-600/20 border border-green-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div><span class="text-3xl font-bold text-white">Boxing</span></button>
                 <button id="btn-home-gym" class="home-btn w-full glass-card p-8 rounded-[2rem] flex items-center space-x-6 hover:border-blue-500/30"><div class="w-16 h-16 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h4v12H4zM16 6h4v12h-4zM8 11h8v2H8z"/></svg></div><span class="text-3xl font-bold text-white">Gym</span></button>
+                <button id="btn-home-prev" class="hidden home-btn w-full glass-card p-5 rounded-[2rem] flex items-center space-x-6 hover:border-orange-500/30"><div class="w-12 h-12 rounded-2xl bg-orange-600/20 border border-orange-500/30 flex items-center justify-center flex-shrink-0"><svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6M3 10l6-6"/></svg></div><div class="flex flex-col items-start"><span class="text-xl font-bold text-white">Previous Session</span><span class="text-xs text-slate-400">HR summary from your last session</span></div></button>
             </div>
         </div>
         <!-- GYM DAY PICKER -->
@@ -508,55 +525,37 @@
         const DAY_LABELS={push:"Push Day",pull:"Pull Day",legs:"Leg Day",upper:"Upper Body",lower:"Lower Body"};
         const PROGRAM_12_ROUNDS=[
             {name:"Warm Up",family:"warmup",cat:"warmup",moves:['Jab','1-2','Breathe','1-2','Shake out']},
-            {name:"1-2 > Hook (Power)",family:"12hook",cat:"pair",moves:['Hard 1-2-3','Jab > Cross > Hook (Heavy)','Sit Down 1-2 > Hook']},
-            {name:"Uppercut > Cross (Speed)",family:"uppercross",cat:"pair",moves:['Fast Uppercut > Cross','Snap Uppercut > Jab','Quick 5-2','Quick 6-1']},
-            {name:"4 Punch Combos (Power)",family:"4punch",cat:"combo",moves:['Hard 1-2-3-2','Heavy 1-2-5-2','Big Jab > Cross > Hook > Cross']},
-            {name:"Single Shots (Power)",family:"singles",cat:"single",moves:['Power Jab','Hard Cross','Big Hook','Overhand','Body Shot']},
-            {name:"1-2's (Speed)",family:"12s",cat:"pair",moves:['Fast 1-2','Touch-Touch','Jab > Cross (Fast)','High-Low']},
-            {name:"Double Jab > Cross (Power)",family:"dbljab",cat:"pair",moves:['Hard 1-1-2','1-1 > Heavy Cross','Power 1-1-2']},
-            {name:"3 Punch Combos (Speed)",family:"3punch",cat:"combo",moves:['Fast 1-2-3','Touch-Touch-Bang','Speed 3s']},
-            {name:"Hooks Only (Power)",family:"hooks",cat:"single",moves:['Big Lead Hook','Heavy Rear Hook','Hard Body Hook','Power 3-4']},
-            {name:"Hook > Hook (Speed)",family:"hookhook",cat:"single",moves:['Fast Lead > Rear Hook','Quick 3-4','Snap Hook > Hook','Speed Double Hooks']},
-            {name:"Jab > Hook (Power)",family:"jabhook",cat:"pair",moves:['Hard Jab > Lead Hook','Power Jab > Rear Hook','Heavy 1-3']},
-            {name:"Non-stop (Speed)",family:"nonstop",cat:"burnout",moves:['Non-stop','1-2-1-2','Burnout','Speed','Go Go Go']}
+            {name:"1-2 > Hook",family:"12hook",cat:"pair",moves:['Hard 1-2-3','Jab > Cross > Hook (Heavy)','Sit Down 1-2 > Hook','Fast 1-2-3','Quick Jab > Cross > Hook','Snap 1-2 > Hook']},
+            {name:"Uppercut > Cross",family:"uppercross",cat:"pair",moves:['Fast Uppercut > Cross','Snap Uppercut > Jab','Quick 5-2','Quick 6-1','Hard Uppercut > Cross','Heavy Uppercut > Jab','Big 5-2','Power 6-1']},
+            {name:"4 Punch Combos",family:"4punch",cat:"combo",moves:['Hard 1-2-3-2','Heavy 1-2-5-2','Big Jab > Cross > Hook > Cross','Fast 1-2-3-2','Quick 1-2-5-2','Speed 4s']},
+            {name:"Single Shots",family:"singles",cat:"single",moves:['Power Jab','Hard Cross','Big Hook','Overhand','Body Shot','Fast Jab','Snap Cross','Quick Hook','Speed Single Shots']},
+            {name:"1-2's",family:"12s",cat:"pair",moves:['Fast 1-2','Touch-Touch','Jab > Cross (Fast)','High-Low','Hard 1-2','Power 1-2','Sit Down 1-2','Heavy Jab > Cross']},
+            {name:"Double Jab > Cross",family:"dbljab",cat:"pair",moves:['Hard 1-1-2','1-1 > Heavy Cross','Power 1-1-2','Fast 1-1-2','Quick Jab > Jab > Cross','Snap 1-1-2']},
+            {name:"3 Punch Combos",family:"3punch",cat:"combo",moves:['Fast 1-2-3','Touch-Touch-Bang','Speed 3s','Hard 1-2-3','Heavy 2-3-2','Power 3-2-3','Big 5-2-3']},
+            {name:"Hooks Only",family:"hooks",cat:"single",moves:['Big Lead Hook','Heavy Rear Hook','Hard Body Hook','Power 3-4','Fast Lead Hook','Quick Rear Hook','Snap Hooks','Speed 3-4']},
+            {name:"Hook > Hook",family:"hookhook",cat:"single",moves:['Fast Lead > Rear Hook','Quick 3-4','Snap Hook > Hook','Speed Double Hooks','Hard Lead > Rear Hook','Heavy 3-4','Big Hook > Hook','Power Double Hooks']},
+            {name:"Jab > Hook",family:"jabhook",cat:"pair",moves:['Hard Jab > Lead Hook','Power Jab > Rear Hook','Heavy 1-3','Fast Jab > Lead Hook','Quick Jab > Rear Hook','Snap 1-3']},
+            {name:"Non-stop",family:"nonstop",cat:"burnout",moves:['Non-stop','1-2-1-2','Burnout','Speed','Go Go Go','Hard Non-stop','Heavy Combos','Power Flurry','1-2-1-2 Fast','Speed Punches','Fast Hands']}
         ];
         const ROUND_POOL=[
-            {name:"Single Shots (Speed)",family:"singles",cat:"single",moves:['Fast Jab','Snap Cross','Quick Hook','Speed Single Shots']},
-            {name:"Single Shots (Power)",family:"singles",cat:"single",moves:['Power Jab','Hard Cross','Big Hook','Overhand','Body Shot']},
-            {name:"1-2's (Speed)",family:"12s",cat:"pair",moves:['Fast 1-2','Touch-Touch','Jab > Cross (Fast)','High-Low']},
-            {name:"1-2's (Power)",family:"12s",cat:"pair",moves:['Hard 1-2','Power 1-2','Sit Down 1-2','Heavy Jab > Cross']},
-            {name:"Double Jab > Cross (Speed)",family:"dbljab",cat:"pair",moves:['Fast 1-1-2','Quick Jab > Jab > Cross','Snap 1-1-2']},
-            {name:"Double Jab > Cross (Power)",family:"dbljab",cat:"pair",moves:['Hard 1-1-2','1-1 > Heavy Cross','Power 1-1-2']},
-            {name:"1-2 > Hook (Speed)",family:"12hook",cat:"pair",moves:['Fast 1-2-3','Quick Jab > Cross > Hook','Snap 1-2 > Hook']},
-            {name:"1-2 > Hook (Power)",family:"12hook",cat:"pair",moves:['Hard 1-2-3','Jab > Cross > Hook (Heavy)','Sit Down 1-2 > Hook']},
-            {name:"1-2 > Uppercut (Speed)",family:"12upper",cat:"pair",moves:['Fast 1-2-5','Quick 1-2-6','Snap Jab > Cross > Uppercut']},
-            {name:"1-2 > Uppercut (Power)",family:"12upper",cat:"pair",moves:['Hard 1-2-5','Heavy 1-2-6','Big Jab > Cross > Uppercut']},
-            {name:"4 Straight Punches (Speed)",family:"4straight",cat:"combo",moves:['Fast 1-2-1-2','Quick Jab > Cross > Jab > Cross','Speed Straights']},
-            {name:"4 Straight Punches (Power)",family:"4straight",cat:"combo",moves:['Hard 1-2-1-2','Heavy Straights','Power Jab > Cross > Jab > Cross']},
-            {name:"Hooks Only (Speed)",family:"hooks",cat:"single",moves:['Fast Lead Hook','Quick Rear Hook','Snap Hooks','Speed 3-4']},
-            {name:"Hooks Only (Power)",family:"hooks",cat:"single",moves:['Big Lead Hook','Heavy Rear Hook','Hard Body Hook','Power 3-4']},
-            {name:"Jab > Cross > Hook > Cross (Speed)",family:"1232",cat:"combo",moves:['Fast 1-2-3-2','Quick Jab > Cross > Hook > Cross']},
-            {name:"Jab > Cross > Hook > Cross (Power)",family:"1232",cat:"combo",moves:['Hard 1-2-3-2','Heavy Jab > Cross > Hook > Cross']},
-            {name:"Hook > Straight (Speed)",family:"hookstr",cat:"pair",moves:['Fast 3-2','Quick Hook > Cross','Snap Hook > Straight']},
-            {name:"Hook > Straight (Power)",family:"hookstr",cat:"pair",moves:['Hard 3-2','Heavy Hook > Cross','Big Hook > Straight']},
-            {name:"Head > Body (Speed)",family:"headbody",cat:"level",moves:['Fast High-Low','Quick Head > Body','Snap Up-Down']},
-            {name:"Head > Body (Power)",family:"headbody",cat:"level",moves:['Hard High-Low','Heavy Head > Body','Big Up > Down']},
-            {name:"3 Punch Combos (Speed)",family:"3punch",cat:"combo",moves:['Fast 1-2-3','Touch-Touch-Bang','Speed 3s']},
-            {name:"3 Punch Combos (Power)",family:"3punch",cat:"combo",moves:['Hard 1-2-3','Heavy 2-3-2','Power 3-2-3','Big 5-2-3']},
-            {name:"Non-stop (Speed)",family:"nonstop",cat:"burnout",moves:['1-2-1-2 Fast','Speed Punches','Fast Hands']},
-            {name:"Non-stop (Power)",family:"nonstop",cat:"burnout",moves:['Hard Non-stop','Heavy Combos','Power Flurry']},
-            {name:"Uppercut > Cross (Speed)",family:"uppercross",cat:"pair",moves:['Fast Uppercut > Cross','Snap Uppercut > Jab','Quick 5-2','Quick 6-1']},
-            {name:"Uppercut > Cross (Power)",family:"uppercross",cat:"pair",moves:['Hard Uppercut > Cross','Heavy Uppercut > Jab','Big 5-2','Power 6-1']},
-            {name:"Hook > Hook (Speed)",family:"hookhook",cat:"single",moves:['Fast Lead > Rear Hook','Quick 3-4','Snap Hook > Hook','Speed Double Hooks']},
-            {name:"Hook > Hook (Power)",family:"hookhook",cat:"single",moves:['Hard Lead > Rear Hook','Heavy 3-4','Big Hook > Hook','Power Double Hooks']},
-            {name:"Body > Head (Speed)",family:"bodyhead",cat:"level",moves:['Fast Low-High','Quick Body > Head','Snap Down-Up']},
-            {name:"Body > Head (Power)",family:"bodyhead",cat:"level",moves:['Hard Low-High','Heavy Body > Head','Big Down > Up']},
-            {name:"Jab > Hook (Speed)",family:"jabhook",cat:"pair",moves:['Fast Jab > Lead Hook','Quick Jab > Rear Hook','Snap 1-3']},
-            {name:"Jab > Hook (Power)",family:"jabhook",cat:"pair",moves:['Hard Jab > Lead Hook','Power Jab > Rear Hook','Heavy 1-3']},
-            {name:"Cross > Uppercut > Straight (Speed)",family:"crossupper",cat:"combo",moves:['Fast Cross > Uppercut > Jab','Quick 2-5-2','Snap Cross > Upper > Straight']},
-            {name:"Cross > Uppercut > Straight (Power)",family:"crossupper",cat:"combo",moves:['Hard Cross > Uppercut > Jab','Heavy 2-5-2','Big Cross > Upper > Straight']},
-            {name:"4 Punch Combos (Speed)",family:"4punch",cat:"combo",moves:['Fast 1-2-3-2','Quick 1-2-5-2','Speed 4s']},
-            {name:"4 Punch Combos (Power)",family:"4punch",cat:"combo",moves:['Hard 1-2-3-2','Heavy 1-2-5-2','Big Jab > Cross > Hook > Cross']}
+            {name:"Single Shots",family:"singles",cat:"single",moves:['Fast Jab','Snap Cross','Quick Hook','Speed Single Shots','Power Jab','Hard Cross','Big Hook','Overhand','Body Shot']},
+            {name:"1-2's",family:"12s",cat:"pair",moves:['Fast 1-2','Touch-Touch','Jab > Cross (Fast)','High-Low','Hard 1-2','Power 1-2','Sit Down 1-2','Heavy Jab > Cross']},
+            {name:"Double Jab > Cross",family:"dbljab",cat:"pair",moves:['Fast 1-1-2','Quick Jab > Jab > Cross','Snap 1-1-2','Hard 1-1-2','1-1 > Heavy Cross','Power 1-1-2']},
+            {name:"1-2 > Hook",family:"12hook",cat:"pair",moves:['Fast 1-2-3','Quick Jab > Cross > Hook','Snap 1-2 > Hook','Hard 1-2-3','Jab > Cross > Hook (Heavy)','Sit Down 1-2 > Hook']},
+            {name:"1-2 > Uppercut",family:"12upper",cat:"pair",moves:['Fast 1-2-5','Quick 1-2-6','Snap Jab > Cross > Uppercut','Hard 1-2-5','Heavy 1-2-6','Big Jab > Cross > Uppercut']},
+            {name:"4 Straight Punches",family:"4straight",cat:"combo",moves:['Fast 1-2-1-2','Quick Jab > Cross > Jab > Cross','Speed Straights','Hard 1-2-1-2','Heavy Straights','Power Jab > Cross > Jab > Cross']},
+            {name:"Hooks Only",family:"hooks",cat:"single",moves:['Fast Lead Hook','Quick Rear Hook','Snap Hooks','Speed 3-4','Big Lead Hook','Heavy Rear Hook','Hard Body Hook','Power 3-4']},
+            {name:"Jab > Cross > Hook > Cross",family:"1232",cat:"combo",moves:['Fast 1-2-3-2','Quick Jab > Cross > Hook > Cross','Hard 1-2-3-2','Heavy Jab > Cross > Hook > Cross']},
+            {name:"Hook > Straight",family:"hookstr",cat:"pair",moves:['Fast 3-2','Quick Hook > Cross','Snap Hook > Straight','Hard 3-2','Heavy Hook > Cross','Big Hook > Straight']},
+            {name:"Head > Body",family:"headbody",cat:"level",moves:['Fast High-Low','Quick Head > Body','Snap Up-Down','Hard High-Low','Heavy Head > Body','Big Up > Down']},
+            {name:"3 Punch Combos",family:"3punch",cat:"combo",moves:['Fast 1-2-3','Touch-Touch-Bang','Speed 3s','Hard 1-2-3','Heavy 2-3-2','Power 3-2-3','Big 5-2-3']},
+            {name:"Non-stop",family:"nonstop",cat:"burnout",moves:['1-2-1-2 Fast','Speed Punches','Fast Hands','Hard Non-stop','Heavy Combos','Power Flurry']},
+            {name:"Uppercut > Cross",family:"uppercross",cat:"pair",moves:['Fast Uppercut > Cross','Snap Uppercut > Jab','Quick 5-2','Quick 6-1','Hard Uppercut > Cross','Heavy Uppercut > Jab','Big 5-2','Power 6-1']},
+            {name:"Hook > Hook",family:"hookhook",cat:"single",moves:['Fast Lead > Rear Hook','Quick 3-4','Snap Hook > Hook','Speed Double Hooks','Hard Lead > Rear Hook','Heavy 3-4','Big Hook > Hook','Power Double Hooks']},
+            {name:"Body > Head",family:"bodyhead",cat:"level",moves:['Fast Low-High','Quick Body > Head','Snap Down-Up','Hard Low-High','Heavy Body > Head','Big Down > Up']},
+            {name:"Jab > Hook",family:"jabhook",cat:"pair",moves:['Fast Jab > Lead Hook','Quick Jab > Rear Hook','Snap 1-3','Hard Jab > Lead Hook','Power Jab > Rear Hook','Heavy 1-3']},
+            {name:"Cross > Uppercut > Straight",family:"crossupper",cat:"combo",moves:['Fast Cross > Uppercut > Jab','Quick 2-5-2','Snap Cross > Upper > Straight','Hard Cross > Uppercut > Jab','Heavy 2-5-2','Big Cross > Upper > Straight']},
+            {name:"4 Punch Combos",family:"4punch",cat:"combo",moves:['Fast 1-2-3-2','Quick 1-2-5-2','Speed 4s','Hard 1-2-3-2','Heavy 1-2-5-2','Big Jab > Cross > Hook > Cross']}
         ];
         const HOOKS_ONLY_ENTRIES=ROUND_POOL.filter(r=>r.family==='hooks');
 
@@ -644,6 +643,10 @@
         // phase changes, each previously losing up to 0.5s to Math.round(). Now we
         // accumulate exact ms and round only when reading out for the summary.
         let workMsTotal=0,restMsTotal=0,workMsYou=0,workMsWife=0,restMsYou=0,restMsWife=0,phaseStartWall=0;
+        // Previous session snapshot - in-memory only (no localStorage per project rule).
+        // Holds the last completed session's HR data + stats so the user can pull up the
+        // summary screen of the previous session from the home screen. Lost on page refresh.
+        let prevSession=null;
         // Backwards-compat getters: the summary code reads *Secs* properties. Wrap the
         // ms counters in a Proxy-free read-only accessor style. We just expose helpers.
         function workSecs(kind){
@@ -737,11 +740,15 @@
             if(bpm===null)return;
             if(who==='you'){
                 hrValueYou=bpm;hrYouBpm.innerText=bpm;
+                // Live BPM in setup-screen button label so user sees HR even before starting
+                if(settings.mode==='wife')hrYouLabel.innerText="Liam's HR ("+bpm+")";
+                else if(hrDeviceYou&&hrDeviceYou.name)hrYouLabel.innerText=hrDeviceYou.name.substring(0,12)+" ("+bpm+")";
                 if(session.active)recordHR('you',bpm);
                 const n=Date.now();
                 if(n-lastSparkDrawYou>1000){lastSparkDrawYou=n;drawSpark(sparkYou,hrRoundYou,'#f87171');}
             }else{
                 hrValueWife=bpm;hrWifeBpm.innerText=bpm;
+                hrWifeLabel.innerText="Ash's HR ("+bpm+")";
                 if(session.active)recordHR('wife',bpm);
                 const n=Date.now();
                 if(n-lastSparkDrawWife>1000){lastSparkDrawWife=n;drawSpark(sparkWife,hrRoundWife,'#c084fc');}
@@ -763,7 +770,7 @@
             const nm=device.name?device.name.substring(0,12):'Connected';
             ch.addEventListener('characteristicvaluechanged',e=>onHRReading(who,parseHR(e.target.value)));
             if(who==='you'){hrDeviceYou=device;hrCharYou=ch;hrYouLabel.innerText=settings.mode==='wife'?"Liam's HR":nm;btnHrYou.classList.add('border-red-500/60');}
-            else{hrDeviceWife=device;hrCharWife=ch;hrWifeLabel.innerText=nm;btnHrWife.classList.add('border-purple-500/60');}
+            else{hrDeviceWife=device;hrCharWife=ch;hrWifeLabel.innerText="Ash's HR";btnHrWife.classList.add('border-purple-500/60');}
             device.addEventListener('gattserverdisconnected',async()=>{
                 // Auto-reconnect attempts: 3 retries, 1s apart. Silent during attempts.
                 for(let a=0;a<3;a++){try{await new Promise(r=>setTimeout(r,1000));if(!device.gatt)break;await setupDevice(device,who);return;}catch(e){}}
@@ -1129,6 +1136,41 @@
         // Home screen button wiring.
         document.getElementById('btn-home-boxing').onclick=()=>{showScreen('setup');setMode('wife');};
         document.getElementById('btn-home-gym').onclick=()=>showScreen('gymDay');
+        // Previous Session button: temporarily swap the live HR/timing globals for the
+        // snapshot stored in `prevSession`, render the summary screen, then restore the
+        // live globals so a subsequent live session still works correctly. Also rewires
+        // the summary "Done" button to return to home (instead of setup) for this view.
+        document.getElementById('btn-home-prev').onclick=()=>{
+            if(!prevSession)return;
+            const liveSnapshot={hrHistoryYou,hrHistoryWife,peakHRYou,peakHRWife,recoveryDropsYou,recoveryDropsWife,workMsTotal,restMsTotal,workMsYou,workMsWife,restMsYou,restMsWife,sessionStartTime,mode:settings.mode};
+            hrHistoryYou=prevSession.hrHistoryYou;hrHistoryWife=prevSession.hrHistoryWife;
+            peakHRYou=prevSession.peakHRYou;peakHRWife=prevSession.peakHRWife;
+            recoveryDropsYou=prevSession.recoveryDropsYou;recoveryDropsWife=prevSession.recoveryDropsWife;
+            workMsTotal=prevSession.workMsTotal;restMsTotal=prevSession.restMsTotal;
+            workMsYou=prevSession.workMsYou;workMsWife=prevSession.workMsWife;
+            restMsYou=prevSession.restMsYou;restMsWife=prevSession.restMsWife;
+            const realDuration=Math.round((prevSession.endTime-prevSession.sessionStartTime)/1000);
+            settings.mode=prevSession.mode;
+            // sessionStartTime is read by showSummary() as `Date.now() - sessionStartTime`
+            // for the duration display - patch it to give the original elapsed time.
+            sessionStartTime=Date.now()-(realDuration*1000);
+            const doneBtn=document.getElementById('btn-summary-done');
+            const origDone=doneBtn.onclick;
+            doneBtn.onclick=()=>{
+                // Restore live globals before leaving.
+                hrHistoryYou=liveSnapshot.hrHistoryYou;hrHistoryWife=liveSnapshot.hrHistoryWife;
+                peakHRYou=liveSnapshot.peakHRYou;peakHRWife=liveSnapshot.peakHRWife;
+                recoveryDropsYou=liveSnapshot.recoveryDropsYou;recoveryDropsWife=liveSnapshot.recoveryDropsWife;
+                workMsTotal=liveSnapshot.workMsTotal;restMsTotal=liveSnapshot.restMsTotal;
+                workMsYou=liveSnapshot.workMsYou;workMsWife=liveSnapshot.workMsWife;
+                restMsYou=liveSnapshot.restMsYou;restMsWife=liveSnapshot.restMsWife;
+                sessionStartTime=liveSnapshot.sessionStartTime;
+                settings.mode=liveSnapshot.mode;
+                doneBtn.onclick=origDone;
+                showScreen('home');
+            };
+            showSummary();
+        };
         document.getElementById('btn-gym-back').onclick=()=>showScreen('home');
         document.getElementById('btn-boxing-back').onclick=()=>showScreen('home');
         // Leaving the gym workout cancels any running rest timer before navigating back.
@@ -1544,6 +1586,10 @@
             session.phase=phase;session.halfwayPlayed=false;session.last10Played=false;
             // Reset cosmetic state left over from surprise / 10s warning transitions.
             ui.timerDisplay.style.color='';ui.timerDisplay.style.webkitTextStrokeColor='';ui.roundFocus.style.webkitTextStrokeColor='';ui.timerBg.classList.remove('rest-pulse');
+            // Clear change-phase styling on every phase change so it doesn't
+            // bleed into rest/work/etc. (re-applied below if entering 'change').
+            ui.roundFocus.classList.remove('change-icon');
+            document.body.classList.remove('change-active');
             // New working phase = fresh per-round HR buffer for the sparklines.
             if(phase==='work'||phase==='surprise'){hrRoundYou=[];hrRoundWife=[];}
             // Hide the top bar (round counter, HR badges, mute buttons) during
@@ -1557,9 +1603,18 @@
             // locked to the same vertical position on the screen regardless of
             // whether the top bar is visible or not - prevents the timer from
             // "jumping" up and down at phase transitions.
+            //
+            // HR badges stay visible at all times during a session (work, rest,
+            // change, surprise). We only fade the non-HR top bar elements during
+            // work/surprise. Round counter on the left and the voice/sound
+            // toggles on the right are dimmed; HR badges keep full opacity.
             const timerTopEl=document.querySelector('.timer-top');
-            if(phase==='surprise'||phase==='work'){timerTopEl.style.visibility='hidden';timerTopEl.style.display='';ui.nextUp.style.display='';}
-            else{timerTopEl.style.visibility='';timerTopEl.style.display='';ui.nextUp.style.display='';}
+            timerTopEl.style.visibility='';timerTopEl.style.display='';ui.nextUp.style.display='';
+            const hideOtherTop=(phase==='surprise'||phase==='work');
+            document.getElementById('round-label').style.visibility=hideOtherTop?'hidden':'';
+            document.getElementById('current-round').parentElement.style.visibility=hideOtherTop?'hidden':'';
+            document.getElementById('btn-mute-voice').style.visibility=hideOtherTop?'hidden':'';
+            document.getElementById('btn-mute-sound').style.visibility=hideOtherTop?'hidden':'';
 
             // ── DERIVED LOCALS FOR PHASE CONFIG ──
             const isW=settings.mode==='wife';
@@ -1621,9 +1676,10 @@
                 // Wife mode only - 10s changeover between user and wife working the same
                 // plan round. Big swap-arrow glyph shown as focus.
                 session.time=PARTNER_CHANGEOVER_SECS;session.total=PARTNER_CHANGEOVER_SECS;
-                ui.timerBg.className="bg-black";
-                ui.roundFocus.style.fontSize='clamp(8rem,35dvh,18rem)';
+                ui.timerBg.className="bg-orange-500";
+                ui.roundFocus.classList.add('change-icon');
                 ui.roundFocus.innerHTML='&#x21C4;';
+                document.body.classList.add('change-active');
                 // Next-up lookup: change phase only entered in Wife mode, where each plan
                 // round spans 2 session rounds. Floor(round/2) gives the NEXT plan index.
                 // Guard with isW for safety even though change is Wife-only today.
@@ -1892,6 +1948,24 @@
             accumulatePhaseTime();
             session.active=false;
             clearInterval(session.timer);
+            // Snapshot this session's data for the "Previous Session" home button.
+            // Only kept in memory - lost on page refresh (per project no-localStorage rule).
+            // Overwrites any previous snapshot so only the most recent is retained.
+            if(hrHistoryYou.length>=2||hrHistoryWife.length>=2){
+                prevSession={
+                    hrHistoryYou:hrHistoryYou.slice(),
+                    hrHistoryWife:hrHistoryWife.slice(),
+                    peakHRYou:Object.assign({},peakHRYou),
+                    peakHRWife:Object.assign({},peakHRWife),
+                    recoveryDropsYou:recoveryDropsYou.slice(),
+                    recoveryDropsWife:recoveryDropsWife.slice(),
+                    workMsTotal,restMsTotal,workMsYou,workMsWife,restMsYou,restMsWife,
+                    sessionStartTime,
+                    endTime:Date.now(),
+                    mode:settings.mode
+                };
+                document.getElementById('btn-home-prev').classList.remove('hidden');
+            }
             // Release wake lock defensively: guard against repeat end() calls and
             // against release() throwing on an already-released lock.
             if(wakeLock){try{wakeLock.release();}catch(e){}wakeLock=null;}
@@ -1900,6 +1974,8 @@
             screens.timer.classList.add('hidden');
             ui.timerBg.style.height='0%';ui.timerBg.classList.remove('rest-pulse');
             document.body.classList.remove('timer-running');
+            document.body.classList.remove('change-active');
+            ui.roundFocus.classList.remove('change-icon');
             exitSurpriseColours();setSurpriseTimerColour(false);
             exitFullscreen();
             // Show summary if either device is still connected OR we have history data
