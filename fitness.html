@@ -47,23 +47,16 @@
             display:flex;flex-direction:column;
         }
         .timer-top{padding:0 3vw;flex-shrink:0;}
-        .timer-top .round-num{font-size:clamp(1.6rem,5dvh,2.4rem);}
-        .timer-top .round-slash{font-size:clamp(0.85rem,2.4dvh,1.3rem);}
-        .timer-top .round-label-text{font-size:clamp(0.85rem,2.4dvh,1.3rem);margin:0;line-height:1;}
-        .timer-top .ctrl-btn{padding:clamp(4px,0.8dvh,9px) clamp(8px,2vw,15px);gap:clamp(4px,0.8vw,10px);}
-        .timer-top .ctrl-btn svg{width:clamp(13px,2dvh,19px);height:clamp(13px,2dvh,19px);}
-        .timer-top .ctrl-btn span{font-size:clamp(8px,1.3dvh,12px);}
-        .timer-top .hr-badge-box{padding:clamp(3px,0.8dvh,10px) clamp(5px,1.3vw,12px);}
-        .timer-top .hr-badge-box svg{width:clamp(14px,2.2dvh,22px);height:clamp(14px,2.2dvh,22px);}
-        .timer-top .hr-badge-box .hr-bpm{font-size:clamp(1rem,3dvh,1.7rem);}
-        .timer-top .hr-badge-box canvas{width:clamp(60px,12vw,95px);height:clamp(18px,3dvh,28px);}
-        /* Work/surprise dim: top bar and bottom buttons fade to 80% opacity (i.e.
-           dim by 20%) during active working rounds. Timer digit and round-focus
-           text are explicitly excluded - they stay at full opacity. The 0.6s
-           transition makes the fade in/out gradual when transitioning to/from
-           rest, change, ready or block-rest phases. */
-        .timer-top, .timer-bottom{transition:opacity 0.6s ease;}
-        body.work-active .timer-top, body.work-active .timer-bottom{opacity:0.8;}
+        .timer-top .round-num{font-size:clamp(2rem,6.5dvh,3.2rem);}
+        .timer-top .round-slash{font-size:clamp(1rem,3dvh,1.6rem);}
+        .timer-top .round-label-text{font-size:clamp(1rem,3dvh,1.6rem);margin:0;line-height:1;}
+        .timer-top .ctrl-btn{padding:clamp(5px,1dvh,11px) clamp(10px,2.5vw,18px);gap:clamp(4px,0.8vw,10px);}
+        .timer-top .ctrl-btn svg{width:clamp(15px,2.3dvh,22px);height:clamp(15px,2.3dvh,22px);}
+        .timer-top .ctrl-btn span{font-size:clamp(9px,1.5dvh,14px);}
+        .timer-top .hr-badge-box{padding:clamp(4px,1dvh,12px) clamp(6px,1.5vw,14px);}
+        .timer-top .hr-badge-box svg{width:clamp(16px,2.5dvh,26px);height:clamp(16px,2.5dvh,26px);}
+        .timer-top .hr-badge-box .hr-bpm{font-size:clamp(1.1rem,3.5dvh,2rem);}
+        .timer-top .hr-badge-box canvas{width:clamp(70px,14vw,110px);height:clamp(20px,3.5dvh,34px);}
         #timer-middle{flex:1;min-height:0;display:grid;grid-template-rows:1fr auto 1fr;align-items:center;justify-items:center;overflow:hidden;padding:0 1rem;}
         #focus-container{align-self:end;text-align:center;padding-bottom:clamp(4px,1dvh,12px);}
         #timer-display{font-size:clamp(5rem,25dvh,14rem);line-height:1;}
@@ -73,16 +66,9 @@
         #next-up .next-content{display:block;}
         #round-focus{font-size:clamp(1.5rem,6dvh,3rem) !important;}
         #round-focus.surprise-task-mode{font-size:clamp(1.5rem,6dvh,3rem) !important;}
-        /* Change-phase swap-arrow glyph: sized to leave room for multi-line "Up Next"
-           text below (some round names span 3 lines). Sits in the focus row of the
-           timer-middle grid, which already aligns to the bottom of its cell, so the
-           icon stays near the top half of the screen. */
-        #round-focus.change-icon{font-size:clamp(3.5rem,15dvh,7rem) !important;line-height:1;}
-        /* During change phase, give next-up more vertical space to render multi-line
-           round names without clipping. */
-        body.change-active #timer-middle{grid-template-rows:auto auto 1fr;}
-        body.change-active #focus-container{padding-bottom:clamp(2px,0.5dvh,6px);}
-        body.change-active #next-up{font-size:clamp(1.3rem,4dvh,2.2rem);padding-top:clamp(2px,0.5dvh,8px);}
+        /* Change-phase swap-arrow glyph: at least 3x larger than the default round-focus
+           cap (which is 3rem). Uses !important to beat the rule above. */
+        #round-focus.change-icon{font-size:clamp(9rem,40dvh,22rem) !important;line-height:1;}
         /* Timer bottom: always visible, safe area aware */
         .timer-bottom{
             flex-shrink:0;
@@ -255,6 +241,19 @@
         body.surprise-active #timer-bg{
             transition:height 1s linear, background-color 0.9s linear;
         }
+        /* Change phase: dim everything inside the timer screen by 30% so the only
+           thing fully visible is the next-up text (which announces what's coming).
+           The orange #timer-bg sits behind #main-wrap and stays at full opacity so
+           the colour cue still reads strongly. Inside the timer screen we dim the
+           top bar, the round-focus arrow icon, the timer digits and the bottom
+           buttons, but leave #next-up at full opacity. */
+        body.change-active #timer-screen .timer-top,
+        body.change-active #timer-screen #focus-container,
+        body.change-active #timer-screen #timer-display,
+        body.change-active #timer-screen .timer-bottom{
+            opacity:0.3;
+        }
+        body.change-active #timer-screen #next-up{opacity:1 !important;}
     </style>
 </head>
 <body class="text-slate-200 min-h-screen flex flex-col items-center justify-center">
@@ -407,13 +406,13 @@
         <div id="timer-screen" class="hidden w-full max-w-lg">
             <div class="timer-top w-full flex justify-between items-start">
                 <div class="flex flex-col items-start" style="gap:0.5dvh;">
+                    <div id="hr-live-wife" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-purple-600/20 border border-purple-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-purple-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-bpm" class="hr-bpm font-black font-mono-display text-purple-300">--</span></div><canvas id="hr-spark-wife" class="rounded" style="display:block;"></canvas></div>
                     <div style="display:flex;flex-direction:column;gap:clamp(2px,0.4dvh,6px);"><p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p><div class="flex items-baseline" style="gap:0.3rem;"><span id="current-round" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span><span class="round-slash text-white/60 font-bold t-stroke">/</span><span id="total-rounds" class="round-slash text-white/60 font-bold t-stroke">12</span></div></div>
-                    <div id="hr-live-you" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-red-600/20 border border-red-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-red-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-bpm" class="hr-bpm font-black font-mono-display text-red-300">--</span></div><canvas id="hr-spark-you" class="rounded" style="display:block;"></canvas></div>
                 </div>
                 <div class="flex flex-col items-end" style="gap:0.5dvh;">
+                    <div id="hr-live-you" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-red-600/20 border border-red-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-red-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-bpm" class="hr-bpm font-black font-mono-display text-red-300">--</span></div><canvas id="hr-spark-you" class="rounded" style="display:block;"></canvas></div>
                     <button id="btn-mute-voice" aria-label="Toggle voice announcements" aria-pressed="true" class="ctrl-btn flex items-center rounded-full backdrop-blur-md bg-black/20 border border-white/10 active:scale-95 transition-all"><svg id="icon-voice-on" class="hidden text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M11 5L6 9H2v6h4l5 4V5z"/></svg><svg id="icon-voice-off" class="text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/></svg><span id="voice-label" class="font-bold uppercase tracking-wider text-red-400">Voice</span></button>
                     <button id="btn-mute-sound" aria-label="Toggle sound effects" aria-pressed="true" class="ctrl-btn flex items-center rounded-full backdrop-blur-md bg-black/20 border border-white/10 active:scale-95 transition-all"><svg id="icon-sound-on" class="hidden text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M11 5L6 9H2v6h4l5 4V5z"/></svg><svg id="icon-sound-off" class="text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/></svg><span id="sound-label" class="font-bold uppercase tracking-wider text-red-400">Sound</span></button>
-                    <div id="hr-live-wife" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-purple-600/20 border border-purple-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-purple-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-bpm" class="hr-bpm font-black font-mono-display text-purple-300">--</span></div><canvas id="hr-spark-wife" class="rounded" style="display:block;"></canvas></div>
                 </div>
             </div>
             <div id="timer-middle">
@@ -1605,20 +1604,17 @@
             // whether the top bar is visible or not - prevents the timer from
             // "jumping" up and down at phase transitions.
             //
-            // Unified layout: every phase keeps the same DOM visible (round counter
-            // top-left, voice/sound top-right, HR badges underneath them, timer
-            // centred, next-up below it, button row at bottom). During work/surprise
-            // we dim the top bar and bottom buttons via the .work-active body class
-            // (CSS handles the 0.8 opacity + smooth 0.6s transition). The timer
-            // digit and round-focus stay at full opacity throughout.
+            // HR badges stay visible at all times during a session (work, rest,
+            // change, surprise). We only fade the non-HR top bar elements during
+            // work/surprise. Round counter on the left and the voice/sound
+            // toggles on the right are dimmed; HR badges keep full opacity.
             const timerTopEl=document.querySelector('.timer-top');
             timerTopEl.style.visibility='';timerTopEl.style.display='';ui.nextUp.style.display='';
-            // Clear any leftover visibility hacks from previous app versions.
-            document.getElementById('round-label').style.visibility='';
-            document.getElementById('current-round').parentElement.style.visibility='';
-            document.getElementById('btn-mute-voice').style.visibility='';
-            document.getElementById('btn-mute-sound').style.visibility='';
-            document.body.classList.toggle('work-active',phase==='work'||phase==='surprise');
+            const hideOtherTop=(phase==='surprise'||phase==='work');
+            document.getElementById('round-label').style.visibility=hideOtherTop?'hidden':'';
+            document.getElementById('current-round').parentElement.style.visibility=hideOtherTop?'hidden':'';
+            document.getElementById('btn-mute-voice').style.visibility=hideOtherTop?'hidden':'';
+            document.getElementById('btn-mute-sound').style.visibility=hideOtherTop?'hidden':'';
 
             // ── DERIVED LOCALS FOR PHASE CONFIG ──
             const isW=settings.mode==='wife';
@@ -1722,7 +1718,9 @@
                 ui.timerBg.className="bg-white";
                 enterSurpriseColours();setSurpriseTimerColour(true);
                 session.surpriseTask=Math.random()>0.5?"STRAIGHTS":"HOOKS";
-                autoSizeFocus("GET READY");ui.roundFocus.innerText="GET READY";
+                // No "GET READY" focus text during the 5-second lead-in - just the timer
+                // and the task name (STRAIGHTS/HOOKS) shown in the next-up area below.
+                autoSizeFocus("");ui.roundFocus.innerText="";
                 setNextUp(session.surpriseTask,'black');
                 playBell();speak("Surprise Round! Get Ready!");
             }
@@ -1747,7 +1745,11 @@
             if(session.phase==='surprise'){
                 if(t>SURPRISE_WORK){ui.timerDisplay.innerText=format(t-SURPRISE_WORK);}
                 else{
-                    if(ui.roundFocus.innerText==='GET READY'){
+                    // Lead-in just finished: swap the task name (was in next-up) into the
+                    // big focus area and clear next-up. Trigger fires once when focus is
+                    // still empty (i.e. lead-in mode); subsequent ticks see surprise-task-mode
+                    // class already applied and skip.
+                    if(!ui.roundFocus.classList.contains('surprise-task-mode')){
                         ui.roundFocus.classList.add('surprise-task-mode');ui.roundFocus.innerText=session.surpriseTask;
                         ui.roundFocus.style.color='#ef4444';setSurpriseTimerColour(false);setNextUp('');
                     }
@@ -1979,7 +1981,6 @@
             ui.timerBg.style.height='0%';ui.timerBg.classList.remove('rest-pulse');
             document.body.classList.remove('timer-running');
             document.body.classList.remove('change-active');
-            document.body.classList.remove('work-active');
             ui.roundFocus.classList.remove('change-icon');
             exitSurpriseColours();setSurpriseTimerColour(false);
             exitFullscreen();
