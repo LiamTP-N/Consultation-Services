@@ -68,7 +68,7 @@
         #round-focus.surprise-task-mode{font-size:clamp(1.5rem,6dvh,3rem) !important;}
         /* Change-phase swap-arrow glyph: at least 3x larger than the default round-focus
            cap (which is 3rem). Uses !important to beat the rule above. */
-        #round-focus.change-icon{font-size:clamp(9rem,40dvh,22rem) !important;line-height:1;}
+        #round-focus.change-icon{font-size:clamp(6rem,25dvh,14rem) !important;line-height:1;}
         /* Timer bottom: always visible, safe area aware */
         .timer-bottom{
             flex-shrink:0;
@@ -241,19 +241,9 @@
         body.surprise-active #timer-bg{
             transition:height 1s linear, background-color 0.9s linear;
         }
-        /* Change phase: dim everything inside the timer screen by 30% so the only
-           thing fully visible is the next-up text (which announces what's coming).
-           The orange #timer-bg sits behind #main-wrap and stays at full opacity so
-           the colour cue still reads strongly. Inside the timer screen we dim the
-           top bar, the round-focus arrow icon, the timer digits and the bottom
-           buttons, but leave #next-up at full opacity. */
-        body.change-active #timer-screen .timer-top,
-        body.change-active #timer-screen #focus-container,
-        body.change-active #timer-screen #timer-display,
-        body.change-active #timer-screen .timer-bottom{
-            opacity:0.3;
-        }
-        body.change-active #timer-screen #next-up{opacity:1 !important;}
+        /* Change phase: previously dimmed timer/round counter/buttons. Removed per
+           user request - everything stays at full opacity during change rounds so
+           the timer countdown and "Up Next" text are both clearly visible. */
     </style>
 </head>
 <body class="text-slate-200 min-h-screen flex flex-col items-center justify-center">
