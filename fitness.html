@@ -68,7 +68,7 @@
         #round-focus.surprise-task-mode{font-size:clamp(1.5rem,6dvh,3rem) !important;}
         /* Change-phase swap-arrow glyph: at least 3x larger than the default round-focus
            cap (which is 3rem). Uses !important to beat the rule above. */
-        #round-focus.change-icon{font-size:clamp(9rem,40dvh,22rem) !important;line-height:1;}
+        #round-focus.change-icon{font-size:clamp(4rem,14dvh,8rem) !important;line-height:1;}
         /* Timer bottom: always visible, safe area aware */
         .timer-bottom{
             flex-shrink:0;
@@ -394,11 +394,11 @@
         <div id="timer-screen" class="hidden w-full max-w-lg">
             <div class="timer-top w-full flex justify-between items-start">
                 <div class="flex flex-col items-start" style="gap:0.5dvh;">
-                    <div id="hr-live-wife" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-purple-600/20 border border-purple-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-purple-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-bpm" class="hr-bpm font-black font-mono-display text-purple-300">--</span></div><canvas id="hr-spark-wife" class="rounded" style="display:block;"></canvas></div>
+                    <div id="hr-live-you" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-green-600/20 border border-green-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-green-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-bpm" class="hr-bpm font-black font-mono-display text-green-300">--</span></div><canvas id="hr-spark-you" class="rounded" style="display:block;"></canvas></div>
                     <div style="display:flex;flex-direction:column;gap:clamp(2px,0.4dvh,6px);"><p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p><div class="flex items-baseline" style="gap:0.3rem;"><span id="current-round" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span><span class="round-slash text-white/60 font-bold t-stroke">/</span><span id="total-rounds" class="round-slash text-white/60 font-bold t-stroke">12</span></div></div>
                 </div>
                 <div class="flex flex-col items-end" style="gap:0.5dvh;">
-                    <div id="hr-live-you" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-red-600/20 border border-red-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-red-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-bpm" class="hr-bpm font-black font-mono-display text-red-300">--</span></div><canvas id="hr-spark-you" class="rounded" style="display:block;"></canvas></div>
+                    <div id="hr-live-wife" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-purple-600/20 border border-purple-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-purple-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-bpm" class="hr-bpm font-black font-mono-display text-purple-300">--</span></div><canvas id="hr-spark-wife" class="rounded" style="display:block;"></canvas></div>
                     <button id="btn-mute-voice" aria-label="Toggle voice announcements" aria-pressed="true" class="ctrl-btn flex items-center rounded-full backdrop-blur-md bg-black/20 border border-white/10 active:scale-95 transition-all"><svg id="icon-voice-on" class="hidden text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M11 5L6 9H2v6h4l5 4V5z"/></svg><svg id="icon-voice-off" class="text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/></svg><span id="voice-label" class="font-bold uppercase tracking-wider text-red-400">Voice</span></button>
                     <button id="btn-mute-sound" aria-label="Toggle sound effects" aria-pressed="true" class="ctrl-btn flex items-center rounded-full backdrop-blur-md bg-black/20 border border-white/10 active:scale-95 transition-all"><svg id="icon-sound-on" class="hidden text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M11 5L6 9H2v6h4l5 4V5z"/></svg><svg id="icon-sound-off" class="text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/></svg><span id="sound-label" class="font-bold uppercase tracking-wider text-red-400">Sound</span></button>
                 </div>
@@ -733,7 +733,7 @@
                 else if(hrDeviceYou&&hrDeviceYou.name)hrYouLabel.innerText=hrDeviceYou.name.substring(0,12)+" ("+bpm+")";
                 if(session.active)recordHR('you',bpm);
                 const n=Date.now();
-                if(n-lastSparkDrawYou>1000){lastSparkDrawYou=n;drawSpark(sparkYou,hrRoundYou,'#f87171');}
+                if(n-lastSparkDrawYou>1000){lastSparkDrawYou=n;drawSpark(sparkYou,hrRoundYou,'#4ade80');}
             }else{
                 hrValueWife=bpm;hrWifeBpm.innerText=bpm;
                 hrWifeLabel.innerText="Ash's HR ("+bpm+")";
@@ -1598,11 +1598,10 @@
             // toggles on the right are dimmed; HR badges keep full opacity.
             const timerTopEl=document.querySelector('.timer-top');
             timerTopEl.style.visibility='';timerTopEl.style.display='';ui.nextUp.style.display='';
-            const hideOtherTop=(phase==='surprise'||phase==='work');
-            document.getElementById('round-label').style.visibility=hideOtherTop?'hidden':'';
-            document.getElementById('current-round').parentElement.style.visibility=hideOtherTop?'hidden':'';
-            document.getElementById('btn-mute-voice').style.visibility=hideOtherTop?'hidden':'';
-            document.getElementById('btn-mute-sound').style.visibility=hideOtherTop?'hidden':'';
+            document.getElementById('round-label').style.visibility='';
+            document.getElementById('current-round').parentElement.style.visibility='';
+            document.getElementById('btn-mute-voice').style.visibility='';
+            document.getElementById('btn-mute-sound').style.visibility='';
 
             // ── DERIVED LOCALS FOR PHASE CONFIG ──
             const isW=settings.mode==='wife';
