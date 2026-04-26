@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<!--
+================================================================================
+RFPS.HTML - Private RFP/tender tracker for Edgewise Environmental
+================================================================================
+
+WHAT THIS PAGE IS
+-----------------
+A private, password-free, search-engine-blocked tracker page that shows
+fresh tender opportunities matching Edgewise's marine/MMO/PAM/seabird
+work. The page reads rfps.json, which is updated daily by an automated
+scraper (rfp_scrape.py) running on GitHub Actions.
+
+You don't edit this page or the JSON to add tenders. The scraper does
+that for you. You only edit the JSON if you want to:
+  - Mark a tender as "bidding" or "submitted" so it stays visible
+  - Add notes against a specific tender
+  - Add a manual tender that the scraper missed
+  - Edit the bottom-of-page portal quick-links
+
+For full instructions see Edgewise_README.md in the same folder.
+
+WHAT THIS PAGE IS NOT
+---------------------
+- Public. The page has a `noindex, nofollow` meta tag and is excluded
+  from sitemap.xml and robots.txt. It's only findable if you have the
+  direct URL.
+- A submission portal. Clicking a tender opens the original notice on
+  whatever site published it. You bid through that site's process.
+- Real-time. The scraper runs once a day at 10:30 UTC.
+
+WHO THIS PAGE IS FOR
+--------------------
+- Ashley Noseworthy (Edgewise CEO)
+- Kyla Graham (Edgewise)
+- Anyone else at Edgewise, present or future
+- Liam (site owner / maintenance)
+
+DEVELOPER NOTES
+---------------
+- Self-contained: no includes.js, own header/footer. Same pattern as
+  app.html. This keeps the page out of the public site's nav.
+- Uses Tailwind CSS via CDN (same as the rest of the site).
+- No localStorage, no persistence. Every page load fetches rfps.json
+  fresh. Filters live in JS state only.
+- Renders with vanilla JS - no React/Vue/etc. needed.
+- The footer's "Back to main site" link can be removed if you'd rather
+  the page be totally severed from the consultancy site identity.
+================================================================================
+-->
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- noindex tells Google etc. not to add this page to search results
+         even if someone manages to link to it. -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>RFP Tracker</title>
+    <meta name="description" content="Private RFP and tender tracker.">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Source colour-coded badges. Same dark-on-bright pattern used
+           on jobs.html for visual consistency. */
+        .source-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; }
+        .source-canadabuys     { background: #2d1818; color: #fca5a5; }
+        .source-findatender    { background: #1e3050; color: #93c5fd; }
+        .source-contractsfinder { background: #1e3a5f; color: #60a5fa; }
+        .source-sprep          { background: #0a3a3a; color: #5eead4; }
+        .source-worldbank      { background: #1a2f1a; color: #86efac; }
+        .source-imo            { background: #2a1a3d; color: #c4b5fd; }
+        .source-cardb          { background: #1a3d3a; color: #5eead4; }
+        .source-bcbid          { background: #1e3350; color: #67e8f9; }
+        .source-nlhydro        { background: #1f2937; color: #cbd5e1; }
+        .source-yukon          { background: #2a2a2a; color: #cbd5e1; }
+        .source-ns             { background: #4c1d1d; color: #fca5a5; }
+        .source-nunavut        { background: #1e2f50; color: #a5b4fc; }
+        .source-bcferries      { background: #0a1a3d; color: #60a5fa; }
+        .source-lng            { background: #4a2c0e; color: #fbbf24; }
+        .source-merx           { background: #3b1f5a; color: #c4b5fd; }
+        .source-manual         { background: #1a1a3d; color: #a78bfa; }
+        .source-other          { background: #2a2a2a; color: #cbd5e1; }
+
+        /* Region badges - 3-letter abbreviation lozenges. */
+        .region-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
+        .region-canada    { background: #2d1818; color: #fca5a5; }
+        .region-uk        { background: #1e3050; color: #93c5fd; }
+        .region-usa       { background: #1f2937; color: #cbd5e1; }
+        .region-eu        { background: #1e3a5f; color: #93c5fd; }
+        .region-pacific   { background: #0a3a3a; color: #5eead4; }
+        .region-arctic    { background: #1e2f50; color: #a5b4fc; }
+        .region-caribbean { background: #1a3d3a; color: #5eead4; }
+        .region-other     { background: #2a2a2a; color: #cbd5e1; }
+
+        /* Status badges - one for each pipeline state. */
+        .status-open      { background: #14532d; color: #86efac; }
+        .status-watching  { background: #1e3a5f; color: #93c5fd; }
+        .status-bidding   { background: #4a2c0e; color: #fbbf24; }
+        .status-submitted { background: #3b1f5a; color: #c4b5fd; }
+        .status-won       { background: #064e3b; color: #6ee7b7; }
+        .status-lost      { background: #4c1d1d; color: #fca5a5; }
+        .status-closed    { background: #1f2937; color: #94a3b8; }
+
+        th.sortable { cursor: pointer; user-select: none; }
+        th.sortable:hover { color: #60a5fa; }
+        th.sorted { color: #60a5fa; }
+        .filter-active { background: #1e40af !important; color: #fff !important; border-color: #1e40af !important; }
+
+        /* Due-date colour coding. Amber if within a week, red if today,
+           strikethrough if past due. */
+        .due-soon  { color: #fbbf24; font-weight: 600; }
+        .due-today { color: #f87171; font-weight: 700; }
+        .due-past  { color: #64748b; text-decoration: line-through; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
+
+    <header class="pt-10 pb-8 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header strip showing this is private and auto-updated. -->
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="text-xs px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-400 uppercase tracking-wider">Private</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-emerald-900/30 border border-emerald-800/50 text-emerald-400 uppercase tracking-wider">Auto-Scraped Daily</span>
+                <span class="text-xs text-slate-500">Not indexed - share with care</span>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight mb-2">
+                RFP &amp; Tender <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text">Tracker</span>
+            </h1>
+            <p class="text-slate-400 text-sm mb-6">Marine environmental tender opportunities for Edgewise Environmental, scraped daily at 10:30 UTC from public procurement portals.</p>
+
+            <!-- Top-line statistics. Populated by JS after fetch. -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
+                    <div class="text-2xl font-extrabold text-blue-400" id="stat-total">-</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Total Tracked</div>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
+                    <div class="text-2xl font-extrabold text-emerald-400" id="stat-open">-</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Open Now</div>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
+                    <div class="text-2xl font-extrabold text-amber-400" id="stat-due">-</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Due in 7 Days</div>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
+                    <div class="text-2xl font-extrabold text-slate-400 text-xs pt-1" id="stat-updated">-</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Last Scraped</div>
+                </div>
+            </div>
+
+            <!-- Filter row 1: pipeline status. Defaults to "Active". -->
+            <div class="flex flex-wrap gap-2 items-center mb-3">
+                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Status:</span>
+                <button class="status-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition filter-active" data-status="active">Active</button>
+                <button class="status-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-status="open">Open</button>
+                <button class="status-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-status="watching">Watching</button>
+                <button class="status-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-status="bidding">Bidding</button>
+                <button class="status-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-status="submitted">Submitted</button>
+                <button class="status-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-status="closed">Closed/Lost/Won</button>
+                <button class="status-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-status="all">All</button>
+            </div>
+
+            <!-- Filter row 2: geography. -->
+            <div class="flex flex-wrap gap-2 items-center mb-3">
+                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Region:</span>
+                <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition filter-active" data-region="all">All</button>
+                <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="canada">Canada</button>
+                <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="usa">USA</button>
+                <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="uk">UK</button>
+                <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="eu">EU</button>
+                <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="pacific">Pacific</button>
+                <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="arctic">Arctic</button>
+                <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="caribbean">Caribbean</button>
+            </div>
+
+            <!-- Filter row 3: source picker. Populated dynamically from rfps.json. -->
+            <div class="flex flex-wrap gap-2 items-center mb-3">
+                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Source:</span>
+                <select id="source-filter" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
+                    <option value="all">All sources</option>
+                </select>
+            </div>
+
+            <!-- Free-text search. Matches title, entity, region, summary, tags. -->
+            <div class="flex flex-wrap gap-2 items-center mb-4">
+                <input id="search" type="text" placeholder="Search project, entity, keywords..." class="px-3 py-1.5 rounded-lg text-xs border border-slate-600 bg-slate-800 text-slate-300 placeholder-slate-600 focus:outline-none focus:border-blue-500 flex-1 min-w-[180px]">
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 px-4 py-6">
+        <div class="max-w-6xl mx-auto">
+            <!-- Main results table. Click any row to open detail panel. -->
+            <div class="overflow-x-auto rounded-lg border border-slate-700">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-slate-800 text-slate-500 text-xs uppercase tracking-wider">
+                            <th class="sortable px-4 py-3 text-left" data-col="project">Project <span class="sort-arrow">&#8597;</span></th>
+                            <th class="sortable px-4 py-3 text-left hidden md:table-cell" data-col="entity">Entity <span class="sort-arrow">&#8597;</span></th>
+                            <th class="sortable px-4 py-3 text-left hidden md:table-cell" data-col="source">Source <span class="sort-arrow">&#8597;</span></th>
+                            <th class="sortable px-4 py-3 text-left" data-col="status">Status <span class="sort-arrow">&#8597;</span></th>
+                            <th class="sortable px-4 py-3 text-left sorted" data-col="due_date">Due <span class="sort-arrow">&#8593;</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="rfps-body">
+                        <tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">Loading Edgewise_rfps.json...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Detail panel - populated when a row is clicked. -->
+            <div id="detail-panel" class="hidden mt-6 p-5 bg-slate-800 border border-slate-700 rounded-lg">
+                <div class="flex items-start justify-between gap-4 mb-3">
+                    <div>
+                        <h2 id="detail-title" class="text-lg font-bold text-slate-100"></h2>
+                        <p id="detail-entity" class="text-sm text-slate-400 mt-0.5"></p>
+                    </div>
+                    <button id="detail-close" class="text-slate-500 hover:text-slate-300 text-xl leading-none px-2">&times;</button>
+                </div>
+                <div id="detail-meta" class="flex flex-wrap gap-2 mb-3"></div>
+                <div id="detail-body" class="text-sm text-slate-300 space-y-3"></div>
+            </div>
+
+            <!-- Procurement portals quick-links - the static directory at the bottom. -->
+            <div class="mt-8 p-5 bg-slate-800 border border-slate-700 rounded-lg">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Procurement Portals - Quick Access</p>
+                <p class="text-xs text-slate-500 mb-3">Includes login-walled sites that the scraper cannot reach. A small lock icon marks portals that require login. Click any portal to open it.</p>
+                <div id="portals-grid" class="flex flex-wrap gap-2">
+                    <span class="text-xs text-slate-500">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Footnote about source breadth. -->
+            <div class="mt-4 p-4 bg-slate-800/50 border border-slate-700 rounded-lg text-xs text-slate-500">
+                <strong class="text-slate-400">Scraped sources (15):</strong>
+                CanadaBuys, UK Find a Tender, UK Contracts Finder, SPREP, World Bank,
+                IMO, Caribbean Development Bank, BC Bid (covers BC Hydro), NL Hydro,
+                Yukon, Nova Scotia Procurement, Nunavut RFTP, BC Ferries, LNG Canada,
+                MERX (NL).
+                <span class="block mt-1.5 text-slate-600">Manual entries from Gemini scout or hand-added tenders are preserved across runs.</span>
+            </div>
+        </div>
+    </main>
+
+    <footer class="px-4 py-6 text-center text-xs text-slate-600 border-t border-slate-800">
+        Private tracker &middot; Not indexed &middot; <a href="../index.html" class="hover:text-slate-400">Back to main site</a>
+    </footer>
+
+    <!--
+    ============================================================================
+    JavaScript - vanilla, no framework
+    ============================================================================
+    Flow:
+      1. On page load, fetch rfps.json with a cache-busting query param.
+      2. Populate the source filter dropdown from the unique sources found.
+      3. Render the table according to current filters and sort.
+      4. Wire up click/input handlers for filters, search, sorting.
+
+    All state lives in module-scope variables; no localStorage or persistence.
+    A page refresh resets all filters back to defaults.
+    ============================================================================
+    -->
+    <script>
+    // ---- State variables ----
+    let allRfps = [];
+    let allPortals = [];
+    let sortCol = 'due_date';
+    let sortDir = 1;       // 1 = ascending (soonest first), -1 = descending
+    let searchTerm = '';
+    let statusFilter = 'active';
+    let regionFilter = 'all';
+    let sourceFilter = 'all';
+
+    // ---- Security helpers ----
+    // Escape HTML entities so any nasty content from a scraped tender
+    // can't inject HTML/JS into the page.
+    function escHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+    // Only allow http(s) URLs to reach the DOM. Strips javascript:, data: etc.
+    function safeUrl(u) {
+        if (!u) return '#';
+        try {
+            const parsed = new URL(u, window.location.href);
+            if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+                return parsed.href;
+            }
+        } catch (e) { /* fall through */ }
+        return '#';
+    }
+
+    // ---- Date formatting ----
+    function fmtDate(d) {
+        if (!d) return '-';
+        const p = new Date(d);
+        if (isNaN(p)) return d;
+        return p.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' });
+    }
+    function daysUntil(d) {
+        if (!d) return null;
+        const p = new Date(d);
+        if (isNaN(p)) return null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        p.setHours(0, 0, 0, 0);
+        return Math.round((p - today) / 86400000);
+    }
+    function dueClass(d) {
+        const days = daysUntil(d);
+        if (days === null) return '';
+        if (days < 0) return 'due-past';
+        if (days === 0) return 'due-today';
+        if (days <= 7) return 'due-soon';
+        return '';
+    }
+    function dueLabel(d) {
+        const days = daysUntil(d);
+        if (days === null) return fmtDate(d);
+        if (days < 0) return fmtDate(d) + ' (closed)';
+        if (days === 0) return fmtDate(d) + ' (TODAY)';
+        if (days === 1) return fmtDate(d) + ' (1 day)';
+        if (days <= 7) return fmtDate(d) + ' (' + days + ' days)';
+        return fmtDate(d);
+    }
+
+    // ---- Source -> CSS class mapping ----
+    function srcClass(s) {
+        if (!s) return 'source-other';
+        const l = s.toLowerCase();
+        if (l.includes('canadabuys'))             return 'source-canadabuys';
+        if (l.includes('find a tender'))          return 'source-findatender';
+        if (l.includes('contracts finder'))       return 'source-contractsfinder';
+        if (l.includes('sprep'))                  return 'source-sprep';
+        if (l.includes('world bank'))             return 'source-worldbank';
+        if (l.includes('imo'))                    return 'source-imo';
+        if (l.includes('caribbean'))              return 'source-cardb';
+        if (l.includes('bc bid'))                 return 'source-bcbid';
+        if (l.includes('nl hydro'))               return 'source-nlhydro';
+        if (l.includes('yukon'))                  return 'source-yukon';
+        if (l.includes('ns procurement'))         return 'source-ns';
+        if (l.includes('nunavut'))                return 'source-nunavut';
+        if (l.includes('bc ferries'))             return 'source-bcferries';
+        if (l.includes('lng canada'))             return 'source-lng';
+        if (l.includes('merx'))                   return 'source-merx';
+        if (l.includes('gemini') || l.includes('manual')) return 'source-manual';
+        return 'source-other';
+    }
+
+    function regionClass(r) {
+        const l = (r || '').toLowerCase();
+        if (l.includes('canada'))    return 'region-canada';
+        if (l.includes('uk'))        return 'region-uk';
+        if (l.includes('usa') || l.includes('us'))  return 'region-usa';
+        if (l.includes('eu') || l.includes('netherlands') || l.includes('europe')) return 'region-eu';
+        if (l.includes('pacific') || l.includes('palau')) return 'region-pacific';
+        if (l.includes('arctic') || l.includes('nunavut')) return 'region-arctic';
+        if (l.includes('caribbean')) return 'region-caribbean';
+        return 'region-other';
+    }
+
+    function regionTag(r) {
+        const l = (r || '').toLowerCase();
+        if (l.includes('canada'))  return 'CA';
+        if (l.includes('uk'))      return 'UK';
+        if (l.includes('usa') || l.includes('us'))  return 'US';
+        if (l.includes('eu') || l.includes('netherlands') || l.includes('europe')) return 'EU';
+        if (l.includes('pacific') || l.includes('palau')) return 'PAC';
+        if (l.includes('arctic') || l.includes('nunavut')) return 'ARC';
+        if (l.includes('caribbean')) return 'CAR';
+        return (r || '').slice(0, 4).toUpperCase();
+    }
+
+    function statusClass(s) {
+        const l = (s || 'open').toLowerCase();
+        if (l === 'open')      return 'status-open';
+        if (l === 'watching')  return 'status-watching';
+        if (l === 'bidding')   return 'status-bidding';
+        if (l === 'submitted') return 'status-submitted';
+        if (l === 'won')       return 'status-won';
+        if (l === 'lost')      return 'status-lost';
+        if (l === 'closed')    return 'status-closed';
+        return 'status-open';
+    }
+
+    // ---- Filter predicates ----
+    function matchesStatus(r, f) {
+        const s = (r.status || 'open').toLowerCase();
+        if (f === 'all') return true;
+        if (f === 'active') return ['open', 'watching', 'bidding', 'submitted'].includes(s);
+        if (f === 'closed') return ['closed', 'lost', 'won'].includes(s);
+        return s === f;
+    }
+
+    function matchesRegion(r, f) {
+        if (f === 'all') return true;
+        const reg = (r.region || '').toLowerCase();
+        if (f === 'pacific')   return reg.includes('pacific') || reg.includes('palau');
+        if (f === 'arctic')    return reg.includes('arctic') || reg.includes('nunavut');
+        if (f === 'eu')        return reg.includes('eu') || reg.includes('netherlands') || reg.includes('europe');
+        if (f === 'usa')       return reg.includes('usa') || reg.includes('us');
+        if (f === 'caribbean') return reg.includes('caribbean');
+        return reg.includes(f);
+    }
+
+    function matchesSource(r, f) {
+        if (f === 'all') return true;
+        return (r.source || '') === f;
+    }
+
+    function getFilteredRfps() {
+        let rfps = allRfps.filter(r => {
+            if (!matchesStatus(r, statusFilter)) return false;
+            if (!matchesRegion(r, regionFilter)) return false;
+            if (!matchesSource(r, sourceFilter)) return false;
+            const hay = (r.project + ' ' + (r.entity || '') + ' ' + (r.region || '') + ' ' + (r.summary || '') + ' ' + (r.tags || []).join(' ')).toLowerCase();
+            if (searchTerm && !hay.includes(searchTerm)) return false;
+            return true;
+        });
+
+        rfps.sort((a, b) => {
+            let va = a[sortCol] || '', vb = b[sortCol] || '';
+            if (sortCol === 'due_date') {
+                // Empty due dates sort to the bottom in ascending order.
+                va = va ? new Date(va).getTime() : Infinity;
+                vb = vb ? new Date(vb).getTime() : Infinity;
+            } else {
+                va = va.toString().toLowerCase();
+                vb = vb.toString().toLowerCase();
+            }
+            return va < vb ? sortDir : va > vb ? -sortDir : 0;
+        });
+
+        return rfps;
+    }
+
+    // ---- Rendering ----
+    function renderTable() {
+        const rfps = getFilteredRfps();
+        const tbody = document.getElementById('rfps-body');
+
+        if (!rfps.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No RFPs match this filter.</td></tr>';
+            updateStats();
+            return;
+        }
+
+        tbody.innerHTML = rfps.map(r => {
+            const realIdx = allRfps.indexOf(r);
+            return '<tr class="border-b border-slate-700/50 hover:bg-slate-800/60 transition-colors cursor-pointer" data-idx="' + realIdx + '">' +
+                '<td class="px-4 py-3">' +
+                    '<div>' +
+                        '<a href="' + escHtml(safeUrl(r.url)) + '" target="_blank" rel="noopener" ' +
+                           'class="font-semibold text-slate-200 hover:text-blue-400 transition-colors text-sm" ' +
+                           'onclick="event.stopPropagation()">' + escHtml(r.project) + '</a> ' +
+                        '<span class="region-badge ' + regionClass(r.region) + '">' + escHtml(regionTag(r.region)) + '</span>' +
+                        (r.summary ? '<div class="text-xs text-slate-500 mt-0.5 line-clamp-1">' + escHtml(r.summary) + '</div>' : '') +
+                    '</div>' +
+                '</td>' +
+                '<td class="px-4 py-3 text-slate-400 text-xs hidden md:table-cell">' + (escHtml(r.entity) || '-') + '</td>' +
+                '<td class="px-4 py-3 hidden md:table-cell whitespace-nowrap">' +
+                    '<span class="source-badge ' + srcClass(r.source) + '">' + escHtml(r.source || '-') + '</span>' +
+                '</td>' +
+                '<td class="px-4 py-3 whitespace-nowrap">' +
+                    '<span class="source-badge ' + statusClass(r.status) + '">' + escHtml(r.status || 'open') + '</span>' +
+                '</td>' +
+                '<td class="px-4 py-3 text-xs whitespace-nowrap ' + dueClass(r.due_date) + '">' + escHtml(dueLabel(r.due_date)) + '</td>' +
+            '</tr>';
+        }).join('');
+
+        // Wire up row click -> detail panel
+        tbody.querySelectorAll('tr[data-idx]').forEach(tr => {
+            tr.addEventListener('click', () => {
+                const idx = parseInt(tr.dataset.idx, 10);
+                showDetail(allRfps[idx]);
+            });
+        });
+
+        updateStats();
+    }
+
+    function showDetail(r) {
+        if (!r) return;
+        document.getElementById('detail-title').textContent = r.project || '';
+        document.getElementById('detail-entity').textContent = (r.entity || '') + (r.region ? ' \u00b7 ' + r.region : '');
+
+        const meta = [];
+        if (r.status)     meta.push('<span class="source-badge ' + statusClass(r.status) + '">' + escHtml(r.status) + '</span>');
+        if (r.due_date)   meta.push('<span class="text-xs text-slate-400">Due: <span class="' + dueClass(r.due_date) + '">' + escHtml(dueLabel(r.due_date)) + '</span></span>');
+        if (r.budget)     meta.push('<span class="text-xs text-slate-400">Budget: <span class="text-slate-200">' + escHtml(r.budget) + '</span></span>');
+        if (r.source)     meta.push('<span class="source-badge ' + srcClass(r.source) + '">' + escHtml(r.source) + '</span>');
+        if (r.reference)  meta.push('<span class="text-xs text-slate-500 font-mono">' + escHtml(r.reference) + '</span>');
+        document.getElementById('detail-meta').innerHTML = meta.join('');
+
+        const body = [];
+        if (r.summary)       body.push('<p>' + escHtml(r.summary) + '</p>');
+        if (r.why_fits)      body.push('<div class="border-l-2 border-blue-500 pl-3"><p class="text-xs text-blue-400 uppercase tracking-wider mb-1">Why this fits</p><p>' + escHtml(r.why_fits) + '</p></div>');
+        if (r.notes)         body.push('<div class="border-l-2 border-slate-600 pl-3"><p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Notes</p><p>' + escHtml(r.notes) + '</p></div>');
+        if (r.tags && r.tags.length) {
+            body.push('<div class="flex flex-wrap gap-1.5 pt-2">' +
+                r.tags.map(t => '<span class="text-xs px-2 py-0.5 rounded bg-slate-700/50 text-slate-400">' + escHtml(t) + '</span>').join('') +
+                '</div>');
+        }
+        if (r.url) {
+            body.push('<a href="' + escHtml(safeUrl(r.url)) + '" target="_blank" rel="noopener" class="inline-block text-xs px-3 py-1.5 rounded border border-blue-600 text-blue-400 hover:bg-blue-600/10 transition mt-2">Open tender notice &rarr;</a>');
+        }
+        document.getElementById('detail-body').innerHTML = body.join('');
+
+        const panel = document.getElementById('detail-panel');
+        panel.classList.remove('hidden');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    document.getElementById('detail-close').addEventListener('click', () => {
+        document.getElementById('detail-panel').classList.add('hidden');
+    });
+
+    function updateStats() {
+        const open = allRfps.filter(r => ['open', 'watching', 'bidding', 'submitted'].includes((r.status || 'open').toLowerCase()));
+        const dueSoon = open.filter(r => {
+            const d = daysUntil(r.due_date);
+            return d !== null && d >= 0 && d <= 7;
+        });
+        document.getElementById('stat-total').textContent = allRfps.length;
+        document.getElementById('stat-open').textContent = open.length;
+        document.getElementById('stat-due').textContent = dueSoon.length;
+    }
+
+    function populateSourceFilter() {
+        // Build the source dropdown from unique sources found in the data.
+        const sources = [...new Set(allRfps.map(r => r.source).filter(Boolean))].sort();
+        const select = document.getElementById('source-filter');
+        sources.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s;
+            opt.textContent = s;
+            select.appendChild(opt);
+        });
+    }
+
+    function renderPortals() {
+        const grid = document.getElementById('portals-grid');
+        if (!allPortals.length) {
+            grid.innerHTML = '<span class="text-xs text-slate-500">No portals defined.</span>';
+            return;
+        }
+        grid.innerHTML = allPortals.map(p => {
+            // Append a small lock icon for portals that need a login.
+            const locked = p.requires_login ? ' \uD83D\uDD12' : '';
+            return '<a href="' + escHtml(safeUrl(p.url)) + '" target="_blank" rel="noopener" ' +
+                'class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition" ' +
+                'title="' + escHtml(p.notes || '') + '">' + escHtml(p.name) + locked + '</a>';
+        }).join('');
+    }
+
+    async function loadRfps() {
+        try {
+            // Cache-bust so we always get the latest scrape, not a CDN copy.
+            const res = await fetch('Edgewise_rfps.json?v=' + Date.now());
+            const data = await res.json();
+            allRfps = data.rfps || [];
+            allPortals = data.portals || [];
+            const upd = data.last_updated
+                ? new Date(data.last_updated).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+                : 'Never';
+            document.getElementById('stat-updated').textContent = upd;
+            populateSourceFilter();
+            renderTable();
+            renderPortals();
+        } catch (e) {
+            const tbody = document.getElementById('rfps-body');
+            tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load Edgewise_rfps.json.<br><span class="text-xs text-slate-600" id="err-msg"></span></td></tr>';
+            const errEl = document.getElementById('err-msg');
+            if (errEl) errEl.textContent = e.message;
+        }
+        updateStats();
+    }
+
+    // ---- Event wiring ----
+    document.getElementById('search').addEventListener('input', e => {
+        searchTerm = e.target.value.toLowerCase().trim();
+        renderTable();
+    });
+
+    document.getElementById('source-filter').addEventListener('change', e => {
+        sourceFilter = e.target.value;
+        renderTable();
+    });
+
+    document.querySelectorAll('.status-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('filter-active'));
+            btn.classList.add('filter-active');
+            statusFilter = btn.dataset.status;
+            renderTable();
+        });
+    });
+
+    document.querySelectorAll('.region-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('filter-active'));
+            btn.classList.add('filter-active');
+            regionFilter = btn.dataset.region;
+            renderTable();
+        });
+    });
+
+    document.querySelectorAll('th.sortable').forEach(th => {
+        th.addEventListener('click', () => {
+            const col = th.dataset.col;
+            sortDir = sortCol === col ? sortDir * -1 : 1;
+            sortCol = col;
+            document.querySelectorAll('th.sortable').forEach(t => {
+                t.classList.remove('sorted');
+                t.querySelector('.sort-arrow').innerHTML = '&#8597;';
+            });
+            th.classList.add('sorted');
+            th.querySelector('.sort-arrow').innerHTML = sortDir === 1 ? '&#8593;' : '&#8595;';
+            renderTable();
+        });
+    });
+
+    // Kick off the initial load.
+    loadRfps();
+    </script>
+</body>
+</html>
