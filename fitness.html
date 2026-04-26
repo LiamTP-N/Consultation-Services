@@ -1648,7 +1648,7 @@
                 // per completed plan round. E.g. restBase=30, after 3 rounds = 30 + 3*5 = 45s.
                 // Wife mode does NOT enter 'rest' - it uses 'change' (10s) because user's work
                 // IS wife's rest by design.
-                const dur=settings.restBase+(session.totalPlanRoundsCompleted*PROGRESSIVE_REST_INCREMENT_SECS);
+                const dur=Math.min(60,settings.restBase+(session.totalPlanRoundsCompleted*PROGRESSIVE_REST_INCREMENT_SECS));
                 session.time=dur;session.total=dur;
                 if(isW){ui.timerBg.className="bg-red-600 rest-pulse";}
                 else{ui.timerBg.className="bg-black rest-pulse";}
