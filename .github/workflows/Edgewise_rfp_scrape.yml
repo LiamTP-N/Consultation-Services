@@ -1,0 +1,191 @@
+# =============================================================================
+# rfp_scrape.yml - GitHub Actions workflow for daily RFP/tender scraping
+# =============================================================================
+#
+# WHAT THIS DOES
+# --------------
+# This file tells GitHub to run rfp_scrape.py once a day on their servers
+# (no need for your laptop to be on). The script visits public procurement
+# websites, finds tenders matching Edgewise's keywords, and updates rfps.json.
+# The GitHub Pages site then serves the updated JSON to rfps.html.
+#
+# WHERE THIS FILE LIVES
+# ---------------------
+# This file MUST be saved at this exact path inside the repo:
+#
+#     .github/workflows/Edgewise_rfp_scrape.yml
+#
+# (the leading dot on .github is required - that's a hidden folder)
+# (the filename can be anything ending in .yml - GitHub scans the
+#  folder and runs every workflow file it finds)
+#
+# GitHub will auto-detect it and start running it on the schedule below.
+# You don't need to "enable" anything - putting the file at that path is
+# all GitHub needs.
+#
+# YOUR EXISTING JOBS WORKFLOW
+# ---------------------------
+# You already have scrape.yml at .github/workflows/scrape.yml that runs
+# the jobs scraper at 07:00 UTC. This new file runs alongside it - they
+# are completely independent. They don't share state, won't interfere
+# with each other, and use staggered times to avoid push conflicts.
+#
+# SCHEDULING
+# ----------
+# Runs daily at 10:30 UTC. That works out to:
+#   - 08:00 NDT (Newfoundland Daylight Time, March-November)
+#   - 07:00 NST (Newfoundland Standard Time, November-March)
+#
+# GitHub Actions cron is fixed UTC and does NOT handle daylight saving.
+# If you want a different time, change the "cron:" line below using
+# https://crontab.guru to convert your desired UTC time.
+#
+# Examples:
+#   '0 7 * * *'    = 07:00 UTC daily
+#   '30 10 * * *'  = 10:30 UTC daily (current)
+#   '0 13 * * 1-5' = 13:00 UTC weekdays only (skip weekends)
+#
+# RUNNING IT MANUALLY
+# -------------------
+# 1. Go to your repo on GitHub.com in a browser
+# 2. Click the "Actions" tab at the top
+# 3. Click "Daily RFP Scrape" in the left sidebar
+# 4. Click the grey "Run workflow" button on the right
+# 5. Click the green "Run workflow" button in the dropdown
+# Wait 2-3 minutes; the run will appear at the top of the list.
+# Click into it to see live logs (which scrapers found what).
+#
+# WHEN THINGS GO WRONG
+# --------------------
+# Failed runs send GitHub email notifications by default. You'll see:
+#   "Run failed: Daily RFP Scrape #N"
+# Click the link, look at the red X step, scroll to the error.
+#
+# Common issues and fixes:
+#
+# 1. "Permission denied" on git push
+#    -> Check: Repo Settings > Actions > General > Workflow permissions
+#       MUST be set to "Read and write permissions"
+#
+# 2. "could not find rfp_scrape.py"
+#    -> The Python file isn't in the repo root. Move it there.
+#
+# 3. "ModuleNotFoundError: No module named 'requests'"
+#    -> The pip install line below failed. Check your internet
+#       connectivity logs in the Actions run.
+#
+# 4. The workflow runs but rfps.json never changes
+#    -> All scrapers returned zero relevant results. Open the
+#       Actions log, look at the "Run scraper" step output. Each
+#       scraper logs "(pre-filter)" counts - if all are 0, the
+#       portals are unreachable or their HTML changed.
+#
+# 5. The scraper finds results but the website doesn't update
+#    -> GitHub Pages is cached. Hard-refresh your browser
+#       (Ctrl+Shift+R on Windows, Cmd+Shift+R on Mac).
+#       If still stale after 5 minutes, check Repo > Settings > Pages
+#       to confirm the build succeeded.
+#
+# COSTS
+# -----
+# GitHub Actions on a free public repository = unlimited free minutes.
+# This workflow uses about 3-5 minutes per run = ~150 minutes/month.
+# Even on a private repo (free tier = 2000 mins/month) you'd be fine.
+#
+# =============================================================================
+
+# Workflow display name. This is what shows up in the Actions tab.
+name: Daily RFP Scrape
+
+# When to run this workflow.
+on:
+  schedule:
+    # Cron syntax: minute hour day-of-month month day-of-week
+    # 30 10 * * *  =  10:30 UTC every day
+    # See top-of-file comments for what this means in Newfoundland time.
+    - cron: '30 10 * * *'
+
+  # Allows you to trigger this manually from the Actions tab too.
+  # Without this line, the only way to run it is the schedule.
+  workflow_dispatch:
+
+# What this workflow is allowed to do to your repo.
+# 'contents: write' = can commit and push the updated rfps.json.
+# Without this, the scraper would run but couldn't save its results.
+permissions:
+  contents: write
+
+# A workflow can have one or more "jobs". We have one called "scrape".
+jobs:
+  scrape:
+    # The OS image to run on. ubuntu-latest is free and has Python preinstalled.
+    runs-on: ubuntu-latest
+
+    # Steps run in order, top to bottom. Any step failing stops the rest.
+    steps:
+
+      # ---------------------------------------------------------------
+      # Step 1: Pull a copy of your repo onto the runner
+      # ---------------------------------------------------------------
+      # This is what gives the runner access to rfp_scrape.py and rfps.json.
+      # actions/checkout is a GitHub-maintained action - safe and standard.
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # ---------------------------------------------------------------
+      # Step 2: Install Python
+      # ---------------------------------------------------------------
+      # Python 3.11 is a modern, stable version. Don't use 'latest' here -
+      # it can change behaviour overnight without warning when GitHub
+      # bumps the default. Pinning a version protects you.
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # ---------------------------------------------------------------
+      # Step 3: Install the libraries the scraper needs
+      # ---------------------------------------------------------------
+      # requests = makes HTTP calls
+      # beautifulsoup4 = parses HTML
+      # lxml = the parser engine BeautifulSoup uses (faster than Python's default)
+      # If you add a new scraper that needs another library, add it here.
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 lxml
+
+      # ---------------------------------------------------------------
+      # Step 4: Actually run the scraper
+      # ---------------------------------------------------------------
+      # This produces an updated rfps.json in the runner's working directory.
+      # If the script crashes, this step fails and Step 5 won't run.
+      - name: Run scraper
+        run: python edgewise/Edgewise_rfp_scrape.py
+
+      # ---------------------------------------------------------------
+      # Step 5: Commit and push the updated rfps.json
+      # ---------------------------------------------------------------
+      # If rfps.json hasn't changed, we skip the commit (no empty commits
+      # cluttering the history).
+      #
+      # Push has a retry loop because daily-scheduled runs from multiple
+      # workflows can race for the same branch - if it fails, we pull
+      # and try again up to 5 times. This is the same pattern used by
+      # the existing scrape.yml.
+      - name: Commit and push updated rfps.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add edgewise/Edgewise_rfps.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: daily RFP scrape $(date -u +'%Y-%m-%d %H:%M UTC')"
+          for i in 1 2 3 4 5; do
+            echo "Push attempt $i..."
+            git pull --rebase origin main && git push origin main && exit 0
+            echo "Push failed, retrying in 5 seconds..."
+            sleep 5
+          done
+          echo "Push failed after 5 attempts."
+          exit 1
