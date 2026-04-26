@@ -352,6 +352,91 @@ EXCLUDE_KEYWORDS = [
     "petroleum storage tank", "asbestos",
     "topographic lidar",   # terrestrial mapping, not marine
     "aerial photography",
+    "hazardous waste",
+
+    # ---- Correctional Service of Canada / prison services ----
+    "correctional service", "penitentiary", "institution",
+    "inmate", "offender", "healing lodge",
+    "detention", "rcmp ", "prison",
+
+    # ---- Health / clinical services (CSC publishes a lot of these) ----
+    "dental service", "dental laboratory", "dental supplies",
+    "psychiatric", "psychiatry", "psychological",
+    "physiotherapy", "physician service", "primary care",
+    "dermatology", "medical radiation", "urinalysis",
+    "mental health", "exit interview", "pre-employment",
+    "ribbon", "boots, ankle", "ankle boot", "uniform",
+    "boot", "footwear",
+
+    # ---- Defence equipment / military services ----
+    "ground vehicle", "uncrewed ground", "unmanned ground",
+    "military training", "role playing", "role-playing",
+    "parachute instructor", "parachutist",
+    "signal generator", "agile signal",
+    "helicopter", "polar helicopter", "aviation fuel",
+    "explosive ordnance", "explosive threat",
+    "intelligence enterprise", "command and control",
+    "c4isr", "defence intelligence",
+
+    # ---- Furniture / facilities / FMS ----
+    "furniture for", "furniture fixtures",
+    "mobile shelving", "shelving",
+    "alarm system", "security management system",
+    "perimeter intrusion", "perimeter security",
+    "elevator", "elevating device",
+    "hvac", "boiler replacement", "boiler heating",
+
+    # ---- Equipment / tools that aren't marine-relevant ----
+    "fluke insulation", "fluke multimeter", "multimeter",
+    "insulation meter",
+    "cables and wires", "wire and cable",
+    "backhoe", "skid steer", "tractor loader",
+    "fertilizer", "fertiliser",
+    "static mixer",
+    "electric vehicle supply", "evse",
+    "buses, electric", "electric bus",
+    "automated liquid handler", "aptamer",
+    "freeze dryer",
+
+    # ---- Mowing / grounds (terrestrial maintenance) ----
+    "mowing", "grounds maintenance",
+
+    # ---- General contractor / construction tendering ----
+    "general construction", "general contractor",
+    "renovation", "refurbishment", "minor construction",
+    "construction services",
+    "airport terminal", "terminal renovation",
+    "exhibition fit-out", "exhibition fit out",
+    "teaching & learning", "teaching and learning",
+
+    # ---- Education / community services ----
+    "early years", "pre-school", "preschool",
+    "education provision", "early years education",
+    "refugee", "refugee resettlement",
+    "museum", "art gallery", "cultural heritage",
+    "framework agreement for",   # generic UK framework noise
+
+    # ---- Generic professional services frameworks ----
+    "professional audit", "task professional services",
+    "solutions professional services", "tsps",
+    "media monitoring", "printing service",
+    "change management consultant",
+    "research and advisory",
+    "indigenous artist", "indigenous business capacity",
+
+    # ---- Type-2 fire crew / forestry crews ----
+    "sustained action crew",   # NWT wildfire crews
+    "fire suppression",
+
+    # ---- Dental / supplies ----
+    "dental",
+
+    # ---- IT / software re-emerging noise ----
+    "command and control", "ats replacement", "system support",
+
+    # ---- Generic admin ----
+    "tractor", "skid steer",
+    "vessel recycling",   # ship-breaking, not Edgewise work
 ]
 
 
@@ -438,9 +523,51 @@ def is_excluded(text):
     return any(kw in t for kw in EXCLUDE_KEYWORDS)
 
 
+# Generic "marine signal" words. A tender is only kept on a CPV-only
+# match if it ALSO contains at least one of these (because CPV codes
+# get applied to a lot of unrelated items - e.g. CSC dental services
+# tagged with CPV 70100000). Without this gate, a CPV match alone lets
+# in prison healthcare, agricultural fertiliser, electric buses, etc.
+MARINE_CONTEXT_WORDS = [
+    "marine", "ocean", "oceanic", "vessel", "vessels",
+    "subsea", "underwater", "offshore",
+    "whale", "dolphin", "porpoise", "cetacean", "pinniped",
+    "seal ", "walrus",  # space after "seal" so we don't match "sealing"/"sealed"
+    "seabird", "sea bird",
+    "fish",   # broad - catches fishery work; EXCLUDE list will filter dental "fish"
+    "coastal", "estuarine", "intertidal",
+    "harbour", "harbor", "port ", "wharf", "jetty",
+    "shipping", "maritime",
+    "hydrographic", "bathymetric",
+    "acoustic",
+    "spill", "oil spill",
+    "water sampling", "water column",
+]
+
+
+def has_marine_context(text):
+    """True if the text contains at least one generic marine word.
+    Used to gate CPV-only matches."""
+    if not text:
+        return False
+    t = text.lower()
+    return any(w in t for w in MARINE_CONTEXT_WORDS)
+
+
 def passes_filter(rec):
     """The single decision point: should this record be kept?
-    Returns (bool, reason_string). reason_string is shown in why_fits."""
+    Returns (bool, reason_string). reason_string is shown in why_fits.
+
+    Logic:
+    1. EXCLUDE keyword anywhere -> reject (hard gate)
+    2. MARINE_KEYWORD match -> accept (specific service language)
+    3. CPV code match AND marine context word present -> accept
+    4. Otherwise -> reject
+
+    The CPV-context gate is critical: federal procurement classifies
+    a lot of unrelated services under wildlife/environmental codes
+    (e.g. dental services for prisons, fertiliser, refugee support).
+    Without requiring marine context, those would all pass."""
     haystack = " ".join([
         rec.get("project", ""),
         rec.get("summary", ""),
@@ -453,8 +580,8 @@ def passes_filter(rec):
     if kw:
         return True, f"keyword: {kw}"
     code = matches_cpv(rec.get("reference", "") + " " + rec.get("category_code", ""))
-    if code:
-        return True, f"CPV code: {code}"
+    if code and has_marine_context(haystack):
+        return True, f"CPV code: {code} (with marine context)"
     return False, None
 
 
