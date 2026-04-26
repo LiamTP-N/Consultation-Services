@@ -247,13 +247,13 @@ HEADERS = {
 # wildlife monitoring) and added missing service-specific terms.
 MARINE_KEYWORDS = [
     # ---- Marine fauna observation - Edgewise core service ----
-    "marine mammal", "mmo ", "mmso", "marine mammal observer",
-    "seabird", "sea bird", "sbo ", "seabird observer",
-    "protected species observer", "pso ",
+    "marine mammal", " mmo ", " mmso ", "marine mammal observer",
+    "seabird", "sea bird", " sbo ", "seabird observer",
+    "protected species observer", " pso ",
     "marine fauna", "marine wildlife",
 
     # ---- Acoustics - Edgewise specialism ----
-    "passive acoustic", "pam ", "pam operator", "pam-",
+    "passive acoustic", " pam ", "pam operator", "pam-",
     "acoustic monitoring", "acoustic mitigation", "bioacoustic",
     "underwater noise", "anthropogenic noise",
     "noise mitigation", "noise impact",
@@ -264,8 +264,8 @@ MARINE_KEYWORDS = [
     "marine baseline", "baseline survey", "marine monitoring",
 
     # ---- Environmental assessments / reporting ----
-    "environmental impact", "eia ", "environmental assessment",
-    "environmental effects monitoring", "eem",
+    "environmental impact", " eia ", "environmental assessment",
+    "environmental effects monitoring", " eem ",
     "marine ecology", "marine conservation",
     "environmental baseline",
 
@@ -437,6 +437,26 @@ EXCLUDE_KEYWORDS = [
     # ---- Generic admin ----
     "tractor", "skid steer",
     "vessel recycling",   # ship-breaking, not Edgewise work
+
+    # ---- Generic federal frameworks that are not actual marine work ----
+    "proservices method of supply",
+    "method of supply",   # generic federal framework
+    "audit and support services",
+    "pass rfsa", "pass refresh",
+    "tspsh", "tssb",      # task/solutions professional services brand variants
+    "industry day",       # information sessions, not tenders to bid on
+    "letter of interest", "loi - industry",
+    "request for information",   # RFIs - not biddable, just market sounding
+
+    # ---- Legal / policy reviews (matched on "nunavut" or "agreement") ----
+    "article 23", "land claims agreement",
+    "independent review of",
+    "policy review",
+
+    # ---- Construction testing / engineering surveys NOT marine ----
+    # Note: "Kier Infrastructure" UK entries are kept because they reference
+    # marine EIA work for offshore projects. Don't exclude "construction testing"
+    # blanket - that would kill legitimate offshore EIA prep work.
 ]
 
 
@@ -578,10 +598,12 @@ def passes_filter(rec):
         return False, None
     kw = matches_marine(haystack)
     if kw:
-        return True, f"keyword: {kw}"
+        # Strip the spaces from word-boundary keywords so "matched: eem" not "matched:  eem "
+        clean_kw = kw.strip()
+        return True, f"matched marine keyword: \"{clean_kw}\""
     code = matches_cpv(rec.get("reference", "") + " " + rec.get("category_code", ""))
     if code and has_marine_context(haystack):
-        return True, f"CPV code: {code} (with marine context)"
+        return True, f"matched CPV code {code} with marine context"
     return False, None
 
 
@@ -1160,9 +1182,24 @@ def _scrape_bidsandtenders(url, source_name, entity, region):
     seen = set()
     for a in soup.find_all("a", href=True):
         href = a["href"]
-        # Tighten: must be a Tender/Detail or Tender/View URL specifically.
-        # /Module/Tenders alone matches navigation links.
-        if "Tender/Detail" not in href and "Tender/View" not in href:
+        # Real tender URLs on bidsandtenders sites contain a GUID-style id.
+        # The pattern is something like:
+        #   /Module/Tenders/en/Tender/Detail/{guid}
+        #   /Module/Tenders/en/tender/{guid}
+        #   /Module/Tenders/en/Tender/View/{guid}
+        # Navigation links to /Module/Tenders/en alone don't have the trailing id.
+        # Match any URL that has a UUID-like pattern after /Tenders/.
+        href_lower = href.lower()
+        if "/module/tenders" not in href_lower:
+            continue
+        # Accept if the URL contains a GUID-pattern (8-4-4-4-12 hex)
+        # OR contains /tender/detail or /tender/view (any case)
+        has_guid = bool(re.search(
+            r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+            href_lower
+        ))
+        has_detail_or_view = "tender/detail" in href_lower or "tender/view" in href_lower
+        if not (has_guid or has_detail_or_view):
             continue
         text = a.get_text(strip=True)
         if not text or len(text) < 10:
