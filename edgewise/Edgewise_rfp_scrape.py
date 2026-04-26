@@ -470,8 +470,8 @@ def safe_get(url, **kwargs):
 # anywhere else.
 
 CANADABUYS_CSV = (
-    "https://canadabuys.canada.ca/sites/default/files/opendata/"
-    "open-bid-notices-canadabuys.csv"
+    "https://canadabuys.canada.ca/opendata/pub/"
+    "openTenderNotice-ouvertAvisAppelOffres.csv"
 )
 
 
@@ -551,9 +551,11 @@ def scrape_find_a_tender():
 # Refresh: Real-time.
 # Login required: No.
 
+# Contracts Finder is a slower API than Find a Tender; needs a higher timeout.
 CONTRACTS_FINDER_API = (
     "https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search"
 )
+CONTRACTS_FINDER_TIMEOUT = 60  # seconds
 
 
 def scrape_contracts_finder():
@@ -561,14 +563,15 @@ def scrape_contracts_finder():
     return _ocds_scrape(
         CONTRACTS_FINDER_API, source_name="Contracts Finder (UK)",
         url_template="https://www.contractsfinder.service.gov.uk/Notice/{id}",
+        timeout=CONTRACTS_FINDER_TIMEOUT,
     )
 
 
-def _ocds_scrape(api_url, source_name, url_template):
+def _ocds_scrape(api_url, source_name, url_template, timeout=None):
     """Shared OCDS parser used by both UK feeds. The two services
     publish identical OCDS shapes - the only differences are the URL
     of the human-facing notice page and how many parameters they
-    accept."""
+    accept. Optional timeout override for slower APIs (Contracts Finder)."""
     out = []
     since = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%dT00:00:00")
     params = {"updatedFrom": since, "limit": 100, "stages": "tender"}
@@ -579,7 +582,10 @@ def _ocds_scrape(api_url, source_name, url_template):
         while pages < 10:    # Hard cap so a buggy API can't loop forever.
             if cursor:
                 params["cursor"] = cursor
-            r = safe_get(api_url, params=params)
+            kwargs = {"params": params}
+            if timeout:
+                kwargs["timeout"] = timeout
+            r = safe_get(api_url, **kwargs)
             if not r:
                 break
             pkg = r.json()
@@ -662,7 +668,13 @@ SPREP_TENDERS_URL = "https://www.sprep.org/tenders"
 def scrape_sprep():
     log("SPREP: scraping tenders page")
     out = []
-    r = safe_get(SPREP_TENDERS_URL)
+    # SPREP's Drupal install returns 403 to vanilla python-requests.
+    # Sending a full browser-like header set passes the bot check.
+    sprep_headers = dict(HEADERS)
+    sprep_headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+    sprep_headers["Accept-Encoding"] = "gzip, deflate"
+    sprep_headers["Connection"] = "keep-alive"
+    r = safe_get(SPREP_TENDERS_URL, headers=sprep_headers)
     if not r:
         return out
 
@@ -714,38 +726,46 @@ def scrape_sprep():
 # Coverage: Global. Most relevant for Pacific/Caribbean/African projects
 #           that touch marine environmental work.
 
-WORLDBANK_RSS = (
-    "https://projects.worldbank.org/en/projects-operations/procurement/notices.rss"
-)
+# World Bank dropped their RSS feed, but kept a JSON search API.
+# Returns recent procurement notices across all countries and sectors.
+WORLDBANK_API = "https://search.worldbank.org/api/v3/procnotices"
 
 
 def scrape_worldbank():
-    log("World Bank: fetching procurement RSS")
+    log("World Bank: fetching procurement notices (JSON API)")
     out = []
-    r = safe_get(WORLDBANK_RSS)
+    params = {"format": "json", "rows": 100, "fl": "*"}
+    r = safe_get(WORLDBANK_API, params=params)
     if not r:
         return out
 
-    soup = BeautifulSoup(r.content, "lxml-xml")
-    for item in soup.find_all("item"):
-        title = (item.title.text if item.title else "").strip()
-        link = (item.link.text if item.link else "").strip()
-        desc = (item.description.text if item.description else "").strip()
-        pub = (item.pubDate.text if item.pubDate else "").strip()
+    try:
+        data = r.json()
+    except ValueError:
+        log("World Bank: response was not valid JSON")
+        return out
+
+    # The API returns a dict with a "procnotices" key holding records by id.
+    notices = data.get("procnotices") or {}
+    for notice_id, item in notices.items():
+        title = (item.get("project_name") or item.get("bid_description") or "").strip()
         if not title:
             continue
-
-        # Country usually appears as a prefix: "Senegal: Project XYZ"
-        region = "International"
-        m = re.match(r"^([A-Z][A-Za-z\s]+):", title)
-        if m:
-            region = m.group(1).strip()
+        country = (item.get("project_ctry_name") or item.get("country") or "International").strip()
+        deadline = item.get("submission_deadline_date") or ""
+        url = item.get("url") or item.get("notice_lnk") or ""
+        if not url:
+            url = f"https://projects.worldbank.org/en/projects-operations/procurement/{notice_id}"
+        desc = (item.get("bid_description") or item.get("project_name") or "").strip()
+        notice_type = item.get("notice_type") or ""
 
         out.append(build_record(
-            project=title, entity="World Bank", region=region,
-            source="World Bank", url=link, summary=desc,
-            notes=f"Published: {pub}" if pub else "",
-            tags=["World Bank"],
+            project=title, entity="World Bank", region=country,
+            source="World Bank", url=url, summary=desc,
+            reference=notice_id,
+            notes=f"Type: {notice_type}" if notice_type else "",
+            due_date=parse_iso_date(deadline),
+            tags=["World Bank"] + ([country] if country and country != "International" else []),
         ))
 
     log(f"World Bank: {len(out)} notices pulled (pre-filter)")
@@ -1000,7 +1020,12 @@ NUNAVUT_URL = "https://www.gov.nu.ca/finance/information/government-nunavut-rftp
 def scrape_nunavut():
     log("Nunavut RFTP: scraping public notices")
     out = []
-    r = safe_get(NUNAVUT_URL)
+    # gov.nu.ca blocks vanilla python-requests. Send full browser headers.
+    nu_headers = dict(HEADERS)
+    nu_headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+    nu_headers["Accept-Encoding"] = "gzip, deflate"
+    nu_headers["Connection"] = "keep-alive"
+    r = safe_get(NUNAVUT_URL, headers=nu_headers)
     if not r:
         return out
 
@@ -1034,7 +1059,7 @@ def scrape_nunavut():
 # Type: PUBLIC HTML LISTINGS (some opportunities posted on BC Bid,
 # some on their own page)
 
-BC_FERRIES_URL = "https://www.bcferries.com/about/procurement"
+BC_FERRIES_URL = "https://www.bcferries.com/our-company/procurement"
 
 
 def scrape_bc_ferries():
@@ -1074,7 +1099,7 @@ def scrape_bc_ferries():
 # Type: PUBLIC HTML LISTINGS
 # Note: Marine environmental work around the LNG terminal in Kitimat.
 
-LNG_CANADA_URL = "https://www.lngcanada.ca/our-business/contracting-procurement/"
+LNG_CANADA_URL = "https://www.lngcanada.ca/opportunities/contracting-procurement/"
 
 
 def scrape_lng_canada():
