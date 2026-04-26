@@ -241,61 +241,117 @@ HEADERS = {
 # Marine / environmental consultancy keywords. At least one must match
 # the title, description, or buyer name (case-insensitive substring).
 # Adding a keyword here makes the filter MORE PERMISSIVE (more matches).
+# Keywords audited against Edgewise's actual service offering as
+# advertised on edgewiseenvironmental.com. Removed broad terms that
+# generated noise (oceanographic, fisheries, biodiversity, habitat,
+# wildlife monitoring) and added missing service-specific terms.
 MARINE_KEYWORDS = [
-    # ---- Edgewise core services ----
-    "marine mammal", "mmo", "passive acoustic", "pam ",
-    "seabird", "sea bird",
+    # ---- Marine fauna observation - Edgewise core service ----
+    "marine mammal", "mmo ", "mmso", "marine mammal observer",
+    "seabird", "sea bird", "sbo ", "seabird observer",
+    "protected species observer", "pso ",
+    "marine fauna", "marine wildlife",
 
-    # ---- Surveys and assessments ----
-    "marine survey", "underwater survey", "benthic survey",
-    "environmental impact", "eia", "environmental assessment",
-    "oceanographic", "baseline study", "marine baseline",
+    # ---- Acoustics - Edgewise specialism ----
+    "passive acoustic", "pam ", "pam operator", "pam-",
+    "acoustic monitoring", "acoustic mitigation", "bioacoustic",
+    "underwater noise", "anthropogenic noise",
+    "noise mitigation", "noise impact",
+
+    # ---- Surveys Edgewise can crew or assess ----
+    "seismic survey", "geophysical survey", "geotechnical survey",
+    "marine survey", "underwater survey", "subsea cable",
+    "marine baseline", "baseline survey", "marine monitoring",
+
+    # ---- Environmental assessments / reporting ----
+    "environmental impact", "eia ", "environmental assessment",
+    "environmental effects monitoring", "eem",
+    "marine ecology", "marine conservation",
+    "environmental baseline",
 
     # ---- Sectors Edgewise targets ----
     "offshore wind", "marine renewable", "tidal energy", "wave energy",
-    "subsea", "ocean energy",
+    "subsea", "ocean energy", "blue economy",
+    "offshore oil", "offshore gas",
 
-    # ---- Broader environmental ----
-    "fisheries", "marine conservation", "biodiversity",
-    "marine ecology", "coastal monitoring", "marine monitoring",
-    "acoustic monitoring", "bioacoustic",
-    "wildlife monitoring", "wildlife survey",
-    "habitat assessment", "habitat survey",
-
-    # ---- Region focus (catches geography-tagged tenders) ----
-    "atlantic canada", "arctic", "nunavut", "newfoundland",
-    "north sea", "celtic sea", "labrador",
+    # ---- Specific service lines from their website ----
+    "abandoned vessel", "abandoned boat", "vessel assessment",
+    "oil spill", "spill response", "emergency environmental response",
+    "wildlife observer", "bird handling", "oiled wildlife",
+    "indigenous engagement",
+    "mitigation monitoring", "mitigation measure",
 ]
 
 # CanadaBuys procurement category codes Edgewise specifically tracks.
-# Pulled from your tracker spreadsheet (Procurement Sites Tracker > Canada Buys).
 # These are UNSPSC codes used by federal Canadian procurement to classify
 # tender opportunities. A tender tagged with one of these codes gets
-# kept regardless of keyword match.
+# kept regardless of keyword match. Removed 81171500 (Information
+# management technology) from the original list - it was catching IT
+# advisory tenders that have nothing to do with marine work.
 #
-# 70101602 = Wildlife studies
-# 70100000 = Forestry, fisheries, wildlife management services
-# 81171500 = Information management technology
-# 77101500 = Environmental management
+# 70101602 = Wildlife studies (kept - core relevance)
+# 70100000 = Forestry, fisheries, wildlife management services (kept;
+#            EXCLUDE_KEYWORDS rejects forestry/fisheries-only items)
+# 77101500 = Environmental management (kept - core relevance)
 CPV_CODES = [
     "70101602",
     "70100000",
-    "81171500",
     "77101500",
 ]
 
 # Hard rejects. If ANY of these match the title or description, the
 # tender is dropped even if it matched a keyword. Use this to kill
-# noise. Adding a keyword here makes the filter MORE STRICT.
+# noise. Expanded heavily after audit of CanadaBuys results: the
+# DND/PSPC procurement firehose contains a lot of construction,
+# accommodation, IT and supply-chain items that match broad keywords
+# but have no relevance to marine environmental consulting.
 EXCLUDE_KEYWORDS = [
+    # ---- Generic facilities ----
     "janitorial", "cleaning service", "catering", "food service",
     "stationery", "office supplies", "printer toner",
-    "uniform", "laundry",
+    "uniform", "laundry", "office furniture",
     "pest control", "snow removal", "landscaping",
-    "it support", "software licence", "software license",
+    "lawn maintenance", "silviculture", "grass cutting",
     "vehicle rental", "fuel supply",
     "translation service", "interpreter",
     "medical supplies", "pharmaceutical",
+
+    # ---- IT and digital services (out of scope for Edgewise) ----
+    "it support", "software licence", "software license",
+    "legal software", "legal solution", "case management software",
+    "software solution", "im/it", "im/ it", "data centre",
+    "cloud service", "saas", "cyber",
+    "research and advisory", "advisory services",
+
+    # ---- Construction and trades (frequent CanadaBuys noise) ----
+    "accommodation", "accommodations", "barracks", "housing",
+    "bridge replacement", "culvert", "paving", "paving program",
+    "chimney replacement", "library cooling", "cooling tower",
+    "roof replacement", "roofing", "kitchen construction",
+    "electrical upgrade", "lighting upgrade", "plumbing",
+    "building materials", "domestic appliance",
+    "modular bridge", "panel bridge",
+
+    # ---- Defence equipment (CanadaBuys CHER programme spam) ----
+    "heavy equipment replacement", "heavy support equipment",
+    "armoured", "armored", "shipbuilding", "shipyard",
+    "armoured sport utility", "armoured sports utility",
+
+    # ---- Misc admin and logistics noise ----
+    "detention guard", "non-emergency towing", "moving services",
+    "guest accommodation", "rental trailer",
+    "electoral material", "wooden ruler", "plastic bag",
+    "metal frame", "parking sign",
+    "satellite equipment",
+    "freeze dryer",
+
+    # ---- Out-of-scope environmental work ----
+    # (These are environmental-adjacent but not marine MMO/PAM/SBO work)
+    "contaminated site", "remediation construction",
+    "hazmat", "hazardous material", "tank assessment",
+    "petroleum storage tank", "asbestos",
+    "topographic lidar",   # terrestrial mapping, not marine
+    "aerial photography",
 ]
 
 
@@ -666,17 +722,18 @@ SPREP_TENDERS_URL = "https://www.sprep.org/tenders"
 
 
 def scrape_sprep():
-    log("SPREP: scraping tenders page")
+    """SPREP's Drupal install uses Cloudflare-style bot protection that
+    blocks server-side scraping. We tried browser-like headers; still 403.
+    Marked as known-broken; SPREP tenders need to be added manually
+    through the Gemini Scout pipeline if they appear.
+    The portal directory at the bottom of rfps.html still links to it."""
+    log("SPREP: skipped (known bot-protected; manual entry required)")
     out = []
-    # SPREP's Drupal install returns 403 to vanilla python-requests.
-    # Sending a full browser-like header set passes the bot check.
-    sprep_headers = dict(HEADERS)
-    sprep_headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-    sprep_headers["Accept-Encoding"] = "gzip, deflate"
-    sprep_headers["Connection"] = "keep-alive"
-    r = safe_get(SPREP_TENDERS_URL, headers=sprep_headers)
-    if not r:
-        return out
+    return out
+    # Old code below kept commented for future reference if SPREP relaxes protection.
+    # r = safe_get(SPREP_TENDERS_URL)
+    # if not r:
+    #     return out
 
     soup = BeautifulSoup(r.content, "lxml")
     seen_urls = set()
@@ -727,14 +784,22 @@ def scrape_sprep():
 #           that touch marine environmental work.
 
 # World Bank dropped their RSS feed, but kept a JSON search API.
-# Returns recent procurement notices across all countries and sectors.
-WORLDBANK_API = "https://search.worldbank.org/api/v3/procnotices"
+# v2 endpoint - v3 is documents-only, v2 has procurement notices.
+# Reference: https://www.worldbank.org/ext/en/what-we-do/project-procurement/for-suppliers
+WORLDBANK_API = "https://search.worldbank.org/api/v2/procnotices"
 
 
 def scrape_worldbank():
-    log("World Bank: fetching procurement notices (JSON API)")
+    log("World Bank: fetching procurement notices (JSON API v2)")
     out = []
-    params = {"format": "json", "rows": 100, "fl": "*"}
+    params = {
+        "format": "json",
+        "rows": 100,
+        "srt": "submission_deadline_date",
+        "order": "desc",
+        "apilang": "en",
+        "srce": "both",
+    }
     r = safe_get(WORLDBANK_API, params=params)
     if not r:
         return out
@@ -745,17 +810,19 @@ def scrape_worldbank():
         log("World Bank: response was not valid JSON")
         return out
 
-    # The API returns a dict with a "procnotices" key holding records by id.
-    notices = data.get("procnotices") or {}
-    for notice_id, item in notices.items():
+    # The v2 API returns a dict with notice records keyed by their id.
+    # Strip metadata fields and iterate over the actual notice records.
+    SKIP_KEYS = {"total", "rows", "os", "page"}
+    for notice_id, item in data.items():
+        if notice_id in SKIP_KEYS or not isinstance(item, dict):
+            continue
         title = (item.get("project_name") or item.get("bid_description") or "").strip()
         if not title:
             continue
-        country = (item.get("project_ctry_name") or item.get("country") or "International").strip()
+        country = (item.get("project_ctry_name") or item.get("country_name") or "International").strip()
         deadline = item.get("submission_deadline_date") or ""
-        url = item.get("url") or item.get("notice_lnk") or ""
-        if not url:
-            url = f"https://projects.worldbank.org/en/projects-operations/procurement/{notice_id}"
+        # Build URL from id since the API does not return a direct link.
+        url = f"https://projects.worldbank.org/en/projects-operations/procurement-detail/{notice_id}"
         desc = (item.get("bid_description") or item.get("project_name") or "").strip()
         notice_type = item.get("notice_type") or ""
 
@@ -938,10 +1005,24 @@ def scrape_yukon():
     )
 
 
+# Navigation labels on bidsandtenders templates that LOOK like tender
+# titles but are just menu items. Reject anything matching this list.
+BIDSANDTENDERS_NAV_NOISE = {
+    "bids homepage", "create account", "sign in", "login", "log in",
+    "vendor guide", "buyer guide", "register", "support",
+    "open bids", "closed bids", "awarded bids", "all bids",
+    "browse bids", "view all", "home", "contact us",
+}
+
+
 def _scrape_bidsandtenders(url, source_name, entity, region):
     """Generic bidsandtenders.ca scraper. The platform serves all
     its clients (NL Hydro, Yukon, hundreds of municipalities) on
-    the same template, so this works for any of them."""
+    the same template, so this works for any of them.
+
+    Only links containing 'Tender/Detail' or 'Tender/View' in the URL
+    point to actual tender pages. Other links matching /Module/Tenders
+    are nav items and are skipped."""
     log(f"{source_name}: scraping {url}")
     out = []
     r = safe_get(url)
@@ -952,10 +1033,15 @@ def _scrape_bidsandtenders(url, source_name, entity, region):
     seen = set()
     for a in soup.find_all("a", href=True):
         href = a["href"]
-        if "Tender/Detail" not in href and "/Module/Tenders" not in href:
+        # Tighten: must be a Tender/Detail or Tender/View URL specifically.
+        # /Module/Tenders alone matches navigation links.
+        if "Tender/Detail" not in href and "Tender/View" not in href:
             continue
         text = a.get_text(strip=True)
         if not text or len(text) < 10:
+            continue
+        # Reject nav-menu labels that LOOK like tender titles.
+        if text.lower().strip() in BIDSANDTENDERS_NAV_NOISE:
             continue
         full = urljoin(url, href)
         if full in seen or full == url:
@@ -1018,16 +1104,17 @@ NUNAVUT_URL = "https://www.gov.nu.ca/finance/information/government-nunavut-rftp
 
 
 def scrape_nunavut():
-    log("Nunavut RFTP: scraping public notices")
+    """gov.nu.ca uses bot protection that blocks server-side scraping.
+    Most Nunavut federal tenders also appear in CanadaBuys, which IS
+    being scraped successfully, so coverage is preserved.
+    The portal directory at the bottom of rfps.html still links to it."""
+    log("Nunavut RFTP: skipped (bot-protected; CanadaBuys covers most NU tenders)")
     out = []
-    # gov.nu.ca blocks vanilla python-requests. Send full browser headers.
-    nu_headers = dict(HEADERS)
-    nu_headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-    nu_headers["Accept-Encoding"] = "gzip, deflate"
-    nu_headers["Connection"] = "keep-alive"
-    r = safe_get(NUNAVUT_URL, headers=nu_headers)
-    if not r:
-        return out
+    return out
+    # Old code below kept commented for future reference.
+    # r = safe_get(NUNAVUT_URL)
+    # if not r:
+    #     return out
 
     soup = BeautifulSoup(r.content, "lxml")
     seen = set()
@@ -1143,6 +1230,14 @@ def scrape_lng_canada():
 MERX_NL_URL = "https://www.merx.com/govnl/solicitations/open-bids?pageNumber=1"
 
 
+# Navigation labels on MERX NL listings page. Reject by text match.
+MERX_NAV_NOISE = {
+    "open solicitations", "closed solicitations", "awarded solicitations",
+    "all solicitations", "bids homepage", "homepage", "search",
+    "filter", "sort", "next", "previous",
+}
+
+
 def scrape_merx_nl():
     log("MERX NL: scraping public bid listings")
     out = []
@@ -1157,7 +1252,16 @@ def scrape_merx_nl():
         href = a["href"]
         if not text or len(text) < 15:
             continue
+        # Reject navigation labels.
+        if text.lower().strip() in MERX_NAV_NOISE:
+            continue
+        # Real tender URLs have a numeric id at the end:
+        # /solicitations/open-bids/<title>/<8-digit-id>
+        # Nav links are just /solicitations/open-bids without the trailing parts.
         if "/solicitations/" not in href and "/solicitation-detail/" not in href:
+            continue
+        # Tender URLs end in a numeric id; skip URLs without one.
+        if not re.search(r"/\d{6,}(?:[/?#]|$)", href):
             continue
         full = urljoin(MERX_NL_URL, href)
         if full in seen:
