@@ -353,17 +353,6 @@
                     <div id="rest-info" class="flex-1 text-center bg-slate-800/30 p-1.5 rounded-lg border border-slate-700/30"><p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p></div>
                 </div>
                 <div id="hr-setup" class="hidden mt-3 pt-3 border-t border-slate-700/50">
-                    <!-- Solo profile selector: only visible in Solo mode. Picks which
-                         biometric profile (YOU=Liam, WIFE=Ash) drives calorie/zone/HRmax
-                         calculations and which person ID gets saved to Firestore. No
-                         default - one (or both) must be chosen for solo training. -->
-                    <div id="solo-profile-row" class="hidden mb-2">
-                        <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Active Profile</p>
-                        <div class="flex p-1 bg-slate-800/50 rounded-xl gap-1">
-                            <button id="solo-profile-liam" aria-pressed="false" class="flex-1 px-3 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">Liam</button>
-                            <button id="solo-profile-ash" aria-pressed="false" class="flex-1 px-3 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white">Ash</button>
-                        </div>
-                    </div>
                     <div class="flex items-center gap-2">
                     <button id="btn-hr-you" aria-label="Connect Liam's heart rate monitor" class="flex-1 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold bg-slate-800/50 border border-slate-700/30 hover:border-red-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-red-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-label">Liam's HR</span></button>
                     <button id="btn-hr-wife" aria-label="Connect Ash's heart rate monitor" class="flex-1 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold bg-slate-800/50 border border-slate-700/30 hover:border-purple-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-purple-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-label">Ash's HR</span></button>
@@ -653,12 +642,6 @@
             roundsB2:6,            // Block 2 round count
             surpriseCountB2:2      // Block 2 surprise count
         },prevMode='wife';
-        // Solo-mode active profile. Determines which biometric profile is used for
-        // calorie/zone/HRmax calculations and which person ID gets saved to Firestore.
-        // In Wife mode this is unused (data is auto-attributed by strap connection).
-        // No default: in Solo mode, must be selected before training (or we fall back
-        // to whichever HR strap connects). 'liam' | 'ash' | null.
-        let soloProfile=null;
 
         // ── SESSION STATE ───────────────────────────────────────────────────────
         // Represents the LIVE session as it runs. Reset at startSession().
@@ -724,8 +707,8 @@
             // Determine which person(s) get time credit. In Wife mode: round parity rules.
             // In Solo mode: whichever strap(s) are connected get credit, so parallel
             // solo training (both training simultaneously on same device) attributes
-            // correctly. If neither strap is connected in Solo mode, fall back to the
-            // selected soloProfile, then to YOU as last resort (preserves legacy behaviour).
+            // correctly. If neither strap is connected in Solo mode, default to YOU
+            // (the legacy behaviour - no HR data will save anyway).
             const youConn=hrDeviceYou&&hrDeviceYou.gatt&&hrDeviceYou.gatt.connected;
             const wifeConn=hrDeviceWife&&hrDeviceWife.gatt&&hrDeviceWife.gatt.connected;
             if(session.phase==='work'||session.phase==='surprise'){
@@ -734,7 +717,7 @@
                 else{
                     if(youConn)workMsYou+=elapsedMs;
                     if(wifeConn)workMsWife+=elapsedMs;
-                    if(!youConn&&!wifeConn){if(soloProfile==='ash')workMsWife+=elapsedMs;else workMsYou+=elapsedMs;}
+                    if(!youConn&&!wifeConn)workMsYou+=elapsedMs;
                 }
             }else if(session.phase==='rest'||session.phase==='change'||session.phase==='block-rest'){
                 restMsTotal+=elapsedMs;
@@ -742,7 +725,7 @@
                 else{
                     if(youConn)restMsYou+=elapsedMs;
                     if(wifeConn)restMsWife+=elapsedMs;
-                    if(!youConn&&!wifeConn){if(soloProfile==='ash')restMsWife+=elapsedMs;else restMsYou+=elapsedMs;}
+                    if(!youConn&&!wifeConn)restMsYou+=elapsedMs;
                 }
             }
             phaseStartWall=0;
@@ -1586,12 +1569,6 @@
                 hrYouLabel.innerText=hrDeviceYou?(hrValueYou?"Liam's HR ("+hrValueYou+")":"Liam's HR"):"Liam's HR";
                 hrWifeLabel.innerText=hrDeviceWife?(hrValueWife?"Ash's HR ("+hrValueWife+")":"Ash's HR"):"Ash's HR";
             }
-            // Solo profile row: visible only in Solo mode. Hidden in Wife mode (auto-attribution there).
-            const soloRow=document.getElementById('solo-profile-row');
-            if(soloRow){
-                if(mode==='solo')soloRow.classList.remove('hidden');
-                else soloRow.classList.add('hidden');
-            }
             if(mode==='solo'){
                 ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-green-600 text-white";
                 ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
@@ -1612,19 +1589,6 @@
             generateSessionPlan();
         }
         ui.modeSolo.onclick=()=>setMode('solo');ui.modeWife.onclick=()=>setMode('wife');
-        // Solo profile selector wiring. Visual state mirrors `soloProfile`.
-        // Profile choice in Solo mode determines biometric calcs and saved person ID.
-        function setSoloProfile(p){
-            soloProfile=p;
-            const liamBtn=document.getElementById('solo-profile-liam'),ashBtn=document.getElementById('solo-profile-ash');
-            if(!liamBtn||!ashBtn)return;
-            const baseCls="flex-1 px-3 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all";
-            if(p==='liam'){liamBtn.className=baseCls+" bg-green-600 text-white";liamBtn.setAttribute('aria-pressed','true');ashBtn.className=baseCls+" text-slate-400 hover:text-white";ashBtn.setAttribute('aria-pressed','false');}
-            else if(p==='ash'){ashBtn.className=baseCls+" bg-purple-600 text-white";ashBtn.setAttribute('aria-pressed','true');liamBtn.className=baseCls+" text-slate-400 hover:text-white";liamBtn.setAttribute('aria-pressed','false');}
-            else{liamBtn.className=baseCls+" text-slate-400 hover:text-white";liamBtn.setAttribute('aria-pressed','false');ashBtn.className=baseCls+" text-slate-400 hover:text-white";ashBtn.setAttribute('aria-pressed','false');}
-        }
-        document.getElementById('solo-profile-liam').onclick=()=>setSoloProfile(soloProfile==='liam'?null:'liam');
-        document.getElementById('solo-profile-ash').onclick=()=>setSoloProfile(soloProfile==='ash'?null:'ash');
         ui.inRandom.onchange=e=>{settings.randomiseMiddle=e.target.checked;generateSessionPlan();};
 
         // ── SESSION PLAN ────────────────────────────────────────────────────────
@@ -2437,32 +2401,14 @@
                 profileBiometrics:{age:profile.age,weight:profile.weight,sex:profile.sex,hrMax:profile.hrMax}
             };
         }
-        // Decide which Liam-side profile to use based on Solo profile selection.
-        // In Wife mode this is always YOU=Liam. In Solo mode if soloProfile==='ash'
-        // then Liam-strap data effectively maps to Ash's profile (because she's the
-        // one wearing the Liam-side strap). This lets either spouse use either strap.
-        function effectiveYouProfile(){
-            if(settings.mode==='wife')return YOU;
-            if(soloProfile==='ash')return WIFE;
-            return YOU;
-        }
-        function effectiveYouPersonId(){
-            if(settings.mode==='wife')return 'liam';
-            if(soloProfile==='ash')return 'ash';
-            return 'liam';
-        }
-        // Wife-strap is always Ash's (she wears the purple-button strap), except
-        // in Solo mode where Liam might wear it instead if Ash has the other.
-        function effectiveWifeProfile(){
-            if(settings.mode==='wife')return WIFE;
-            if(soloProfile==='liam')return YOU;
-            return WIFE;
-        }
-        function effectiveWifePersonId(){
-            if(settings.mode==='wife')return 'ash';
-            if(soloProfile==='liam')return 'liam';
-            return 'ash';
-        }
+        // Whichever strap is connected to the red (Liam) button is always Liam's data.
+        // Whichever strap is connected to the purple (Ash) button is always Ash's data.
+        // Straps are physically interchangeable - the button you tap to connect IS
+        // the profile selection. This applies in both Solo and Wife modes.
+        function effectiveYouProfile(){return YOU;}
+        function effectiveYouPersonId(){return 'liam';}
+        function effectiveWifeProfile(){return WIFE;}
+        function effectiveWifePersonId(){return 'ash';}
         // Save the completed session. Called from showSummary() and end().
         // Writes one doc per person whose HR data was recorded.
         async function saveCompletedSessionToFirestore(){
