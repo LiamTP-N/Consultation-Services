@@ -4,8 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Northumbria Department Workflow Map</title>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+    import { getFirestore, collection, orderBy, query, getDocs, doc, updateDoc, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDSK-2hI6ML1eykIed6E8S5Ve29phrEolI",
+      authDomain: "nu-school-of-sport.firebaseapp.com",
+      projectId: "nu-school-of-sport",
+      storageBucket: "nu-school-of-sport.firebasestorage.app",
+      messagingSenderId: "396866213410",
+      appId: "1:396866213410:web:bc7f31d1eb1833306d1c7b"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Make functions global for HTML onclick handlers
+    window.db = db;
+    window.collection = collection;
+    window.orderBy = orderBy;
+    window.query = query;
+    window.getDocs = getDocs;
+    window.doc = doc;
+    window.updateDoc = updateDoc;
+    window.addDoc = addDoc;
+  </script>
   <style>
     * {
       margin: 0;
@@ -388,7 +414,10 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+    import { getFirestore, collection, orderBy, query, getDocs, doc, updateDoc, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
     // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDSK-2hI6ML1eykIed6E8S5Ve29phrEolI",
@@ -400,8 +429,8 @@
     };
 
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
     let workflows = {};
     let currentEditingId = null;
@@ -410,47 +439,52 @@
     // Load workflows from Firestore
     async function loadWorkflows() {
       try {
-        const snapshot = await db.collection('workflows').orderBy('workflow').orderBy('step').get();
+        const q = query(collection(db, 'workflows'), orderBy('workflow'), orderBy('step'));
+        const snapshot = await getDocs(q);
         workflows = {};
         
-        snapshot.forEach(doc => {
-          const data = doc.data();
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
           const workflow = data.workflow;
           if (!workflows[workflow]) {
             workflows[workflow] = [];
           }
-          workflows[workflow].push({ id: doc.id, ...data });
+          workflows[workflow].push({ id: docSnap.id, ...data });
         });
 
         if (snapshot.empty) {
-          loadDefaultData();
+          await loadDefaultData();
         } else {
           renderDiagram();
         }
       } catch (error) {
         console.error('Error loading workflows:', error);
-        loadDefaultData();
+        await loadDefaultData();
       }
     }
 
     // Load default data if collection is empty
     async function loadDefaultData() {
-      const defaultWorkflows = [
-        { workflow: 'Teaching', step: '1', task: 'Do you have a PEP ready?', url: '—', audience: 'All Staff', documents: '—', deadline: 'Before teaching', dependsOn: '—', notes: 'Decision point' },
-        { workflow: 'Teaching', step: '2', task: 'Get blank PEP template', url: 'https://teams.microsoft.com/', audience: 'All Staff', documents: 'PEP template', deadline: 'ASAP', dependsOn: '1', notes: 'If no PEP yet' },
-        { workflow: 'Teaching', step: '3', task: 'Upload to MS Teams', url: 'https://teams.microsoft.com/', audience: 'All Staff', documents: 'Completed PEP', deadline: 'Before first session', dependsOn: '1', notes: 'Copy the Teams link' },
-        { workflow: 'Teaching', step: '4', task: 'Record link in SEM spreadsheet', url: 'https://excel.com/', audience: 'All Staff', documents: 'Teams link', deadline: 'Within 1 week', dependsOn: '3', notes: 'Update SEM1 or SEM2 column' },
-        { workflow: 'Research', step: '1', task: 'Do you have a PO form?', url: '—', audience: 'Researchers', documents: '—', deadline: 'Before research', dependsOn: '—', notes: 'Decision point' },
-        { workflow: 'Research', step: '2', task: 'Get blank PO form', url: 'https://forms.com/', audience: 'Researchers', documents: 'PO template', deadline: 'ASAP', dependsOn: '1', notes: 'If no form yet' },
-        { workflow: 'Research', step: '3', task: 'Upload & @ Liam for approval', url: 'https://sharepoint.com/', audience: 'Researchers', documents: 'Completed PO form', deadline: 'Before data collection', dependsOn: '1', notes: 'Tag Liam for approval' },
-        { workflow: 'Admin', step: '1', task: 'Admin workflow item', url: '—', audience: 'Admin Staff', documents: '—', deadline: 'TBD', dependsOn: '—', notes: 'To be defined' }
-      ];
+      try {
+        const defaultWorkflows = [
+          { workflow: 'Teaching', step: '1', task: 'Do you have a PEP ready?', url: '—', audience: 'All Staff', documents: '—', deadline: 'Before teaching', dependsOn: '—', notes: 'Decision point' },
+          { workflow: 'Teaching', step: '2', task: 'Get blank PEP template', url: 'https://teams.microsoft.com/', audience: 'All Staff', documents: 'PEP template', deadline: 'ASAP', dependsOn: '1', notes: 'If no PEP yet' },
+          { workflow: 'Teaching', step: '3', task: 'Upload to MS Teams', url: 'https://teams.microsoft.com/', audience: 'All Staff', documents: 'Completed PEP', deadline: 'Before first session', dependsOn: '1', notes: 'Copy the Teams link' },
+          { workflow: 'Teaching', step: '4', task: 'Record link in SEM spreadsheet', url: 'https://excel.com/', audience: 'All Staff', documents: 'Teams link', deadline: 'Within 1 week', dependsOn: '3', notes: 'Update SEM1 or SEM2 column' },
+          { workflow: 'Research', step: '1', task: 'Do you have a PO form?', url: '—', audience: 'Researchers', documents: '—', deadline: 'Before research', dependsOn: '—', notes: 'Decision point' },
+          { workflow: 'Research', step: '2', task: 'Get blank PO form', url: 'https://forms.com/', audience: 'Researchers', documents: 'PO template', deadline: 'ASAP', dependsOn: '1', notes: 'If no form yet' },
+          { workflow: 'Research', step: '3', task: 'Upload & @ Liam for approval', url: 'https://sharepoint.com/', audience: 'Researchers', documents: 'Completed PO form', deadline: 'Before data collection', dependsOn: '1', notes: 'Tag Liam for approval' },
+          { workflow: 'Admin', step: '1', task: 'Admin workflow item', url: '—', audience: 'Admin Staff', documents: '—', deadline: 'TBD', dependsOn: '—', notes: 'To be defined' }
+        ];
 
-      for (const step of defaultWorkflows) {
-        await db.collection('workflows').add(step);
+        for (const step of defaultWorkflows) {
+          await addDoc(collection(db, 'workflows'), step);
+        }
+
+        await loadWorkflows();
+      } catch (error) {
+        console.error('Error loading default data:', error);
       }
-
-      loadWorkflows();
     }
 
     // Render diagram
@@ -513,7 +547,7 @@
           const boxId = step.id;
           
           svg += `
-            <g class="editable-box workflow-${workflowName.toLowerCase()}" onclick="openModal('${boxId}')" opacity="${opacity}">
+            <g class="editable-box workflow-${workflowName.toLowerCase()}" onclick="window.openModal('${boxId}')" opacity="${opacity}">
               <rect x="${pos.x - 100}" y="${stepY}" width="200" height="60" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1"/>
               <text x="${pos.x}" y="${stepY + 20}" text-anchor="middle" style="font-size: 12px; font-weight: 500; fill: currentColor;">${step.task}</text>
               <text x="${pos.x}" y="${stepY + 40}" text-anchor="middle" style="font-size: 10px; fill: currentColor; opacity: 0.7;">${step.notes}</text>
@@ -533,7 +567,7 @@
     }
 
     // Open edit modal
-    function openModal(id) {
+    window.openModal = function(id) {
       currentEditingId = id;
       
       let step = null;
@@ -554,16 +588,16 @@
         document.getElementById('editNotes').value = step.notes || '';
         document.getElementById('editModal').classList.add('open');
       }
-    }
+    };
 
     // Close modal
-    function closeModal() {
+    window.closeModal = function() {
       document.getElementById('editModal').classList.remove('open');
       currentEditingId = null;
-    }
+    };
 
     // Save step
-    async function saveStep(event) {
+    window.saveStep = async function(event) {
       event.preventDefault();
 
       if (!currentEditingId) return;
@@ -580,14 +614,14 @@
       };
 
       try {
-        await db.collection('workflows').doc(currentEditingId).update(updated);
-        closeModal();
-        loadWorkflows();
+        await updateDoc(doc(db, 'workflows', currentEditingId), updated);
+        window.closeModal();
+        await loadWorkflows();
       } catch (error) {
         console.error('Error saving:', error);
         alert('Failed to save: ' + error.message);
       }
-    }
+    };
 
     // Filter workflows
     document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -601,7 +635,7 @@
 
     // Close modal when clicking outside
     document.getElementById('editModal').addEventListener('click', (e) => {
-      if (e.target.id === 'editModal') closeModal();
+      if (e.target.id === 'editModal') window.closeModal();
     });
 
     // Initialize
