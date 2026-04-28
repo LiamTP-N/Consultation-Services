@@ -290,6 +290,9 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // --- One-time populate guard ---
+    let populateUsed = false;
+
     // --- Default data ---
     const DEFAULT_WORKFLOWS = [
       // Teaching
@@ -359,24 +362,34 @@
       return lines;
     }
 
+    // Colour helper - explicit values, no currentColor (avoids repaint loops)
+    function c(dark, light) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? dark : light;
+    }
+    const C = {
+      stroke:   () => c('#aaaaaa', '#555555'),
+      text:     () => c('#e0e0e0', '#333333'),
+      textDim:  () => c('#888888', '#888888'),
+      fill:     () => c('rgba(255,255,255,0.07)', 'rgba(0,0,0,0.06)'),
+      fillNode: () => c('rgba(255,255,255,0.12)', 'rgba(0,0,0,0.10)'),
+    };
+
     function renderDiagram() {
       const container = document.getElementById('diagramContainer');
       
-      const allKeys = Object.keys(workflows);
-      if (allKeys.length === 0) {
-        container.innerHTML = '<div class="loading">No workflows in database — click "Populate Default Data" to add the starting steps.</div>';
+      if (Object.keys(workflows).length === 0) {
+        container.innerHTML = '<div class="loading">No workflows in database — click "+ Populate Default Data" to add the starting steps.</div>';
         return;
       }
 
       const BRANCH_NAMES = ['Teaching', 'Research', 'Admin'];
       const BOX_W = 190;
       const BOX_H = 64;
-      const STEP_GAP = 84; // box height + 20px gap
+      const STEP_GAP = 84;
       const COL_X = { Teaching: 160, Research: 370, Admin: 580 };
       const START_Y = 220;
       const SVG_W = 740;
 
-      // Calculate max steps for SVG height
       let maxSteps = 0;
       for (const b of BRANCH_NAMES) {
         const len = (workflows[b] || []).length;
@@ -384,24 +397,30 @@
       }
       const SVG_H = START_Y + maxSteps * STEP_GAP + 60;
 
+      const stroke   = C.stroke();
+      const textCol  = C.text();
+      const textDim  = C.textDim();
+      const fill     = C.fill();
+      const fillNode = C.fillNode();
+
       let svg = `<svg viewBox="0 0 ${SVG_W} ${SVG_H}" xmlns="http://www.w3.org/2000/svg">`;
       svg += `<defs>
         <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M2 1L8 5L2 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 1L8 5L2 9" fill="none" stroke="${stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </marker>
       </defs>`;
 
       // Start node
-      svg += `<circle cx="370" cy="40" r="28" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.5"/>
-              <text x="370" y="45" text-anchor="middle" dominant-baseline="central" style="font-size:13px;font-weight:600;fill:currentColor;">Start</text>
-              <line x1="370" y1="68" x2="370" y2="100" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+      svg += `<circle cx="370" cy="40" r="28" fill="${fillNode}" stroke="${stroke}" stroke-width="1.5"/>
+              <text x="370" y="45" text-anchor="middle" dominant-baseline="central" style="font-size:13px;font-weight:600;fill:${textCol};">Start</text>
+              <line x1="370" y1="68" x2="370" y2="100" stroke="${stroke}" stroke-width="1.5" marker-end="url(#arrow)"/>`;
 
       // Decision diamond
-      svg += `<polygon points="370,100 460,135 370,170 280,135" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-width="1.5"/>
-              <text x="370" y="130" text-anchor="middle" style="font-size:12px;font-weight:600;fill:currentColor;">What are</text>
-              <text x="370" y="146" text-anchor="middle" style="font-size:12px;font-weight:600;fill:currentColor;">you doing?</text>`;
+      svg += `<polygon points="370,100 460,135 370,170 280,135" fill="${fillNode}" stroke="${stroke}" stroke-width="1.5"/>
+              <text x="370" y="130" text-anchor="middle" style="font-size:12px;font-weight:600;fill:${textCol};">What are</text>
+              <text x="370" y="146" text-anchor="middle" style="font-size:12px;font-weight:600;fill:${textCol};">you doing?</text>`;
 
-      // Branch arrows from diamond
+      // Branch arrows
       const branchArrows = {
         Teaching: { x2: COL_X.Teaching, label: 'Teaching' },
         Research:  { x2: COL_X.Research,  label: 'Research'  },
@@ -412,8 +431,8 @@
         const visible = currentFilter === 'all' || currentFilter === bName.toLowerCase();
         const op = visible ? 1 : 0.15;
         const midX = (370 + ba.x2) / 2;
-        svg += `<line x1="370" y1="170" x2="${ba.x2}" y2="${START_Y - 20}" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" opacity="${op}"/>
-                <text x="${midX}" y="${(170 + START_Y - 20) / 2 - 6}" text-anchor="middle" style="font-size:11px;fill:currentColor;opacity:${op};">${ba.label}</text>`;
+        svg += `<line x1="370" y1="170" x2="${ba.x2}" y2="${START_Y - 20}" stroke="${stroke}" stroke-width="1.5" marker-end="url(#arrow)" opacity="${op}"/>
+                <text x="${midX}" y="${(170 + START_Y - 20) / 2 - 6}" text-anchor="middle" style="font-size:11px;fill:${textCol};opacity:${op};">${ba.label}</text>`;
       }
 
       // Workflow boxes
@@ -432,24 +451,22 @@
 
           svg += `<g class="editable-box" onclick="window.openModal('${step.id}')" opacity="${op}">
             <rect x="${cx - BOX_W / 2}" y="${y}" width="${BOX_W}" height="${BOX_H}" rx="6"
-              fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-width="1"/>
-            <text x="${cx - BOX_W / 2 + 8}" y="${y + 14}" style="font-size:10px;fill:currentColor;opacity:0.5;">Step ${step.step}</text>`;
+              fill="${fill}" stroke="${stroke}" stroke-width="1"/>
+            <text x="${cx - BOX_W / 2 + 8}" y="${y + 14}" style="font-size:10px;fill:${textDim};">Step ${step.step}</text>`;
 
           for (let l = 0; l < lines.length; l++) {
-            svg += `<text x="${cx}" y="${textStartY + l * lineH}" text-anchor="middle" style="font-size:12px;font-weight:500;fill:currentColor;">${lines[l]}</text>`;
+            svg += `<text x="${cx}" y="${textStartY + l * lineH}" text-anchor="middle" style="font-size:12px;font-weight:500;fill:${textCol};">${lines[l]}</text>`;
           }
 
           svg += `</g>`;
 
-          // Connector to next step
           if (i < steps.length - 1) {
-            svg += `<line x1="${cx}" y1="${y + BOX_H}" x2="${cx}" y2="${y + BOX_H + (STEP_GAP - BOX_H)}" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" opacity="${op}"/>`;
+            svg += `<line x1="${cx}" y1="${y + BOX_H}" x2="${cx}" y2="${y + BOX_H + (STEP_GAP - BOX_H)}" stroke="${stroke}" stroke-width="1.5" marker-end="url(#arrow)" opacity="${op}"/>`;
           }
         }
 
-        // "Add step" nudge if branch is empty but visible
         if (steps.length === 0 && visible) {
-          svg += `<text x="${cx}" y="${START_Y + 30}" text-anchor="middle" style="font-size:12px;fill:currentColor;opacity:0.4;">(no steps yet)</text>`;
+          svg += `<text x="${cx}" y="${START_Y + 30}" text-anchor="middle" style="font-size:12px;fill:${textDim};">(no steps yet)</text>`;
         }
       }
 
@@ -529,10 +546,14 @@
 
     // --- Populate default data ---
     document.getElementById('populateBtn').addEventListener('click', async () => {
+      if (populateUsed) return;
       const total = Object.values(workflows).reduce((sum, arr) => sum + arr.length, 0);
       if (total > 0) {
         if (!confirm(`Database already has ${total} step(s).\n\nPopulating will ADD the defaults on top of existing data. Continue?`)) return;
       }
+      populateUsed = true;
+      document.getElementById('populateBtn').disabled = true;
+      document.getElementById('populateBtn').textContent = 'Adding...';
       try {
         setStatus('Populating...');
         const batch = writeBatch(db);
@@ -541,10 +562,12 @@
         }
         await batch.commit();
         setStatus('Default data added.');
-        await loadWorkflows();
-        // Hide the button after first use
         document.getElementById('populateBtn').style.display = 'none';
+        await loadWorkflows();
       } catch (error) {
+        populateUsed = false;
+        document.getElementById('populateBtn').disabled = false;
+        document.getElementById('populateBtn').textContent = '+ Populate Default Data';
         setStatus('Populate error: ' + error.message);
         alert('Error: ' + error.message);
       }
