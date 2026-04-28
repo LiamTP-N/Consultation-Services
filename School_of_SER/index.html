@@ -5,46 +5,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Northumbria Department Workflow Map</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #f5f5f5;
       color: #333;
       padding: 20px;
       line-height: 1.6;
     }
-    
     @media (prefers-color-scheme: dark) {
       body { background: #1a1a1a; color: #e0e0e0; }
     }
-    
+
     .container {
-      max-width: 1200px;
+      max-width: 1300px;
       margin: 0 auto;
       background: white;
       border-radius: 8px;
       padding: 30px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    
     @media (prefers-color-scheme: dark) {
       .container { background: #2a2a2a; }
     }
-    
-    h1 { font-size: 24px; margin-bottom: 8px; font-weight: 600; }
-    .subtitle { font-size: 14px; color: #666; margin-bottom: 24px; }
+
+    h1 { font-size: 24px; margin-bottom: 6px; font-weight: 600; }
+    .subtitle { font-size: 14px; color: #666; margin-bottom: 20px; }
     @media (prefers-color-scheme: dark) { .subtitle { color: #999; } }
-    
-    .controls { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
-    .controls label { font-size: 13px; font-weight: 500; margin-right: 8px; }
-    
+
+    .info-box {
+      background: #f0f7ff;
+      border-left: 3px solid #0066cc;
+      padding: 12px 16px;
+      border-radius: 4px;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .info-box { background: #1a3a52; border-left-color: #0088dd; }
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .controls label { font-size: 13px; font-weight: 500; }
+
     button {
-      padding: 8px 16px;
+      padding: 7px 14px;
       border: 0.5px solid #ccc;
       border-radius: 4px;
       background: white;
@@ -52,15 +64,15 @@
       cursor: pointer;
       font-size: 13px;
       font-weight: 500;
-      transition: all 0.2s;
+      transition: all 0.15s;
     }
-    
     @media (prefers-color-scheme: dark) {
       button { background: #333; color: #e0e0e0; border-color: #555; }
     }
-    
     button:hover { background: #f0f0f0; border-color: #999; }
+    @media (prefers-color-scheme: dark) { button:hover { background: #3a3a3a; } }
     button.active { background: #1f4e78; color: white; border-color: #1f4e78; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .btn-populate {
       margin-left: auto;
@@ -72,565 +84,1000 @@
     .btn-populate:hover { background: #d4edda; }
     @media (prefers-color-scheme: dark) {
       .btn-populate { background: #1a3a1a; border-color: #4caf50; color: #81c784; }
-      .btn-populate:hover { background: #1e4a1e; }
     }
-    
-    .diagram-container {
+
+    .diagram-area {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
       border: 0.5px solid #ddd;
       border-radius: 8px;
       background: #fafafa;
-      padding: 16px;
-      margin-bottom: 24px;
-      overflow-x: auto;
-      min-height: 400px;
+      padding: 24px 16px;
+      margin-bottom: 12px;
+      min-height: 420px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .diagram-area { background: #1e1e1e; border-color: #444; }
+    }
+
+    /* Each workflow column */
+    .workflow-col {
       display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 220px;
+      flex: 1;
+      position: relative;
+    }
+
+    .col-header {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #1f4e78;
+      margin-bottom: 16px;
+      padding: 4px 12px;
+      border-bottom: 2px solid #1f4e78;
+    }
+    @media (prefers-color-scheme: dark) {
+      .col-header { color: #5b9bd5; border-bottom-color: #5b9bd5; }
+    }
+
+    /* The node tree within a column */
+    .node-tree {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      position: relative;
+    }
+
+    /* A branch row: main path + optional side branch */
+    .branch-row {
+      display: flex;
+      flex-direction: row;
       align-items: flex-start;
       justify-content: center;
+      width: 100%;
+      position: relative;
     }
-    
+
+    .branch-main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .branch-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-left: 16px;
+      position: relative;
+    }
+
+    /* Connector arrows (CSS borders) */
+    .arrow-down {
+      width: 0;
+      height: 24px;
+      border-left: 1.5px solid #aaa;
+      position: relative;
+    }
+    .arrow-down::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: -4px;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 6px solid #aaa;
+    }
     @media (prefers-color-scheme: dark) {
-      .diagram-container { background: #1a1a1a; border-color: #444; }
+      .arrow-down { border-left-color: #666; }
+      .arrow-down::after { border-top-color: #666; }
     }
-    
-    svg { width: 100%; height: auto; }
-    .editable-box { cursor: pointer; transition: opacity 0.2s; }
-    .editable-box:hover rect { stroke-width: 2; }
-    
-    .info-box {
-      background: #f0f7ff;
-      border-left: 3px solid #0066cc;
-      padding: 16px;
+
+    .arrow-right {
+      height: 1.5px;
+      width: 20px;
+      background: #aaa;
+      position: relative;
+      margin-top: 28px;
+      flex-shrink: 0;
+    }
+    .arrow-right::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: -4px;
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      border-left: 6px solid #aaa;
+    }
+    @media (prefers-color-scheme: dark) {
+      .arrow-right { background: #666; }
+      .arrow-right::after { border-left-color: #666; }
+    }
+
+    /* Step box */
+    .step-box {
+      width: 170px;
+      min-height: 56px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      position: relative;
+      font-size: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .step-box { background: #2a2a2a; border-color: #555; }
+    }
+    .step-box:hover {
+      border-color: #1f4e78;
+      box-shadow: 0 0 0 2px rgba(31,78,120,0.15);
+    }
+    .step-box.decision {
+      border-color: #e67e22;
+      background: #fff9f4;
+    }
+    @media (prefers-color-scheme: dark) {
+      .step-box.decision { background: #2a1f10; border-color: #c87941; }
+    }
+
+    .step-label {
+      font-size: 10px;
+      color: #999;
+      margin-bottom: 2px;
+    }
+    .step-task {
+      font-size: 12px;
+      font-weight: 500;
+      color: #222;
+      line-height: 1.4;
+    }
+    @media (prefers-color-scheme: dark) { .step-task { color: #ddd; } }
+    .step-decision-badge {
+      font-size: 10px;
+      color: #e67e22;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* Add step button (dashed) */
+    .add-step-btn {
+      width: 170px;
+      min-height: 36px;
+      border: 1.5px dashed #ccc;
+      border-radius: 6px;
+      background: transparent;
+      color: #999;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: border-color 0.15s, color 0.15s;
+      padding: 0;
+    }
+    .add-step-btn:hover {
+      border-color: #1f4e78;
+      color: #1f4e78;
+      background: transparent;
+    }
+
+    /* Rejoin indicator */
+    .rejoin-indicator {
+      font-size: 10px;
+      color: #888;
+      text-align: center;
+      padding: 4px 8px;
+      border: 1px dashed #ccc;
       border-radius: 4px;
-      font-size: 13px;
-      margin-bottom: 24px;
+      background: transparent;
+      width: 170px;
+      cursor: pointer;
     }
-    
-    @media (prefers-color-scheme: dark) {
-      .info-box { background: #1a3a52; border-left-color: #0088dd; }
+    .rejoin-indicator:hover { border-color: #1f4e78; color: #1f4e78; background: transparent; }
+
+    /* Divider between columns */
+    .col-divider {
+      width: 1px;
+      background: #e0e0e0;
+      margin: 0 8px;
+      align-self: stretch;
     }
-    
+    @media (prefers-color-scheme: dark) { .col-divider { background: #3a3a3a; } }
+
+    .status-bar {
+      font-size: 12px;
+      color: #999;
+      text-align: right;
+      padding: 4px 0;
+    }
+
+    /* Modal */
     .modal {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
+      inset: 0;
+      background: rgba(0,0,0,0.5);
       z-index: 1000;
       align-items: center;
       justify-content: center;
     }
-    
     .modal.open { display: flex; }
-    
+
     .modal-content {
       background: white;
       border-radius: 8px;
       padding: 24px;
       width: 90%;
-      max-width: 500px;
-      max-height: 80vh;
+      max-width: 480px;
+      max-height: 85vh;
       overflow-y: auto;
     }
-    
     @media (prefers-color-scheme: dark) {
       .modal-content { background: #2a2a2a; color: #e0e0e0; }
     }
-    
-    .modal-content h2 { font-size: 18px; margin-bottom: 16px; }
-    
-    .form-group { margin-bottom: 16px; }
-    
+
+    .modal-content h2 { font-size: 17px; margin-bottom: 16px; font-weight: 600; }
+
+    .form-group { margin-bottom: 14px; }
     .form-group label {
       display: block;
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 12px;
+      font-weight: 600;
       margin-bottom: 4px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
-    
+    @media (prefers-color-scheme: dark) { .form-group label { color: #aaa; } }
+
     .form-group input,
-    .form-group textarea {
+    .form-group textarea,
+    .form-group select {
       width: 100%;
-      padding: 8px 12px;
+      padding: 7px 10px;
       border: 0.5px solid #ccc;
       border-radius: 4px;
       font-family: inherit;
       font-size: 13px;
+      background: white;
+      color: #333;
     }
-    
     @media (prefers-color-scheme: dark) {
       .form-group input,
-      .form-group textarea {
+      .form-group textarea,
+      .form-group select {
         background: #333;
         color: #e0e0e0;
         border-color: #555;
       }
     }
-    
-    .form-group textarea { resize: vertical; min-height: 60px; }
-    
+    .form-group textarea { resize: vertical; min-height: 56px; }
+
+    .form-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin: 18px 0 10px;
+      padding-bottom: 4px;
+      border-bottom: 0.5px solid #eee;
+    }
+    @media (prefers-color-scheme: dark) { .form-section-title { border-bottom-color: #444; } }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .checkbox-row input[type=checkbox] { width: auto; }
+
+    .branch-controls {
+      background: #fff9f4;
+      border: 1px solid #f0c080;
+      border-radius: 6px;
+      padding: 12px;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .branch-controls { background: #2a1f10; border-color: #7a5020; }
+    }
+    .branch-controls p { font-size: 12px; color: #888; margin-bottom: 8px; }
+
     .modal-buttons {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       justify-content: flex-end;
-      margin-top: 24px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 0.5px solid #eee;
     }
-    
+    @media (prefers-color-scheme: dark) { .modal-buttons { border-top-color: #444; } }
+
     .btn-save { background: #1f4e78; color: white; border-color: #1f4e78; }
     .btn-save:hover { background: #163a5a; }
 
     .btn-delete {
+      margin-right: auto;
       background: #fff0f0;
       color: #c0392b;
       border-color: #e74c3c;
-      margin-right: auto;
     }
     .btn-delete:hover { background: #ffe0e0; }
     @media (prefers-color-scheme: dark) {
-      .btn-delete { background: #3a1a1a; color: #e57373; border-color: #e74c3c; }
+      .btn-delete { background: #3a1a1a; color: #e57373; border-color: #c0392b; }
     }
-    
-    .loading { display: flex; align-items: center; justify-content: center; min-height: 300px; color: #666; }
 
-    .status-bar {
+    .btn-branch {
+      background: #fff4e8;
+      color: #c87000;
+      border-color: #e67e22;
       font-size: 12px;
-      color: #888;
-      padding: 8px 0 0;
-      text-align: right;
     }
-    @media (prefers-color-scheme: dark) { .status-bar { color: #666; } }
+    .btn-branch:hover { background: #ffe8cc; }
+    @media (prefers-color-scheme: dark) {
+      .btn-branch { background: #2a1f00; color: #f0a040; border-color: #c87000; }
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      color: #888;
+      width: 100%;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Northumbria Department Workflow Map</h1>
-    <p class="subtitle">Click any box to edit</p>
-    
-    <div class="info-box">
-      <strong>How to use:</strong> Click any workflow box to edit it. Filter by workflow using the buttons below. Changes save instantly to the database.
-    </div>
-    
-    <div class="controls">
-      <label>Filter:</label>
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="teaching">Teaching</button>
-      <button class="filter-btn" data-filter="research">Research</button>
-      <button class="filter-btn" data-filter="admin">Admin</button>
-      <button class="btn-populate" id="populateBtn" title="One-time setup: adds default workflow steps to the database">+ Populate Default Data</button>
-    </div>
-    
-    <div class="diagram-container" id="diagramContainer">
-      <div class="loading">Loading...</div>
-    </div>
+<div class="container">
+  <h1>Northumbria Department Workflow Map</h1>
+  <p class="subtitle">Click any box to edit · Click a decision box to manage branches</p>
 
-    <div class="status-bar" id="statusBar"></div>
+  <div class="info-box">
+    <strong>How to use:</strong> Click any step box to edit it. Mark a step as a decision point to create a yes/no branch. Use the dashed "+ Add Step" button to add steps to any path. Changes save instantly.
   </div>
 
-  <div id="editModal" class="modal">
-    <div class="modal-content">
-      <h2 id="modalTitle">Edit Workflow Step</h2>
-      <div class="form-group">
-        <label>Workflow</label>
-        <input type="text" id="editWorkflow" readonly style="opacity:0.6;">
-      </div>
-      <div class="form-group">
-        <label>Step #</label>
-        <input type="number" id="editStep" required min="1">
-      </div>
-      <div class="form-group">
-        <label>Task</label>
-        <textarea id="editTask" required></textarea>
-      </div>
-      <div class="form-group">
-        <label>URL</label>
-        <input type="text" id="editUrl">
-      </div>
-      <div class="form-group">
-        <label>Audience</label>
-        <input type="text" id="editAudience">
-      </div>
-      <div class="form-group">
-        <label>Documents</label>
-        <input type="text" id="editDocuments">
-      </div>
-      <div class="form-group">
-        <label>Deadline</label>
-        <input type="text" id="editDeadline">
-      </div>
-      <div class="form-group">
-        <label>Depends On</label>
-        <input type="text" id="editDependsOn">
-      </div>
-      <div class="form-group">
-        <label>Notes</label>
-        <textarea id="editNotes" style="min-height: 40px;"></textarea>
-      </div>
-      <div class="modal-buttons">
-        <button type="button" class="btn-delete" id="deleteBtn">Delete Step</button>
-        <button type="button" onclick="window.closeModal()">Cancel</button>
-        <button type="button" class="btn-save" onclick="window.saveStep()">Save</button>
-      </div>
-    </div>
+  <div class="controls">
+    <label>Filter:</label>
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="Teaching">Teaching</button>
+    <button class="filter-btn" data-filter="Research">Research</button>
+    <button class="filter-btn" data-filter="Admin">Admin</button>
+    <button class="btn-populate" id="populateBtn">+ Populate Default Data</button>
   </div>
 
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-    import { getFirestore, collection, getDocs, updateDoc, deleteDoc, doc, addDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+  <div class="diagram-area" id="diagramArea">
+    <div class="loading">Loading...</div>
+  </div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDSK-2hI6ML1eykIed6E8S5Ve29phrEolI",
-      authDomain: "nu-school-of-sport.firebaseapp.com",
-      projectId: "nu-school-of-sport",
-      storageBucket: "nu-school-of-sport.firebasestorage.app",
-      messagingSenderId: "396866213410",
-      appId: "1:396866213410:web:bc7f31d1eb1833306d1c7b"
-    };
+  <div class="status-bar" id="statusBar"></div>
+</div>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+<!-- Edit / Add modal -->
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <h2 id="modalTitle">Edit Step</h2>
 
-    // --- One-time populate guard ---
-    let populateUsed = false;
+    <div class="form-group">
+      <label>Workflow</label>
+      <input type="text" id="editWorkflow" readonly style="opacity:0.6;">
+    </div>
+    <div class="form-group">
+      <label>Step label</label>
+      <input type="text" id="editStep" placeholder="e.g. 1, 1a, 2b">
+    </div>
+    <div class="form-group">
+      <label>Task</label>
+      <textarea id="editTask" required></textarea>
+    </div>
+    <div class="form-group">
+      <label>URL</label>
+      <input type="text" id="editUrl">
+    </div>
+    <div class="form-group">
+      <label>Audience</label>
+      <input type="text" id="editAudience">
+    </div>
+    <div class="form-group">
+      <label>Documents</label>
+      <input type="text" id="editDocuments">
+    </div>
+    <div class="form-group">
+      <label>Deadline</label>
+      <input type="text" id="editDeadline">
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="editNotes" style="min-height:40px;"></textarea>
+    </div>
 
-    // --- Default data ---
-    const DEFAULT_WORKFLOWS = [
-      // Teaching
-      { workflow: 'Teaching', step: 1, task: 'Check if PEP is ready',      url: '', audience: 'All Staff',   documents: '',            deadline: 'Start of term',  dependsOn: '',   notes: 'Decision point - if yes, go to step 3' },
-      { workflow: 'Teaching', step: 2, task: 'Get blank PEP template',      url: '', audience: 'All Staff',   documents: 'PEP template', deadline: 'Start of term',  dependsOn: '1',  notes: 'Only if no PEP exists' },
-      { workflow: 'Teaching', step: 3, task: 'Upload PEP to MS Teams',      url: '', audience: 'All Staff',   documents: 'PEP',          deadline: 'Week 1',         dependsOn: '2',  notes: 'Upload to the shared Teams channel' },
-      { workflow: 'Teaching', step: 4, task: 'Record link in SEM spreadsheet', url: '', audience: 'All Staff', documents: 'SEM spreadsheet', deadline: 'Week 1',     dependsOn: '3',  notes: 'Add the Teams link into the tracker' },
-      // Research
-      { workflow: 'Research', step: 1, task: 'Check if PO form exists',     url: '', audience: 'Researchers', documents: '',            deadline: 'Before purchase', dependsOn: '',   notes: 'Decision point - if yes, go to step 3' },
-      { workflow: 'Research', step: 2, task: 'Get blank PO form',           url: '', audience: 'Researchers', documents: 'PO form',      deadline: 'Before purchase', dependsOn: '1',  notes: 'Only if no PO form exists' },
-      { workflow: 'Research', step: 3, task: 'Upload PO & @ Liam for approval', url: '', audience: 'Researchers', documents: 'PO form', deadline: 'Before purchase', dependsOn: '2', notes: 'Tag in Teams for sign-off' },
-      // Admin
-      { workflow: 'Admin',    step: 1, task: 'Admin step 1 (to be defined)', url: '', audience: 'All Staff',   documents: '',            deadline: '',               dependsOn: '',   notes: 'Click to edit this step' },
-    ];
+    <div class="form-section-title">Branching</div>
+    <div class="form-group">
+      <div class="checkbox-row">
+        <input type="checkbox" id="editIsDecision">
+        <label for="editIsDecision" style="text-transform:none;letter-spacing:0;font-size:13px;font-weight:400;color:inherit;margin:0;">This step is a decision point (yes/no)</label>
+      </div>
+    </div>
 
-    let workflows = {};
-    let currentEditingId = null;
-    let currentFilter = 'all';
-    let isNewStep = false;
+    <div id="branchControls" class="branch-controls" style="display:none;">
+      <p>A "no" branch step will be created automatically when you save. The "yes" path continues down the main column as normal.</p>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Rejoin at step ID (optional)</label>
+        <select id="editRejoinId">
+          <option value="">— no rejoin —</option>
+        </select>
+        <div style="font-size:11px;color:#999;margin-top:4px;">If set, the branch path will show "rejoins at [step]" and point back here.</div>
+      </div>
+    </div>
 
-    function setStatus(msg) {
-      document.getElementById('statusBar').textContent = msg;
+    <div class="modal-buttons">
+      <button type="button" class="btn-delete" id="deleteBtn" style="display:none;">Delete Step</button>
+      <button type="button" onclick="window.closeModal()">Cancel</button>
+      <button type="button" class="btn-save" id="saveBtn" onclick="window.saveStep()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+import { getFirestore, collection, getDocs, getDoc, updateDoc, deleteDoc, doc, addDoc, writeBatch, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDSK-2hI6ML1eykIed6E8S5Ve29phrEolI",
+  authDomain: "nu-school-of-sport.firebaseapp.com",
+  projectId: "nu-school-of-sport",
+  storageBucket: "nu-school-of-sport.firebasestorage.app",
+  messagingSenderId: "396866213410",
+  appId: "1:396866213410:web:bc7f31d1eb1833306d1c7b"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ---------------------------------------------------------------------------
+// State
+// ---------------------------------------------------------------------------
+let allDocs = {};        // id -> document data
+let roots = {};          // workflow -> root document ID
+let currentFilter = 'all';
+let currentEditingId = null;
+let isNewStep = false;
+let newStepParentId = null;   // ID of the step this new step follows
+let newStepBranch = 'yes';    // 'yes' or 'no'
+let populateUsed = false;
+
+const BRANCH_NAMES = ['Teaching', 'Research', 'Admin'];
+
+// ---------------------------------------------------------------------------
+// Default data (graph-linked)
+// ---------------------------------------------------------------------------
+// We build the IDs manually so we can cross-reference them
+function buildDefaultData() {
+  // Teaching
+  const t1 = 'teaching-1', t2 = 'teaching-2', t3 = 'teaching-3', t4 = 'teaching-4', t1no = 'teaching-1-no';
+  // Research
+  const r1 = 'research-1', r2 = 'research-2', r3 = 'research-3', r1no = 'research-1-no';
+  // Admin
+  const a1 = 'admin-1';
+
+  const docs = {
+    // Teaching
+    [t1]: { workflow:'Teaching', step:'1', task:'Do you have a PEP ready?', url:'', audience:'All Staff', documents:'', deadline:'Start of term', notes:'Decision point', isDecision:true, nextYes:t3, nextNo:t1no, rejoinId:'' },
+    [t1no]: { workflow:'Teaching', step:'1a', task:'Get blank PEP template', url:'', audience:'All Staff', documents:'PEP template', deadline:'Start of term', notes:'Only if no PEP exists', isDecision:false, nextYes:t2, nextNo:null, rejoinId:t3 },
+    [t2]: { workflow:'Teaching', step:'1b', task:'Complete the PEP', url:'', audience:'All Staff', documents:'PEP', deadline:'Start of term', notes:'Fill in all sections', isDecision:false, nextYes:t3, nextNo:null, rejoinId:'' },
+    [t3]: { workflow:'Teaching', step:'2', task:'Upload PEP to MS Teams', url:'', audience:'All Staff', documents:'PEP', deadline:'Week 1', notes:'Upload to shared Teams channel', isDecision:false, nextYes:t4, nextNo:null, rejoinId:'' },
+    [t4]: { workflow:'Teaching', step:'3', task:'Record link in SEM spreadsheet', url:'', audience:'All Staff', documents:'SEM spreadsheet', deadline:'Week 1', notes:'Add the Teams link into the tracker', isDecision:false, nextYes:null, nextNo:null, rejoinId:'' },
+    // Research
+    [r1]: { workflow:'Research', step:'1', task:'Do you have a PO form?', url:'', audience:'Researchers', documents:'', deadline:'Before purchase', notes:'Decision point', isDecision:true, nextYes:r3, nextNo:r1no, rejoinId:'' },
+    [r1no]: { workflow:'Research', step:'1a', task:'Get blank PO form', url:'', audience:'Researchers', documents:'PO form', deadline:'Before purchase', notes:'Only if no PO exists', isDecision:false, nextYes:r2, nextNo:null, rejoinId:r3 },
+    [r2]: { workflow:'Research', step:'1b', task:'Complete the PO form', url:'', audience:'Researchers', documents:'PO form', deadline:'Before purchase', notes:'Fill in all fields', isDecision:false, nextYes:r3, nextNo:null, rejoinId:'' },
+    [r3]: { workflow:'Research', step:'2', task:'Upload PO & @ Liam for approval', url:'', audience:'Researchers', documents:'PO form', deadline:'Before purchase', notes:'Tag in Teams for sign-off', isDecision:false, nextYes:null, nextNo:null, rejoinId:'' },
+    // Admin
+    [a1]: { workflow:'Admin', step:'1', task:'Admin step 1 (to be defined)', url:'', audience:'All Staff', documents:'', deadline:'', notes:'Click to edit', isDecision:false, nextYes:null, nextNo:null, rejoinId:'' },
+  };
+
+  const rootIds = { Teaching: t1, Research: r1, Admin: a1 };
+  return { docs, rootIds };
+}
+
+// ---------------------------------------------------------------------------
+// Load
+// ---------------------------------------------------------------------------
+function setStatus(msg) {
+  document.getElementById('statusBar').textContent = msg;
+}
+
+async function loadAll() {
+  try {
+    setStatus('Loading...');
+    const [wfSnap, metaSnap] = await Promise.all([
+      getDocs(collection(db, 'workflows')),
+      getDocs(collection(db, 'meta'))
+    ]);
+
+    allDocs = {};
+    wfSnap.forEach(d => { allDocs[d.id] = d.data(); });
+
+    roots = {};
+    metaSnap.forEach(d => {
+      const data = d.data();
+      if (data.rootId) roots[d.id] = data.rootId;
+    });
+
+    setStatus(`Loaded ${wfSnap.size} step${wfSnap.size !== 1 ? 's' : ''} · ${new Date().toLocaleTimeString()}`);
+    renderAll();
+  } catch (err) {
+    console.error(err);
+    setStatus('Error loading: ' + err.message);
+    document.getElementById('diagramArea').innerHTML = '<div class="loading">Error loading - check console</div>';
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Render
+// ---------------------------------------------------------------------------
+function renderAll() {
+  const area = document.getElementById('diagramArea');
+
+  if (Object.keys(allDocs).length === 0) {
+    area.innerHTML = '<div class="loading">No workflows yet — click "+ Populate Default Data" to start.</div>';
+    return;
+  }
+
+  const toRender = currentFilter === 'all' ? BRANCH_NAMES : [currentFilter];
+  const colsHtml = toRender.map((wf, i) => {
+    const col = renderColumn(wf);
+    const divider = (i < toRender.length - 1) ? '<div class="col-divider"></div>' : '';
+    return col + divider;
+  }).join('');
+
+  area.innerHTML = colsHtml;
+}
+
+function renderColumn(wf) {
+  const rootId = roots[wf];
+  const treeHtml = rootId && allDocs[rootId]
+    ? renderNodeTree(rootId, wf, new Set())
+    : `<button class="add-step-btn" onclick="window.addRootStep('${wf}')">+ Add first step</button>`;
+
+  return `
+    <div class="workflow-col" id="col-${wf}">
+      <div class="col-header">${wf}</div>
+      <div class="node-tree">${treeHtml}</div>
+    </div>`;
+}
+
+// Traverse the graph from nodeId, rendering nodes
+// visited prevents infinite loops in malformed graphs
+function renderNodeTree(nodeId, wf, visited) {
+  if (!nodeId || !allDocs[nodeId] || visited.has(nodeId)) return '';
+  visited.add(nodeId);
+
+  const node = allDocs[nodeId];
+  const isDecision = node.isDecision && node.nextNo;
+
+  let html = '';
+
+  if (isDecision) {
+    // Render as a branch row: main box + side branch
+    const mainBoxHtml = renderStepBox(nodeId, node);
+    const noChainHtml = renderBranchChain(node.nextNo, wf, visited, node.rejoinId);
+
+    html += `
+      <div class="branch-row">
+        <div class="branch-main">
+          ${mainBoxHtml}
+        </div>
+        <div class="arrow-right"></div>
+        <div class="branch-side">
+          <div style="font-size:10px;color:#999;margin-bottom:4px;text-align:center;">No</div>
+          ${noChainHtml}
+        </div>
+      </div>`;
+
+    // Continue yes path below
+    if (node.nextYes && !visited.has(node.nextYes)) {
+      html += `
+        <div style="display:flex;align-items:center;flex-direction:column;">
+          <div style="font-size:10px;color:#999;margin-bottom:0px;">Yes</div>
+          <div class="arrow-down"></div>
+          ${renderNodeTree(node.nextYes, wf, visited)}
+        </div>`;
+    } else {
+      html += renderAddButton(nodeId, 'yes', wf);
     }
+  } else {
+    // Simple linear node
+    html += renderStepBox(nodeId, node);
 
-    // --- Load from Firestore (no orderBy - sort client-side) ---
-    async function loadWorkflows() {
-      try {
-        setStatus('Loading...');
-        const snapshot = await getDocs(collection(db, 'workflows'));
-        
-        workflows = {};
-        snapshot.forEach(docSnap => {
-          const data = docSnap.data();
-          const key = data.workflow;
-          if (!workflows[key]) workflows[key] = [];
-          workflows[key].push({ id: docSnap.id, ...data });
-        });
-
-        // Sort each branch by step number client-side
-        for (const key of Object.keys(workflows)) {
-          workflows[key].sort((a, b) => Number(a.step) - Number(b.step));
-        }
-
-        setStatus(`Loaded ${snapshot.size} step${snapshot.size !== 1 ? 's' : ''} · ${new Date().toLocaleTimeString()}`);
-        renderDiagram();
-      } catch (error) {
-        console.error('Firestore load error:', error);
-        setStatus('Error loading: ' + error.message);
-        document.getElementById('diagramContainer').innerHTML = '<div class="loading">Error loading workflows - check console</div>';
-      }
+    if (node.nextYes && !visited.has(node.nextYes)) {
+      html += `<div class="arrow-down"></div>${renderNodeTree(node.nextYes, wf, visited)}`;
+    } else {
+      html += renderAddButton(nodeId, 'yes', wf);
     }
+  }
 
-    // --- Render SVG diagram ---
-    function wrapText(text, maxChars) {
-      if (text.length <= maxChars) return [text];
-      const words = text.split(' ');
-      const lines = [];
-      let current = '';
-      for (const word of words) {
-        if ((current + ' ' + word).trim().length > maxChars) {
-          if (current) lines.push(current.trim());
-          current = word;
-        } else {
-          current = (current + ' ' + word).trim();
-        }
+  return html;
+}
+
+// Render the chain of steps in a "no" branch
+function renderBranchChain(nodeId, wf, visited, rejoinId) {
+  if (!nodeId || !allDocs[nodeId] || visited.has(nodeId)) return '';
+
+  let html = '';
+  let current = nodeId;
+  const branchVisited = new Set(visited);
+
+  while (current && allDocs[current] && !branchVisited.has(current)) {
+    // Stop if this node is the rejoin target (don't render it here - it's on the main path)
+    if (current === rejoinId) break;
+
+    branchVisited.add(current);
+    const node = allDocs[current];
+    html += renderStepBox(current, node, true);
+
+    if (node.nextYes && !branchVisited.has(node.nextYes) && node.nextYes !== rejoinId) {
+      html += `<div class="arrow-down"></div>`;
+      current = node.nextYes;
+    } else {
+      // End of branch - add step button or rejoin indicator
+      if (rejoinId && allDocs[rejoinId]) {
+        html += `<div class="arrow-down"></div>
+          <div class="rejoin-indicator" onclick="window.openEdit('${rejoinId}')">
+            ↳ rejoins: ${allDocs[rejoinId].step || '?'} — ${truncate(allDocs[rejoinId].task, 20)}
+          </div>`;
+      } else {
+        html += renderAddButton(current, 'yes', wf, true);
       }
-      if (current) lines.push(current.trim());
-      return lines;
+      break;
     }
+  }
 
-    // Colour helper - explicit values, no currentColor (avoids repaint loops)
-    function c(dark, light) {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? dark : light;
-    }
-    const C = {
-      stroke:   () => c('#aaaaaa', '#555555'),
-      text:     () => c('#e0e0e0', '#333333'),
-      textDim:  () => c('#888888', '#888888'),
-      fill:     () => c('rgba(255,255,255,0.07)', 'rgba(0,0,0,0.06)'),
-      fillNode: () => c('rgba(255,255,255,0.12)', 'rgba(0,0,0,0.10)'),
-    };
+  return html;
+}
 
-    function renderDiagram() {
-      const container = document.getElementById('diagramContainer');
-      
-      if (Object.keys(workflows).length === 0) {
-        container.innerHTML = '<div class="loading">No workflows in database — click "+ Populate Default Data" to add the starting steps.</div>';
-        return;
-      }
+function renderStepBox(id, node, isBranch) {
+  const decisionClass = node.isDecision ? ' decision' : '';
+  const badge = node.isDecision ? `<div class="step-decision-badge">Decision ↓yes / →no</div>` : '';
+  return `
+    <div class="step-box${decisionClass}" onclick="window.openEdit('${id}')">
+      <div class="step-label">Step ${node.step || '?'}</div>
+      <div class="step-task">${escHtml(node.task || '(empty)')}</div>
+      ${badge}
+    </div>`;
+}
 
-      const BRANCH_NAMES = ['Teaching', 'Research', 'Admin'];
-      const BOX_W = 190;
-      const BOX_H = 64;
-      const STEP_GAP = 84;
-      const COL_X = { Teaching: 160, Research: 370, Admin: 580 };
-      const START_Y = 220;
-      const SVG_W = 740;
+function renderAddButton(parentId, branch, wf, isSideBranch) {
+  return `
+    <div class="arrow-down"></div>
+    <button class="add-step-btn" onclick="window.addStep('${parentId}','${branch}','${wf}')">+ Add Step</button>`;
+}
 
-      let maxSteps = 0;
-      for (const b of BRANCH_NAMES) {
-        const len = (workflows[b] || []).length;
-        if (len > maxSteps) maxSteps = len;
-      }
-      const SVG_H = START_Y + maxSteps * STEP_GAP + 100; // extra room for + Add Step button
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function truncate(str, n) {
+  return str && str.length > n ? str.slice(0, n) + '…' : (str || '');
+}
 
-      const stroke   = C.stroke();
-      const textCol  = C.text();
-      const textDim  = C.textDim();
-      const fill     = C.fill();
-      const fillNode = C.fillNode();
+// ---------------------------------------------------------------------------
+// Modal helpers
+// ---------------------------------------------------------------------------
+function populateRejoinDropdown(currentWf, excludeId) {
+  const sel = document.getElementById('editRejoinId');
+  sel.innerHTML = '<option value="">— no rejoin —</option>';
+  Object.entries(allDocs)
+    .filter(([id, d]) => d.workflow === currentWf && id !== excludeId)
+    .sort((a, b) => String(a[1].step).localeCompare(String(b[1].step)))
+    .forEach(([id, d]) => {
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = `Step ${d.step} — ${truncate(d.task, 30)}`;
+      sel.appendChild(opt);
+    });
+}
 
-      let svg = `<svg viewBox="0 0 ${SVG_W} ${SVG_H}" xmlns="http://www.w3.org/2000/svg">`;
-      svg += `<defs>
-        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M2 1L8 5L2 9" fill="none" stroke="${stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </marker>
-      </defs>`;
+document.getElementById('editIsDecision').addEventListener('change', function() {
+  document.getElementById('branchControls').style.display = this.checked ? 'block' : 'none';
+});
 
-      // Start node
-      svg += `<circle cx="370" cy="40" r="28" fill="${fillNode}" stroke="${stroke}" stroke-width="1.5"/>
-              <text x="370" y="45" text-anchor="middle" dominant-baseline="central" style="font-size:13px;font-weight:600;fill:${textCol};">Start</text>
-              <line x1="370" y1="68" x2="370" y2="100" stroke="${stroke}" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+// ---------------------------------------------------------------------------
+// Open modal (edit existing)
+// ---------------------------------------------------------------------------
+window.openEdit = function(id) {
+  if (!allDocs[id]) return;
+  isNewStep = false;
+  currentEditingId = id;
+  const d = allDocs[id];
 
-      // Decision diamond
-      svg += `<polygon points="370,100 460,135 370,170 280,135" fill="${fillNode}" stroke="${stroke}" stroke-width="1.5"/>
-              <text x="370" y="130" text-anchor="middle" style="font-size:12px;font-weight:600;fill:${textCol};">What are</text>
-              <text x="370" y="146" text-anchor="middle" style="font-size:12px;font-weight:600;fill:${textCol};">you doing?</text>`;
+  document.getElementById('modalTitle').textContent = 'Edit Step';
+  document.getElementById('deleteBtn').style.display = '';
+  document.getElementById('editWorkflow').value  = d.workflow   || '';
+  document.getElementById('editStep').value       = d.step       || '';
+  document.getElementById('editTask').value       = d.task       || '';
+  document.getElementById('editUrl').value        = d.url        || '';
+  document.getElementById('editAudience').value   = d.audience   || '';
+  document.getElementById('editDocuments').value  = d.documents  || '';
+  document.getElementById('editDeadline').value   = d.deadline   || '';
+  document.getElementById('editNotes').value      = d.notes      || '';
+  document.getElementById('editIsDecision').checked = !!d.isDecision;
+  document.getElementById('branchControls').style.display = d.isDecision ? 'block' : 'none';
 
-      // Branch arrows
-      const branchArrows = {
-        Teaching: { x2: COL_X.Teaching, label: 'Teaching' },
-        Research:  { x2: COL_X.Research,  label: 'Research'  },
-        Admin:     { x2: COL_X.Admin,     label: 'Admin'     },
-      };
+  populateRejoinDropdown(d.workflow, id);
+  document.getElementById('editRejoinId').value = d.rejoinId || '';
 
-      for (const [bName, ba] of Object.entries(branchArrows)) {
-        const visible = currentFilter === 'all' || currentFilter === bName.toLowerCase();
-        const op = visible ? 1 : 0.15;
-        const midX = (370 + ba.x2) / 2;
-        svg += `<line x1="370" y1="170" x2="${ba.x2}" y2="${START_Y - 20}" stroke="${stroke}" stroke-width="1.5" marker-end="url(#arrow)" opacity="${op}"/>
-                <text x="${midX}" y="${(170 + START_Y - 20) / 2 - 6}" text-anchor="middle" style="font-size:11px;fill:${textCol};opacity:${op};">${ba.label}</text>`;
-      }
+  document.getElementById('editModal').classList.add('open');
+};
 
-      // Workflow boxes
-      for (const bName of BRANCH_NAMES) {
-        const visible = currentFilter === 'all' || currentFilter === bName.toLowerCase();
-        const op = visible ? 1 : 0.12;
-        const cx = COL_X[bName];
-        const steps = workflows[bName] || [];
+// Open modal (new step)
+window.addStep = function(parentId, branch, wf) {
+  isNewStep = true;
+  currentEditingId = null;
+  newStepParentId = parentId;
+  newStepBranch = branch;
 
-        for (let i = 0; i < steps.length; i++) {
-          const step = steps[i];
-          const y = START_Y + i * STEP_GAP;
-          const lines = wrapText(step.task || '', 24);
-          const lineH = 16;
-          const textStartY = y + (BOX_H / 2) - ((lines.length - 1) * lineH / 2) - 4;
+  document.getElementById('modalTitle').textContent = 'Add New Step';
+  document.getElementById('deleteBtn').style.display = 'none';
+  document.getElementById('editWorkflow').value  = wf;
+  document.getElementById('editStep').value       = '';
+  document.getElementById('editTask').value       = '';
+  document.getElementById('editUrl').value        = '';
+  document.getElementById('editAudience').value   = '';
+  document.getElementById('editDocuments').value  = '';
+  document.getElementById('editDeadline').value   = '';
+  document.getElementById('editNotes').value      = '';
+  document.getElementById('editIsDecision').checked = false;
+  document.getElementById('branchControls').style.display = 'none';
 
-          svg += `<g class="editable-box" onclick="window.openModal('${step.id}')" opacity="${op}">
-            <rect x="${cx - BOX_W / 2}" y="${y}" width="${BOX_W}" height="${BOX_H}" rx="6"
-              fill="${fill}" stroke="${stroke}" stroke-width="1"/>
-            <text x="${cx - BOX_W / 2 + 8}" y="${y + 14}" style="font-size:10px;fill:${textDim};">Step ${step.step}</text>`;
+  populateRejoinDropdown(wf, null);
+  document.getElementById('editRejoinId').value = '';
 
-          for (let l = 0; l < lines.length; l++) {
-            svg += `<text x="${cx}" y="${textStartY + l * lineH}" text-anchor="middle" style="font-size:12px;font-weight:500;fill:${textCol};">${lines[l]}</text>`;
-          }
+  document.getElementById('editModal').classList.add('open');
+};
 
-          svg += `</g>`;
+// Add root step (first step of empty workflow)
+window.addRootStep = function(wf) {
+  isNewStep = true;
+  currentEditingId = null;
+  newStepParentId = null;
+  newStepBranch = 'root';
 
-          if (i < steps.length - 1) {
-            svg += `<line x1="${cx}" y1="${y + BOX_H}" x2="${cx}" y2="${y + BOX_H + (STEP_GAP - BOX_H)}" stroke="${stroke}" stroke-width="1.5" marker-end="url(#arrow)" opacity="${op}"/>`;
-          }
-        }
+  document.getElementById('modalTitle').textContent = 'Add First Step';
+  document.getElementById('deleteBtn').style.display = 'none';
+  document.getElementById('editWorkflow').value  = wf;
+  document.getElementById('editStep').value       = '1';
+  document.getElementById('editTask').value       = '';
+  document.getElementById('editUrl').value        = '';
+  document.getElementById('editAudience').value   = '';
+  document.getElementById('editDocuments').value  = '';
+  document.getElementById('editDeadline').value   = '';
+  document.getElementById('editNotes').value      = '';
+  document.getElementById('editIsDecision').checked = false;
+  document.getElementById('branchControls').style.display = 'none';
 
-        // "+ Add Step" button below last step (always shown if branch is visible)
-        if (visible) {
-          const addY = steps.length === 0 ? START_Y : START_Y + steps.length * STEP_GAP + 8;
-          svg += `<g class="editable-box" onclick="window.openNewModal('${bName}')" opacity="0.6">
-            <rect x="${cx - 70}" y="${addY}" width="140" height="32" rx="4"
-              fill="none" stroke="${stroke}" stroke-width="1" stroke-dasharray="4 3"/>
-            <text x="${cx}" y="${addY + 20}" text-anchor="middle" style="font-size:12px;fill:${textDim};">+ Add Step</text>
-          </g>`;
-        }
-      }
+  populateRejoinDropdown(wf, null);
+  document.getElementById('editRejoinId').value = '';
 
-      svg += `</svg>`;
-      container.innerHTML = svg;
-    }
+  document.getElementById('editModal').classList.add('open');
+};
 
-    // --- Modal open (edit existing) ---
-    window.openModal = function(id) {
-      isNewStep = false;
-      currentEditingId = id;
-      let step = null;
-      for (const branch of Object.values(workflows)) {
-        step = branch.find(s => s.id === id);
-        if (step) break;
-      }
-      if (!step) return;
+window.closeModal = function() {
+  document.getElementById('editModal').classList.remove('open');
+  currentEditingId = null;
+};
 
-      document.getElementById('modalTitle').textContent = 'Edit Workflow Step';
-      document.getElementById('deleteBtn').style.display = '';
-      document.getElementById('editWorkflow').value  = step.workflow   || '';
-      document.getElementById('editWorkflow').readOnly = true;
-      document.getElementById('editStep').value       = step.step       || '';
-      document.getElementById('editTask').value       = step.task       || '';
-      document.getElementById('editUrl').value        = step.url        || '';
-      document.getElementById('editAudience').value   = step.audience   || '';
-      document.getElementById('editDocuments').value  = step.documents  || '';
-      document.getElementById('editDeadline').value   = step.deadline   || '';
-      document.getElementById('editDependsOn').value  = step.dependsOn  || '';
-      document.getElementById('editNotes').value      = step.notes      || '';
-      document.getElementById('editModal').classList.add('open');
-    };
+// ---------------------------------------------------------------------------
+// Save
+// ---------------------------------------------------------------------------
+window.saveStep = async function() {
+  const taskVal = document.getElementById('editTask').value.trim();
+  if (!taskVal) { alert('Task cannot be empty.'); return; }
 
-    // --- Modal open (new step) ---
-    window.openNewModal = function(workflowName) {
-      isNewStep = true;
-      currentEditingId = null;
+  const isDecision = document.getElementById('editIsDecision').checked;
+  const rejoinId = document.getElementById('editRejoinId').value;
+  const wf = document.getElementById('editWorkflow').value;
 
-      // Auto-suggest next step number
-      const existing = workflows[workflowName] || [];
-      const nextStep = existing.length > 0 ? Math.max(...existing.map(s => Number(s.step))) + 1 : 1;
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.disabled = true;
+  setStatus('Saving...');
 
-      document.getElementById('modalTitle').textContent = 'Add New Step';
-      document.getElementById('deleteBtn').style.display = 'none';
-      document.getElementById('editWorkflow').value  = workflowName;
-      document.getElementById('editWorkflow').readOnly = true;
-      document.getElementById('editStep').value       = nextStep;
-      document.getElementById('editTask').value       = '';
-      document.getElementById('editUrl').value        = '';
-      document.getElementById('editAudience').value   = '';
-      document.getElementById('editDocuments').value  = '';
-      document.getElementById('editDeadline').value   = '';
-      document.getElementById('editDependsOn').value  = '';
-      document.getElementById('editNotes').value      = '';
-      document.getElementById('editModal').classList.add('open');
-    };
-
-    // --- Modal close ---
-    window.closeModal = function() {
-      document.getElementById('editModal').classList.remove('open');
-      currentEditingId = null;
-    };
-
-    // --- Save (handles both new and edit) ---
-    window.saveStep = async function() {
-      const taskVal = document.getElementById('editTask').value.trim();
-      if (!taskVal) { alert('Task cannot be empty.'); return; }
-
-      const payload = {
-        workflow:   document.getElementById('editWorkflow').value,
-        step:       Number(document.getElementById('editStep').value),
+  try {
+    if (isNewStep) {
+      // Create the new step document
+      const newData = {
+        workflow:   wf,
+        step:       document.getElementById('editStep').value.trim() || '?',
         task:       taskVal,
         url:        document.getElementById('editUrl').value,
         audience:   document.getElementById('editAudience').value,
         documents:  document.getElementById('editDocuments').value,
         deadline:   document.getElementById('editDeadline').value,
-        dependsOn:  document.getElementById('editDependsOn').value,
         notes:      document.getElementById('editNotes').value,
+        isDecision: isDecision,
+        nextYes:    null,
+        nextNo:     null,
+        rejoinId:   rejoinId || '',
       };
 
-      try {
-        setStatus('Saving...');
-        if (isNewStep) {
-          await addDoc(collection(db, 'workflows'), payload);
-        } else {
-          if (!currentEditingId) return;
-          await updateDoc(doc(db, 'workflows', currentEditingId), payload);
+      const newRef = await addDoc(collection(db, 'workflows'), newData);
+      const newId = newRef.id;
+
+      if (newStepBranch === 'root') {
+        // Set as root for this workflow
+        await setDoc(doc(db, 'meta', wf), { rootId: newId });
+      } else {
+        // Wire parent's nextYes or nextNo to this new doc
+        const field = newStepBranch === 'yes' ? 'nextYes' : 'nextNo';
+        await updateDoc(doc(db, 'workflows', newStepParentId), { [field]: newId });
+
+        // If it's a 'no' branch and the parent had a rejoinId set, propagate it
+        if (newStepBranch === 'no' && allDocs[newStepParentId]?.rejoinId) {
+          await updateDoc(newRef, { rejoinId: allDocs[newStepParentId].rejoinId });
         }
-        window.closeModal();
-        await loadWorkflows();
-      } catch (error) {
-        setStatus('Save error: ' + error.message);
-        alert('Error saving: ' + error.message);
       }
-    };
 
-    // --- Delete ---
-    document.getElementById('deleteBtn').addEventListener('click', async () => {
-      if (!currentEditingId) return;
-      const task = document.getElementById('editTask').value;
-      if (!confirm(`Delete step: "${task}"?\n\nThis cannot be undone.`)) return;
-      try {
-        setStatus('Deleting...');
-        await deleteDoc(doc(db, 'workflows', currentEditingId));
-        window.closeModal();
-        await loadWorkflows();
-      } catch (error) {
-        setStatus('Delete error: ' + error.message);
-        alert('Error deleting: ' + error.message);
+      // If this new step is itself a decision, create its 'no' branch step immediately
+      if (isDecision) {
+        const branchData = {
+          workflow:   wf,
+          step:       (document.getElementById('editStep').value.trim() || '?') + 'a',
+          task:       '(branch step — click to edit)',
+          url: '', audience: '', documents: '', deadline: '', notes: '',
+          isDecision: false,
+          nextYes:    null,
+          nextNo:     null,
+          rejoinId:   rejoinId || '',
+        };
+        const branchRef = await addDoc(collection(db, 'workflows'), branchData);
+        await updateDoc(newRef, { nextNo: branchRef.id });
       }
-    });
 
-    // --- Populate default data ---
-    document.getElementById('populateBtn').addEventListener('click', async () => {
-      if (populateUsed) return;
-      const total = Object.values(workflows).reduce((sum, arr) => sum + arr.length, 0);
-      if (total > 0) {
-        if (!confirm(`Database already has ${total} step(s).\n\nPopulating will ADD the defaults on top of existing data. Continue?`)) return;
+    } else {
+      // Update existing
+      const existing = allDocs[currentEditingId];
+      const wasDecision = existing.isDecision;
+
+      const updateData = {
+        step:       document.getElementById('editStep').value.trim() || '?',
+        task:       taskVal,
+        url:        document.getElementById('editUrl').value,
+        audience:   document.getElementById('editAudience').value,
+        documents:  document.getElementById('editDocuments').value,
+        deadline:   document.getElementById('editDeadline').value,
+        notes:      document.getElementById('editNotes').value,
+        isDecision: isDecision,
+        rejoinId:   rejoinId || '',
+      };
+
+      // If becoming a decision for the first time, create the 'no' branch step
+      if (isDecision && !wasDecision) {
+        const branchData = {
+          workflow:   wf,
+          step:       (updateData.step || '?') + 'a',
+          task:       '(branch step — click to edit)',
+          url: '', audience: '', documents: '', deadline: '', notes: '',
+          isDecision: false,
+          nextYes:    null,
+          nextNo:     null,
+          rejoinId:   rejoinId || '',
+        };
+        const branchRef = await addDoc(collection(db, 'workflows'), branchData);
+        updateData.nextNo = branchRef.id;
       }
-      populateUsed = true;
-      document.getElementById('populateBtn').disabled = true;
-      document.getElementById('populateBtn').textContent = 'Adding...';
-      try {
-        setStatus('Populating...');
-        const batch = writeBatch(db);
-        for (const item of DEFAULT_WORKFLOWS) {
-          batch.set(doc(collection(db, 'workflows')), item);
-        }
-        await batch.commit();
-        setStatus('Default data added.');
-        document.getElementById('populateBtn').style.display = 'none';
-        await loadWorkflows();
-      } catch (error) {
-        populateUsed = false;
-        document.getElementById('populateBtn').disabled = false;
-        document.getElementById('populateBtn').textContent = '+ Populate Default Data';
-        setStatus('Populate error: ' + error.message);
-        alert('Error: ' + error.message);
+
+      // If removing decision status, clear nextNo
+      if (!isDecision && wasDecision) {
+        updateData.nextNo = null;
       }
-    });
 
-    // --- Filter buttons ---
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentFilter = btn.dataset.filter;
-        renderDiagram();
-      });
-    });
+      await updateDoc(doc(db, 'workflows', currentEditingId), updateData);
+    }
 
-    // Close modal on backdrop click
-    document.getElementById('editModal').addEventListener('click', (e) => {
-      if (e.target.id === 'editModal') window.closeModal();
-    });
+    window.closeModal();
+    await loadAll();
+  } catch (err) {
+    setStatus('Save error: ' + err.message);
+    alert('Error saving: ' + err.message);
+    console.error(err);
+  } finally {
+    saveBtn.disabled = false;
+  }
+};
 
-    loadWorkflows();
-  </script>
+// ---------------------------------------------------------------------------
+// Delete
+// ---------------------------------------------------------------------------
+document.getElementById('deleteBtn').addEventListener('click', async () => {
+  if (!currentEditingId) return;
+  const task = allDocs[currentEditingId]?.task || 'this step';
+  if (!confirm(`Delete "${task}"?\n\nNote: any steps that pointed to this one will need re-linking manually.`)) return;
+
+  setStatus('Deleting...');
+  try {
+    await deleteDoc(doc(db, 'workflows', currentEditingId));
+    window.closeModal();
+    await loadAll();
+  } catch (err) {
+    setStatus('Delete error: ' + err.message);
+    alert('Error: ' + err.message);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Populate default data
+// ---------------------------------------------------------------------------
+document.getElementById('populateBtn').addEventListener('click', async () => {
+  if (populateUsed) return;
+  if (Object.keys(allDocs).length > 0) {
+    if (!confirm(`Database already has data. Add defaults on top?`)) return;
+  }
+  populateUsed = true;
+  const btn = document.getElementById('populateBtn');
+  btn.disabled = true;
+  btn.textContent = 'Adding...';
+
+  try {
+    setStatus('Populating...');
+    const { docs, rootIds } = buildDefaultData();
+    const batch = writeBatch(db);
+
+    // Write all step documents with fixed IDs
+    for (const [id, data] of Object.entries(docs)) {
+      batch.set(doc(db, 'workflows', id), data);
+    }
+    // Write root pointers
+    for (const [wf, rootId] of Object.entries(rootIds)) {
+      batch.set(doc(db, 'meta', wf), { rootId });
+    }
+
+    await batch.commit();
+    btn.style.display = 'none';
+    setStatus('Default data added.');
+    await loadAll();
+  } catch (err) {
+    populateUsed = false;
+    btn.disabled = false;
+    btn.textContent = '+ Populate Default Data';
+    setStatus('Error: ' + err.message);
+    alert('Error: ' + err.message);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Filter buttons
+// ---------------------------------------------------------------------------
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderAll();
+  });
+});
+
+// Close modal on backdrop click
+document.getElementById('editModal').addEventListener('click', e => {
+  if (e.target.id === 'editModal') window.closeModal();
+});
+
+// ---------------------------------------------------------------------------
+// Boot
+// ---------------------------------------------------------------------------
+loadAll();
+</script>
 </body>
 </html>
