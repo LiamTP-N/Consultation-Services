@@ -229,7 +229,7 @@
 
   <div id="editModal" class="modal">
     <div class="modal-content">
-      <h2>Edit Workflow Step</h2>
+      <h2 id="modalTitle">Edit Workflow Step</h2>
       <div class="form-group">
         <label>Workflow</label>
         <input type="text" id="editWorkflow" readonly style="opacity:0.6;">
@@ -311,6 +311,7 @@
     let workflows = {};
     let currentEditingId = null;
     let currentFilter = 'all';
+    let isNewStep = false;
 
     function setStatus(msg) {
       document.getElementById('statusBar').textContent = msg;
@@ -395,7 +396,7 @@
         const len = (workflows[b] || []).length;
         if (len > maxSteps) maxSteps = len;
       }
-      const SVG_H = START_Y + maxSteps * STEP_GAP + 60;
+      const SVG_H = START_Y + maxSteps * STEP_GAP + 100; // extra room for + Add Step button
 
       const stroke   = C.stroke();
       const textCol  = C.text();
@@ -465,8 +466,14 @@
           }
         }
 
-        if (steps.length === 0 && visible) {
-          svg += `<text x="${cx}" y="${START_Y + 30}" text-anchor="middle" style="font-size:12px;fill:${textDim};">(no steps yet)</text>`;
+        // "+ Add Step" button below last step (always shown if branch is visible)
+        if (visible) {
+          const addY = steps.length === 0 ? START_Y : START_Y + steps.length * STEP_GAP + 8;
+          svg += `<g class="editable-box" onclick="window.openNewModal('${bName}')" opacity="0.6">
+            <rect x="${cx - 70}" y="${addY}" width="140" height="32" rx="4"
+              fill="none" stroke="${stroke}" stroke-width="1" stroke-dasharray="4 3"/>
+            <text x="${cx}" y="${addY + 20}" text-anchor="middle" style="font-size:12px;fill:${textDim};">+ Add Step</text>
+          </g>`;
         }
       }
 
@@ -474,8 +481,9 @@
       container.innerHTML = svg;
     }
 
-    // --- Modal open ---
+    // --- Modal open (edit existing) ---
     window.openModal = function(id) {
+      isNewStep = false;
       currentEditingId = id;
       let step = null;
       for (const branch of Object.values(workflows)) {
@@ -484,7 +492,10 @@
       }
       if (!step) return;
 
+      document.getElementById('modalTitle').textContent = 'Edit Workflow Step';
+      document.getElementById('deleteBtn').style.display = '';
       document.getElementById('editWorkflow').value  = step.workflow   || '';
+      document.getElementById('editWorkflow').readOnly = true;
       document.getElementById('editStep').value       = step.step       || '';
       document.getElementById('editTask').value       = step.task       || '';
       document.getElementById('editUrl').value        = step.url        || '';
@@ -496,30 +507,61 @@
       document.getElementById('editModal').classList.add('open');
     };
 
+    // --- Modal open (new step) ---
+    window.openNewModal = function(workflowName) {
+      isNewStep = true;
+      currentEditingId = null;
+
+      // Auto-suggest next step number
+      const existing = workflows[workflowName] || [];
+      const nextStep = existing.length > 0 ? Math.max(...existing.map(s => Number(s.step))) + 1 : 1;
+
+      document.getElementById('modalTitle').textContent = 'Add New Step';
+      document.getElementById('deleteBtn').style.display = 'none';
+      document.getElementById('editWorkflow').value  = workflowName;
+      document.getElementById('editWorkflow').readOnly = true;
+      document.getElementById('editStep').value       = nextStep;
+      document.getElementById('editTask').value       = '';
+      document.getElementById('editUrl').value        = '';
+      document.getElementById('editAudience').value   = '';
+      document.getElementById('editDocuments').value  = '';
+      document.getElementById('editDeadline').value   = '';
+      document.getElementById('editDependsOn').value  = '';
+      document.getElementById('editNotes').value      = '';
+      document.getElementById('editModal').classList.add('open');
+    };
+
     // --- Modal close ---
     window.closeModal = function() {
       document.getElementById('editModal').classList.remove('open');
       currentEditingId = null;
     };
 
-    // --- Save ---
+    // --- Save (handles both new and edit) ---
     window.saveStep = async function() {
-      if (!currentEditingId) return;
       const taskVal = document.getElementById('editTask').value.trim();
       if (!taskVal) { alert('Task cannot be empty.'); return; }
 
+      const payload = {
+        workflow:   document.getElementById('editWorkflow').value,
+        step:       Number(document.getElementById('editStep').value),
+        task:       taskVal,
+        url:        document.getElementById('editUrl').value,
+        audience:   document.getElementById('editAudience').value,
+        documents:  document.getElementById('editDocuments').value,
+        deadline:   document.getElementById('editDeadline').value,
+        dependsOn:  document.getElementById('editDependsOn').value,
+        notes:      document.getElementById('editNotes').value,
+      };
+
       try {
         setStatus('Saving...');
-        await updateDoc(doc(db, 'workflows', currentEditingId), {
-          step:       Number(document.getElementById('editStep').value),
-          task:       taskVal,
-          url:        document.getElementById('editUrl').value,
-          audience:   document.getElementById('editAudience').value,
-          documents:  document.getElementById('editDocuments').value,
-          deadline:   document.getElementById('editDeadline').value,
-          dependsOn:  document.getElementById('editDependsOn').value,
-          notes:      document.getElementById('editNotes').value,
-        });
+        if (isNewStep) {
+          await addDoc(collection(db, 'workflows'), payload);
+        } else {
+          if (!currentEditingId) return;
+          await updateDoc(doc(db, 'workflows', currentEditingId), payload);
+        }
         window.closeModal();
         await loadWorkflows();
       } catch (error) {
