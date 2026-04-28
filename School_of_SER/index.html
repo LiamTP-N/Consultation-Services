@@ -40,7 +40,7 @@
     .subtitle { font-size: 14px; color: #666; margin-bottom: 24px; }
     @media (prefers-color-scheme: dark) { .subtitle { color: #999; } }
     
-    .controls { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .controls { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
     .controls label { font-size: 13px; font-weight: 500; margin-right: 8px; }
     
     button {
@@ -61,6 +61,19 @@
     
     button:hover { background: #f0f0f0; border-color: #999; }
     button.active { background: #1f4e78; color: white; border-color: #1f4e78; }
+
+    .btn-populate {
+      margin-left: auto;
+      background: #e8f4e8;
+      border-color: #4caf50;
+      color: #2e7d32;
+      font-size: 12px;
+    }
+    .btn-populate:hover { background: #d4edda; }
+    @media (prefers-color-scheme: dark) {
+      .btn-populate { background: #1a3a1a; border-color: #4caf50; color: #81c784; }
+      .btn-populate:hover { background: #1e4a1e; }
+    }
     
     .diagram-container {
       border: 0.5px solid #ddd;
@@ -71,7 +84,7 @@
       overflow-x: auto;
       min-height: 400px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
     }
     
@@ -81,7 +94,7 @@
     
     svg { width: 100%; height: auto; }
     .editable-box { cursor: pointer; transition: opacity 0.2s; }
-    .editable-box:hover { opacity: 0.8; }
+    .editable-box:hover rect { stroke-width: 2; }
     
     .info-box {
       background: #f0f7ff;
@@ -127,9 +140,7 @@
     
     .modal-content h2 { font-size: 18px; margin-bottom: 16px; }
     
-    .form-group {
-      margin-bottom: 16px;
-    }
+    .form-group { margin-bottom: 16px; }
     
     .form-group label {
       display: block;
@@ -166,13 +177,29 @@
       margin-top: 24px;
     }
     
-    .btn-save {
-      background: #1f4e78;
-      color: white;
-      border-color: #1f4e78;
+    .btn-save { background: #1f4e78; color: white; border-color: #1f4e78; }
+    .btn-save:hover { background: #163a5a; }
+
+    .btn-delete {
+      background: #fff0f0;
+      color: #c0392b;
+      border-color: #e74c3c;
+      margin-right: auto;
+    }
+    .btn-delete:hover { background: #ffe0e0; }
+    @media (prefers-color-scheme: dark) {
+      .btn-delete { background: #3a1a1a; color: #e57373; border-color: #e74c3c; }
     }
     
     .loading { display: flex; align-items: center; justify-content: center; min-height: 300px; color: #666; }
+
+    .status-bar {
+      font-size: 12px;
+      color: #888;
+      padding: 8px 0 0;
+      text-align: right;
+    }
+    @media (prefers-color-scheme: dark) { .status-bar { color: #666; } }
   </style>
 </head>
 <body>
@@ -181,12 +208,7 @@
     <p class="subtitle">Click any box to edit</p>
     
     <div class="info-box">
-      <strong>How to use:</strong>
-      <ul>
-        <li>Click any workflow box to edit it</li>
-        <li>Filter by workflow using the buttons below</li>
-        <li>Changes save instantly</li>
-      </ul>
+      <strong>How to use:</strong> Click any workflow box to edit it. Filter by workflow using the buttons below. Changes save instantly to the database.
     </div>
     
     <div class="controls">
@@ -195,64 +217,66 @@
       <button class="filter-btn" data-filter="teaching">Teaching</button>
       <button class="filter-btn" data-filter="research">Research</button>
       <button class="filter-btn" data-filter="admin">Admin</button>
+      <button class="btn-populate" id="populateBtn" title="One-time setup: adds default workflow steps to the database">+ Populate Default Data</button>
     </div>
     
     <div class="diagram-container" id="diagramContainer">
       <div class="loading">Loading...</div>
     </div>
+
+    <div class="status-bar" id="statusBar"></div>
   </div>
 
   <div id="editModal" class="modal">
     <div class="modal-content">
       <h2>Edit Workflow Step</h2>
-      <form id="editForm" onsubmit="window.saveStep(event)">
-        <div class="form-group">
-          <label>Workflow</label>
-          <input type="text" id="editWorkflow" readonly>
-        </div>
-        <div class="form-group">
-          <label>Step #</label>
-          <input type="text" id="editStep" required>
-        </div>
-        <div class="form-group">
-          <label>Task</label>
-          <textarea id="editTask" required></textarea>
-        </div>
-        <div class="form-group">
-          <label>URL</label>
-          <input type="text" id="editUrl">
-        </div>
-        <div class="form-group">
-          <label>Audience</label>
-          <input type="text" id="editAudience">
-        </div>
-        <div class="form-group">
-          <label>Documents</label>
-          <input type="text" id="editDocuments">
-        </div>
-        <div class="form-group">
-          <label>Deadline</label>
-          <input type="text" id="editDeadline">
-        </div>
-        <div class="form-group">
-          <label>Depends On</label>
-          <input type="text" id="editDependsOn">
-        </div>
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea id="editNotes" style="min-height: 40px;"></textarea>
-        </div>
-        <div class="modal-buttons">
-          <button type="button" onclick="window.closeModal()">Cancel</button>
-          <button type="submit" class="btn-save">Save</button>
-        </div>
-      </form>
+      <div class="form-group">
+        <label>Workflow</label>
+        <input type="text" id="editWorkflow" readonly style="opacity:0.6;">
+      </div>
+      <div class="form-group">
+        <label>Step #</label>
+        <input type="number" id="editStep" required min="1">
+      </div>
+      <div class="form-group">
+        <label>Task</label>
+        <textarea id="editTask" required></textarea>
+      </div>
+      <div class="form-group">
+        <label>URL</label>
+        <input type="text" id="editUrl">
+      </div>
+      <div class="form-group">
+        <label>Audience</label>
+        <input type="text" id="editAudience">
+      </div>
+      <div class="form-group">
+        <label>Documents</label>
+        <input type="text" id="editDocuments">
+      </div>
+      <div class="form-group">
+        <label>Deadline</label>
+        <input type="text" id="editDeadline">
+      </div>
+      <div class="form-group">
+        <label>Depends On</label>
+        <input type="text" id="editDependsOn">
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="editNotes" style="min-height: 40px;"></textarea>
+      </div>
+      <div class="modal-buttons">
+        <button type="button" class="btn-delete" id="deleteBtn">Delete Step</button>
+        <button type="button" onclick="window.closeModal()">Cancel</button>
+        <button type="button" class="btn-save" onclick="window.saveStep()">Save</button>
+      </div>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-    import { getFirestore, collection, getDocs, orderBy, query, updateDoc, doc, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+    import { getFirestore, collection, getDocs, updateDoc, deleteDoc, doc, addDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyDSK-2hI6ML1eykIed6E8S5Ve29phrEolI",
@@ -266,125 +290,267 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // --- Default data ---
+    const DEFAULT_WORKFLOWS = [
+      // Teaching
+      { workflow: 'Teaching', step: 1, task: 'Check if PEP is ready',      url: '', audience: 'All Staff',   documents: '',            deadline: 'Start of term',  dependsOn: '',   notes: 'Decision point - if yes, go to step 3' },
+      { workflow: 'Teaching', step: 2, task: 'Get blank PEP template',      url: '', audience: 'All Staff',   documents: 'PEP template', deadline: 'Start of term',  dependsOn: '1',  notes: 'Only if no PEP exists' },
+      { workflow: 'Teaching', step: 3, task: 'Upload PEP to MS Teams',      url: '', audience: 'All Staff',   documents: 'PEP',          deadline: 'Week 1',         dependsOn: '2',  notes: 'Upload to the shared Teams channel' },
+      { workflow: 'Teaching', step: 4, task: 'Record link in SEM spreadsheet', url: '', audience: 'All Staff', documents: 'SEM spreadsheet', deadline: 'Week 1',     dependsOn: '3',  notes: 'Add the Teams link into the tracker' },
+      // Research
+      { workflow: 'Research', step: 1, task: 'Check if PO form exists',     url: '', audience: 'Researchers', documents: '',            deadline: 'Before purchase', dependsOn: '',   notes: 'Decision point - if yes, go to step 3' },
+      { workflow: 'Research', step: 2, task: 'Get blank PO form',           url: '', audience: 'Researchers', documents: 'PO form',      deadline: 'Before purchase', dependsOn: '1',  notes: 'Only if no PO form exists' },
+      { workflow: 'Research', step: 3, task: 'Upload PO & @ Liam for approval', url: '', audience: 'Researchers', documents: 'PO form', deadline: 'Before purchase', dependsOn: '2', notes: 'Tag in Teams for sign-off' },
+      // Admin
+      { workflow: 'Admin',    step: 1, task: 'Admin step 1 (to be defined)', url: '', audience: 'All Staff',   documents: '',            deadline: '',               dependsOn: '',   notes: 'Click to edit this step' },
+    ];
+
     let workflows = {};
     let currentEditingId = null;
     let currentFilter = 'all';
 
+    function setStatus(msg) {
+      document.getElementById('statusBar').textContent = msg;
+    }
+
+    // --- Load from Firestore (no orderBy - sort client-side) ---
     async function loadWorkflows() {
       try {
-        console.log('Loading workflows...');
-        const q = query(collection(db, 'workflows'), orderBy('workflow'), orderBy('step'));
-        const snapshot = await getDocs(q);
+        setStatus('Loading...');
+        const snapshot = await getDocs(collection(db, 'workflows'));
         
         workflows = {};
         snapshot.forEach(docSnap => {
           const data = docSnap.data();
-          if (!workflows[data.workflow]) {
-            workflows[data.workflow] = [];
-          }
-          workflows[data.workflow].push({ id: docSnap.id, ...data });
+          const key = data.workflow;
+          if (!workflows[key]) workflows[key] = [];
+          workflows[key].push({ id: docSnap.id, ...data });
         });
-        
-        console.log('Loaded workflows:', workflows);
+
+        // Sort each branch by step number client-side
+        for (const key of Object.keys(workflows)) {
+          workflows[key].sort((a, b) => Number(a.step) - Number(b.step));
+        }
+
+        setStatus(`Loaded ${snapshot.size} step${snapshot.size !== 1 ? 's' : ''} · ${new Date().toLocaleTimeString()}`);
         renderDiagram();
       } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('diagramContainer').innerHTML = '<div class="loading">Error loading workflows</div>';
+        console.error('Firestore load error:', error);
+        setStatus('Error loading: ' + error.message);
+        document.getElementById('diagramContainer').innerHTML = '<div class="loading">Error loading workflows - check console</div>';
       }
+    }
+
+    // --- Render SVG diagram ---
+    function wrapText(text, maxChars) {
+      if (text.length <= maxChars) return [text];
+      const words = text.split(' ');
+      const lines = [];
+      let current = '';
+      for (const word of words) {
+        if ((current + ' ' + word).trim().length > maxChars) {
+          if (current) lines.push(current.trim());
+          current = word;
+        } else {
+          current = (current + ' ' + word).trim();
+        }
+      }
+      if (current) lines.push(current.trim());
+      return lines;
     }
 
     function renderDiagram() {
       const container = document.getElementById('diagramContainer');
       
-      if (Object.keys(workflows).length === 0) {
-        container.innerHTML = '<div class="loading">No workflows in database</div>';
+      const allKeys = Object.keys(workflows);
+      if (allKeys.length === 0) {
+        container.innerHTML = '<div class="loading">No workflows in database — click "Populate Default Data" to add the starting steps.</div>';
         return;
       }
 
-      let svg = '<svg viewBox="0 0 680 700"><defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>';
+      const BRANCH_NAMES = ['Teaching', 'Research', 'Admin'];
+      const BOX_W = 190;
+      const BOX_H = 64;
+      const STEP_GAP = 84; // box height + 20px gap
+      const COL_X = { Teaching: 160, Research: 370, Admin: 580 };
+      const START_Y = 220;
+      const SVG_W = 740;
 
-      svg += '<circle cx="340" cy="40" r="24" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.5"/><text x="340" y="48" text-anchor="middle" dominant-baseline="central" style="font-size: 14px; font-weight: 500; fill: currentColor;">Start</text><line x1="340" y1="64" x2="340" y2="100" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)"/>';
+      // Calculate max steps for SVG height
+      let maxSteps = 0;
+      for (const b of BRANCH_NAMES) {
+        const len = (workflows[b] || []).length;
+        if (len > maxSteps) maxSteps = len;
+      }
+      const SVG_H = START_Y + maxSteps * STEP_GAP + 60;
 
-      svg += '<polygon points="340,100 410,130 340,160 270,130" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.5"/><text x="340" y="135" text-anchor="middle" dominant-baseline="central" style="font-size: 13px; font-weight: 500; fill: currentColor;">What are you doing?</text>';
+      let svg = `<svg viewBox="0 0 ${SVG_W} ${SVG_H}" xmlns="http://www.w3.org/2000/svg">`;
+      svg += `<defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>`;
 
-      const positions = {
-        'Teaching': { x: 180, arrow: { x1: 280, y1: 160, x2: 180, y2: 200 } },
-        'Research': { x: 340, arrow: { x1: 340, y1: 160, x2: 340, y2: 200 } },
-        'Admin': { x: 500, arrow: { x1: 400, y1: 160, x2: 500, y2: 200 } }
+      // Start node
+      svg += `<circle cx="370" cy="40" r="28" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.5"/>
+              <text x="370" y="45" text-anchor="middle" dominant-baseline="central" style="font-size:13px;font-weight:600;fill:currentColor;">Start</text>
+              <line x1="370" y1="68" x2="370" y2="100" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+
+      // Decision diamond
+      svg += `<polygon points="370,100 460,135 370,170 280,135" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-width="1.5"/>
+              <text x="370" y="130" text-anchor="middle" style="font-size:12px;font-weight:600;fill:currentColor;">What are</text>
+              <text x="370" y="146" text-anchor="middle" style="font-size:12px;font-weight:600;fill:currentColor;">you doing?</text>`;
+
+      // Branch arrows from diamond
+      const branchArrows = {
+        Teaching: { x2: COL_X.Teaching, label: 'Teaching' },
+        Research:  { x2: COL_X.Research,  label: 'Research'  },
+        Admin:     { x2: COL_X.Admin,     label: 'Admin'     },
       };
 
-      for (const [wName, pos] of Object.entries(positions)) {
-        const visible = currentFilter === 'all' || currentFilter === wName.toLowerCase();
-        const opacity = visible ? '1' : '0.15';
-        
-        svg += `<line x1="${pos.arrow.x1}" y1="${pos.arrow.y1}" x2="${pos.arrow.x2}" y2="${pos.arrow.y2}" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" opacity="${opacity}"/><text x="${pos.arrow.x1 + (pos.arrow.x2 - pos.arrow.x1) / 2}" y="${pos.arrow.y1 + (pos.arrow.y2 - pos.arrow.y1) / 2 - 10}" text-anchor="middle" style="font-size: 11px; fill: currentColor; opacity: ${opacity};">${wName}</text>`;
+      for (const [bName, ba] of Object.entries(branchArrows)) {
+        const visible = currentFilter === 'all' || currentFilter === bName.toLowerCase();
+        const op = visible ? 1 : 0.15;
+        const midX = (370 + ba.x2) / 2;
+        svg += `<line x1="370" y1="170" x2="${ba.x2}" y2="${START_Y - 20}" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" opacity="${op}"/>
+                <text x="${midX}" y="${(170 + START_Y - 20) / 2 - 6}" text-anchor="middle" style="font-size:11px;fill:currentColor;opacity:${op};">${ba.label}</text>`;
+      }
 
-        let stepY = 200;
-        const steps = workflows[wName] || [];
-        
+      // Workflow boxes
+      for (const bName of BRANCH_NAMES) {
+        const visible = currentFilter === 'all' || currentFilter === bName.toLowerCase();
+        const op = visible ? 1 : 0.12;
+        const cx = COL_X[bName];
+        const steps = workflows[bName] || [];
+
         for (let i = 0; i < steps.length; i++) {
           const step = steps[i];
-          svg += `<g class="editable-box" onclick="window.openModal('${step.id}')" opacity="${opacity}"><rect x="${pos.x - 100}" y="${stepY}" width="200" height="60" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1"/><text x="${pos.x}" y="${stepY + 20}" text-anchor="middle" style="font-size: 12px; font-weight: 500; fill: currentColor;">${step.task}</text><text x="${pos.x}" y="${stepY + 40}" text-anchor="middle" style="font-size: 10px; fill: currentColor; opacity: 0.7;">${step.notes}</text></g>`;
+          const y = START_Y + i * STEP_GAP;
+          const lines = wrapText(step.task || '', 24);
+          const lineH = 16;
+          const textStartY = y + (BOX_H / 2) - ((lines.length - 1) * lineH / 2) - 4;
 
-          if (i < steps.length - 1) {
-            svg += `<line x1="${pos.x}" y1="${stepY + 60}" x2="${pos.x}" y2="${stepY + 90}" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" opacity="${opacity}"/>`;
+          svg += `<g class="editable-box" onclick="window.openModal('${step.id}')" opacity="${op}">
+            <rect x="${cx - BOX_W / 2}" y="${y}" width="${BOX_W}" height="${BOX_H}" rx="6"
+              fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-width="1"/>
+            <text x="${cx - BOX_W / 2 + 8}" y="${y + 14}" style="font-size:10px;fill:currentColor;opacity:0.5;">Step ${step.step}</text>`;
+
+          for (let l = 0; l < lines.length; l++) {
+            svg += `<text x="${cx}" y="${textStartY + l * lineH}" text-anchor="middle" style="font-size:12px;font-weight:500;fill:currentColor;">${lines[l]}</text>`;
           }
-          stepY += 90;
+
+          svg += `</g>`;
+
+          // Connector to next step
+          if (i < steps.length - 1) {
+            svg += `<line x1="${cx}" y1="${y + BOX_H}" x2="${cx}" y2="${y + BOX_H + (STEP_GAP - BOX_H)}" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" opacity="${op}"/>`;
+          }
+        }
+
+        // "Add step" nudge if branch is empty but visible
+        if (steps.length === 0 && visible) {
+          svg += `<text x="${cx}" y="${START_Y + 30}" text-anchor="middle" style="font-size:12px;fill:currentColor;opacity:0.4;">(no steps yet)</text>`;
         }
       }
 
-      svg += '</svg>';
+      svg += `</svg>`;
       container.innerHTML = svg;
     }
 
+    // --- Modal open ---
     window.openModal = function(id) {
       currentEditingId = id;
       let step = null;
-      for (const w of Object.values(workflows)) {
-        step = w.find(s => s.id === id);
+      for (const branch of Object.values(workflows)) {
+        step = branch.find(s => s.id === id);
         if (step) break;
       }
-      if (step) {
-        document.getElementById('editWorkflow').value = step.workflow;
-        document.getElementById('editStep').value = step.step;
-        document.getElementById('editTask').value = step.task;
-        document.getElementById('editUrl').value = step.url || '';
-        document.getElementById('editAudience').value = step.audience || '';
-        document.getElementById('editDocuments').value = step.documents || '';
-        document.getElementById('editDeadline').value = step.deadline || '';
-        document.getElementById('editDependsOn').value = step.dependsOn || '';
-        document.getElementById('editNotes').value = step.notes || '';
-        document.getElementById('editModal').classList.add('open');
-      }
+      if (!step) return;
+
+      document.getElementById('editWorkflow').value  = step.workflow   || '';
+      document.getElementById('editStep').value       = step.step       || '';
+      document.getElementById('editTask').value       = step.task       || '';
+      document.getElementById('editUrl').value        = step.url        || '';
+      document.getElementById('editAudience').value   = step.audience   || '';
+      document.getElementById('editDocuments').value  = step.documents  || '';
+      document.getElementById('editDeadline').value   = step.deadline   || '';
+      document.getElementById('editDependsOn').value  = step.dependsOn  || '';
+      document.getElementById('editNotes').value      = step.notes      || '';
+      document.getElementById('editModal').classList.add('open');
     };
 
+    // --- Modal close ---
     window.closeModal = function() {
       document.getElementById('editModal').classList.remove('open');
       currentEditingId = null;
     };
 
-    window.saveStep = async function(event) {
-      event.preventDefault();
+    // --- Save ---
+    window.saveStep = async function() {
       if (!currentEditingId) return;
+      const taskVal = document.getElementById('editTask').value.trim();
+      if (!taskVal) { alert('Task cannot be empty.'); return; }
 
       try {
+        setStatus('Saving...');
         await updateDoc(doc(db, 'workflows', currentEditingId), {
-          step: document.getElementById('editStep').value,
-          task: document.getElementById('editTask').value,
-          url: document.getElementById('editUrl').value,
-          audience: document.getElementById('editAudience').value,
-          documents: document.getElementById('editDocuments').value,
-          deadline: document.getElementById('editDeadline').value,
-          dependsOn: document.getElementById('editDependsOn').value,
-          notes: document.getElementById('editNotes').value
+          step:       Number(document.getElementById('editStep').value),
+          task:       taskVal,
+          url:        document.getElementById('editUrl').value,
+          audience:   document.getElementById('editAudience').value,
+          documents:  document.getElementById('editDocuments').value,
+          deadline:   document.getElementById('editDeadline').value,
+          dependsOn:  document.getElementById('editDependsOn').value,
+          notes:      document.getElementById('editNotes').value,
         });
         window.closeModal();
         await loadWorkflows();
       } catch (error) {
-        alert('Error: ' + error.message);
+        setStatus('Save error: ' + error.message);
+        alert('Error saving: ' + error.message);
       }
     };
 
+    // --- Delete ---
+    document.getElementById('deleteBtn').addEventListener('click', async () => {
+      if (!currentEditingId) return;
+      const task = document.getElementById('editTask').value;
+      if (!confirm(`Delete step: "${task}"?\n\nThis cannot be undone.`)) return;
+      try {
+        setStatus('Deleting...');
+        await deleteDoc(doc(db, 'workflows', currentEditingId));
+        window.closeModal();
+        await loadWorkflows();
+      } catch (error) {
+        setStatus('Delete error: ' + error.message);
+        alert('Error deleting: ' + error.message);
+      }
+    });
+
+    // --- Populate default data ---
+    document.getElementById('populateBtn').addEventListener('click', async () => {
+      const total = Object.values(workflows).reduce((sum, arr) => sum + arr.length, 0);
+      if (total > 0) {
+        if (!confirm(`Database already has ${total} step(s).\n\nPopulating will ADD the defaults on top of existing data. Continue?`)) return;
+      }
+      try {
+        setStatus('Populating...');
+        const batch = writeBatch(db);
+        for (const item of DEFAULT_WORKFLOWS) {
+          batch.set(doc(collection(db, 'workflows')), item);
+        }
+        await batch.commit();
+        setStatus('Default data added.');
+        await loadWorkflows();
+        // Hide the button after first use
+        document.getElementById('populateBtn').style.display = 'none';
+      } catch (error) {
+        setStatus('Populate error: ' + error.message);
+        alert('Error: ' + error.message);
+      }
+    });
+
+    // --- Filter buttons ---
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -394,6 +560,7 @@
       });
     });
 
+    // Close modal on backdrop click
     document.getElementById('editModal').addEventListener('click', (e) => {
       if (e.target.id === 'editModal') window.closeModal();
     });
