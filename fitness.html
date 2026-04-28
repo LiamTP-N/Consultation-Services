@@ -488,6 +488,16 @@
             </div>
         </div>
     </div>
+    <div id="ash-hr-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-6" role="dialog" aria-modal="true" aria-labelledby="ash-hr-modal-title">
+        <div class="bg-slate-800 border border-slate-600 rounded-2xl p-6 max-w-xs w-full text-center shadow-2xl">
+            <div class="text-3xl mb-3">&#x1F62D;</div>
+            <p id="ash-hr-modal-title" class="text-white font-bold text-base mb-5">Note:<br>No HR monitor? But Liam's HR...</p>
+            <div class="flex gap-3">
+                <button id="ash-hr-modal-cancel" class="flex-1 py-4 rounded-xl text-base font-bold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition">Go Back</button>
+                <button id="ash-hr-modal-confirm" class="flex-1 py-4 rounded-xl text-base font-bold bg-green-600 hover:bg-green-500 text-white transition">Start Anyway</button>
+            </div>
+        </div>
+    </div>
     <!-- BLE DISCONNECT TOAST -->
     <div id="ble-toast" class="hidden fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl bg-red-600/95 backdrop-blur-sm text-white text-sm font-bold shadow-xl pointer-events-none text-center whitespace-nowrap" role="status" aria-live="assertive"></div>
     <script>
@@ -2163,16 +2173,22 @@
 
         // HR modal handlers: cancel just hides; confirm ("Start Anyway") starts without HR.
         const hrModal=document.getElementById('hr-modal');
+        const ashHrModal=document.getElementById('ash-hr-modal');
         document.getElementById('hr-modal-cancel').onclick=()=>hrModal.classList.add('hidden');
         document.getElementById('hr-modal-confirm').onclick=()=>{hrModal.classList.add('hidden');startSession();};
+        document.getElementById('ash-hr-modal-cancel').onclick=()=>ashHrModal.classList.add('hidden');
+        document.getElementById('ash-hr-modal-confirm').onclick=()=>{ashHrModal.classList.add('hidden');startSession();};
 
         // Begin Session handler: check we have AT LEAST ONE working HR connection
         // with an actual reading (not just a device that's connected but silent).
-        // If not, show the modal asking the user whether to proceed without HR data.
+        // If not, show the appropriate modal asking the user whether to proceed without HR data.
+        // In Solo mode, if only Ash is missing, show the specific "But Liam's HR..." message.
         ui.btnStart.onclick=()=>{
             const youReady=hrDeviceYou&&hrDeviceYou.gatt&&hrDeviceYou.gatt.connected&&hrValueYou!==null;
             const wifeReady=hrDeviceWife&&hrDeviceWife.gatt&&hrDeviceWife.gatt.connected&&hrValueWife!==null;
-            if(!youReady&&!wifeReady){hrModal.classList.remove('hidden');}else{startSession();}
+            if(!youReady&&!wifeReady){hrModal.classList.remove('hidden');}
+            else if(settings.mode==='solo'&&youReady&&!wifeReady){ashHrModal.classList.remove('hidden');}
+            else{startSession();}
         };
         // Quick Rest buttons: standalone rest timer at 1m/2m/3m. Repurposes the timer
         // screen and puts mode into the transient 'quick-rest' state. Duration comes
