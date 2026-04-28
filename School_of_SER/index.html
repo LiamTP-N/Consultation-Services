@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Northumbria Department Workflow Map</title>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #1a1a1a;
+        color: #e0e0e0;
+      }
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .container {
+        background: #2a2a2a;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+    }
+    
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 24px;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .subtitle {
+        color: #999;
+      }
+    }
+    
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .controls label {
+      font-size: 13px;
+      font-weight: 500;
+      margin-right: 8px;
+    }
+    
+    button {
+      padding: 8px 16px;
+      border: 0.5px solid #ccc;
+      border-radius: 4px;
+      background: white;
+      color: #333;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      button {
+        background: #333;
+        color: #e0e0e0;
+        border-color: #555;
+      }
+    }
+    
+    button:hover {
+      background: #f0f0f0;
+      border-color: #999;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      button:hover {
+        background: #444;
+        border-color: #777;
+      }
+    }
+    
+    button.active {
+      background: #1f4e78;
+      color: white;
+      border-color: #1f4e78;
+    }
+    
+    .diagram-container {
+      border: 0.5px solid #ddd;
+      border-radius: 8px;
+      background: #fafafa;
+      padding: 16px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .diagram-container {
+        background: #1a1a1a;
+        border-color: #444;
+      }
+    }
+    
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    .editable-box {
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    
+    .editable-box:hover {
+      opacity: 0.8;
+    }
+    
+    .info-box {
+      background: #f0f7ff;
+      border-left: 3px solid #0066cc;
+      padding: 16px;
+      border-radius: 4px;
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .info-box {
+        background: #1a3a52;
+        border-left-color: #0088dd;
+      }
+    }
+    
+    .info-box strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .info-box ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    
+    .info-box li {
+      margin: 4px 0;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal.open {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .modal-content {
+        background: #2a2a2a;
+        color: #e0e0e0;
+      }
+    }
+    
+    .modal-content h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      margin-top: 0;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 0.5px solid #ccc;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 13px;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .form-group input,
+      .form-group textarea {
+        background: #333;
+        color: #e0e0e0;
+        border-color: #555;
+      }
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+    
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+    
+    .modal-buttons button {
+      padding: 8px 16px;
+    }
+    
+    .btn-save {
+      background: #1f4e78;
+      color: white;
+      border-color: #1f4e78;
+    }
+    
+    .btn-save:hover {
+      background: #153a5e;
+    }
+    
+    .error {
+      background: #ffebee;
+      border: 0.5px solid #ef5350;
+      color: #c62828;
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .error {
+        background: #3a1a1a;
+        border-color: #c62828;
+        color: #ff8a80;
+      }
+    }
+    
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+      color: #666;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .loading {
+        color: #999;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Northumbria Department Workflow Map</h1>
+    <p class="subtitle">Click any box to edit</p>
+    
+    <div class="info-box">
+      <strong>How to use:</strong>
+      <ul>
+        <li>Click any workflow box to edit its details</li>
+        <li>Filter by workflow using the buttons below</li>
+        <li>Changes save instantly and appear for everyone</li>
+      </ul>
+    </div>
+    
+    <div class="controls">
+      <label>Filter:</label>
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="teaching">Teaching</button>
+      <button class="filter-btn" data-filter="research">Research</button>
+      <button class="filter-btn" data-filter="admin">Admin</button>
+    </div>
+    
+    <div id="error-container"></div>
+    
+    <div class="diagram-container">
+      <div class="loading">Loading workflows...</div>
+    </div>
+  </div>
+
+  <!-- EDIT MODAL -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <h2>Edit Workflow Step</h2>
+      <form id="editForm" onsubmit="saveStep(event)">
+        <div class="form-group">
+          <label>Workflow</label>
+          <input type="text" id="editWorkflow" readonly>
+        </div>
+        <div class="form-group">
+          <label>Step #</label>
+          <input type="text" id="editStep" required>
+        </div>
+        <div class="form-group">
+          <label>Task Description</label>
+          <textarea id="editTask" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>URL / Link</label>
+          <input type="text" id="editUrl">
+        </div>
+        <div class="form-group">
+          <label>Audience</label>
+          <input type="text" id="editAudience">
+        </div>
+        <div class="form-group">
+          <label>Documents Needed</label>
+          <input type="text" id="editDocuments">
+        </div>
+        <div class="form-group">
+          <label>Deadline / Timing</label>
+          <input type="text" id="editDeadline">
+        </div>
+        <div class="form-group">
+          <label>Depends On</label>
+          <input type="text" id="editDependsOn" placeholder="e.g., Step 1">
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="editNotes" style="min-height: 40px;"></textarea>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn-save">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDSK-2hI6ML1eykIed6E8S5Ve29phrEolI",
+      authDomain: "nu-school-of-sport.firebaseapp.com",
+      projectId: "nu-school-of-sport",
+      storageBucket: "nu-school-of-sport.firebasestorage.app",
+      messagingSenderId: "396866213410",
+      appId: "1:396866213410:web:bc7f31d1eb1833306d1c7b"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let workflows = {};
+    let currentEditingId = null;
+    let currentFilter = 'all';
+
+    // Load workflows from Firestore
+    async function loadWorkflows() {
+      try {
+        const snapshot = await db.collection('workflows').orderBy('workflow').orderBy('step').get();
+        workflows = {};
+        
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const workflow = data.workflow;
+          if (!workflows[workflow]) {
+            workflows[workflow] = [];
+          }
+          workflows[workflow].push({ id: doc.id, ...data });
+        });
+
+        if (snapshot.empty) {
+          loadDefaultData();
+        } else {
+          renderDiagram();
+        }
+      } catch (error) {
+        console.error('Error loading workflows:', error);
+        loadDefaultData();
+      }
+    }
+
+    // Load default data if collection is empty
+    async function loadDefaultData() {
+      const defaultWorkflows = [
+        { workflow: 'Teaching', step: '1', task: 'Do you have a PEP ready?', url: '—', audience: 'All Staff', documents: '—', deadline: 'Before teaching', dependsOn: '—', notes: 'Decision point' },
+        { workflow: 'Teaching', step: '2', task: 'Get blank PEP template', url: 'https://teams.microsoft.com/', audience: 'All Staff', documents: 'PEP template', deadline: 'ASAP', dependsOn: '1', notes: 'If no PEP yet' },
+        { workflow: 'Teaching', step: '3', task: 'Upload to MS Teams', url: 'https://teams.microsoft.com/', audience: 'All Staff', documents: 'Completed PEP', deadline: 'Before first session', dependsOn: '1', notes: 'Copy the Teams link' },
+        { workflow: 'Teaching', step: '4', task: 'Record link in SEM spreadsheet', url: 'https://excel.com/', audience: 'All Staff', documents: 'Teams link', deadline: 'Within 1 week', dependsOn: '3', notes: 'Update SEM1 or SEM2 column' },
+        { workflow: 'Research', step: '1', task: 'Do you have a PO form?', url: '—', audience: 'Researchers', documents: '—', deadline: 'Before research', dependsOn: '—', notes: 'Decision point' },
+        { workflow: 'Research', step: '2', task: 'Get blank PO form', url: 'https://forms.com/', audience: 'Researchers', documents: 'PO template', deadline: 'ASAP', dependsOn: '1', notes: 'If no form yet' },
+        { workflow: 'Research', step: '3', task: 'Upload & @ Liam for approval', url: 'https://sharepoint.com/', audience: 'Researchers', documents: 'Completed PO form', deadline: 'Before data collection', dependsOn: '1', notes: 'Tag Liam for approval' },
+        { workflow: 'Admin', step: '1', task: 'Admin workflow item', url: '—', audience: 'Admin Staff', documents: '—', deadline: 'TBD', dependsOn: '—', notes: 'To be defined' }
+      ];
+
+      for (const step of defaultWorkflows) {
+        await db.collection('workflows').add(step);
+      }
+
+      loadWorkflows();
+    }
+
+    // Render diagram
+    function renderDiagram() {
+      const container = document.querySelector('.diagram-container');
+      
+      if (Object.keys(workflows).length === 0) {
+        container.innerHTML = '<div class="loading">No workflows found</div>';
+        return;
+      }
+
+      let svg = `
+        <svg viewBox="0 0 680 700" role="img">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+      `;
+
+      // Start node
+      svg += `
+        <circle cx="340" cy="40" r="24" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-width="1.5"/>
+        <text x="340" y="48" text-anchor="middle" dominant-baseline="central" style="font-size: 14px; font-weight: 500; fill: currentColor;">Start</text>
+        <line x1="340" y1="64" x2="340" y2="100" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)"/>
+      `;
+
+      // Decision node
+      svg += `
+        <polygon points="340,100 410,130 340,160 270,130" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
+        <text x="340" y="135" text-anchor="middle" dominant-baseline="central" style="font-size: 13px; font-weight: 500; fill: currentColor;">What are you doing?</text>
+      `;
+
+      // Workflow paths
+      const workflowNames = Object.keys(workflows).sort();
+      const positions = {
+        'Teaching': { x: 180, arrow: { x1: 280, y1: 160, x2: 180, y2: 200 }, label: 'Teaching' },
+        'Research': { x: 340, arrow: { x1: 340, y1: 160, x2: 340, y2: 200 }, label: 'Research' },
+        'Admin': { x: 500, arrow: { x1: 400, y1: 160, x2: 500, y2: 200 }, label: 'Admin' }
+      };
+
+      for (const workflowName of workflowNames) {
+        const pos = positions[workflowName];
+        if (!pos) continue;
+
+        const visible = currentFilter === 'all' || currentFilter === workflowName.toLowerCase();
+        const opacity = visible ? '1' : '0.15';
+
+        // Arrow and label
+        svg += `
+          <line x1="${pos.arrow.x1}" y1="${pos.arrow.y1}" x2="${pos.arrow.x2}" y2="${pos.arrow.y2}" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" opacity="${opacity}"/>
+          <text x="${pos.arrow.x1 + (pos.arrow.x2 - pos.arrow.x1) / 2}" y="${pos.arrow.y1 + (pos.arrow.y2 - pos.arrow.y1) / 2 - 10}" text-anchor="middle" style="font-size: 11px; fill: currentColor; opacity: ${opacity};">${pos.label}</text>
+        `;
+
+        // Steps
+        let stepY = 200;
+        const steps = workflows[workflowName];
+        for (let i = 0; i < steps.length; i++) {
+          const step = steps[i];
+          const boxId = step.id;
+          
+          svg += `
+            <g class="editable-box workflow-${workflowName.toLowerCase()}" onclick="openModal('${boxId}')" opacity="${opacity}">
+              <rect x="${pos.x - 100}" y="${stepY}" width="200" height="60" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-width="1"/>
+              <text x="${pos.x}" y="${stepY + 20}" text-anchor="middle" style="font-size: 12px; font-weight: 500; fill: currentColor;">${step.task}</text>
+              <text x="${pos.x}" y="${stepY + 40}" text-anchor="middle" style="font-size: 10px; fill: currentColor; opacity: 0.7;">${step.notes}</text>
+            </g>
+          `;
+
+          if (i < steps.length - 1) {
+            svg += `<line x1="${pos.x}" y1="${stepY + 60}" x2="${pos.x}" y2="${stepY + 90}" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" opacity="${opacity}"/>`;
+          }
+
+          stepY += 90;
+        }
+      }
+
+      svg += '</svg>';
+      container.innerHTML = svg;
+    }
+
+    // Open edit modal
+    function openModal(id) {
+      currentEditingId = id;
+      
+      let step = null;
+      for (const workflow of Object.values(workflows)) {
+        step = workflow.find(s => s.id === id);
+        if (step) break;
+      }
+
+      if (step) {
+        document.getElementById('editWorkflow').value = step.workflow;
+        document.getElementById('editStep').value = step.step;
+        document.getElementById('editTask').value = step.task;
+        document.getElementById('editUrl').value = step.url || '';
+        document.getElementById('editAudience').value = step.audience || '';
+        document.getElementById('editDocuments').value = step.documents || '';
+        document.getElementById('editDeadline').value = step.deadline || '';
+        document.getElementById('editDependsOn').value = step.dependsOn || '';
+        document.getElementById('editNotes').value = step.notes || '';
+        document.getElementById('editModal').classList.add('open');
+      }
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('editModal').classList.remove('open');
+      currentEditingId = null;
+    }
+
+    // Save step
+    async function saveStep(event) {
+      event.preventDefault();
+
+      if (!currentEditingId) return;
+
+      const updated = {
+        step: document.getElementById('editStep').value,
+        task: document.getElementById('editTask').value,
+        url: document.getElementById('editUrl').value,
+        audience: document.getElementById('editAudience').value,
+        documents: document.getElementById('editDocuments').value,
+        deadline: document.getElementById('editDeadline').value,
+        dependsOn: document.getElementById('editDependsOn').value,
+        notes: document.getElementById('editNotes').value
+      };
+
+      try {
+        await db.collection('workflows').doc(currentEditingId).update(updated);
+        closeModal();
+        loadWorkflows();
+      } catch (error) {
+        console.error('Error saving:', error);
+        alert('Failed to save: ' + error.message);
+      }
+    }
+
+    // Filter workflows
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderDiagram();
+      });
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('editModal').addEventListener('click', (e) => {
+      if (e.target.id === 'editModal') closeModal();
+    });
+
+    // Initialize
+    loadWorkflows();
+  </script>
+</body>
+</html>
