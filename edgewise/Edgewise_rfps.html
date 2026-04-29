@@ -46,6 +46,12 @@ DEVELOPER NOTES
 - Renders with vanilla JS - no React/Vue/etc. needed.
 - The footer's "Back to main site" link can be removed if you'd rather
   the page be totally severed from the consultancy site identity.
+
+CHANGE LOG
+----------
+- 28 Apr 2026: Added the "Filter Criteria" collapsible panel (above the
+  Procurement Portals section) so the page is self-documenting. If the
+  scraper keyword list changes, the panel must be hand-updated to match.
 ================================================================================
 -->
 <html lang="en-GB">
@@ -112,6 +118,33 @@ DEVELOPER NOTES
         .due-soon  { color: #fbbf24; font-weight: 600; }
         .due-today { color: #f87171; font-weight: 700; }
         .due-past  { color: #64748b; text-decoration: line-through; }
+
+        /* ============================================================
+           Filter criteria panel - the new self-documenting section.
+           Pills below show what keywords drive the filter. The whole
+           block is collapsible (HTML <details>) so it doesn't clutter
+           the page during day-to-day use.
+           ============================================================ */
+        .kw-pill {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            margin: 2px 3px 2px 0;
+            border-radius: 4px;
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+        }
+        .kw-pill-include { background: #14532d; color: #86efac; border-color: #166534; }
+        .kw-pill-exclude { background: #4c1d1d; color: #fca5a5; border-color: #7f1d1d; }
+        .kw-pill-context { background: #1e3a5f; color: #93c5fd; border-color: #1e40af; }
+        .kw-pill-cpv     { background: #4a2c0e; color: #fbbf24; border-color: #92400e; font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace; }
+
+        /* Custom collapsible chevron - hide the default browser triangle */
+        details > summary { cursor: pointer; list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details > summary .arrow { transition: transform 0.2s; display: inline-block; }
+        details[open] > summary .arrow { transform: rotate(90deg); }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
@@ -221,6 +254,233 @@ DEVELOPER NOTES
                 <div id="detail-meta" class="flex flex-wrap gap-2 mb-3"></div>
                 <div id="detail-body" class="text-sm text-slate-300 space-y-3"></div>
             </div>
+
+            <!-- ====================================================
+                 FILTER CRITERIA PANEL
+                 ====================================================
+                 Self-documenting section that shows the keywords used
+                 to filter tenders. Collapsed by default so it does not
+                 dominate the page during daily use; click the header
+                 to expand.
+
+                 Three lists are shown:
+                   - MARINE INCLUDE keywords (green pills)
+                   - MARINE CONTEXT words (blue pills)
+                   - EXCLUDE keywords (red pills)
+                 Plus the CPV procurement codes (amber pills).
+
+                 If the underlying scraper keyword list changes, this
+                 panel must be hand-updated to match. The list here is
+                 a documentation copy, not the live source.
+                 ==================================================== -->
+            <details class="mt-8 p-5 bg-slate-800 border border-slate-700 rounded-lg">
+                <summary class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-bold text-slate-300 uppercase tracking-wider">Filter Criteria - what gets shown and what gets dropped</p>
+                        <p class="text-xs text-slate-500 mt-1">Click to expand the full inclusion and exclusion keyword lists.</p>
+                    </div>
+                    <span class="arrow text-slate-400 text-sm">&#9656;</span>
+                </summary>
+
+                <!-- How it works -->
+                <div class="mt-5 mb-5 text-xs text-slate-400 space-y-2 border-l-2 border-slate-600 pl-3">
+                    <p><strong class="text-slate-300">How the filter works.</strong> Every tender pulled from the 15 source portals is checked against three rules in order:</p>
+                    <ol class="list-decimal list-inside space-y-1 ml-2">
+                        <li><strong class="text-rose-300">Hard rejects.</strong> If the title or description contains any EXCLUDE keyword, the tender is dropped.</li>
+                        <li><strong class="text-emerald-300">Marine keyword match.</strong> If the tender contains any MARINE INCLUDE keyword, it is kept.</li>
+                        <li><strong class="text-amber-300">CPV code with marine context.</strong> If the tender carries a tracked Canadian procurement code AND contains at least one MARINE CONTEXT word, it is kept.</li>
+                    </ol>
+                    <p>Otherwise, it is dropped. Some short acronyms (mmo, eem, eia, pam, sbo, pso, mmso) only match as standalone words to prevent false matches inside longer words like "engagement" or "agreement".</p>
+                </div>
+
+                <!-- ============ MARINE INCLUDE KEYWORDS ============ -->
+                <div class="mt-6">
+                    <p class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">Marine include keywords</p>
+                    <p class="text-xs text-slate-500 mb-3">Tenders matching any of these are kept (subject to the EXCLUDE list overriding them).</p>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Marine fauna observation (Edgewise core service)</p>
+                        <div>
+                            <span class="kw-pill kw-pill-include">marine mammal</span><span class="kw-pill kw-pill-include">mmo</span><span class="kw-pill kw-pill-include">mmso</span><span class="kw-pill kw-pill-include">marine mammal observer</span><span class="kw-pill kw-pill-include">seabird</span><span class="kw-pill kw-pill-include">sea bird</span><span class="kw-pill kw-pill-include">sbo</span><span class="kw-pill kw-pill-include">seabird observer</span><span class="kw-pill kw-pill-include">protected species observer</span><span class="kw-pill kw-pill-include">pso</span><span class="kw-pill kw-pill-include">marine fauna</span><span class="kw-pill kw-pill-include">marine wildlife</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Acoustics</p>
+                        <div>
+                            <span class="kw-pill kw-pill-include">passive acoustic</span><span class="kw-pill kw-pill-include">pam</span><span class="kw-pill kw-pill-include">pam operator</span><span class="kw-pill kw-pill-include">pam-</span><span class="kw-pill kw-pill-include">acoustic monitoring</span><span class="kw-pill kw-pill-include">acoustic mitigation</span><span class="kw-pill kw-pill-include">bioacoustic</span><span class="kw-pill kw-pill-include">underwater noise</span><span class="kw-pill kw-pill-include">anthropogenic noise</span><span class="kw-pill kw-pill-include">noise mitigation</span><span class="kw-pill kw-pill-include">noise impact</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Surveys Edgewise can crew or assess</p>
+                        <div>
+                            <span class="kw-pill kw-pill-include">seismic survey</span><span class="kw-pill kw-pill-include">geophysical survey</span><span class="kw-pill kw-pill-include">geotechnical survey</span><span class="kw-pill kw-pill-include">marine survey</span><span class="kw-pill kw-pill-include">underwater survey</span><span class="kw-pill kw-pill-include">subsea cable</span><span class="kw-pill kw-pill-include">marine baseline</span><span class="kw-pill kw-pill-include">baseline survey</span><span class="kw-pill kw-pill-include">marine monitoring</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Environmental assessments and reporting</p>
+                        <div>
+                            <span class="kw-pill kw-pill-include">environmental impact</span><span class="kw-pill kw-pill-include">eia</span><span class="kw-pill kw-pill-include">environmental assessment</span><span class="kw-pill kw-pill-include">environmental effects monitoring</span><span class="kw-pill kw-pill-include">eem</span><span class="kw-pill kw-pill-include">marine ecology</span><span class="kw-pill kw-pill-include">marine conservation</span><span class="kw-pill kw-pill-include">environmental baseline</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Sectors Edgewise targets</p>
+                        <div>
+                            <span class="kw-pill kw-pill-include">offshore wind</span><span class="kw-pill kw-pill-include">marine renewable</span><span class="kw-pill kw-pill-include">tidal energy</span><span class="kw-pill kw-pill-include">wave energy</span><span class="kw-pill kw-pill-include">subsea</span><span class="kw-pill kw-pill-include">ocean energy</span><span class="kw-pill kw-pill-include">blue economy</span><span class="kw-pill kw-pill-include">offshore oil</span><span class="kw-pill kw-pill-include">offshore gas</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Specific service lines from Edgewise's website</p>
+                        <div>
+                            <span class="kw-pill kw-pill-include">abandoned vessel</span><span class="kw-pill kw-pill-include">abandoned boat</span><span class="kw-pill kw-pill-include">vessel assessment</span><span class="kw-pill kw-pill-include">oil spill</span><span class="kw-pill kw-pill-include">spill response</span><span class="kw-pill kw-pill-include">emergency environmental response</span><span class="kw-pill kw-pill-include">wildlife observer</span><span class="kw-pill kw-pill-include">bird handling</span><span class="kw-pill kw-pill-include">oiled wildlife</span><span class="kw-pill kw-pill-include">indigenous engagement</span><span class="kw-pill kw-pill-include">mitigation monitoring</span><span class="kw-pill kw-pill-include">mitigation measure</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ CPV CODES ============ -->
+                <div class="mt-6">
+                    <p class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">Canadian procurement category (CPV / UNSPSC) codes</p>
+                    <p class="text-xs text-slate-500 mb-3">Tenders carrying these codes are auto-included only if they also contain at least one marine context word (see below).</p>
+                    <div>
+                        <span class="kw-pill kw-pill-cpv">70101602 &middot; Wildlife studies</span><span class="kw-pill kw-pill-cpv">70100000 &middot; Forestry, fisheries, wildlife management</span><span class="kw-pill kw-pill-cpv">77101500 &middot; Environmental management</span>
+                    </div>
+                    <p class="text-xs text-slate-600 italic mt-2">Code 81171500 (IT management) was removed during audit because it triggered IT consulting tenders unrelated to marine work.</p>
+                </div>
+
+                <!-- ============ MARINE CONTEXT WORDS ============ -->
+                <div class="mt-6">
+                    <p class="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">Marine context words</p>
+                    <p class="text-xs text-slate-500 mb-3">"Gate" words used only with the CPV-code path. A tender with a matching CPV code must also contain at least one of these to be included.</p>
+                    <div>
+                        <span class="kw-pill kw-pill-context">marine</span><span class="kw-pill kw-pill-context">ocean</span><span class="kw-pill kw-pill-context">oceanic</span><span class="kw-pill kw-pill-context">vessel</span><span class="kw-pill kw-pill-context">vessels</span><span class="kw-pill kw-pill-context">subsea</span><span class="kw-pill kw-pill-context">underwater</span><span class="kw-pill kw-pill-context">offshore</span><span class="kw-pill kw-pill-context">whale</span><span class="kw-pill kw-pill-context">dolphin</span><span class="kw-pill kw-pill-context">porpoise</span><span class="kw-pill kw-pill-context">cetacean</span><span class="kw-pill kw-pill-context">pinniped</span><span class="kw-pill kw-pill-context">seal</span><span class="kw-pill kw-pill-context">walrus</span><span class="kw-pill kw-pill-context">seabird</span><span class="kw-pill kw-pill-context">sea bird</span><span class="kw-pill kw-pill-context">fish</span><span class="kw-pill kw-pill-context">coastal</span><span class="kw-pill kw-pill-context">estuarine</span><span class="kw-pill kw-pill-context">intertidal</span><span class="kw-pill kw-pill-context">harbour</span><span class="kw-pill kw-pill-context">harbor</span><span class="kw-pill kw-pill-context">port</span><span class="kw-pill kw-pill-context">wharf</span><span class="kw-pill kw-pill-context">jetty</span><span class="kw-pill kw-pill-context">shipping</span><span class="kw-pill kw-pill-context">maritime</span><span class="kw-pill kw-pill-context">hydrographic</span><span class="kw-pill kw-pill-context">bathymetric</span><span class="kw-pill kw-pill-context">acoustic</span><span class="kw-pill kw-pill-context">spill</span><span class="kw-pill kw-pill-context">oil spill</span><span class="kw-pill kw-pill-context">water sampling</span><span class="kw-pill kw-pill-context">water column</span>
+                    </div>
+                </div>
+
+                <!-- ============ EXCLUDE KEYWORDS ============ -->
+                <div class="mt-6">
+                    <p class="text-xs font-bold text-rose-400 uppercase tracking-wider mb-1">Exclude keywords</p>
+                    <p class="text-xs text-slate-500 mb-3">Hard-reject list. Any of these in the title or description drops the tender immediately, even if it would otherwise match a marine keyword. This is the largest filter set because it does the heavy lifting of removing federal procurement noise.</p>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Generic facilities</p>
+                        <div>
+                            <span class="kw-pill kw-pill-exclude">janitorial</span><span class="kw-pill kw-pill-exclude">cleaning service</span><span class="kw-pill kw-pill-exclude">catering</span><span class="kw-pill kw-pill-exclude">food service</span><span class="kw-pill kw-pill-exclude">stationery</span><span class="kw-pill kw-pill-exclude">office supplies</span><span class="kw-pill kw-pill-exclude">printer toner</span><span class="kw-pill kw-pill-exclude">uniform</span><span class="kw-pill kw-pill-exclude">laundry</span><span class="kw-pill kw-pill-exclude">office furniture</span><span class="kw-pill kw-pill-exclude">pest control</span><span class="kw-pill kw-pill-exclude">snow removal</span><span class="kw-pill kw-pill-exclude">landscaping</span><span class="kw-pill kw-pill-exclude">lawn maintenance</span><span class="kw-pill kw-pill-exclude">silviculture</span><span class="kw-pill kw-pill-exclude">grass cutting</span><span class="kw-pill kw-pill-exclude">vehicle rental</span><span class="kw-pill kw-pill-exclude">fuel supply</span><span class="kw-pill kw-pill-exclude">translation service</span><span class="kw-pill kw-pill-exclude">interpreter</span><span class="kw-pill kw-pill-exclude">medical supplies</span><span class="kw-pill kw-pill-exclude">pharmaceutical</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">IT and digital services</p>
+                        <div>
+                            <span class="kw-pill kw-pill-exclude">it support</span><span class="kw-pill kw-pill-exclude">software licence</span><span class="kw-pill kw-pill-exclude">software license</span><span class="kw-pill kw-pill-exclude">legal software</span><span class="kw-pill kw-pill-exclude">legal solution</span><span class="kw-pill kw-pill-exclude">case management software</span><span class="kw-pill kw-pill-exclude">software solution</span><span class="kw-pill kw-pill-exclude">im/it</span><span class="kw-pill kw-pill-exclude">data centre</span><span class="kw-pill kw-pill-exclude">cloud service</span><span class="kw-pill kw-pill-exclude">saas</span><span class="kw-pill kw-pill-exclude">cyber</span><span class="kw-pill kw-pill-exclude">research and advisory</span><span class="kw-pill kw-pill-exclude">advisory services</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Construction and trades</p>
+                        <div>
+                            <span class="kw-pill kw-pill-exclude">accommodation</span><span class="kw-pill kw-pill-exclude">accommodations</span><span class="kw-pill kw-pill-exclude">barracks</span><span class="kw-pill kw-pill-exclude">housing</span><span class="kw-pill kw-pill-exclude">bridge replacement</span><span class="kw-pill kw-pill-exclude">culvert</span><span class="kw-pill kw-pill-exclude">paving</span><span class="kw-pill kw-pill-exclude">paving program</span><span class="kw-pill kw-pill-exclude">chimney replacement</span><span class="kw-pill kw-pill-exclude">library cooling</span><span class="kw-pill kw-pill-exclude">cooling tower</span><span class="kw-pill kw-pill-exclude">roof replacement</span><span class="kw-pill kw-pill-exclude">roofing</span><span class="kw-pill kw-pill-exclude">kitchen construction</span><span class="kw-pill kw-pill-exclude">electrical upgrade</span><span class="kw-pill kw-pill-exclude">lighting upgrade</span><span class="kw-pill kw-pill-exclude">plumbing</span><span class="kw-pill kw-pill-exclude">building materials</span><span class="kw-pill kw-pill-exclude">domestic appliance</span><span class="kw-pill kw-pill-exclude">modular bridge</span><span class="kw-pill kw-pill-exclude">panel bridge</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Defence equipment and military services</p>
+                        <div>
+                            <span class="kw-pill kw-pill-exclude">heavy equipment replacement</span><span class="kw-pill kw-pill-exclude">heavy support equipment</span><span class="kw-pill kw-pill-exclude">armoured</span><span class="kw-pill kw-pill-exclude">armored</span><span class="kw-pill kw-pill-exclude">shipbuilding</span><span class="kw-pill kw-pill-exclude">shipyard</span><span class="kw-pill kw-pill-exclude">armoured sport utility</span><span class="kw-pill kw-pill-exclude">armoured sports utility</span><span class="kw-pill kw-pill-exclude">ground vehicle</span><span class="kw-pill kw-pill-exclude">uncrewed ground</span><span class="kw-pill kw-pill-exclude">unmanned ground</span><span class="kw-pill kw-pill-exclude">military training</span><span class="kw-pill kw-pill-exclude">role playing</span><span class="kw-pill kw-pill-exclude">role-playing</span><span class="kw-pill kw-pill-exclude">parachute instructor</span><span class="kw-pill kw-pill-exclude">parachutist</span><span class="kw-pill kw-pill-exclude">signal generator</span><span class="kw-pill kw-pill-exclude">agile signal</span><span class="kw-pill kw-pill-exclude">helicopter</span><span class="kw-pill kw-pill-exclude">polar helicopter</span><span class="kw-pill kw-pill-exclude">aviation fuel</span><span class="kw-pill kw-pill-exclude">explosive ordnance</span><span class="kw-pill kw-pill-exclude">explosive threat</span><span class="kw-pill kw-pill-exclude">intelligence enterprise</span><span class="kw-pill kw-pill-exclude">command and control</span><span class="kw-pill kw-pill-exclude">c4isr</span><span class="kw-pill kw-pill-exclude">defence intelligence</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Misc admin and logistics</p>
+                        <div>
+                            <span class="kw-pill kw-pill-exclude">detention guard</span><span class="kw-pill kw-pill-exclude">non-emergency towing</span><span class="kw-pill kw-pill-exclude">moving services</span><span class="kw-pill kw-pill-exclude">guest accommodation</span><span class="kw-pill kw-pill-exclude">rental trailer</span><span class="kw-pill kw-pill-exclude">electoral material</span><span class="kw-pill kw-pill-exclude">wooden ruler</span><span class="kw-pill kw-pill-exclude">plastic bag</span><span class="kw-pill kw-pill-exclude">metal frame</span><span class="kw-pill kw-pill-exclude">parking sign</span><span class="kw-pill kw-pill-exclude">satellite equipment</span><span class="kw-pill kw-pill-exclude">freeze dryer</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Out-of-scope environmental work</p>
+                        <div>
+                            <span class="kw-pill kw-pill-exclude">contaminated site</span><span class="kw-pill kw-pill-exclude">remediation construction</span><span class="kw-pill kw-pill-exclude">hazmat</span><span class="kw-pill kw-pill-exclude">hazardous material</span><span class="kw-pill kw-pill-exclude">tank assessment</span><span class="kw-pill kw-pill-exclude">petroleum storage tank</span><span class="kw-pill kw-pill-exclude">asbestos</span><span class="kw-pill kw-pill-exclude">topographic lidar</span><span class="kw-pill kw-pill-exclude">aerial photography</span><span class="kw-pill kw-pill-exclude">hazardous waste</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Correctional services / prison healthcare</p>
+                        <div>
+                            <span class="kw-pill kw-pill-exclude">correctional service</span><span class="kw-pill kw-pill-exclude">penitentiary</span><span class="kw-pill kw-pill-exclude">institution</span><span class="kw-pill kw-pill-exclude">inmate</span><span class="kw-pill kw-pill-exclude">offender</span><span class="kw-pill kw-pill-exclude">healing lodge</span><span class="kw-pill kw-pill-exclude">detention</span><span class="kw-pill kw-pill-exclude">rcmp</span><span class="kw-pill kw-pill-exclude">prison</span><span class="kw-pill kw-pill-exclude">dental service</span><span class="kw-pill kw-pill-exclude">dental laboratory</span><span class="kw-pill kw-pill-exclude">dental supplies</span><span class="kw-pill kw-pill-exclude">psychiatric</span><span class="kw-pill kw-pill-exclude">psychiatry</span><span class="kw-pill kw-pill-exclude">psychological</span><span class="kw-pill kw-pill-exclude">physiotherapy</span><span class="kw-pill kw-pill-exclude">physician service</span><span class="kw-pill kw-pill-exclude">primary care</span><span class="kw-pill kw-pill-exclude">dermatology</span><span class="kw-pill kw-pill-exclude">medical radiation</span><span class="kw-pill kw-pill-exclude">urinalysis</span><span class="kw-pill kw-pill-exclude">mental health</span><span class="kw-pill kw-pill-exclude">exit interview</span><span class="kw-pill kw-pill-exclude">pre-employment</span><span class="kw-pill kw-pill-exclude">ribbon</span><span class="kw-pill kw-pill-exclude">boots, ankle</span><span class="kw-pill kw-pill-exclude">ankle boot</span><span class="kw-pill kw-pill-exclude">boot</span><span class="kw-pill kw-pill-exclude">footwear</span><span class="kw-pill kw-pill-exclude">dental</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Furniture, facilities and FMS</p>
+                        <div>
+                            <span class="kw-pill kw-pill-exclude">furniture for</span><span class="kw-pill kw-pill-exclude">furniture fixtures</span><span class="kw-pill kw-pill-exclude">mobile shelving</span><span class="kw-pill kw-pill-exclude">shelving</span><span class="kw-pill kw-pill-exclude">alarm system</span><span class="kw-pill kw-pill-exclude">security management system</span><span class="kw-pill kw-pill-exclude">perimeter intrusion</span><span class="kw-pill kw-pill-exclude">perimeter security</span><span class="kw-pill kw-pill-exclude">elevator</span><span class="kw-pill kw-pill-exclude">elevating device</span><span class="kw-pill kw-pill-exclude">hvac</span><span class="kw-pill kw-pill-exclude">boiler replacement</span><span class="kw-pill kw-pill-exclude">boiler heating</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Equipment and tools (non-marine)</p>
+                        <div>
+                            <span class="kw-pill kw-pill-exclude">fluke insulation</span><span class="kw-pill kw-pill-exclude">fluke multimeter</span><span class="kw-pill kw-pill-exclude">multimeter</span><span class="kw-pill kw-pill-exclude">insulation meter</span><span class="kw-pill kw-pill-exclude">cables and wires</span><span class="kw-pill kw-pill-exclude">wire and cable</span><span class="kw-pill kw-pill-exclude">backhoe</span><span class="kw-pill kw-pill-exclude">skid steer</span><span class="kw-pill kw-pill-exclude">tractor loader</span><span class="kw-pill kw-pill-exclude">tractor</span><span class="kw-pill kw-pill-exclude">fertilizer</span><span class="kw-pill kw-pill-exclude">fertiliser</span><span class="kw-pill kw-pill-exclude">static mixer</span><span class="kw-pill kw-pill-exclude">electric vehicle supply</span><span class="kw-pill kw-pill-exclude">evse</span><span class="kw-pill kw-pill-exclude">buses, electric</span><span class="kw-pill kw-pill-exclude">electric bus</span><span class="kw-pill kw-pill-exclude">automated liquid handler</span><span class="kw-pill kw-pill-exclude">aptamer</span><span class="kw-pill kw-pill-exclude">freeze dryer</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Construction tendering and renovations</p>
+                        <div>
+                            <span class="kw-pill kw-pill-exclude">general construction</span><span class="kw-pill kw-pill-exclude">general contractor</span><span class="kw-pill kw-pill-exclude">renovation</span><span class="kw-pill kw-pill-exclude">refurbishment</span><span class="kw-pill kw-pill-exclude">minor construction</span><span class="kw-pill kw-pill-exclude">construction services</span><span class="kw-pill kw-pill-exclude">airport terminal</span><span class="kw-pill kw-pill-exclude">terminal renovation</span><span class="kw-pill kw-pill-exclude">exhibition fit-out</span><span class="kw-pill kw-pill-exclude">exhibition fit out</span><span class="kw-pill kw-pill-exclude">teaching &amp; learning</span><span class="kw-pill kw-pill-exclude">teaching and learning</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Education and community services</p>
+                        <div>
+                            <span class="kw-pill kw-pill-exclude">early years</span><span class="kw-pill kw-pill-exclude">pre-school</span><span class="kw-pill kw-pill-exclude">preschool</span><span class="kw-pill kw-pill-exclude">education provision</span><span class="kw-pill kw-pill-exclude">early years education</span><span class="kw-pill kw-pill-exclude">refugee</span><span class="kw-pill kw-pill-exclude">refugee resettlement</span><span class="kw-pill kw-pill-exclude">museum</span><span class="kw-pill kw-pill-exclude">art gallery</span><span class="kw-pill kw-pill-exclude">cultural heritage</span><span class="kw-pill kw-pill-exclude">framework agreement for</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Generic professional services frameworks</p>
+                        <div>
+                            <span class="kw-pill kw-pill-exclude">professional audit</span><span class="kw-pill kw-pill-exclude">task professional services</span><span class="kw-pill kw-pill-exclude">solutions professional services</span><span class="kw-pill kw-pill-exclude">tsps</span><span class="kw-pill kw-pill-exclude">media monitoring</span><span class="kw-pill kw-pill-exclude">printing service</span><span class="kw-pill kw-pill-exclude">change management consultant</span><span class="kw-pill kw-pill-exclude">indigenous artist</span><span class="kw-pill kw-pill-exclude">indigenous business capacity</span><span class="kw-pill kw-pill-exclude">proservices method of supply</span><span class="kw-pill kw-pill-exclude">method of supply</span><span class="kw-pill kw-pill-exclude">audit and support services</span><span class="kw-pill kw-pill-exclude">pass rfsa</span><span class="kw-pill kw-pill-exclude">pass refresh</span><span class="kw-pill kw-pill-exclude">tspsh</span><span class="kw-pill kw-pill-exclude">tssb</span><span class="kw-pill kw-pill-exclude">industry day</span><span class="kw-pill kw-pill-exclude">letter of interest</span><span class="kw-pill kw-pill-exclude">loi - industry</span><span class="kw-pill kw-pill-exclude">request for information</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Legal and policy reviews</p>
+                        <div>
+                            <span class="kw-pill kw-pill-exclude">article 23</span><span class="kw-pill kw-pill-exclude">land claims agreement</span><span class="kw-pill kw-pill-exclude">independent review of</span><span class="kw-pill kw-pill-exclude">policy review</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Wildfire and forestry crews</p>
+                        <div>
+                            <span class="kw-pill kw-pill-exclude">sustained action crew</span><span class="kw-pill kw-pill-exclude">fire suppression</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <p class="text-xs text-slate-400 font-semibold mb-1">Other</p>
+                        <div>
+                            <span class="kw-pill kw-pill-exclude">vessel recycling</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ HOW TO SUGGEST CHANGES ============ -->
+                <div class="mt-6 pt-4 border-t border-slate-700">
+                    <p class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Spotted something wrong?</p>
+                    <ul class="text-xs text-slate-500 space-y-1 list-disc list-inside ml-2">
+                        <li>A tender showed up that shouldn't have? Send Liam the link plus a one-liner about why; the appropriate term gets added to EXCLUDE.</li>
+                        <li>A tender from a source portal didn't show up but should have? Send the link; the matching keyword gets added to MARINE INCLUDE.</li>
+                        <li>A whole area of work being missed? Flag it and we'll plan additions.</li>
+                    </ul>
+                </div>
+            </details>
 
             <!-- Procurement portals quick-links - the static directory at the bottom. -->
             <div class="mt-8 p-5 bg-slate-800 border border-slate-700 rounded-lg">
