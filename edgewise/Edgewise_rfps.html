@@ -29,13 +29,6 @@ WHAT THIS PAGE IS NOT
   whatever site published it. You bid through that site's process.
 - Real-time. The scraper runs once a day at 10:30 UTC.
 
-WHO THIS PAGE IS FOR
---------------------
-- Ashley Noseworthy (Edgewise CEO)
-- Kyla Graham (Edgewise)
-- Anyone else at Edgewise, present or future
-- Liam (site owner / maintenance)
-
 DEVELOPER NOTES
 ---------------
 - Self-contained: no includes.js, own header/footer. Same pattern as
@@ -829,7 +822,7 @@ CHANGE LOG
     // SECURITY MODEL
     // --------------
     // A fine-grained Personal Access Token is embedded below in
-    // GH_TOKEN. The page sits behind a passphrase ("LAK") to gate
+    // GH_TOKEN. The page sits behind a passphrase ("") to gate
     // access to the editing UI. The passphrase is NOT real auth -
     // anyone with the URL who views source can extract the token.
     // Mitigations:
@@ -847,7 +840,7 @@ CHANGE LOG
     const GH_BRANCH = 'main';
     const GH_FILTERS_PATH = 'edgewise/Edgewise_filters.json';
     const GH_WORKFLOW_FILE = 'Edgewise_rfp_scrape.yml';
-    const GH_TOKEN = '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';
+    const GH_TOKEN = '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';
     const PASSPHRASE = 'LAK';
 
     // ---- State ----
