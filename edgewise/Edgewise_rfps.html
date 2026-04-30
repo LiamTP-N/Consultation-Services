@@ -178,6 +178,17 @@ CHANGE LOG
         }
         .kw-pill-edit .kw-x:hover { opacity: 1; background: rgba(255,255,255,0.15); }
         .kw-pill-edit.locked .kw-x { display: none; }
+
+        /* Filter criteria card - green glow on hover, but only when collapsed.
+           Once the user expands it (details[open]) the glow goes away so it
+           doesn't compete with the editor controls inside. */
+        #filters-panel:not([open]) {
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        #filters-panel:not([open]):hover {
+            border-color: #059669;
+            box-shadow: 0 0 16px rgba(5, 150, 105, 0.4);
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
