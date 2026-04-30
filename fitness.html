@@ -499,7 +499,7 @@
         </div>
     </div>
     <!-- BLE DISCONNECT TOAST -->
-    <div id="ble-toast" class="hidden fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl bg-red-600/95 backdrop-blur-sm text-white text-sm font-bold shadow-xl pointer-events-none text-center whitespace-nowrap" role="status" aria-live="assertive"></div>
+    <div id="ble-toast" class="hidden fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl bg-red-600/95 backdrop-blur-sm text-white text-sm font-bold shadow-xl text-center whitespace-nowrap cursor-pointer active:scale-95 transition" role="status" aria-live="assertive"></div>
     <script>
     /* ============================================================================
        FITNESS WEB APP - Boxing Interval Timer + Gym Workout Generator
@@ -847,7 +847,10 @@
         btnHrWife.onclick=()=>{if(!hasBLE)return;if(hrDeviceWife&&hrDeviceWife.gatt.connected)hrDeviceWife.gatt.disconnect();else connectHR('wife');};
         // Show/hide the live HR badges on the timer screen based on which devices are connected.
         function updateHRVisibility(){hrLiveYou.classList.toggle('hidden',!(hrDeviceYou&&hrDeviceYou.gatt.connected));hrLiveWife.classList.toggle('hidden',!(hrDeviceWife&&hrDeviceWife.gatt.connected));}
-        // Ephemeral top toast for BLE disconnect - only shows during active session.
+        // Persistent top toast for BLE disconnect - only shows during active session.
+        // Tappable: clicking fires connectHR(who) which re-opens the browser's BLE
+        // picker so the user can re-pair after a brief absence (e.g. toilet break
+        // mid-session where the phone was left behind and went out of range).
         // Label logic: in Wife mode use the person's name; in Solo mode just say "HR monitor disconnected"
         // without a redundant "HR" prefix.
         function showBleToast(who){
@@ -856,9 +859,14 @@
             if(who==='you'){msg="Liam's HR monitor disconnected";}
             else{msg="Ash's HR monitor disconnected";}
             const toast=document.getElementById('ble-toast');
-            toast.innerText='\u26A0\uFE0F '+msg;
+            toast.innerHTML='\u26A0\uFE0F '+msg+' <span class="underline ml-2">Tap to reconnect</span>';
             toast.classList.remove('hidden');
-            setTimeout(()=>toast.classList.add('hidden'),4000);
+            // Single-fire click handler: reassign each time so we always reconnect the
+            // correct side (you/wife) and the toast can be re-shown later for the other side.
+            toast.onclick=()=>{
+                toast.classList.add('hidden');
+                connectHR(who);
+            };
         }
 
         // Draw a rolling-60-reading HR sparkline onto the small canvas in the live
