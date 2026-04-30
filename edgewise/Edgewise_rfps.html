@@ -213,9 +213,8 @@ CHANGE LOG
                     <div class="text-2xl font-extrabold text-slate-400 text-xs pt-1" id="stat-updated">-</div>
                     <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Last Scraped</div>
                     <button id="run-scrape-btn"
-                            class="mt-3 text-xs px-2 py-1 rounded border border-slate-600 text-slate-500 cursor-not-allowed"
-                            disabled
-                            title="Click 'Unlock editing' below to enable">
+                            class="mt-3 text-xs px-2 py-1 rounded border border-blue-600 text-blue-400 hover:bg-blue-600/10 transition"
+                            title="Trigger the scraper workflow on GitHub">
                         Run scrape now
                     </button>
                 </div>
@@ -912,15 +911,6 @@ CHANGE LOG
         unlockBtn.classList.toggle('border-blue-600', !state);
         unlockBtn.classList.toggle('text-blue-400', !state);
 
-        const runBtn = document.getElementById('run-scrape-btn');
-        runBtn.disabled = !state;
-        runBtn.classList.toggle('cursor-not-allowed', !state);
-        runBtn.classList.toggle('text-slate-500', !state);
-        runBtn.classList.toggle('border-slate-600', !state);
-        runBtn.classList.toggle('text-blue-400', state);
-        runBtn.classList.toggle('border-blue-600', state);
-        runBtn.classList.toggle('hover:bg-blue-600/10', state);
-        runBtn.title = state ? 'Trigger the scraper workflow on GitHub' : "Click 'Unlock editing' below to enable";
     }
 
     document.getElementById('unlock-btn').addEventListener('click', function() {
@@ -1013,7 +1003,6 @@ CHANGE LOG
 
     // ---- Run-now: POST workflow_dispatch ----
     document.getElementById('run-scrape-btn').addEventListener('click', async function() {
-        if (!unlocked) return;
         if (!GH_TOKEN || GH_TOKEN.indexOf('PASTE_') === 0) {
             alert('GitHub token not configured. Edit the GH_TOKEN line in Edgewise_rfps.html.');
             return;
