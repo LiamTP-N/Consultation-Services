@@ -245,7 +245,7 @@ HEADERS = {
 # advertised on edgewiseenvironmental.com. Removed broad terms that
 # generated noise (oceanographic, fisheries, biodiversity, habitat,
 # wildlife monitoring) and added missing service-specific terms.
-MARINE_KEYWORDS = [
+MARINE_KEYWORDS_FALLBACK = [
     # ---- Marine fauna observation - Edgewise core service ----
     "marine mammal", " mmo ", " mmso ", "marine mammal observer",
     "seabird", "sea bird", " sbo ", "seabird observer",
@@ -293,7 +293,7 @@ MARINE_KEYWORDS = [
 # 70100000 = Forestry, fisheries, wildlife management services (kept;
 #            EXCLUDE_KEYWORDS rejects forestry/fisheries-only items)
 # 77101500 = Environmental management (kept - core relevance)
-CPV_CODES = [
+CPV_CODES_FALLBACK = [
     "70101602",
     "70100000",
     "77101500",
@@ -305,7 +305,7 @@ CPV_CODES = [
 # DND/PSPC procurement firehose contains a lot of construction,
 # accommodation, IT and supply-chain items that match broad keywords
 # but have no relevance to marine environmental consulting.
-EXCLUDE_KEYWORDS = [
+EXCLUDE_KEYWORDS_FALLBACK = [
     # ---- Generic facilities ----
     "janitorial", "cleaning service", "catering", "food service",
     "stationery", "office supplies", "printer toner",
@@ -548,7 +548,7 @@ def is_excluded(text):
 # get applied to a lot of unrelated items - e.g. CSC dental services
 # tagged with CPV 70100000). Without this gate, a CPV match alone lets
 # in prison healthcare, agricultural fertiliser, electric buses, etc.
-MARINE_CONTEXT_WORDS = [
+MARINE_CONTEXT_WORDS_FALLBACK = [
     "marine", "ocean", "oceanic", "vessel", "vessels",
     "subsea", "underwater", "offshore",
     "whale", "dolphin", "porpoise", "cetacean", "pinniped",
@@ -563,6 +563,47 @@ MARINE_CONTEXT_WORDS = [
     "spill", "oil spill",
     "water sampling", "water column",
 ]
+
+
+# --------------------------------------------------------------------
+# Filter loader - reads keyword lists from Edgewise_filters.json
+# --------------------------------------------------------------------
+# The four _FALLBACK lists above are used only when the JSON file
+# is missing or malformed. The active lists are loaded from
+# edgewise/Edgewise_filters.json at runtime so that the in-page
+# editor on Edgewise_rfps.html can add/remove keywords without
+# anyone touching this script.
+
+FILTERS_FILE = "edgewise/Edgewise_filters.json"
+
+
+def load_filters():
+    """Load keyword lists from Edgewise_filters.json. Returns a tuple
+    (marine_keywords, cpv_codes, exclude_keywords, marine_context_words).
+    Falls back to the in-file _FALLBACK lists on any error so the
+    scraper keeps running even if the JSON is broken."""
+    try:
+        with open(FILTERS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        mk = data.get("marine_keywords") or MARINE_KEYWORDS_FALLBACK
+        cc = data.get("cpv_codes") or CPV_CODES_FALLBACK
+        ek = data.get("exclude_keywords") or EXCLUDE_KEYWORDS_FALLBACK
+        mc = data.get("marine_context_words") or MARINE_CONTEXT_WORDS_FALLBACK
+        if not all(isinstance(x, list) and x for x in (mk, cc, ek, mc)):
+            raise ValueError("one or more keyword lists is empty or wrong type")
+        log(f"Loaded filters from {FILTERS_FILE}: "
+            f"{len(mk)} marine, {len(cc)} CPV, {len(ek)} exclude, "
+            f"{len(mc)} context words")
+        return mk, cc, ek, mc
+    except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
+        log(f"WARNING: could not load {FILTERS_FILE} ({e}); "
+            f"using in-file fallback keyword lists")
+        return (MARINE_KEYWORDS_FALLBACK, CPV_CODES_FALLBACK,
+                EXCLUDE_KEYWORDS_FALLBACK, MARINE_CONTEXT_WORDS_FALLBACK)
+
+
+MARINE_KEYWORDS, CPV_CODES, EXCLUDE_KEYWORDS, MARINE_CONTEXT_WORDS = load_filters()
+
 
 
 def has_marine_context(text):

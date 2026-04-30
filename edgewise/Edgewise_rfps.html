@@ -52,10 +52,6 @@ CHANGE LOG
 - 28 Apr 2026: Added the "Filter Criteria" collapsible panel (above the
   Procurement Portals section) so the page is self-documenting. If the
   scraper keyword list changes, the panel must be hand-updated to match.
-- 30 Apr 2026: Added 6 new international scrapers (TED, AusTender, GETS,
-  TenderNed, Doffin, eTenders IE). Added "archived" status (auto-set by
-  scraper for past-due tenders), "Added" date filter row, "Added" sortable
-  column, "AU/NZ" region filter, and new region/source colour classes.
 ================================================================================
 -->
 <html lang="en-GB">
@@ -89,12 +85,6 @@ CHANGE LOG
         .source-bcferries      { background: #0a1a3d; color: #60a5fa; }
         .source-lng            { background: #4a2c0e; color: #fbbf24; }
         .source-merx           { background: #3b1f5a; color: #c4b5fd; }
-        .source-ted            { background: #1e3a5f; color: #93c5fd; }
-        .source-austender      { background: #2a1a3d; color: #c4b5fd; }
-        .source-gets           { background: #0a3a3a; color: #5eead4; }
-        .source-tenderned      { background: #4a2c0e; color: #fbbf24; }
-        .source-doffin         { background: #1e3050; color: #93c5fd; }
-        .source-etenders       { background: #1a3d3a; color: #5eead4; }
         .source-manual         { background: #1a1a3d; color: #a78bfa; }
         .source-other          { background: #2a2a2a; color: #cbd5e1; }
 
@@ -107,7 +97,6 @@ CHANGE LOG
         .region-pacific   { background: #0a3a3a; color: #5eead4; }
         .region-arctic    { background: #1e2f50; color: #a5b4fc; }
         .region-caribbean { background: #1a3d3a; color: #5eead4; }
-        .region-anz       { background: #2a1a3d; color: #c4b5fd; }
         .region-other     { background: #2a2a2a; color: #cbd5e1; }
 
         /* Status badges - one for each pipeline state. */
@@ -118,7 +107,6 @@ CHANGE LOG
         .status-won       { background: #064e3b; color: #6ee7b7; }
         .status-lost      { background: #4c1d1d; color: #fca5a5; }
         .status-closed    { background: #1f2937; color: #94a3b8; }
-        .status-archived  { background: #1e293b; color: #64748b; font-style: italic; }
 
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable:hover { color: #60a5fa; }
@@ -157,6 +145,39 @@ CHANGE LOG
         details > summary::-webkit-details-marker { display: none; }
         details > summary .arrow { transition: transform 0.2s; display: inline-block; }
         details[open] > summary .arrow { transform: rotate(90deg); }
+
+        /* Editable keyword pills used by the live filter editor. */
+        .kw-list { line-height: 2; }
+        .kw-pill-edit {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            padding: 2px 4px 2px 8px;
+            margin: 2px 3px 2px 0;
+            border-radius: 4px;
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+        }
+        .kw-pill-edit.cat-marine_keywords      { background: #14532d; color: #86efac; border-color: #166534; }
+        .kw-pill-edit.cat-cpv_codes            { background: #4a2c0e; color: #fbbf24; border-color: #92400e; font-family: ui-monospace, monospace; }
+        .kw-pill-edit.cat-marine_context_words { background: #1e3a5f; color: #93c5fd; border-color: #1e40af; }
+        .kw-pill-edit.cat-exclude_keywords     { background: #4c1d1d; color: #fca5a5; border-color: #7f1d1d; }
+        .kw-pill-edit .kw-x {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            line-height: 14px;
+            text-align: center;
+            border-radius: 3px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            opacity: 0.6;
+        }
+        .kw-pill-edit .kw-x:hover { opacity: 1; background: rgba(255,255,255,0.15); }
+        .kw-pill-edit.locked .kw-x { display: none; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
@@ -172,7 +193,7 @@ CHANGE LOG
             <h1 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight mb-2">
                 RFP &amp; Tender <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text">Tracker</span>
             </h1>
-            <p class="text-slate-400 text-sm mb-6">Marine environmental tender opportunities for Edgewise Environmental, scraped daily at 10:30 UTC from 21 public procurement portals across Canada, UK, EU, Pacific, Caribbean, AU/NZ and global multilaterals.</p>
+            <p class="text-slate-400 text-sm mb-6">Marine environmental tender opportunities for Edgewise Environmental, scraped daily at 10:30 UTC from public procurement portals.</p>
 
             <!-- Top-line statistics. Populated by JS after fetch. -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
@@ -188,9 +209,15 @@ CHANGE LOG
                     <div class="text-2xl font-extrabold text-amber-400" id="stat-due">-</div>
                     <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Due in 7 Days</div>
                 </div>
-                <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
+                <div class="bg-slate-800 border border-slate-700 rounded-lg p-4 flex flex-col">
                     <div class="text-2xl font-extrabold text-slate-400 text-xs pt-1" id="stat-updated">-</div>
                     <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Last Scraped</div>
+                    <button id="run-scrape-btn"
+                            class="mt-3 text-xs px-2 py-1 rounded border border-slate-600 text-slate-500 cursor-not-allowed"
+                            disabled
+                            title="Click 'Unlock editing' below to enable">
+                        Run scrape now
+                    </button>
                 </div>
             </div>
 
@@ -203,7 +230,6 @@ CHANGE LOG
                 <button class="status-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-status="bidding">Bidding</button>
                 <button class="status-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-status="submitted">Submitted</button>
                 <button class="status-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-status="closed">Closed/Lost/Won</button>
-                <button class="status-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-status="archived">Archived</button>
                 <button class="status-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-status="all">All</button>
             </div>
 
@@ -218,7 +244,6 @@ CHANGE LOG
                 <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="pacific">Pacific</button>
                 <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="arctic">Arctic</button>
                 <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="caribbean">Caribbean</button>
-                <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="anz">AU/NZ</button>
             </div>
 
             <!-- Filter row 3: source picker. Populated dynamically from rfps.json. -->
@@ -227,16 +252,6 @@ CHANGE LOG
                 <select id="source-filter" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
                     <option value="all">All sources</option>
                 </select>
-            </div>
-
-            <!-- Filter row 4: when this entry was first added (look-back). -->
-            <div class="flex flex-wrap gap-2 items-center mb-3">
-                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Added:</span>
-                <button class="added-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition filter-active" data-added="all">Any time</button>
-                <button class="added-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-added="today">Today</button>
-                <button class="added-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-added="yesterday">Yesterday</button>
-                <button class="added-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-added="7">Last 7 days</button>
-                <button class="added-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-added="30">Last 30 days</button>
             </div>
 
             <!-- Free-text search. Matches title, entity, region, summary, tags. -->
@@ -257,12 +272,11 @@ CHANGE LOG
                             <th class="sortable px-4 py-3 text-left hidden md:table-cell" data-col="entity">Entity <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left hidden md:table-cell" data-col="source">Source <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left" data-col="status">Status <span class="sort-arrow">&#8597;</span></th>
-                            <th class="sortable px-4 py-3 text-left hidden lg:table-cell" data-col="added">Added <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left sorted" data-col="due_date">Due <span class="sort-arrow">&#8593;</span></th>
                         </tr>
                     </thead>
                     <tbody id="rfps-body">
-                        <tr><td colspan="6" class="px-4 py-12 text-center text-slate-500 text-sm">Loading Edgewise_rfps.json...</td></tr>
+                        <tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">Loading Edgewise_rfps.json...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -298,211 +312,90 @@ CHANGE LOG
                  panel must be hand-updated to match. The list here is
                  a documentation copy, not the live source.
                  ==================================================== -->
-            <details class="mt-8 p-5 bg-slate-800 border border-slate-700 rounded-lg">
+            <!-- ====================================================
+                 FILTER CRITERIA PANEL (live editor)
+                 ====================================================
+                 Reads Edgewise_filters.json on load, lets the user
+                 add or remove keywords, and saves the updated JSON
+                 back to the repo via the GitHub Contents API.
+
+                 Editing is gated by the LAK passphrase. Until
+                 unlocked the x buttons and add inputs are hidden,
+                 and the Save button is disabled.
+                 ==================================================== -->
+            <details class="mt-8 p-5 bg-slate-800 border border-slate-700 rounded-lg" id="filters-panel">
                 <summary class="flex items-center justify-between gap-3">
                     <div>
                         <p class="text-xs font-bold text-slate-300 uppercase tracking-wider">Filter Criteria - what gets shown and what gets dropped</p>
-                        <p class="text-xs text-slate-500 mt-1">Click to expand the full inclusion and exclusion keyword lists.</p>
+                        <p class="text-xs text-slate-500 mt-1">Click to expand. Editing locked until you click "Unlock editing".</p>
                     </div>
                     <span class="arrow text-slate-400 text-sm">&#9656;</span>
                 </summary>
 
+                <!-- Unlock + save controls -->
+                <div class="mt-5 flex flex-wrap items-center gap-2 pb-4 border-b border-slate-700">
+                    <button id="unlock-btn" class="text-xs px-3 py-1.5 rounded border border-blue-600 text-blue-400 hover:bg-blue-600/10 transition">Unlock editing</button>
+                    <button id="save-filters-btn" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-500 cursor-not-allowed" disabled>Save changes</button>
+                    <span id="filters-status" class="text-xs text-slate-500"></span>
+                </div>
+
                 <!-- How it works -->
                 <div class="mt-5 mb-5 text-xs text-slate-400 space-y-2 border-l-2 border-slate-600 pl-3">
-                    <p><strong class="text-slate-300">How the filter works.</strong> Every tender pulled from the 21 source portals is checked against three rules in order:</p>
+                    <p><strong class="text-slate-300">How the filter works.</strong> Every tender pulled from the source portals is checked against three rules in order:</p>
                     <ol class="list-decimal list-inside space-y-1 ml-2">
                         <li><strong class="text-rose-300">Hard rejects.</strong> If the title or description contains any EXCLUDE keyword, the tender is dropped.</li>
                         <li><strong class="text-emerald-300">Marine keyword match.</strong> If the tender contains any MARINE INCLUDE keyword, it is kept.</li>
                         <li><strong class="text-amber-300">CPV code with marine context.</strong> If the tender carries a tracked Canadian procurement code AND contains at least one MARINE CONTEXT word, it is kept.</li>
                     </ol>
-                    <p>Otherwise, it is dropped. Some short acronyms (mmo, eem, eia, pam, sbo, pso, mmso) only match as standalone words to prevent false matches inside longer words like "engagement" or "agreement".</p>
                 </div>
 
-                <!-- ============ MARINE INCLUDE KEYWORDS ============ -->
+                <!-- Marine include keywords -->
                 <div class="mt-6">
                     <p class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">Marine include keywords</p>
-                    <p class="text-xs text-slate-500 mb-3">Tenders matching any of these are kept (subject to the EXCLUDE list overriding them).</p>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Marine fauna observation (Edgewise core service)</p>
-                        <div>
-                            <span class="kw-pill kw-pill-include">marine mammal</span><span class="kw-pill kw-pill-include">mmo</span><span class="kw-pill kw-pill-include">mmso</span><span class="kw-pill kw-pill-include">marine mammal observer</span><span class="kw-pill kw-pill-include">seabird</span><span class="kw-pill kw-pill-include">sea bird</span><span class="kw-pill kw-pill-include">sbo</span><span class="kw-pill kw-pill-include">seabird observer</span><span class="kw-pill kw-pill-include">protected species observer</span><span class="kw-pill kw-pill-include">pso</span><span class="kw-pill kw-pill-include">marine fauna</span><span class="kw-pill kw-pill-include">marine wildlife</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Acoustics</p>
-                        <div>
-                            <span class="kw-pill kw-pill-include">passive acoustic</span><span class="kw-pill kw-pill-include">pam</span><span class="kw-pill kw-pill-include">pam operator</span><span class="kw-pill kw-pill-include">pam-</span><span class="kw-pill kw-pill-include">acoustic monitoring</span><span class="kw-pill kw-pill-include">acoustic mitigation</span><span class="kw-pill kw-pill-include">bioacoustic</span><span class="kw-pill kw-pill-include">underwater noise</span><span class="kw-pill kw-pill-include">anthropogenic noise</span><span class="kw-pill kw-pill-include">noise mitigation</span><span class="kw-pill kw-pill-include">noise impact</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Surveys Edgewise can crew or assess</p>
-                        <div>
-                            <span class="kw-pill kw-pill-include">seismic survey</span><span class="kw-pill kw-pill-include">geophysical survey</span><span class="kw-pill kw-pill-include">geotechnical survey</span><span class="kw-pill kw-pill-include">marine survey</span><span class="kw-pill kw-pill-include">underwater survey</span><span class="kw-pill kw-pill-include">subsea cable</span><span class="kw-pill kw-pill-include">marine baseline</span><span class="kw-pill kw-pill-include">baseline survey</span><span class="kw-pill kw-pill-include">marine monitoring</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Environmental assessments and reporting</p>
-                        <div>
-                            <span class="kw-pill kw-pill-include">environmental impact</span><span class="kw-pill kw-pill-include">eia</span><span class="kw-pill kw-pill-include">environmental assessment</span><span class="kw-pill kw-pill-include">environmental effects monitoring</span><span class="kw-pill kw-pill-include">eem</span><span class="kw-pill kw-pill-include">marine ecology</span><span class="kw-pill kw-pill-include">marine conservation</span><span class="kw-pill kw-pill-include">environmental baseline</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Sectors Edgewise targets</p>
-                        <div>
-                            <span class="kw-pill kw-pill-include">offshore wind</span><span class="kw-pill kw-pill-include">marine renewable</span><span class="kw-pill kw-pill-include">tidal energy</span><span class="kw-pill kw-pill-include">wave energy</span><span class="kw-pill kw-pill-include">subsea</span><span class="kw-pill kw-pill-include">ocean energy</span><span class="kw-pill kw-pill-include">blue economy</span><span class="kw-pill kw-pill-include">offshore oil</span><span class="kw-pill kw-pill-include">offshore gas</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Specific service lines from Edgewise's website</p>
-                        <div>
-                            <span class="kw-pill kw-pill-include">abandoned vessel</span><span class="kw-pill kw-pill-include">abandoned boat</span><span class="kw-pill kw-pill-include">vessel assessment</span><span class="kw-pill kw-pill-include">oil spill</span><span class="kw-pill kw-pill-include">spill response</span><span class="kw-pill kw-pill-include">emergency environmental response</span><span class="kw-pill kw-pill-include">wildlife observer</span><span class="kw-pill kw-pill-include">bird handling</span><span class="kw-pill kw-pill-include">oiled wildlife</span><span class="kw-pill kw-pill-include">indigenous engagement</span><span class="kw-pill kw-pill-include">mitigation monitoring</span><span class="kw-pill kw-pill-include">mitigation measure</span>
-                        </div>
+                    <p class="text-xs text-slate-500 mb-3">Tenders matching any of these are kept (subject to the EXCLUDE list).</p>
+                    <div id="kw-marine_keywords" class="kw-list"></div>
+                    <div class="kw-add-row mt-2 hidden">
+                        <input type="text" data-target="marine_keywords" placeholder="Add new keyword and press Enter" class="kw-input px-2 py-1 rounded border border-slate-600 bg-slate-900 text-slate-300 text-xs w-72">
                     </div>
                 </div>
 
-                <!-- ============ CPV CODES ============ -->
+                <!-- CPV codes -->
                 <div class="mt-6">
                     <p class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">Canadian procurement category (CPV / UNSPSC) codes</p>
-                    <p class="text-xs text-slate-500 mb-3">Tenders carrying these codes are auto-included only if they also contain at least one marine context word (see below).</p>
-                    <div>
-                        <span class="kw-pill kw-pill-cpv">70101602 &middot; Wildlife studies</span><span class="kw-pill kw-pill-cpv">70100000 &middot; Forestry, fisheries, wildlife management</span><span class="kw-pill kw-pill-cpv">77101500 &middot; Environmental management</span>
+                    <p class="text-xs text-slate-500 mb-3">Tenders carrying these codes are auto-included only if they also contain a marine context word.</p>
+                    <div id="kw-cpv_codes" class="kw-list"></div>
+                    <div class="kw-add-row mt-2 hidden">
+                        <input type="text" data-target="cpv_codes" placeholder="Add new code and press Enter" class="kw-input px-2 py-1 rounded border border-slate-600 bg-slate-900 text-slate-300 text-xs w-72">
                     </div>
-                    <p class="text-xs text-slate-600 italic mt-2">Code 81171500 (IT management) was removed during audit because it triggered IT consulting tenders unrelated to marine work.</p>
                 </div>
 
-                <!-- ============ MARINE CONTEXT WORDS ============ -->
+                <!-- Marine context words -->
                 <div class="mt-6">
                     <p class="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">Marine context words</p>
-                    <p class="text-xs text-slate-500 mb-3">"Gate" words used only with the CPV-code path. A tender with a matching CPV code must also contain at least one of these to be included.</p>
-                    <div>
-                        <span class="kw-pill kw-pill-context">marine</span><span class="kw-pill kw-pill-context">ocean</span><span class="kw-pill kw-pill-context">oceanic</span><span class="kw-pill kw-pill-context">vessel</span><span class="kw-pill kw-pill-context">vessels</span><span class="kw-pill kw-pill-context">subsea</span><span class="kw-pill kw-pill-context">underwater</span><span class="kw-pill kw-pill-context">offshore</span><span class="kw-pill kw-pill-context">whale</span><span class="kw-pill kw-pill-context">dolphin</span><span class="kw-pill kw-pill-context">porpoise</span><span class="kw-pill kw-pill-context">cetacean</span><span class="kw-pill kw-pill-context">pinniped</span><span class="kw-pill kw-pill-context">seal</span><span class="kw-pill kw-pill-context">walrus</span><span class="kw-pill kw-pill-context">seabird</span><span class="kw-pill kw-pill-context">sea bird</span><span class="kw-pill kw-pill-context">fish</span><span class="kw-pill kw-pill-context">coastal</span><span class="kw-pill kw-pill-context">estuarine</span><span class="kw-pill kw-pill-context">intertidal</span><span class="kw-pill kw-pill-context">harbour</span><span class="kw-pill kw-pill-context">harbor</span><span class="kw-pill kw-pill-context">port</span><span class="kw-pill kw-pill-context">wharf</span><span class="kw-pill kw-pill-context">jetty</span><span class="kw-pill kw-pill-context">shipping</span><span class="kw-pill kw-pill-context">maritime</span><span class="kw-pill kw-pill-context">hydrographic</span><span class="kw-pill kw-pill-context">bathymetric</span><span class="kw-pill kw-pill-context">acoustic</span><span class="kw-pill kw-pill-context">spill</span><span class="kw-pill kw-pill-context">oil spill</span><span class="kw-pill kw-pill-context">water sampling</span><span class="kw-pill kw-pill-context">water column</span>
+                    <p class="text-xs text-slate-500 mb-3">Gate words used only with the CPV-code path. A CPV-coded tender must also contain at least one of these.</p>
+                    <div id="kw-marine_context_words" class="kw-list"></div>
+                    <div class="kw-add-row mt-2 hidden">
+                        <input type="text" data-target="marine_context_words" placeholder="Add new context word and press Enter" class="kw-input px-2 py-1 rounded border border-slate-600 bg-slate-900 text-slate-300 text-xs w-72">
                     </div>
                 </div>
 
-                <!-- ============ EXCLUDE KEYWORDS ============ -->
+                <!-- Exclude keywords -->
                 <div class="mt-6">
                     <p class="text-xs font-bold text-rose-400 uppercase tracking-wider mb-1">Exclude keywords</p>
-                    <p class="text-xs text-slate-500 mb-3">Hard-reject list. Any of these in the title or description drops the tender immediately, even if it would otherwise match a marine keyword. This is the largest filter set because it does the heavy lifting of removing federal procurement noise.</p>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Generic facilities</p>
-                        <div>
-                            <span class="kw-pill kw-pill-exclude">janitorial</span><span class="kw-pill kw-pill-exclude">cleaning service</span><span class="kw-pill kw-pill-exclude">catering</span><span class="kw-pill kw-pill-exclude">food service</span><span class="kw-pill kw-pill-exclude">stationery</span><span class="kw-pill kw-pill-exclude">office supplies</span><span class="kw-pill kw-pill-exclude">printer toner</span><span class="kw-pill kw-pill-exclude">uniform</span><span class="kw-pill kw-pill-exclude">laundry</span><span class="kw-pill kw-pill-exclude">office furniture</span><span class="kw-pill kw-pill-exclude">pest control</span><span class="kw-pill kw-pill-exclude">snow removal</span><span class="kw-pill kw-pill-exclude">landscaping</span><span class="kw-pill kw-pill-exclude">lawn maintenance</span><span class="kw-pill kw-pill-exclude">silviculture</span><span class="kw-pill kw-pill-exclude">grass cutting</span><span class="kw-pill kw-pill-exclude">vehicle rental</span><span class="kw-pill kw-pill-exclude">fuel supply</span><span class="kw-pill kw-pill-exclude">translation service</span><span class="kw-pill kw-pill-exclude">interpreter</span><span class="kw-pill kw-pill-exclude">medical supplies</span><span class="kw-pill kw-pill-exclude">pharmaceutical</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">IT and digital services</p>
-                        <div>
-                            <span class="kw-pill kw-pill-exclude">it support</span><span class="kw-pill kw-pill-exclude">software licence</span><span class="kw-pill kw-pill-exclude">software license</span><span class="kw-pill kw-pill-exclude">legal software</span><span class="kw-pill kw-pill-exclude">legal solution</span><span class="kw-pill kw-pill-exclude">case management software</span><span class="kw-pill kw-pill-exclude">software solution</span><span class="kw-pill kw-pill-exclude">im/it</span><span class="kw-pill kw-pill-exclude">data centre</span><span class="kw-pill kw-pill-exclude">cloud service</span><span class="kw-pill kw-pill-exclude">saas</span><span class="kw-pill kw-pill-exclude">cyber</span><span class="kw-pill kw-pill-exclude">research and advisory</span><span class="kw-pill kw-pill-exclude">advisory services</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Construction and trades</p>
-                        <div>
-                            <span class="kw-pill kw-pill-exclude">accommodation</span><span class="kw-pill kw-pill-exclude">accommodations</span><span class="kw-pill kw-pill-exclude">barracks</span><span class="kw-pill kw-pill-exclude">housing</span><span class="kw-pill kw-pill-exclude">bridge replacement</span><span class="kw-pill kw-pill-exclude">culvert</span><span class="kw-pill kw-pill-exclude">paving</span><span class="kw-pill kw-pill-exclude">paving program</span><span class="kw-pill kw-pill-exclude">chimney replacement</span><span class="kw-pill kw-pill-exclude">library cooling</span><span class="kw-pill kw-pill-exclude">cooling tower</span><span class="kw-pill kw-pill-exclude">roof replacement</span><span class="kw-pill kw-pill-exclude">roofing</span><span class="kw-pill kw-pill-exclude">kitchen construction</span><span class="kw-pill kw-pill-exclude">electrical upgrade</span><span class="kw-pill kw-pill-exclude">lighting upgrade</span><span class="kw-pill kw-pill-exclude">plumbing</span><span class="kw-pill kw-pill-exclude">building materials</span><span class="kw-pill kw-pill-exclude">domestic appliance</span><span class="kw-pill kw-pill-exclude">modular bridge</span><span class="kw-pill kw-pill-exclude">panel bridge</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Defence equipment and military services</p>
-                        <div>
-                            <span class="kw-pill kw-pill-exclude">heavy equipment replacement</span><span class="kw-pill kw-pill-exclude">heavy support equipment</span><span class="kw-pill kw-pill-exclude">armoured</span><span class="kw-pill kw-pill-exclude">armored</span><span class="kw-pill kw-pill-exclude">shipbuilding</span><span class="kw-pill kw-pill-exclude">shipyard</span><span class="kw-pill kw-pill-exclude">armoured sport utility</span><span class="kw-pill kw-pill-exclude">armoured sports utility</span><span class="kw-pill kw-pill-exclude">ground vehicle</span><span class="kw-pill kw-pill-exclude">uncrewed ground</span><span class="kw-pill kw-pill-exclude">unmanned ground</span><span class="kw-pill kw-pill-exclude">military training</span><span class="kw-pill kw-pill-exclude">role playing</span><span class="kw-pill kw-pill-exclude">role-playing</span><span class="kw-pill kw-pill-exclude">parachute instructor</span><span class="kw-pill kw-pill-exclude">parachutist</span><span class="kw-pill kw-pill-exclude">signal generator</span><span class="kw-pill kw-pill-exclude">agile signal</span><span class="kw-pill kw-pill-exclude">helicopter</span><span class="kw-pill kw-pill-exclude">polar helicopter</span><span class="kw-pill kw-pill-exclude">aviation fuel</span><span class="kw-pill kw-pill-exclude">explosive ordnance</span><span class="kw-pill kw-pill-exclude">explosive threat</span><span class="kw-pill kw-pill-exclude">intelligence enterprise</span><span class="kw-pill kw-pill-exclude">command and control</span><span class="kw-pill kw-pill-exclude">c4isr</span><span class="kw-pill kw-pill-exclude">defence intelligence</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Misc admin and logistics</p>
-                        <div>
-                            <span class="kw-pill kw-pill-exclude">detention guard</span><span class="kw-pill kw-pill-exclude">non-emergency towing</span><span class="kw-pill kw-pill-exclude">moving services</span><span class="kw-pill kw-pill-exclude">guest accommodation</span><span class="kw-pill kw-pill-exclude">rental trailer</span><span class="kw-pill kw-pill-exclude">electoral material</span><span class="kw-pill kw-pill-exclude">wooden ruler</span><span class="kw-pill kw-pill-exclude">plastic bag</span><span class="kw-pill kw-pill-exclude">metal frame</span><span class="kw-pill kw-pill-exclude">parking sign</span><span class="kw-pill kw-pill-exclude">satellite equipment</span><span class="kw-pill kw-pill-exclude">freeze dryer</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Out-of-scope environmental work</p>
-                        <div>
-                            <span class="kw-pill kw-pill-exclude">contaminated site</span><span class="kw-pill kw-pill-exclude">remediation construction</span><span class="kw-pill kw-pill-exclude">hazmat</span><span class="kw-pill kw-pill-exclude">hazardous material</span><span class="kw-pill kw-pill-exclude">tank assessment</span><span class="kw-pill kw-pill-exclude">petroleum storage tank</span><span class="kw-pill kw-pill-exclude">asbestos</span><span class="kw-pill kw-pill-exclude">topographic lidar</span><span class="kw-pill kw-pill-exclude">aerial photography</span><span class="kw-pill kw-pill-exclude">hazardous waste</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Correctional services / prison healthcare</p>
-                        <div>
-                            <span class="kw-pill kw-pill-exclude">correctional service</span><span class="kw-pill kw-pill-exclude">penitentiary</span><span class="kw-pill kw-pill-exclude">institution</span><span class="kw-pill kw-pill-exclude">inmate</span><span class="kw-pill kw-pill-exclude">offender</span><span class="kw-pill kw-pill-exclude">healing lodge</span><span class="kw-pill kw-pill-exclude">detention</span><span class="kw-pill kw-pill-exclude">rcmp</span><span class="kw-pill kw-pill-exclude">prison</span><span class="kw-pill kw-pill-exclude">dental service</span><span class="kw-pill kw-pill-exclude">dental laboratory</span><span class="kw-pill kw-pill-exclude">dental supplies</span><span class="kw-pill kw-pill-exclude">psychiatric</span><span class="kw-pill kw-pill-exclude">psychiatry</span><span class="kw-pill kw-pill-exclude">psychological</span><span class="kw-pill kw-pill-exclude">physiotherapy</span><span class="kw-pill kw-pill-exclude">physician service</span><span class="kw-pill kw-pill-exclude">primary care</span><span class="kw-pill kw-pill-exclude">dermatology</span><span class="kw-pill kw-pill-exclude">medical radiation</span><span class="kw-pill kw-pill-exclude">urinalysis</span><span class="kw-pill kw-pill-exclude">mental health</span><span class="kw-pill kw-pill-exclude">exit interview</span><span class="kw-pill kw-pill-exclude">pre-employment</span><span class="kw-pill kw-pill-exclude">ribbon</span><span class="kw-pill kw-pill-exclude">boots, ankle</span><span class="kw-pill kw-pill-exclude">ankle boot</span><span class="kw-pill kw-pill-exclude">boot</span><span class="kw-pill kw-pill-exclude">footwear</span><span class="kw-pill kw-pill-exclude">dental</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Furniture, facilities and FMS</p>
-                        <div>
-                            <span class="kw-pill kw-pill-exclude">furniture for</span><span class="kw-pill kw-pill-exclude">furniture fixtures</span><span class="kw-pill kw-pill-exclude">mobile shelving</span><span class="kw-pill kw-pill-exclude">shelving</span><span class="kw-pill kw-pill-exclude">alarm system</span><span class="kw-pill kw-pill-exclude">security management system</span><span class="kw-pill kw-pill-exclude">perimeter intrusion</span><span class="kw-pill kw-pill-exclude">perimeter security</span><span class="kw-pill kw-pill-exclude">elevator</span><span class="kw-pill kw-pill-exclude">elevating device</span><span class="kw-pill kw-pill-exclude">hvac</span><span class="kw-pill kw-pill-exclude">boiler replacement</span><span class="kw-pill kw-pill-exclude">boiler heating</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Equipment and tools (non-marine)</p>
-                        <div>
-                            <span class="kw-pill kw-pill-exclude">fluke insulation</span><span class="kw-pill kw-pill-exclude">fluke multimeter</span><span class="kw-pill kw-pill-exclude">multimeter</span><span class="kw-pill kw-pill-exclude">insulation meter</span><span class="kw-pill kw-pill-exclude">cables and wires</span><span class="kw-pill kw-pill-exclude">wire and cable</span><span class="kw-pill kw-pill-exclude">backhoe</span><span class="kw-pill kw-pill-exclude">skid steer</span><span class="kw-pill kw-pill-exclude">tractor loader</span><span class="kw-pill kw-pill-exclude">tractor</span><span class="kw-pill kw-pill-exclude">fertilizer</span><span class="kw-pill kw-pill-exclude">fertiliser</span><span class="kw-pill kw-pill-exclude">static mixer</span><span class="kw-pill kw-pill-exclude">electric vehicle supply</span><span class="kw-pill kw-pill-exclude">evse</span><span class="kw-pill kw-pill-exclude">buses, electric</span><span class="kw-pill kw-pill-exclude">electric bus</span><span class="kw-pill kw-pill-exclude">automated liquid handler</span><span class="kw-pill kw-pill-exclude">aptamer</span><span class="kw-pill kw-pill-exclude">freeze dryer</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Construction tendering and renovations</p>
-                        <div>
-                            <span class="kw-pill kw-pill-exclude">general construction</span><span class="kw-pill kw-pill-exclude">general contractor</span><span class="kw-pill kw-pill-exclude">renovation</span><span class="kw-pill kw-pill-exclude">refurbishment</span><span class="kw-pill kw-pill-exclude">minor construction</span><span class="kw-pill kw-pill-exclude">construction services</span><span class="kw-pill kw-pill-exclude">airport terminal</span><span class="kw-pill kw-pill-exclude">terminal renovation</span><span class="kw-pill kw-pill-exclude">exhibition fit-out</span><span class="kw-pill kw-pill-exclude">exhibition fit out</span><span class="kw-pill kw-pill-exclude">teaching &amp; learning</span><span class="kw-pill kw-pill-exclude">teaching and learning</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Education and community services</p>
-                        <div>
-                            <span class="kw-pill kw-pill-exclude">early years</span><span class="kw-pill kw-pill-exclude">pre-school</span><span class="kw-pill kw-pill-exclude">preschool</span><span class="kw-pill kw-pill-exclude">education provision</span><span class="kw-pill kw-pill-exclude">early years education</span><span class="kw-pill kw-pill-exclude">refugee</span><span class="kw-pill kw-pill-exclude">refugee resettlement</span><span class="kw-pill kw-pill-exclude">museum</span><span class="kw-pill kw-pill-exclude">art gallery</span><span class="kw-pill kw-pill-exclude">cultural heritage</span><span class="kw-pill kw-pill-exclude">framework agreement for</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Generic professional services frameworks</p>
-                        <div>
-                            <span class="kw-pill kw-pill-exclude">professional audit</span><span class="kw-pill kw-pill-exclude">task professional services</span><span class="kw-pill kw-pill-exclude">solutions professional services</span><span class="kw-pill kw-pill-exclude">tsps</span><span class="kw-pill kw-pill-exclude">media monitoring</span><span class="kw-pill kw-pill-exclude">printing service</span><span class="kw-pill kw-pill-exclude">change management consultant</span><span class="kw-pill kw-pill-exclude">indigenous artist</span><span class="kw-pill kw-pill-exclude">indigenous business capacity</span><span class="kw-pill kw-pill-exclude">proservices method of supply</span><span class="kw-pill kw-pill-exclude">method of supply</span><span class="kw-pill kw-pill-exclude">audit and support services</span><span class="kw-pill kw-pill-exclude">pass rfsa</span><span class="kw-pill kw-pill-exclude">pass refresh</span><span class="kw-pill kw-pill-exclude">tspsh</span><span class="kw-pill kw-pill-exclude">tssb</span><span class="kw-pill kw-pill-exclude">industry day</span><span class="kw-pill kw-pill-exclude">letter of interest</span><span class="kw-pill kw-pill-exclude">loi - industry</span><span class="kw-pill kw-pill-exclude">request for information</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Legal and policy reviews</p>
-                        <div>
-                            <span class="kw-pill kw-pill-exclude">article 23</span><span class="kw-pill kw-pill-exclude">land claims agreement</span><span class="kw-pill kw-pill-exclude">independent review of</span><span class="kw-pill kw-pill-exclude">policy review</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Wildfire and forestry crews</p>
-                        <div>
-                            <span class="kw-pill kw-pill-exclude">sustained action crew</span><span class="kw-pill kw-pill-exclude">fire suppression</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <p class="text-xs text-slate-400 font-semibold mb-1">Other</p>
-                        <div>
-                            <span class="kw-pill kw-pill-exclude">vessel recycling</span>
-                        </div>
+                    <p class="text-xs text-slate-500 mb-3">Hard-reject list. Any of these in the title or description drops the tender immediately.</p>
+                    <div id="kw-exclude_keywords" class="kw-list"></div>
+                    <div class="kw-add-row mt-2 hidden">
+                        <input type="text" data-target="exclude_keywords" placeholder="Add new exclude word and press Enter" class="kw-input px-2 py-1 rounded border border-slate-600 bg-slate-900 text-slate-300 text-xs w-72">
                     </div>
                 </div>
 
-                <!-- ============ HOW TO SUGGEST CHANGES ============ -->
+                <!-- How to suggest changes -->
                 <div class="mt-6 pt-4 border-t border-slate-700">
-                    <p class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Spotted something wrong?</p>
+                    <p class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">How edits work</p>
                     <ul class="text-xs text-slate-500 space-y-1 list-disc list-inside ml-2">
-                        <li>A tender showed up that shouldn't have? Send Liam the link plus a one-liner about why; the appropriate term gets added to EXCLUDE.</li>
-                        <li>A tender from a source portal didn't show up but should have? Send the link; the matching keyword gets added to MARINE INCLUDE.</li>
-                        <li>A whole area of work being missed? Flag it and we'll plan additions.</li>
+                        <li>Click "Unlock editing", enter the passphrase. The x on each pill becomes clickable.</li>
+                        <li>Click any x to remove that keyword. Type into an input box and press Enter to add.</li>
+                        <li>Click "Save changes" - the new list is committed to the repo. Click "Run scrape now" at the top to apply immediately, otherwise the next daily scrape uses it.</li>
                     </ul>
                 </div>
             </details>
@@ -518,13 +411,12 @@ CHANGE LOG
 
             <!-- Footnote about source breadth. -->
             <div class="mt-4 p-4 bg-slate-800/50 border border-slate-700 rounded-lg text-xs text-slate-500">
-                <strong class="text-slate-400">Scraped sources (21):</strong>
+                <strong class="text-slate-400">Scraped sources (15):</strong>
                 CanadaBuys, UK Find a Tender, UK Contracts Finder, SPREP, World Bank,
                 IMO, Caribbean Development Bank, BC Bid (covers BC Hydro), NL Hydro,
                 Yukon, Nova Scotia Procurement, Nunavut RFTP, BC Ferries, LNG Canada,
-                MERX (NL), TED (EU), AusTender (AU), GETS (NZ), TenderNed (NL),
-                Doffin (NO), eTenders (IE).
-                <span class="block mt-1.5 text-slate-600">Manual entries from Gemini scout or hand-added tenders are preserved across runs. Tenders past their due date are auto-archived (not deleted) and can be viewed via the Archived filter for up to one year.</span>
+                MERX (NL).
+                <span class="block mt-1.5 text-slate-600">Manual entries from Gemini scout or hand-added tenders are preserved across runs.</span>
             </div>
         </div>
     </main>
@@ -557,7 +449,6 @@ CHANGE LOG
     let statusFilter = 'active';
     let regionFilter = 'all';
     let sourceFilter = 'all';
-    let addedFilter = 'all';
 
     // ---- Security helpers ----
     // Escape HTML entities so any nasty content from a scraped tender
@@ -616,20 +507,6 @@ CHANGE LOG
         if (days <= 7) return fmtDate(d) + ' (' + days + ' days)';
         return fmtDate(d);
     }
-    // "Added" column shows a relative label for recent entries, ISO date for older.
-    function addedLabel(d) {
-        if (!d) return '-';
-        const p = new Date(d);
-        if (isNaN(p)) return d;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        p.setHours(0, 0, 0, 0);
-        const diff = Math.round((today - p) / 86400000);
-        if (diff === 0) return 'today';
-        if (diff === 1) return 'yesterday';
-        if (diff < 7)   return diff + ' days ago';
-        return fmtDate(d);
-    }
 
     // ---- Source -> CSS class mapping ----
     function srcClass(s) {
@@ -650,12 +527,6 @@ CHANGE LOG
         if (l.includes('bc ferries'))             return 'source-bcferries';
         if (l.includes('lng canada'))             return 'source-lng';
         if (l.includes('merx'))                   return 'source-merx';
-        if (l.includes('ted'))                    return 'source-ted';
-        if (l.includes('austender'))              return 'source-austender';
-        if (l.includes('gets'))                   return 'source-gets';
-        if (l.includes('tenderned'))              return 'source-tenderned';
-        if (l.includes('doffin'))                 return 'source-doffin';
-        if (l.includes('etenders'))               return 'source-etenders';
         if (l.includes('gemini') || l.includes('manual')) return 'source-manual';
         return 'source-other';
     }
@@ -665,12 +536,10 @@ CHANGE LOG
         if (l.includes('canada'))    return 'region-canada';
         if (l.includes('uk'))        return 'region-uk';
         if (l.includes('usa') || l.includes('us'))  return 'region-usa';
-        if (l.includes('eu') || l.includes('netherlands') || l.includes('europe') ||
-            l.includes('norway') || l.includes('ireland')) return 'region-eu';
+        if (l.includes('eu') || l.includes('netherlands') || l.includes('europe')) return 'region-eu';
         if (l.includes('pacific') || l.includes('palau')) return 'region-pacific';
         if (l.includes('arctic') || l.includes('nunavut')) return 'region-arctic';
         if (l.includes('caribbean')) return 'region-caribbean';
-        if (l.includes('australia') || l.includes('new zealand')) return 'region-anz';
         return 'region-other';
     }
 
@@ -679,15 +548,10 @@ CHANGE LOG
         if (l.includes('canada'))  return 'CA';
         if (l.includes('uk'))      return 'UK';
         if (l.includes('usa') || l.includes('us'))  return 'US';
-        if (l.includes('netherlands')) return 'NL';
-        if (l.includes('norway'))      return 'NO';
-        if (l.includes('ireland'))     return 'IE';
-        if (l.includes('eu') || l.includes('europe')) return 'EU';
+        if (l.includes('eu') || l.includes('netherlands') || l.includes('europe')) return 'EU';
         if (l.includes('pacific') || l.includes('palau')) return 'PAC';
         if (l.includes('arctic') || l.includes('nunavut')) return 'ARC';
         if (l.includes('caribbean')) return 'CAR';
-        if (l.includes('australia'))   return 'AU';
-        if (l.includes('new zealand')) return 'NZ';
         return (r || '').slice(0, 4).toUpperCase();
     }
 
@@ -700,7 +564,6 @@ CHANGE LOG
         if (l === 'won')       return 'status-won';
         if (l === 'lost')      return 'status-lost';
         if (l === 'closed')    return 'status-closed';
-        if (l === 'archived')  return 'status-archived';
         return 'status-open';
     }
 
@@ -710,7 +573,7 @@ CHANGE LOG
         if (f === 'all') return true;
         if (f === 'active') return ['open', 'watching', 'bidding', 'submitted'].includes(s);
         if (f === 'closed') return ['closed', 'lost', 'won'].includes(s);
-        return s === f;   // covers 'archived' and individual states
+        return s === f;
     }
 
     function matchesRegion(r, f) {
@@ -718,12 +581,9 @@ CHANGE LOG
         const reg = (r.region || '').toLowerCase();
         if (f === 'pacific')   return reg.includes('pacific') || reg.includes('palau');
         if (f === 'arctic')    return reg.includes('arctic') || reg.includes('nunavut');
-        if (f === 'eu')        return reg.includes('eu') || reg.includes('netherlands') ||
-                                      reg.includes('europe') || reg.includes('norway') ||
-                                      reg.includes('ireland');
+        if (f === 'eu')        return reg.includes('eu') || reg.includes('netherlands') || reg.includes('europe');
         if (f === 'usa')       return reg.includes('usa') || reg.includes('us');
         if (f === 'caribbean') return reg.includes('caribbean');
-        if (f === 'anz')       return reg.includes('australia') || reg.includes('new zealand');
         return reg.includes(f);
     }
 
@@ -732,28 +592,11 @@ CHANGE LOG
         return (r.source || '') === f;
     }
 
-    function matchesAdded(r, f) {
-        if (f === 'all') return true;
-        if (!r.added) return false;
-        const p = new Date(r.added);
-        if (isNaN(p)) return false;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        p.setHours(0, 0, 0, 0);
-        const diff = Math.round((today - p) / 86400000);
-        if (f === 'today')     return diff === 0;
-        if (f === 'yesterday') return diff === 1;
-        if (f === '7')         return diff >= 0 && diff <= 7;
-        if (f === '30')        return diff >= 0 && diff <= 30;
-        return true;
-    }
-
     function getFilteredRfps() {
         let rfps = allRfps.filter(r => {
             if (!matchesStatus(r, statusFilter)) return false;
             if (!matchesRegion(r, regionFilter)) return false;
             if (!matchesSource(r, sourceFilter)) return false;
-            if (!matchesAdded(r, addedFilter)) return false;
             const hay = (r.project + ' ' + (r.entity || '') + ' ' + (r.region || '') + ' ' + (r.summary || '') + ' ' + (r.tags || []).join(' ')).toLowerCase();
             if (searchTerm && !hay.includes(searchTerm)) return false;
             return true;
@@ -761,8 +604,8 @@ CHANGE LOG
 
         rfps.sort((a, b) => {
             let va = a[sortCol] || '', vb = b[sortCol] || '';
-            if (sortCol === 'due_date' || sortCol === 'added') {
-                // Empty dates sort to the bottom in ascending order.
+            if (sortCol === 'due_date') {
+                // Empty due dates sort to the bottom in ascending order.
                 va = va ? new Date(va).getTime() : Infinity;
                 vb = vb ? new Date(vb).getTime() : Infinity;
             } else {
@@ -781,7 +624,7 @@ CHANGE LOG
         const tbody = document.getElementById('rfps-body');
 
         if (!rfps.length) {
-            tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-12 text-center text-slate-500 text-sm">No RFPs match this filter.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No RFPs match this filter.</td></tr>';
             updateStats();
             return;
         }
@@ -805,7 +648,6 @@ CHANGE LOG
                 '<td class="px-4 py-3 whitespace-nowrap">' +
                     '<span class="source-badge ' + statusClass(r.status) + '">' + escHtml(r.status || 'open') + '</span>' +
                 '</td>' +
-                '<td class="px-4 py-3 text-xs whitespace-nowrap text-slate-500 hidden lg:table-cell">' + escHtml(addedLabel(r.added)) + '</td>' +
                 '<td class="px-4 py-3 text-xs whitespace-nowrap ' + dueClass(r.due_date) + '">' + escHtml(dueLabel(r.due_date)) + '</td>' +
             '</tr>';
         }).join('');
@@ -829,7 +671,6 @@ CHANGE LOG
         const meta = [];
         if (r.status)     meta.push('<span class="source-badge ' + statusClass(r.status) + '">' + escHtml(r.status) + '</span>');
         if (r.due_date)   meta.push('<span class="text-xs text-slate-400">Due: <span class="' + dueClass(r.due_date) + '">' + escHtml(dueLabel(r.due_date)) + '</span></span>');
-        if (r.added)      meta.push('<span class="text-xs text-slate-400">Added: <span class="text-slate-200">' + escHtml(addedLabel(r.added)) + '</span></span>');
         if (r.budget)     meta.push('<span class="text-xs text-slate-400">Budget: <span class="text-slate-200">' + escHtml(r.budget) + '</span></span>');
         if (r.source)     meta.push('<span class="source-badge ' + srcClass(r.source) + '">' + escHtml(r.source) + '</span>');
         if (r.reference)  meta.push('<span class="text-xs text-slate-500 font-mono">' + escHtml(r.reference) + '</span>');
@@ -912,7 +753,7 @@ CHANGE LOG
             renderPortals();
         } catch (e) {
             const tbody = document.getElementById('rfps-body');
-            tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load Edgewise_rfps.json.<br><span class="text-xs text-slate-600" id="err-msg"></span></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load Edgewise_rfps.json.<br><span class="text-xs text-slate-600" id="err-msg"></span></td></tr>';
             const errEl = document.getElementById('err-msg');
             if (errEl) errEl.textContent = e.message;
         }
@@ -948,15 +789,6 @@ CHANGE LOG
         });
     });
 
-    document.querySelectorAll('.added-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.added-btn').forEach(b => b.classList.remove('filter-active'));
-            btn.classList.add('filter-active');
-            addedFilter = btn.dataset.added;
-            renderTable();
-        });
-    });
-
     document.querySelectorAll('th.sortable').forEach(th => {
         th.addEventListener('click', () => {
             const col = th.dataset.col;
@@ -974,6 +806,251 @@ CHANGE LOG
 
     // Kick off the initial load.
     loadRfps();
+
+    // ============================================================
+    // FILTER EDITOR + RUN-NOW BUTTON
+    // ============================================================
+    // Reads Edgewise_filters.json on load, lets the user add/remove
+    // keywords with a click, and saves the updated JSON back to the
+    // repo via the GitHub Contents API. Also wires the Run-now
+    // button which fires a workflow_dispatch on the daily-scrape
+    // workflow.
+    //
+    // SECURITY MODEL
+    // --------------
+    // A fine-grained Personal Access Token is embedded below in
+    // GH_TOKEN. The page sits behind a passphrase ("LAK") to gate
+    // access to the editing UI. The passphrase is NOT real auth -
+    // anyone with the URL who views source can extract the token.
+    // Mitigations:
+    //   1. The token's permissions are scoped to this repo only.
+    //   2. The token has only Contents:write and Actions:write.
+    //   3. The page is unlinked, noindex, and shared only with
+    //      Ashley, Kyla, and Liam.
+    // If the URL leaks, rotate the token in github.com > Settings >
+    // Developer settings > Personal access tokens.
+    // ============================================================
+
+    // ---- Configuration - EDIT THESE ----
+    const GH_OWNER  = 'liamtp-n';
+    const GH_REPO   = 'Consultation-Services';
+    const GH_BRANCH = 'main';
+    const GH_FILTERS_PATH = 'edgewise/Edgewise_filters.json';
+    const GH_WORKFLOW_FILE = 'Edgewise_rfp_scrape.yml';
+    const GH_TOKEN = 'PASTE_FINE_GRAINED_TOKEN_HERE';
+    const PASSPHRASE = 'LAK';
+
+    // ---- State ----
+    let filtersData = null;
+    let unlocked    = false;
+    const CATEGORIES = ['marine_keywords', 'cpv_codes', 'marine_context_words', 'exclude_keywords'];
+
+    async function loadFilters() {
+        try {
+            const res = await fetch('Edgewise_filters.json?v=' + Date.now());
+            filtersData = await res.json();
+            // Strip the _notes field if present so it isn't treated as a category.
+            renderAllFilterLists();
+        } catch (e) {
+            const s = document.getElementById('filters-status');
+            if (s) {
+                s.textContent = 'Could not load Edgewise_filters.json: ' + e.message;
+                s.className = 'text-xs text-rose-400';
+            }
+        }
+    }
+
+    function renderAllFilterLists() {
+        CATEGORIES.forEach(renderFilterList);
+    }
+
+    function renderFilterList(cat) {
+        const list = (filtersData && filtersData[cat]) || [];
+        const container = document.getElementById('kw-' + cat);
+        if (!container) return;
+        container.innerHTML = list.map(function(kw, i) {
+            const lockedCls = unlocked ? '' : 'locked';
+            return '<span class="kw-pill-edit cat-' + cat + ' ' + lockedCls + '" data-cat="' + cat + '" data-idx="' + i + '">' +
+                escHtml(kw) +
+                '<span class="kw-x" title="Remove">&times;</span>' +
+            '</span>';
+        }).join('');
+        container.querySelectorAll('.kw-x').forEach(function(x) {
+            x.addEventListener('click', function(e) {
+                if (!unlocked) return;
+                const pill = e.target.closest('.kw-pill-edit');
+                const c = pill.dataset.cat;
+                const idx = parseInt(pill.dataset.idx, 10);
+                filtersData[c].splice(idx, 1);
+                renderFilterList(c);
+                markDirty();
+            });
+        });
+    }
+
+    function markDirty() {
+        const btn = document.getElementById('save-filters-btn');
+        btn.disabled = false;
+        btn.classList.remove('cursor-not-allowed', 'border-slate-600', 'text-slate-500');
+        btn.classList.add('border-emerald-600', 'text-emerald-400', 'hover:bg-emerald-600/10');
+        const s = document.getElementById('filters-status');
+        s.textContent = 'Unsaved changes';
+        s.className = 'text-xs text-amber-400';
+    }
+
+    function setUnlocked(state) {
+        unlocked = state;
+        document.querySelectorAll('.kw-add-row').forEach(function(r) {
+            r.classList.toggle('hidden', !state);
+        });
+        renderAllFilterLists();
+
+        const unlockBtn = document.getElementById('unlock-btn');
+        unlockBtn.textContent = state ? 'Editing unlocked' : 'Unlock editing';
+        unlockBtn.classList.toggle('border-emerald-600', state);
+        unlockBtn.classList.toggle('text-emerald-400', state);
+        unlockBtn.classList.toggle('border-blue-600', !state);
+        unlockBtn.classList.toggle('text-blue-400', !state);
+
+        const runBtn = document.getElementById('run-scrape-btn');
+        runBtn.disabled = !state;
+        runBtn.classList.toggle('cursor-not-allowed', !state);
+        runBtn.classList.toggle('text-slate-500', !state);
+        runBtn.classList.toggle('border-slate-600', !state);
+        runBtn.classList.toggle('text-blue-400', state);
+        runBtn.classList.toggle('border-blue-600', state);
+        runBtn.classList.toggle('hover:bg-blue-600/10', state);
+        runBtn.title = state ? 'Trigger the scraper workflow on GitHub' : "Click 'Unlock editing' below to enable";
+    }
+
+    document.getElementById('unlock-btn').addEventListener('click', function() {
+        if (unlocked) return;
+        const entered = prompt('Enter passphrase to unlock editing:');
+        if (entered === PASSPHRASE) {
+            setUnlocked(true);
+            const s = document.getElementById('filters-status');
+            s.textContent = 'Unlocked. Click x on any pill to remove. Type in the input box and press Enter to add.';
+            s.className = 'text-xs text-emerald-400';
+        } else if (entered !== null) {
+            alert('Wrong passphrase.');
+        }
+    });
+
+    // Wire up "add new keyword" inputs.
+    document.querySelectorAll('.kw-input').forEach(function(inp) {
+        inp.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter') return;
+            const cat = inp.dataset.target;
+            const val = inp.value.trim();
+            if (!val) return;
+            filtersData[cat] = filtersData[cat] || [];
+            if (filtersData[cat].includes(val)) {
+                alert('Already in the list.');
+                return;
+            }
+            filtersData[cat].push(val);
+            renderFilterList(cat);
+            inp.value = '';
+            markDirty();
+        });
+    });
+
+    // ---- Save: PUT new JSON to GitHub Contents API ----
+    document.getElementById('save-filters-btn').addEventListener('click', async function() {
+        if (!unlocked) return;
+        if (!GH_TOKEN || GH_TOKEN.indexOf('PASTE_') === 0) {
+            alert('GitHub token not configured. Edit the GH_TOKEN line in Edgewise_rfps.html.');
+            return;
+        }
+        const status = document.getElementById('filters-status');
+        status.textContent = 'Saving...';
+        status.className = 'text-xs text-blue-400';
+
+        try {
+            const getRes = await fetch(
+                'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_FILTERS_PATH + '?ref=' + GH_BRANCH,
+                { headers: { 'Authorization': 'Bearer ' + GH_TOKEN, 'Accept': 'application/vnd.github+json' } }
+            );
+            if (!getRes.ok) throw new Error('GET failed: ' + getRes.status);
+            const getJson = await getRes.json();
+            const sha = getJson.sha;
+
+            const pretty = JSON.stringify(filtersData, null, 2);
+            const b64 = btoa(unescape(encodeURIComponent(pretty)));
+
+            const putRes = await fetch(
+                'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_FILTERS_PATH,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': 'Bearer ' + GH_TOKEN,
+                        'Accept': 'application/vnd.github+json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: 'chore: update filter keywords from web editor',
+                        content: b64,
+                        sha: sha,
+                        branch: GH_BRANCH,
+                    }),
+                }
+            );
+            if (!putRes.ok) {
+                const err = await putRes.text();
+                throw new Error('PUT failed: ' + putRes.status + ' ' + err);
+            }
+            status.textContent = 'Saved. Click "Run scrape now" to apply now, otherwise the next daily scrape uses it.';
+            status.className = 'text-xs text-emerald-400';
+            const btn = document.getElementById('save-filters-btn');
+            btn.disabled = true;
+            btn.classList.add('cursor-not-allowed', 'border-slate-600', 'text-slate-500');
+            btn.classList.remove('border-emerald-600', 'text-emerald-400', 'hover:bg-emerald-600/10');
+        } catch (e) {
+            status.textContent = 'Save failed: ' + e.message;
+            status.className = 'text-xs text-rose-400';
+        }
+    });
+
+    // ---- Run-now: POST workflow_dispatch ----
+    document.getElementById('run-scrape-btn').addEventListener('click', async function() {
+        if (!unlocked) return;
+        if (!GH_TOKEN || GH_TOKEN.indexOf('PASTE_') === 0) {
+            alert('GitHub token not configured. Edit the GH_TOKEN line in Edgewise_rfps.html.');
+            return;
+        }
+        if (!confirm('Trigger a scraper run now? It takes 2-3 minutes; refresh this page once it finishes.')) return;
+        const btn = document.getElementById('run-scrape-btn');
+        const orig = btn.textContent;
+        btn.textContent = 'Triggering...';
+        btn.disabled = true;
+        try {
+            const res = await fetch(
+                'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/actions/workflows/' + GH_WORKFLOW_FILE + '/dispatches',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + GH_TOKEN,
+                        'Accept': 'application/vnd.github+json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ref: GH_BRANCH }),
+                }
+            );
+            if (res.status === 204) {
+                btn.textContent = 'Triggered ✓';
+                setTimeout(function() { btn.textContent = orig; btn.disabled = false; }, 5000);
+            } else {
+                const err = await res.text();
+                throw new Error(res.status + ' ' + err);
+            }
+        } catch (e) {
+            alert('Run failed: ' + e.message);
+            btn.textContent = orig;
+            btn.disabled = false;
+        }
+    });
+
+    loadFilters();
     </script>
 </body>
 </html>
