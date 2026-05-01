@@ -26,6 +26,10 @@ CHANGE LOG
 - 01 May 2026: Added scrapers for PCS Scotland, NBON, GNWT, SEAO Quebec,
                eTenders Ireland, Sell2Wales. Updated footnote source list.
                Expanded marine_keywords and CPV codes in filters.
+- 01 May 2026: Default sort by due date ascending. Added per-row delete
+               button with keyword-removal prompt. Made Procurement Portals
+               panel collapsible with white glow. Removed several header
+               strings per user request.
 ================================================================================
 -->
 <html lang="en-GB">
@@ -145,6 +149,9 @@ CHANGE LOG
         #add-panel:not([open]) { transition: box-shadow 0.2s, border-color 0.2s; }
         #add-panel:not([open]):hover { border-color: #6366f1; box-shadow: 0 0 16px rgba(99,102,241,0.3); }
 
+        #portals-panel:not([open]) { transition: box-shadow 0.2s, border-color 0.2s; }
+        #portals-panel:not([open]):hover { border-color: #e2e8f0; box-shadow: 0 0 16px rgba(226,232,240,0.2); }
+
         .add-input {
             width: 100%;
             padding: 6px 10px;
@@ -157,6 +164,9 @@ CHANGE LOG
         .add-input:focus { outline: none; border-color: #6366f1; }
         .add-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 3px; display: block; }
         .add-required { color: #f87171; }
+
+        .delete-btn { opacity: 0.35; transition: opacity 0.15s, color 0.15s; }
+        .delete-btn:hover { opacity: 1; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
@@ -166,12 +176,10 @@ CHANGE LOG
             <div class="flex flex-wrap items-center gap-2 mb-2">
                 <span class="text-xs px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-400 uppercase tracking-wider">Private</span>
                 <span class="text-xs px-2 py-0.5 rounded bg-emerald-900/30 border border-emerald-800/50 text-emerald-400 uppercase tracking-wider">Auto-Scraped Daily</span>
-                <span class="text-xs text-slate-500">Not indexed - share with care</span>
             </div>
             <h1 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight mb-2">
                 RFP &amp; Tender <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text">Tracker</span>
             </h1>
-            <p class="text-slate-400 text-sm mb-6">Marine environmental tender opportunities for Edgewise Environmental, scraped daily at 10:30 UTC from public procurement portals.</p>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                 <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
@@ -433,13 +441,20 @@ CHANGE LOG
             </details>
 
             <!-- Procurement portals quick-links -->
-            <div class="mt-4 p-5 bg-slate-800 border border-slate-700 rounded-lg">
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Procurement Portals - Quick Access</p>
-                <p class="text-xs text-slate-500 mb-3">All portals Edgewise tracks. &#x1F6AB; = bot-protected, add tenders manually. &#x1F512; = login or membership required. Portals with no tender listings are shown for reference only. Hover any tile for notes. Click to open.</p>
-                <div id="portals-grid" class="flex flex-wrap gap-2">
-                    <span class="text-xs text-slate-500">Loading...</span>
+            <details class="mt-4 p-5 bg-slate-800 border border-slate-700 rounded-lg" id="portals-panel">
+                <summary class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-bold text-slate-300 uppercase tracking-wider">Procurement Portals - Quick Access</p>
+                        <p class="text-xs text-slate-500 mt-1">All portals Edgewise tracks. &#x1F6AB; = bot-protected. &#x1F512; = login required. Hover any tile for notes. Click to open.</p>
+                    </div>
+                    <span class="arrow text-slate-400 text-sm">&#9656;</span>
+                </summary>
+                <div class="mt-4">
+                    <div id="portals-grid" class="flex flex-wrap gap-2">
+                        <span class="text-xs text-slate-500">Loading...</span>
+                    </div>
                 </div>
-            </div>
+            </details>
 
             <!-- Footnote -->
             <div class="mt-4 p-4 bg-slate-800/50 border border-slate-700 rounded-lg text-xs text-slate-500">
@@ -450,13 +465,12 @@ CHANGE LOG
                 IMO, Caribbean Development Bank, BC Bid (covers BC Hydro), NL Hydro,
                 Nova Scotia Procurement, BC Ferries, LNG Canada,
                 MERX (NL).
-                <span class="block mt-1.5 text-slate-600">Manual entries from Gemini scout or hand-added tenders are preserved across runs.</span>
             </div>
         </div>
     </main>
 
     <footer class="px-4 py-6 text-center text-xs text-slate-600 border-t border-slate-800">
-        Private tracker &middot; Not indexed &middot; <a href="../index.html" class="hover:text-slate-400">Back to main site</a>
+        Private tracker &middot; <a href="../index.html" class="hover:text-slate-400">Back to main site</a>
     </footer>
 
     <script>
@@ -647,10 +661,13 @@ CHANGE LOG
         tbody.innerHTML = rfps.map(r => {
             const realIdx = allRfps.indexOf(r);
             return '<tr class="border-b border-slate-700/50 hover:bg-slate-800/60 transition-colors cursor-pointer" data-idx="' + realIdx + '">' +
-                '<td class="px-4 py-3"><div>' +
-                    '<a href="' + escHtml(safeUrl(r.url)) + '" target="_blank" rel="noopener" class="font-semibold text-slate-200 hover:text-blue-400 transition-colors text-sm" onclick="event.stopPropagation()">' + escHtml(r.project) + '</a> ' +
-                    '<span class="region-badge ' + regionClass(r.region) + '">' + escHtml(regionTag(r.region)) + '</span>' +
-                    (r.summary ? '<div class="text-xs text-slate-500 mt-0.5 line-clamp-1">' + escHtml(r.summary) + '</div>' : '') +
+                '<td class="px-4 py-3"><div class="flex items-start gap-2">' +
+                    '<button class="delete-btn flex-shrink-0 mt-0.5 text-slate-600 hover:text-rose-400 text-base leading-none" title="Delete this tender">&times;</button>' +
+                    '<div>' +
+                        '<a href="' + escHtml(safeUrl(r.url)) + '" target="_blank" rel="noopener" class="font-semibold text-slate-200 hover:text-blue-400 transition-colors text-sm" onclick="event.stopPropagation()">' + escHtml(r.project) + '</a> ' +
+                        '<span class="region-badge ' + regionClass(r.region) + '">' + escHtml(regionTag(r.region)) + '</span>' +
+                        (r.summary ? '<div class="text-xs text-slate-500 mt-0.5 line-clamp-1">' + escHtml(r.summary) + '</div>' : '') +
+                    '</div>' +
                 '</div></td>' +
                 '<td class="px-4 py-3 text-slate-400 text-xs hidden md:table-cell">' + (escHtml(r.entity) || '-') + '</td>' +
                 '<td class="px-4 py-3 hidden md:table-cell whitespace-nowrap"><span class="source-badge ' + srcClass(r.source) + '">' + escHtml(r.source || '-') + '</span></td>' +
@@ -658,9 +675,81 @@ CHANGE LOG
                 '<td class="px-4 py-3 text-xs whitespace-nowrap ' + dueClass(r.due_date) + '">' + escHtml(dueLabel(r.due_date)) + '</td>' +
             '</tr>';
         }).join('');
+
         tbody.querySelectorAll('tr[data-idx]').forEach(tr => {
-            tr.addEventListener('click', () => showDetail(allRfps[parseInt(tr.dataset.idx, 10)]));
+            tr.addEventListener('click', (e) => {
+                if (e.target.closest('.delete-btn')) return;
+                showDetail(allRfps[parseInt(tr.dataset.idx, 10)]);
+            });
         });
+
+        tbody.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.closest('tr').dataset.idx, 10);
+                const rec = allRfps[idx];
+                if (!rec) return;
+
+                const whyFits = rec.why_fits || '';
+                const kwMatch = whyFits.match(/matched marine keyword:\s*"?([^"]+)"?/i);
+                const matchedKw = kwMatch ? kwMatch[1].trim() : null;
+
+                let doDelete = false;
+                let removeKw = false;
+
+                if (matchedKw) {
+                    // Two-step: confirm delete, then ask about keyword
+                    doDelete = confirm('Delete "' + (rec.project || 'this tender').slice(0, 80) + '" from the tracker?');
+                    if (doDelete) {
+                        removeKw = confirm(
+                            'This tender was found by the keyword:\n\n"' + matchedKw + '"\n\n' +
+                            'Remove that keyword from the filter so similar tenders are excluded in future?\n\n' +
+                            'OK = remove keyword too\nCancel = delete tender only'
+                        );
+                    }
+                } else {
+                    doDelete = confirm('Delete "' + (rec.project || 'this tender').slice(0, 80) + '" from the tracker?');
+                }
+
+                if (!doDelete) return;
+
+                try {
+                    const fileData = await ghGet(GH_RFPS_PATH);
+                    const existing = JSON.parse(atob(fileData.content.replace(/\n/g, '')));
+                    existing.rfps = existing.rfps.filter(r => r.id !== rec.id);
+                    existing.last_updated = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+                    await ghPut(
+                        GH_RFPS_PATH,
+                        JSON.stringify(existing, null, 2),
+                        fileData.sha,
+                        'chore: delete tender - ' + (rec.project || '').slice(0, 60)
+                    );
+
+                    // Remove from in-memory list
+                    allRfps.splice(idx, 1);
+
+                    if (removeKw && filtersData) {
+                        const kwLower = matchedKw.toLowerCase();
+                        filtersData['marine_keywords'] = (filtersData['marine_keywords'] || []).filter(k => k.toLowerCase() !== kwLower);
+                        const fData = await ghGet(GH_FILTERS_PATH);
+                        await ghPut(
+                            GH_FILTERS_PATH,
+                            JSON.stringify(filtersData, null, 2),
+                            fData.sha,
+                            'chore: remove keyword "' + matchedKw + '" after tender deletion'
+                        );
+                        renderAllFilterLists();
+                    }
+
+                    renderTable();
+                    document.getElementById('detail-panel').classList.add('hidden');
+
+                } catch (err) {
+                    alert('Delete failed: ' + err.message);
+                }
+            });
+        });
+
         updateStats();
     }
 
