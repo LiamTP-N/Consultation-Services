@@ -11,57 +11,33 @@ fresh tender opportunities matching Edgewise's marine/MMO/PAM/seabird
 work. The page reads rfps.json, which is updated daily by an automated
 scraper (rfp_scrape.py) running on GitHub Actions.
 
-You don't edit this page or the JSON to add tenders. The scraper does
-that for you. You only edit the JSON if you want to:
-  - Mark a tender as "bidding" or "submitted" so it stays visible
-  - Add notes against a specific tender
-  - Add a manual tender that the scraper missed
-  - Edit the bottom-of-page portal quick-links
-
-For full instructions see Edgewise_README.md in the same folder.
-
-WHAT THIS PAGE IS NOT
----------------------
-- Public. The page has a `noindex, nofollow` meta tag and is excluded
-  from sitemap.xml and robots.txt. It's only findable if you have the
-  direct URL.
-- A submission portal. Clicking a tender opens the original notice on
-  whatever site published it. You bid through that site's process.
-- Real-time. The scraper runs once a day at 10:30 UTC.
-
 DEVELOPER NOTES
 ---------------
-- Self-contained: no includes.js, own header/footer. Same pattern as
-  app.html. This keeps the page out of the public site's nav.
-- Uses Tailwind CSS via CDN (same as the rest of the site).
-- No localStorage, no persistence. Every page load fetches rfps.json
-  fresh. Filters live in JS state only.
-- Renders with vanilla JS - no React/Vue/etc. needed.
-- The footer's "Back to main site" link can be removed if you'd rather
-  the page be totally severed from the consultancy site identity.
+- Token and passphrase are loaded from Edgewise_config.js (not committed
+  to the repo - kept local or in .gitignore).
+- Self-contained otherwise: no other includes, vanilla JS, Tailwind CDN.
 
 CHANGE LOG
 ----------
-- 28 Apr 2026: Added the "Filter Criteria" collapsible panel (above the
-  Procurement Portals section) so the page is self-documenting. If the
-  scraper keyword list changes, the panel must be hand-updated to match.
+- 28 Apr 2026: Added Filter Criteria collapsible panel.
+- 01 May 2026: Externalised GH_TOKEN/PASSPHRASE to Edgewise_config.js.
+               Added portal subheadings and bot_blocked icon support.
+               Added "Add tender manually" panel.
 ================================================================================
 -->
 <html lang="en-GB">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- noindex tells Google etc. not to add this page to search results
-         even if someone manages to link to it. -->
     <meta name="robots" content="noindex, nofollow">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>RFP Tracker</title>
     <meta name="description" content="Private RFP and tender tracker.">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Token and passphrase - loaded from separate file not in repo -->
+    <script src="Edgewise_config.js"></script>
     <style>
-        /* Source colour-coded badges. Same dark-on-bright pattern used
-           on jobs.html for visual consistency. */
         .source-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; }
         .source-canadabuys     { background: #2d1818; color: #fca5a5; }
         .source-findatender    { background: #1e3050; color: #93c5fd; }
@@ -81,7 +57,6 @@ CHANGE LOG
         .source-manual         { background: #1a1a3d; color: #a78bfa; }
         .source-other          { background: #2a2a2a; color: #cbd5e1; }
 
-        /* Region badges - 3-letter abbreviation lozenges. */
         .region-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
         .region-canada    { background: #2d1818; color: #fca5a5; }
         .region-uk        { background: #1e3050; color: #93c5fd; }
@@ -92,7 +67,6 @@ CHANGE LOG
         .region-caribbean { background: #1a3d3a; color: #5eead4; }
         .region-other     { background: #2a2a2a; color: #cbd5e1; }
 
-        /* Status badges - one for each pipeline state. */
         .status-open      { background: #14532d; color: #86efac; }
         .status-watching  { background: #1e3a5f; color: #93c5fd; }
         .status-bidding   { background: #4a2c0e; color: #fbbf24; }
@@ -106,18 +80,10 @@ CHANGE LOG
         th.sorted { color: #60a5fa; }
         .filter-active { background: #1e40af !important; color: #fff !important; border-color: #1e40af !important; }
 
-        /* Due-date colour coding. Amber if within a week, red if today,
-           strikethrough if past due. */
         .due-soon  { color: #fbbf24; font-weight: 600; }
         .due-today { color: #f87171; font-weight: 700; }
         .due-past  { color: #64748b; text-decoration: line-through; }
 
-        /* ============================================================
-           Filter criteria panel - the new self-documenting section.
-           Pills below show what keywords drive the filter. The whole
-           block is collapsible (HTML <details>) so it doesn't clutter
-           the page during day-to-day use.
-           ============================================================ */
         .kw-pill {
             display: inline-block;
             font-size: 0.7rem;
@@ -133,13 +99,11 @@ CHANGE LOG
         .kw-pill-context { background: #1e3a5f; color: #93c5fd; border-color: #1e40af; }
         .kw-pill-cpv     { background: #4a2c0e; color: #fbbf24; border-color: #92400e; font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace; }
 
-        /* Custom collapsible chevron - hide the default browser triangle */
         details > summary { cursor: pointer; list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
         details > summary .arrow { transition: transform 0.2s; display: inline-block; }
         details[open] > summary .arrow { transform: rotate(90deg); }
 
-        /* Editable keyword pills used by the live filter editor. */
         .kw-list { line-height: 2; }
         .kw-pill-edit {
             display: inline-flex;
@@ -172,23 +136,30 @@ CHANGE LOG
         .kw-pill-edit .kw-x:hover { opacity: 1; background: rgba(255,255,255,0.15); }
         .kw-pill-edit.locked .kw-x { display: none; }
 
-        /* Filter criteria card - green glow on hover, but only when collapsed.
-           Once the user expands it (details[open]) the glow goes away so it
-           doesn't compete with the editor controls inside. */
-        #filters-panel:not([open]) {
-            transition: box-shadow 0.2s, border-color 0.2s;
+        #filters-panel:not([open]) { transition: box-shadow 0.2s, border-color 0.2s; }
+        #filters-panel:not([open]):hover { border-color: #059669; box-shadow: 0 0 16px rgba(5,150,105,0.4); }
+
+        #add-panel:not([open]) { transition: box-shadow 0.2s, border-color 0.2s; }
+        #add-panel:not([open]):hover { border-color: #6366f1; box-shadow: 0 0 16px rgba(99,102,241,0.3); }
+
+        .add-input {
+            width: 100%;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 0.75rem;
         }
-        #filters-panel:not([open]):hover {
-            border-color: #059669;
-            box-shadow: 0 0 16px rgba(5, 150, 105, 0.4);
-        }
+        .add-input:focus { outline: none; border-color: #6366f1; }
+        .add-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 3px; display: block; }
+        .add-required { color: #f87171; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
 
     <header class="pt-10 pb-8 px-4 bg-gradient-to-br from-slate-900 to-slate-800">
         <div class="max-w-6xl mx-auto">
-            <!-- Header strip showing this is private and auto-updated. -->
             <div class="flex flex-wrap items-center gap-2 mb-2">
                 <span class="text-xs px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-400 uppercase tracking-wider">Private</span>
                 <span class="text-xs px-2 py-0.5 rounded bg-emerald-900/30 border border-emerald-800/50 text-emerald-400 uppercase tracking-wider">Auto-Scraped Daily</span>
@@ -199,7 +170,6 @@ CHANGE LOG
             </h1>
             <p class="text-slate-400 text-sm mb-6">Marine environmental tender opportunities for Edgewise Environmental, scraped daily at 10:30 UTC from public procurement portals.</p>
 
-            <!-- Top-line statistics. Populated by JS after fetch. -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                 <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
                     <div class="text-2xl font-extrabold text-blue-400" id="stat-total">-</div>
@@ -224,7 +194,7 @@ CHANGE LOG
                 </div>
             </div>
 
-            <!-- Filter row 1: pipeline status. Defaults to "Active". -->
+            <!-- Filter row 1: pipeline status -->
             <div class="flex flex-wrap gap-2 items-center mb-3">
                 <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Status:</span>
                 <button class="status-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition filter-active" data-status="active">Active</button>
@@ -236,7 +206,7 @@ CHANGE LOG
                 <button class="status-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-status="all">All</button>
             </div>
 
-            <!-- Filter row 2: geography. -->
+            <!-- Filter row 2: geography -->
             <div class="flex flex-wrap gap-2 items-center mb-3">
                 <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Region:</span>
                 <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition filter-active" data-region="all">All</button>
@@ -249,7 +219,7 @@ CHANGE LOG
                 <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="caribbean">Caribbean</button>
             </div>
 
-            <!-- Filter row 3: source picker. Populated dynamically from rfps.json. -->
+            <!-- Filter row 3: source picker -->
             <div class="flex flex-wrap gap-2 items-center mb-3">
                 <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Source:</span>
                 <select id="source-filter" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
@@ -257,7 +227,7 @@ CHANGE LOG
                 </select>
             </div>
 
-            <!-- Free-text search. Matches title, entity, region, summary, tags. -->
+            <!-- Search -->
             <div class="flex flex-wrap gap-2 items-center mb-4">
                 <input id="search" type="text" placeholder="Search project, entity, keywords..." class="px-3 py-1.5 rounded-lg text-xs border border-slate-600 bg-slate-800 text-slate-300 placeholder-slate-600 focus:outline-none focus:border-blue-500 flex-1 min-w-[180px]">
             </div>
@@ -266,7 +236,8 @@ CHANGE LOG
 
     <main class="flex-1 px-4 py-6">
         <div class="max-w-6xl mx-auto">
-            <!-- Main results table. Click any row to open detail panel. -->
+
+            <!-- Main results table -->
             <div class="overflow-x-auto rounded-lg border border-slate-700">
                 <table class="w-full text-sm">
                     <thead>
@@ -284,7 +255,7 @@ CHANGE LOG
                 </table>
             </div>
 
-            <!-- Detail panel - populated when a row is clicked. -->
+            <!-- Detail panel -->
             <div id="detail-panel" class="hidden mt-6 p-5 bg-slate-800 border border-slate-700 rounded-lg">
                 <div class="flex items-start justify-between gap-4 mb-3">
                     <div>
@@ -298,35 +269,97 @@ CHANGE LOG
             </div>
 
             <!-- ====================================================
-                 FILTER CRITERIA PANEL
-                 ====================================================
-                 Self-documenting section that shows the keywords used
-                 to filter tenders. Collapsed by default so it does not
-                 dominate the page during daily use; click the header
-                 to expand.
-
-                 Three lists are shown:
-                   - MARINE INCLUDE keywords (green pills)
-                   - MARINE CONTEXT words (blue pills)
-                   - EXCLUDE keywords (red pills)
-                 Plus the CPV procurement codes (amber pills).
-
-                 If the underlying scraper keyword list changes, this
-                 panel must be hand-updated to match. The list here is
-                 a documentation copy, not the live source.
+                 ADD TENDER MANUALLY PANEL
                  ==================================================== -->
+            <details class="mt-8 p-5 bg-slate-800 border border-slate-700 rounded-lg" id="add-panel">
+                <summary class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-bold text-slate-300 uppercase tracking-wider">Add Tender Manually</p>
+                        <p class="text-xs text-slate-500 mt-1">Found something the scraper missed? Add it here. Requires the passphrase.</p>
+                    </div>
+                    <span class="arrow text-slate-400 text-sm">&#9656;</span>
+                </summary>
+
+                <div class="mt-5 pb-4 border-b border-slate-700 flex flex-wrap items-center gap-2">
+                    <button id="add-unlock-btn" class="text-xs px-3 py-1.5 rounded border border-indigo-600 text-indigo-400 hover:bg-indigo-600/10 transition">Unlock to add</button>
+                    <span id="add-status" class="text-xs text-slate-500"></span>
+                </div>
+
+                <div id="add-form" class="mt-5 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="md:col-span-2">
+                            <label class="add-label">Project / Tender Title <span class="add-required">*</span></label>
+                            <input id="add-project" type="text" class="add-input" placeholder="e.g. Request for Proposals: Marine Mammal Observer Services">
+                        </div>
+                        <div>
+                            <label class="add-label">Issuing Entity / Organisation</label>
+                            <input id="add-entity" type="text" class="add-input" placeholder="e.g. Department of Fisheries and Oceans">
+                        </div>
+                        <div>
+                            <label class="add-label">Region</label>
+                            <select id="add-region" class="add-input">
+                                <option value="">-- Select --</option>
+                                <option value="Canada">Canada</option>
+                                <option value="Canada (BC)">Canada (BC)</option>
+                                <option value="Canada (NL)">Canada (NL)</option>
+                                <option value="Canada (NS)">Canada (NS)</option>
+                                <option value="Canada (NU)">Canada (NU)</option>
+                                <option value="Canada (YT)">Canada (YT)</option>
+                                <option value="UK">UK</option>
+                                <option value="EU">EU</option>
+                                <option value="USA">USA</option>
+                                <option value="Pacific">Pacific</option>
+                                <option value="Arctic">Arctic</option>
+                                <option value="Caribbean">Caribbean</option>
+                                <option value="International">International</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="add-label">Link to Notice <span class="add-required">*</span></label>
+                            <input id="add-url" type="url" class="add-input" placeholder="https://...">
+                        </div>
+                        <div>
+                            <label class="add-label">Closing / Due Date</label>
+                            <input id="add-due" type="date" class="add-input">
+                        </div>
+                        <div>
+                            <label class="add-label">Reference Number</label>
+                            <input id="add-ref" type="text" class="add-input" placeholder="e.g. 2026/PBS/001">
+                        </div>
+                        <div>
+                            <label class="add-label">Source / Portal Name</label>
+                            <input id="add-source" type="text" class="add-input" placeholder="e.g. SPREP, Gemini Scout, Manual" value="Manual">
+                        </div>
+                        <div>
+                            <label class="add-label">Initial Status</label>
+                            <select id="add-status-val" class="add-input">
+                                <option value="open">Open</option>
+                                <option value="watching">Watching</option>
+                                <option value="bidding">Bidding</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="add-label">Summary / Description</label>
+                            <textarea id="add-summary" rows="3" class="add-input" placeholder="Brief description of what the tender is for..."></textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="add-label">Notes</label>
+                            <textarea id="add-notes" rows="2" class="add-input" placeholder="Any internal notes, e.g. who spotted it, links to PDFs, context..."></textarea>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button id="add-submit-btn" class="text-xs px-4 py-2 rounded border border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-500 transition font-semibold">Save to tracker</button>
+                        <button id="add-clear-btn" class="text-xs px-3 py-2 rounded border border-slate-600 text-slate-400 hover:border-slate-400 transition">Clear form</button>
+                        <span id="add-save-status" class="text-xs text-slate-500"></span>
+                    </div>
+                </div>
+            </details>
+
             <!-- ====================================================
-                 FILTER CRITERIA PANEL (live editor)
-                 ====================================================
-                 Reads Edgewise_filters.json on load, lets the user
-                 add or remove keywords, and saves the updated JSON
-                 back to the repo via the GitHub Contents API.
-
-                 Editing is gated by the LAK passphrase. Until
-                 unlocked the x buttons and add inputs are hidden,
-                 and the Save button is disabled.
+                 FILTER CRITERIA PANEL
                  ==================================================== -->
-            <details class="mt-8 p-5 bg-slate-800 border border-slate-700 rounded-lg" id="filters-panel">
+            <details class="mt-4 p-5 bg-slate-800 border border-slate-700 rounded-lg" id="filters-panel">
                 <summary class="flex items-center justify-between gap-3">
                     <div>
                         <p class="text-xs font-bold text-slate-300 uppercase tracking-wider">Filter Criteria - what gets shown and what gets dropped</p>
@@ -335,14 +368,12 @@ CHANGE LOG
                     <span class="arrow text-slate-400 text-sm">&#9656;</span>
                 </summary>
 
-                <!-- Unlock + save controls -->
                 <div class="mt-5 flex flex-wrap items-center gap-2 pb-4 border-b border-slate-700">
                     <button id="unlock-btn" class="text-xs px-3 py-1.5 rounded border border-blue-600 text-blue-400 hover:bg-blue-600/10 transition">Unlock editing</button>
                     <button id="save-filters-btn" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-500 cursor-not-allowed" disabled>Save changes</button>
                     <span id="filters-status" class="text-xs text-slate-500"></span>
                 </div>
 
-                <!-- How it works -->
                 <div class="mt-5 mb-5 text-xs text-slate-400 space-y-2 border-l-2 border-slate-600 pl-3">
                     <p><strong class="text-slate-300">How the filter works.</strong> Every tender pulled from the source portals is checked against three rules in order:</p>
                     <ol class="list-decimal list-inside space-y-1 ml-2">
@@ -352,17 +383,15 @@ CHANGE LOG
                     </ol>
                 </div>
 
-                <!-- Marine include keywords -->
                 <div class="mt-6">
                     <p class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">Marine include keywords</p>
-                    <p class="text-xs text-slate-500 mb-3">Tenders matching any of these are kept (subject to the EXCLUDE list).</p>
+                    <p class="text-xs text-slate-500 mb-3">Tenders matching any of these are kept (subject to the EXCLUDE list). Adding more = more tenders through.</p>
                     <div id="kw-marine_keywords" class="kw-list"></div>
                     <div class="kw-add-row mt-2 hidden">
                         <input type="text" data-target="marine_keywords" placeholder="Add new keyword and press Enter" class="kw-input px-2 py-1 rounded border border-slate-600 bg-slate-900 text-slate-300 text-xs w-72">
                     </div>
                 </div>
 
-                <!-- CPV codes -->
                 <div class="mt-6">
                     <p class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">Canadian procurement category (CPV / UNSPSC) codes</p>
                     <p class="text-xs text-slate-500 mb-3">Tenders carrying these codes are auto-included only if they also contain a marine context word.</p>
@@ -372,7 +401,6 @@ CHANGE LOG
                     </div>
                 </div>
 
-                <!-- Marine context words -->
                 <div class="mt-6">
                     <p class="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">Marine context words</p>
                     <p class="text-xs text-slate-500 mb-3">Gate words used only with the CPV-code path. A CPV-coded tender must also contain at least one of these.</p>
@@ -382,17 +410,15 @@ CHANGE LOG
                     </div>
                 </div>
 
-                <!-- Exclude keywords -->
                 <div class="mt-6">
                     <p class="text-xs font-bold text-rose-400 uppercase tracking-wider mb-1">Exclude keywords</p>
-                    <p class="text-xs text-slate-500 mb-3">Hard-reject list. Any of these in the title or description drops the tender immediately.</p>
+                    <p class="text-xs text-slate-500 mb-3">Hard-reject list. Any of these in the title or description drops the tender immediately. Adding more = more noise filtered out.</p>
                     <div id="kw-exclude_keywords" class="kw-list"></div>
                     <div class="kw-add-row mt-2 hidden">
                         <input type="text" data-target="exclude_keywords" placeholder="Add new exclude word and press Enter" class="kw-input px-2 py-1 rounded border border-slate-600 bg-slate-900 text-slate-300 text-xs w-72">
                     </div>
                 </div>
 
-                <!-- How to suggest changes -->
                 <div class="mt-6 pt-4 border-t border-slate-700">
                     <p class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">How edits work</p>
                     <ul class="text-xs text-slate-500 space-y-1 list-disc list-inside ml-2">
@@ -403,16 +429,16 @@ CHANGE LOG
                 </div>
             </details>
 
-            <!-- Procurement portals quick-links - the static directory at the bottom. -->
-            <div class="mt-8 p-5 bg-slate-800 border border-slate-700 rounded-lg">
+            <!-- Procurement portals quick-links -->
+            <div class="mt-4 p-5 bg-slate-800 border border-slate-700 rounded-lg">
                 <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Procurement Portals - Quick Access</p>
-                <p class="text-xs text-slate-500 mb-3">All portals Edgewise tracks. 🚫 = bot-protected, tenders must be added manually. 🔒 = login or membership required. Hover any tile for notes. Click to open.</p>
+                <p class="text-xs text-slate-500 mb-3">All portals Edgewise tracks. &#x1F6AB; = bot-protected, tenders must be added manually. &#x1F512; = login or membership required. Hover any tile for notes. Click to open.</p>
                 <div id="portals-grid" class="flex flex-wrap gap-2">
                     <span class="text-xs text-slate-500">Loading...</span>
                 </div>
             </div>
 
-            <!-- Footnote about source breadth. -->
+            <!-- Footnote -->
             <div class="mt-4 p-4 bg-slate-800/50 border border-slate-700 rounded-lg text-xs text-slate-500">
                 <strong class="text-slate-400">Scraped sources (13):</strong>
                 CanadaBuys, UK Find a Tender, UK Contracts Finder, World Bank,
@@ -428,34 +454,28 @@ CHANGE LOG
         Private tracker &middot; Not indexed &middot; <a href="../index.html" class="hover:text-slate-400">Back to main site</a>
     </footer>
 
-    <!--
-    ============================================================================
-    JavaScript - vanilla, no framework
-    ============================================================================
-    Flow:
-      1. On page load, fetch rfps.json with a cache-busting query param.
-      2. Populate the source filter dropdown from the unique sources found.
-      3. Render the table according to current filters and sort.
-      4. Wire up click/input handlers for filters, search, sorting.
-
-    All state lives in module-scope variables; no localStorage or persistence.
-    A page refresh resets all filters back to defaults.
-    ============================================================================
-    -->
     <script>
-    // ---- State variables ----
+    // ---- State ----
     let allRfps = [];
     let allPortals = [];
     let sortCol = 'due_date';
-    let sortDir = 1;       // 1 = ascending (soonest first), -1 = descending
+    let sortDir = 1;
     let searchTerm = '';
     let statusFilter = 'active';
     let regionFilter = 'all';
     let sourceFilter = 'all';
 
+    // GH_TOKEN and PASSPHRASE are loaded from Edgewise_config.js
+
+    // ---- Config ----
+    const GH_OWNER        = 'liamtp-n';
+    const GH_REPO         = 'Consultation-Services';
+    const GH_BRANCH       = 'main';
+    const GH_FILTERS_PATH = 'edgewise/Edgewise_filters.json';
+    const GH_RFPS_PATH    = 'edgewise/Edgewise_rfps.json';
+    const GH_WORKFLOW_FILE = 'Edgewise_rfp_scrape.yml';
+
     // ---- Security helpers ----
-    // Escape HTML entities so any nasty content from a scraped tender
-    // can't inject HTML/JS into the page.
     function escHtml(str) {
         if (str === null || str === undefined) return '';
         return String(str)
@@ -465,19 +485,16 @@ CHANGE LOG
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
     }
-    // Only allow http(s) URLs to reach the DOM. Strips javascript:, data: etc.
     function safeUrl(u) {
         if (!u) return '#';
         try {
             const parsed = new URL(u, window.location.href);
-            if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
-                return parsed.href;
-            }
-        } catch (e) { /* fall through */ }
+            if (parsed.protocol === 'http:' || parsed.protocol === 'https:') return parsed.href;
+        } catch (e) {}
         return '#';
     }
 
-    // ---- Date formatting ----
+    // ---- Date helpers ----
     function fmtDate(d) {
         if (!d) return '-';
         const p = new Date(d);
@@ -489,8 +506,8 @@ CHANGE LOG
         const p = new Date(d);
         if (isNaN(p)) return null;
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        p.setHours(0, 0, 0, 0);
+        today.setHours(0,0,0,0);
+        p.setHours(0,0,0,0);
         return Math.round((p - today) / 86400000);
     }
     function dueClass(d) {
@@ -511,29 +528,28 @@ CHANGE LOG
         return fmtDate(d);
     }
 
-    // ---- Source -> CSS class mapping ----
+    // ---- CSS class helpers ----
     function srcClass(s) {
         if (!s) return 'source-other';
         const l = s.toLowerCase();
-        if (l.includes('canadabuys'))             return 'source-canadabuys';
-        if (l.includes('find a tender'))          return 'source-findatender';
-        if (l.includes('contracts finder'))       return 'source-contractsfinder';
-        if (l.includes('sprep'))                  return 'source-sprep';
-        if (l.includes('world bank'))             return 'source-worldbank';
-        if (l.includes('imo'))                    return 'source-imo';
-        if (l.includes('caribbean'))              return 'source-cardb';
-        if (l.includes('bc bid'))                 return 'source-bcbid';
-        if (l.includes('nl hydro'))               return 'source-nlhydro';
-        if (l.includes('yukon'))                  return 'source-yukon';
-        if (l.includes('ns procurement'))         return 'source-ns';
-        if (l.includes('nunavut'))                return 'source-nunavut';
-        if (l.includes('bc ferries'))             return 'source-bcferries';
-        if (l.includes('lng canada'))             return 'source-lng';
-        if (l.includes('merx'))                   return 'source-merx';
+        if (l.includes('canadabuys'))       return 'source-canadabuys';
+        if (l.includes('find a tender'))    return 'source-findatender';
+        if (l.includes('contracts finder')) return 'source-contractsfinder';
+        if (l.includes('sprep'))            return 'source-sprep';
+        if (l.includes('world bank'))       return 'source-worldbank';
+        if (l.includes('imo'))              return 'source-imo';
+        if (l.includes('caribbean'))        return 'source-cardb';
+        if (l.includes('bc bid'))           return 'source-bcbid';
+        if (l.includes('nl hydro'))         return 'source-nlhydro';
+        if (l.includes('yukon'))            return 'source-yukon';
+        if (l.includes('ns procurement'))   return 'source-ns';
+        if (l.includes('nunavut'))          return 'source-nunavut';
+        if (l.includes('bc ferries'))       return 'source-bcferries';
+        if (l.includes('lng canada'))       return 'source-lng';
+        if (l.includes('merx'))             return 'source-merx';
         if (l.includes('gemini') || l.includes('manual')) return 'source-manual';
         return 'source-other';
     }
-
     function regionClass(r) {
         const l = (r || '').toLowerCase();
         if (l.includes('canada'))    return 'region-canada';
@@ -545,7 +561,6 @@ CHANGE LOG
         if (l.includes('caribbean')) return 'region-caribbean';
         return 'region-other';
     }
-
     function regionTag(r) {
         const l = (r || '').toLowerCase();
         if (l.includes('canada'))  return 'CA';
@@ -557,7 +572,6 @@ CHANGE LOG
         if (l.includes('caribbean')) return 'CAR';
         return (r || '').slice(0, 4).toUpperCase();
     }
-
     function statusClass(s) {
         const l = (s || 'open').toLowerCase();
         if (l === 'open')      return 'status-open';
@@ -578,7 +592,6 @@ CHANGE LOG
         if (f === 'closed') return ['closed', 'lost', 'won'].includes(s);
         return s === f;
     }
-
     function matchesRegion(r, f) {
         if (f === 'all') return true;
         const reg = (r.region || '').toLowerCase();
@@ -589,7 +602,6 @@ CHANGE LOG
         if (f === 'caribbean') return reg.includes('caribbean');
         return reg.includes(f);
     }
-
     function matchesSource(r, f) {
         if (f === 'all') return true;
         return (r.source || '') === f;
@@ -604,11 +616,9 @@ CHANGE LOG
             if (searchTerm && !hay.includes(searchTerm)) return false;
             return true;
         });
-
         rfps.sort((a, b) => {
             let va = a[sortCol] || '', vb = b[sortCol] || '';
             if (sortCol === 'due_date') {
-                // Empty due dates sort to the bottom in ascending order.
                 va = va ? new Date(va).getTime() : Infinity;
                 vb = vb ? new Date(vb).getTime() : Infinity;
             } else {
@@ -617,7 +627,6 @@ CHANGE LOG
             }
             return va < vb ? sortDir : va > vb ? -sortDir : 0;
         });
-
         return rfps;
     }
 
@@ -625,44 +634,28 @@ CHANGE LOG
     function renderTable() {
         const rfps = getFilteredRfps();
         const tbody = document.getElementById('rfps-body');
-
         if (!rfps.length) {
             tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No RFPs match this filter.</td></tr>';
             updateStats();
             return;
         }
-
         tbody.innerHTML = rfps.map(r => {
             const realIdx = allRfps.indexOf(r);
             return '<tr class="border-b border-slate-700/50 hover:bg-slate-800/60 transition-colors cursor-pointer" data-idx="' + realIdx + '">' +
-                '<td class="px-4 py-3">' +
-                    '<div>' +
-                        '<a href="' + escHtml(safeUrl(r.url)) + '" target="_blank" rel="noopener" ' +
-                           'class="font-semibold text-slate-200 hover:text-blue-400 transition-colors text-sm" ' +
-                           'onclick="event.stopPropagation()">' + escHtml(r.project) + '</a> ' +
-                        '<span class="region-badge ' + regionClass(r.region) + '">' + escHtml(regionTag(r.region)) + '</span>' +
-                        (r.summary ? '<div class="text-xs text-slate-500 mt-0.5 line-clamp-1">' + escHtml(r.summary) + '</div>' : '') +
-                    '</div>' +
-                '</td>' +
+                '<td class="px-4 py-3"><div>' +
+                    '<a href="' + escHtml(safeUrl(r.url)) + '" target="_blank" rel="noopener" class="font-semibold text-slate-200 hover:text-blue-400 transition-colors text-sm" onclick="event.stopPropagation()">' + escHtml(r.project) + '</a> ' +
+                    '<span class="region-badge ' + regionClass(r.region) + '">' + escHtml(regionTag(r.region)) + '</span>' +
+                    (r.summary ? '<div class="text-xs text-slate-500 mt-0.5 line-clamp-1">' + escHtml(r.summary) + '</div>' : '') +
+                '</div></td>' +
                 '<td class="px-4 py-3 text-slate-400 text-xs hidden md:table-cell">' + (escHtml(r.entity) || '-') + '</td>' +
-                '<td class="px-4 py-3 hidden md:table-cell whitespace-nowrap">' +
-                    '<span class="source-badge ' + srcClass(r.source) + '">' + escHtml(r.source || '-') + '</span>' +
-                '</td>' +
-                '<td class="px-4 py-3 whitespace-nowrap">' +
-                    '<span class="source-badge ' + statusClass(r.status) + '">' + escHtml(r.status || 'open') + '</span>' +
-                '</td>' +
+                '<td class="px-4 py-3 hidden md:table-cell whitespace-nowrap"><span class="source-badge ' + srcClass(r.source) + '">' + escHtml(r.source || '-') + '</span></td>' +
+                '<td class="px-4 py-3 whitespace-nowrap"><span class="source-badge ' + statusClass(r.status) + '">' + escHtml(r.status || 'open') + '</span></td>' +
                 '<td class="px-4 py-3 text-xs whitespace-nowrap ' + dueClass(r.due_date) + '">' + escHtml(dueLabel(r.due_date)) + '</td>' +
             '</tr>';
         }).join('');
-
-        // Wire up row click -> detail panel
         tbody.querySelectorAll('tr[data-idx]').forEach(tr => {
-            tr.addEventListener('click', () => {
-                const idx = parseInt(tr.dataset.idx, 10);
-                showDetail(allRfps[idx]);
-            });
+            tr.addEventListener('click', () => showDetail(allRfps[parseInt(tr.dataset.idx, 10)]));
         });
-
         updateStats();
     }
 
@@ -670,29 +663,22 @@ CHANGE LOG
         if (!r) return;
         document.getElementById('detail-title').textContent = r.project || '';
         document.getElementById('detail-entity').textContent = (r.entity || '') + (r.region ? ' \u00b7 ' + r.region : '');
-
         const meta = [];
-        if (r.status)     meta.push('<span class="source-badge ' + statusClass(r.status) + '">' + escHtml(r.status) + '</span>');
-        if (r.due_date)   meta.push('<span class="text-xs text-slate-400">Due: <span class="' + dueClass(r.due_date) + '">' + escHtml(dueLabel(r.due_date)) + '</span></span>');
-        if (r.budget)     meta.push('<span class="text-xs text-slate-400">Budget: <span class="text-slate-200">' + escHtml(r.budget) + '</span></span>');
-        if (r.source)     meta.push('<span class="source-badge ' + srcClass(r.source) + '">' + escHtml(r.source) + '</span>');
-        if (r.reference)  meta.push('<span class="text-xs text-slate-500 font-mono">' + escHtml(r.reference) + '</span>');
+        if (r.status)    meta.push('<span class="source-badge ' + statusClass(r.status) + '">' + escHtml(r.status) + '</span>');
+        if (r.due_date)  meta.push('<span class="text-xs text-slate-400">Due: <span class="' + dueClass(r.due_date) + '">' + escHtml(dueLabel(r.due_date)) + '</span></span>');
+        if (r.budget)    meta.push('<span class="text-xs text-slate-400">Budget: <span class="text-slate-200">' + escHtml(r.budget) + '</span></span>');
+        if (r.source)    meta.push('<span class="source-badge ' + srcClass(r.source) + '">' + escHtml(r.source) + '</span>');
+        if (r.reference) meta.push('<span class="text-xs text-slate-500 font-mono">' + escHtml(r.reference) + '</span>');
         document.getElementById('detail-meta').innerHTML = meta.join('');
-
         const body = [];
-        if (r.summary)       body.push('<p>' + escHtml(r.summary) + '</p>');
-        if (r.why_fits)      body.push('<div class="border-l-2 border-blue-500 pl-3"><p class="text-xs text-blue-400 uppercase tracking-wider mb-1">Why this fits</p><p>' + escHtml(r.why_fits) + '</p></div>');
-        if (r.notes)         body.push('<div class="border-l-2 border-slate-600 pl-3"><p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Notes</p><p>' + escHtml(r.notes) + '</p></div>');
+        if (r.summary)  body.push('<p>' + escHtml(r.summary) + '</p>');
+        if (r.why_fits) body.push('<div class="border-l-2 border-blue-500 pl-3"><p class="text-xs text-blue-400 uppercase tracking-wider mb-1">Why this fits</p><p>' + escHtml(r.why_fits) + '</p></div>');
+        if (r.notes)    body.push('<div class="border-l-2 border-slate-600 pl-3"><p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Notes</p><p>' + escHtml(r.notes) + '</p></div>');
         if (r.tags && r.tags.length) {
-            body.push('<div class="flex flex-wrap gap-1.5 pt-2">' +
-                r.tags.map(t => '<span class="text-xs px-2 py-0.5 rounded bg-slate-700/50 text-slate-400">' + escHtml(t) + '</span>').join('') +
-                '</div>');
+            body.push('<div class="flex flex-wrap gap-1.5 pt-2">' + r.tags.map(t => '<span class="text-xs px-2 py-0.5 rounded bg-slate-700/50 text-slate-400">' + escHtml(t) + '</span>').join('') + '</div>');
         }
-        if (r.url) {
-            body.push('<a href="' + escHtml(safeUrl(r.url)) + '" target="_blank" rel="noopener" class="inline-block text-xs px-3 py-1.5 rounded border border-blue-600 text-blue-400 hover:bg-blue-600/10 transition mt-2">Open tender notice &rarr;</a>');
-        }
+        if (r.url) body.push('<a href="' + escHtml(safeUrl(r.url)) + '" target="_blank" rel="noopener" class="inline-block text-xs px-3 py-1.5 rounded border border-blue-600 text-blue-400 hover:bg-blue-600/10 transition mt-2">Open tender notice &rarr;</a>');
         document.getElementById('detail-body').innerHTML = body.join('');
-
         const panel = document.getElementById('detail-panel');
         panel.classList.remove('hidden');
         panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -704,17 +690,13 @@ CHANGE LOG
 
     function updateStats() {
         const open = allRfps.filter(r => ['open', 'watching', 'bidding', 'submitted'].includes((r.status || 'open').toLowerCase()));
-        const dueSoon = open.filter(r => {
-            const d = daysUntil(r.due_date);
-            return d !== null && d >= 0 && d <= 7;
-        });
+        const dueSoon = open.filter(r => { const d = daysUntil(r.due_date); return d !== null && d >= 0 && d <= 7; });
         document.getElementById('stat-total').textContent = allRfps.length;
         document.getElementById('stat-open').textContent = open.length;
         document.getElementById('stat-due').textContent = dueSoon.length;
     }
 
     function populateSourceFilter() {
-        // Build the source dropdown from unique sources found in the data.
         const sources = [...new Set(allRfps.map(r => r.source).filter(Boolean))].sort();
         const select = document.getElementById('source-filter');
         sources.forEach(s => {
@@ -727,15 +709,12 @@ CHANGE LOG
 
     function renderPortals() {
         const grid = document.getElementById('portals-grid');
-        if (!allPortals.length) {
-            grid.innerHTML = '<span class="text-xs text-slate-500">No portals defined.</span>';
-            return;
-        }
+        if (!allPortals.length) { grid.innerHTML = '<span class="text-xs text-slate-500">No portals defined.</span>'; return; }
 
-        const scraped  = allPortals.filter(p => p.scraped);
-        const blocked  = allPortals.filter(p => !p.scraped && p.bot_blocked && !p.requires_login);
-        const manual   = allPortals.filter(p => !p.scraped && !p.bot_blocked && !p.requires_login);
-        const members  = allPortals.filter(p => p.requires_login);
+        const scraped = allPortals.filter(p => p.scraped);
+        const blocked = allPortals.filter(p => !p.scraped && p.bot_blocked && !p.requires_login);
+        const manual  = allPortals.filter(p => !p.scraped && !p.bot_blocked && !p.requires_login);
+        const members = allPortals.filter(p => p.requires_login);
 
         function portalBtn(p) {
             let icons = '';
@@ -745,13 +724,11 @@ CHANGE LOG
                 'class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition" ' +
                 'title="' + escHtml(p.notes || '') + '">' + escHtml(p.name) + icons + '</a>';
         }
-
         function section(label, colour, portals) {
             if (!portals.length) return '';
             return '<div class="w-full mt-4 first:mt-0">' +
                 '<p class="text-xs font-semibold uppercase tracking-wider mb-2 ' + colour + '">' + label + '</p>' +
-                '<div class="flex flex-wrap gap-2">' + portals.map(portalBtn).join('') + '</div>' +
-                '</div>';
+                '<div class="flex flex-wrap gap-2">' + portals.map(portalBtn).join('') + '</div></div>';
         }
 
         grid.innerHTML =
@@ -763,7 +740,6 @@ CHANGE LOG
 
     async function loadRfps() {
         try {
-            // Cache-bust so we always get the latest scrape, not a CDN copy.
             const res = await fetch('Edgewise_rfps.json?v=' + Date.now());
             const data = await res.json();
             allRfps = data.rfps || [];
@@ -784,16 +760,9 @@ CHANGE LOG
         updateStats();
     }
 
-    // ---- Event wiring ----
-    document.getElementById('search').addEventListener('input', e => {
-        searchTerm = e.target.value.toLowerCase().trim();
-        renderTable();
-    });
-
-    document.getElementById('source-filter').addEventListener('change', e => {
-        sourceFilter = e.target.value;
-        renderTable();
-    });
+    // ---- Event wiring: filters, search, sort ----
+    document.getElementById('search').addEventListener('input', e => { searchTerm = e.target.value.toLowerCase().trim(); renderTable(); });
+    document.getElementById('source-filter').addEventListener('change', e => { sourceFilter = e.target.value; renderTable(); });
 
     document.querySelectorAll('.status-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -803,7 +772,6 @@ CHANGE LOG
             renderTable();
         });
     });
-
     document.querySelectorAll('.region-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('filter-active'));
@@ -812,59 +780,164 @@ CHANGE LOG
             renderTable();
         });
     });
-
     document.querySelectorAll('th.sortable').forEach(th => {
         th.addEventListener('click', () => {
             const col = th.dataset.col;
             sortDir = sortCol === col ? sortDir * -1 : 1;
             sortCol = col;
-            document.querySelectorAll('th.sortable').forEach(t => {
-                t.classList.remove('sorted');
-                t.querySelector('.sort-arrow').innerHTML = '&#8597;';
-            });
+            document.querySelectorAll('th.sortable').forEach(t => { t.classList.remove('sorted'); t.querySelector('.sort-arrow').innerHTML = '&#8597;'; });
             th.classList.add('sorted');
             th.querySelector('.sort-arrow').innerHTML = sortDir === 1 ? '&#8593;' : '&#8595;';
             renderTable();
         });
     });
 
-    // Kick off the initial load.
     loadRfps();
 
     // ============================================================
-    // FILTER EDITOR + RUN-NOW BUTTON
+    // GITHUB API HELPER
     // ============================================================
-    // Reads Edgewise_filters.json on load, lets the user add/remove
-    // keywords with a click, and saves the updated JSON back to the
-    // repo via the GitHub Contents API. Also wires the Run-now
-    // button which fires a workflow_dispatch on the daily-scrape
-    // workflow.
-    //
-    // SECURITY MODEL
-    // --------------
-    // A fine-grained Personal Access Token is embedded below in
-    // GH_TOKEN. The page sits behind a passphrase ("") to gate
-    // access to the editing UI. The passphrase is NOT real auth -
-    // anyone with the URL who views source can extract the token.
-    // Mitigations:
-    //   1. The token's permissions are scoped to this repo only.
-    //   2. The token has only Contents:write and Actions:write.
-    //   3. The page is unlinked, noindex, and shared only with
-    //      Ashley, Kyla, and Liam.
-    // If the URL leaks, rotate the token in github.com > Settings >
-    // Developer settings > Personal access tokens.
+    async function ghGet(path) {
+        const res = await fetch(
+            'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + path + '?ref=' + GH_BRANCH,
+            { headers: { 'Authorization': 'Bearer ' + GH_TOKEN, 'Accept': 'application/vnd.github+json' } }
+        );
+        if (!res.ok) throw new Error('GET failed: ' + res.status);
+        return res.json();
+    }
+    async function ghPut(path, content, sha, message) {
+        const b64 = btoa(unescape(encodeURIComponent(content)));
+        const res = await fetch(
+            'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + path,
+            {
+                method: 'PUT',
+                headers: { 'Authorization': 'Bearer ' + GH_TOKEN, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, content: b64, sha, branch: GH_BRANCH }),
+            }
+        );
+        if (!res.ok) { const err = await res.text(); throw new Error('PUT failed: ' + res.status + ' ' + err); }
+        return res.json();
+    }
+
     // ============================================================
+    // ADD TENDER MANUALLY
+    // ============================================================
+    let addUnlocked = false;
 
-    // ---- Configuration - EDIT THESE ----
-    const GH_OWNER  = 'liamtp-n';
-    const GH_REPO   = 'Consultation-Services';
-    const GH_BRANCH = 'main';
-    const GH_FILTERS_PATH = 'edgewise/Edgewise_filters.json';
-    const GH_WORKFLOW_FILE = 'Edgewise_rfp_scrape.yml';
-    const GH_TOKEN = 'github_pat_11BJ' + 'Q6G4A0PFWYPhGSOX8A_unXzzrQmf6359zSiPgzS4xSG0T980CweUeJIbrR1lq0IYKJQU2DZNLtImXV';
-    const PASSPHRASE = 'LAK';
+    document.getElementById('add-unlock-btn').addEventListener('click', function() {
+        if (addUnlocked) return;
+        const entered = prompt('Enter passphrase to unlock:');
+        if (entered === PASSPHRASE) {
+            addUnlocked = true;
+            document.getElementById('add-form').classList.remove('hidden');
+            const btn = document.getElementById('add-unlock-btn');
+            btn.textContent = 'Unlocked';
+            btn.classList.replace('border-indigo-600', 'border-emerald-600');
+            btn.classList.replace('text-indigo-400', 'text-emerald-400');
+            document.getElementById('add-status').textContent = 'Fill in the form below and click Save to tracker.';
+            document.getElementById('add-status').className = 'text-xs text-emerald-400';
+        } else if (entered !== null) {
+            alert('Wrong passphrase.');
+        }
+    });
 
-    // ---- State ----
+    document.getElementById('add-clear-btn').addEventListener('click', function() {
+        ['add-project','add-entity','add-url','add-ref','add-summary','add-notes'].forEach(id => { document.getElementById(id).value = ''; });
+        document.getElementById('add-due').value = '';
+        document.getElementById('add-region').value = '';
+        document.getElementById('add-source').value = 'Manual';
+        document.getElementById('add-status-val').value = 'open';
+        document.getElementById('add-save-status').textContent = '';
+    });
+
+    function makeId(url, title) {
+        // Simple hash: djb2 on url+title, return 16 hex chars
+        const str = (url + '|' + title).toLowerCase().trim();
+        let h = 5381;
+        for (let i = 0; i < str.length; i++) { h = ((h << 5) + h) ^ str.charCodeAt(i); h = h >>> 0; }
+        // Second pass for more bits
+        let h2 = 0x811c9dc5;
+        for (let i = 0; i < str.length; i++) { h2 ^= str.charCodeAt(i); h2 = (h2 * 0x01000193) >>> 0; }
+        return ('00000000' + h.toString(16)).slice(-8) + ('00000000' + h2.toString(16)).slice(-8);
+    }
+
+    document.getElementById('add-submit-btn').addEventListener('click', async function() {
+        if (!addUnlocked) return;
+
+        const project = document.getElementById('add-project').value.trim();
+        const url     = document.getElementById('add-url').value.trim();
+        const saveStatus = document.getElementById('add-save-status');
+
+        if (!project) { saveStatus.textContent = 'Project title is required.'; saveStatus.className = 'text-xs text-rose-400'; return; }
+        if (!url)     { saveStatus.textContent = 'Link to notice is required.'; saveStatus.className = 'text-xs text-rose-400'; return; }
+
+        saveStatus.textContent = 'Saving...';
+        saveStatus.className = 'text-xs text-blue-400';
+        document.getElementById('add-submit-btn').disabled = true;
+
+        const today = new Date().toISOString().slice(0, 10);
+        const newEntry = {
+            id:        makeId(url, project),
+            project:   project,
+            entity:    document.getElementById('add-entity').value.trim() || '',
+            region:    document.getElementById('add-region').value || '',
+            status:    document.getElementById('add-status-val').value,
+            due_date:  document.getElementById('add-due').value || '',
+            budget:    '',
+            reference: document.getElementById('add-ref').value.trim() || '',
+            source:    document.getElementById('add-source').value.trim() || 'Manual',
+            url:       url,
+            summary:   document.getElementById('add-summary').value.trim() || '',
+            why_fits:  'manually added',
+            notes:     document.getElementById('add-notes').value.trim() || '',
+            tags:      [],
+            added:     today,
+        };
+
+        try {
+            const fileData = await ghGet(GH_RFPS_PATH);
+            const existing = JSON.parse(atob(fileData.content.replace(/\n/g, '')));
+
+            // Dedup by id
+            const alreadyExists = existing.rfps.some(r => r.id === newEntry.id);
+            if (alreadyExists) {
+                saveStatus.textContent = 'This tender appears to already be in the tracker (duplicate URL/title).';
+                saveStatus.className = 'text-xs text-amber-400';
+                document.getElementById('add-submit-btn').disabled = false;
+                return;
+            }
+
+            existing.rfps.unshift(newEntry);
+            existing.last_updated = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+
+            await ghPut(
+                GH_RFPS_PATH,
+                JSON.stringify(existing, null, 2),
+                fileData.sha,
+                'chore: manual tender entry - ' + project.slice(0, 60)
+            );
+
+            saveStatus.textContent = 'Saved! The tender will appear in the table after you refresh the page.';
+            saveStatus.className = 'text-xs text-emerald-400';
+
+            // Optimistically add to in-memory list and re-render
+            allRfps.unshift(newEntry);
+            renderTable();
+
+            // Clear form
+            document.getElementById('add-clear-btn').click();
+
+        } catch (e) {
+            saveStatus.textContent = 'Save failed: ' + e.message;
+            saveStatus.className = 'text-xs text-rose-400';
+        }
+
+        document.getElementById('add-submit-btn').disabled = false;
+    });
+
+    // ============================================================
+    // FILTER EDITOR
+    // ============================================================
     let filtersData = null;
     let unlocked    = false;
     const CATEGORIES = ['marine_keywords', 'cpv_codes', 'marine_context_words', 'exclude_keywords'];
@@ -873,20 +946,14 @@ CHANGE LOG
         try {
             const res = await fetch('Edgewise_filters.json?v=' + Date.now());
             filtersData = await res.json();
-            // Strip the _notes field if present so it isn't treated as a category.
             renderAllFilterLists();
         } catch (e) {
             const s = document.getElementById('filters-status');
-            if (s) {
-                s.textContent = 'Could not load Edgewise_filters.json: ' + e.message;
-                s.className = 'text-xs text-rose-400';
-            }
+            if (s) { s.textContent = 'Could not load Edgewise_filters.json: ' + e.message; s.className = 'text-xs text-rose-400'; }
         }
     }
 
-    function renderAllFilterLists() {
-        CATEGORIES.forEach(renderFilterList);
-    }
+    function renderAllFilterLists() { CATEGORIES.forEach(renderFilterList); }
 
     function renderFilterList(cat) {
         const list = (filtersData && filtersData[cat]) || [];
@@ -895,18 +962,14 @@ CHANGE LOG
         container.innerHTML = list.map(function(kw, i) {
             const lockedCls = unlocked ? '' : 'locked';
             return '<span class="kw-pill-edit cat-' + cat + ' ' + lockedCls + '" data-cat="' + cat + '" data-idx="' + i + '">' +
-                escHtml(kw) +
-                '<span class="kw-x" title="Remove">&times;</span>' +
-            '</span>';
+                escHtml(kw) + '<span class="kw-x" title="Remove">&times;</span></span>';
         }).join('');
         container.querySelectorAll('.kw-x').forEach(function(x) {
             x.addEventListener('click', function(e) {
                 if (!unlocked) return;
                 const pill = e.target.closest('.kw-pill-edit');
-                const c = pill.dataset.cat;
-                const idx = parseInt(pill.dataset.idx, 10);
-                filtersData[c].splice(idx, 1);
-                renderFilterList(c);
+                filtersData[pill.dataset.cat].splice(parseInt(pill.dataset.idx, 10), 1);
+                renderFilterList(pill.dataset.cat);
                 markDirty();
             });
         });
@@ -924,18 +987,14 @@ CHANGE LOG
 
     function setUnlocked(state) {
         unlocked = state;
-        document.querySelectorAll('.kw-add-row').forEach(function(r) {
-            r.classList.toggle('hidden', !state);
-        });
+        document.querySelectorAll('.kw-add-row').forEach(r => r.classList.toggle('hidden', !state));
         renderAllFilterLists();
-
         const unlockBtn = document.getElementById('unlock-btn');
         unlockBtn.textContent = state ? 'Editing unlocked' : 'Unlock editing';
         unlockBtn.classList.toggle('border-emerald-600', state);
         unlockBtn.classList.toggle('text-emerald-400', state);
         unlockBtn.classList.toggle('border-blue-600', !state);
         unlockBtn.classList.toggle('text-blue-400', !state);
-
     }
 
     document.getElementById('unlock-btn').addEventListener('click', function() {
@@ -951,7 +1010,6 @@ CHANGE LOG
         }
     });
 
-    // Wire up "add new keyword" inputs.
     document.querySelectorAll('.kw-input').forEach(function(inp) {
         inp.addEventListener('keydown', function(e) {
             if (e.key !== 'Enter') return;
@@ -959,10 +1017,7 @@ CHANGE LOG
             const val = inp.value.trim();
             if (!val) return;
             filtersData[cat] = filtersData[cat] || [];
-            if (filtersData[cat].includes(val)) {
-                alert('Already in the list.');
-                return;
-            }
+            if (filtersData[cat].includes(val)) { alert('Already in the list.'); return; }
             filtersData[cat].push(val);
             renderFilterList(cat);
             inp.value = '';
@@ -970,50 +1025,19 @@ CHANGE LOG
         });
     });
 
-    // ---- Save: PUT new JSON to GitHub Contents API ----
     document.getElementById('save-filters-btn').addEventListener('click', async function() {
         if (!unlocked) return;
-        if (!GH_TOKEN || GH_TOKEN.indexOf('PASTE_') === 0) {
-            alert('GitHub token not configured. Edit the GH_TOKEN line in Edgewise_rfps.html.');
-            return;
-        }
         const status = document.getElementById('filters-status');
         status.textContent = 'Saving...';
         status.className = 'text-xs text-blue-400';
-
         try {
-            const getRes = await fetch(
-                'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_FILTERS_PATH + '?ref=' + GH_BRANCH,
-                { headers: { 'Authorization': 'Bearer ' + GH_TOKEN, 'Accept': 'application/vnd.github+json' } }
+            const fileData = await ghGet(GH_FILTERS_PATH);
+            await ghPut(
+                GH_FILTERS_PATH,
+                JSON.stringify(filtersData, null, 2),
+                fileData.sha,
+                'chore: update filter keywords from web editor'
             );
-            if (!getRes.ok) throw new Error('GET failed: ' + getRes.status);
-            const getJson = await getRes.json();
-            const sha = getJson.sha;
-
-            const pretty = JSON.stringify(filtersData, null, 2);
-            const b64 = btoa(unescape(encodeURIComponent(pretty)));
-
-            const putRes = await fetch(
-                'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_FILTERS_PATH,
-                {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': 'Bearer ' + GH_TOKEN,
-                        'Accept': 'application/vnd.github+json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: 'chore: update filter keywords from web editor',
-                        content: b64,
-                        sha: sha,
-                        branch: GH_BRANCH,
-                    }),
-                }
-            );
-            if (!putRes.ok) {
-                const err = await putRes.text();
-                throw new Error('PUT failed: ' + putRes.status + ' ' + err);
-            }
             status.textContent = 'Saved. Click "Run scrape now" to apply now, otherwise the next daily scrape uses it.';
             status.className = 'text-xs text-emerald-400';
             const btn = document.getElementById('save-filters-btn');
@@ -1026,12 +1050,8 @@ CHANGE LOG
         }
     });
 
-    // ---- Run-now: POST workflow_dispatch ----
+    // ---- Run-now ----
     document.getElementById('run-scrape-btn').addEventListener('click', async function() {
-        if (!GH_TOKEN || GH_TOKEN.indexOf('PASTE_') === 0) {
-            alert('GitHub token not configured. Edit the GH_TOKEN line in Edgewise_rfps.html.');
-            return;
-        }
         if (!confirm('Trigger a scraper run now? It takes 2-3 minutes; refresh this page once it finishes.')) return;
         const btn = document.getElementById('run-scrape-btn');
         const orig = btn.textContent;
@@ -1042,17 +1062,13 @@ CHANGE LOG
                 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/actions/workflows/' + GH_WORKFLOW_FILE + '/dispatches',
                 {
                     method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + GH_TOKEN,
-                        'Accept': 'application/vnd.github+json',
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Authorization': 'Bearer ' + GH_TOKEN, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ref: GH_BRANCH }),
                 }
             );
             if (res.status === 204) {
-                btn.textContent = 'Triggered ✓';
-                setTimeout(function() { btn.textContent = orig; btn.disabled = false; }, 5000);
+                btn.textContent = 'Triggered \u2713';
+                setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 5000);
             } else {
                 const err = await res.text();
                 throw new Error(res.status + ' ' + err);
