@@ -102,6 +102,7 @@
       "url": "https://canadabuys.canada.ca/en/tender-opportunities",
       "category": "procurement",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": true,
       "notes": "Federal Canada tenders. Login: ashley@edgewiseenvironmental.com (BitWarden). Scraper covers this. Search terms: 70101602, 70100000, 81171500, 77101500, DFO, marine mammal, seabird, marine renewable, PWGSC, DND. Filters: Services, Open, BC, Indigenous Lands, NB, NL, NS, NWT, NU, PEI, QC, YT."
     },
@@ -110,6 +111,7 @@
       "url": "https://www.find-tender.service.gov.uk/Search",
       "category": "procurement",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": true,
       "notes": "UK above-threshold contracts (>~£139k). Scraper covers this."
     },
@@ -118,6 +120,7 @@
       "url": "https://www.contractsfinder.service.gov.uk/Search",
       "category": "procurement",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": true,
       "notes": "UK below-threshold contracts. Scraper covers this."
     },
@@ -126,6 +129,7 @@
       "url": "https://www.sprep.org/tenders",
       "category": "procurement",
       "requires_login": false,
+      "bot_blocked": true,
       "scraped": false,
       "notes": "Pacific Regional Environment Programme. Bot-protected - cannot be auto-scraped. Add tenders manually."
     },
@@ -134,6 +138,7 @@
       "url": "https://projects.worldbank.org/en/projects-operations/procurement",
       "category": "procurement",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": true,
       "notes": "Global multilateral procurement. Scraper covers this."
     },
@@ -142,6 +147,7 @@
       "url": "https://www.imo.org/en/About/Procurement/Pages/Open-Tenders.aspx",
       "category": "procurement",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": true,
       "notes": "Maritime tenders. Highly relevant for marine acoustic / underwater work. Scraper covers this."
     },
@@ -150,6 +156,7 @@
       "url": "https://www.caribank.org/work-with-us/procurement/general-procurement-notices",
       "category": "procurement",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": true,
       "notes": "General Procurement Notices. Scraper covers this."
     },
@@ -158,6 +165,7 @@
       "url": "https://www.bcbid.gov.bc.ca/page.aspx/en/buy/homepage",
       "category": "procurement",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": true,
       "notes": "BC public sector procurement. Browse public, login to bid. Covers BC Hydro and many other BC entities. Scraper covers this."
     },
@@ -166,6 +174,7 @@
       "url": "https://www.bchydro.com/work-with-us/suppliers/bid-opportunities.html",
       "category": "utility",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "BC Hydro posts all opportunities on BC Bid - this is the explainer page. Already covered by BC Bid scraper."
     },
@@ -174,6 +183,7 @@
       "url": "https://nlhydro.bidsandtenders.ca/Module/Tenders/en",
       "category": "utility",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": true,
       "notes": "Login: kyla.graham@edgewiseenvironmental.com (BitWarden). Owner: Kyla. Scraper covers this. Login only required to bid, not to view."
     },
@@ -182,6 +192,7 @@
       "url": "https://yukon.bidsandtenders.ca/Module/Tenders/en",
       "category": "procurement",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": true,
       "notes": "bidsandtenders.ca platform. Scraper covers this."
     },
@@ -190,6 +201,7 @@
       "url": "https://procurement.novascotia.ca/ns-tenders.aspx",
       "category": "procurement",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": true,
       "notes": "Public listings. My NS Account needed to bid. Not currently registered (per tracker). Scraper covers this."
     },
@@ -198,14 +210,16 @@
       "url": "https://www.gov.nu.ca/finance/information/government-nunavut-rftp",
       "category": "procurement",
       "requires_login": false,
-      "scraped": true,
-      "notes": "Arctic procurement - Edgewise differentiator. Bidder Registration needed to bid. Scraper covers this."
+      "bot_blocked": true,
+      "scraped": false,
+      "notes": "Arctic procurement - Edgewise differentiator. Bidder Registration needed to bid. Bot-protected - CanadaBuys covers most NU federal tenders."
     },
     {
       "name": "BC Ferries - Procurement",
       "url": "https://www.bcferries.com/about/procurement",
       "category": "utility",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": true,
       "notes": "Some opportunities on own page, some on BC Bid. Scraper covers this."
     },
@@ -214,6 +228,7 @@
       "url": "https://www.lngcanada.ca/our-business/contracting-procurement/",
       "category": "industry",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": true,
       "notes": "Marine environmental work around the Kitimat LNG terminal. Scraper covers this."
     },
@@ -222,6 +237,7 @@
       "url": "https://www.merx.com/govnl/solicitations/open-bids?pageNumber=1",
       "category": "procurement",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": true,
       "notes": "Listing public; bid documents may have a Pay-as-you-go cost. Not currently registered (per tracker). Scraper covers this."
     },
@@ -230,6 +246,7 @@
       "url": "https://service.ariba.com/Sourcing.aw/109578008/aw?awh=r&awssk=NnUaJOWI&dard=1",
       "category": "procurement",
       "requires_login": true,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "Login: ashley@edgewiseenvironmental.com (BitWarden). Auth-walled, scraper cannot reach."
     },
@@ -238,6 +255,7 @@
       "url": "https://sofiawindfarm.com/",
       "category": "industry",
       "requires_login": true,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "Auth-walled. Browse company info publicly; supplier portal needs login."
     },
@@ -246,6 +264,7 @@
       "url": "https://abcmi.ca/login/",
       "category": "industry",
       "requires_login": true,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "Members-only industry association. Auth-walled."
     },
@@ -254,6 +273,7 @@
       "url": "https://erinl.ca/",
       "category": "industry",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "No tender listings page - check news section manually."
     },
@@ -262,6 +282,7 @@
       "url": "https://allnewfoundlandlabrador.com/",
       "category": "aggregator",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "NL aggregator - manual browse only."
     },
@@ -270,6 +291,7 @@
       "url": "https://elwindfarm.com/",
       "category": "industry",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "Static project page - no listings."
     },
@@ -278,6 +300,7 @@
       "url": "https://piranhawind.com/",
       "category": "industry",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "Static project page - no listings."
     },
@@ -286,6 +309,7 @@
       "url": "https://www.agnicoeagle.com/English/contact-us/suppliers/default.aspx",
       "category": "industry",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "Contact page only - manual outreach."
     },
@@ -294,6 +318,7 @@
       "url": "https://cosewic.ca/",
       "category": "industry",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "News and events only - no procurement listings."
     },
@@ -302,6 +327,7 @@
       "url": "https://www.energynl.ca/",
       "category": "industry",
       "requires_login": true,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "Industry assoc. Login: ashley@edgewiseenvironmental.com (BitWarden). Member portal."
     },
@@ -310,6 +336,7 @@
       "url": "https://marinerenewables.ca/",
       "category": "industry",
       "requires_login": true,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "Industry assoc. BitWarden for login. Member portal has opportunities."
     },
@@ -318,6 +345,7 @@
       "url": "https://econext.ca/",
       "category": "industry",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "Clean Growth NL accelerator - manual browse."
     },
@@ -326,6 +354,7 @@
       "url": "https://energicoast.co.uk/",
       "category": "industry",
       "requires_login": true,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "UK industry assoc. Login: info@edgewiseenvironmental.com (BitWarden). Owner: Ashley."
     },
@@ -334,6 +363,7 @@
       "url": "https://oceansadvance.net/",
       "category": "industry",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "NL ocean tech industry assoc."
     },
@@ -342,6 +372,7 @@
       "url": "https://fern.acadiau.ca/",
       "category": "industry",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "Bay of Fundy energy research consortium."
     },
@@ -350,6 +381,7 @@
       "url": "https://www.imarest.org/",
       "category": "industry",
       "requires_login": false,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "Institute of Marine Engineering, Science and Technology."
     },
@@ -358,6 +390,7 @@
       "url": "https://www.nlowe.org/",
       "category": "industry",
       "requires_login": true,
+      "bot_blocked": false,
       "scraped": false,
       "notes": "NL Organization for Women Entrepreneurs. Member portal."
     }
