@@ -16,7 +16,13 @@
       "summary": "SPREP seeks qualified consultants to provide training and capacity building to support seabird monitoring activities in Palau. Closing midnight Apia time 11 May 2026.",
       "why_fits": "matched marine keyword: \"seabird\"",
       "notes": "Tender PDF: https://www.sprep.org/sites/default/files/documents/tenders/RFT_2026_PBS-001.pdf - Clarification answers published. SPREP portal is bot-protected so this will not be auto-scraped.",
-      "tags": ["seabird", "Pacific", "Palau", "SPREP", "capacity building"],
+      "tags": [
+        "seabird",
+        "Pacific",
+        "Palau",
+        "SPREP",
+        "capacity building"
+      ],
       "added": "2026-05-01"
     },
     {
@@ -104,7 +110,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": true,
-      "notes": "Federal Canada tenders. Login: ashley@edgewiseenvironmental.com (BitWarden). Scraper covers this. Search terms: 70101602, 70100000, 81171500, 77101500, DFO, marine mammal, seabird, marine renewable, PWGSC, DND. Filters: Services, Open, BC, Indigenous Lands, NB, NL, NS, NWT, NU, PEI, QC, YT."
+      "notes": "Federal Canada tenders. Login: ashley@edgewiseenvironmental.com (BitWarden). Scraper covers this. Search terms: 70101602, 70100000, 81171500, 77101500, DFO, marine mammal, seabird, marine renewable, PWGSC, DND. Filters: Services, Open, BC, Indigenous Lands, NB, NL, NS, NWT, NU, PEI, QC, YT.",
+      "no_listings": false
     },
     {
       "name": "UK Find a Tender",
@@ -113,7 +120,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": true,
-      "notes": "UK above-threshold contracts (>~£139k). Scraper covers this."
+      "notes": "UK above-threshold contracts (>~£139k). Scraper covers this.",
+      "no_listings": false
     },
     {
       "name": "UK Contracts Finder",
@@ -122,7 +130,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": true,
-      "notes": "UK below-threshold contracts. Scraper covers this."
+      "notes": "UK below-threshold contracts. Scraper covers this.",
+      "no_listings": false
     },
     {
       "name": "SPREP - Tenders",
@@ -131,7 +140,8 @@
       "requires_login": false,
       "bot_blocked": true,
       "scraped": false,
-      "notes": "Pacific Regional Environment Programme. Bot-protected - cannot be auto-scraped. Add tenders manually."
+      "notes": "Pacific Regional Environment Programme. Bot-protected - cannot be auto-scraped. Add tenders manually.",
+      "no_listings": false
     },
     {
       "name": "World Bank - Procurement Notices",
@@ -140,7 +150,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": true,
-      "notes": "Global multilateral procurement. Scraper covers this."
+      "notes": "Global multilateral procurement. Scraper covers this.",
+      "no_listings": false
     },
     {
       "name": "International Maritime Organisation",
@@ -149,7 +160,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": true,
-      "notes": "Maritime tenders. Highly relevant for marine acoustic / underwater work. Scraper covers this."
+      "notes": "Maritime tenders. Highly relevant for marine acoustic / underwater work. Scraper covers this.",
+      "no_listings": false
     },
     {
       "name": "Caribbean Development Bank",
@@ -158,7 +170,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": true,
-      "notes": "General Procurement Notices. Scraper covers this."
+      "notes": "General Procurement Notices. Scraper covers this.",
+      "no_listings": false
     },
     {
       "name": "BC Bid",
@@ -167,7 +180,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": true,
-      "notes": "BC public sector procurement. Browse public, login to bid. Covers BC Hydro and many other BC entities. Scraper covers this."
+      "notes": "BC public sector procurement. Browse public, login to bid. Covers BC Hydro and many other BC entities. Scraper covers this.",
+      "no_listings": false
     },
     {
       "name": "BC Hydro - Bid Opportunities",
@@ -176,7 +190,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "BC Hydro posts all opportunities on BC Bid - this is the explainer page. Already covered by BC Bid scraper."
+      "notes": "BC Hydro posts all opportunities on BC Bid - this is the explainer page. Already covered by BC Bid scraper.",
+      "no_listings": true
     },
     {
       "name": "NL Hydro - Bids and Tenders",
@@ -185,7 +200,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": true,
-      "notes": "Login: kyla.graham@edgewiseenvironmental.com (BitWarden). Owner: Kyla. Scraper covers this. Login only required to bid, not to view."
+      "notes": "Login: kyla.graham@edgewiseenvironmental.com (BitWarden). Owner: Kyla. Scraper covers this. Login only required to bid, not to view.",
+      "no_listings": false
     },
     {
       "name": "Government of Yukon - Bids",
@@ -194,7 +210,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": true,
-      "notes": "bidsandtenders.ca platform. Scraper covers this."
+      "notes": "bidsandtenders.ca platform. Scraper covers this.",
+      "no_listings": false
     },
     {
       "name": "Gov of Nova Scotia - Procurement",
@@ -203,7 +220,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": true,
-      "notes": "Public listings. My NS Account needed to bid. Not currently registered (per tracker). Scraper covers this."
+      "notes": "Public listings. My NS Account needed to bid. Not currently registered (per tracker). Scraper covers this.",
+      "no_listings": false
     },
     {
       "name": "Government of Nunavut - RFTP",
@@ -212,7 +230,8 @@
       "requires_login": false,
       "bot_blocked": true,
       "scraped": false,
-      "notes": "Arctic procurement - Edgewise differentiator. Bidder Registration needed to bid. Bot-protected - CanadaBuys covers most NU federal tenders."
+      "notes": "Arctic procurement - Edgewise differentiator. Bidder Registration needed to bid. Bot-protected - CanadaBuys covers most NU federal tenders.",
+      "no_listings": false
     },
     {
       "name": "BC Ferries - Procurement",
@@ -221,7 +240,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": true,
-      "notes": "Some opportunities on own page, some on BC Bid. Scraper covers this."
+      "notes": "Some opportunities on own page, some on BC Bid. Scraper covers this.",
+      "no_listings": false
     },
     {
       "name": "LNG Canada - Procurement",
@@ -230,7 +250,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": true,
-      "notes": "Marine environmental work around the Kitimat LNG terminal. Scraper covers this."
+      "notes": "Marine environmental work around the Kitimat LNG terminal. Scraper covers this.",
+      "no_listings": false
     },
     {
       "name": "MERX - Government of NL",
@@ -239,7 +260,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": true,
-      "notes": "Listing public; bid documents may have a Pay-as-you-go cost. Not currently registered (per tracker). Scraper covers this."
+      "notes": "Listing public; bid documents may have a Pay-as-you-go cost. Not currently registered (per tracker). Scraper covers this.",
+      "no_listings": false
     },
     {
       "name": "SAP Ariba",
@@ -248,7 +270,8 @@
       "requires_login": true,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Login: ashley@edgewiseenvironmental.com (BitWarden). Auth-walled, scraper cannot reach."
+      "notes": "Login: ashley@edgewiseenvironmental.com (BitWarden). Auth-walled, scraper cannot reach.",
+      "no_listings": false
     },
     {
       "name": "Sofia Offshore Wind - Supplier Portal",
@@ -257,7 +280,8 @@
       "requires_login": true,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Auth-walled. Browse company info publicly; supplier portal needs login."
+      "notes": "Auth-walled. Browse company info publicly; supplier portal needs login.",
+      "no_listings": false
     },
     {
       "name": "ABCMI Login",
@@ -266,7 +290,8 @@
       "requires_login": true,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Members-only industry association. Auth-walled."
+      "notes": "Members-only industry association. Auth-walled.",
+      "no_listings": false
     },
     {
       "name": "Energy Research & Innovation NL",
@@ -275,7 +300,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "No tender listings page - check news section manually."
+      "notes": "No tender listings page - check news section manually.",
+      "no_listings": true
     },
     {
       "name": "AllNewfoundland and Labrador",
@@ -284,7 +310,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "NL aggregator - manual browse only."
+      "notes": "NL aggregator - manual browse only.",
+      "no_listings": true
     },
     {
       "name": "ElWind Project",
@@ -293,7 +320,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Static project page - no listings."
+      "notes": "Static project page - no listings.",
+      "no_listings": true
     },
     {
       "name": "Piranha Offshore Wind",
@@ -302,7 +330,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Static project page - no listings."
+      "notes": "Static project page - no listings.",
+      "no_listings": true
     },
     {
       "name": "Agnico Eagle - Suppliers",
@@ -311,7 +340,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Contact page only - manual outreach."
+      "notes": "Contact page only - manual outreach.",
+      "no_listings": true
     },
     {
       "name": "COSEWIC",
@@ -320,7 +350,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "News and events only - no procurement listings."
+      "notes": "News and events only - no procurement listings.",
+      "no_listings": true
     },
     {
       "name": "EnergyNL",
@@ -329,7 +360,8 @@
       "requires_login": true,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Industry assoc. Login: ashley@edgewiseenvironmental.com (BitWarden). Member portal."
+      "notes": "Industry assoc. Login: ashley@edgewiseenvironmental.com (BitWarden). Member portal.",
+      "no_listings": false
     },
     {
       "name": "Marine Renewables Canada",
@@ -338,7 +370,8 @@
       "requires_login": true,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Industry assoc. BitWarden for login. Member portal has opportunities."
+      "notes": "Industry assoc. BitWarden for login. Member portal has opportunities.",
+      "no_listings": false
     },
     {
       "name": "EcoNext NL",
@@ -347,7 +380,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Clean Growth NL accelerator - manual browse."
+      "notes": "Clean Growth NL accelerator - manual browse.",
+      "no_listings": true
     },
     {
       "name": "EnergiCoast",
@@ -356,7 +390,8 @@
       "requires_login": true,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "UK industry assoc. Login: info@edgewiseenvironmental.com (BitWarden). Owner: Ashley."
+      "notes": "UK industry assoc. Login: info@edgewiseenvironmental.com (BitWarden). Owner: Ashley.",
+      "no_listings": false
     },
     {
       "name": "OceansAdvance",
@@ -365,7 +400,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "NL ocean tech industry assoc."
+      "notes": "NL ocean tech industry assoc.",
+      "no_listings": true
     },
     {
       "name": "Fundy Energy Research Network",
@@ -374,7 +410,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Bay of Fundy energy research consortium."
+      "notes": "Bay of Fundy energy research consortium.",
+      "no_listings": true
     },
     {
       "name": "IMAREST",
@@ -383,7 +420,8 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Institute of Marine Engineering, Science and Technology."
+      "notes": "Institute of Marine Engineering, Science and Technology.",
+      "no_listings": true
     },
     {
       "name": "NLOWE",
@@ -392,7 +430,8 @@
       "requires_login": true,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "NL Organization for Women Entrepreneurs. Member portal."
+      "notes": "NL Organization for Women Entrepreneurs. Member portal.",
+      "no_listings": false
     }
   ]
 }

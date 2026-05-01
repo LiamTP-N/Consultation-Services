@@ -432,7 +432,7 @@ CHANGE LOG
             <!-- Procurement portals quick-links -->
             <div class="mt-4 p-5 bg-slate-800 border border-slate-700 rounded-lg">
                 <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Procurement Portals - Quick Access</p>
-                <p class="text-xs text-slate-500 mb-3">All portals Edgewise tracks. &#x1F6AB; = bot-protected, tenders must be added manually. &#x1F512; = login or membership required. Hover any tile for notes. Click to open.</p>
+                <p class="text-xs text-slate-500 mb-3">All portals Edgewise tracks. &#x1F6AB; = bot-protected, add tenders manually. &#x1F512; = login or membership required. Portals with no tender listings are shown for reference only. Hover any tile for notes. Click to open.</p>
                 <div id="portals-grid" class="flex flex-wrap gap-2">
                     <span class="text-xs text-slate-500">Loading...</span>
                 </div>
@@ -711,10 +711,10 @@ CHANGE LOG
         const grid = document.getElementById('portals-grid');
         if (!allPortals.length) { grid.innerHTML = '<span class="text-xs text-slate-500">No portals defined.</span>'; return; }
 
-        const scraped = allPortals.filter(p => p.scraped);
-        const blocked = allPortals.filter(p => !p.scraped && p.bot_blocked && !p.requires_login);
-        const manual  = allPortals.filter(p => !p.scraped && !p.bot_blocked && !p.requires_login);
-        const members = allPortals.filter(p => p.requires_login);
+        const scraped    = allPortals.filter(p => p.scraped);
+        const blocked    = allPortals.filter(p => !p.scraped && p.bot_blocked && !p.requires_login);
+        const no_listing = allPortals.filter(p => !p.scraped && !p.bot_blocked && !p.requires_login && p.no_listings);
+        const members    = allPortals.filter(p => p.requires_login);
 
         function portalBtn(p) {
             let icons = '';
@@ -734,8 +734,8 @@ CHANGE LOG
         grid.innerHTML =
             section('Auto-scraped daily', 'text-emerald-500', scraped) +
             section('Public \u2013 bot-protected, check manually \uD83D\uDEAB', 'text-amber-500', blocked) +
-            section('Public \u2013 no scraper yet', 'text-slate-400', manual) +
-            section('Login / membership required \uD83D\uDD12', 'text-slate-500', members);
+            section('No tender listings \u2013 cannot be scraped', 'text-slate-500', no_listing) +
+            section('Login / membership required \uD83D\uDD12', 'text-slate-600', members);
     }
 
     async function loadRfps() {
