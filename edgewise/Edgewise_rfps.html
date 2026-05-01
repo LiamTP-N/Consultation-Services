@@ -406,7 +406,7 @@ CHANGE LOG
             <!-- Procurement portals quick-links - the static directory at the bottom. -->
             <div class="mt-8 p-5 bg-slate-800 border border-slate-700 rounded-lg">
                 <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Procurement Portals - Quick Access</p>
-                <p class="text-xs text-slate-500 mb-3">Includes login-walled sites that the scraper cannot reach. A small lock icon marks portals that require login. Click any portal to open it.</p>
+                <p class="text-xs text-slate-500 mb-3">All portals Edgewise tracks. 🚫 = bot-protected, tenders must be added manually. 🔒 = login or membership required. Hover any tile for notes. Click to open.</p>
                 <div id="portals-grid" class="flex flex-wrap gap-2">
                     <span class="text-xs text-slate-500">Loading...</span>
                 </div>
@@ -414,10 +414,10 @@ CHANGE LOG
 
             <!-- Footnote about source breadth. -->
             <div class="mt-4 p-4 bg-slate-800/50 border border-slate-700 rounded-lg text-xs text-slate-500">
-                <strong class="text-slate-400">Scraped sources (15):</strong>
-                CanadaBuys, UK Find a Tender, UK Contracts Finder, SPREP, World Bank,
+                <strong class="text-slate-400">Scraped sources (13):</strong>
+                CanadaBuys, UK Find a Tender, UK Contracts Finder, World Bank,
                 IMO, Caribbean Development Bank, BC Bid (covers BC Hydro), NL Hydro,
-                Yukon, Nova Scotia Procurement, Nunavut RFTP, BC Ferries, LNG Canada,
+                Yukon, Nova Scotia Procurement, BC Ferries, LNG Canada,
                 MERX (NL).
                 <span class="block mt-1.5 text-slate-600">Manual entries from Gemini scout or hand-added tenders are preserved across runs.</span>
             </div>
@@ -731,13 +731,34 @@ CHANGE LOG
             grid.innerHTML = '<span class="text-xs text-slate-500">No portals defined.</span>';
             return;
         }
-        grid.innerHTML = allPortals.map(p => {
-            // Append a small lock icon for portals that need a login.
-            const locked = p.requires_login ? ' \uD83D\uDD12' : '';
+
+        const scraped  = allPortals.filter(p => p.scraped);
+        const blocked  = allPortals.filter(p => !p.scraped && p.bot_blocked && !p.requires_login);
+        const manual   = allPortals.filter(p => !p.scraped && !p.bot_blocked && !p.requires_login);
+        const members  = allPortals.filter(p => p.requires_login);
+
+        function portalBtn(p) {
+            let icons = '';
+            if (p.bot_blocked)    icons += ' <span title="Cannot be auto-scraped">\uD83D\uDEAB</span>';
+            if (p.requires_login) icons += ' <span title="Login / membership required">\uD83D\uDD12</span>';
             return '<a href="' + escHtml(safeUrl(p.url)) + '" target="_blank" rel="noopener" ' +
                 'class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition" ' +
-                'title="' + escHtml(p.notes || '') + '">' + escHtml(p.name) + locked + '</a>';
-        }).join('');
+                'title="' + escHtml(p.notes || '') + '">' + escHtml(p.name) + icons + '</a>';
+        }
+
+        function section(label, colour, portals) {
+            if (!portals.length) return '';
+            return '<div class="w-full mt-4 first:mt-0">' +
+                '<p class="text-xs font-semibold uppercase tracking-wider mb-2 ' + colour + '">' + label + '</p>' +
+                '<div class="flex flex-wrap gap-2">' + portals.map(portalBtn).join('') + '</div>' +
+                '</div>';
+        }
+
+        grid.innerHTML =
+            section('Auto-scraped daily', 'text-emerald-500', scraped) +
+            section('Public \u2013 bot-protected, check manually \uD83D\uDEAB', 'text-amber-500', blocked) +
+            section('Public \u2013 no scraper yet', 'text-slate-400', manual) +
+            section('Login / membership required \uD83D\uDD12', 'text-slate-500', members);
     }
 
     async function loadRfps() {
