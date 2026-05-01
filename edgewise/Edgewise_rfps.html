@@ -30,6 +30,10 @@ CHANGE LOG
                button with keyword-removal prompt. Made Procurement Portals
                panel collapsible with white glow. Removed several header
                strings per user request.
+- 02 May 2026: Added ADB and AfDB scrapers; UNGM, DevelopmentAid and
+               Tenders.net added as portal-directory entries. New Asia
+               and Africa region filter buttons and badges. Source list
+               in footnote bumped from 19 to 21.
 ================================================================================
 -->
 <html lang="en-GB">
@@ -72,6 +76,8 @@ CHANGE LOG
         .region-pacific   { background: #0a3a3a; color: #5eead4; }
         .region-arctic    { background: #1e2f50; color: #a5b4fc; }
         .region-caribbean { background: #1a3d3a; color: #5eead4; }
+        .region-africa    { background: #3b1f0e; color: #fbbf24; }
+        .region-asia      { background: #2a1a3d; color: #c4b5fd; }
         .region-other     { background: #2a2a2a; color: #cbd5e1; }
 
         .status-open      { background: #14532d; color: #86efac; }
@@ -228,6 +234,8 @@ CHANGE LOG
                 <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="pacific">Pacific</button>
                 <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="arctic">Arctic</button>
                 <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="caribbean">Caribbean</button>
+                <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="asia">Asia</button>
+                <button class="region-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-region="africa">Africa</button>
             </div>
 
             <!-- Filter row 3: source picker -->
@@ -458,10 +466,11 @@ CHANGE LOG
 
             <!-- Footnote -->
             <div class="mt-4 p-4 bg-slate-800/50 border border-slate-700 rounded-lg text-xs text-slate-500">
-                <strong class="text-slate-400">Scraped sources (19):</strong>
+                <strong class="text-slate-400">Scraped sources (21):</strong>
                 CanadaBuys, UK Find a Tender, UK Contracts Finder, TED (EU),
                 SAM.gov (US), PCS Scotland, NBON (New Brunswick), GNWT (Northwest Territories),
-                SEAO Quebec, eTenders Ireland, Sell2Wales, World Bank,
+                SEAO Quebec, eTenders Ireland, Sell2Wales, Asian Development Bank,
+                African Development Bank, World Bank,
                 IMO, Caribbean Development Bank, BC Bid (covers BC Hydro), NL Hydro,
                 Nova Scotia Procurement, BC Ferries, LNG Canada,
                 MERX (NL).
@@ -574,10 +583,12 @@ CHANGE LOG
         if (l.includes('canada'))    return 'region-canada';
         if (l.includes('uk'))        return 'region-uk';
         if (l.includes('usa') || l.includes('us'))  return 'region-usa';
-        if (l.includes('eu') || l.includes('netherlands') || l.includes('europe')) return 'region-eu';
+        if (l.includes('eu') || l.includes('netherlands') || l.includes('europe') || l.includes('ireland') || l.includes('norway') || l.includes('norwegian')) return 'region-eu';
         if (l.includes('pacific') || l.includes('palau')) return 'region-pacific';
         if (l.includes('arctic') || l.includes('nunavut')) return 'region-arctic';
         if (l.includes('caribbean')) return 'region-caribbean';
+        if (l.includes('africa'))    return 'region-africa';
+        if (l.includes('asia'))      return 'region-asia';
         return 'region-other';
     }
     function regionTag(r) {
@@ -585,10 +596,12 @@ CHANGE LOG
         if (l.includes('canada'))  return 'CA';
         if (l.includes('uk'))      return 'UK';
         if (l.includes('usa') || l.includes('us'))  return 'US';
-        if (l.includes('eu') || l.includes('netherlands') || l.includes('europe')) return 'EU';
+        if (l.includes('eu') || l.includes('netherlands') || l.includes('europe') || l.includes('ireland') || l.includes('norway') || l.includes('norwegian')) return 'EU';
         if (l.includes('pacific') || l.includes('palau')) return 'PAC';
         if (l.includes('arctic') || l.includes('nunavut')) return 'ARC';
         if (l.includes('caribbean')) return 'CAR';
+        if (l.includes('africa'))    return 'AFR';
+        if (l.includes('asia'))      return 'ASIA';
         return (r || '').slice(0, 4).toUpperCase();
     }
     function statusClass(s) {
@@ -616,9 +629,11 @@ CHANGE LOG
         const reg = (r.region || '').toLowerCase();
         if (f === 'pacific')   return reg.includes('pacific') || reg.includes('palau');
         if (f === 'arctic')    return reg.includes('arctic') || reg.includes('nunavut');
-        if (f === 'eu')        return reg.includes('eu') || reg.includes('netherlands') || reg.includes('europe');
+        if (f === 'eu')        return reg.includes('eu') || reg.includes('netherlands') || reg.includes('europe') || reg.includes('ireland') || reg.includes('norway') || reg.includes('norwegian');
         if (f === 'usa')       return reg.includes('usa') || reg.includes('us');
         if (f === 'caribbean') return reg.includes('caribbean');
+        if (f === 'asia')      return reg.includes('asia');
+        if (f === 'africa')    return reg.includes('africa');
         return reg.includes(f);
     }
     function matchesSource(r, f) {

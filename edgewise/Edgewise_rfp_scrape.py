@@ -725,6 +725,10 @@ def scrape_canadabuys():
                or row.get("solicitationNumber-numeroSollicitation") or "")
         url = (row.get("noticeURL-URLavis-eng")
                or row.get("tenderNoticeURL-URLavisAppelOffres-eng") or "")
+        # Fallback: build the public tender-notice URL from the reference number.
+        # Pattern confirmed: https://canadabuys.canada.ca/en/tender-opportunities/tender-notice/{ref}
+        if not url and ref:
+            url = "https://canadabuys.canada.ca/en/tender-opportunities/tender-notice/" + ref.lower()
         due = parse_iso_date(
             row.get("expiryDate-dateExpiration")
             or row.get("tenderClosingDate-dateClotureSoumissions") or ""
@@ -760,7 +764,7 @@ FIND_A_TENDER_API = "https://www.find-tender.service.gov.uk/api/1.0/ocdsReleaseP
 
 
 def scrape_find_a_tender():
-    log("Find a Tender (UK): fetching OCDS releases (last 7d)")
+    log("Find a Tender (UK): fetching OCDS releases (last 14d)")
     return _ocds_scrape(
         FIND_A_TENDER_API, source_name="Find a Tender (UK)",
         url_template="https://www.find-tender.service.gov.uk/Notice/{id}",
@@ -780,7 +784,7 @@ CONTRACTS_FINDER_TIMEOUT = 60
 
 
 def scrape_contracts_finder():
-    log("Contracts Finder (UK): fetching OCDS releases (last 7d)")
+    log("Contracts Finder (UK): fetching OCDS releases (last 14d)")
     return _ocds_scrape(
         CONTRACTS_FINDER_API, source_name="Contracts Finder (UK)",
         url_template="https://www.contractsfinder.service.gov.uk/Notice/{id}",
@@ -791,7 +795,7 @@ def scrape_contracts_finder():
 def _ocds_scrape(api_url, source_name, url_template, timeout=None):
     """Shared OCDS parser used by UK Find a Tender and Contracts Finder."""
     out = []
-    since = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%dT00:00:00")
+    since = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%dT00:00:00")
     params = {"updatedFrom": since, "limit": 100, "stages": "tender"}
     cursor = None
     pages = 0
@@ -2081,6 +2085,155 @@ def scrape_sell2wales():
     return out
 
 
+# --------------------------------------------------------------------
+# 23. Asian Development Bank (ADB) - procurement notices
+# --------------------------------------------------------------------
+# Type: PUBLIC HTML LISTINGS
+# Login required: No.
+# Coverage: ADB-financed projects across Asia and the Pacific. Some
+#           Pacific island marine work, fisheries projects, coastal
+#           climate adaptation. Geography is mostly Asia but Pacific
+#           islands occasionally appear and are on-priority for
+#           Edgewise's seabird/marine work.
+
+ADB_NOTICES_URL = (
+    "https://www.adb.org/site/business-opportunities/operational-procurement/"
+    "goods-services/notices-current"
+)
+ADB_BASE = "https://www.adb.org"
+
+
+def scrape_adb():
+    log("ADB: scraping current procurement notices")
+    out = []
+    r = safe_get(ADB_NOTICES_URL)
+    if not r:
+        return out
+
+    soup = BeautifulSoup(r.content, "lxml")
+    seen = set()
+
+    # ADB renders notices as table rows or list items linking to detail pages
+    # whose URLs sit under /projects/<id>/* or /tenders/<id>.
+    for a in soup.find_all("a", href=True):
+        text = a.get_text(strip=True)
+        href = a["href"]
+        if not text or len(text) < 15:
+            continue
+        if not re.search(r"/(projects|tenders|business-opportunities)/", href, re.I):
+            continue
+        # Skip nav/category links (very short URLs)
+        if href.rstrip("/").count("/") < 3:
+            continue
+        full = urljoin(ADB_BASE, href)
+        if full in seen:
+            continue
+        seen.add(full)
+
+        parent_text = a.parent.get_text(" ", strip=True) if a.parent else ""
+        # ADB rows often include a country and a closing date as plain text
+        country_match = re.search(
+            r"\b(Bangladesh|Bhutan|Cambodia|China|Fiji|India|Indonesia|"
+            r"Kazakhstan|Kiribati|Lao|Malaysia|Maldives|Marshall|Micronesia|"
+            r"Mongolia|Myanmar|Nauru|Nepal|Pakistan|Palau|Papua|Philippines|"
+            r"Samoa|Solomon|Sri Lanka|Tajikistan|Thailand|Timor|Tonga|"
+            r"Turkmenistan|Tuvalu|Uzbekistan|Vanuatu|Viet Nam|Vietnam)\b",
+            parent_text, re.I,
+        )
+        country = country_match.group(1) if country_match else ""
+        ddl_match = re.search(
+            r"(\d{1,2}\s+\w+\s+\d{4})", parent_text,
+        )
+        due = parse_uk_date(ddl_match.group(1)) if ddl_match else ""
+
+        out.append(build_record(
+            project=text,
+            entity="Asian Development Bank",
+            region="Asia-Pacific" + (f" ({country})" if country else ""),
+            due_date=due,
+            source="ADB",
+            url=full,
+            summary=parent_text[:400],
+            tags=["ADB", "Asia-Pacific"] + ([country] if country else []),
+        ))
+
+    log(f"ADB: {len(out)} entries pulled (pre-filter)")
+    return out
+
+
+# --------------------------------------------------------------------
+# 24. African Development Bank (AfDB) - corporate procurement
+# --------------------------------------------------------------------
+# Type: PUBLIC HTML LISTINGS
+# Login required: No.
+# Coverage: AfDB-financed projects across Africa. Coastal/marine work
+#           is rarer than ADB but does include West African and East
+#           African coastal climate-adaptation studies and small-scale
+#           fisheries work.
+
+AFDB_NOTICES_URL = (
+    "https://www.afdb.org/en/about-us/corporate-procurement/"
+    "procurement-notices/current-solicitations"
+)
+AFDB_BASE = "https://www.afdb.org"
+
+
+def scrape_afdb():
+    log("AfDB: scraping current solicitations")
+    out = []
+    r = safe_get(AFDB_NOTICES_URL)
+    if not r:
+        return out
+
+    soup = BeautifulSoup(r.content, "lxml")
+    seen = set()
+
+    # AfDB lists solicitations with reference numbers like
+    # "ADB/RFP/TCGS/2026/0041" plus a publication and deadline date.
+    for row in soup.find_all(["article", "div", "li", "tr"]):
+        text = row.get_text(" ", strip=True)
+        if not text or len(text) < 20:
+            continue
+        ref_match = re.search(
+            r"\b(?:ADB|AfDB|AFDB)/[A-Z0-9/-]+/\d{4}/\d{3,5}\b", text
+        )
+        if not ref_match:
+            continue
+        ref = ref_match.group(0)
+        a = row.find("a", href=True)
+        if not a:
+            continue
+        href = a["href"]
+        full = urljoin(AFDB_BASE, href)
+        if full in seen:
+            continue
+        seen.add(full)
+
+        title = a.get_text(strip=True)
+        if not title or len(title) < 10:
+            # Fall back to the reference if the link text is too thin
+            title = ref
+        ddl_match = re.search(
+            r"Deadline\s*[Dd]ate\s*:?\s*(\d{1,2}[-/\s]\w+[-/\s]\d{4})", text,
+        )
+        due = parse_uk_date(ddl_match.group(1)) if ddl_match else ""
+
+        out.append(build_record(
+            project=title,
+            entity="African Development Bank",
+            region="Africa",
+            due_date=due,
+            reference=ref,
+            source="AfDB",
+            url=full,
+            summary=text[:400],
+            tags=["AfDB", "Africa"],
+        ))
+
+    log(f"AfDB: {len(out)} entries pulled (pre-filter)")
+    return out
+
+
 # ====================================================================
 # Filter, dedup, retention, output
 # ====================================================================
@@ -2136,6 +2289,8 @@ SCRAPER_SOURCES = {
     # New scrapers (2026-05)
     "PCS Scotland", "NBON", "GNWT", "SEAO Quebec",
     "eTenders Ireland", "Sell2Wales",
+    # Multilateral development banks (added 2026-05 after Kyla feedback)
+    "ADB", "AfDB",
 }
 
 
@@ -2193,6 +2348,8 @@ SCRAPERS = [
     scrape_seao_qc,            # Quebec - Hydro-Québec, MELCCFP (open-data JSON)
     scrape_etenders_ie,        # Ireland - Marine Institute, MARA, NPWS (OCDS feed)
     scrape_sell2wales,         # Wales - NRW, Welsh Govt Marine (RSS)
+    scrape_adb,                # Asian Development Bank - Asia-Pacific (HTML)
+    scrape_afdb,               # African Development Bank - Africa (HTML)
     scrape_sprep,              # Pacific (bot-protected, skipped)
     scrape_worldbank,          # Global (JSON API)
     scrape_imo,                # Maritime (HTML)
