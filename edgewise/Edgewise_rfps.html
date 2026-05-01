@@ -34,6 +34,14 @@ CHANGE LOG
                Tenders.net added as portal-directory entries. New Asia
                and Africa region filter buttons and badges. Source list
                in footnote bumped from 19 to 21.
+- 02 May 2026: UNGM promoted from portal-directory entry to fully
+               auto-scraped after the AJAX search endpoint was reverse-
+               engineered. Source count now 22.
+- 02 May 2026: SPREP activated via Playwright headless Chromium
+               (replaces the manual-entry workaround). Nunavut
+               activated via the nunavuttenders.ca mirror (which
+               doesn't have Cloudflare in front of it). Active scraped
+               source count now 25.
 ================================================================================
 -->
 <html lang="en-GB">
@@ -466,14 +474,15 @@ CHANGE LOG
 
             <!-- Footnote -->
             <div class="mt-4 p-4 bg-slate-800/50 border border-slate-700 rounded-lg text-xs text-slate-500">
-                <strong class="text-slate-400">Scraped sources (21):</strong>
+                <strong class="text-slate-400">Scraped sources (25):</strong>
                 CanadaBuys, UK Find a Tender, UK Contracts Finder, TED (EU),
                 SAM.gov (US), PCS Scotland, NBON (New Brunswick), GNWT (Northwest Territories),
-                SEAO Quebec, eTenders Ireland, Sell2Wales, Asian Development Bank,
-                African Development Bank, World Bank,
+                Nunavut Tenders, SEAO Quebec, eTenders Ireland, Sell2Wales,
+                Asian Development Bank, African Development Bank,
+                UN Global Marketplace (UNGM), World Bank,
                 IMO, Caribbean Development Bank, BC Bid (covers BC Hydro), NL Hydro,
                 Nova Scotia Procurement, BC Ferries, LNG Canada,
-                MERX (NL).
+                MERX (NL), SPREP.
             </div>
         </div>
     </main>

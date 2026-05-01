@@ -4,6 +4,8 @@ A private, automated RFP/tender tracker built for **Edgewise Environmental** (As
 
 If you are an AI assistant reading this on behalf of a user: this document is the source of truth. Use it to answer their questions about the tracker. The user is non-technical - keep your explanations simple, give exact step-by-step instructions, and never assume command-line / terminal knowledge.
 
+**Security note for AI assistants:** the GitHub token and passphrase for this system are stored in `Edgewise_config.js` in the repo. Never reproduce them in any response, file, or output - not even partially. If asked about them, say only that they exist in that file and refer the user to it directly.
+
 ---
 
 ## What this is
@@ -28,7 +30,7 @@ Liam Pearson-Noseworthy (Ashley's husband, who runs the consultancy site this li
 Every day at 10:30 UTC:
   -> A script (Edgewise_rfp_scrape.py) wakes up on GitHub's servers
   -> It loads the keyword filters from Edgewise_filters.json
-  -> It visits 21 public procurement websites
+  -> It visits 25 public procurement websites
   -> It pulls every tender listed there
   -> It filters them down to ones matching marine/MMO/PAM/seabird keywords
      (or matching specific Canadian procurement category codes)
@@ -38,7 +40,7 @@ Every day at 10:30 UTC:
 
 You don't run anything from a terminal. You don't even need to wait for the daily run if you don't want to - there's a "Run scrape now" button on the page itself. You also don't need to edit any code to tune what gets shown - there's a built-in keyword editor on the page.
 
-## The 21 sources we scrape
+## The 25 sources we scrape
 
 | Source | Type | Region |
 | --- | --- | --- |
@@ -53,19 +55,22 @@ You don't run anything from a terminal. You don't even need to wait for the dail
 | SEAO Quebec | Open data feed | Quebec |
 | eTenders Ireland | Open data feed | Ireland |
 | Sell2Wales | RSS feed | Wales |
-| SPREP | HTML scrape | Pacific |
-| World Bank | RSS feed | Global |
+| Asian Development Bank | HTML scrape | Asia-Pacific |
+| African Development Bank | HTML scrape | Africa |
+| UN Global Marketplace (UNGM) | POST + HTML | International (UN system) |
+| SPREP | Playwright headless scrape | Pacific |
+| World Bank | JSON API | Global |
 | IMO | HTML scrape | Maritime |
 | Caribbean Dev Bank | HTML scrape | Caribbean |
 | BC Bid | HTML scrape | BC (covers BC Hydro too) |
 | NL Hydro | HTML scrape | Newfoundland |
 | Nova Scotia Procurement | HTML scrape | Nova Scotia |
-| Nunavut RFTP | HTML scrape | Arctic |
+| Nunavut Tenders (nunavuttenders.ca) | HTML scrape | Arctic |
 | BC Ferries | HTML scrape | BC |
 | LNG Canada | HTML scrape | BC |
 | MERX (NL) | HTML scrape | Newfoundland |
 
-Portals we **don't** scrape (auth-walled, members-only, or no listings page) are still shown at the bottom of the page as quick-link tiles. A small lock icon (🔒) marks the ones that need a login.
+Portals we **don't** scrape (auth-walled, members-only, or no listings page) are still shown in the Procurement Portals panel at the bottom of the page as quick-link tiles. A small lock icon (🔒) marks the ones that need a login.
 
 ## Using the page
 
@@ -74,9 +79,10 @@ Open it in any browser. You'll see:
 1. **Status pills at the top** showing how many tenders are tracked, how many are open right now, and how many are due in the next 7 days. The "Last Scraped" card includes a green "Run scrape now" button that triggers an immediate refresh (takes 2-3 minutes).
 2. **Filter buttons**: filter by status (Active / Open / Watching / Bidding / Submitted / Closed), by region (Canada / UK / Pacific / Arctic etc.), or by source.
 3. **Search box**: matches the title, entity name, region, and tags.
-4. **Main table**: click any row to open a detail panel with full description, why it matched, and a button to open the original notice.
-5. **Filter Criteria panel** (collapsible, near the bottom): shows what keywords drive the filter. Click to expand. From here you can also edit the keyword lists directly - see "Editing keywords from the page" below.
-6. **Portal directory at the bottom**: 60 portal quick-links including login-walled ones.
+4. **Main table**: click any row to open a detail panel with full description, why it matched, and a button to open the original notice. Each row also has a faint **×** button on the left - clicking it deletes that tender from the tracker. If the tender was found by a keyword, a second prompt asks whether to remove that keyword from the filter at the same time.
+5. **Add Tender Manually** panel (collapsible, below the table): add a tender the scraper missed. Requires the passphrase.
+6. **Filter Criteria panel** (collapsible, below Add Tender): shows what keywords drive the filter. Click to expand. From here you can also edit the keyword lists directly - see "Editing keywords from the page" below.
+7. **Procurement Portals panel** (collapsible, at the bottom): quick-links to all portals Edgewise tracks, grouped by type.
 
 The default view shows "Active" tenders sorted by due date (soonest first).
 
@@ -87,8 +93,9 @@ Suggested daily routine:
 1. Open the page first thing each morning.
 2. Look at "Due in 7 days" - any tenders that need urgent attention.
 3. Look at any new entries (added today) - decide if any are worth pursuing.
-4. For tenders you decide to chase: open `Edgewise_rfps.json` (instructions below) and change that tender's `status` from `open` to `bidding`. The page will then show it in the "Bidding" filter, separate from the firehose of new opportunities.
-5. After bidding, change status to `submitted`. Then `won`/`lost` once you hear back.
+4. For tenders you decide to chase: click the row to open the detail panel, then open `Edgewise_rfps.json` in GitHub's web editor and change that tender's `status` from `open` to `bidding`. The page will then show it in the "Bidding" filter, separate from the firehose of new opportunities.
+5. For tenders that are clearly irrelevant: click the **×** button on that row to delete it. If prompted about a keyword, only agree to remove the keyword if you're confident you don't want any tenders found by it.
+6. After bidding, change status to `submitted`. Then `won`/`lost` once you hear back.
 
 ## Editing keywords from the page (the easy way)
 
@@ -97,7 +104,7 @@ The most common reason to make a change is to tune what gets through the filter.
 1. Open the tracker page.
 2. Scroll down to the **Filter Criteria** card and click it to expand.
 3. Click the **Unlock editing** button.
-4. Enter the passphrase: **`LAK`** (Liam-Ashley-Kyla).
+4. Enter the passphrase (stored in `Edgewise_config.js` in the repo - ask Liam if you don't have it).
 5. Each keyword pill now has a small **×** next to it - click it to remove that keyword.
 6. To add: type your new word into the input box under each list and press **Enter**.
 7. When done, click **Save changes**. Your edits commit to the repo automatically.
@@ -136,7 +143,7 @@ Same process. Find the tender by id. Edit the `notes` field. Whatever you write 
 
 ### 3. To add a tender the scraper missed
 
-E.g. a tender your Gemini Scout found that we don't yet scrape. Add a new entry to the `rfps` array. Use any source name not in the scraper list (e.g. `"source": "Gemini Scout"` or `"source": "Manual"`) and the scraper will leave it alone. Required fields are `id`, `project`, `source`, and `url`. Everything else is optional.
+Use the **Add Tender Manually** panel on the page - it's the easiest way. If you prefer to edit the JSON directly: add a new entry to the `rfps` array using any source name not in the scraper list (e.g. `"source": "Manual"`) and the scraper will leave it alone. Required fields are `id`, `project`, `source`, and `url`. Everything else is optional.
 
 A minimal manual entry looks like this (paste it into the `rfps` array, between the `[` and `]`):
 
@@ -148,7 +155,7 @@ A minimal manual entry looks like this (paste it into the `rfps` array, between 
   "region": "Where",
   "status": "watching",
   "due_date": "2026-06-30",
-  "source": "Gemini Scout",
+  "source": "Manual",
   "url": "https://link-to-the-tender",
   "summary": "Short description",
   "notes": "Why we're tracking this",
@@ -191,7 +198,7 @@ Alternative (the old way, still works):
 
 ### Annual: GitHub token rotation
 
-The page contains an embedded GitHub Personal Access Token that powers the **Save changes** and **Run scrape now** buttons. The token is set to expire 1 year from when it was created. You'll get an email from GitHub a week before it expires.
+The GitHub token and passphrase live in `Edgewise_config.js` in the repo. The token is set to expire 1 year from when it was created. You'll get an email from GitHub a week before it expires.
 
 When that happens:
 
@@ -199,8 +206,8 @@ When that happens:
 2. Click **Edgewise RFP page editor** in the list, then click **Regenerate token** at the top.
 3. Set expiration to 1 year again. Click **Regenerate**.
 4. Copy the new `github_pat_...` value (you can only see it once).
-5. Open `edgewise/Edgewise_rfps.html` in the GitHub web editor (pencil icon).
-6. Search (Ctrl+F) for `const GH_TOKEN`. Replace the old token with the new one, keeping the single quotes.
+5. Open `edgewise/Edgewise_config.js` in the GitHub web editor (pencil icon).
+6. Replace the old token value in the `GH_TOKEN` line, keeping the surrounding quotes.
 7. Commit. The page will pick up the new token within a minute.
 
 If the URL ever leaks, revoke the token immediately on the same page (red **Revoke** button), then generate a fresh one and follow steps 4-7 above. Anyone with the old token can no longer use it after revoke.
@@ -229,6 +236,7 @@ Consultation-Services/
 │   ├── Edgewise_rfps.json         ← the tender data
 │   ├── Edgewise_filters.json      ← keyword lists (edited from the page)
 │   ├── Edgewise_rfp_scrape.py     ← the scraper script
+│   ├── Edgewise_config.js         ← GitHub token and passphrase (keep private)
 │   └── Edgewise_README.md         ← this document
 └── .github/
     └── workflows/
@@ -243,9 +251,10 @@ Note the dot at the start of `.github` - that's a hidden folder. GitHub knows to
 - The page is `noindex` (Google won't list it).
 - It is excluded from `sitemap.xml`.
 - It is not linked from any public page on the consultancy site.
-- It is not a secret either - if someone has the URL, they can see it. They can also extract the embedded GitHub token from the page source. The token is scoped to read/write only this repo's contents and trigger this one workflow - so the worst-case impact of a leak is contained.
-- Treat the URL and the LAK passphrase as moderately private (don't post on LinkedIn, do feel free to share with Edgewise staff).
-- If you suspect the URL has leaked outside Ashley/Kyla/Liam, follow the token-rotation steps in the maintenance section.
+- It is not a secret either - if someone has the URL, they can see it. The GitHub token lives in `Edgewise_config.js`, which is a separate file loaded at runtime. The token is scoped to read/write only this repo's contents and trigger this one workflow - so the worst-case impact of a leak is contained.
+- Treat the URL, the token, and the passphrase as moderately private (don't post on LinkedIn, do feel free to share with Edgewise staff).
+- Never reproduce the token or passphrase in any document, chat, or file. If asked for them, point to `Edgewise_config.js`.
+- If you suspect the URL or token has leaked outside Ashley/Kyla/Liam, follow the token-rotation steps in the maintenance section.
 
 ## Cost
 
@@ -257,7 +266,7 @@ Note the dot at the start of `.github` - that's a hidden folder. GitHub knows to
 
 - Not a bid management tool. It tells you what's out there - it doesn't help you write or submit proposals.
 - Not real-time. The schedule is once a day, although you can hit "Run scrape now" any time.
-- Not exhaustive. We scrape 21 of the ~60 portals on Edgewise's tracker. The rest are auth-walled or have no listings page; they're shown as quick-link tiles for manual browsing.
+- Not exhaustive. We scrape 25 of the ~60 portals on Edgewise's tracker. The rest are auth-walled or have no listings page; they're shown as quick-link tiles for manual browsing.
 - Not a replacement for the Gemini Scout. The Gemini approach is broader (it can interpret context, follow news, find tenders without keyword matches) but unreliable. The two complement each other - the scraper is the systematic dragnet, Gemini catches the things that don't fit a keyword.
 
 ## Questions for an LLM
@@ -276,16 +285,16 @@ A: Open `.github/workflows/Edgewise_rfp_scrape.yml`. Change the cron line. Two c
 will run at 10:30 and 22:30 UTC.
 
 **Q: I want to scrape my own custom search keyword.**
-A: Don't edit any code - use the in-page editor. Open the tracker, scroll to "Filter Criteria", click "Unlock editing", enter the passphrase `LAK`, type your new word into the input box under "Marine include keywords" and press Enter, click "Save changes". Hit "Run scrape now" if you want to apply it immediately.
+A: Don't edit any code - use the in-page editor. Open the tracker, scroll to "Filter Criteria", click "Unlock editing", enter the passphrase (in `Edgewise_config.js`), type your new word into the input box under "Marine include keywords" and press Enter, click "Save changes". Hit "Run scrape now" if you want to apply it immediately.
 
 **Q: The page shows old data even after a scrape.**
 A: Hard-refresh the browser (Ctrl+Shift+R on Windows, Cmd+Shift+R on Mac). GitHub Pages caches aggressively.
 
 **Q: I've forgotten the passphrase.**
-A: It's `LAK` (Liam-Ashley-Kyla, in alphabetical order).
+A: It's in `Edgewise_config.js` in the repo. Open that file in the GitHub web editor to find it. Do not share it outside of Ashley, Kyla, and Liam.
 
 **Q: I want to make the page public (linked from the main site).**
-A: Don't recommend it - the data has Edgewise's tracking notes and login references, AND the page contains an embedded GitHub token. If you really want it public, the token must be removed first (which means losing the in-page editing and run-now button), then remove the `<meta name="robots" content="noindex, nofollow">` line, add the page to `sitemap.xml`, and add a link from your nav. But strongly suggest keeping it private.
+A: Don't recommend it - the page loads `Edgewise_config.js` which contains the GitHub token. If you really want it public, the token must be removed first (which means losing the in-page editing and run-now button), then remove the `<meta name="robots" content="noindex, nofollow">` line, add the page to `sitemap.xml`, and add a link from your nav. But strongly suggest keeping it private.
 
 **Q: Can the scraper send me an email when there are new tenders?**
 A: Not currently, but it's straightforward to add. The scraper would compare today's results against yesterday's and email a summary if anything new is in the "due in 7 days" bucket. Ask Liam.
@@ -296,8 +305,11 @@ A: Either the portal has redesigned its HTML (most common) or it has gone down o
 **Q: Save changes button gave me an error.**
 A: Most likely the GitHub token has expired (it's set to renew annually). Follow the "Annual: GitHub token rotation" steps in the maintenance section above.
 
+**Q: How do I delete a tender?**
+A: Click the faint **×** button on the left side of that tender's row in the table. Confirm the deletion. If prompted about a keyword, only agree to remove it if you're confident you don't want similar tenders in future.
+
 ## Maintainer contact
 
 Liam Pearson-Noseworthy (site owner) - via the Edgewise team channel.
 
-If you need to extend or rebuild this system, the five files you need are: `Edgewise_rfps.html`, `Edgewise_rfps.json`, `Edgewise_filters.json`, `Edgewise_rfp_scrape.py`, and `.github/workflows/Edgewise_rfp_scrape.yml`. Together they're roughly 5,000 lines, mostly comments. Self-contained, no databases, no servers - just static files on GitHub Pages and a Python script run by GitHub Actions once a day.
+If you need to extend or rebuild this system, the six files you need are: `Edgewise_rfps.html`, `Edgewise_rfps.json`, `Edgewise_filters.json`, `Edgewise_rfp_scrape.py`, `Edgewise_config.js`, and `.github/workflows/Edgewise_rfp_scrape.yml`. Together they're roughly 5,000 lines, mostly comments. Self-contained, no databases, no servers - just static files on GitHub Pages and a Python script run by GitHub Actions once a day.

@@ -51,11 +51,18 @@ category a portal is in tells you whether we can scrape it:
        The portal shows its tenders on a public web page. No
        login required to see basic info (title, due date, link).
        We download the HTML and parse it with BeautifulSoup.
-       Examples: SPREP, BC Bid public portal, Government of
-       Nunavut RFTP, IMO open tenders, NL Hydro on bidsandtenders.
+       Examples: BC Bid public portal, Government of
+       Nunavut (nunavuttenders.ca), IMO open tenders, NL Hydro on bidsandtenders.
        Even most procurement portals that REQUIRE login to
        SUBMIT a bid will let you VIEW the basic tender info
        publicly. We grab whatever's public.
+
+  2a. JS-RENDERED LISTINGS (Playwright)
+       The portal renders its tender list via JavaScript and
+       cannot be read with a plain HTTP request. We launch a
+       headless Chromium browser (Playwright), wait for the
+       page to fully render, then parse the resulting HTML.
+       Example: SPREP (Drupal JS-rendered view).
 
   3. AUTH-WALLED (skipped)
        Tenders only visible after login (SAP Ariba, members-only
@@ -166,7 +173,8 @@ To run manually (locally on your laptop):
     python rfp_scrape.py
 
 Dependencies (pip install ...):
-    requests, beautifulsoup4, lxml
+    requests, beautifulsoup4, lxml, playwright
+    (plus: playwright install chromium --with-deps)
 
 To trigger a manual GitHub Actions run without waiting for the
 schedule: GitHub repo > Actions tab > "Daily RFP Scrape" >
@@ -566,11 +574,11 @@ def parse_iso_date(s):
 
 
 def parse_uk_date(s):
-    """Parse '11 May 2026' or '11/05/2026'. Falls back to ISO."""
+    """Parse '11 May 2026', '11/05/2026', or '11-May-2026'. Falls back to ISO."""
     if not s:
         return ""
     s = s.strip()
-    for fmt in ("%d %B %Y", "%d %b %Y", "%d/%m/%Y", "%d-%m-%Y"):
+    for fmt in ("%d %B %Y", "%d %b %Y", "%d/%m/%Y", "%d-%m-%Y", "%d-%B-%Y", "%d-%b-%Y"):
         try:
             return datetime.strptime(s, fmt).strftime("%Y-%m-%d")
         except ValueError:
@@ -1160,12 +1168,83 @@ def _samgov_opp_to_record(opp):
 # --------------------------------------------------------------------
 # 6. SPREP - Pacific environmental tenders
 # --------------------------------------------------------------------
-# Type: PUBLIC HTML LISTINGS (bot-protected - skipped)
-# Add tenders manually using the "Add tender manually" panel.
+# Type: JS-rendered Drupal page - requires Playwright headless Chromium.
+# Login required: No.
+# Coverage: Pacific Regional Environment Programme tenders. Low volume
+# (~2-5 marine-relevant per year) but directly on-priority for
+# Edgewise seabird/marine work in the Pacific.
+
+SPREP_TENDERS_URL = "https://www.sprep.org/tenders"
+
 
 def scrape_sprep():
-    log("SPREP: skipped (known bot-protected; manual entry required)")
-    return []
+    log("SPREP: fetching tenders via Playwright headless Chromium")
+    out = []
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        log("SPREP: Playwright not installed - skipping")
+        return out
+
+    try:
+        with sync_playwright() as pw:
+            browser = pw.chromium.launch(headless=True)
+            page = browser.new_page(
+                user_agent=(
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                    "Chrome/126.0.0.0 Safari/537.36"
+                )
+            )
+            page.goto(SPREP_TENDERS_URL, wait_until="networkidle", timeout=60000)
+            try:
+                page.wait_for_selector("a[href*='/tender/']", timeout=20000)
+            except Exception:
+                log("SPREP: no tender links appeared after 20s - page may be empty or structure changed")
+                browser.close()
+                return out
+            html = page.content()
+            browser.close()
+
+        soup = BeautifulSoup(html, "lxml")
+        seen = set()
+
+        for a in soup.find_all("a", href=re.compile(r"/tender/")):
+            href = a["href"]
+            if not href.startswith("http"):
+                href = "https://www.sprep.org" + href
+            if href in seen:
+                continue
+            seen.add(href)
+
+            title = a.get_text(strip=True)
+            if not title or len(title) < 10:
+                parent_text = a.parent.get_text(" ", strip=True) if a.parent else ""
+                title = parent_text[:200] or title
+            if not title or len(title) < 10:
+                continue
+
+            parent_text = a.parent.get_text(" ", strip=True) if a.parent else ""
+            due = ""
+            m = re.search(r"(\d{1,2}\s+\w+\s+\d{4})", parent_text)
+            if m:
+                due = parse_uk_date(m.group(1))
+
+            out.append(build_record(
+                project=title,
+                entity="SPREP (Pacific Regional Environment Programme)",
+                region="Pacific",
+                due_date=due,
+                source="SPREP",
+                url=href,
+                tags=["SPREP", "Pacific"],
+            ))
+
+        log(f"SPREP: {len(out)} tenders pulled (pre-filter)")
+    except Exception as e:
+        log(f"SPREP: Playwright scrape failed - {e}")
+
+    return out
 
 
 # --------------------------------------------------------------------
@@ -1448,13 +1527,92 @@ def scrape_ns_procurement():
 
 
 # --------------------------------------------------------------------
-# 13. Government of Nunavut - RFTP (bot-protected, skipped)
+# 13. Government of Nunavut - nunavuttenders.ca
 # --------------------------------------------------------------------
-# Most Nunavut federal tenders also appear in CanadaBuys.
+# Type: PUBLIC HTML LISTINGS (ASP.NET table, no JS challenge)
+# Login required: No (to view; yes to submit a bid via the portal).
+# Note: www.gov.nu.ca/en/business/tenders is Cloudflare-protected, but
+# nunavuttenders.ca serves the same data without any bot protection.
+# Captures GN departmental tenders including environmental services,
+# aerial wildlife surveys, marine infrastructure, and Arctic logistics.
+
+NUNAVUT_TENDERS_URL = "https://www.nunavuttenders.ca/"
+NUNAVUT_TENDERS_BASE = "https://www.nunavuttenders.ca"
+
 
 def scrape_nunavut():
-    log("Nunavut RFTP: skipped (bot-protected; CanadaBuys covers most NU tenders)")
-    return []
+    log("Nunavut Tenders: scraping nunavuttenders.ca")
+    out = []
+    r = safe_get(
+        NUNAVUT_TENDERS_URL,
+        headers={**HEADERS, "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
+    )
+    if not r:
+        return out
+
+    soup = BeautifulSoup(r.content, "lxml")
+    seen = set()
+
+    # Page renders one main ASP.NET GridView table with 8 fixed columns:
+    # Ref# | Description | FOB Point Or Location | Issued Date |
+    # Contact Person | Phone/Email | Closing Date And Time | Submit
+    table = None
+    for t in soup.find_all("table"):
+        rows = t.find_all("tr")
+        if len(rows) > 3:
+            header_cells = [c.get_text(strip=True) for c in rows[0].find_all(["td", "th"])]
+            if "Description" in header_cells and "Closing Date And Time" in header_cells:
+                table = t
+                break
+
+    if not table:
+        log("Nunavut Tenders: could not find tenders table - page structure may have changed")
+        return out
+
+    rows = table.find_all("tr")
+    for row in rows[1:]:
+        cells = row.find_all("td")
+        if len(cells) < 7:
+            continue
+        texts = [c.get_text(strip=True) for c in cells]
+
+        ref = texts[0]
+        title = texts[1]
+        location = texts[2]
+        closing_raw = texts[6] if len(texts) > 6 else ""
+
+        if not title or len(title) < 5:
+            continue
+
+        link_tag = cells[0].find("a", href=True)
+        if not link_tag:
+            link_tag = row.find("a", href=re.compile(r"op=lnk"))
+        href = link_tag["href"] if link_tag else ""
+        if href and not href.startswith("http"):
+            href = NUNAVUT_TENDERS_BASE + "/" + href.lstrip("/")
+        url = href or NUNAVUT_TENDERS_URL
+
+        if url in seen:
+            continue
+        seen.add(url)
+
+        # Closing date format: "2026-05-15 16:00 ET"
+        due = parse_iso_date(closing_raw[:10]) if closing_raw else ""
+
+        out.append(build_record(
+            project=title,
+            entity="Government of Nunavut",
+            region="Canada (NU)",
+            due_date=due,
+            reference=ref,
+            source="Nunavut Tenders",
+            url=url,
+            notes=f"Location: {location}" if location else "",
+            tags=["Nunavut", "Arctic", "Canada", "GN"],
+        ))
+
+    log(f"Nunavut Tenders: {len(out)} tenders pulled (pre-filter)")
+    return out
 
 
 # --------------------------------------------------------------------
@@ -2234,6 +2392,130 @@ def scrape_afdb():
     return out
 
 
+# --------------------------------------------------------------------
+# 25. UN Global Marketplace (UNGM)
+# --------------------------------------------------------------------
+# Type: PUBLIC SEARCH ENDPOINT (returns HTML fragments via POST)
+# Login required: No.
+# Coverage: 54 UN organisations and UN-affiliated bodies publish their
+#           procurement notices here, including UNDP, UNEP, UNOPS, FAO,
+#           WFP, WHO, UNESCO, UNICEF, UNHCR, IMO, IAEA, UNFCCC, plus
+#           World Bank, ADB, AfDB and others that publish notices to
+#           UNGM in addition to their own portals.
+# How it works: the public Notice page is JavaScript-rendered, but the
+#           AJAX endpoint it calls (POST /Public/Notice/Search with a
+#           JSON body) is reachable directly. The server returns a
+#           pre-rendered HTML table fragment which we parse with
+#           BeautifulSoup. Each page returns up to 15 rows regardless
+#           of PageSize requested, so we paginate.
+
+UNGM_SEARCH_URL = "https://www.ungm.org/Public/Notice/Search"
+UNGM_NOTICE_URL = "https://www.ungm.org/Public/Notice/{id}"
+UNGM_MAX_PAGES = 20   # 20 x 15 = up to 300 most recent active notices
+
+
+def scrape_ungm():
+    """UNGM - UN Global Marketplace. Active procurement opportunities."""
+    log("UNGM: fetching active procurement opportunities")
+    out = []
+
+    headers = {
+        **HEADERS,
+        "Content-Type": "application/json",
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "X-Requested-With": "XMLHttpRequest",
+        "Origin": "https://www.ungm.org",
+        "Referer": "https://www.ungm.org/Public/Notice",
+    }
+
+    seen_ids = set()
+    page = 0
+
+    try:
+        while page < UNGM_MAX_PAGES:
+            body = {
+                "PageIndex": page,
+                "PageSize": 100,           # server caps at ~15; we still ask
+                "SortField": "DatePublished",
+                "SortAscending": False,
+                "NoticeStatuses": ["Active"],
+            }
+            r = requests.post(
+                UNGM_SEARCH_URL, json=body, headers=headers,
+                timeout=HTTP_TIMEOUT,
+            )
+            if not r.ok:
+                log(f"UNGM: HTTP {r.status_code} on page {page}")
+                break
+
+            soup = BeautifulSoup(r.content, "lxml")
+            rows = soup.select("div.tableRow.dataRow")
+            if not rows:
+                break
+
+            new_on_page = 0
+            for row in rows:
+                nid = row.get("data-noticeid")
+                if not nid or nid in seen_ids:
+                    continue
+                seen_ids.add(nid)
+                new_on_page += 1
+
+                title_el = row.select_one(".resultTitle")
+                title = ""
+                if title_el:
+                    # The cell contains a sustainability tooltip <span> whose
+                    # text leaks into the cell's get_text() output. Strip it
+                    # by removing all info-tooltip spans first.
+                    for tip in title_el.select(".info-tooltip"):
+                        tip.decompose()
+                    title = title_el.get_text(" ", strip=True)
+                if not title:
+                    continue
+
+                deadline_el = row.select_one('.resultInfo1.deadline')
+                deadline_raw = deadline_el.get_text(" ", strip=True) if deadline_el else ""
+                # Format on UNGM is e.g. "29-May-2026 15:00 (GMT 2.00) ..."
+                m = re.match(r"(\d{1,2}-\w+-\d{4})", deadline_raw)
+                due = parse_uk_date(m.group(1)) if m else ""
+
+                agency_el = row.select_one(".resultAgency")
+                agency = agency_el.get_text(" ", strip=True) if agency_el else ""
+
+                ref_el = row.select_one('.resultInfo1[data-description="Reference"]')
+                ref = ref_el.get_text(" ", strip=True) if ref_el else ""
+
+                # Beneficiary country, when present, shows up as another
+                # cell with data-description="Beneficiary country".
+                country_el = row.select_one('[data-description="Beneficiary country"]')
+                country = country_el.get_text(" ", strip=True) if country_el else ""
+                region = "International (UN)" + (f" - {country}" if country else "")
+
+                url = UNGM_NOTICE_URL.format(id=nid)
+
+                out.append(build_record(
+                    project=title,
+                    entity=agency or "UN Agency",
+                    region=region,
+                    due_date=due,
+                    reference=ref or nid,
+                    source="UNGM",
+                    url=url,
+                    tags=["UN", "UNGM"] + ([agency] if agency else []),
+                ))
+
+            if new_on_page == 0:
+                break
+            page += 1
+            time.sleep(0.5)
+
+    except (requests.RequestException, ValueError) as e:
+        log(f"UNGM: error - {e}")
+
+    log(f"UNGM: {len(out)} notices pulled (pre-filter)")
+    return out
+
+
 # ====================================================================
 # Filter, dedup, retention, output
 # ====================================================================
@@ -2284,13 +2566,15 @@ SCRAPER_SOURCES = {
     "CanadaBuys", "Find a Tender (UK)", "Contracts Finder (UK)",
     "TED (EU)", "SAM.gov (US)",
     "SPREP", "World Bank", "IMO", "Caribbean Development Bank",
-    "BC Bid", "NL Hydro", "NS Procurement", "Nunavut RFTP",
+    "BC Bid", "NL Hydro", "NS Procurement", "Nunavut RFTP", "Nunavut Tenders",
     "BC Ferries", "LNG Canada", "MERX (NL)",
     # New scrapers (2026-05)
     "PCS Scotland", "NBON", "GNWT", "SEAO Quebec",
     "eTenders Ireland", "Sell2Wales",
     # Multilateral development banks (added 2026-05 after Kyla feedback)
     "ADB", "AfDB",
+    # UN Global Marketplace (added 2026-05 after AJAX endpoint reverse-engineered)
+    "UNGM",
 }
 
 
@@ -2350,14 +2634,15 @@ SCRAPERS = [
     scrape_sell2wales,         # Wales - NRW, Welsh Govt Marine (RSS)
     scrape_adb,                # Asian Development Bank - Asia-Pacific (HTML)
     scrape_afdb,               # African Development Bank - Africa (HTML)
-    scrape_sprep,              # Pacific (bot-protected, skipped)
+    scrape_ungm,               # UN Global Marketplace - UN system (POST + HTML fragments)
+    scrape_sprep,              # Pacific - SPREP (Playwright headless Chromium)
     scrape_worldbank,          # Global (JSON API)
     scrape_imo,                # Maritime (HTML)
     scrape_caribbean_db,       # Caribbean (HTML)
     scrape_bc_bid,             # BC public sector (HTML)
     scrape_nl_hydro,           # NL Hydro (bidsandtenders)
     scrape_ns_procurement,     # Nova Scotia (HTML)
-    scrape_nunavut,            # Nunavut (bot-protected, skipped)
+    scrape_nunavut,            # Nunavut - nunavuttenders.ca (HTML table)
     scrape_bc_ferries,         # BC Ferries (HTML)
     scrape_lng_canada,         # LNG Canada (HTML)
     scrape_merx_nl,            # MERX NL government (HTML)
