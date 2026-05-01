@@ -1578,6 +1578,509 @@ def scrape_merx_nl():
     return out
 
 
+# --------------------------------------------------------------------
+# 17. Public Contracts Scotland - Crown Estate Scotland, NatureScot,
+#     Marine Scotland, ScotWind-related work
+# --------------------------------------------------------------------
+# Type: RSS feeds (CPV-filtered)
+# Login required: No.
+
+PCS_SCOTLAND_CPV_TARGETS = [
+    "90711000", "90712000", "90713000", "90714000",
+    "71313000", "71313400", "71313440", "71313450",
+    "73000000", "73110000", "73210000",
+    "71351000", "71355000",
+]
+PCS_SCOTLAND_RSS_BASE = (
+    "https://www.publiccontractsscotland.gov.uk/Search/Search_RSS.aspx"
+)
+
+
+def scrape_pcs_scotland():
+    log("PCS Scotland: fetching RSS feeds by CPV")
+    out = []
+    seen = set()
+
+    for cpv in PCS_SCOTLAND_CPV_TARGETS:
+        r = safe_get(
+            PCS_SCOTLAND_RSS_BASE,
+            params={"CPV": cpv},
+            headers={**HEADERS, "Accept": "application/rss+xml, application/xml, text/xml"},
+        )
+        if not r:
+            continue
+
+        soup = BeautifulSoup(r.content, "lxml-xml")
+        for item in soup.find_all("item"):
+            title = (item.find("title") or {}).get_text(strip=True)
+            link = (item.find("link") or {}).get_text(strip=True)
+            desc = (item.find("description") or {}).get_text(strip=True)
+            pub_date = (item.find("pubDate") or {}).get_text(strip=True)
+            guid = (item.find("guid") or {}).get_text(strip=True)
+
+            if not title or not link:
+                continue
+            if link in seen:
+                continue
+            seen.add(link)
+
+            # PCS items often embed closing date in description as "Closing Date: DD/MM/YYYY"
+            due = ""
+            m = re.search(r"[Cc]losing\s+[Dd]ate[:\s]+(\d{2}/\d{2}/\d{4})", desc)
+            if m:
+                due = parse_uk_date(m.group(1))
+
+            # Extract buyer from description if present
+            entity = ""
+            m2 = re.search(r"[Cc]ontracting\s+[Aa]uthority[:\s]+([^\n<]+)", desc)
+            if m2:
+                entity = m2.group(1).strip()
+
+            out.append(build_record(
+                project=title,
+                entity=entity or "Scottish Public Body",
+                region="UK (Scotland)",
+                due_date=due,
+                reference=guid or link,
+                source="PCS Scotland",
+                url=link,
+                summary=truncate(desc, 400),
+                category_code=cpv,
+                tags=["Scotland", "UK", "PCS"],
+            ))
+
+    log(f"PCS Scotland: {len(out)} entries pulled (pre-filter)")
+    return out
+
+
+# --------------------------------------------------------------------
+# 18. New Brunswick Opportunities Network (NBON)
+# --------------------------------------------------------------------
+# Type: PUBLIC HTML LISTINGS
+# Login required: No (to view; yes to download documents).
+# Coverage: NB Power, DNRED Fisheries and Aquaculture, Bay of Fundy,
+#           Saint John Harbour, provincial departments.
+
+NBON_URL = "https://nbon-rpanb.gnb.ca/PublicTenderOpportunities.aspx"
+NBON_BASE = "https://nbon-rpanb.gnb.ca"
+
+
+def scrape_nbon():
+    log("NBON (New Brunswick): scraping public tender listings")
+    out = []
+    r = safe_get(NBON_URL)
+    if not r:
+        return out
+
+    soup = BeautifulSoup(r.content, "lxml")
+    seen = set()
+
+    # NBON uses a gridview table; rows have alternating CSS classes
+    table = soup.find("table", id=re.compile(r"GridView|gvTenders|tblTenders", re.I))
+    if not table:
+        # Fall back: any table with more than 5 rows
+        tables = soup.find_all("table")
+        table = next((t for t in tables if len(t.find_all("tr")) > 5), None)
+
+    if not table:
+        log("NBON: no tender table found - page structure may have changed")
+        return out
+
+    rows = table.find_all("tr")
+    for row in rows[1:]:   # skip header
+        cells = row.find_all("td")
+        if len(cells) < 3:
+            continue
+        texts = [c.get_text(strip=True) for c in cells]
+        link_tag = row.find("a", href=True)
+        href = link_tag["href"] if link_tag else ""
+        if href and not href.startswith("http"):
+            href = NBON_BASE + "/" + href.lstrip("/")
+
+        # Column order varies; take the longest cell as title if no link text
+        title = link_tag.get_text(strip=True) if link_tag else texts[1] if len(texts) > 1 else texts[0]
+        if not title or len(title) < 8:
+            continue
+        if href in seen:
+            continue
+        seen.add(href or title)
+
+        # Last column is usually closing date
+        due_raw = texts[-1]
+        due = parse_uk_date(due_raw) or parse_iso_date(due_raw)
+
+        out.append(build_record(
+            project=title,
+            entity="Government of New Brunswick",
+            region="Canada (NB)",
+            due_date=due,
+            reference=texts[0] if texts else "",
+            source="NBON",
+            url=href or NBON_URL,
+            tags=["NB", "Canada", "NBON"],
+        ))
+
+    log(f"NBON: {len(out)} tenders pulled (pre-filter)")
+    return out
+
+
+# --------------------------------------------------------------------
+# 19. Government of Northwest Territories (GNWT)
+# --------------------------------------------------------------------
+# Type: PUBLIC HTML LISTINGS (via OpenNWT mirror)
+# Login required: No.
+# Coverage: Inuvialuit Settlement Region, Beaufort Sea, GNWT
+#           Environment & Climate Change, NWT Power Corporation.
+
+GNWT_URL = "https://contracts.opennwt.ca/tenders/?status=open"
+GNWT_BASE = "https://contracts.opennwt.ca"
+GNWT_OFFICIAL = "https://contracts.fin.gov.nt.ca/"
+
+
+def scrape_gnwt():
+    log("GNWT (Northwest Territories): scraping OpenNWT mirror")
+    out = []
+    r = safe_get(GNWT_URL)
+    if not r:
+        # Fall back to official portal HTML
+        r = safe_get(GNWT_OFFICIAL)
+        if not r:
+            return out
+
+    soup = BeautifulSoup(r.content, "lxml")
+    seen = set()
+
+    # OpenNWT renders tenders as cards or table rows
+    for card in soup.select(".tender, .tender-card, article.post, tr"):
+        title_el = card.select_one("h2, h3, h4, .title, .tender-title, td a")
+        if not title_el:
+            continue
+        title = title_el.get_text(strip=True)
+        if not title or len(title) < 8:
+            continue
+
+        link_el = title_el if title_el.name == "a" else title_el.find("a")
+        if not link_el:
+            link_el = card.find("a", href=True)
+        href = (link_el or {}).get("href", "") if link_el else ""
+        if href and not href.startswith("http"):
+            href = GNWT_BASE + href
+
+        if href in seen:
+            continue
+        seen.add(href or title)
+
+        ddl_el = card.select_one(".deadline, .closes, .close-date, time, .date")
+        due_raw = ddl_el.get_text(strip=True) if ddl_el else ""
+        due = parse_uk_date(due_raw) or parse_iso_date(due_raw)
+
+        org_el = card.select_one(".buyer, .department, .org, .organization")
+        entity = org_el.get_text(strip=True) if org_el else "Government of Northwest Territories"
+
+        ref_el = card.select_one(".reference, .ref, .bid-number")
+        ref = ref_el.get_text(strip=True) if ref_el else ""
+
+        out.append(build_record(
+            project=title,
+            entity=entity,
+            region="Canada (NT)",
+            due_date=due,
+            reference=ref,
+            source="GNWT",
+            url=href or GNWT_OFFICIAL,
+            tags=["NWT", "Arctic", "Canada", "GNWT"],
+        ))
+
+    log(f"GNWT: {len(out)} tenders pulled (pre-filter)")
+    return out
+
+
+# --------------------------------------------------------------------
+# 20. SEAO Quebec - Système électronique d'appel d'offres
+# --------------------------------------------------------------------
+# Type: OPEN-DATA FEED (weekly JSON via Données Québec CKAN catalog)
+# Login required: No.
+# Coverage: Hydro-Québec, Société du Plan Nord, MELCCFP (environment
+#           ministry), municipalities along Gulf of St. Lawrence.
+
+SEAO_CATALOG_URL = (
+    "https://www.donneesquebec.ca/recherche/api/3/action/package_show"
+    "?id=d23b2e02-085d-43e5-9e6e-e1d558ebfdd5"
+)
+
+
+def scrape_seao_qc():
+    log("SEAO Quebec: fetching weekly JSON from Données Québec")
+    out = []
+
+    # Step 1: resolve current weekly resource URL from catalog
+    r = safe_get(SEAO_CATALOG_URL)
+    if not r:
+        return out
+    try:
+        pkg = r.json().get("result", {})
+    except ValueError:
+        log("SEAO Quebec: catalog JSON parse error")
+        return out
+
+    resources = pkg.get("resources", [])
+    json_resources = [
+        res for res in resources
+        if (res.get("format", "").upper() == "JSON"
+            and ("hebdo_" in (res.get("url") or "") or "hebdo_" in (res.get("name") or "")))
+    ]
+    if not json_resources:
+        # Fall back: any JSON resource
+        json_resources = [res for res in resources if res.get("format", "").upper() == "JSON"]
+    if not json_resources:
+        log("SEAO Quebec: no JSON resource found in catalog")
+        return out
+
+    json_resources.sort(key=lambda x: x.get("last_modified", ""), reverse=True)
+    feed_url = json_resources[0]["url"]
+    log(f"SEAO Quebec: fetching {feed_url}")
+
+    # Step 2: download the weekly file (can be large - use streaming read)
+    feed_r = safe_get(feed_url, timeout=180)
+    if not feed_r:
+        return out
+    try:
+        data = feed_r.json()
+    except ValueError:
+        log("SEAO Quebec: weekly feed JSON parse error")
+        return out
+
+    # The weekly file is either a list of notices or a dict with a list key
+    notices = data if isinstance(data, list) else (
+        data.get("avis") or data.get("releases") or data.get("notices") or []
+    )
+
+    for n in notices:
+        title = n.get("titre") or n.get("title") or ""
+        if not title:
+            continue
+        org = n.get("organisme") or (n.get("buyer") or {}).get("name") or ""
+        ref = n.get("numeroSeao") or n.get("ocid") or n.get("numeroReference") or ""
+        ddl = (
+            n.get("dateFermeture") or n.get("dateCloture")
+            or (n.get("tender") or {}).get("tenderPeriod", {}).get("endDate") or ""
+        )
+        url = (
+            n.get("url") or n.get("lien")
+            or (f"https://www.seao.ca/OpportunitePublication/UniqueAvis.aspx?ItemId={ref}" if ref else "")
+        )
+        unspsc = n.get("unspsc") or n.get("classification") or ""
+        category_code = (
+            " ".join(unspsc) if isinstance(unspsc, list) else str(unspsc)
+        )
+
+        out.append(build_record(
+            project=title,
+            entity=org or "Québec Public Body",
+            region="Canada (QC)",
+            due_date=parse_iso_date(ddl) or parse_uk_date(ddl),
+            reference=str(ref),
+            source="SEAO Quebec",
+            url=url,
+            category_code=category_code,
+            tags=["QC", "Canada", "SEAO"],
+        ))
+
+    log(f"SEAO Quebec: {len(out)} notices pulled (pre-filter)")
+    return out
+
+
+# --------------------------------------------------------------------
+# 21. eTenders Ireland - Marine Institute, MARA, NPWS, IFI
+# --------------------------------------------------------------------
+# Type: OPEN-DATA FEED (OCDS-style CSV/JSON via data.gov.ie CKAN)
+# Login required: No.
+# Coverage: Marine Institute Ireland, Maritime Area Regulatory
+#           Authority (MARA), NPWS, Inland Fisheries Ireland.
+#           Celtic Sea floating-wind consenting work.
+
+ETENDERS_IE_CATALOG = (
+    "https://data.gov.ie/api/3/action/package_show"
+    "?id=contract-notices-published-on-etenders"
+)
+ETENDERS_IE_FALLBACK = (
+    "https://www.etenders.gov.ie/epps/cft/listContractNotices.do"
+)
+
+
+def scrape_etenders_ie():
+    log("eTenders Ireland: fetching OCDS feed from data.gov.ie")
+    out = []
+
+    r = safe_get(ETENDERS_IE_CATALOG, timeout=45)
+    if not r:
+        return out
+    try:
+        pkg = r.json().get("result", {})
+    except ValueError:
+        log("eTenders Ireland: catalog JSON parse error")
+        return out
+
+    resources = pkg.get("resources", [])
+    feed_resources = [
+        res for res in resources
+        if res.get("format", "").upper() in ("CSV", "JSON")
+    ]
+    if not feed_resources:
+        log("eTenders Ireland: no CSV/JSON resources in catalog")
+        return out
+
+    feed_resources.sort(key=lambda x: x.get("last_modified", ""), reverse=True)
+    target = feed_resources[0]
+    feed_url = target["url"]
+    log(f"eTenders Ireland: fetching {feed_url}")
+
+    feed_r = safe_get(feed_url, timeout=120)
+    if not feed_r:
+        return out
+
+    rows = []
+    if target["format"].upper() == "JSON":
+        try:
+            data = feed_r.json()
+            rows = data if isinstance(data, list) else (
+                data.get("releases") or data.get("data") or []
+            )
+        except ValueError:
+            log("eTenders Ireland: JSON parse error on feed")
+            return out
+    else:
+        try:
+            rows = list(csv.DictReader(io.StringIO(
+                feed_r.content.decode("utf-8-sig", errors="replace")
+            )))
+        except Exception as e:
+            log(f"eTenders Ireland: CSV parse error - {e}")
+            return out
+
+    for row in rows:
+        if isinstance(row, dict):
+            title = (
+                row.get("title") or row.get("Title")
+                or row.get("notice_title") or row.get("BT-21-Lot") or ""
+            )
+            org = (
+                row.get("buyer_name") or row.get("ContractingAuthority")
+                or row.get("organisation") or ""
+            )
+            ref = (
+                row.get("notice_id") or row.get("ID") or row.get("ocid")
+                or row.get("noticeId") or ""
+            )
+            ddl = (
+                row.get("deadline") or row.get("ClosingDate")
+                or row.get("closing_date") or ""
+            )
+            cpv = row.get("cpv") or row.get("CPV") or row.get("cpvCode") or ""
+            url = (
+                row.get("url") or row.get("URL") or row.get("link")
+                or (f"https://www.etenders.gov.ie/epps/cft/listContractNotices.do?ID={ref}" if ref else ETENDERS_IE_FALLBACK)
+            )
+        else:
+            # OCDS release object
+            tender = (row.get("tender") or {}) if isinstance(row, dict) else {}
+            title = tender.get("title") or ""
+            org = (row.get("buyer") or {}).get("name") or ""
+            ref = row.get("ocid") or ""
+            ddl = (tender.get("tenderPeriod") or {}).get("endDate") or ""
+            cpv = str((tender.get("classification") or {}).get("id") or "")
+            url = ETENDERS_IE_FALLBACK
+
+        if not title:
+            continue
+
+        out.append(build_record(
+            project=title,
+            entity=org or "Irish Public Body",
+            region="Ireland",
+            due_date=parse_iso_date(ddl) or parse_uk_date(ddl),
+            reference=str(ref),
+            source="eTenders Ireland",
+            url=url,
+            category_code=cpv,
+            tags=["Ireland", "EU", "eTenders"],
+        ))
+
+    log(f"eTenders Ireland: {len(out)} notices pulled (pre-filter)")
+    return out
+
+
+# --------------------------------------------------------------------
+# 22. Sell2Wales - Natural Resources Wales, Welsh Government Marine
+# --------------------------------------------------------------------
+# Type: RSS feeds (CPV-filtered, same Proactis platform as PCS)
+# Login required: No.
+# Coverage: NRW (Natural Resources Wales), Welsh Government Marine
+#           Directorate, Celtic Sea floating-wind authorities.
+
+SELL2WALES_CPV_TARGETS = [
+    "90711000", "90712000", "90713000",
+    "71313000", "71313440", "71313450",
+    "73000000", "73110000", "73210000",
+    "71351000", "71355000",
+]
+SELL2WALES_RSS_BASE = "https://www.sell2wales.gov.wales/Search/Search_RSS.aspx"
+
+
+def scrape_sell2wales():
+    log("Sell2Wales: fetching RSS feeds by CPV")
+    out = []
+    seen = set()
+
+    for cpv in SELL2WALES_CPV_TARGETS:
+        r = safe_get(
+            SELL2WALES_RSS_BASE,
+            params={"CPV": cpv},
+            headers={**HEADERS, "Accept": "application/rss+xml, application/xml, text/xml"},
+        )
+        if not r:
+            continue
+
+        soup = BeautifulSoup(r.content, "lxml-xml")
+        for item in soup.find_all("item"):
+            title = (item.find("title") or {}).get_text(strip=True)
+            link = (item.find("link") or {}).get_text(strip=True)
+            desc = (item.find("description") or {}).get_text(strip=True)
+            guid = (item.find("guid") or {}).get_text(strip=True)
+
+            if not title or not link:
+                continue
+            if link in seen:
+                continue
+            seen.add(link)
+
+            due = ""
+            m = re.search(r"[Cc]losing\s+[Dd]ate[:\s]+(\d{2}/\d{2}/\d{4})", desc)
+            if m:
+                due = parse_uk_date(m.group(1))
+
+            entity = ""
+            m2 = re.search(r"[Cc]ontracting\s+[Aa]uthority[:\s]+([^\n<]+)", desc)
+            if m2:
+                entity = m2.group(1).strip()
+
+            out.append(build_record(
+                project=title,
+                entity=entity or "Welsh Public Body",
+                region="UK (Wales)",
+                due_date=due,
+                reference=guid or link,
+                source="Sell2Wales",
+                url=link,
+                summary=truncate(desc, 400),
+                category_code=cpv,
+                tags=["Wales", "UK", "Sell2Wales"],
+            ))
+
+    log(f"Sell2Wales: {len(out)} entries pulled (pre-filter)")
+    return out
+
+
 # ====================================================================
 # Filter, dedup, retention, output
 # ====================================================================
@@ -1630,6 +2133,9 @@ SCRAPER_SOURCES = {
     "SPREP", "World Bank", "IMO", "Caribbean Development Bank",
     "BC Bid", "NL Hydro", "NS Procurement", "Nunavut RFTP",
     "BC Ferries", "LNG Canada", "MERX (NL)",
+    # New scrapers (2026-05)
+    "PCS Scotland", "NBON", "GNWT", "SEAO Quebec",
+    "eTenders Ireland", "Sell2Wales",
 }
 
 
@@ -1681,6 +2187,12 @@ SCRAPERS = [
     scrape_contracts_finder,   # UK below-threshold (OCDS JSON)
     scrape_ted,                # EU above-threshold (TED JSON API)
     scrape_samgov,             # US federal (SAM.gov JSON API)
+    scrape_pcs_scotland,       # Crown Estate Scotland, NatureScot, Marine Scotland (RSS)
+    scrape_nbon,               # New Brunswick - NB Power, Bay of Fundy (HTML)
+    scrape_gnwt,               # NWT - Inuvialuit, Beaufort Sea (HTML via OpenNWT)
+    scrape_seao_qc,            # Quebec - Hydro-Québec, MELCCFP (open-data JSON)
+    scrape_etenders_ie,        # Ireland - Marine Institute, MARA, NPWS (OCDS feed)
+    scrape_sell2wales,         # Wales - NRW, Welsh Govt Marine (RSS)
     scrape_sprep,              # Pacific (bot-protected, skipped)
     scrape_worldbank,          # Global (JSON API)
     scrape_imo,                # Maritime (HTML)
