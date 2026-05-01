@@ -36,7 +36,7 @@
       "reference": "cb-918-20987296",
       "source": "CanadaBuys",
       "url": "",
-      "summary": "As part of Canada's reconciliation mandate with Indigenous Nations, and in a partnership initiative to work more collaboratively with Indigenous Guardian/Stewardship organizations for the shared conservation and protection stewardship of Southern Resident Killer Whales (SRKW) and other marine mammal species in Coastal British Columbia (BC), Fisheries and Oceans (DFO) will enter into a contract with the University of Vancouver (VIU) to deliver certified curriculum in the form of lesson modules aimed at training Indigenous Guardians and Indigenous Marine Stewardship staff to become effective wi…",
+      "summary": "As part of Canada's reconciliation mandate with Indigenous Nations, and in a partnership initiative to work more collaboratively with Indigenous Guardian/Stewardship organizations for the shared conservation and protection stewardship of Southern Resident Killer Whales (SRKW) and other marine mammal species in Coastal British Columbia (BC), Fisheries and Oceans (DFO) will enter into a contract with the University of Vancouver (VIU) to deliver certified curriculum in the form of lesson modules aimed at training Indigenous Guardians and Indigenous Marine Stewardship staff to become effective wi\u2026",
       "why_fits": "matched marine keyword: \"marine mammal\"",
       "notes": "",
       "tags": [
@@ -55,7 +55,7 @@
       "reference": "PW-22-00991459",
       "source": "CanadaBuys",
       "url": "",
-      "summary": "This bid solicitation cancels and supersedes previous bid solicitation number 30000316 dated January 24, 2022 with a closing of March 25, 2022 at 14 :00 Atlantic Time. SummaryThe purpose of this requirement is to establish a list of pre-qualified vessels and vessel charters capable of performing at-sea projects / missions as they relate to different ocean science operations (e.g. oceanography, marine mammal studies, hydrography, etc.) and fisheries science (e.g., stock assessment, biodiversity, habitat management, etc.). The projects / missions at-sea will vary in requirements as they relate…",
+      "summary": "This bid solicitation cancels and supersedes previous bid solicitation number 30000316 dated January 24, 2022 with a closing of March 25, 2022 at 14 :00 Atlantic Time. SummaryThe purpose of this requirement is to establish a list of pre-qualified vessels and vessel charters capable of performing at-sea projects / missions as they relate to different ocean science operations (e.g. oceanography, marine mammal studies, hydrography, etc.) and fisheries science (e.g., stock assessment, biodiversity, habitat management, etc.). The projects / missions at-sea will vary in requirements as they relate\u2026",
       "why_fits": "matched marine keyword: \"marine mammal\"",
       "notes": "",
       "tags": [
@@ -65,7 +65,7 @@
     },
     {
       "id": "9b1758711b75f4b0",
-      "project": "Cumberland Sound Turbot Management Area Summer Science Survey – Vessel Charter",
+      "project": "Cumberland Sound Turbot Management Area Summer Science Survey \u2013 Vessel Charter",
       "entity": "Government of Canada",
       "region": "Canada",
       "status": "open",
@@ -93,7 +93,7 @@
       "reference": "cb-7678-41616716",
       "source": "CanadaBuys",
       "url": "",
-      "summary": "This bid solicitation cancels and supersedes previous bid solicitation number 30000316A dated March 31, 2022 with a closing of December 31, 2029 at 14 :00 Atlantic Time. Summary The purpose of this Request for Supply Arrangement (RFSA) is to establish a list of pre-qualified vessels and vessel charters capable of performing at-sea projects / missions as they relate to different ocean science operations (e.g. oceanography, marine mammal studies, hydrography, etc.) and fisheries science (e.g., stock assessment, biodiversity, habitat management, etc.). The projects / missions at-sea will vary in…",
+      "summary": "This bid solicitation cancels and supersedes previous bid solicitation number 30000316A dated March 31, 2022 with a closing of December 31, 2029 at 14 :00 Atlantic Time. Summary The purpose of this Request for Supply Arrangement (RFSA) is to establish a list of pre-qualified vessels and vessel charters capable of performing at-sea projects / missions as they relate to different ocean science operations (e.g. oceanography, marine mammal studies, hydrography, etc.) and fisheries science (e.g., stock assessment, biodiversity, habitat management, etc.). The projects / missions at-sea will vary in\u2026",
       "why_fits": "matched marine keyword: \"marine mammal\"",
       "notes": "",
       "tags": [
@@ -120,7 +120,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": true,
-      "notes": "UK above-threshold contracts (>~£139k). Scraper covers this.",
+      "notes": "UK above-threshold contracts (>~\u00a3139k). Scraper covers this.",
       "no_listings": false
     },
     {
@@ -134,13 +134,33 @@
       "no_listings": false
     },
     {
+      "name": "TED - Tenders Electronic Daily (EU)",
+      "url": "https://ted.europa.eu/en/search/result",
+      "category": "procurement",
+      "requires_login": false,
+      "bot_blocked": false,
+      "scraped": true,
+      "notes": "All EU above-threshold public procurement. Catches Irish, Norwegian, Dutch, Belgian and other European offshore wind and marine environmental work. Scraper covers this.",
+      "no_listings": false
+    },
+    {
+      "name": "SAM.gov (US Federal)",
+      "url": "https://sam.gov/search/?index=opp&sort=-modifiedDate&sfm%5Bstatus%5D%5Bis_active%5D=true",
+      "category": "procurement",
+      "requires_login": false,
+      "bot_blocked": false,
+      "scraped": true,
+      "notes": "US federal procurement. Key buyers: BOEM (offshore wind MMO/PAM), NOAA Fisheries, USACE (coastal EIA), NSF (polar marine). Scraper covers this using DEMO_KEY (30 req/hr limit, sufficient for daily run).",
+      "no_listings": false
+    },
+    {
       "name": "SPREP - Tenders",
       "url": "https://www.sprep.org/tenders",
       "category": "procurement",
       "requires_login": false,
       "bot_blocked": true,
       "scraped": false,
-      "notes": "Pacific Regional Environment Programme. Bot-protected - cannot be auto-scraped. Add tenders manually.",
+      "notes": "Pacific Regional Environment Programme. Bot-protected - cannot be auto-scraped. Add tenders manually using the 'Add tender manually' panel.",
       "no_listings": false
     },
     {
@@ -204,16 +224,6 @@
       "no_listings": false
     },
     {
-      "name": "Government of Yukon - Bids",
-      "url": "https://yukon.bidsandtenders.ca/Module/Tenders/en",
-      "category": "procurement",
-      "requires_login": false,
-      "bot_blocked": false,
-      "scraped": true,
-      "notes": "bidsandtenders.ca platform. Scraper covers this.",
-      "no_listings": false
-    },
-    {
       "name": "Gov of Nova Scotia - Procurement",
       "url": "https://procurement.novascotia.ca/ns-tenders.aspx",
       "category": "procurement",
@@ -264,6 +274,16 @@
       "no_listings": false
     },
     {
+      "name": "Government of Yukon - Bids",
+      "url": "https://yukon.bidsandtenders.ca/Module/Tenders/en",
+      "category": "procurement",
+      "requires_login": false,
+      "bot_blocked": false,
+      "scraped": false,
+      "notes": "bidsandtenders.ca platform. Landlocked territory - low marine yield. Check manually for any coastal or freshwater environmental work.",
+      "no_listings": false
+    },
+    {
       "name": "SAP Ariba",
       "url": "https://service.ariba.com/Sourcing.aw/109578008/aw?awh=r&awssk=NnUaJOWI&dard=1",
       "category": "procurement",
@@ -271,6 +291,76 @@
       "bot_blocked": false,
       "scraped": false,
       "notes": "Login: ashley@edgewiseenvironmental.com (BitWarden). Auth-walled, scraper cannot reach.",
+      "no_listings": false
+    },
+    {
+      "name": "BOEM - Offshore Wind Environmental Studies",
+      "url": "https://www.boem.gov/environment/environmental-studies/offshore-wind-energy-environmental-studies",
+      "category": "industry",
+      "requires_login": false,
+      "bot_blocked": false,
+      "scraped": false,
+      "notes": "US Bureau of Ocean Energy Management - lists planned environmental studies for offshore wind. Biddable items go via SAM.gov (now scraped). Check this page for upcoming study programmes not yet on SAM.",
+      "no_listings": true
+    },
+    {
+      "name": "\u00d8rsted - Supplier Hub",
+      "url": "https://orsted.com/en/our-business/offshore-wind/supplier-information",
+      "category": "industry",
+      "requires_login": true,
+      "bot_blocked": false,
+      "scraped": false,
+      "notes": "Major offshore wind developer - active buyer of MMO/PAM/seabird observer services. Supplier registration required. Login via Achilles FPAL/JQS pre-qualification.",
+      "no_listings": false
+    },
+    {
+      "name": "RWE - Supplier Portal",
+      "url": "https://www.rwe.com/en/supplier-portal",
+      "category": "industry",
+      "requires_login": true,
+      "bot_blocked": false,
+      "scraped": false,
+      "notes": "Active in UK and US offshore wind. Major buyer of environmental monitoring services. Supplier registration required.",
+      "no_listings": false
+    },
+    {
+      "name": "SSE Renewables - Suppliers",
+      "url": "https://www.sserenewables.com/suppliers/",
+      "category": "industry",
+      "requires_login": true,
+      "bot_blocked": false,
+      "scraped": false,
+      "notes": "UK offshore wind developer. Environmental services tenders go via SSE supplier portal or Find a Tender. Register as a supplier to receive direct ITTs.",
+      "no_listings": false
+    },
+    {
+      "name": "Vattenfall - Suppliers",
+      "url": "https://group.vattenfall.com/suppliers",
+      "category": "industry",
+      "requires_login": true,
+      "bot_blocked": false,
+      "scraped": false,
+      "notes": "UK/EU offshore wind developer. Environmental monitoring and MMO/PAM work. Supplier registration via Achilles or in-house portal.",
+      "no_listings": false
+    },
+    {
+      "name": "Equinor - Supplier Portal",
+      "url": "https://www.equinor.com/suppliers",
+      "category": "industry",
+      "requires_login": true,
+      "bot_blocked": false,
+      "scraped": false,
+      "notes": "Norwegian state O&G and offshore wind operator. Active in UK North Sea and US East Coast offshore wind. Pre-qualification via Achilles FPAL/JQS. Auth-walled.",
+      "no_listings": false
+    },
+    {
+      "name": "Achilles FPAL / JQS",
+      "url": "https://www.achilles.com/solution/fpal/",
+      "category": "industry",
+      "requires_login": true,
+      "bot_blocked": false,
+      "scraped": false,
+      "notes": "Oil and gas pre-qualification database. Gate to most North Sea and Atlantic Canada offshore operator work (Equinor, Shell, Cenovus, Suncor, ExxonMobil Canada). Registration gives visibility to operator procurement teams.",
       "no_listings": false
     },
     {
@@ -292,6 +382,36 @@
       "scraped": false,
       "notes": "Members-only industry association. Auth-walled.",
       "no_listings": false
+    },
+    {
+      "name": "Marine Management Organisation (UK)",
+      "url": "https://www.gov.uk/government/organisations/marine-management-organisation/about/procurement",
+      "category": "industry",
+      "requires_login": false,
+      "bot_blocked": false,
+      "scraped": false,
+      "notes": "UK MMO posts marine licensing consultancy via Find a Tender (now scraped). Check this page for direct commissions not on FTS.",
+      "no_listings": true
+    },
+    {
+      "name": "JNCC - Joint Nature Conservation Committee",
+      "url": "https://jncc.gov.uk/about-jncc/corporate-information/contracts-and-tenders/",
+      "category": "industry",
+      "requires_login": false,
+      "bot_blocked": false,
+      "scraped": false,
+      "notes": "UK statutory PAM/MMO guidelines authority. Procurement goes via Find a Tender (now scraped). This page lists direct commissions and frameworks.",
+      "no_listings": true
+    },
+    {
+      "name": "Cefas - Procurement",
+      "url": "https://www.cefas.co.uk/about-us/procurement/",
+      "category": "industry",
+      "requires_login": false,
+      "bot_blocked": false,
+      "scraped": false,
+      "notes": "UK marine science contractor; sometimes subcontracts marine survey work. Procurement goes via Find a Tender. Check this page for direct subcontracting opportunities.",
+      "no_listings": true
     },
     {
       "name": "Energy Research & Innovation NL",

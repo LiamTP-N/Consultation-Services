@@ -14,7 +14,7 @@ The static page `rfps.html` then reads that JSON and renders the
 results in a private, password-free, search-engine-blocked tracker
 that lives at:
 
-    https://liamtp-n.github.io/Consultation-Services/rfps.html
+    https://liamtp-n.github.io/Consultation-Services/edgewise/Edgewise_rfps.html
 
 Nothing in this script touches a login-walled portal. Every source
 listed below publishes its tenders publicly. If a portal we want
@@ -44,7 +44,8 @@ category a portal is in tells you whether we can scrape it:
        (CSV, JSON, RSS/XML) updated regularly. We just download
        and parse. No login, no scraping HTML.
        Examples here: CanadaBuys (CSV), UK Find a Tender (JSON),
-       UK Contracts Finder (JSON), World Bank (RSS).
+       UK Contracts Finder (JSON), World Bank (JSON API),
+       TED (EU, JSON API), SAM.gov (US, JSON API).
 
   2. PUBLIC HTML LISTINGS (medium case)
        The portal shows its tenders on a public web page. No
@@ -76,22 +77,27 @@ ADDING A NEW PORTAL
 
 TUNING WHAT GETS THROUGH THE FILTER
 -----------------------------------
-There are three lists you can edit at the top of this file:
+There are four lists you can edit from the in-page editor on
+Edgewise_rfps.html (or directly in Edgewise_filters.json):
 
   MARINE_KEYWORDS    Strings to look for in titles/descriptions.
                      If ANY match, the tender is kept. Add
                      keywords that would describe Edgewise work.
 
-  CPV_CODES          Procurement category codes from your
-                     CanadaBuys tracker (Wildlife studies,
-                     Environmental management, etc.). Direct match
-                     on the code field.
+  CPV_CODES          Procurement category codes. Covers both
+                     Canadian UNSPSC codes (CanadaBuys) and true
+                     EU CPV codes (TED, UK FTS). A tender tagged
+                     with one of these codes gets kept if it also
+                     contains a marine context word.
 
   EXCLUDE_KEYWORDS   Hard rejects. If ANY of these match the
                      title or description, the tender is dropped
-                     even if it matched a keyword. Use this to
-                     kill obvious irrelevants (catering, IT
-                     support, cleaning supplies).
+                     even if it matched a keyword.
+
+  MARINE_CONTEXT_WORDS
+                     Gate words for the CPV path only. A
+                     CPV-tagged tender must also contain at least
+                     one of these to pass.
 
 You don't need to be exhaustive. The page on rfps.html has its
 own search box and filters - this script is just a coarse
@@ -149,8 +155,8 @@ rfps.json from growing forever.
 
 SCHEDULING
 ----------
-Configured in .github/workflows/rfp_scrape.yml to run daily at
-10:30 UTC. That's:
+Configured in .github/workflows/Edgewise_rfp_scrape.yml to run
+daily at 10:30 UTC. That's:
   - 08:00 NDT (Newfoundland Daylight Time) Mar-Nov
   - 07:00 NST (Newfoundland Standard Time) Nov-Mar
 GitHub Actions cron is fixed to UTC and does not handle DST.
@@ -177,8 +183,9 @@ TROUBLESHOOTING
     is isolated - one breaking does NOT break the others.
 
 "I'm getting too many results"
-    Tighten MARINE_KEYWORDS (remove broad ones like "fisheries"
-    or "biodiversity") and/or expand EXCLUDE_KEYWORDS.
+    Tighten MARINE_KEYWORDS (remove broad ones) and/or expand
+    EXCLUDE_KEYWORDS. Both can be done from the in-page filter
+    editor without touching this file.
 
 "I'm getting too few results"
     Loosen MARINE_KEYWORDS (add synonyms), check that the source
@@ -192,8 +199,6 @@ TROUBLESHOOTING
 # --------------------------------------------------------------------
 # Imports
 # --------------------------------------------------------------------
-# All standard library or trivial deps. Anything fancier is a flag
-# that we should ask whether it's worth the install footprint.
 
 import csv             # CanadaBuys CSV parsing
 import hashlib         # Stable id hashing
@@ -219,11 +224,6 @@ MAX_DAYS_OLD = 90           # Drop closed tenders older than 90 days.
 HTTP_TIMEOUT = 30           # Seconds before giving up on a slow source.
 SCRAPE_DATE = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
-# Some portals (notably SPREP, IMO, parts of GoC) return 403 to the
-# default python-requests UA. Send a normal Chrome UA to be polite.
-# This is not deception - we identify as a desktop browser, which is
-# what we are functionally (a one-shot HTTP client reading public
-# pages). No login, no rate-limit-busting, no scraping behind auth.
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -235,16 +235,11 @@ HEADERS = {
 
 
 # --------------------------------------------------------------------
-# Filter lists - EDIT THESE TO TUNE WHAT GETS THROUGH
+# Filter lists - fallbacks used only when Edgewise_filters.json
+# is missing or malformed. Edit keywords from the in-page editor
+# or directly in Edgewise_filters.json instead of here.
 # --------------------------------------------------------------------
 
-# Marine / environmental consultancy keywords. At least one must match
-# the title, description, or buyer name (case-insensitive substring).
-# Adding a keyword here makes the filter MORE PERMISSIVE (more matches).
-# Keywords audited against Edgewise's actual service offering as
-# advertised on edgewiseenvironmental.com. Removed broad terms that
-# generated noise (oceanographic, fisheries, biodiversity, habitat,
-# wildlife monitoring) and added missing service-specific terms.
 MARINE_KEYWORDS_FALLBACK = [
     # ---- Marine fauna observation - Edgewise core service ----
     "marine mammal", " mmo ", " mmso ", "marine mammal observer",
@@ -252,59 +247,98 @@ MARINE_KEYWORDS_FALLBACK = [
     "protected species observer", " pso ",
     "marine fauna", "marine wildlife",
 
-    # ---- Acoustics - Edgewise specialism ----
+    # ---- Acoustics and noise - Edgewise specialism ----
     "passive acoustic", " pam ", "pam operator", "pam-",
     "acoustic monitoring", "acoustic mitigation", "bioacoustic",
-    "underwater noise", "anthropogenic noise",
-    "noise mitigation", "noise impact",
+    "underwater noise", "underwater radiated noise", " urn ",
+    "anthropogenic noise", "noise mitigation", "noise impact",
+    "noise modelling", "noise modeling",
+    "sound source verification", " ssv ",
+    "sound source characterisation", "sound source characterization",
+    "hydroacoustic", "hydroacoustics",
 
     # ---- Surveys Edgewise can crew or assess ----
-    "seismic survey", "geophysical survey", "geotechnical survey",
+    "seismic survey", "marine geophysical", "marine geotechnical",
     "marine survey", "underwater survey", "subsea cable",
-    "marine baseline", "baseline survey", "marine monitoring",
+    "marine baseline", "marine monitoring",
+    "benthic survey", "benthic habitat",
+    "vessel-based survey", "vessel based survey",
 
     # ---- Environmental assessments / reporting ----
-    "environmental impact", " eia ", "environmental assessment",
     "environmental effects monitoring", " eem ",
     "marine ecology", "marine conservation",
     "environmental baseline",
+    " eia ",
 
     # ---- Sectors Edgewise targets ----
     "offshore wind", "marine renewable", "tidal energy", "wave energy",
     "subsea", "ocean energy", "blue economy",
-    "offshore oil", "offshore gas",
+    "offshore oil", "offshore gas", "offshore environmental",
+    "decommissioning", "metocean",
+    "site characterisation", "site characterization",
 
-    # ---- Specific service lines from their website ----
+    # ---- Specific service lines ----
     "abandoned vessel", "abandoned boat", "vessel assessment",
     "oil spill", "spill response", "emergency environmental response",
-    "wildlife observer", "bird handling", "oiled wildlife",
-    "indigenous engagement",
-    "mitigation monitoring", "mitigation measure",
+    "bird handling", "oiled wildlife",
+    "marine ornithology", "marine ornithologist",
+    "marine spatial planning",
+    "marine protected area", " mpa ",
+    "species at risk", " sara ",
+    "right whale", "north atlantic right whale", " narw ",
+    "incidental take",
+    "marine licence", "marine license",
+    "habitats regulations assessment", " hra ",
+    "crown estate", " boem ", "noaa fisheries",
+    "aquaculture environmental", "mariculture",
+    "dredging", "capital dredging",
+    "joint nature conservation", " jncc ",
+    "cefas",
 ]
 
-# CanadaBuys procurement category codes Edgewise specifically tracks.
-# These are UNSPSC codes used by federal Canadian procurement to classify
-# tender opportunities. A tender tagged with one of these codes gets
-# kept regardless of keyword match. Removed 81171500 (Information
-# management technology) from the original list - it was catching IT
-# advisory tenders that have nothing to do with marine work.
+# CPV_CODES covers both Canadian UNSPSC codes (used by CanadaBuys)
+# and true EU CPV codes (used by TED and UK Find a Tender / Contracts Finder).
+# The scraper substring-matches against `reference + category_code`, so
+# adding EU CPV codes here improves filtering on the UK and EU feeds.
 #
-# 70101602 = Wildlife studies (kept - core relevance)
-# 70100000 = Forestry, fisheries, wildlife management services (kept;
-#            EXCLUDE_KEYWORDS rejects forestry/fisheries-only items)
-# 77101500 = Environmental management (kept - core relevance)
+# Canadian UNSPSC:
+#   70101602 = Wildlife studies
+#   70101601 = Animal preservation services
+#   70101604 = Habitat conservation
+#   70100000 = Forestry, fisheries, wildlife management services
+#   77101500 = Environmental management
+#
+# EU CPV:
+#   90711000 = Environmental impact assessment
+#   90712000 = Environmental planning
+#   90713000 = Environmental issues consultancy
+#   90720000 = Environmental protection
+#   73111000 = Research laboratory services
+#   73210000 = Research consultancy services
+#   71351000 = Geological, geophysical, prospecting services
+#   71351900 = Geological survey services
+#   71351923 = Bathymetric surveying services
+#   71351924 = Hydrographic survey services
 CPV_CODES_FALLBACK = [
+    # Canadian UNSPSC
     "70101602",
+    "70101601",
+    "70101604",
     "70100000",
     "77101500",
+    # EU CPV
+    "90711000",
+    "90712000",
+    "90713000",
+    "90720000",
+    "73111000",
+    "73210000",
+    "71351000",
+    "71351900",
+    "71351923",
+    "71351924",
 ]
 
-# Hard rejects. If ANY of these match the title or description, the
-# tender is dropped even if it matched a keyword. Use this to kill
-# noise. Expanded heavily after audit of CanadaBuys results: the
-# DND/PSPC procurement firehose contains a lot of construction,
-# accommodation, IT and supply-chain items that match broad keywords
-# but have no relevance to marine environmental consulting.
 EXCLUDE_KEYWORDS_FALLBACK = [
     # ---- Generic facilities ----
     "janitorial", "cleaning service", "catering", "food service",
@@ -316,14 +350,13 @@ EXCLUDE_KEYWORDS_FALLBACK = [
     "translation service", "interpreter",
     "medical supplies", "pharmaceutical",
 
-    # ---- IT and digital services (out of scope for Edgewise) ----
+    # ---- IT and digital services ----
     "it support", "software licence", "software license",
     "legal software", "legal solution", "case management software",
     "software solution", "im/it", "im/ it", "data centre",
     "cloud service", "saas", "cyber",
-    "research and advisory", "advisory services",
 
-    # ---- Construction and trades (frequent CanadaBuys noise) ----
+    # ---- Construction and trades ----
     "accommodation", "accommodations", "barracks", "housing",
     "bridge replacement", "culvert", "paving", "paving program",
     "chimney replacement", "library cooling", "cooling tower",
@@ -332,12 +365,11 @@ EXCLUDE_KEYWORDS_FALLBACK = [
     "building materials", "domestic appliance",
     "modular bridge", "panel bridge",
 
-    # ---- Defence equipment (CanadaBuys CHER programme spam) ----
+    # ---- Defence equipment ----
     "heavy equipment replacement", "heavy support equipment",
     "armoured", "armored", "shipbuilding", "shipyard",
-    "armoured sport utility", "armoured sports utility",
 
-    # ---- Misc admin and logistics noise ----
+    # ---- Misc admin and logistics ----
     "detention guard", "non-emergency towing", "moving services",
     "guest accommodation", "rental trailer",
     "electoral material", "wooden ruler", "plastic bag",
@@ -346,29 +378,27 @@ EXCLUDE_KEYWORDS_FALLBACK = [
     "freeze dryer",
 
     # ---- Out-of-scope environmental work ----
-    # (These are environmental-adjacent but not marine MMO/PAM/SBO work)
     "contaminated site", "remediation construction",
     "hazmat", "hazardous material", "tank assessment",
     "petroleum storage tank", "asbestos",
-    "topographic lidar",   # terrestrial mapping, not marine
+    "topographic lidar",
     "aerial photography",
     "hazardous waste",
 
-    # ---- Correctional Service of Canada / prison services ----
+    # ---- Correctional / prison services ----
     "correctional service", "penitentiary", "institution",
     "inmate", "offender", "healing lodge",
     "detention", "rcmp ", "prison",
 
-    # ---- Health / clinical services (CSC publishes a lot of these) ----
-    "dental service", "dental laboratory", "dental supplies",
+    # ---- Health / clinical services ----
+    "dental",
     "psychiatric", "psychiatry", "psychological",
     "physiotherapy", "physician service", "primary care",
     "dermatology", "medical radiation", "urinalysis",
     "mental health", "exit interview", "pre-employment",
-    "ribbon", "boots, ankle", "ankle boot", "uniform",
-    "boot", "footwear",
+    "ribbon", "boots, ankle", "ankle boot", "boot", "footwear",
 
-    # ---- Defence equipment / military services ----
+    # ---- Defence equipment / military ----
     "ground vehicle", "uncrewed ground", "unmanned ground",
     "military training", "role playing", "role-playing",
     "parachute instructor", "parachutist",
@@ -378,7 +408,7 @@ EXCLUDE_KEYWORDS_FALLBACK = [
     "intelligence enterprise", "command and control",
     "c4isr", "defence intelligence",
 
-    # ---- Furniture / facilities / FMS ----
+    # ---- Furniture / facilities ----
     "furniture for", "furniture fixtures",
     "mobile shelving", "shelving",
     "alarm system", "security management system",
@@ -386,7 +416,7 @@ EXCLUDE_KEYWORDS_FALLBACK = [
     "elevator", "elevating device",
     "hvac", "boiler replacement", "boiler heating",
 
-    # ---- Equipment / tools that aren't marine-relevant ----
+    # ---- Equipment / tools ----
     "fluke insulation", "fluke multimeter", "multimeter",
     "insulation meter",
     "cables and wires", "wire and cable",
@@ -396,68 +426,107 @@ EXCLUDE_KEYWORDS_FALLBACK = [
     "electric vehicle supply", "evse",
     "buses, electric", "electric bus",
     "automated liquid handler", "aptamer",
-    "freeze dryer",
 
-    # ---- Mowing / grounds (terrestrial maintenance) ----
+    # ---- Grounds / mowing ----
     "mowing", "grounds maintenance",
 
-    # ---- General contractor / construction tendering ----
-    "general construction", "general contractor",
-    "renovation", "refurbishment", "minor construction",
-    "construction services",
+    # ---- Construction tendering ----
+    "building construction services",
     "airport terminal", "terminal renovation",
     "exhibition fit-out", "exhibition fit out",
     "teaching & learning", "teaching and learning",
 
-    # ---- Education / community services ----
+    # ---- Education / community ----
     "early years", "pre-school", "preschool",
     "education provision", "early years education",
     "refugee", "refugee resettlement",
     "museum", "art gallery", "cultural heritage",
-    "framework agreement for",   # generic UK framework noise
 
     # ---- Generic professional services frameworks ----
     "professional audit", "task professional services",
     "solutions professional services", "tsps",
     "media monitoring", "printing service",
     "change management consultant",
-    "research and advisory",
     "indigenous artist", "indigenous business capacity",
 
-    # ---- Type-2 fire crew / forestry crews ----
-    "sustained action crew",   # NWT wildfire crews
+    # ---- Fire / forestry ----
+    "sustained action crew",
     "fire suppression",
 
-    # ---- Dental / supplies ----
-    "dental",
+    # ---- IT / admin noise ----
+    "ats replacement", "system support",
 
-    # ---- IT / software re-emerging noise ----
-    "command and control", "ats replacement", "system support",
-
-    # ---- Generic admin ----
-    "tractor", "skid steer",
-    "vessel recycling",   # ship-breaking, not Edgewise work
-
-    # ---- Generic federal frameworks that are not actual marine work ----
+    # ---- Generic admin / misc ----
+    "tractor",
+    "vessel recycling",
     "proservices method of supply",
-    "method of supply",   # generic federal framework
+    "method of supply",
     "audit and support services",
     "pass rfsa", "pass refresh",
-    "tspsh", "tssb",      # task/solutions professional services brand variants
-    "industry day",       # information sessions, not tenders to bid on
-    "letter of interest", "loi - industry",
-    "request for information",   # RFIs - not biddable, just market sounding
+    "tspsh", "tssb",
+    "industry day",
+    "loi - industry",
 
-    # ---- Legal / policy reviews (matched on "nunavut" or "agreement") ----
+    # ---- Legal / policy ----
     "article 23", "land claims agreement",
     "independent review of",
-    "policy review",
-
-    # ---- Construction testing / engineering surveys NOT marine ----
-    # Note: "Kier Infrastructure" UK entries are kept because they reference
-    # marine EIA work for offshore projects. Don't exclude "construction testing"
-    # blanket - that would kill legitimate offshore EIA prep work.
 ]
+
+MARINE_CONTEXT_WORDS_FALLBACK = [
+    "marine", "ocean", "oceanic", "vessel", "vessels",
+    "subsea", "underwater", "offshore",
+    "whale", "dolphin", "porpoise", "cetacean", "pinniped",
+    "seal ", "walrus",
+    "narwhal", "beluga", "bowhead",
+    "seabird", "sea bird",
+    "fish",
+    "coastal", "estuarine", "intertidal",
+    "nearshore", "inshore", "foreshore", "shoreline",
+    "harbour", "harbor", "port ", "wharf", "jetty",
+    "bay", "inlet", "fjord",
+    "shipping", "maritime",
+    "hydrographic", "bathymetric",
+    "acoustic",
+    "spill", "oil spill",
+    "water sampling", "water column",
+    "benthic", "pelagic", "reef", "shelf", "continental shelf",
+    "tidal", " tide ", "tidewater",
+    "dredge", "dredging",
+    "aquaculture", "mariculture",
+    "arctic", "subarctic", "sub-arctic",
+    " ice ", "sea ice", "pack ice", "icebreaker", "polar",
+]
+
+
+# --------------------------------------------------------------------
+# Filter loader - reads keyword lists from Edgewise_filters.json
+# --------------------------------------------------------------------
+
+FILTERS_FILE = "edgewise/Edgewise_filters.json"
+
+
+def load_filters():
+    """Load keyword lists from Edgewise_filters.json. Returns a tuple
+    (marine_keywords, cpv_codes, exclude_keywords, marine_context_words).
+    Falls back to the in-file _FALLBACK lists on any error."""
+    try:
+        with open(FILTERS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        mk = data.get("marine_keywords") or MARINE_KEYWORDS_FALLBACK
+        cc = data.get("cpv_codes") or CPV_CODES_FALLBACK
+        ek = data.get("exclude_keywords") or EXCLUDE_KEYWORDS_FALLBACK
+        mc = data.get("marine_context_words") or MARINE_CONTEXT_WORDS_FALLBACK
+        if not all(isinstance(x, list) and x for x in (mk, cc, ek, mc)):
+            raise ValueError("one or more keyword lists is empty or wrong type")
+        log(f"Loaded filters from {FILTERS_FILE}: "
+            f"{len(mk)} marine, {len(cc)} CPV, {len(ek)} exclude, "
+            f"{len(mc)} context words")
+        return mk, cc, ek, mc
+    except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
+        log(f"WARNING: could not load {FILTERS_FILE} ({e}); "
+            f"using in-file fallback keyword lists")
+        return (MARINE_KEYWORDS_FALLBACK, CPV_CODES_FALLBACK,
+                EXCLUDE_KEYWORDS_FALLBACK, MARINE_CONTEXT_WORDS_FALLBACK)
 
 
 # --------------------------------------------------------------------
@@ -470,9 +539,7 @@ def log(msg):
 
 
 def make_id(*parts):
-    """Stable 16-char md5 hash. Used so the same tender re-scraped
-    tomorrow gets the same id, which lets us preserve user-edited
-    status fields across runs."""
+    """Stable 16-char md5 hash used for dedup across runs."""
     raw = "|".join(str(p or "") for p in parts).lower().strip()
     return hashlib.md5(raw.encode("utf-8")).hexdigest()[:16]
 
@@ -484,13 +551,11 @@ def truncate(text, n=MAX_FIELD_LEN):
     text = re.sub(r"\s+", " ", str(text)).strip()
     if len(text) <= n:
         return text
-    return text[: n - 1].rstrip() + "\u2026"   # unicode ellipsis
+    return text[: n - 1].rstrip() + "\u2026"
 
 
 def parse_iso_date(s):
-    """Accept any ISO-ish string, return YYYY-MM-DD or empty.
-    Handles '2026-05-11', '2026-05-11T23:59:59Z', '2026-05-11T...',
-    and dies gracefully on garbage."""
+    """Accept any ISO-ish string, return YYYY-MM-DD or empty."""
     if not s:
         return ""
     try:
@@ -525,7 +590,7 @@ def matches_marine(text):
 
 
 def matches_cpv(text):
-    """Return matched CPV code (str) or None. Direct substring."""
+    """Return matched CPV/UNSPSC code (str) or None."""
     if not text:
         return None
     t = str(text)
@@ -536,74 +601,11 @@ def matches_cpv(text):
 
 
 def is_excluded(text):
-    """True if any exclude keyword matches. Used to reject noise."""
+    """True if any exclude keyword matches."""
     if not text:
         return False
     t = text.lower()
     return any(kw in t for kw in EXCLUDE_KEYWORDS)
-
-
-# Generic "marine signal" words. A tender is only kept on a CPV-only
-# match if it ALSO contains at least one of these (because CPV codes
-# get applied to a lot of unrelated items - e.g. CSC dental services
-# tagged with CPV 70100000). Without this gate, a CPV match alone lets
-# in prison healthcare, agricultural fertiliser, electric buses, etc.
-MARINE_CONTEXT_WORDS_FALLBACK = [
-    "marine", "ocean", "oceanic", "vessel", "vessels",
-    "subsea", "underwater", "offshore",
-    "whale", "dolphin", "porpoise", "cetacean", "pinniped",
-    "seal ", "walrus",  # space after "seal" so we don't match "sealing"/"sealed"
-    "seabird", "sea bird",
-    "fish",   # broad - catches fishery work; EXCLUDE list will filter dental "fish"
-    "coastal", "estuarine", "intertidal",
-    "harbour", "harbor", "port ", "wharf", "jetty",
-    "shipping", "maritime",
-    "hydrographic", "bathymetric",
-    "acoustic",
-    "spill", "oil spill",
-    "water sampling", "water column",
-]
-
-
-# --------------------------------------------------------------------
-# Filter loader - reads keyword lists from Edgewise_filters.json
-# --------------------------------------------------------------------
-# The four _FALLBACK lists above are used only when the JSON file
-# is missing or malformed. The active lists are loaded from
-# edgewise/Edgewise_filters.json at runtime so that the in-page
-# editor on Edgewise_rfps.html can add/remove keywords without
-# anyone touching this script.
-
-FILTERS_FILE = "edgewise/Edgewise_filters.json"
-
-
-def load_filters():
-    """Load keyword lists from Edgewise_filters.json. Returns a tuple
-    (marine_keywords, cpv_codes, exclude_keywords, marine_context_words).
-    Falls back to the in-file _FALLBACK lists on any error so the
-    scraper keeps running even if the JSON is broken."""
-    try:
-        with open(FILTERS_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        mk = data.get("marine_keywords") or MARINE_KEYWORDS_FALLBACK
-        cc = data.get("cpv_codes") or CPV_CODES_FALLBACK
-        ek = data.get("exclude_keywords") or EXCLUDE_KEYWORDS_FALLBACK
-        mc = data.get("marine_context_words") or MARINE_CONTEXT_WORDS_FALLBACK
-        if not all(isinstance(x, list) and x for x in (mk, cc, ek, mc)):
-            raise ValueError("one or more keyword lists is empty or wrong type")
-        log(f"Loaded filters from {FILTERS_FILE}: "
-            f"{len(mk)} marine, {len(cc)} CPV, {len(ek)} exclude, "
-            f"{len(mc)} context words")
-        return mk, cc, ek, mc
-    except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
-        log(f"WARNING: could not load {FILTERS_FILE} ({e}); "
-            f"using in-file fallback keyword lists")
-        return (MARINE_KEYWORDS_FALLBACK, CPV_CODES_FALLBACK,
-                EXCLUDE_KEYWORDS_FALLBACK, MARINE_CONTEXT_WORDS_FALLBACK)
-
-
-MARINE_KEYWORDS, CPV_CODES, EXCLUDE_KEYWORDS, MARINE_CONTEXT_WORDS = load_filters()
-
 
 
 def has_marine_context(text):
@@ -617,18 +619,14 @@ def has_marine_context(text):
 
 def passes_filter(rec):
     """The single decision point: should this record be kept?
-    Returns (bool, reason_string). reason_string is shown in why_fits.
+    Returns (bool, reason_string).
 
     Logic:
-    1. EXCLUDE keyword anywhere -> reject (hard gate)
-    2. MARINE_KEYWORD match -> accept (specific service language)
-    3. CPV code match AND marine context word present -> accept
+    1. EXCLUDE keyword anywhere -> reject
+    2. MARINE_KEYWORD match -> accept
+    3. CPV/UNSPSC code match AND marine context word present -> accept
     4. Otherwise -> reject
-
-    The CPV-context gate is critical: federal procurement classifies
-    a lot of unrelated services under wildlife/environmental codes
-    (e.g. dental services for prisons, fertiliser, refugee support).
-    Without requiring marine context, those would all pass."""
+    """
     haystack = " ".join([
         rec.get("project", ""),
         rec.get("summary", ""),
@@ -639,7 +637,6 @@ def passes_filter(rec):
         return False, None
     kw = matches_marine(haystack)
     if kw:
-        # Strip the spaces from word-boundary keywords so "matched: eem" not "matched:  eem "
         clean_kw = kw.strip()
         return True, f"matched marine keyword: \"{clean_kw}\""
     code = matches_cpv(rec.get("reference", "") + " " + rec.get("category_code", ""))
@@ -649,8 +646,7 @@ def passes_filter(rec):
 
 
 def build_record(**kwargs):
-    """Construct a record with all fields defaulted. Use this to create
-    new records inside scrape_xxx() functions so we never miss a field."""
+    """Construct a record with all fields defaulted."""
     return {
         "id": kwargs.get("id") or make_id(
             kwargs.get("url"), kwargs.get("reference"), kwargs.get("project")
@@ -669,15 +665,12 @@ def build_record(**kwargs):
         "notes": kwargs.get("notes", ""),
         "tags": kwargs.get("tags", []) or [],
         "added": kwargs.get("added", SCRAPE_DATE),
-        # category_code is internal-only; passes_filter uses it then we strip it.
         "category_code": kwargs.get("category_code", ""),
     }
 
 
 def safe_get(url, **kwargs):
-    """Wrapper around requests.get that respects HEADERS and HTTP_TIMEOUT
-    and doesn't raise on bad responses - returns None instead. Keeps
-    one bad source from crashing the whole run."""
+    """requests.get wrapper that never raises - returns None on failure."""
     try:
         kwargs.setdefault("headers", HEADERS)
         kwargs.setdefault("timeout", HTTP_TIMEOUT)
@@ -689,17 +682,12 @@ def safe_get(url, **kwargs):
         return None
 
 
+# Load filter lists (must happen after helpers are defined).
+MARINE_KEYWORDS, CPV_CODES, EXCLUDE_KEYWORDS, MARINE_CONTEXT_WORDS = load_filters()
+
+
 # ====================================================================
 # SCRAPERS - one function per source
-# ====================================================================
-# Every scraper follows the same contract:
-#   - Returns a list of records built via build_record()
-#   - Logs progress via log()
-#   - Catches its own errors so it doesn't crash the run
-#   - Has its source URL as a constant at the top
-#
-# When you add a new scraper, copy the structure of the simplest one
-# (scrape_imo or scrape_caribbean_db) and adapt.
 # ====================================================================
 
 
@@ -709,11 +697,6 @@ def safe_get(url, **kwargs):
 # Type: OPEN-DATA FEED (CSV)
 # Refresh: PSPC updates the CSV every 2 hours, 06:15-22:15 ET.
 # Login required: No.
-# Coverage: All federal departments and Crown corporations.
-#
-# This is the highest-value single source for Edgewise. It includes
-# DFO, NRCan, ECCC, DND, and contains tenders that aren't published
-# anywhere else.
 
 CANADABUYS_CSV = (
     "https://canadabuys.canada.ca/opendata/pub/"
@@ -728,14 +711,11 @@ def scrape_canadabuys():
     if not r:
         return out
 
-    # CSV uses combined English/French columns post-March-2026.
     text = r.content.decode("utf-8-sig", errors="replace")
     reader = csv.DictReader(io.StringIO(text))
 
     count = 0
     for row in reader:
-        # Field names in the new schema. Use .get() for resilience
-        # because PSPC has changed the schema before and may again.
         title = (row.get("title-titre-eng") or row.get("title-titre") or "")
         desc = (row.get("tenderDescription-descriptionAppelOffres-eng")
                 or row.get("noticeDescription-descriptionAvis-eng") or "")
@@ -774,10 +754,7 @@ def scrape_canadabuys():
 # 2. UK Find a Tender - UK above-threshold contracts (>~£139,688)
 # --------------------------------------------------------------------
 # Type: OPEN-DATA FEED (OCDS JSON API)
-# Refresh: Real-time as new notices are published.
 # Login required: No.
-# Coverage: All UK central government and public sector procurement
-#           above the threshold (Procurement Act 2023).
 
 FIND_A_TENDER_API = "https://www.find-tender.service.gov.uk/api/1.0/ocdsReleasePackages"
 
@@ -794,14 +771,12 @@ def scrape_find_a_tender():
 # 3. UK Contracts Finder - UK below-threshold contracts
 # --------------------------------------------------------------------
 # Type: OPEN-DATA FEED (OCDS JSON API)
-# Refresh: Real-time.
 # Login required: No.
 
-# Contracts Finder is a slower API than Find a Tender; needs a higher timeout.
 CONTRACTS_FINDER_API = (
     "https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search"
 )
-CONTRACTS_FINDER_TIMEOUT = 60  # seconds
+CONTRACTS_FINDER_TIMEOUT = 60
 
 
 def scrape_contracts_finder():
@@ -814,10 +789,7 @@ def scrape_contracts_finder():
 
 
 def _ocds_scrape(api_url, source_name, url_template, timeout=None):
-    """Shared OCDS parser used by both UK feeds. The two services
-    publish identical OCDS shapes - the only differences are the URL
-    of the human-facing notice page and how many parameters they
-    accept. Optional timeout override for slower APIs (Contracts Finder)."""
+    """Shared OCDS parser used by UK Find a Tender and Contracts Finder."""
     out = []
     since = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%dT00:00:00")
     params = {"updatedFrom": since, "limit": 100, "stages": "tender"}
@@ -825,7 +797,7 @@ def _ocds_scrape(api_url, source_name, url_template, timeout=None):
     pages = 0
 
     try:
-        while pages < 10:    # Hard cap so a buggy API can't loop forever.
+        while pages < 10:
             if cursor:
                 params["cursor"] = cursor
             kwargs = {"params": params}
@@ -839,7 +811,6 @@ def _ocds_scrape(api_url, source_name, url_template, timeout=None):
                 rec = _ft_release_to_record(rel, source_name, url_template)
                 if rec:
                     out.append(rec)
-            # Walk the next-cursor pagination.
             nxt = (pkg.get("links", {}) or {}).get("next")
             if not nxt:
                 break
@@ -848,7 +819,7 @@ def _ocds_scrape(api_url, source_name, url_template, timeout=None):
                 break
             cursor = m.group(1)
             pages += 1
-            time.sleep(0.5)   # polite delay
+            time.sleep(0.5)
     except (ValueError, KeyError) as e:
         log(f"{source_name}: parse error - {e}")
 
@@ -864,7 +835,6 @@ def _ft_release_to_record(rel, source_name, url_template):
         return None
     desc = tender.get("description") or ""
 
-    # Buyer can be in `parties[].roles=[buyer]` OR `buyer.name`.
     buyer = ""
     for p in (rel.get("parties") or []):
         if "buyer" in (p.get("roles") or []):
@@ -875,7 +845,6 @@ def _ft_release_to_record(rel, source_name, url_template):
 
     closing = (tender.get("tenderPeriod") or {}).get("endDate", "")
 
-    # Budget formatting if value is provided.
     value = tender.get("value") or {}
     budget = ""
     if value.get("amount"):
@@ -901,81 +870,306 @@ def _ft_release_to_record(rel, source_name, url_template):
 
 
 # --------------------------------------------------------------------
-# 4. SPREP - Pacific environmental tenders
+# 4. TED (Tenders Electronic Daily) - EU above-threshold procurement
 # --------------------------------------------------------------------
-# Type: PUBLIC HTML LISTINGS
+# Type: OPEN-DATA FEED (JSON search API v3)
 # Login required: No.
-# Coverage: Environmental tenders in Pacific Island countries.
-#           Includes the Palau seabird tender from April 2026.
+# Coverage: All EU member-state public procurement above threshold,
+#           plus EEA. Catches Irish, Norwegian, Dutch, Belgian and
+#           other European offshore wind and marine environmental work.
+#           Also picks up UK FTS notices cross-listed on TED.
+#
+# API docs: https://ted.europa.eu/api/latest/swagger-ui/index.html
+# The v3 search endpoint accepts a POST with a JSON query body.
+# We search by publication date (last 14 days) and let the marine
+# keyword filter do the heavy lifting - fetching all notices and
+# filtering locally is more reliable than TED's free-text search,
+# which requires Lucene syntax and has unpredictable stemming.
 
-SPREP_TENDERS_URL = "https://www.sprep.org/tenders"
+TED_API = "https://ted.europa.eu/api/latest/notices/search"
+TED_PAGE_SIZE = 100   # max allowed per request
 
+
+def scrape_ted():
+    """Scrape TED (EU) for notices published in the last 14 days."""
+    log("TED (EU): fetching notices published in last 14 days")
+    out = []
+
+    since = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y%m%d")
+    today = datetime.now(timezone.utc).strftime("%Y%m%d")
+
+    query_body = {
+        "query": f"publication-date>={since} AND publication-date<={today}",
+        "fields": [
+            "title",
+            "notice-type",
+            "contracting-body",
+            "contract-nature",
+            "deadline-for-submission",
+            "value-estimated",
+            "currency",
+            "cpv",
+            "place-of-performance",
+            "description",
+            "document-url",
+        ],
+        "page": 1,
+        "pageSize": TED_PAGE_SIZE,
+        "scope": "ALL",
+        "language": "EN",
+        "onlyLatestVersions": True,
+    }
+
+    page = 1
+    max_pages = 20   # safety cap - TED can return many thousands of notices
+
+    try:
+        while page <= max_pages:
+            query_body["page"] = page
+            r = requests.post(
+                TED_API,
+                json=query_body,
+                headers={**HEADERS, "Content-Type": "application/json"},
+                timeout=HTTP_TIMEOUT,
+            )
+            if not r.ok:
+                log(f"TED: HTTP {r.status_code} on page {page}")
+                break
+
+            data = r.json()
+            notices = data.get("notices") or data.get("results") or []
+            if not notices:
+                break
+
+            for notice in notices:
+                rec = _ted_notice_to_record(notice)
+                if rec:
+                    out.append(rec)
+
+            total = data.get("total", 0)
+            if page * TED_PAGE_SIZE >= total:
+                break
+            page += 1
+            time.sleep(0.5)
+
+    except (ValueError, KeyError, requests.RequestException) as e:
+        log(f"TED: error - {e}")
+
+    log(f"TED (EU): {len(out)} notices pulled (pre-filter)")
+    return out
+
+
+def _ted_notice_to_record(notice):
+    """Convert one TED notice dict to our record shape.
+
+    TED v3 API field names are kebab-case strings. The exact schema
+    varies slightly by notice type; we use .get() throughout for
+    resilience."""
+    # Title - TED returns a dict keyed by language code
+    title_obj = notice.get("title") or {}
+    title = (
+        title_obj.get("EN") or title_obj.get("en") or
+        next(iter(title_obj.values()), "") if isinstance(title_obj, dict) else str(title_obj)
+    )
+    if not title:
+        return None
+
+    # Description
+    desc_obj = notice.get("description") or {}
+    if isinstance(desc_obj, dict):
+        desc = desc_obj.get("EN") or desc_obj.get("en") or next(iter(desc_obj.values()), "")
+    else:
+        desc = str(desc_obj)
+
+    # Contracting body
+    body = notice.get("contracting-body") or {}
+    if isinstance(body, list):
+        body = body[0] if body else {}
+    entity = body.get("officialName") or body.get("name") or "EU Contracting Authority"
+
+    # Country / place of performance -> region
+    place = notice.get("place-of-performance") or {}
+    if isinstance(place, list):
+        place = place[0] if place else {}
+    country_code = place.get("countryCode") or place.get("country") or ""
+    region = f"EU ({country_code})" if country_code else "EU"
+
+    # Deadline
+    deadline = parse_iso_date(notice.get("deadline-for-submission") or "")
+
+    # Budget
+    value = notice.get("value-estimated") or 0
+    currency = notice.get("currency") or "EUR"
+    budget = ""
+    if value:
+        try:
+            budget = f"{currency} {float(value):,.0f}"
+        except (TypeError, ValueError):
+            pass
+
+    # CPV codes - list of strings like "90711000-3"
+    cpvs = notice.get("cpv") or []
+    if isinstance(cpvs, str):
+        cpvs = [cpvs]
+    # Strip the check digit (last two chars after hyphen) for matching
+    cat_code = " ".join(c.split("-")[0] for c in cpvs if c)
+
+    # Notice ID and URL
+    notice_id = notice.get("noticeNumber") or notice.get("id") or ""
+    url = notice.get("document-url") or ""
+    if not url and notice_id:
+        url = f"https://ted.europa.eu/en/notice/-/detail/{notice_id}"
+
+    return build_record(
+        id=make_id(notice_id, title),
+        project=title,
+        entity=entity,
+        region=region,
+        due_date=deadline,
+        budget=budget,
+        reference=notice_id,
+        source="TED (EU)",
+        url=url,
+        summary=desc,
+        category_code=cat_code,
+        tags=["EU", "TED"] + ([country_code] if country_code else []),
+    )
+
+
+# --------------------------------------------------------------------
+# 5. SAM.gov - US federal procurement
+# --------------------------------------------------------------------
+# Type: OPEN-DATA FEED (JSON API)
+# Login required: No (public search API; full data needs API key but
+#                 basic notice search is open).
+# Coverage: All US federal agencies. Key buyers for Edgewise:
+#   - BOEM (Bureau of Ocean Energy Management) - offshore wind
+#     environmental studies, MMO/PAM contract vehicles
+#   - NOAA Fisheries / NMFS - marine mammal surveys, acoustics
+#   - USACE (Army Corps) - EIA/EEM for coastal infrastructure
+#   - NSF - polar/Antarctic marine research
+#
+# API docs: https://open.gsa.gov/api/get-opportunities-public-api/
+# The public opportunities search endpoint needs no API key for
+# basic searches. We query for opportunities posted in the last 14
+# days with type "p" (presolicitation) or "o" (solicitation).
+
+SAMGOV_API = "https://api.sam.gov/opportunities/v2/search"
+SAMGOV_PAGE_SIZE = 100
+
+
+def scrape_samgov():
+    """Scrape SAM.gov for US federal opportunities posted in the last 14 days."""
+    log("SAM.gov (US): fetching opportunities posted in last 14 days")
+    out = []
+
+    since = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%m/%d/%Y")
+    today = datetime.now(timezone.utc).strftime("%m/%d/%Y")
+
+    params = {
+        "api_key": "DEMO_KEY",   # DEMO_KEY allows ~30 req/hr; sufficient for daily run
+        "postedFrom": since,
+        "postedTo": today,
+        "ptype": "o,p,k",        # o=solicitation, p=presolicitation, k=combined synopsis
+        "limit": SAMGOV_PAGE_SIZE,
+        "offset": 0,
+    }
+
+    try:
+        while True:
+            r = safe_get(SAMGOV_API, params=params)
+            if not r:
+                break
+
+            data = r.json()
+            opportunities = data.get("opportunitiesData") or []
+            if not opportunities:
+                break
+
+            for opp in opportunities:
+                rec = _samgov_opp_to_record(opp)
+                if rec:
+                    out.append(rec)
+
+            total = data.get("totalRecords", 0)
+            params["offset"] += SAMGOV_PAGE_SIZE
+            if params["offset"] >= total or params["offset"] >= 2000:
+                # Hard cap at 2000 records to avoid rate-limit exhaustion.
+                # The marine filter will reduce this dramatically.
+                break
+            time.sleep(0.5)
+
+    except (ValueError, KeyError, requests.RequestException) as e:
+        log(f"SAM.gov: error - {e}")
+
+    log(f"SAM.gov (US): {len(out)} opportunities pulled (pre-filter)")
+    return out
+
+
+def _samgov_opp_to_record(opp):
+    """Convert one SAM.gov opportunity dict to our record shape."""
+    title = (opp.get("title") or "").strip()
+    if not title:
+        return None
+
+    entity = (opp.get("departmentName") or opp.get("subtierName") or "US Federal Government").strip()
+    desc = (opp.get("description") or opp.get("typeOfSetAsideDescription") or "").strip()
+
+    # Location
+    place = opp.get("placeOfPerformance") or {}
+    state = place.get("state", {}).get("code") or place.get("state", {}).get("name") or ""
+    country = place.get("country", {}).get("code") or "USA"
+    if country == "USA" and state:
+        region = f"USA ({state})"
+    else:
+        region = "USA"
+
+    # Dates
+    response_deadline = parse_iso_date(opp.get("responseDeadLine") or "")
+    archive_date = parse_iso_date(opp.get("archiveDate") or "")
+    due = response_deadline or archive_date
+
+    notice_id = opp.get("noticeId") or opp.get("solicitationNumber") or ""
+    sol_number = opp.get("solicitationNumber") or ""
+    url = opp.get("uiLink") or ""
+    if not url and notice_id:
+        url = f"https://sam.gov/opp/{notice_id}/view"
+
+    # NAICS code - analogous to CPV for US federal procurement
+    naics = opp.get("naicsCode") or ""
+
+    return build_record(
+        id=make_id(notice_id or sol_number, title),
+        project=title,
+        entity=entity,
+        region=region,
+        due_date=due,
+        reference=sol_number or notice_id,
+        source="SAM.gov (US)",
+        url=url,
+        summary=desc,
+        category_code=naics,
+        tags=["USA", "SAM.gov"] + ([entity.split()[0]] if entity else []),
+    )
+
+
+# --------------------------------------------------------------------
+# 6. SPREP - Pacific environmental tenders
+# --------------------------------------------------------------------
+# Type: PUBLIC HTML LISTINGS (bot-protected - skipped)
+# Add tenders manually using the "Add tender manually" panel.
 
 def scrape_sprep():
-    """SPREP's Drupal install uses Cloudflare-style bot protection that
-    blocks server-side scraping. We tried browser-like headers; still 403.
-    Marked as known-broken; SPREP tenders need to be added manually
-    through the Gemini Scout pipeline if they appear.
-    The portal directory at the bottom of rfps.html still links to it."""
     log("SPREP: skipped (known bot-protected; manual entry required)")
-    out = []
-    return out
-    # Old code below kept commented for future reference if SPREP relaxes protection.
-    # r = safe_get(SPREP_TENDERS_URL)
-    # if not r:
-    #     return out
-
-    soup = BeautifulSoup(r.content, "lxml")
-    seen_urls = set()
-    # SPREP renders tenders as a list of links pointing to either
-    # /sites/default/files/documents/tenders/ PDFs or /tender/<slug>
-    # nodes. We pick up either by URL pattern.
-    for a in soup.find_all("a", href=True):
-        href = a["href"]
-        if "/tender" not in href.lower() and "RFT_" not in href:
-            continue
-        text = a.get_text(strip=True)
-        if not text or len(text) < 10:
-            continue
-        url = urljoin(SPREP_TENDERS_URL, href)
-        if url in seen_urls:
-            continue
-        seen_urls.add(url)
-
-        # Extract a closing date from the parent block, if present.
-        parent_text = a.parent.get_text(" ", strip=True) if a.parent else ""
-        m = re.search(r"clos\w*[^\d]+(\d{1,2}\s+\w+\s+\d{4})", parent_text, re.I)
-        due = parse_uk_date(m.group(1)) if m else ""
-
-        # Extract a reference number (RFT 2026/PBS/001 style).
-        ref_match = re.search(
-            r"RFT[_\s/-]*(\d{4}[/_-][A-Z0-9]+[/_-]\d+)",
-            text + " " + parent_text, re.I,
-        )
-        ref = ref_match.group(0) if ref_match else ""
-
-        out.append(build_record(
-            project=text, entity="SPREP (Pacific Regional Environment Programme)",
-            region="Pacific", due_date=due, reference=ref,
-            source="SPREP", url=url, summary=parent_text,
-            tags=["Pacific", "SPREP"],
-        ))
-
-    log(f"SPREP: {len(out)} tenders pulled (pre-filter)")
-    return out
+    return []
 
 
 # --------------------------------------------------------------------
-# 5. World Bank - Procurement Notices RSS
+# 7. World Bank - Procurement Notices
 # --------------------------------------------------------------------
-# Type: OPEN-DATA FEED (RSS XML)
+# Type: OPEN-DATA FEED (JSON API v2)
 # Login required: No.
-# Coverage: Global. Most relevant for Pacific/Caribbean/African projects
-#           that touch marine environmental work.
 
-# World Bank dropped their RSS feed, but kept a JSON search API.
-# v2 endpoint - v3 is documents-only, v2 has procurement notices.
-# Reference: https://www.worldbank.org/ext/en/what-we-do/project-procurement/for-suppliers
 WORLDBANK_API = "https://search.worldbank.org/api/v2/procnotices"
 
 
@@ -1000,8 +1194,6 @@ def scrape_worldbank():
         log("World Bank: response was not valid JSON")
         return out
 
-    # The v2 API returns a dict with notice records keyed by their id.
-    # Strip metadata fields and iterate over the actual notice records.
     SKIP_KEYS = {"total", "rows", "os", "page"}
     for notice_id, item in data.items():
         if notice_id in SKIP_KEYS or not isinstance(item, dict):
@@ -1011,7 +1203,6 @@ def scrape_worldbank():
             continue
         country = (item.get("project_ctry_name") or item.get("country_name") or "International").strip()
         deadline = item.get("submission_deadline_date") or ""
-        # Build URL from id since the API does not return a direct link.
         url = f"https://projects.worldbank.org/en/projects-operations/procurement-detail/{notice_id}"
         desc = (item.get("bid_description") or item.get("project_name") or "").strip()
         notice_type = item.get("notice_type") or ""
@@ -1030,12 +1221,10 @@ def scrape_worldbank():
 
 
 # --------------------------------------------------------------------
-# 6. International Maritime Organisation (IMO)
+# 8. International Maritime Organisation (IMO)
 # --------------------------------------------------------------------
 # Type: PUBLIC HTML LISTINGS
 # Login required: No.
-# Coverage: Maritime/shipping tenders. Highly relevant for marine acoustic
-#           and underwater work.
 
 IMO_TENDERS_URL = "https://www.imo.org/en/About/Procurement/Pages/Open-Tenders.aspx"
 
@@ -1049,9 +1238,6 @@ def scrape_imo():
 
     soup = BeautifulSoup(r.content, "lxml")
     seen = set()
-    # IMO lists tenders in tables with links; structure is fragile.
-    # We collect all anchor tags whose text mentions "tender", "RFP",
-    # "consultancy", or "services" and dedupe.
     for a in soup.find_all("a", href=True):
         text = a.get_text(strip=True)
         if not text or len(text) < 15:
@@ -1079,7 +1265,7 @@ def scrape_imo():
 
 
 # --------------------------------------------------------------------
-# 7. Caribbean Development Bank
+# 9. Caribbean Development Bank
 # --------------------------------------------------------------------
 # Type: PUBLIC HTML LISTINGS
 # Login required: No.
@@ -1120,17 +1306,10 @@ def scrape_caribbean_db():
 
 
 # --------------------------------------------------------------------
-# 8. BC Bid - British Columbia public sector procurement
+# 10. BC Bid - British Columbia public sector procurement
 # --------------------------------------------------------------------
-# Type: PUBLIC HTML LISTINGS (browse-without-login)
+# Type: PUBLIC HTML LISTINGS
 # Login required: No (to view; yes to bid).
-# Coverage: BC Hydro, BC Ferries, all BC ministries and Crown corps.
-#           This single source covers BC Hydro and many other tracker
-#           portals that delegate posting to BC Bid.
-#
-# Note: BC Bid is a SaaS (Ivalua). The browse URL is paginated. We
-# pull the first page only - sufficient since the filter narrows
-# results dramatically anyway.
 
 BC_BID_URL = "https://www.bcbid.gov.bc.ca/page.aspx/en/rfp/request_browse_public"
 
@@ -1166,10 +1345,8 @@ def scrape_bc_bid():
 
 
 # --------------------------------------------------------------------
-# 9. NL Hydro - bidsandtenders.ca platform
+# 11. NL Hydro - bidsandtenders.ca platform
 # --------------------------------------------------------------------
-# Type: PUBLIC HTML LISTINGS (bidsandtenders.ca platform)
-# Login required: No (to view); yes to bid.
 
 NL_HYDRO_URL = "https://nlhydro.bidsandtenders.ca/Module/Tenders/en"
 
@@ -1181,22 +1358,6 @@ def scrape_nl_hydro():
     )
 
 
-# --------------------------------------------------------------------
-# 10. Government of Yukon - bidsandtenders.ca platform
-# --------------------------------------------------------------------
-
-YUKON_BIDS_URL = "https://yukon.bidsandtenders.ca/Module/Tenders/en"
-
-
-def scrape_yukon():
-    return _scrape_bidsandtenders(
-        YUKON_BIDS_URL, "Yukon",
-        "Government of Yukon", "Canada (YT)",
-    )
-
-
-# Navigation labels on bidsandtenders templates that LOOK like tender
-# titles but are just menu items. Reject anything matching this list.
 BIDSANDTENDERS_NAV_NOISE = {
     "bids homepage", "create account", "sign in", "login", "log in",
     "vendor guide", "buyer guide", "register", "support",
@@ -1206,13 +1367,7 @@ BIDSANDTENDERS_NAV_NOISE = {
 
 
 def _scrape_bidsandtenders(url, source_name, entity, region):
-    """Generic bidsandtenders.ca scraper. The platform serves all
-    its clients (NL Hydro, Yukon, hundreds of municipalities) on
-    the same template, so this works for any of them.
-
-    Only links containing 'Tender/Detail' or 'Tender/View' in the URL
-    point to actual tender pages. Other links matching /Module/Tenders
-    are nav items and are skipped."""
+    """Generic bidsandtenders.ca scraper."""
     log(f"{source_name}: scraping {url}")
     out = []
     r = safe_get(url)
@@ -1223,18 +1378,9 @@ def _scrape_bidsandtenders(url, source_name, entity, region):
     seen = set()
     for a in soup.find_all("a", href=True):
         href = a["href"]
-        # Real tender URLs on bidsandtenders sites contain a GUID-style id.
-        # The pattern is something like:
-        #   /Module/Tenders/en/Tender/Detail/{guid}
-        #   /Module/Tenders/en/tender/{guid}
-        #   /Module/Tenders/en/Tender/View/{guid}
-        # Navigation links to /Module/Tenders/en alone don't have the trailing id.
-        # Match any URL that has a UUID-like pattern after /Tenders/.
         href_lower = href.lower()
         if "/module/tenders" not in href_lower:
             continue
-        # Accept if the URL contains a GUID-pattern (8-4-4-4-12 hex)
-        # OR contains /tender/detail or /tender/view (any case)
         has_guid = bool(re.search(
             r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
             href_lower
@@ -1245,7 +1391,6 @@ def _scrape_bidsandtenders(url, source_name, entity, region):
         text = a.get_text(strip=True)
         if not text or len(text) < 10:
             continue
-        # Reject nav-menu labels that LOOK like tender titles.
         if text.lower().strip() in BIDSANDTENDERS_NAV_NOISE:
             continue
         full = urljoin(url, href)
@@ -1262,9 +1407,8 @@ def _scrape_bidsandtenders(url, source_name, entity, region):
 
 
 # --------------------------------------------------------------------
-# 11. Government of Nova Scotia - Procurement Portal
+# 12. Government of Nova Scotia - Procurement Portal
 # --------------------------------------------------------------------
-# Type: PUBLIC HTML LISTINGS
 
 NS_PROCUREMENT_URL = "https://procurement.novascotia.ca/ns-tenders.aspx"
 
@@ -1300,56 +1444,18 @@ def scrape_ns_procurement():
 
 
 # --------------------------------------------------------------------
-# 12. Government of Nunavut - RFTP
+# 13. Government of Nunavut - RFTP (bot-protected, skipped)
 # --------------------------------------------------------------------
-# Type: PUBLIC HTML LISTINGS
-# Note: Nunavut tenders are gold for Edgewise (Arctic focus).
-
-NUNAVUT_URL = "https://www.gov.nu.ca/finance/information/government-nunavut-rftp"
-
+# Most Nunavut federal tenders also appear in CanadaBuys.
 
 def scrape_nunavut():
-    """gov.nu.ca uses bot protection that blocks server-side scraping.
-    Most Nunavut federal tenders also appear in CanadaBuys, which IS
-    being scraped successfully, so coverage is preserved.
-    The portal directory at the bottom of rfps.html still links to it."""
     log("Nunavut RFTP: skipped (bot-protected; CanadaBuys covers most NU tenders)")
-    out = []
-    return out
-    # Old code below kept commented for future reference.
-    # r = safe_get(NUNAVUT_URL)
-    # if not r:
-    #     return out
-
-    soup = BeautifulSoup(r.content, "lxml")
-    seen = set()
-    for a in soup.find_all("a", href=True):
-        text = a.get_text(strip=True)
-        href = a["href"]
-        if not text or len(text) < 10:
-            continue
-        if not re.search(r"\b(RFT|RFP|RFQ|tender|proposal)\b",
-                         text + " " + href, re.I):
-            continue
-        full = urljoin(NUNAVUT_URL, href)
-        if full in seen:
-            continue
-        seen.add(full)
-        out.append(build_record(
-            project=text, entity="Government of Nunavut",
-            region="Canada (NU)", source="Nunavut RFTP",
-            url=full, tags=["Nunavut", "Arctic", "Canada"],
-        ))
-
-    log(f"Nunavut RFTP: {len(out)} entries pulled (pre-filter)")
-    return out
+    return []
 
 
 # --------------------------------------------------------------------
-# 13. BC Ferries - Procurement
+# 14. BC Ferries - Procurement
 # --------------------------------------------------------------------
-# Type: PUBLIC HTML LISTINGS (some opportunities posted on BC Bid,
-# some on their own page)
 
 BC_FERRIES_URL = "https://www.bcferries.com/our-company/procurement"
 
@@ -1386,10 +1492,8 @@ def scrape_bc_ferries():
 
 
 # --------------------------------------------------------------------
-# 14. LNG Canada - Contracting & Procurement
+# 15. LNG Canada - Contracting & Procurement
 # --------------------------------------------------------------------
-# Type: PUBLIC HTML LISTINGS
-# Note: Marine environmental work around the LNG terminal in Kitimat.
 
 LNG_CANADA_URL = "https://www.lngcanada.ca/opportunities/contracting-procurement/"
 
@@ -1426,16 +1530,11 @@ def scrape_lng_canada():
 
 
 # --------------------------------------------------------------------
-# 15. MERX - Government of NL solicitations
+# 16. MERX - Government of NL solicitations
 # --------------------------------------------------------------------
-# Type: PUBLIC HTML LISTINGS (basic info before paywall)
-# Login required: Yes to download bid documents; No to see titles
-# and headline info on the listing page.
 
 MERX_NL_URL = "https://www.merx.com/govnl/solicitations/open-bids?pageNumber=1"
 
-
-# Navigation labels on MERX NL listings page. Reject by text match.
 MERX_NAV_NOISE = {
     "open solicitations", "closed solicitations", "awarded solicitations",
     "all solicitations", "bids homepage", "homepage", "search",
@@ -1457,15 +1556,10 @@ def scrape_merx_nl():
         href = a["href"]
         if not text or len(text) < 15:
             continue
-        # Reject navigation labels.
         if text.lower().strip() in MERX_NAV_NOISE:
             continue
-        # Real tender URLs have a numeric id at the end:
-        # /solicitations/open-bids/<title>/<8-digit-id>
-        # Nav links are just /solicitations/open-bids without the trailing parts.
         if "/solicitations/" not in href and "/solicitation-detail/" not in href:
             continue
-        # Tender URLs end in a numeric id; skip URLs without one.
         if not re.search(r"/\d{6,}(?:[/?#]|$)", href):
             continue
         full = urljoin(MERX_NL_URL, href)
@@ -1529,30 +1623,20 @@ def load_existing():
 # All sources our scrapers produce. Used to identify which existing
 # records are scraped (overwritten each run) vs manual (preserved).
 # IMPORTANT: when adding a new scrape_xxx() function, add its source
-# string to this set as well, otherwise its entries won't get refreshed.
+# string to this set as well.
 SCRAPER_SOURCES = {
     "CanadaBuys", "Find a Tender (UK)", "Contracts Finder (UK)",
+    "TED (EU)", "SAM.gov (US)",
     "SPREP", "World Bank", "IMO", "Caribbean Development Bank",
-    "BC Bid", "NL Hydro", "Yukon", "NS Procurement", "Nunavut RFTP",
+    "BC Bid", "NL Hydro", "NS Procurement", "Nunavut RFTP",
     "BC Ferries", "LNG Canada", "MERX (NL)",
 }
 
 
 def merge_with_existing(scraped):
-    """Merge scraped records with manual entries already in rfps.json.
-
-    Behaviour:
-      - Scraped entries (source in SCRAPER_SOURCES) are replaced
-        wholesale each run, EXCEPT for status overrides and notes
-        the user has added (matched by stable id).
-      - Manual entries (source NOT in SCRAPER_SOURCES) are kept
-        whole - this is how Gemini-found entries or hand-added
-        tenders survive between scrapes.
-      - The portals array is preserved untouched.
-    """
+    """Merge scraped records with manual entries already in rfps.json."""
     existing = load_existing()
 
-    # Capture user-edited fields from existing scraped entries.
     status_overrides = {}
     notes_overrides = {}
     for r in existing.get("rfps", []):
@@ -1563,14 +1647,12 @@ def merge_with_existing(scraped):
         if r.get("notes"):
             notes_overrides[r["id"]] = r["notes"]
 
-    # Apply overrides to fresh scrape.
     for r in scraped:
         if r["id"] in status_overrides:
             r["status"] = status_overrides[r["id"]]
         if r["id"] in notes_overrides and not r.get("notes"):
             r["notes"] = notes_overrides[r["id"]]
 
-    # Keep manual entries.
     manual = [
         r for r in existing.get("rfps", [])
         if r.get("source") not in SCRAPER_SOURCES
@@ -1593,22 +1675,20 @@ def merge_with_existing(scraped):
 # Main entry point
 # ====================================================================
 
-# List of all active scrapers. To disable one temporarily, comment out
-# its line. To add a new scraper, add the function reference here AND
-# add its source string to SCRAPER_SOURCES above.
 SCRAPERS = [
     scrape_canadabuys,         # Federal Canada (CSV) - highest value
-    scrape_find_a_tender,      # UK above-threshold (JSON API)
-    scrape_contracts_finder,   # UK below-threshold (JSON API)
-    scrape_sprep,              # Pacific (HTML)
-    scrape_worldbank,          # Global (RSS)
+    scrape_find_a_tender,      # UK above-threshold (OCDS JSON)
+    scrape_contracts_finder,   # UK below-threshold (OCDS JSON)
+    scrape_ted,                # EU above-threshold (TED JSON API)
+    scrape_samgov,             # US federal (SAM.gov JSON API)
+    scrape_sprep,              # Pacific (bot-protected, skipped)
+    scrape_worldbank,          # Global (JSON API)
     scrape_imo,                # Maritime (HTML)
     scrape_caribbean_db,       # Caribbean (HTML)
     scrape_bc_bid,             # BC public sector (HTML)
-    scrape_nl_hydro,           # NL Hydro (b&t platform)
-    scrape_yukon,              # Yukon (b&t platform)
+    scrape_nl_hydro,           # NL Hydro (bidsandtenders)
     scrape_ns_procurement,     # Nova Scotia (HTML)
-    scrape_nunavut,            # Nunavut Arctic (HTML)
+    scrape_nunavut,            # Nunavut (bot-protected, skipped)
     scrape_bc_ferries,         # BC Ferries (HTML)
     scrape_lng_canada,         # LNG Canada (HTML)
     scrape_merx_nl,            # MERX NL government (HTML)
@@ -1625,12 +1705,10 @@ def main():
         try:
             raw.extend(fn())
         except Exception as e:
-            # One source failing must NOT abort the whole run.
             log(f"{fn.__name__}: unhandled error - {e}")
 
     log(f"Total raw records: {len(raw)}")
 
-    # Apply marine/CPV filter.
     filtered = []
     for rec in raw:
         ok, reason = passes_filter(rec)
@@ -1640,7 +1718,7 @@ def main():
                 rec["tags"] = list(set(
                     (rec.get("tags") or []) + [reason.split(":", 1)[1].strip()]
                 ))
-            rec.pop("category_code", None)   # internal-only field
+            rec.pop("category_code", None)
             filtered.append(rec)
 
     log(f"Passed filter (marine keywords / CPV codes): {len(filtered)}")
