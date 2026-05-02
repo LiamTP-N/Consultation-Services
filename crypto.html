@@ -317,11 +317,16 @@
         //     whether we're on a work network and should start in
         //     privacy mode.
         //
-        // Alert delivery (client-side only - tab must be open):
-        //   - Browser Notification API (native desktop notification)
-        //   - Telegram Bot API (POSTs to sendMessage)
-        //   Both fire at 90/95/98/100% of the fee-adjusted target rate,
-        //   each threshold once per page load. Reload to re-arm.
+        // Alert delivery:
+        //   - Browser Notification API (client-side, fires while tab
+        //     is open) at 90/95/98/100% of fee-adjusted target rate,
+        //     each threshold once per page load. Reload to re-arm.
+        //   - Telegram alerts are NOT fired from this page - they are
+        //     handled server-side by an hourly GitHub Action
+        //     (crypto-alert.py) so they run regardless of whether the
+        //     page is open. Server alerts trigger only at >=100% in
+        //     5%-wide buckets (100, 105, 110...), each bucket at most
+        //     once per UTC day.
         //
         // Privacy model:
         //   - If IP matches WORK_IPS -> start hidden behind a black
@@ -597,29 +602,15 @@
         }
 
         // --------------------------------------------------------------
-        // TELEGRAM NOTIFICATION
+        // TELEGRAM NOTIFICATIONS
         // --------------------------------------------------------------
-        const TELEGRAM_TOKEN = '8471305313:AAFbrJGU1i9VWQI3e7NDobzFBUCEXj0YdAI';
-        const TELEGRAM_CHAT_ID = '5097919336';
-        function fireTelegramNotification(rate, threshold) {
-            if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) return;
-            const icon = threshold >= 100 ? "\u{1F3AF}" : "\u{1F4C8}";
-            const headline = threshold >= 100
-                ? "Target reached!"
-                : `At ${threshold}% of target.`;
-            const text = `${icon} ${headline} ZEC\u2192XTZ rate is ${rate.toFixed(2)} (fee-adjusted target ${targetRate.toFixed(2)}).`;
-            const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
-            fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: text })
-            }).catch(e => console.error('Telegram send failed', e));
-        }
+        // Server-side only. Handled by .github/workflows/crypto-alerts.yml
+        // running crypto-alert.py hourly. State persists in
+        // crypto-alert-state.json. Do not fire Telegram from the client.
 
-        // Combined alert at a given threshold (90/95/98/100)
+        // Combined alert at a given threshold (90/95/98/100) - browser only.
         function fireTargetAlert(rate, threshold) {
             fireBrowserNotification(rate, threshold);
-            fireTelegramNotification(rate, threshold);
             const el = document.getElementById('alertLog');
             if (el) {
                 const now = new Date();
