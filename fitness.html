@@ -235,7 +235,7 @@
         @keyframes heartPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
         .hr-pulse{animation:heartPulse 0.8s ease-in-out infinite;}
         .hr-badge{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:all 0.3s ease;}
-        .zone-segment{height:24px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:rgba(0,0,0,0.6);min-width:0;overflow:hidden;}
+        .zone-segment{height:24px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:rgba(255,255,255,0.95);text-shadow:0 1px 2px rgba(0,0,0,0.5);min-width:0;overflow:hidden;letter-spacing:0.02em;}
         /* Safe-area padding for devices with notches, gesture bars, or system
            overlays (applies on modern Android Chrome as well as any browser that
            honours env(safe-area-inset-bottom)). */
@@ -782,13 +782,23 @@
 
         // Record an HR reading into history (for summary charts) and round-local
         // buffer (for the live sparkline during a working phase).
+        // mySur: per-person surprise ownership flag for chart shading. The global
+        // session.phase==='surprise' marks samples for both people, but in partner
+        // mode each surprise belongs to one person (odd rounds = Liam, even = Ash).
+        // Solo mode: all surprises are Liam's.
         function recordHR(who,bpm){
-            const t=(Date.now()-sessionStartTime)/1000,e={t,bpm,round:session.round,phase:session.phase};
+            const isSur=session.phase==='surprise';
+            const isW=settings.mode==='wife';
+            const youOwnsSur=isSur&&(!isW||(session.round%2!==0));
+            const wifeOwnsSur=isSur&&isW&&(session.round%2===0);
+            const t=(Date.now()-sessionStartTime)/1000;
             if(who==='you'){
+                const e={t,bpm,round:session.round,phase:session.phase,mySur:youOwnsSur};
                 if(hrHistoryYou.length<HR_HISTORY_CAP)hrHistoryYou.push(e);
                 hrRoundYou.push(e);
                 if(bpm>peakHRYou.bpm){peakHRYou.bpm=bpm;peakHRYou.round=session.round;}
             }else{
+                const e={t,bpm,round:session.round,phase:session.phase,mySur:wifeOwnsSur};
                 if(hrHistoryWife.length<HR_HISTORY_CAP)hrHistoryWife.push(e);
                 hrRoundWife.push(e);
                 if(bpm>peakHRWife.bpm){peakHRWife.bpm=bpm;peakHRWife.round=session.round;}
@@ -1046,13 +1056,15 @@
             ctx.clearRect(0,0,w,h);if(data.length<2)return;
             const bpms=data.map(d=>d.bpm),minB=Math.floor((Math.min(...bpms)-10)/10)*10,maxB=Math.ceil((Math.max(...bpms)+10)/10)*10,bR=maxB-minB||1,maxT=data[data.length-1].t;
             const axisFont=Math.max(10,Math.round(w*0.022))+'px Space Mono',timeFont=Math.max(9,Math.round(w*0.018))+'px Space Mono';
-            // Surprise round shading: 70% opacity white band wherever phase==='surprise'.
-            // Drawn FIRST so grid/lines/data overlay on top. Detect contiguous surprise
-            // segments by phase changes between adjacent samples.
-            ctx.fillStyle='rgba(255,255,255,0.7)';
+            // Surprise round shading: lighter, more see-through white band wherever
+            // this person owns the surprise (data[i].mySur). Drawn FIRST so grid/lines/
+            // data overlay on top. Detect contiguous owned-surprise segments by changes
+            // between adjacent samples. In partner mode each surprise belongs to only
+            // one person, so the other's chart stays clean.
+            ctx.fillStyle='rgba(255,255,255,0.32)';
             let segStart=null;
             for(let i=0;i<data.length;i++){
-                const isSur=data[i].phase==='surprise';
+                const isSur=data[i].mySur===true;
                 if(isSur&&segStart===null)segStart=data[i].t;
                 if((!isSur||i===data.length-1)&&segStart!==null){
                     const segEnd=isSur?data[i].t:data[i-1].t;
