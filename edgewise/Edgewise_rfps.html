@@ -41,7 +41,7 @@ CHANGE LOG
                (replaces the manual-entry workaround). Nunavut
                activated via the nunavuttenders.ca mirror (which
                doesn't have Cloudflare in front of it). Active scraped
-               source count now 25.
+               source count now 26.
 ================================================================================
 -->
 <html lang="en-GB">
@@ -61,13 +61,24 @@ CHANGE LOG
         .source-canadabuys     { background: #2d1818; color: #fca5a5; }
         .source-findatender    { background: #1e3050; color: #93c5fd; }
         .source-contractsfinder { background: #1e3a5f; color: #60a5fa; }
+        .source-ted            { background: #2c1e50; color: #c4b5fd; }
+        .source-samgov         { background: #50231e; color: #fca5a5; }
+        .source-pcs            { background: #1e2a50; color: #93c5fd; }
+        .source-nbon           { background: #2d3a1a; color: #bef264; }
+        .source-gnwt           { background: #1a3050; color: #67e8f9; }
+        .source-seao           { background: #3d1a3d; color: #f0abfc; }
+        .source-etenders       { background: #0d3a1f; color: #6ee7b7; }
+        .source-sell2wales     { background: #5a1a1a; color: #f87171; }
+        .source-adb            { background: #3a2a0a; color: #fcd34d; }
+        .source-afdb           { background: #3a2010; color: #fb923c; }
+        .source-ungm           { background: #1a2a3d; color: #38bdf8; }
+        .source-doffin         { background: #2a1a4a; color: #a5b4fc; }
         .source-sprep          { background: #0a3a3a; color: #5eead4; }
         .source-worldbank      { background: #1a2f1a; color: #86efac; }
         .source-imo            { background: #2a1a3d; color: #c4b5fd; }
         .source-cardb          { background: #1a3d3a; color: #5eead4; }
         .source-bcbid          { background: #1e3350; color: #67e8f9; }
         .source-nlhydro        { background: #1f2937; color: #cbd5e1; }
-        .source-yukon          { background: #2a2a2a; color: #cbd5e1; }
         .source-ns             { background: #4c1d1d; color: #fca5a5; }
         .source-nunavut        { background: #1e2f50; color: #a5b4fc; }
         .source-bcferries      { background: #0a1a3d; color: #60a5fa; }
@@ -572,13 +583,24 @@ CHANGE LOG
         if (l.includes('canadabuys'))       return 'source-canadabuys';
         if (l.includes('find a tender'))    return 'source-findatender';
         if (l.includes('contracts finder')) return 'source-contractsfinder';
+        if (l.includes('ted (eu)'))         return 'source-ted';
+        if (l.includes('sam.gov'))          return 'source-samgov';
+        if (l.includes('pcs scotland'))     return 'source-pcs';
+        if (l.includes('nbon'))             return 'source-nbon';
+        if (l.includes('gnwt'))             return 'source-gnwt';
+        if (l.includes('seao'))             return 'source-seao';
+        if (l.includes('etenders'))         return 'source-etenders';
+        if (l.includes('sell2wales'))       return 'source-sell2wales';
+        if (l.includes('afdb'))             return 'source-afdb';
+        if (l.includes('adb'))              return 'source-adb';
+        if (l.includes('ungm'))             return 'source-ungm';
+        if (l.includes('doffin'))           return 'source-doffin';
         if (l.includes('sprep'))            return 'source-sprep';
         if (l.includes('world bank'))       return 'source-worldbank';
         if (l.includes('imo'))              return 'source-imo';
         if (l.includes('caribbean'))        return 'source-cardb';
         if (l.includes('bc bid'))           return 'source-bcbid';
         if (l.includes('nl hydro'))         return 'source-nlhydro';
-        if (l.includes('yukon'))            return 'source-yukon';
         if (l.includes('ns procurement'))   return 'source-ns';
         if (l.includes('nunavut'))          return 'source-nunavut';
         if (l.includes('bc ferries'))       return 'source-bcferries';
@@ -591,7 +613,7 @@ CHANGE LOG
         const l = (r || '').toLowerCase();
         if (l.includes('canada'))    return 'region-canada';
         if (l.includes('uk'))        return 'region-uk';
-        if (l.includes('usa') || l.includes('us'))  return 'region-usa';
+        if (l.startsWith('usa'))     return 'region-usa';
         if (l.includes('eu') || l.includes('netherlands') || l.includes('europe') || l.includes('ireland') || l.includes('norway') || l.includes('norwegian')) return 'region-eu';
         if (l.includes('pacific') || l.includes('palau')) return 'region-pacific';
         if (l.includes('arctic') || l.includes('nunavut')) return 'region-arctic';
@@ -604,7 +626,7 @@ CHANGE LOG
         const l = (r || '').toLowerCase();
         if (l.includes('canada'))  return 'CA';
         if (l.includes('uk'))      return 'UK';
-        if (l.includes('usa') || l.includes('us'))  return 'US';
+        if (l.startsWith('usa'))   return 'US';
         if (l.includes('eu') || l.includes('netherlands') || l.includes('europe') || l.includes('ireland') || l.includes('norway') || l.includes('norwegian')) return 'EU';
         if (l.includes('pacific') || l.includes('palau')) return 'PAC';
         if (l.includes('arctic') || l.includes('nunavut')) return 'ARC';
@@ -639,7 +661,7 @@ CHANGE LOG
         if (f === 'pacific')   return reg.includes('pacific') || reg.includes('palau');
         if (f === 'arctic')    return reg.includes('arctic') || reg.includes('nunavut');
         if (f === 'eu')        return reg.includes('eu') || reg.includes('netherlands') || reg.includes('europe') || reg.includes('ireland') || reg.includes('norway') || reg.includes('norwegian');
-        if (f === 'usa')       return reg.includes('usa') || reg.includes('us');
+        if (f === 'usa')       return reg.startsWith('usa');
         if (f === 'caribbean') return reg.includes('caribbean');
         if (f === 'asia')      return reg.includes('asia');
         if (f === 'africa')    return reg.includes('africa');

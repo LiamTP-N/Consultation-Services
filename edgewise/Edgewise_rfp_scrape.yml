@@ -4,7 +4,7 @@
 #
 # WHAT THIS DOES
 # --------------
-# This file tells GitHub to run rfp_scrape.py once a day on their servers
+# This file tells GitHub to run Edgewise_rfp_scrape.py once a day on their servers
 # (no need for your laptop to be on). The script visits public procurement
 # websites, finds tenders matching Edgewise's keywords, and updates rfps.json.
 # The GitHub Pages site then serves the updated JSON to rfps.html.
@@ -67,8 +67,10 @@
 #    -> Check: Repo Settings > Actions > General > Workflow permissions
 #       MUST be set to "Read and write permissions"
 #
-# 2. "could not find rfp_scrape.py"
-#    -> The Python file isn't in the repo root. Move it there.
+# 2. "could not find Edgewise_rfp_scrape.py"
+#    -> The Python file should live at edgewise/Edgewise_rfp_scrape.py
+#       (i.e. inside the edgewise/ subfolder of the repo). The "Run scraper"
+#       step below calls it via that path.
 #
 # 3. "ModuleNotFoundError: No module named 'requests'"
 #    -> The pip install line below failed. Check your internet
@@ -127,7 +129,7 @@ jobs:
       # ---------------------------------------------------------------
       # Step 1: Pull a copy of your repo onto the runner
       # ---------------------------------------------------------------
-      # This is what gives the runner access to rfp_scrape.py and rfps.json.
+      # This is what gives the runner access to Edgewise_rfp_scrape.py and Edgewise_rfps.json.
       # actions/checkout is a GitHub-maintained action - safe and standard.
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -149,9 +151,20 @@ jobs:
       # requests = makes HTTP calls
       # beautifulsoup4 = parses HTML
       # lxml = the parser engine BeautifulSoup uses (faster than Python's default)
+      # playwright = headless Chromium driver for JS-rendered portals (SPREP)
       # If you add a new scraper that needs another library, add it here.
       - name: Install dependencies
-        run: pip install requests beautifulsoup4 lxml
+        run: pip install requests beautifulsoup4 lxml playwright
+
+      # ---------------------------------------------------------------
+      # Step 3b: Install the headless Chromium browser Playwright drives
+      # ---------------------------------------------------------------
+      # Without this, scrape_sprep() will log "Playwright not installed
+      # - skipping" on every run because import succeeds but no browser
+      # binary is present. --with-deps pulls the OS-level libraries
+      # Chromium needs on the ubuntu-latest runner.
+      - name: Install Playwright browser
+        run: python -m playwright install --with-deps chromium
 
       # ---------------------------------------------------------------
       # Step 4: Actually run the scraper
@@ -159,11 +172,9 @@ jobs:
       # This produces an updated rfps.json in the runner's working directory.
       # If the script crashes, this step fails and Step 5 won't run.
       #
-      # The DOFFIN_API_KEY env var is sourced from a repo secret of the
-      # same name (set under Settings > Secrets and variables > Actions).
-      # The Doffin scraper uses it to call the Norwegian procurement
-      # API. If the secret is missing the scraper logs a single warning
-      # and skips that source - the rest of the run still completes.
+      # DOFFIN_API_KEY: optional secret. If set in repo secrets, the
+      # Doffin (Norway) scraper runs; if not, scrape_doffin() logs a
+      # single warning and the rest of the run continues unaffected.
       - name: Run scraper
         env:
           DOFFIN_API_KEY: ${{ secrets.DOFFIN_API_KEY }}
