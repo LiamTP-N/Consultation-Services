@@ -186,7 +186,6 @@
         { id: 'index', label: 'Home', href: 'index.html' },
         { id: 'portfolio', label: 'Portfolio', href: 'portfolio.html' },
         { id: 'cv', label: 'CV', href: 'cv.html' },
-        { id: 'services', label: 'Services', href: 'services.html' },
         { id: 'live-research', label: 'LIVE Research', href: 'live-research.html' },
         { id: 'jobs', label: 'Jobs', href: 'jobs.html' },
     ];
