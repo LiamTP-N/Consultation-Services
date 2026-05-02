@@ -212,6 +212,7 @@ import csv             # CanadaBuys CSV parsing
 import hashlib         # Stable id hashing
 import io              # In-memory CSV buffer
 import json            # Output writing, OCDS API parsing
+import os              # Reading DOFFIN_API_KEY from environment
 import re              # Date parsing, regex matching
 import sys             # Exit codes
 import time            # Polite delays between paginated requests
@@ -2516,6 +2517,140 @@ def scrape_ungm():
     return out
 
 
+# --------------------------------------------------------------------
+# 28. Doffin (Norway)
+# --------------------------------------------------------------------
+# Type: PUBLIC JSON API (free Azure subscription key required)
+# Login required: No, but a free API key must be registered at
+#   https://dof-notices-prod-api.developer.azure-api.net/
+# The key is read from the DOFFIN_API_KEY environment variable, which
+# is populated by a GitHub Actions secret. If the key is missing the
+# scraper logs a single warning and returns an empty list - the rest
+# of the daily run is unaffected.
+#
+# Above-threshold Norwegian notices already cross-post to TED (which
+# we scrape separately). The value-add of Doffin is sub-threshold
+# Norwegian work - Sørlige Nordsjø II / Utsira Nord offshore wind,
+# Norwegian Environment Agency, Equinor sub-threshold direct contracts.
+# Titles are mostly Norwegian; the marine keyword filter still applies.
+
+DOFFIN_API_URL = "https://betaapi.doffin.no/public/v2/notices"
+DOFFIN_NOTICE_URL = "https://www.doffin.no/notices/{id}"
+DOFFIN_PAGE_SIZE = 100
+DOFFIN_MAX_PAGES = 10
+
+
+def scrape_doffin():
+    """Doffin - Norwegian public procurement database.
+
+    Pulls active notices via the public REST API. Above-threshold
+    notices duplicate TED entries, so the value-add is sub-threshold
+    Norwegian work."""
+    log("Doffin: fetching active notices")
+    out = []
+
+    api_key = os.environ.get("DOFFIN_API_KEY", "").strip()
+    if not api_key:
+        log("Doffin: DOFFIN_API_KEY not set - skipping (sign up at "
+            "https://dof-notices-prod-api.developer.azure-api.net/ "
+            "and add the key as a GitHub Actions secret)")
+        return out
+
+    headers = {
+        **HEADERS,
+        "Accept": "application/json",
+        "Ocp-Apim-Subscription-Key": api_key,
+    }
+
+    seen = set()
+    for page in range(DOFFIN_MAX_PAGES):
+        params = {
+            "numHitsPerPage": DOFFIN_PAGE_SIZE,
+            "page": page,
+            "status": "ACTIVE",
+            "sortBy": "PUBLICATION_DATE_DESC",
+        }
+        try:
+            r = requests.get(
+                DOFFIN_API_URL, params=params, headers=headers,
+                timeout=HTTP_TIMEOUT,
+            )
+        except requests.RequestException as e:
+            log(f"Doffin: HTTP error on page {page} - {e}")
+            break
+
+        if not r.ok:
+            log(f"Doffin: HTTP {r.status_code} on page {page} - {r.text[:200]}")
+            break
+
+        try:
+            data = r.json()
+        except ValueError:
+            log(f"Doffin: non-JSON response on page {page}")
+            break
+
+        # API returns either {"hits": [...]} or {"results": [...]} depending
+        # on version; handle both. Each hit is a notice object.
+        hits = data.get("hits") or data.get("results") or data.get("notices") or []
+        if not hits:
+            break
+
+        new_on_page = 0
+        for h in hits:
+            nid = (h.get("id") or h.get("doffinId") or
+                   h.get("noticeId") or h.get("identifier"))
+            if not nid or nid in seen:
+                continue
+            seen.add(nid)
+            new_on_page += 1
+
+            title = (h.get("title") or h.get("heading") or "").strip()
+            if not title:
+                continue
+
+            buyer = ""
+            buyer_obj = h.get("buyer") or h.get("organization") or {}
+            if isinstance(buyer_obj, dict):
+                buyer = buyer_obj.get("name") or buyer_obj.get("officialName") or ""
+            elif isinstance(buyer_obj, str):
+                buyer = buyer_obj
+
+            deadline_raw = (h.get("deadline") or h.get("submissionDeadline") or
+                            h.get("tenderDeadline") or "")
+            due = parse_iso_date(deadline_raw)
+
+            description = (h.get("description") or h.get("shortDescription") or
+                           h.get("summary") or "")
+
+            cpv_codes = h.get("cpvCodes") or h.get("cpv") or []
+            if isinstance(cpv_codes, list):
+                category_code = " ".join(str(c) for c in cpv_codes)
+            else:
+                category_code = str(cpv_codes)
+
+            url = DOFFIN_NOTICE_URL.format(id=nid)
+
+            out.append(build_record(
+                project=title,
+                entity=buyer or "Norwegian public buyer",
+                region="Norway",
+                due_date=due,
+                reference=str(nid),
+                source="Doffin",
+                url=url,
+                summary=description,
+                category_code=category_code,
+                tags=["Norway", "Doffin", "Europe"],
+            ))
+
+        if new_on_page == 0:
+            break
+        time.sleep(0.5)
+
+    log(f"Doffin: {len(out)} notices pulled (pre-filter)")
+    return out
+
+
 # ====================================================================
 # Filter, dedup, retention, output
 # ====================================================================
@@ -2575,6 +2710,8 @@ SCRAPER_SOURCES = {
     "ADB", "AfDB",
     # UN Global Marketplace (added 2026-05 after AJAX endpoint reverse-engineered)
     "UNGM",
+    # Norwegian public procurement (added 2026-05; needs DOFFIN_API_KEY env var)
+    "Doffin",
 }
 
 
@@ -2635,6 +2772,7 @@ SCRAPERS = [
     scrape_adb,                # Asian Development Bank - Asia-Pacific (HTML)
     scrape_afdb,               # African Development Bank - Africa (HTML)
     scrape_ungm,               # UN Global Marketplace - UN system (POST + HTML fragments)
+    scrape_doffin,             # Norway - sub-threshold (REST API; needs DOFFIN_API_KEY)
     scrape_sprep,              # Pacific - SPREP (Playwright headless Chromium)
     scrape_worldbank,          # Global (JSON API)
     scrape_imo,                # Maritime (HTML)

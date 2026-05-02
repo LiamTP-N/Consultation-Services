@@ -497,7 +497,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "bidsandtenders.ca platform. Landlocked territory - low marine yield. Check manually for any coastal or freshwater environmental work.",
+      "notes": "bidsandtenders.ca platform. Re-checked May 2026: JS-rendered with no public RSS or open AJAX endpoint. Landlocked territory - low marine yield. Manual browse only.",
       "no_listings": false
     },
     {
@@ -517,7 +517,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "US Bureau of Ocean Energy Management - lists planned environmental studies for offshore wind. Biddable items go via SAM.gov (now scraped). Check this page for upcoming study programmes not yet on SAM.",
+      "notes": "US Bureau of Ocean Energy Management. Re-checked May 2026: original studies page is 404; only a general newsroom RSS exists, no procurement feed. Biddable items go via SAM.gov (already scraped). Manual watch only.",
       "no_listings": true
     },
     {
@@ -607,7 +607,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "UK MMO posts marine licensing consultancy via Find a Tender (now scraped). Check this page for direct commissions not on FTS.",
+      "notes": "UK MMO. Re-checked May 2026: dedicated procurement page is 404. All procurement now goes via Find a Tender (already scraped). No standalone feed.",
       "no_listings": true
     },
     {
@@ -617,7 +617,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "UK statutory PAM/MMO guidelines authority. Procurement goes via Find a Tender (now scraped). This page lists direct commissions and frameworks.",
+      "notes": "UK statutory PAM/MMO guidelines authority. Re-checked May 2026: contracts-and-tenders page is 404. All procurement goes via Find a Tender (already scraped).",
       "no_listings": true
     },
     {
@@ -627,7 +627,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "UK marine science contractor; sometimes subcontracts marine survey work. Procurement goes via Find a Tender. Check this page for direct subcontracting opportunities.",
+      "notes": "UK marine science contractor. Re-checked May 2026: procurement page is 404. Procurement goes via Find a Tender (already scraped).",
       "no_listings": true
     },
     {
@@ -637,7 +637,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "No tender listings page - check news section manually.",
+      "notes": "Re-checked May 2026: site bot-protected, no listings page. News section only - manual browse.",
       "no_listings": true
     },
     {
@@ -647,7 +647,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "NL aggregator - manual browse only.",
+      "notes": "NL aggregator. Re-checked May 2026: no tender feed or structured listings. Manual browse only.",
       "no_listings": true
     },
     {
@@ -657,7 +657,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Static project page - no listings.",
+      "notes": "Re-checked May 2026: domain no longer resolves. Treat as defunct.",
       "no_listings": true
     },
     {
@@ -667,7 +667,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Static project page - no listings.",
+      "notes": "Re-checked May 2026: domain no longer resolves. Treat as defunct.",
       "no_listings": true
     },
     {
@@ -677,7 +677,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Contact page only - manual outreach.",
+      "notes": "Contact page only - no listings. Manual outreach.",
       "no_listings": true
     },
     {
@@ -687,7 +687,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "News and events only - no procurement listings.",
+      "notes": "News and events only - no procurement listings. Manual watch.",
       "no_listings": true
     },
     {
@@ -717,7 +717,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Clean Growth NL accelerator - manual browse.",
+      "notes": "Clean Growth NL accelerator. Re-checked May 2026: no tender feed. Manual browse.",
       "no_listings": true
     },
     {
@@ -737,7 +737,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "NL ocean tech industry assoc.",
+      "notes": "NL ocean tech industry assoc. Re-checked May 2026: news/membership only, no tender feed.",
       "no_listings": true
     },
     {
@@ -747,7 +747,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Bay of Fundy energy research consortium.",
+      "notes": "Bay of Fundy research consortium. Re-checked May 2026: research/career announcements only, no tender feed.",
       "no_listings": true
     },
     {
@@ -757,7 +757,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "Institute of Marine Engineering, Science and Technology.",
+      "notes": "Institute of Marine Engineering, Science and Technology. Re-checked May 2026: jobs/membership only, no tender feed.",
       "no_listings": true
     },
     {
@@ -855,9 +855,9 @@
       "url": "https://www.cnlopb.ca/",
       "category": "industry",
       "requires_login": false,
-      "bot_blocked": false,
+      "bot_blocked": true,
       "scraped": false,
-      "notes": "Canada-Newfoundland and Labrador Offshore Petroleum Board. Regulatory body - publishes EAs, IAs, programmatic monitoring requirements. Not a tender portal but signals upcoming work. Manual watch recommended.",
+      "notes": "Canada-Newfoundland and Labrador Offshore Petroleum Board. Regulatory body - publishes EAs, IAs, programmatic monitoring requirements. Re-checked May 2026: site is bot-protected (JS challenge) so cannot be auto-scraped. Manual watch only.",
       "no_listings": true
     },
     {
@@ -906,8 +906,8 @@
       "category": "procurement",
       "requires_login": false,
       "bot_blocked": false,
-      "scraped": false,
-      "notes": "Norwegian public procurement. Above-threshold notices also crosspost to TED (already scraped). Equinor, Norwegian Environment Agency, Sørlige Nordsjø II / Utsira Nord offshore wind. Check manually for sub-threshold work.",
+      "scraped": true,
+      "notes": "Norwegian public procurement. Sub-threshold notices captured here; above-threshold cross-post to TED (already scraped). Scraper uses Doffin Public API v2 with a free Azure subscription key (set as GitHub Actions secret DOFFIN_API_KEY). Equinor sub-threshold, Norwegian Environment Agency, Sørlige Nordsjø II / Utsira Nord offshore wind.",
       "no_listings": false
     },
     {
@@ -967,7 +967,7 @@
       "requires_login": false,
       "bot_blocked": false,
       "scraped": false,
-      "notes": "General tender aggregator. Mixed-quality - useful for cross-checking but not a primary source. Manual browse only.",
+      "notes": "General tender aggregator. Re-checked May 2026: blocks automated access (HTTP 403). Manual browse only.",
       "no_listings": false
     }
   ]

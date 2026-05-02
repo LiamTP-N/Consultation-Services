@@ -89,8 +89,7 @@
 # COSTS
 # -----
 # GitHub Actions on a free public repository = unlimited free minutes.
-# This workflow uses about 5-8 minutes per run (including Playwright
-# Chromium download) = ~200 minutes/month.
+# This workflow uses about 3-5 minutes per run = ~150 minutes/month.
 # Even on a private repo (free tier = 2000 mins/month) you'd be fine.
 #
 # =============================================================================
@@ -150,28 +149,24 @@ jobs:
       # requests = makes HTTP calls
       # beautifulsoup4 = parses HTML
       # lxml = the parser engine BeautifulSoup uses (faster than Python's default)
-      # playwright = headless browser library used by the SPREP scraper
       # If you add a new scraper that needs another library, add it here.
       - name: Install dependencies
-        run: pip install requests beautifulsoup4 lxml playwright
-
-      # ---------------------------------------------------------------
-      # Step 3a: Install Playwright's Chromium browser
-      # ---------------------------------------------------------------
-      # Playwright needs a real browser binary to drive. Chromium is
-      # ~170 MB and is downloaded fresh each run from Microsoft's CDN.
-      # --with-deps installs the required system libraries automatically
-      # on ubuntu-latest. This adds roughly 60-90 seconds to each run.
-      # Only used by scrape_sprep() - all other scrapers use requests.
-      - name: Install Playwright browser
-        run: playwright install chromium --with-deps
+        run: pip install requests beautifulsoup4 lxml
 
       # ---------------------------------------------------------------
       # Step 4: Actually run the scraper
       # ---------------------------------------------------------------
       # This produces an updated rfps.json in the runner's working directory.
       # If the script crashes, this step fails and Step 5 won't run.
+      #
+      # The DOFFIN_API_KEY env var is sourced from a repo secret of the
+      # same name (set under Settings > Secrets and variables > Actions).
+      # The Doffin scraper uses it to call the Norwegian procurement
+      # API. If the secret is missing the scraper logs a single warning
+      # and skips that source - the rest of the run still completes.
       - name: Run scraper
+        env:
+          DOFFIN_API_KEY: ${{ secrets.DOFFIN_API_KEY }}
         run: python edgewise/Edgewise_rfp_scrape.py
 
       # ---------------------------------------------------------------
