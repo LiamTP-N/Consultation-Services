@@ -108,9 +108,7 @@
                 <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="nutrition,diet,dietetics,dietitian">Nutrition</button>
                 <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="strength,conditioning,performance">S&amp;C</button>
                 <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="wearable,sensor,inertial">Wearables</button>
-                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="psychology">Psychology</button>
                 <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="health,public health">Health</button>
-                <button class="disc-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-disc="coaching,coach">Coaching</button>
             </div>
         </div>
     </header>
@@ -170,51 +168,6 @@
 
     <script src="includes.js" defer></script>
     <script>
-    // ==============================================================
-    // JOBS.HTML - public jobs board (consumes scrape.py output)
-    // ==============================================================
-    // Purpose: browsable, filterable, searchable table of job
-    // postings in sport/exercise science, kinesiology, nutrition,
-    // and related academic roles. Client-side only - no backend.
-    //
-    // Data source: jobs.json (sibling file in the repo).
-    //   Produced daily by scrape.py, run via .github/workflows/
-    //   scrape.yml on a GitHub Actions cron at 07:00 UTC. That
-    //   workflow commits the updated jobs.json back to main, so
-    //   this page gets fresh data without a manual redeploy.
-    //   See scrape.py's module docstring for the full jobs.json
-    //   schema (last_updated + jobs[] with id/title/organisation/
-    //   location/type/url/source/date_posted/description/country).
-    //
-    // Filter model (all AND-ed together):
-    //   - searchTerm        free-text, matched against title + org
-    //   - sourceFilter      'all' or a specific source name
-    //   - countryFilter     'all' | 'uk' | 'canada'
-    //   - roleFilter        'all' | 'academia' | 'research' | 'technician'
-    //                       (matched via ROLE_MATCH keyword lists
-    //                       against title + type)
-    //   - subRole           tier-2, only shown when a roleFilter is
-    //                       picked; options come from SUB_OPTIONS
-    //   - disciplineFilter  independent of role; matched against
-    //                       title + type + organisation
-    //
-    // UI state:
-    //   - MAX_AGE_DAYS = 30 caps visible jobs (matches scrape.py's
-    //     prune_old cutoff, so this is belt-and-braces).
-    //   - PAGE_SIZE = 30, with a "load more" button bumping
-    //     visibleCount. No virtualisation - the dataset is small
-    //     enough that rendering all filtered rows is fine.
-    //   - sortCol + sortDir drive header-click sorting.
-    //
-    // Security:
-    //   - All scraped strings go through escHtml() before reaching
-    //     the DOM. Never trust scraped content.
-    //   - safeUrl() whitelists http(s) only - blocks javascript:,
-    //     data:, vbscript: etc. that might sneak through a feed.
-    //
-    // Nav/footer: uses includes.js (standard public-site pattern).
-    // ==============================================================
-
     const MAX_AGE_DAYS = 30;
     const PAGE_SIZE = 30;
 
