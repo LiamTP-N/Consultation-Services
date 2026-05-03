@@ -23,6 +23,33 @@
             html, body { height: auto; overflow-x: hidden; overflow-y: auto; max-width: 100%; }
             body { width: 100%; }
             #tfRow { height: 220px; flex: none; }
+            #mobileTfButtons { display: flex; }
+        }
+        @media (min-width: 768px) {
+            #mobileTfButtons { display: none; }
+        }
+        #mobileTfButtons {
+            gap: 4px;
+            flex-wrap: nowrap;
+        }
+        .mobile-tf-btn {
+            flex: 1;
+            padding: 4px 0;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            color: #94a3b8;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+        .mobile-tf-btn.active {
+            background: rgba(236, 72, 153, 0.18);
+            border-color: rgba(236, 72, 153, 0.5);
+            color: #f9a8d4;
         }
 
         .glass-card {
@@ -166,7 +193,6 @@
                     <span id="liveDot" class="live-dot"></span>
                     <span id="liveStatus" class="text-slate-400">Live</span>
                 </div>
-                <span id="alertLog" class="hidden text-[10px] text-slate-500 border-l border-slate-700/40 pl-2"></span>
             </div>
         </header>
 
@@ -184,6 +210,8 @@
                             <th class="pl-1 md:pl-1.5 py-px text-right">12h</th>
                             <th class="pl-1 md:pl-1.5 py-px text-right">24h</th>
                             <th class="pl-1 md:pl-1.5 py-px text-right">7d</th>
+                            <th class="pl-1 md:pl-1.5 py-px text-right">30d</th>
+                            <th class="pl-1 md:pl-1.5 py-px text-right">90d</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -195,6 +223,8 @@
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="ratePct_12h">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="ratePct_24h">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="ratePct_7d">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="ratePct_30d">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="ratePct_90d">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="zec-gradient">ZEC</span></td>
@@ -204,6 +234,8 @@
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_12h">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_24h">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_7d">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_30d">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_90d">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="xtz-gradient">XTZ</span></td>
@@ -213,6 +245,8 @@
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_12h">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_24h">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_7d">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_30d">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_90d">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="btc-gradient">BTC</span></td>
@@ -222,6 +256,8 @@
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_12h">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_24h">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_7d">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_30d">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_90d">-</td>
                         </tr>
                     </tbody>
                 </table>
@@ -241,8 +277,19 @@
             </div>
         </section>
 
+        <!-- MOBILE TIMEFRAME BUTTONS (hidden on desktop) -->
+        <div id="mobileTfButtons" class="flex-none hidden">
+            <button class="mobile-tf-btn" data-tf="15m">15m</button>
+            <button class="mobile-tf-btn" data-tf="1h">1h</button>
+            <button class="mobile-tf-btn" data-tf="12h">12h</button>
+            <button class="mobile-tf-btn" data-tf="24h">24h</button>
+            <button class="mobile-tf-btn" data-tf="7d">7d</button>
+            <button class="mobile-tf-btn" data-tf="30d">30d</button>
+            <button class="mobile-tf-btn" data-tf="90d">90d</button>
+        </div>
+
         <!-- TIMEFRAME PANELS (fill remaining vertical space on desktop; fixed 220px on mobile) -->
-        <section id="tfRow" class="grid grid-cols-5 gap-1 md:gap-2 flex-1 min-h-0 max-h-[180px] md:max-h-none">
+        <section id="tfRow" class="grid grid-cols-7 gap-1 md:gap-2 flex-1 min-h-0 max-h-[180px] md:max-h-none">
             <div id="panel_15m" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-end mb-1 flex-none text-xs font-semibold">
                     <span class="text-[10px] uppercase tracking-wider text-slate-400">15m</span>
@@ -289,6 +336,22 @@
                 </div>
                 <div class="flex-1 min-h-0 relative">
                     <canvas id="chart_7d"></canvas>
+                </div>
+            </div>
+            <div id="panel_30d" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
+                <div class="flex items-center justify-end mb-1 flex-none text-xs font-semibold">
+                    <span class="text-[10px] uppercase tracking-wider text-slate-400">30d</span>
+                </div>
+                <div class="flex-1 min-h-0 relative">
+                    <canvas id="chart_30d"></canvas>
+                </div>
+            </div>
+            <div id="panel_90d" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
+                <div class="flex items-center justify-end mb-1 flex-none text-xs font-semibold">
+                    <span class="text-[10px] uppercase tracking-wider text-slate-400">90d</span>
+                </div>
+                <div class="flex-1 min-h-0 relative">
+                    <canvas id="chart_90d"></canvas>
                 </div>
             </div>
         </section>
@@ -356,10 +419,6 @@
         const TOTAL_FEE = 0.002;
         const rawTargetRate = xtzTarget / zecHeld;           // 1076.53 (pre-fee)
         const targetRate = rawTargetRate / (1 - TOTAL_FEE);  // ~1078.69 (fee-adjusted, used everywhere)
-        // Progress-based alert thresholds (% of fee-adjusted target rate).
-        // Each fires once per page load; reload to re-arm.
-        const ALERT_THRESHOLDS = [90, 95, 98, 100];
-        const alertsFired = new Set();
         let lastSuccessTs = 0;
         const STALE_MS = 5000;
 
@@ -392,15 +451,17 @@
             '1h':  { interval: '1m', limit: 60  },
             '12h': { interval: '1m', limit: 720 },
             '24h': { interval: '5m', limit: 288 },
-            '7d':  { interval: '1h', limit: 168 }
+            '7d':  { interval: '1h', limit: 168 },
+            '30d': { interval: '4h', limit: 180 },
+            '90d': { interval: '1d', limit: 90  }
         };
-        const TF_KEYS = ['15m', '1h', '12h', '24h', '7d'];
+        const TF_KEYS = ['15m', '1h', '12h', '24h', '7d', '30d', '90d'];
 
         // --------------------------------------------------------------
         // TIMEFRAME VIEW (1-5 keys, 0 to reset, defaults to 24h)
         // --------------------------------------------------------------
-        const KEY_TO_TF = { '1': '15m', '2': '1h', '3': '12h', '4': '24h', '5': '7d' };
-        const DEFAULT_TF = '24h';
+        const KEY_TO_TF = { '1': '15m', '2': '1h', '3': '12h', '4': '24h', '5': '7d', '6': '30d', '7': '90d' };
+        const DEFAULT_TF = '7d';
         let currentTF = DEFAULT_TF;
 
         function setTF(tf) {
@@ -410,11 +471,15 @@
                 const panel = document.getElementById('panel_' + k);
                 if (k === tf) {
                     panel.classList.remove('hidden');
-                    panel.classList.add('col-span-5');
+                    panel.classList.add('col-span-7');
                 } else {
                     panel.classList.add('hidden');
-                    panel.classList.remove('col-span-5');
+                    panel.classList.remove('col-span-7');
                 }
+            });
+            // Sync mobile button active state
+            document.querySelectorAll('.mobile-tf-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tf === tf);
             });
             // Resize the now-visible chart so it fills the new width
             if (typeof panelCharts !== 'undefined' && panelCharts[tf]) {
@@ -584,42 +649,11 @@
         }
 
         // --------------------------------------------------------------
-        // BROWSER NOTIFICATIONS (request once on load, silently)
-        // --------------------------------------------------------------
-        if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission().catch(() => {});
-        }
-        function fireBrowserNotification(rate, threshold) {
-            if (!('Notification' in window)) return;
-            if (Notification.permission !== 'granted') return;
-            const title = threshold >= 100 ? 'Target reached' : `At ${threshold}% of target`;
-            try {
-                new Notification(title, {
-                    body: `ZEC to XTZ rate is ${rate.toFixed(2)} (fee-adjusted target ${targetRate.toFixed(2)}).`,
-                    tag: `zec-xtz-${threshold}`
-                });
-            } catch (e) { /* ignore */ }
-        }
-
-        // --------------------------------------------------------------
         // TELEGRAM NOTIFICATIONS
         // --------------------------------------------------------------
         // Server-side only. Handled by .github/workflows/crypto-alerts.yml
         // running crypto-alert.py hourly. State persists in
         // crypto-alert-state.json. Do not fire Telegram from the client.
-
-        // Combined alert at a given threshold (90/95/98/100) - browser only.
-        function fireTargetAlert(rate, threshold) {
-            fireBrowserNotification(rate, threshold);
-            const el = document.getElementById('alertLog');
-            if (el) {
-                const now = new Date();
-                const ts = now.toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
-                const icon = threshold >= 100 ? "\u{1F3AF}" : "\u{1F4C8}";
-                el.textContent = `${icon} ${threshold}% alert ${ts} @ ${fmtInt(rate)}`;
-                el.classList.remove('hidden');
-            }
-        }
 
         // --------------------------------------------------------------
         // DYNAMIC FAVICON (green dot above target, red below)
@@ -840,6 +874,10 @@
         // ZEC / XTZ / BTC sparklines removed - replaced by 7d chart overlay legend.
 
         // All charts now exist with correct initial dimensions; safe to apply default TF.
+        // Wire mobile TF buttons
+        document.querySelectorAll('.mobile-tf-btn').forEach(btn => {
+            btn.addEventListener('click', () => setTF(btn.dataset.tf));
+        });
         setTF(DEFAULT_TF);
 
         // Cost basis label on first paint - no longer displayed, kept for P/L calc reference only.
@@ -1048,16 +1086,6 @@
 
                 // Favicon
                 setFavicon(aboveTarget);
-
-                // Alert triggers at 90%, 95%, 98%, 100% of fee-adjusted target.
-                // Each fires once per page load. Uses progressPctExact so a
-                // brief dip below doesn't rearm an already-fired threshold.
-                for (const t of ALERT_THRESHOLDS) {
-                    if (progressPctExact >= t && !alertsFired.has(t)) {
-                        fireTargetAlert(latestRate, t);
-                        alertsFired.add(t);
-                    }
-                }
 
             } catch (err) {
                 console.error('Update failed', err);
