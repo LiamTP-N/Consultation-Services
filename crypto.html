@@ -51,6 +51,12 @@
             border-color: rgba(236, 72, 153, 0.5);
             color: #f9a8d4;
         }
+        /* Rate sparkline in hero */
+        #heroSparkline { display: inline-block; vertical-align: middle; }
+        /* Compact mode: hide non-RATE rows in hero table */
+        body.compact-mode #heroTableBody tr:not(#rowRate) { display: none; }
+        /* High-water mark badge */
+        #hwmBadge { transition: color 0.3s; }
 
         .glass-card {
             background: #000;
@@ -188,7 +194,15 @@
                 <span class="xtz-gradient">XTZ</span>
                 <span class="text-slate-500 text-base md:text-xl">(</span><span id="heroDistance" class="text-base md:text-xl">-</span><span class="text-slate-500 text-base md:text-xl">)</span>
             </h1>
-            <div class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 text-xs">
+            <!-- Rate sparkline (24h inline) -->
+            <div class="hidden md:block" style="width:80px;height:28px;position:relative;">
+                <canvas id="heroSparkline"></canvas>
+            </div>
+            <div class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 md:gap-3 text-xs">
+                <!-- High-water mark -->
+                <span id="hwmBadge" class="hidden text-[10px] text-slate-500 font-semibold"></span>
+                <!-- Compact toggle -->
+                <button id="compactToggle" title="Toggle compact mode" class="text-[10px] text-slate-500 hover:text-slate-300 border border-slate-700/40 rounded px-1.5 py-0.5 transition-colors">&#9776;</button>
                 <div class="flex items-center gap-1.5">
                     <span id="liveDot" class="live-dot"></span>
                     <span id="liveStatus" class="text-slate-400">Live</span>
@@ -214,8 +228,8 @@
                             <th class="pl-1 md:pl-1.5 py-px text-right">90d</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
+                    <tbody id="heroTableBody">
+                        <tr id="rowRate">
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base text-pink-300">RATE</td>
                             <td class="pr-2 md:pr-3 py-px text-right text-slate-600">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="ratePct_15m">-</td>
@@ -258,6 +272,17 @@
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_7d">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_30d">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_90d">-</td>
+                        </tr>
+                        <tr id="rowPL">
+                            <td class="pr-2 md:pr-3 py-px text-sm md:text-base text-slate-400">P/L</td>
+                            <td class="pr-2 md:pr-3 py-px text-right text-slate-400 text-[10px]">£35k</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="plGbp_15m">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="plGbp_1h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="plGbp_12h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="plGbp_24h">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="plGbp_7d">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="plGbp_30d">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="plGbp_90d">-</td>
                         </tr>
                     </tbody>
                 </table>
@@ -372,38 +397,25 @@
         // target that would let me swap my ZEC holdings for a chosen
         // amount of XTZ (cost-basis-aware, fee-adjusted).
         //
-        // Data sources (all free, no API keys):
-        //   - Binance public REST API: spot prices + kline history for
-        //     ZECUSDT, XTZUSDT, BTCUSDT, GBPUSDT. Polled every 1s.
+        // Data sources:
+        //   - Binance public REST API: ZECUSDT, XTZUSDT, BTCUSDT, GBPUSDT
         //   - Frankfurter (ECB): GBP/CAD FX rate. Refreshed every 5 min.
-        //   - ipify: public IP detection (one-shot on load) to decide
-        //     whether we're on a work network and should start in
-        //     privacy mode.
+        //   - ipify: public IP detection (one-shot on load).
         //
-        // Alert delivery:
-        //   - Browser Notification API (client-side, fires while tab
-        //     is open) at 90/95/98/100% of fee-adjusted target rate,
-        //     each threshold once per page load. Reload to re-arm.
-        //   - Telegram alerts are NOT fired from this page - they are
-        //     handled server-side by an hourly GitHub Action
-        //     (crypto-alert.py) so they run regardless of whether the
-        //     page is open. Server alerts trigger only at >=100% in
-        //     5%-wide buckets (100, 105, 110...), each bucket at most
-        //     once per UTC day.
-        //
-        // Privacy model:
-        //   - If IP matches WORK_IPS -> start hidden behind a black
-        //     overlay; hold V (or tap the corner dot) to reveal.
-        //   - If IP doesn't match -> overlay disabled entirely.
-        //   - Mobile: overlay disabled regardless (no keyboard).
+        // Features:
+        //   - 7 timeframe panels (15m/1h/12h/24h/7d/30d/90d)
+        //   - Hero table: RATE / ZEC / XTZ / BTC / P/L rows, all TFs
+        //   - 24h rate sparkline inline in header
+        //   - Session high-water mark badge in header
+        //   - Compact mode toggle (collapse to RATE row only)
+        //   - GBP holdings trend overlay on all chart panels
+        //   - Swipe left/right on chart to cycle timeframes (mobile)
+        //   - Mobile TF button row
+        //   - Mobile inactivity reset to 7d after 5 min
+        //   - Privacy overlay (work network only, hold V / click dot)
         //
         // Keyboard shortcuts:
-        //   1-5 = switch visible timeframe panel (15m/1h/12h/24h/7d)
-        //   0   = reset to default (24h)
-        //   V   = hold to reveal; double-tap for 3-min timed reveal
-        //
-        // No persistence: all state is in-memory. Closing the tab
-        // clears everything including fired-alert history.
+        //   1-7 = switch timeframe; 0 = reset to 7d; V = hold to reveal
         // ==============================================================
 
         // --------------------------------------------------------------
@@ -797,7 +809,9 @@
             { label: "BTC_stroke", data: [], borderColor: "#c2410c", backgroundColor: "transparent", borderWidth: 2.75, borderDash: [6, 3], pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yBtc" },
             { label: "ZEC", data: [], borderColor: "#fff147", backgroundColor: "#fff147", pointBackgroundColor: "#fff147", borderWidth: 2.5, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yZec" },
             { label: "XTZ", data: [], borderColor: "rgba(45, 212, 191, 0.65)", backgroundColor: "rgba(45, 212, 191, 0.65)", pointBackgroundColor: "rgba(45, 212, 191, 0.65)", borderWidth: 1.25, pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yXtz" },
-            { label: "BTC", data: [], borderColor: "rgba(249, 115, 22, 0.80)", backgroundColor: "rgba(249, 115, 22, 0.80)", pointBackgroundColor: "rgba(249, 115, 22, 0.80)", borderWidth: 1.25, borderDash: [6, 3], pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yBtc" }
+            { label: "BTC", data: [], borderColor: "rgba(249, 115, 22, 0.80)", backgroundColor: "rgba(249, 115, 22, 0.80)", pointBackgroundColor: "rgba(249, 115, 22, 0.80)", borderWidth: 1.25, borderDash: [6, 3], pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yBtc" },
+            // GBP holdings overlay - shown on 30d/90d; populated on all TFs but only visible there
+            { label: "GBP Holdings", data: [], borderColor: "rgba(99, 102, 241, 0.70)", backgroundColor: "rgba(99, 102, 241, 0.70)", pointBackgroundColor: "rgba(99, 102, 241, 0.70)", borderWidth: 1.5, borderDash: [3, 3], pointRadius: 0, pointStyle: "circle", tension: 0.2, fill: false, yAxisID: "yGbp" }
             ];
             return new Chart(document.getElementById(canvasId).getContext("2d"), {
                 type: "line",
@@ -810,7 +824,8 @@
                         y: { display: false },
                         yZec: { display: false, position: "right" },
                         yXtz: { display: false, position: "right" },
-                        yBtc: { display: false, position: "right" }
+                        yBtc: { display: false, position: "right" },
+                        yGbp: { display: false, position: "right" }
                     },
                     plugins: {
                         legend: { display: false },
@@ -834,6 +849,7 @@
                                 label: (ctx) => {
                                     const ds = ctx.dataset.label || "";
                                     if (ds === "XTZ/ZEC") return fmt(ctx.parsed.y, 2) + " XTZ/ZEC";
+                                    if (ds === "GBP Holdings") return "GBP  £" + fmtInt(ctx.parsed.y);
                                     return ds + "  " + fmtUsd(ctx.parsed.y);
                                 }
                             }
@@ -879,6 +895,72 @@
             btn.addEventListener('click', () => setTF(btn.dataset.tf));
         });
         setTF(DEFAULT_TF);
+
+        // --------------------------------------------------------------
+        // HERO RATE SPARKLINE (24h inline chart in header)
+        // --------------------------------------------------------------
+        const heroSparkCanvas = document.getElementById('heroSparkline');
+        const heroSparkChart = new Chart(heroSparkCanvas.getContext('2d'), {
+            type: 'line',
+            data: { labels: [], datasets: [{ data: [], borderColor: 'rgba(236, 72, 153, 0.7)', backgroundColor: 'rgba(236, 72, 153, 0.08)', borderWidth: 1.5, pointRadius: 0, tension: 0.3, fill: true }] },
+            options: {
+                responsive: true, maintainAspectRatio: false, animation: false,
+                scales: { x: { display: false }, y: { display: false } },
+                plugins: { legend: { display: false }, tooltip: { enabled: false } }
+            }
+        });
+
+        // --------------------------------------------------------------
+        // HIGH-WATER MARK (session peak rate)
+        // --------------------------------------------------------------
+        let sessionHWM = 0;
+        function updateHWM(rate) {
+            if (rate <= sessionHWM) return;
+            sessionHWM = rate;
+            const badge = document.getElementById('hwmBadge');
+            const pct = Math.round((rate / targetRate) * 100);
+            badge.textContent = `peak ${pct}%`;
+            badge.classList.remove('hidden');
+        }
+
+        // --------------------------------------------------------------
+        // COMPACT MODE TOGGLE
+        // --------------------------------------------------------------
+        document.getElementById('compactToggle').addEventListener('click', () => {
+            document.body.classList.toggle('compact-mode');
+        });
+
+        // --------------------------------------------------------------
+        // SWIPE GESTURES on chart panel (left = next TF, right = prev TF)
+        // --------------------------------------------------------------
+        let swipeStartX = 0, swipeStartY = 0;
+        const tfRow = document.getElementById('tfRow');
+        tfRow.addEventListener('touchstart', e => {
+            swipeStartX = e.touches[0].clientX;
+            swipeStartY = e.touches[0].clientY;
+        }, { passive: true });
+        tfRow.addEventListener('touchend', e => {
+            const dx = e.changedTouches[0].clientX - swipeStartX;
+            const dy = e.changedTouches[0].clientY - swipeStartY;
+            if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.5) return; // not a horizontal swipe
+            const idx = TF_KEYS.indexOf(currentTF);
+            if (dx < 0 && idx < TF_KEYS.length - 1) setTF(TF_KEYS[idx + 1]);
+            if (dx > 0 && idx > 0) setTF(TF_KEYS[idx - 1]);
+        }, { passive: true });
+
+        // --------------------------------------------------------------
+        // MOBILE INACTIVITY RESET (reset to DEFAULT_TF after 5 min no touch)
+        // --------------------------------------------------------------
+        const INACTIVITY_RESET_MS = 5 * 60 * 1000;
+        let inactivityTimer = null;
+        function resetInactivityTimer() {
+            if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = setTimeout(() => resetTF(), INACTIVITY_RESET_MS);
+            }
+        }
+        document.addEventListener('touchstart', resetInactivityTimer, { passive: true });
+        resetInactivityTimer();
 
         // Cost basis label on first paint - no longer displayed, kept for P/L calc reference only.
 
@@ -1010,6 +1092,11 @@
                     setAxis("yXtz", d.xtzClose);
                     setAxis("yBtc", d.btcClose);
 
+                    // GBP holdings series: zecHeld * zecCloseUsd / gbpCloseUsd per candle
+                    const gbpSeries = d.zecClose.map((z, j) => zecHeld * z / d.gbpClose[j]);
+                    chart.data.datasets[5].data = gbpSeries;
+                    setAxis("yGbp", gbpSeries);
+
                     chart.update();
 
                     const move = ((d.rates[d.rates.length - 1] / d.rates[0]) - 1) * 100;
@@ -1019,25 +1106,40 @@
                         setChangeColour(moveEl, move);
                     }
 
-                    // Multi-timeframe table cells (rate + per-coin %change, all 5 TFs)
+                    // Multi-timeframe table cells (rate + per-coin %change, all TFs)
                     writePct("ratePct_" + tf, move);
                     writePct("zecPct_" + tf, pctFromCloses(d.zecClose));
                     writePct("xtzPct_" + tf, pctFromCloses(d.xtzClose));
                     writePct("btcPct_" + tf, pctFromCloses(d.btcClose));
 
-                    // Holdings GBP delta + % over the timeframe.
+                    // Holdings GBP delta + P/L vs cost basis over the timeframe.
                     // Holdings GBP at each point = zecHeld * zecCloseUsd / gbpCloseUsd
                     // (gbpClose is USD per GBP, so divide USD by it to get GBP).
                     const gbpFirst = zecHeld * d.zecClose[0] / d.gbpClose[0];
                     const gbpLast = zecHeld * d.zecClose[d.zecClose.length - 1] / d.gbpClose[d.gbpClose.length - 1];
                     const gbpDelta = gbpLast - gbpFirst;
-                    const gbpDeltaPct = ((gbpLast / gbpFirst) - 1) * 100;
+
+                    // P/L vs cost basis: current holdings GBP minus the cost basis
+                    const plVsBasis = gbpLast - COST_BASIS_GBP;
+                    const plEl = document.getElementById('plGbp_' + tf);
+                    if (plEl) {
+                        plEl.textContent = (plVsBasis >= 0 ? '+£' : '-£') + fmtInt(Math.abs(plVsBasis));
+                        setChangeColour(plEl, plVsBasis);
+                    }
                 });
 
                 // Freshest rate comes from 15m (1m klines, newest partial)
                 const latestRate = panelData['15m'].rates[panelData['15m'].rates.length - 1];
                 const progressPctExact = (latestRate / targetRate) * 100;
                 const aboveTarget = latestRate >= targetRate;
+
+                // Update hero sparkline with 24h rate series
+                heroSparkChart.data.labels = panelData['24h'].zecK.map((_, i) => i);
+                heroSparkChart.data.datasets[0].data = panelData['24h'].rates;
+                heroSparkChart.update();
+
+                // Update high-water mark
+                updateHWM(latestRate);
 
                 // HERO - integer display
                 const heroDist = document.getElementById('heroDistance');
