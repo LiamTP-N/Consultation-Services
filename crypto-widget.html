@@ -3,84 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZEC to XTZ Widget</title>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <title>XTZ vs ZEC</title>
     <style>
         html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: sans-serif;
-            color: white;
-            background: #000;
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; font-family: sans-serif; color: white; background: #000;
         }
         #widgetContainer {
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+            width: 100vw; height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center; text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+        }
+        #widgetLabel {
+            font-size: 4vmin; font-weight: 600; letter-spacing: 0.08em;
+            text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 0.3em;
         }
         #widgetNumber {
-            font-size: 20vmin;
-            font-weight: bold;
-            line-height: 1;
-            white-space: nowrap;
+            font-size: 18vmin; font-weight: bold; line-height: 1; white-space: nowrap;
         }
-        .above-target #widgetNumber {
-            color: #22c55e;
-        }
-        .below-target #widgetNumber {
-            color: white;
-        }
-        #widgetNumber.change-up {
-            color: #22c55e;
-        }
-        #widgetNumber.change-down {
-            color: #ef4444;
+        /* XTZ leading ZEC = teal; ZEC leading XTZ = yellow */
+        .xtz-leading #widgetNumber { color: #2dd4bf; }
+        .zec-leading #widgetNumber { color: #fde047; }
+        #widgetSub {
+            font-size: 3.5vmin; font-weight: 500; color: rgba(255,255,255,0.40);
+            margin-top: 0.4em; letter-spacing: 0.04em;
         }
     </style>
 </head>
 <body>
-
     <div id="widgetContainer">
-        <div id="widgetNumber"></div>
+        <div id="widgetLabel">XTZ vs ZEC RS (24h)</div>
+        <div id="widgetNumber">-</div>
+        <div id="widgetSub" id="widgetSub">-</div>
     </div>
 
     <script>
-        // EmailJS initialisation
-        emailjs.init('YOUR_PUBLIC_KEY');
-
-        const zecHeld = 16.256;
-        const xtzTarget = 17500;
-        const targetRate = xtzTarget / zecHeld;
-        let alertSent = false;
-
-        function sendEmailAlert(rate) {
-            const templateParams = {
-                message: `Target reached. The ZEC to XTZ exchange rate is currently ${rate.toFixed(2)}.`
-            };
-            emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
-                .then(function(response) {
-                    console.log('Alert email sent successfully.', response.status, response.text);
-                }, function(error) {
-                    console.log('Failed to send email.', error);
-                });
-        }
+        // XTZ/ZEC Relative Strength widget.
+        // RS = xtzPct24h - zecPct24h (percentage-point difference over rolling 24h).
+        // Positive = XTZ outperforming ZEC. Negative = ZEC outperforming XTZ.
 
         async function fetch24hrTicker(symbol) {
-            const url = `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`;
-            const response = await fetch(url);
-            const data = await response.json();
-            return {
-                last: parseFloat(data.lastPrice),
-                open: parseFloat(data.openPrice)
-            };
+            const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`);
+            const d = await r.json();
+            return { last: parseFloat(d.lastPrice), open: parseFloat(d.openPrice) };
+        }
+
+        function fmtRs(n) {
+            const sign = n >= 0 ? '+' : '';
+            return sign + n.toFixed(1) + 'pp';
+        }
+        function fmtPct(n) {
+            const sign = n >= 0 ? '+' : '';
+            return sign + n.toFixed(2) + '%';
         }
 
         async function updateWidget() {
@@ -89,35 +64,25 @@
                     fetch24hrTicker('XTZUSDT'),
                     fetch24hrTicker('ZECUSDT')
                 ]);
-                if (!xtz.last || !zec.last) return;
+                if (!xtz.last || !zec.last || !xtz.open || !zec.open) return;
 
-                const rate = zec.last / xtz.last;
-                const rate24hAgo = (xtz.open && zec.open) ? zec.open / xtz.open : null;
-                const progressPct = (rate / targetRate) * 100;
-                const aboveTarget = rate >= targetRate;
+                const xtzPct = ((xtz.last / xtz.open) - 1) * 100;
+                const zecPct = ((zec.last / zec.open) - 1) * 100;
+                const rs = xtzPct - zecPct;
+                const xtzLeading = rs >= 0;
 
                 const numEl = document.getElementById('widgetNumber');
+                const subEl = document.getElementById('widgetSub');
                 const containerEl = document.getElementById('widgetContainer');
 
-                const pctText = `${progressPct.toFixed(0)}%`;
-                numEl.textContent = pctText;
-                containerEl.className = aboveTarget ? 'above-target' : 'below-target';
+                numEl.textContent = fmtRs(rs);
+                containerEl.className = xtzLeading ? 'xtz-leading' : 'zec-leading';
 
-                numEl.classList.remove('change-up', 'change-down');
-                if (!aboveTarget && rate24hAgo !== null) {
-                    if (rate > rate24hAgo) {
-                        numEl.classList.add('change-up');
-                    } else if (rate < rate24hAgo) {
-                        numEl.classList.add('change-down');
-                    }
-                }
+                const winner = xtzLeading ? 'XTZ' : 'ZEC';
+                const loser  = xtzLeading ? 'ZEC' : 'XTZ';
+                subEl.textContent = `${winner} ${xtzLeading ? fmtPct(xtzPct) : fmtPct(zecPct)} / ${loser} ${xtzLeading ? fmtPct(zecPct) : fmtPct(xtzPct)}`;
 
-                document.title = pctText;
-
-                if (aboveTarget && !alertSent) {
-                    sendEmailAlert(rate);
-                    alertSent = true;
-                }
+                document.title = `RS ${fmtRs(rs)} | ꜩ${xtz.last.toFixed(3)}`;
             } catch (e) {
                 console.error('Widget update failed', e);
             }
