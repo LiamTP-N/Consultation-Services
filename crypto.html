@@ -55,30 +55,24 @@
         #heroSparkline { display: inline-block; vertical-align: middle; }
         /* Compact mode: hide non-RATE rows in hero table */
         body.compact-mode #heroTableBody tr:not(#rowRate) { display: none; }
+        /* External hover card */
+        #hoverCard {
+            display: none;
+            background: rgba(0,0,0,0.95);
+            border: 1px solid rgba(236,72,153,0.4);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 11px;
+            color: #e2e8f0;
+            min-width: 160px;
+            pointer-events: none;
+        }
+        #hoverCard.visible { display: block; }
+        #hoverCard .hc-title { color: #94a3b8; font-size: 10px; font-weight: 600; margin-bottom: 4px; }
+        #hoverCard .hc-row { display: flex; justify-content: space-between; gap: 16px; line-height: 1.7; }
+        #hoverCard .hc-label { color: #64748b; }
+        #hoverCard .hc-rate { color: #f9a8d4; font-weight: 700; font-size: 13px; }
         /* High-water mark badge */
-        #hwmBadge { transition: color 0.3s; }
-        /* Shortcut reference modal */
-        #shortcutModal {
-            position: fixed; inset: 0; z-index: 9995;
-            background: rgba(0,0,0,0.7);
-            display: none; align-items: center; justify-content: center;
-        }
-        #shortcutModal.open { display: flex; }
-        #shortcutModal .modal-box {
-            background: #0f172a;
-            border: 1px solid rgba(148,163,184,0.2);
-            border-radius: 12px;
-            padding: 20px 24px;
-            min-width: 220px;
-            font-size: 12px;
-            color: #cbd5e1;
-        }
-        #shortcutModal .modal-box table { border-collapse: collapse; width: 100%; }
-        #shortcutModal .modal-box td { padding: 3px 8px 3px 0; }
-        #shortcutModal .modal-box td:first-child { color: #f9a8d4; font-weight: 700; white-space: nowrap; }
-        /* Swap simulation panel */
-        #swapPanel { overflow: hidden; transition: max-height 0.2s ease; max-height: 0; }
-        #swapPanel.open { max-height: 120px; }
 
         .glass-card {
             background: #000;
@@ -221,10 +215,6 @@
                 <canvas id="heroSparkline"></canvas>
             </div>
             <div class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 md:gap-3 text-xs">
-                <!-- High-water mark -->
-                <span id="hwmBadge" class="hidden text-[10px] text-slate-500 font-semibold"></span>
-                <!-- Swap sim toggle -->
-                <button id="swapToggle" title="Swap simulation" class="text-[10px] text-slate-500 hover:text-slate-300 border border-slate-700/40 rounded px-1.5 py-0.5 transition-colors">&#8646;</button>
                 <!-- Compact toggle -->
                 <button id="compactToggle" title="Toggle compact mode" class="text-[10px] text-slate-500 hover:text-slate-300 border border-slate-700/40 rounded px-1.5 py-0.5 transition-colors">&#9776;</button>
                 <!-- Shortcut ref -->
@@ -300,17 +290,6 @@
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_30d">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_90d">-</td>
                         </tr>
-                        <tr id="rowPL">
-                            <td class="pr-2 md:pr-3 py-px text-sm md:text-base text-slate-400">P/L</td>
-                            <td class="pr-2 md:pr-3 py-px text-right text-slate-400 text-[10px]">£35k</td>
-                            <td class="pl-1 md:pl-1.5 py-px text-right" id="plGbp_15m">-</td>
-                            <td class="pl-1 md:pl-1.5 py-px text-right" id="plGbp_1h">-</td>
-                            <td class="pl-1 md:pl-1.5 py-px text-right" id="plGbp_12h">-</td>
-                            <td class="pl-1 md:pl-1.5 py-px text-right" id="plGbp_24h">-</td>
-                            <td class="pl-1 md:pl-1.5 py-px text-right" id="plGbp_7d">-</td>
-                            <td class="pl-1 md:pl-1.5 py-px text-right" id="plGbp_30d">-</td>
-                            <td class="pl-1 md:pl-1.5 py-px text-right" id="plGbp_90d">-</td>
-                        </tr>
                     </tbody>
                 </table>
                 <!-- Secondary: holdings + FX, right-aligned, stacked -->
@@ -329,36 +308,6 @@
             </div>
         </section>
 
-        <!-- SWAP SIMULATION PANEL (collapsible) -->
-        <div id="swapPanel" class="flex-none">
-            <div class="glass-card p-2 md:p-3 flex flex-wrap items-center gap-3 md:gap-6 text-[11px] md:text-xs">
-                <span class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Swap sim</span>
-                <span class="flex items-center gap-1.5">
-                    <span class="text-slate-500">ZEC in</span>
-                    <span id="simZecIn" class="font-semibold text-slate-200">-</span>
-                </span>
-                <span class="flex items-center gap-1.5">
-                    <span class="text-slate-500">XTZ out</span>
-                    <span id="simXtzOut" class="font-semibold text-teal-300">-</span>
-                </span>
-                <span class="flex items-center gap-1.5">
-                    <span class="text-slate-500">Fees</span>
-                    <span id="simFees" class="font-semibold text-slate-400">-</span>
-                </span>
-                <span class="flex items-center gap-1.5">
-                    <span class="text-slate-500">Net GBP</span>
-                    <span id="simNetGbp" class="font-semibold text-slate-200">-</span>
-                </span>
-                <span class="flex items-center gap-1.5">
-                    <span class="text-slate-500">P/L</span>
-                    <span id="simPL" class="font-semibold">-</span>
-                </span>
-                <span class="flex items-center gap-1.5">
-                    <span class="text-slate-500">vs target</span>
-                    <span id="simVsTarget" class="font-semibold">-</span>
-                </span>
-            </div>
-        </div>
 
         <!-- MOBILE TIMEFRAME BUTTONS (hidden on desktop) -->
         <div id="mobileTfButtons" class="flex-none hidden">
@@ -441,23 +390,11 @@
 
         <!-- COIN INFO now lives inside heroRateBlock above -->
 
+        <!-- EXTERNAL HOVER CARD (populated by chart tooltip handler) -->
+        <div id="hoverCard" class="flex-none"></div>
+
     </div>
 
-    <!-- Shortcut reference modal -->
-    <div id="shortcutModal">
-        <div class="modal-box">
-            <div class="text-slate-200 font-bold text-sm mb-3">Keyboard shortcuts</div>
-            <table>
-                <tr><td>1 – 7</td><td>Switch timeframe (15m → 90d)</td></tr>
-                <tr><td>0</td><td>Reset to default (7d)</td></tr>
-                <tr><td>V (hold)</td><td>Reveal (work network only)</td></tr>
-                <tr><td>V V</td><td>Timed reveal (3 min)</td></tr>
-                <tr><td>?</td><td>This reference</td></tr>
-                <tr><td>Esc</td><td>Close modal / reset TF</td></tr>
-            </table>
-            <div class="text-slate-500 text-[10px] mt-3">Mobile: swipe chart left/right to cycle TFs</div>
-        </div>
-    </div>
 
     <!-- Privacy overlay + toggle (discreet) -->
     <div id="privacyOverlay" class="privacy-overlay"></div>
@@ -629,22 +566,8 @@
             // Ignore if any modifier is held (avoid hijacking shortcuts)
             if (e.ctrlKey || e.metaKey || e.altKey) return;
 
-            // Esc: close shortcut modal or reset TF
-            if (e.key === 'Escape') {
-                if (shortcutModal.classList.contains('open')) {
-                    shortcutModal.classList.remove('open');
-                    return;
-                }
-                resetTF();
-                return;
-            }
-
-            // ? key: toggle shortcut modal
-            if (e.key === '?') {
-                e.preventDefault();
-                shortcutModal.classList.toggle('open');
-                return;
-            }
+            // Esc: reset TF
+            if (e.key === 'Escape') { resetTF(); return; }
 
             // Number keys 1-7 switch the visible timeframe
             if (KEY_TO_TF[e.key] && !e.repeat) {
@@ -863,6 +786,49 @@
         };
 
         // --------------------------------------------------------------
+        // EXTERNAL TOOLTIP / HOVER CARD
+        // Writes chart hover data to a card below the chart section
+        // instead of overlaying on the canvas.
+        // --------------------------------------------------------------
+        const hoverCard = document.getElementById('hoverCard');
+        function externalTooltipHandler(context) {
+            const { chart, tooltip } = context;
+            if (tooltip.opacity === 0) {
+                hoverCard.classList.remove('visible');
+                return;
+            }
+            if (!tooltip.dataPoints || tooltip.dataPoints.length === 0) return;
+
+            const dp = tooltip.dataPoints;
+            const title = tooltip.title && tooltip.title[0] ? tooltip.title[0] : '';
+
+            // Find the rate value (XTZ/ZEC dataset, label = "XTZ/ZEC")
+            const ratePoint = dp.find(p => p.dataset.label === 'XTZ/ZEC');
+            const zecPoint  = dp.find(p => p.dataset.label === 'ZEC');
+            const xtzPoint  = dp.find(p => p.dataset.label === 'XTZ');
+            const btcPoint  = dp.find(p => p.dataset.label === 'BTC');
+            const gbpPoint  = dp.find(p => p.dataset.label === 'GBP Holdings');
+
+            let html = `<div class="hc-title">${title}</div>`;
+            if (ratePoint) {
+                const pct = Math.round((ratePoint.parsed.y / targetRate) * 100);
+                html += `<div class="hc-rate">${fmt(ratePoint.parsed.y, 2)} <span style="font-size:10px;font-weight:600;color:#94a3b8;">XTZ/ZEC &middot; ${pct}%</span></div>`;
+            }
+            if (zecPoint)  html += `<div class="hc-row"><span class="hc-label" style="color:#fde047;">ZEC</span><span>${fmtUsd(zecPoint.parsed.y)}</span></div>`;
+            if (xtzPoint)  html += `<div class="hc-row"><span class="hc-label" style="color:#2dd4bf;">XTZ</span><span>${fmtUsd(xtzPoint.parsed.y)}</span></div>`;
+            if (btcPoint)  html += `<div class="hc-row"><span class="hc-label" style="color:#f7931a;">BTC</span><span>$${fmtInt(btcPoint.parsed.y)}</span></div>`;
+            if (gbpPoint)  html += `<div class="hc-row"><span class="hc-label" style="color:#818cf8;">GBP</span><span>£${fmtInt(gbpPoint.parsed.y)}</span></div>`;
+
+            hoverCard.innerHTML = html;
+            hoverCard.classList.add('visible');
+        }
+
+        // Hide hover card when mouse leaves the entire tfRow
+        document.getElementById('tfRow').addEventListener('mouseleave', () => {
+            hoverCard.classList.remove('visible');
+        });
+
+        // --------------------------------------------------------------
         // PANEL MINI-CHARTS (one per timeframe)
         // --------------------------------------------------------------
         function makePanelChart(canvasId) {
@@ -928,29 +894,8 @@
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            enabled: true,
-                            displayColors: true,
-                            usePointStyle: true,
-                            boxWidth: 8,
-                            boxHeight: 8,
-                            backgroundColor: "rgba(0, 0, 0, 0.95)",
-                            borderColor: "rgba(236, 72, 153, 0.4)",
-                            borderWidth: 1,
-                            titleColor: "#94a3b8",
-                            bodyColor: "#e2e8f0",
-                            titleFont: { size: 10, weight: "600" },
-                            bodyFont: { size: 12, weight: "700" },
-                            padding: 8,
-                            cornerRadius: 6,
-                            filter: (ctx) => ctx.dataset.label !== "BTC_stroke",
-                            callbacks: {
-                                label: (ctx) => {
-                                    const ds = ctx.dataset.label || "";
-                                    if (ds === "XTZ/ZEC") return fmt(ctx.parsed.y, 2) + " XTZ/ZEC";
-                                    if (ds === "GBP Holdings") return "GBP  £" + fmtInt(ctx.parsed.y);
-                                    return ds + "  " + fmtUsd(ctx.parsed.y);
-                                }
-                            }
+                            enabled: false,
+                            external: externalTooltipHandler
                         }
                     }
                 },
@@ -1009,62 +954,10 @@
         });
 
         // --------------------------------------------------------------
-        // HIGH-WATER MARK (session peak rate)
-        // --------------------------------------------------------------
-        let sessionHWM = 0;
-        function updateHWM(rate) {
-            if (rate <= sessionHWM) return;
-            sessionHWM = rate;
-            const badge = document.getElementById('hwmBadge');
-            const pct = Math.round((rate / targetRate) * 100);
-            badge.textContent = `peak ${pct}%`;
-            badge.classList.remove('hidden');
-        }
-
-        // --------------------------------------------------------------
         // COMPACT MODE TOGGLE
         // --------------------------------------------------------------
         document.getElementById('compactToggle').addEventListener('click', () => {
             document.body.classList.toggle('compact-mode');
-        });
-
-        // --------------------------------------------------------------
-        // SWAP SIMULATION PANEL
-        // --------------------------------------------------------------
-        document.getElementById('swapToggle').addEventListener('click', () => {
-            document.getElementById('swapPanel').classList.toggle('open');
-        });
-
-        function updateSwapSim(zecPrice, xtzPrice, usdToGbp) {
-            const xtzOut = zecHeld * (zecPrice / xtzPrice);
-            const xtzOutNet = xtzOut * (1 - TOTAL_FEE);
-            const feeUsd = zecHeld * zecPrice * TOTAL_FEE;
-            const feeGbp = feeUsd * usdToGbp;
-            const netGbp = xtzOutNet * xtzPrice * usdToGbp;
-            const pl = netGbp - COST_BASIS_GBP;
-            const vsTarget = xtzOutNet - xtzTarget;
-
-            document.getElementById('simZecIn').textContent = zecHeld.toFixed(3) + ' ZEC';
-            document.getElementById('simXtzOut').textContent = fmtInt(xtzOutNet) + ' XTZ';
-            document.getElementById('simFees').textContent = '£' + fmtInt(feeGbp);
-            document.getElementById('simNetGbp').textContent = '£' + fmtInt(netGbp);
-            const plEl = document.getElementById('simPL');
-            plEl.textContent = (pl >= 0 ? '+£' : '-£') + fmtInt(Math.abs(pl));
-            setChangeColour(plEl, pl);
-            const vtEl = document.getElementById('simVsTarget');
-            vtEl.textContent = (vsTarget >= 0 ? '+' : '') + fmtInt(vsTarget) + ' XTZ';
-            setChangeColour(vtEl, vsTarget);
-        }
-
-        // --------------------------------------------------------------
-        // KEYBOARD SHORTCUT MODAL
-        // --------------------------------------------------------------
-        const shortcutModal = document.getElementById('shortcutModal');
-        document.getElementById('shortcutBtn').addEventListener('click', () => {
-            shortcutModal.classList.toggle('open');
-        });
-        shortcutModal.addEventListener('click', e => {
-            if (e.target === shortcutModal) shortcutModal.classList.remove('open');
         });
 
         // --------------------------------------------------------------
@@ -1255,14 +1148,6 @@
                     const gbpFirst = zecHeld * d.zecClose[0] / d.gbpClose[0];
                     const gbpLast = zecHeld * d.zecClose[d.zecClose.length - 1] / d.gbpClose[d.gbpClose.length - 1];
                     const gbpDelta = gbpLast - gbpFirst;
-
-                    // P/L vs cost basis: current holdings GBP minus the cost basis
-                    const plVsBasis = gbpLast - COST_BASIS_GBP;
-                    const plEl = document.getElementById('plGbp_' + tf);
-                    if (plEl) {
-                        plEl.textContent = (plVsBasis >= 0 ? '+£' : '-£') + fmtInt(Math.abs(plVsBasis));
-                        setChangeColour(plEl, plVsBasis);
-                    }
                 });
 
                 // Freshest rate comes from 15m (1m klines, newest partial)
@@ -1274,9 +1159,6 @@
                 heroSparkChart.data.labels = panelData['24h'].zecK.map((_, i) => i);
                 heroSparkChart.data.datasets[0].data = panelData['24h'].rates;
                 heroSparkChart.update();
-
-                // Update high-water mark
-                updateHWM(latestRate);
 
                 // HERO - integer display
                 const heroDist = document.getElementById('heroDistance');
@@ -1311,9 +1193,6 @@
                 // FX rates
                 const gbpUsdRate = parseFloat(gbpT.lastPrice);
                 document.getElementById('fxGbpUsd').textContent = fmt(gbpUsdRate, 4);
-
-                // Swap simulation panel
-                updateSwapSim(zecPrice, xtzPrice, usdToGbp);
 
                 // Header status
                 lastSuccessTs = Date.now();
