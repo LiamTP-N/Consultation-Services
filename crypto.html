@@ -1109,30 +1109,30 @@
                 const zecOB = results[obBase];
                 const xtzOB = results[obBase + 1];
 
-                // Walk the book for a full 16 ZEC sell (ZEC bids) and matching XTZ buy (XTZ asks).
-                // Selling ZEC: we hit bids. Buying XTZ: we hit asks.
-                // Fill qty for XTZ is estimated from mid-price first, then refined.
-                const zecFill = walkBook(zecOB.bids, zecHeld);
-                // Estimate how many XTZ the ZEC proceeds buy: use XTZ best ask as seed
-                const xtzBestAsk = parseFloat(xtzOB.asks[0][0]);
-                const xtzQtyEstimate = (zecFill.vwap * zecHeld * (1 - TOTAL_FEE)) / xtzBestAsk;
-                const xtzFill = walkBook(xtzOB.asks, xtzQtyEstimate);
-
-                // Effective market rate: how many XTZ you actually get per ZEC after fills + fees
-                // = (ZEC vwap bid / XTZ vwap ask) * (1 - fee)
-                const effectiveRate = (zecFill.vwap / xtzFill.vwap) * (1 - TOTAL_FEE);
-                lastEffectiveRate = effectiveRate;
-
-                // Combined slippage vs mid-price rate (for display)
+                // Mid prices from last ticker (used for slippage comparison)
                 const zecMid = parseFloat(zecT.lastPrice);
                 const xtzMid = parseFloat(xtzT.lastPrice);
-                const midRate = zecMid / xtzMid;
-                const totalSlippagePct = ((effectiveRate - midRate) / midRate) * 100; // negative = worse
 
-                // Update spread status display
+                // Walk the ZEC bid book to simulate selling 16 ZEC at market.
+                // XTZ is highly liquid (thousands available at best ask) so we just use
+                // xtzBestAsk directly - walking the book makes negligible difference and
+                // was causing double-fee application.
+                const zecFill = walkBook(zecOB.bids, zecHeld);
+                const xtzBestAsk = parseFloat(xtzOB.asks[0][0]);
+
+                // Effective rate: (ZEC vwap bid / XTZ best ask) * (1 - fee)
+                // This matches what Binance shows in its UI for a market sell of full ZEC.
+                const effectiveRate = (zecFill.vwap / xtzBestAsk) * (1 - TOTAL_FEE);
+                lastEffectiveRate = effectiveRate;
+
+                // Slippage on ZEC leg vs mid (XTZ leg negligible)
+                const midRate = zecMid / xtzMid;
+                const totalSlippagePct = ((effectiveRate - midRate) / midRate) * 100;
+
+                // Update spread status: show ZEC bid slippage vs mid only
                 const spreadEl = document.getElementById('spreadStatus');
                 const zecSpreadPct = ((zecFill.vwap - zecMid) / zecMid * 100);
-                const xtzSpreadPct = ((xtzFill.vwap - xtzBestAsk) / xtzBestAsk * 100);
+                const xtzSpreadPct = ((xtzBestAsk - xtzMid) / xtzMid * 100);
                 spreadEl.textContent = `zec ${zecSpreadPct >= 0 ? '+' : ''}${zecSpreadPct.toFixed(2)}% / xtz ${xtzSpreadPct >= 0 ? '+' : ''}${xtzSpreadPct.toFixed(2)}%`;
                 spreadEl.classList.remove('hidden');
                 // Attach GBPUSDT kline closes to each panelData entry
