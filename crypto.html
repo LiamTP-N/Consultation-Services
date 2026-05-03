@@ -57,6 +57,28 @@
         body.compact-mode #heroTableBody tr:not(#rowRate) { display: none; }
         /* High-water mark badge */
         #hwmBadge { transition: color 0.3s; }
+        /* Shortcut reference modal */
+        #shortcutModal {
+            position: fixed; inset: 0; z-index: 9995;
+            background: rgba(0,0,0,0.7);
+            display: none; align-items: center; justify-content: center;
+        }
+        #shortcutModal.open { display: flex; }
+        #shortcutModal .modal-box {
+            background: #0f172a;
+            border: 1px solid rgba(148,163,184,0.2);
+            border-radius: 12px;
+            padding: 20px 24px;
+            min-width: 220px;
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+        #shortcutModal .modal-box table { border-collapse: collapse; width: 100%; }
+        #shortcutModal .modal-box td { padding: 3px 8px 3px 0; }
+        #shortcutModal .modal-box td:first-child { color: #f9a8d4; font-weight: 700; white-space: nowrap; }
+        /* Swap simulation panel */
+        #swapPanel { overflow: hidden; transition: max-height 0.2s ease; max-height: 0; }
+        #swapPanel.open { max-height: 120px; }
 
         .glass-card {
             background: #000;
@@ -201,11 +223,16 @@
             <div class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 md:gap-3 text-xs">
                 <!-- High-water mark -->
                 <span id="hwmBadge" class="hidden text-[10px] text-slate-500 font-semibold"></span>
+                <!-- Swap sim toggle -->
+                <button id="swapToggle" title="Swap simulation" class="text-[10px] text-slate-500 hover:text-slate-300 border border-slate-700/40 rounded px-1.5 py-0.5 transition-colors">&#8646;</button>
                 <!-- Compact toggle -->
                 <button id="compactToggle" title="Toggle compact mode" class="text-[10px] text-slate-500 hover:text-slate-300 border border-slate-700/40 rounded px-1.5 py-0.5 transition-colors">&#9776;</button>
+                <!-- Shortcut ref -->
+                <button id="shortcutBtn" title="Keyboard shortcuts" class="text-[10px] text-slate-500 hover:text-slate-300 border border-slate-700/40 rounded px-1.5 py-0.5 transition-colors">?</button>
                 <div class="flex items-center gap-1.5">
                     <span id="liveDot" class="live-dot"></span>
                     <span id="liveStatus" class="text-slate-400">Live</span>
+                    <span id="errCount" class="hidden text-[10px] text-rose-400 font-semibold"></span>
                 </div>
             </div>
         </header>
@@ -302,6 +329,37 @@
             </div>
         </section>
 
+        <!-- SWAP SIMULATION PANEL (collapsible) -->
+        <div id="swapPanel" class="flex-none">
+            <div class="glass-card p-2 md:p-3 flex flex-wrap items-center gap-3 md:gap-6 text-[11px] md:text-xs">
+                <span class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Swap sim</span>
+                <span class="flex items-center gap-1.5">
+                    <span class="text-slate-500">ZEC in</span>
+                    <span id="simZecIn" class="font-semibold text-slate-200">-</span>
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <span class="text-slate-500">XTZ out</span>
+                    <span id="simXtzOut" class="font-semibold text-teal-300">-</span>
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <span class="text-slate-500">Fees</span>
+                    <span id="simFees" class="font-semibold text-slate-400">-</span>
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <span class="text-slate-500">Net GBP</span>
+                    <span id="simNetGbp" class="font-semibold text-slate-200">-</span>
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <span class="text-slate-500">P/L</span>
+                    <span id="simPL" class="font-semibold">-</span>
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <span class="text-slate-500">vs target</span>
+                    <span id="simVsTarget" class="font-semibold">-</span>
+                </span>
+            </div>
+        </div>
+
         <!-- MOBILE TIMEFRAME BUTTONS (hidden on desktop) -->
         <div id="mobileTfButtons" class="flex-none hidden">
             <button class="mobile-tf-btn" data-tf="15m">15m</button>
@@ -385,6 +443,22 @@
 
     </div>
 
+    <!-- Shortcut reference modal -->
+    <div id="shortcutModal">
+        <div class="modal-box">
+            <div class="text-slate-200 font-bold text-sm mb-3">Keyboard shortcuts</div>
+            <table>
+                <tr><td>1 – 7</td><td>Switch timeframe (15m → 90d)</td></tr>
+                <tr><td>0</td><td>Reset to default (7d)</td></tr>
+                <tr><td>V (hold)</td><td>Reveal (work network only)</td></tr>
+                <tr><td>V V</td><td>Timed reveal (3 min)</td></tr>
+                <tr><td>?</td><td>This reference</td></tr>
+                <tr><td>Esc</td><td>Close modal / reset TF</td></tr>
+            </table>
+            <div class="text-slate-500 text-[10px] mt-3">Mobile: swipe chart left/right to cycle TFs</div>
+        </div>
+    </div>
+
     <!-- Privacy overlay + toggle (discreet) -->
     <div id="privacyOverlay" class="privacy-overlay"></div>
     <button id="privacyToggle" class="privacy-toggle" title="Click to reveal for 3 min" aria-label="Toggle visibility"></button>
@@ -433,6 +507,7 @@
         const targetRate = rawTargetRate / (1 - TOTAL_FEE);  // ~1078.69 (fee-adjusted, used everywhere)
         let lastSuccessTs = 0;
         const STALE_MS = 5000;
+        let consecutiveErrors = 0;
 
         // GBP/CAD cache - fetched separately from Binance loop, refreshed every 5 min.
         // Binance has no spot GBPCAD/USDTCAD pair, so we use Frankfurter (ECB, free, no key).
@@ -554,7 +629,24 @@
             // Ignore if any modifier is held (avoid hijacking shortcuts)
             if (e.ctrlKey || e.metaKey || e.altKey) return;
 
-            // Number keys 1-5 switch the visible timeframe
+            // Esc: close shortcut modal or reset TF
+            if (e.key === 'Escape') {
+                if (shortcutModal.classList.contains('open')) {
+                    shortcutModal.classList.remove('open');
+                    return;
+                }
+                resetTF();
+                return;
+            }
+
+            // ? key: toggle shortcut modal
+            if (e.key === '?') {
+                e.preventDefault();
+                shortcutModal.classList.toggle('open');
+                return;
+            }
+
+            // Number keys 1-7 switch the visible timeframe
             if (KEY_TO_TF[e.key] && !e.repeat) {
                 e.preventDefault();
                 setTF(KEY_TO_TF[e.key]);
@@ -746,20 +838,26 @@
             afterDatasetsDraw(chart) {
                 const yScale = chart.scales.y;
                 if (!yScale) return;
-                // Only draw if target sits within the visible y-range
                 if (targetRate < yScale.min || targetRate > yScale.max) return;
                 const ctx = chart.ctx;
                 const y = yScale.getPixelForValue(targetRate);
                 const xLeft = chart.chartArea.left;
                 const xRight = chart.chartArea.right;
                 ctx.save();
-                ctx.strokeStyle = 'rgba(251, 113, 133, 0.7)'; // rose-400 @ 70%
+                ctx.strokeStyle = 'rgba(251, 113, 133, 0.7)';
                 ctx.lineWidth = 1;
                 ctx.setLineDash([4, 4]);
                 ctx.beginPath();
                 ctx.moveTo(xLeft, y);
                 ctx.lineTo(xRight, y);
                 ctx.stroke();
+                // Label on right edge
+                ctx.setLineDash([]);
+                ctx.font = '600 9px -apple-system, sans-serif';
+                ctx.fillStyle = 'rgba(251, 113, 133, 0.75)';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText('target', xRight - 2, y - 1);
                 ctx.restore();
             }
         };
@@ -928,6 +1026,45 @@
         // --------------------------------------------------------------
         document.getElementById('compactToggle').addEventListener('click', () => {
             document.body.classList.toggle('compact-mode');
+        });
+
+        // --------------------------------------------------------------
+        // SWAP SIMULATION PANEL
+        // --------------------------------------------------------------
+        document.getElementById('swapToggle').addEventListener('click', () => {
+            document.getElementById('swapPanel').classList.toggle('open');
+        });
+
+        function updateSwapSim(zecPrice, xtzPrice, usdToGbp) {
+            const xtzOut = zecHeld * (zecPrice / xtzPrice);
+            const xtzOutNet = xtzOut * (1 - TOTAL_FEE);
+            const feeUsd = zecHeld * zecPrice * TOTAL_FEE;
+            const feeGbp = feeUsd * usdToGbp;
+            const netGbp = xtzOutNet * xtzPrice * usdToGbp;
+            const pl = netGbp - COST_BASIS_GBP;
+            const vsTarget = xtzOutNet - xtzTarget;
+
+            document.getElementById('simZecIn').textContent = zecHeld.toFixed(3) + ' ZEC';
+            document.getElementById('simXtzOut').textContent = fmtInt(xtzOutNet) + ' XTZ';
+            document.getElementById('simFees').textContent = '£' + fmtInt(feeGbp);
+            document.getElementById('simNetGbp').textContent = '£' + fmtInt(netGbp);
+            const plEl = document.getElementById('simPL');
+            plEl.textContent = (pl >= 0 ? '+£' : '-£') + fmtInt(Math.abs(pl));
+            setChangeColour(plEl, pl);
+            const vtEl = document.getElementById('simVsTarget');
+            vtEl.textContent = (vsTarget >= 0 ? '+' : '') + fmtInt(vsTarget) + ' XTZ';
+            setChangeColour(vtEl, vsTarget);
+        }
+
+        // --------------------------------------------------------------
+        // KEYBOARD SHORTCUT MODAL
+        // --------------------------------------------------------------
+        const shortcutModal = document.getElementById('shortcutModal');
+        document.getElementById('shortcutBtn').addEventListener('click', () => {
+            shortcutModal.classList.toggle('open');
+        });
+        shortcutModal.addEventListener('click', e => {
+            if (e.target === shortcutModal) shortcutModal.classList.remove('open');
         });
 
         // --------------------------------------------------------------
@@ -1175,24 +1312,33 @@
                 const gbpUsdRate = parseFloat(gbpT.lastPrice);
                 document.getElementById('fxGbpUsd').textContent = fmt(gbpUsdRate, 4);
 
+                // Swap simulation panel
+                updateSwapSim(zecPrice, xtzPrice, usdToGbp);
+
                 // Header status
                 lastSuccessTs = Date.now();
+                consecutiveErrors = 0;
                 document.getElementById('liveDot').classList.remove('stale', 'error');
                 document.getElementById('liveStatus').textContent = 'Live';
+                document.getElementById('errCount').classList.add('hidden');
                 // Clear any stale-dim
                 document.getElementById('heroRateBlock').classList.remove('stale-dim');
 
-                // Tab title: [progress%]: z[ZEC] | ꜩ[XTZ] | ₿[BTC]
+                // Tab title: [progress%] | [rate] XTZ/ZEC | z[ZEC] | ꜩ[XTZ] | ₿[BTC]
                 const progressPct = Math.round(progressPctExact);
-                document.title = `${progressPct}%: z${fmtInt(zecPrice)} | ꜩ${xtzPrice.toFixed(2)} | ₿${fmtInt(btcPrice)}`;
+                document.title = `${progressPct}% | ${fmtInt(latestRate)} XTZ/ZEC | z${fmtInt(zecPrice)} | ꜩ${xtzPrice.toFixed(2)} | ₿${fmtInt(btcPrice)}`;
 
                 // Favicon
                 setFavicon(aboveTarget);
 
             } catch (err) {
+                consecutiveErrors++;
                 console.error('Update failed', err);
                 document.getElementById('liveDot').classList.add('error');
                 document.getElementById('liveStatus').textContent = 'Error';
+                const ec = document.getElementById('errCount');
+                ec.textContent = `×${consecutiveErrors}`;
+                ec.classList.remove('hidden');
             }
         }
 
