@@ -222,6 +222,7 @@
                 <div class="flex items-center gap-1.5">
                     <span id="liveDot" class="live-dot"></span>
                     <span id="liveStatus" class="text-slate-400">Live</span>
+                    <span id="spreadStatus" class="hidden text-[10px] text-slate-500 border-l border-slate-700/40 pl-2"></span>
                     <span id="errCount" class="hidden text-[10px] text-rose-400 font-semibold"></span>
                 </div>
             </div>
@@ -440,11 +441,14 @@
         // Binance worst-case fee: 0.1% taker per trade, two market orders
         // (ZEC -> USDT -> XTZ) = 0.2% total drag, no BNB discount assumed.
         const TOTAL_FEE = 0.002;
-        const rawTargetRate = xtzTarget / zecHeld;           // 1076.53 (pre-fee)
-        const targetRate = rawTargetRate / (1 - TOTAL_FEE);  // ~1078.69 (fee-adjusted, used everywhere)
+        const rawTargetRate = xtzTarget / zecHeld;           // 1076.53 (mid rate needed at mid price)
+        const targetRate = rawTargetRate / (1 - TOTAL_FEE);  // ~1078.69 (fee-only adjusted, used for chart target line)
+        // NOTE: progress % does NOT use targetRate - it uses xtzReceived / xtzTarget directly
+        // so that real order book slippage is fully accounted for.
         let lastSuccessTs = 0;
         const STALE_MS = 5000;
         let consecutiveErrors = 0;
+        let lastEffectiveRate = null; // updated each cycle, used by tooltip handler
 
         // GBP/CAD cache - fetched separately from Binance loop, refreshed every 5 min.
         // Binance has no spot GBPCAD/USDTCAD pair, so we use Frankfurter (ECB, free, no key).
@@ -811,8 +815,13 @@
 
             let html = `<div class="hc-title">${title}</div>`;
             if (ratePoint) {
-                const pct = Math.round((ratePoint.parsed.y / targetRate) * 100);
-                html += `<div class="hc-rate">${fmt(ratePoint.parsed.y, 2)} <span style="font-size:10px;font-weight:600;color:#94a3b8;">XTZ/ZEC &middot; ${pct}%</span></div>`;
+                const midPct = Math.round((zecHeld * ratePoint.parsed.y / xtzTarget) * 100);
+                html += `<div class="hc-rate">${fmt(ratePoint.parsed.y, 2)} <span style="font-size:10px;font-weight:600;color:#94a3b8;">mid &middot; ${midPct}%</span></div>`;
+                // Show effective (market order) rate if available
+                if (lastEffectiveRate !== null) {
+                    const effPct = Math.round((zecHeld * lastEffectiveRate / xtzTarget) * 100);
+                    html += `<div class="hc-row"><span class="hc-label">market fill</span><span style="color:#f9a8d4;">${fmt(lastEffectiveRate, 2)} &middot; ${effPct}%</span></div>`;
+                }
             }
             if (zecPoint)  html += `<div class="hc-row"><span class="hc-label" style="color:#fde047;">ZEC</span><span>${fmtUsd(zecPoint.parsed.y)}</span></div>`;
             if (xtzPoint)  html += `<div class="hc-row"><span class="hc-label" style="color:#2dd4bf;">XTZ</span><span>${fmtUsd(xtzPoint.parsed.y)}</span></div>`;
@@ -1010,13 +1019,44 @@
             return r.json();
         }
 
+        // Fetch order book depth. limit=20 is plenty for 16 ZEC.
+        async function fetchOrderBook(symbol) {
+            const r = await fetch(`https://api.binance.com/api/v3/depth?symbol=${symbol}&limit=20`);
+            return r.json();
+        }
+
+        // Walk one side of the book (bids or asks) to fill fillQty units at base currency.
+        // levels = array of [price, qty] strings (as returned by Binance).
+        // Returns { vwap, filled, slippagePct } where slippagePct is vs best price.
+        // If book is too thin to fill entirely, fills as much as possible.
+        function walkBook(levels, fillQty) {
+            const bestPrice = parseFloat(levels[0][0]);
+            let remaining = fillQty;
+            let totalCost = 0;
+            let totalFilled = 0;
+            for (const [priceStr, qtyStr] of levels) {
+                if (remaining <= 0) break;
+                const price = parseFloat(priceStr);
+                const qty = parseFloat(qtyStr);
+                const take = Math.min(qty, remaining);
+                totalCost += take * price;
+                totalFilled += take;
+                remaining -= take;
+            }
+            if (totalFilled === 0) return { vwap: bestPrice, filled: 0, slippagePct: 0 };
+            const vwap = totalCost / totalFilled;
+            const slippagePct = Math.abs((vwap - bestPrice) / bestPrice) * 100;
+            return { vwap, filled: totalFilled, slippagePct };
+        }
+
         // --------------------------------------------------------------
         // MAIN UPDATE LOOP
         // --------------------------------------------------------------
         async function updateAll() {
             try {
                 // Build request list: kline triples (ZEC/XTZ/BTC) for each TF,
-                // then 24h tickers (ZEC, XTZ, GBP, BTC), then GBPUSDT klines per TF.
+                // then 24h tickers (ZEC, XTZ, GBP, BTC), then GBPUSDT klines per TF,
+                // then order books for ZECUSDT (bids - we sell) and XTZUSDT (asks - we buy).
                 const requests = [];
                 TF_KEYS.forEach(tf => {
                     requests.push(fetchKlines("ZECUSDT", TIMEFRAMES[tf].interval, TIMEFRAMES[tf].limit));
@@ -1031,6 +1071,9 @@
                 TF_KEYS.forEach(tf => {
                     requests.push(fetchKlines("GBPUSDT", TIMEFRAMES[tf].interval, TIMEFRAMES[tf].limit));
                 });
+                // Order books: ZEC bids (we sell ZEC into bids), XTZ asks (we buy XTZ from asks)
+                requests.push(fetchOrderBook("ZECUSDT"));
+                requests.push(fetchOrderBook("XTZUSDT"));
                 const results = await Promise.all(requests);
 
                 // Slice out per-TF klines (ZEC, XTZ, BTC per TF)
@@ -1061,6 +1104,37 @@
                 const gbpT = results[tickerBase + 2];
                 const btcT = results[tickerBase + 3];
                 const gbpKlinesBase = tickerBase + 4;
+                // Order books are the last two results
+                const obBase = gbpKlinesBase + TF_KEYS.length;
+                const zecOB = results[obBase];
+                const xtzOB = results[obBase + 1];
+
+                // Walk the book for a full 16 ZEC sell (ZEC bids) and matching XTZ buy (XTZ asks).
+                // Selling ZEC: we hit bids. Buying XTZ: we hit asks.
+                // Fill qty for XTZ is estimated from mid-price first, then refined.
+                const zecFill = walkBook(zecOB.bids, zecHeld);
+                // Estimate how many XTZ the ZEC proceeds buy: use XTZ best ask as seed
+                const xtzBestAsk = parseFloat(xtzOB.asks[0][0]);
+                const xtzQtyEstimate = (zecFill.vwap * zecHeld * (1 - TOTAL_FEE)) / xtzBestAsk;
+                const xtzFill = walkBook(xtzOB.asks, xtzQtyEstimate);
+
+                // Effective market rate: how many XTZ you actually get per ZEC after fills + fees
+                // = (ZEC vwap bid / XTZ vwap ask) * (1 - fee)
+                const effectiveRate = (zecFill.vwap / xtzFill.vwap) * (1 - TOTAL_FEE);
+                lastEffectiveRate = effectiveRate;
+
+                // Combined slippage vs mid-price rate (for display)
+                const zecMid = parseFloat(zecT.lastPrice);
+                const xtzMid = parseFloat(xtzT.lastPrice);
+                const midRate = zecMid / xtzMid;
+                const totalSlippagePct = ((effectiveRate - midRate) / midRate) * 100; // negative = worse
+
+                // Update spread status display
+                const spreadEl = document.getElementById('spreadStatus');
+                const zecSpreadPct = ((zecFill.vwap - zecMid) / zecMid * 100);
+                const xtzSpreadPct = ((xtzFill.vwap - xtzBestAsk) / xtzBestAsk * 100);
+                spreadEl.textContent = `zec ${zecSpreadPct >= 0 ? '+' : ''}${zecSpreadPct.toFixed(2)}% / xtz ${xtzSpreadPct >= 0 ? '+' : ''}${xtzSpreadPct.toFixed(2)}%`;
+                spreadEl.classList.remove('hidden');
                 // Attach GBPUSDT kline closes to each panelData entry
                 TF_KEYS.forEach((tf, i) => {
                     const gbpK = results[gbpKlinesBase + i];
@@ -1150,17 +1224,22 @@
                     const gbpDelta = gbpLast - gbpFirst;
                 });
 
-                // Freshest rate comes from 15m (1m klines, newest partial)
+                // Mid rate from 15m klines (used for charts - shows market price)
                 const latestRate = panelData['15m'].rates[panelData['15m'].rates.length - 1];
-                const progressPctExact = (latestRate / targetRate) * 100;
-                const aboveTarget = latestRate >= targetRate;
 
-                // Update hero sparkline with 24h rate series
+                // Progress and holdings use effectiveRate (market order fill simulation).
+                // xtzReceived = what you'd actually get after walking both order books + fee.
+                // Progress = xtzReceived / xtzTarget - this is the only honest number.
+                const xtzReceived = zecHeld * effectiveRate;
+                const progressPctExact = (xtzReceived / xtzTarget) * 100;
+                const aboveTarget = xtzReceived >= xtzTarget;
+
+                // Update hero sparkline with 24h rate series (mid price - chart context)
                 heroSparkChart.data.labels = panelData['24h'].zecK.map((_, i) => i);
                 heroSparkChart.data.datasets[0].data = panelData['24h'].rates;
                 heroSparkChart.update();
 
-                // HERO - integer display
+                // HERO - integer display (effective rate, market-adjusted)
                 const heroDist = document.getElementById('heroDistance');
                 const progInt = Math.round(progressPctExact);
                 heroDist.textContent = progInt + '%';
@@ -1179,16 +1258,13 @@
                 document.getElementById('xtzPrice').textContent = fmtUsd(xtzPrice);
 
                 const btcPrice = parseFloat(btcT.lastPrice);
-                // BTC is big - display as integer dollars
                 document.getElementById('btcPrice').textContent = '$' + fmtInt(btcPrice);
 
-                // Holdings (current values)
-                const holdingsUsd = zecHeld * zecPrice;
+                // Holdings using effective fill prices (what you'd actually receive)
+                const holdingsUsd = zecFill.vwap * zecHeld * (1 - TOTAL_FEE); // USD after fee on ZEC leg
                 const holdingsGbp = holdingsUsd * usdToGbp;
-                const holdingsXtzNow = zecHeld * latestRate;
-                const holdingsXtzNet = holdingsXtzNow * (1 - TOTAL_FEE); // post 0.2% swap drag
-                document.getElementById('holdingsUsd').textContent = '$' + fmtInt(holdingsUsd * (1 - TOTAL_FEE));
-                document.getElementById('holdingsGbp').textContent = '£' + fmtInt(holdingsGbp * (1 - TOTAL_FEE));
+                document.getElementById('holdingsUsd').textContent = '$' + fmtInt(holdingsUsd);
+                document.getElementById('holdingsGbp').textContent = '£' + fmtInt(holdingsGbp);
 
                 // FX rates
                 const gbpUsdRate = parseFloat(gbpT.lastPrice);
@@ -1200,12 +1276,11 @@
                 document.getElementById('liveDot').classList.remove('stale', 'error');
                 document.getElementById('liveStatus').textContent = 'Live';
                 document.getElementById('errCount').classList.add('hidden');
-                // Clear any stale-dim
                 document.getElementById('heroRateBlock').classList.remove('stale-dim');
 
-                // Tab title: [progress%] | [rate] XTZ/ZEC | z[ZEC] | ꜩ[XTZ] | ₿[BTC]
+                // Tab title: effective rate in title so you always see the real fill rate
                 const progressPct = Math.round(progressPctExact);
-                document.title = `${progressPct}% | ${fmtInt(latestRate)} XTZ/ZEC | z${fmtInt(zecPrice)} | ꜩ${xtzPrice.toFixed(2)} | ₿${fmtInt(btcPrice)}`;
+                document.title = `${progressPct}% | ${fmtInt(effectiveRate)} XTZ/ZEC | z${fmtInt(zecPrice)} | ꜩ${xtzPrice.toFixed(2)} | ₿${fmtInt(btcPrice)}`;
 
                 // Favicon
                 setFavicon(aboveTarget);
