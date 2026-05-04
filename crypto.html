@@ -376,6 +376,36 @@
         //   [1] ZEC indexed % (yellow, left axis y - shared scale with XTZ)
         //   [2] RS = xtz% - zec% (purple, right hidden axis yRs)
         //   [3] BTC indexed % (orange, right hidden axis yBtc)
+        // Reference lines for the main trade chart, drawn on the RS (yRs) axis:
+        //   0pp = price-only break-even (where the trade started)
+        //   +BREAK_EVEN_RS_PP (+0.30pp) = post-fee break-even with margin
+        const tradeChartRefLines = {
+            id: 'tradeChartRefLines',
+            afterDatasetsDraw(chart) {
+                const { ctx, chartArea, scales } = chart;
+                const yScale = scales.yRs;
+                if (!yScale || !chartArea) return;
+                const drawLine = (value, color, dash) => {
+                    const y = yScale.getPixelForValue(value);
+                    if (y < chartArea.top || y > chartArea.bottom) return;
+                    ctx.save();
+                    ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.setLineDash(dash);
+                    ctx.beginPath(); ctx.moveTo(chartArea.left, y); ctx.lineTo(chartArea.right, y); ctx.stroke();
+                    // Label on the right
+                    ctx.setLineDash([]);
+                    ctx.fillStyle = color;
+                    ctx.font = '10px -apple-system, BlinkMacSystemFont, sans-serif';
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'middle';
+                    const label = (value >= 0 ? '+' : '') + value.toFixed(2) + 'pp';
+                    ctx.fillText(label, chartArea.right - 4, y - 7);
+                    ctx.restore();
+                };
+                drawLine(0, 'rgba(148,163,184,0.45)', [4, 3]);                 // 0pp = trade entry
+                drawLine(BREAK_EVEN_RS_PP, 'rgba(45,212,191,0.55)', [2, 3]);   // +0.30pp = post-fee BE + margin
+            }
+        };
+
         const tradeChart = new Chart(document.getElementById('chartTrade').getContext('2d'), {
             type: 'line',
             data: {
@@ -400,7 +430,8 @@
                     legend: { display: false },
                     tooltip: { enabled: false, external: externalTooltipHandler }
                 }
-            }
+            },
+            plugins: [tradeChartRefLines]
         });
 
         // --- HERO SPARKLINE (RS series since trade, with reference lines) ---
@@ -492,7 +523,9 @@
                 tradeChart.options.scales.y.min = idxMin - idxPad;
                 tradeChart.options.scales.y.max = idxMax + idxPad;
 
-                const rsMin = Math.min(...rs); const rsMax = Math.max(...rs);
+                // RS axis: include both reference lines (0pp and +0.30pp) so they're always visible
+                const rsValues = [...rs, 0, BREAK_EVEN_RS_PP];
+                const rsMin = Math.min(...rsValues); const rsMax = Math.max(...rsValues);
                 const rsRange = (rsMax - rsMin) || 1; const rsPad = rsRange * 0.1;
                 tradeChart.options.scales.yRs.min = rsMin - rsPad;
                 tradeChart.options.scales.yRs.max = rsMax + rsPad;
