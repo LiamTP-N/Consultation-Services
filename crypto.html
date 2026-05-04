@@ -15,10 +15,37 @@
             background: #000 radial-gradient(ellipse at top, rgba(45, 212, 191, 0.20) 0%, rgba(30, 41, 59, 0.15) 40%, transparent 75%) no-repeat;
             font-variant-numeric: tabular-nums;
         }
+        /* Mobile: keep everything in viewport, no scroll. Tighten gaps + padding,
+           drop redundant labels, pin chart to remaining space. */
         @media (max-width: 767px) {
-            html, body { height: auto; overflow-x: hidden; overflow-y: auto; max-width: 100%; }
-            body { width: 100%; }
-            #chartCard { height: 360px; flex: none; }
+            html, body { height: 100dvh; height: 100vh; overflow: hidden; max-width: 100%; }
+            body { width: 100%; padding: 4px; }
+            #chartCard { flex: 1 1 auto; min-height: 0; }
+            #heroRateBlock {
+                padding: 6px 8px; gap: 6px;
+                flex-wrap: nowrap; align-items: flex-start;
+            }
+            /* Hero table is the left column, side card the right - keep them side by side */
+            #heroRateBlock > table { font-size: 10px; }
+            /* Side card collapses to a compact stacked block right of the table */
+            #sideCard {
+                flex-direction: column; align-items: flex-end;
+                gap: 1px; min-width: 0; flex: 1 1 0;
+                border-left: none; padding-left: 0;
+            }
+            #sideCard .side-label { display: none; }
+            #sideCard .side-row {
+                display: flex; align-items: center; gap: 4px;
+                font-size: 10px; line-height: 1.35;
+                white-space: nowrap;
+            }
+            #sideCard .holdings-row { font-size: 12px; font-weight: 700; }
+            /* Compress chart legend to one row */
+            #chartLegendRow { font-size: 9px; gap: 4px; }
+            #chartLegendRow .legend-title { font-size: 9px; }
+        }
+        @media (min-width: 768px) {
+            #sideCard .side-row { display: flex; align-items: center; gap: 8px; }
         }
         .glass-card {
             background: #000; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -70,7 +97,7 @@
                 <span class="zec-gradient">ZEC</span>
                 <span class="text-slate-500 text-base md:text-lg ml-1">RS</span>
                 <span id="rsHeadline" class="text-base md:text-xl font-bold ml-1">-</span>
-                <span class="text-slate-500 text-xs md:text-sm ml-1">since trade</span>
+                <span class="hidden md:inline text-slate-500 text-xs md:text-sm ml-1">since trade</span>
             </h1>
             <div class="hidden md:block" style="width:80px;height:28px;position:relative;">
                 <canvas id="heroSparkline"></canvas>
@@ -120,38 +147,38 @@
                     </tbody>
                 </table>
                 <!-- Secondary: holdings + FX + ratio + trade ledger -->
-                <div class="flex flex-col items-end gap-1.5 flex-none md:border-l md:border-slate-700/40 md:pl-5">
-                    <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">XTZ Holdings</div>
-                    <div class="flex items-center gap-2 text-sm md:text-base font-semibold text-slate-100">
+                <div id="sideCard" class="flex flex-col items-end gap-1.5 flex-none md:border-l md:border-slate-700/40 md:pl-5">
+                    <div class="side-label text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">XTZ Holdings</div>
+                    <div class="side-row holdings-row text-sm md:text-base font-semibold text-slate-100">
                         <span class="text-slate-500 text-xs">USD</span> <span id="holdingsUsd">-</span>
                         <span class="text-slate-600">&middot;</span>
                         <span class="text-slate-500 text-xs">GBP</span> <span id="holdingsGbp">-</span>
                     </div>
-                    <div class="flex items-center gap-2 text-[11px] text-slate-400">
+                    <div class="side-row text-[11px] text-slate-400">
                         <span>GBP/USD</span> <span id="fxGbpUsd" class="font-semibold text-slate-300">-</span>
                         <span class="text-slate-600">&middot;</span>
                         <span>GBP/&#127464;&#127462;</span> <span id="fxGbpCad" class="font-semibold text-slate-300">-</span>
                     </div>
-                    <div class="flex items-center gap-2 text-[11px] text-slate-400">
-                        <span>XTZ/ZEC ratio</span> <span id="currentRatio" class="font-semibold text-slate-300">-</span>
+                    <div class="side-row text-[11px] text-slate-400">
+                        <span>XTZ/ZEC</span> <span id="currentRatio" class="font-semibold text-slate-300">-</span>
                         <span class="text-slate-600">&middot;</span>
                         <span>BE</span> <span id="breakEvenRatio" class="font-semibold text-slate-500">-</span>
                     </div>
 
                     <!-- Trade ledger -->
-                    <div class="text-[10px] text-slate-500 uppercase tracking-wider mt-2 mb-0.5">Trade ledger</div>
-                    <div class="flex items-center gap-2 text-[11px] text-slate-400">
-                        <span>Cost basis</span> <span id="costBasis" class="font-semibold text-slate-300">-</span>
+                    <div class="side-label text-[10px] text-slate-500 uppercase tracking-wider mt-2 mb-0.5">Trade ledger</div>
+                    <div class="side-row text-[11px] text-slate-400">
+                        <span>Cost</span> <span id="costBasis" class="font-semibold text-slate-300">-</span>
                         <span class="text-slate-600">&middot;</span>
-                        <span>Fees paid</span> <span id="feesPaid" class="font-semibold text-slate-300">-</span>
+                        <span>Fees</span> <span id="feesPaid" class="font-semibold text-slate-300">-</span>
                         <span class="text-slate-600">&middot;</span>
-                        <span title="USDT gap between leg-1 ZEC sell net and leg-2 XTZ buy cost (12s price tick)">Slippage</span> <span id="slippage" class="font-semibold text-slate-300">-</span>
+                        <span title="USDT gap between leg-1 ZEC sell net and leg-2 XTZ buy cost (12s price tick)">Slip</span> <span id="slippage" class="font-semibold text-slate-300">-</span>
                     </div>
-                    <div class="flex items-center gap-2 text-[11px] text-slate-400">
-                        <span title="Current ZEC-equivalent of XTZ holdings (after round-trip swap-back fees) minus the original 16.256 ZEC">P&amp;L vs ZEC</span>
+                    <div class="side-row text-[11px] text-slate-400">
+                        <span title="Current ZEC-equivalent of XTZ holdings (after round-trip swap-back fees) minus the original 16.256 ZEC">P&amp;L<span class="hidden md:inline"> vs ZEC</span></span>
                         <span id="pnlVsZec" class="font-semibold text-slate-300">-</span>
                         <span class="text-slate-600">&middot;</span>
-                        <span title="Current USD value of XTZ holdings (after one-leg sell fee) minus the leg-1 USDT received">P&amp;L vs USD</span>
+                        <span title="Current USD value of XTZ holdings (after one-leg sell fee) minus the leg-1 USDT received"><span class="hidden md:inline">P&amp;L </span>vs USD</span>
                         <span id="pnlVsUsd" class="font-semibold text-slate-300">-</span>
                     </div>
                 </div>
@@ -160,13 +187,13 @@
 
         <!-- MAIN TRADE CHART -->
         <section id="chartCard" class="glass-card p-1 md:p-2 flex flex-col flex-1 min-h-0">
-            <div class="flex items-center justify-between mb-1 flex-none text-xs font-semibold gap-2">
-                <div class="flex items-center gap-2 md:gap-3 text-[10px]">
+            <div id="chartLegendRow" class="flex items-center justify-between mb-1 flex-none text-xs font-semibold gap-2 flex-nowrap">
+                <div class="flex items-center gap-2 md:gap-3 text-[10px] flex-nowrap whitespace-nowrap">
                     <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#2dd4bf;"></span><span class="xtz-gradient">XTZ idx</span></span>
                     <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#fde047;"></span><span class="zec-gradient">ZEC idx</span></span>
                     <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#a78bfa;"></span><span style="color:#a78bfa;">RS</span></span>
                 </div>
-                <span class="text-[10px] uppercase tracking-wider text-purple-300">Since trade (3 May 2026 21:57 BST)</span>
+                <span class="legend-title text-[10px] uppercase tracking-wider text-purple-300 whitespace-nowrap">Since trade<span class="hidden md:inline"> (3 May 2026 21:57 BST)</span></span>
             </div>
             <div class="flex-1 min-h-0 relative"><canvas id="chartTrade"></canvas></div>
         </section>
