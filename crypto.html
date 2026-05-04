@@ -806,28 +806,29 @@
                 });
 
                 // Headline RS: trade-baseline (XTZ% - ZEC% since trade entry).
-                // Use 90d daily candles to anchor the trade date robustly.
-                // Colour: teal only when RS clears the round-trip fee drag (~+0.20pp);
+                // Use the 'trade' TF (15m candles) so the baseline candle is within ~7 min
+                // of the actual trade time - this matches the Trade column reading exactly.
+                // Colour: teal only when RS clears the round-trip fee drag + margin (+0.30pp);
                 // yellow otherwise (i.e. underwater on the swap-back after fees).
-                const d90 = panelData['90d'];
-                const tradeIdx = findBaselineIdx(d90.xtzK, TRADE_DATE_UTC_MS);
-                const xtzPctTrade = pctFromCloses(d90.xtzClose, tradeIdx);
-                const zecPctTrade = pctFromCloses(d90.zecClose, tradeIdx);
+                const dTrade = panelData['trade'];
+                const tradeIdx = findBaselineIdx(dTrade.xtzK, TRADE_DATE_UTC_MS);
+                const xtzPctTrade = pctFromCloses(dTrade.xtzClose, tradeIdx);
+                const zecPctTrade = pctFromCloses(dTrade.zecClose, tradeIdx);
                 const currentRsTrade = xtzPctTrade - zecPctTrade;
                 const profitable = currentRsTrade >= BREAK_EVEN_RS_PP;
                 const rsEl = document.getElementById('rsHeadline');
                 rsEl.textContent = fmtRs(currentRsTrade);
                 rsEl.className = 'text-base md:text-xl font-bold ml-1 ' + (profitable ? 'text-teal-400' : 'text-yellow-400');
 
-                // Hero sparkline: trade-baseline RS series (every candle from trade day onward,
-                // expressed as XTZ% - ZEC% relative to the trade-day close).
-                const xtzBase = d90.xtzClose[tradeIdx];
-                const zecBase = d90.zecClose[tradeIdx];
+                // Hero sparkline: trade-baseline RS series (every candle from trade entry onward,
+                // expressed as XTZ% - ZEC% relative to the trade-entry candle close).
+                const xtzBase = dTrade.xtzClose[tradeIdx];
+                const zecBase = dTrade.zecClose[tradeIdx];
                 const rsTradeSeries = [];
                 const sparkLabels = [];
-                for (let i = tradeIdx; i < d90.xtzClose.length; i++) {
-                    const xtzPct = ((d90.xtzClose[i] / xtzBase) - 1) * 100;
-                    const zecPct = ((d90.zecClose[i] / zecBase) - 1) * 100;
+                for (let i = tradeIdx; i < dTrade.xtzClose.length; i++) {
+                    const xtzPct = ((dTrade.xtzClose[i] / xtzBase) - 1) * 100;
+                    const zecPct = ((dTrade.zecClose[i] / zecBase) - 1) * 100;
                     rsTradeSeries.push(xtzPct - zecPct);
                     sparkLabels.push(i - tradeIdx);
                 }

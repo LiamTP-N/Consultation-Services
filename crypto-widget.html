@@ -81,10 +81,12 @@
 
         async function updateWidget() {
             try {
-                // 90 daily candles - covers trade date with plenty of headroom.
+                // 15m candles, limit 1000 (~10 days). Anchors precisely on the trade
+                // entry candle (within ~7 min of actual trade time) so RS reading
+                // matches the main page's headline + Trade column exactly.
                 const [xtzK, zecK, xtzLast, zecLast] = await Promise.all([
-                    fetchKlines('XTZUSDT', '1d', 90),
-                    fetchKlines('ZECUSDT', '1d', 90),
+                    fetchKlines('XTZUSDT', '15m', 1000),
+                    fetchKlines('ZECUSDT', '15m', 1000),
                     fetchLastPrice('XTZUSDT'),
                     fetchLastPrice('ZECUSDT')
                 ]);
@@ -92,7 +94,7 @@
 
                 const xtzBaseIdx = findBaselineIdx(xtzK, TRADE_DATE_UTC_MS);
                 const zecBaseIdx = findBaselineIdx(zecK, TRADE_DATE_UTC_MS);
-                const xtzBase = parseFloat(xtzK[xtzBaseIdx][4]); // close price of trade-day candle
+                const xtzBase = parseFloat(xtzK[xtzBaseIdx][4]); // close of trade-entry candle
                 const zecBase = parseFloat(zecK[zecBaseIdx][4]);
                 if (!xtzBase || !zecBase) return;
 
