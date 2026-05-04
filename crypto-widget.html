@@ -33,20 +33,41 @@
 </head>
 <body>
     <div id="widgetContainer">
-        <div id="widgetLabel">XTZ vs ZEC RS (24h)</div>
+        <div id="widgetLabel">XTZ vs ZEC RS (since trade)</div>
         <div id="widgetNumber">-</div>
-        <div id="widgetSub" id="widgetSub">-</div>
+        <div id="widgetSub">-</div>
     </div>
 
     <script>
         // XTZ/ZEC Relative Strength widget.
-        // RS = xtzPct24h - zecPct24h (percentage-point difference over rolling 24h).
-        // Positive = XTZ outperforming ZEC. Negative = ZEC outperforming XTZ.
+        // RS = xtzPct - zecPct measured from trade entry (3 May 2026 21:57 BST = 20:57 UTC).
+        // Positive = XTZ outperforming ZEC since trade. Negative = ZEC outperforming XTZ since trade.
+        // Colour threshold: round-trip swap-back via market orders costs ~0.20pp in fees;
+        // bumped to +0.30pp to leave a slippage/spread margin. Teal only when RS clears that.
 
-        async function fetch24hrTicker(symbol) {
-            const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`);
+        const TRADE_DATE_UTC_MS = Date.UTC(2026, 4, 3, 20, 57, 57);
+        const BREAK_EVEN_RS_PP = 0.30;
+
+        async function fetchKlines(symbol, interval, limit) {
+            const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`);
+            return r.json();
+        }
+
+        async function fetchLastPrice(symbol) {
+            const r = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
             const d = await r.json();
-            return { last: parseFloat(d.lastPrice), open: parseFloat(d.openPrice) };
+            return parseFloat(d.price);
+        }
+
+        // Find index of kline open-time closest to targetMs.
+        function findBaselineIdx(klines, targetMs) {
+            let best = 0;
+            let bestDiff = Infinity;
+            klines.forEach((k, i) => {
+                const diff = Math.abs(k[0] - targetMs);
+                if (diff < bestDiff) { bestDiff = diff; best = i; }
+            });
+            return best;
         }
 
         function fmtRs(n) {
@@ -60,29 +81,40 @@
 
         async function updateWidget() {
             try {
-                const [xtz, zec] = await Promise.all([
-                    fetch24hrTicker('XTZUSDT'),
-                    fetch24hrTicker('ZECUSDT')
+                // 90 daily candles - covers trade date with plenty of headroom.
+                const [xtzK, zecK, xtzLast, zecLast] = await Promise.all([
+                    fetchKlines('XTZUSDT', '1d', 90),
+                    fetchKlines('ZECUSDT', '1d', 90),
+                    fetchLastPrice('XTZUSDT'),
+                    fetchLastPrice('ZECUSDT')
                 ]);
-                if (!xtz.last || !zec.last || !xtz.open || !zec.open) return;
+                if (!xtzK.length || !zecK.length || !xtzLast || !zecLast) return;
 
-                const xtzPct = ((xtz.last / xtz.open) - 1) * 100;
-                const zecPct = ((zec.last / zec.open) - 1) * 100;
+                const xtzBaseIdx = findBaselineIdx(xtzK, TRADE_DATE_UTC_MS);
+                const zecBaseIdx = findBaselineIdx(zecK, TRADE_DATE_UTC_MS);
+                const xtzBase = parseFloat(xtzK[xtzBaseIdx][4]); // close price of trade-day candle
+                const zecBase = parseFloat(zecK[zecBaseIdx][4]);
+                if (!xtzBase || !zecBase) return;
+
+                const xtzPct = ((xtzLast / xtzBase) - 1) * 100;
+                const zecPct = ((zecLast / zecBase) - 1) * 100;
                 const rs = xtzPct - zecPct;
-                const xtzLeading = rs >= 0;
+                const profitable = rs >= BREAK_EVEN_RS_PP;
 
                 const numEl = document.getElementById('widgetNumber');
                 const subEl = document.getElementById('widgetSub');
                 const containerEl = document.getElementById('widgetContainer');
 
                 numEl.textContent = fmtRs(rs);
-                containerEl.className = xtzLeading ? 'xtz-leading' : 'zec-leading';
+                // Teal only when round-trip would be net-profitable after market-order fees
+                containerEl.className = profitable ? 'xtz-leading' : 'zec-leading';
 
+                const xtzLeading = rs >= 0;
                 const winner = xtzLeading ? 'XTZ' : 'ZEC';
                 const loser  = xtzLeading ? 'ZEC' : 'XTZ';
                 subEl.textContent = `${winner} ${xtzLeading ? fmtPct(xtzPct) : fmtPct(zecPct)} / ${loser} ${xtzLeading ? fmtPct(zecPct) : fmtPct(xtzPct)}`;
 
-                document.title = `RS ${fmtRs(rs)} | ꜩ${xtz.last.toFixed(3)}`;
+                document.title = `RS ${fmtRs(rs)} | ꜩ${xtzLast.toFixed(3)}`;
             } catch (e) {
                 console.error('Widget update failed', e);
             }

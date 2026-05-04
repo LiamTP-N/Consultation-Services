@@ -121,7 +121,7 @@
                 <!-- Baseline toggle -->
                 <div class="flex items-center gap-1">
                     <button id="baselineTf" class="baseline-btn active" title="Baseline: start of selected timeframe">TF</button>
-                    <button id="baselineTrade" class="baseline-btn" title="Baseline: trade date 3 May 2026 21:10">Trade</button>
+                    <button id="baselineTrade" class="baseline-btn" title="Baseline: trade date 3 May 2026 21:57 BST">Trade</button>
                 </div>
                 <div class="flex items-center gap-1.5">
                     <span id="liveDot" class="live-dot"></span>
@@ -147,6 +147,7 @@
                             <th class="pl-1 md:pl-1.5 py-px text-right">7d</th>
                             <th class="pl-1 md:pl-1.5 py-px text-right">30d</th>
                             <th class="pl-1 md:pl-1.5 py-px text-right">90d</th>
+                            <th class="pl-1 md:pl-1.5 py-px text-right text-purple-300">Trade</th>
                         </tr>
                     </thead>
                     <tbody id="heroTableBody">
@@ -161,6 +162,7 @@
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="rsPct_7d">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="rsPct_30d">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="rsPct_90d">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="rsPct_trade">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="zec-gradient">ZEC</span></td>
@@ -172,6 +174,7 @@
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_7d">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_30d">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_90d">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="zecPct_trade">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="xtz-gradient">XTZ</span></td>
@@ -183,6 +186,7 @@
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_7d">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_30d">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_90d">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="xtzPct_trade">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="btc-gradient">BTC</span></td>
@@ -194,6 +198,7 @@
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_7d">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_30d">-</td>
                             <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_90d">-</td>
+                            <td class="pl-1 md:pl-1.5 py-px text-right" id="btcPct_trade">-</td>
                         </tr>
                     </tbody>
                 </table>
@@ -210,9 +215,11 @@
                         <span class="text-slate-600">&middot;</span>
                         <span>GBP/&#127464;&#127462;</span> <span id="fxGbpCad" class="font-semibold text-slate-300">-</span>
                     </div>
-                    <!-- XTZ/ZEC ratio (current mid) -->
+                    <!-- XTZ/ZEC ratio (current mid) + break-even target -->
                     <div class="flex items-center gap-2 text-[11px] text-slate-400">
                         <span>XTZ/ZEC ratio</span> <span id="currentRatio" class="font-semibold text-slate-300">-</span>
+                        <span class="text-slate-600">&middot;</span>
+                        <span>BE</span> <span id="breakEvenRatio" class="font-semibold text-slate-500">-</span>
                     </div>
                 </div>
             </div>
@@ -227,10 +234,11 @@
             <button class="mobile-tf-btn" data-tf="7d">7d</button>
             <button class="mobile-tf-btn" data-tf="30d">30d</button>
             <button class="mobile-tf-btn" data-tf="90d">90d</button>
+            <button class="mobile-tf-btn" data-tf="trade">Trade</button>
         </div>
 
         <!-- TIMEFRAME PANELS -->
-        <section id="tfRow" class="grid grid-cols-7 gap-1 md:gap-2 flex-1 min-h-0 max-h-[180px] md:max-h-none">
+        <section id="tfRow" class="grid grid-cols-8 gap-1 md:gap-2 flex-1 min-h-0 max-h-[180px] md:max-h-none">
             <div id="panel_15m" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
                 <div class="flex items-center justify-end mb-1 flex-none text-xs font-semibold">
                     <span class="text-[10px] uppercase tracking-wider text-slate-400">15m</span>
@@ -280,6 +288,12 @@
                 </div>
                 <div class="flex-1 min-h-0 relative"><canvas id="chart_90d"></canvas></div>
             </div>
+            <div id="panel_trade" class="glass-card p-1 md:p-2 flex flex-col min-h-0">
+                <div class="flex items-center justify-end mb-1 flex-none text-xs font-semibold">
+                    <span class="text-[10px] uppercase tracking-wider text-purple-300">Since trade</span>
+                </div>
+                <div class="flex-1 min-h-0 relative"><canvas id="chart_trade"></canvas></div>
+            </div>
         </section>
 
         <div id="hoverCard" class="flex-none"></div>
@@ -294,7 +308,7 @@
         // CRYPTO.HTML - XTZ holdings dashboard with XTZ/ZEC relative
         // strength monitor for swing trade watch.
         //
-        // Holdings: 18,004.940717 XTZ (trade completed 3 May 2026 21:10)
+        // Holdings: 18,004.7772 XTZ (trade completed 3 May 2026 21:57 BST)
         //
         // Charts per timeframe (stacked):
         //   [0] XTZ indexed % change from baseline (teal)
@@ -308,14 +322,27 @@
         //
         // Baseline modes:
         //   "TF"    - baseline = first candle of selected timeframe (default)
-        //   "Trade" - baseline = 3 May 2026 21:10 BST (trade date)
+        //   "Trade" - baseline = 3 May 2026 21:57 BST (trade date)
         //             approximated by finding closest candle timestamp
         // ==============================================================
 
         // --- CONFIG ---
-        const XTZ_HELD = 18004.940717;
-        // Trade date: 3 May 2026 21:10 BST = 20:10 UTC
-        const TRADE_DATE_UTC_MS = Date.UTC(2026, 4, 3, 20, 10, 0);
+        const XTZ_HELD = 18004.7772;
+        const ZEC_HELD_PRE_TRADE = 16.256;
+        // Trade date: 3 May 2026 20:57:57 UTC (21:57:57 BST)
+        const TRADE_DATE_UTC_MS = Date.UTC(2026, 4, 3, 20, 57, 57);
+
+        // Break-even maths for round-trip swap back (XTZ -> USDT -> ZEC)
+        // Binance taker fee = 0.1% per leg; round-trip retention = 0.999^2 = 0.998001 (~0.20pp drag).
+        // Threshold bumped to +0.30pp to leave a slippage/spread margin on market orders.
+        const TAKER_FEE = 0.001;
+        const ROUND_TRIP_RETENTION = (1 - TAKER_FEE) * (1 - TAKER_FEE);
+        // Threshold RS in percentage points (fees + margin)
+        const BREAK_EVEN_RS_PP = 0.30;
+        // Entry ratio (ZEC per XTZ at trade)
+        const ENTRY_RATIO_ZEC_PER_XTZ = ZEC_HELD_PRE_TRADE / XTZ_HELD; // ~0.0009029
+        // Required XTZ/ZEC ratio to hit the +0.30pp target (i.e. entry ratio uplifted by 0.30%)
+        const BREAK_EVEN_RATIO = ENTRY_RATIO_ZEC_PER_XTZ * (1 + BREAK_EVEN_RS_PP / 100); // ~0.0009056
 
         let lastSuccessTs = 0;
         const STALE_MS = 5000;
@@ -334,16 +361,19 @@
 
         // --- TIMEFRAMES ---
         const TIMEFRAMES = {
-            '15m': { interval: '1m', limit: 15  },
-            '1h':  { interval: '1m', limit: 60  },
-            '12h': { interval: '1m', limit: 720 },
-            '24h': { interval: '5m', limit: 288 },
-            '7d':  { interval: '1h', limit: 168 },
-            '30d': { interval: '4h', limit: 180 },
-            '90d': { interval: '1d', limit: 90  }
+            '15m':   { interval: '1m',  limit: 15   },
+            '1h':    { interval: '1m',  limit: 60   },
+            '12h':   { interval: '1m',  limit: 720  },
+            '24h':   { interval: '5m',  limit: 288  },
+            '7d':    { interval: '1h',  limit: 168  },
+            '30d':   { interval: '4h',  limit: 180  },
+            '90d':   { interval: '1d',  limit: 90   },
+            // Trade timeframe: 15m candles, 1000 limit (~10 days). Series is sliced
+            // to start at the trade-entry candle when rendered.
+            'trade': { interval: '15m', limit: 1000 }
         };
-        const TF_KEYS = ['15m', '1h', '12h', '24h', '7d', '30d', '90d'];
-        const KEY_TO_TF = { '1': '15m', '2': '1h', '3': '12h', '4': '24h', '5': '7d', '6': '30d', '7': '90d' };
+        const TF_KEYS = ['15m', '1h', '12h', '24h', '7d', '30d', '90d', 'trade'];
+        const KEY_TO_TF = { '1': '15m', '2': '1h', '3': '12h', '4': '24h', '5': '7d', '6': '30d', '7': '90d', '8': 'trade' };
         const DEFAULT_TF = '7d';
         let currentTF = DEFAULT_TF;
 
@@ -405,8 +435,8 @@
             currentTF = tf;
             TF_KEYS.forEach(k => {
                 const panel = document.getElementById('panel_' + k);
-                if (k === tf) { panel.classList.remove('hidden'); panel.classList.add('col-span-7'); }
-                else          { panel.classList.add('hidden'); panel.classList.remove('col-span-7'); }
+                if (k === tf) { panel.classList.remove('hidden'); panel.classList.add('col-span-8'); }
+                else          { panel.classList.add('hidden'); panel.classList.remove('col-span-8'); }
             });
             document.querySelectorAll('.mobile-tf-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.tf === tf);
@@ -581,7 +611,36 @@
         });
         setTF(DEFAULT_TF);
 
-        // Hero sparkline (RS 24h)
+        // Hero sparkline: trade-baseline RS (XTZ% - ZEC% since trade entry).
+        // Two reference lines:
+        //   0pp = where the position started (price-only breakeven, before fees)
+        //   +BREAK_EVEN_RS_PP (+0.30pp) = round-trip swap-back breakeven after taker fees + margin
+        const refLinesPlugin = {
+            id: 'rsRefLines',
+            afterDatasetsDraw(chart) {
+                const { ctx, chartArea, scales } = chart;
+                const yScale = scales.y;
+                if (!yScale || !chartArea) return;
+
+                const drawLine = (value, color, dash) => {
+                    const y = yScale.getPixelForValue(value);
+                    if (y < chartArea.top || y > chartArea.bottom) return;
+                    ctx.save();
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash(dash);
+                    ctx.beginPath();
+                    ctx.moveTo(chartArea.left, y);
+                    ctx.lineTo(chartArea.right, y);
+                    ctx.stroke();
+                    ctx.restore();
+                };
+
+                drawLine(0, 'rgba(148,163,184,0.55)', [4, 3]);                  // 0pp = trade entry
+                drawLine(BREAK_EVEN_RS_PP, 'rgba(45,212,191,0.55)', [2, 3]);    // +0.30pp = post-fee BE + margin
+            }
+        };
+
         const heroSparkCanvas = document.getElementById('heroSparkline');
         const heroSparkChart = new Chart(heroSparkCanvas.getContext('2d'), {
             type: 'line',
@@ -590,7 +649,8 @@
                 responsive: true, maintainAspectRatio: false, animation: false,
                 scales: { x: { display: false }, y: { display: false } },
                 plugins: { legend: { display: false }, tooltip: { enabled: false } }
-            }
+            },
+            plugins: [refLinesPlugin]
         });
 
         // Swipe
@@ -674,18 +734,33 @@
                     const d = panelData[tf];
                     const chart = panelCharts[tf];
 
-                    // Resolve baseline index
+                    // Resolve baseline index.
+                    // The 'trade' TF is always trade-baseline (button toggle ignored).
                     let bIdx = 0;
-                    if (baselineMode === 'trade') {
+                    if (tf === 'trade') {
+                        bIdx = findBaselineIdx(d.xtzK, TRADE_DATE_UTC_MS);
+                    } else if (baselineMode === 'trade') {
                         bIdx = findBaselineIdx(d.xtzK, TRADE_DATE_UTC_MS);
                     }
 
-                    const xtzIdx = indexedSeries(d.xtzClose, bIdx);
-                    const zecIdx = indexedSeries(d.zecClose, bIdx);
-                    const btcIdx = indexedSeries(d.btcClose, bIdx);
+                    // For the 'trade' TF, slice arrays to start at trade entry so the
+                    // chart only shows post-trade history.
+                    let xtzCloseSrc = d.xtzClose, zecCloseSrc = d.zecClose, btcCloseSrc = d.btcClose, kSrc = d.xtzK;
+                    let renderBIdx = bIdx;
+                    if (tf === 'trade') {
+                        xtzCloseSrc = d.xtzClose.slice(bIdx);
+                        zecCloseSrc = d.zecClose.slice(bIdx);
+                        btcCloseSrc = d.btcClose.slice(bIdx);
+                        kSrc        = d.xtzK.slice(bIdx);
+                        renderBIdx  = 0; // arrays are now zero-indexed at trade entry
+                    }
+
+                    const xtzIdx = indexedSeries(xtzCloseSrc, renderBIdx);
+                    const zecIdx = indexedSeries(zecCloseSrc, renderBIdx);
+                    const btcIdx = indexedSeries(btcCloseSrc, renderBIdx);
                     const rs     = rsSeries(xtzIdx, zecIdx);
 
-                    chart.data.labels = d.xtzK.map(k => {
+                    chart.data.labels = kSrc.map(k => {
                         const dt = new Date(k[0]);
                         return dt.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
                     });
@@ -717,36 +792,59 @@
 
                     chart.update();
 
-                    // Hero table % cells (always relative to TF start for consistency)
-                    const xtzPctTf = pctFromCloses(d.xtzClose, 0);
-                    const zecPctTf = pctFromCloses(d.zecClose, 0);
-                    const btcPctTf = pctFromCloses(d.btcClose, 0);
+                    // Hero table % cells. For 'trade' TF, baseline is the trade-entry
+                    // candle in the full (un-sliced) source. For all other TFs, baseline
+                    // is the start of the TF window.
+                    const heroBaselineIdx = tf === 'trade' ? bIdx : 0;
+                    const xtzPctTf = pctFromCloses(d.xtzClose, heroBaselineIdx);
+                    const zecPctTf = pctFromCloses(d.zecClose, heroBaselineIdx);
+                    const btcPctTf = pctFromCloses(d.btcClose, heroBaselineIdx);
                     writePct('xtzPct_' + tf, xtzPctTf);
                     writePct('zecPct_' + tf, zecPctTf);
                     writePct('btcPct_' + tf, btcPctTf);
                     writeRs('rsPct_' + tf, xtzPctTf - zecPctTf);
                 });
 
-                // Hero sparkline: RS 24h series
-                const d24 = panelData['24h'];
-                const xtzIdx24 = indexedSeries(d24.xtzClose, 0);
-                const zecIdx24 = indexedSeries(d24.zecClose, 0);
-                const rs24 = rsSeries(xtzIdx24, zecIdx24);
-                heroSparkChart.data.labels = d24.xtzK.map((_, i) => i);
-                heroSparkChart.data.datasets[0].data = rs24;
+                // Headline RS: trade-baseline (XTZ% - ZEC% since trade entry).
+                // Use 90d daily candles to anchor the trade date robustly.
+                // Colour: teal only when RS clears the round-trip fee drag (~+0.20pp);
+                // yellow otherwise (i.e. underwater on the swap-back after fees).
+                const d90 = panelData['90d'];
+                const tradeIdx = findBaselineIdx(d90.xtzK, TRADE_DATE_UTC_MS);
+                const xtzPctTrade = pctFromCloses(d90.xtzClose, tradeIdx);
+                const zecPctTrade = pctFromCloses(d90.zecClose, tradeIdx);
+                const currentRsTrade = xtzPctTrade - zecPctTrade;
+                const profitable = currentRsTrade >= BREAK_EVEN_RS_PP;
+                const rsEl = document.getElementById('rsHeadline');
+                rsEl.textContent = fmtRs(currentRsTrade);
+                rsEl.className = 'text-base md:text-xl font-bold ml-1 ' + (profitable ? 'text-teal-400' : 'text-yellow-400');
+
+                // Hero sparkline: trade-baseline RS series (every candle from trade day onward,
+                // expressed as XTZ% - ZEC% relative to the trade-day close).
+                const xtzBase = d90.xtzClose[tradeIdx];
+                const zecBase = d90.zecClose[tradeIdx];
+                const rsTradeSeries = [];
+                const sparkLabels = [];
+                for (let i = tradeIdx; i < d90.xtzClose.length; i++) {
+                    const xtzPct = ((d90.xtzClose[i] / xtzBase) - 1) * 100;
+                    const zecPct = ((d90.zecClose[i] / zecBase) - 1) * 100;
+                    rsTradeSeries.push(xtzPct - zecPct);
+                    sparkLabels.push(i - tradeIdx);
+                }
+                heroSparkChart.data.labels = sparkLabels;
+                heroSparkChart.data.datasets[0].data = rsTradeSeries;
                 heroSparkChart.update();
 
-                // Current RS 24h (last value)
-                const currentRs24 = rs24[rs24.length - 1];
-                const rsEl = document.getElementById('rsHeadline');
-                rsEl.textContent = fmtRs(currentRs24);
-                rsEl.className = 'text-base md:text-xl font-bold ml-1 ' + (currentRs24 >= 0 ? 'text-teal-400' : 'text-yellow-400');
-
-                // Current ratio XTZ/ZEC (mid prices)
+                // Current ratio XTZ/ZEC (mid prices) + break-even target ratio
                 const xtzPrice = parseFloat(xtzT.lastPrice);
                 const zecPrice = parseFloat(zecT.lastPrice);
                 const ratio = xtzPrice / zecPrice;
-                document.getElementById('currentRatio').textContent = fmt(ratio, 4);
+                const ratioEl = document.getElementById('currentRatio');
+                ratioEl.textContent = fmt(ratio, 6);
+                // Colour current ratio teal when at/above BE, yellow when below
+                ratioEl.classList.remove('text-slate-300', 'text-teal-400', 'text-yellow-400');
+                ratioEl.classList.add(ratio >= BREAK_EVEN_RATIO ? 'text-teal-400' : 'text-yellow-400');
+                document.getElementById('breakEvenRatio').textContent = fmt(BREAK_EVEN_RATIO, 6);
                 document.getElementById('xtzPrice').textContent = fmtUsd(xtzPrice);
                 document.getElementById('zecPrice').textContent = fmtUsd(zecPrice);
                 document.getElementById('btcPrice').textContent = '$' + fmtInt(parseFloat(btcT.lastPrice));
@@ -758,13 +856,11 @@
                 document.getElementById('holdingsGbp').textContent = '£' + fmtInt(holdingsGbp);
                 document.getElementById('fxGbpUsd').textContent = fmt(parseFloat(gbpT.lastPrice), 4);
 
-                // Favicon: teal if XTZ leading ZEC on 24h, yellow otherwise
-                setFavicon(currentRs24 >= 0);
+                // Favicon: teal only when round-trip would be net-profitable after fees
+                setFavicon(profitable);
 
-                // Tab title
-                const xtzPct24 = pctFromCloses(d24.xtzClose, 0);
-                const zecPct24 = pctFromCloses(d24.zecClose, 0);
-                document.title = `RS ${fmtRs(currentRs24)} | ꜩ${xtzPrice.toFixed(3)} | ZEC $${fmtInt(zecPrice)} | ₿$${fmtInt(parseFloat(btcT.lastPrice))}`;
+                // Tab title (RS = trade-baseline)
+                document.title = `RS ${fmtRs(currentRsTrade)} | ꜩ${xtzPrice.toFixed(3)} | ZEC $${fmtInt(zecPrice)} | ₿$${fmtInt(parseFloat(btcT.lastPrice))}`;
 
                 // Status
                 lastSuccessTs = Date.now();
