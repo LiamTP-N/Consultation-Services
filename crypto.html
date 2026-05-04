@@ -141,11 +141,11 @@
                     <!-- Trade ledger -->
                     <div class="text-[10px] text-slate-500 uppercase tracking-wider mt-2 mb-0.5">Trade ledger</div>
                     <div class="flex items-center gap-2 text-[11px] text-slate-400">
-                        <span>Cost basis</span> <span class="font-semibold text-slate-300">$6,585.55</span>
+                        <span>Cost basis</span> <span id="costBasis" class="font-semibold text-slate-300">-</span>
                         <span class="text-slate-600">&middot;</span>
-                        <span>Fees paid</span> <span class="font-semibold text-slate-300">$13.18</span>
+                        <span>Fees paid</span> <span id="feesPaid" class="font-semibold text-slate-300">-</span>
                         <span class="text-slate-600">&middot;</span>
-                        <span title="USDT gap between leg-1 ZEC sell net and leg-2 XTZ buy cost (12s price tick)">Slippage</span> <span class="font-semibold text-slate-300">$0.23</span>
+                        <span title="USDT gap between leg-1 ZEC sell net and leg-2 XTZ buy cost (12s price tick)">Slippage</span> <span id="slippage" class="font-semibold text-slate-300">-</span>
                     </div>
                     <div class="flex items-center gap-2 text-[11px] text-slate-400">
                         <span title="Current ZEC-equivalent of XTZ holdings (after round-trip swap-back fees) minus the original 16.256 ZEC">P&amp;L vs ZEC</span>
@@ -545,6 +545,14 @@
                 document.getElementById('holdingsGbp').textContent = '£' + fmtInt(holdingsGbp);
                 document.getElementById('fxGbpUsd').textContent = fmt(parseFloat(gbpT.lastPrice), 4);
 
+                // Trade ledger - static USD values + live GBP equivalents
+                const costBasisGbp  = COST_BASIS_USDT  * usdToGbp;
+                const feesPaidGbp   = FEES_PAID_USDT   * usdToGbp;
+                const slippageGbp   = INTERLEG_USDT_GAP * usdToGbp;
+                document.getElementById('costBasis').textContent = '$' + fmt(COST_BASIS_USDT, 2)  + ' / £' + fmt(costBasisGbp, 2);
+                document.getElementById('feesPaid').textContent  = '$' + fmt(FEES_PAID_USDT, 2)   + ' / £' + fmt(feesPaidGbp, 2);
+                document.getElementById('slippage').textContent  = '$' + fmt(INTERLEG_USDT_GAP, 2) + ' / £' + fmt(slippageGbp, 2);
+
                 // P&L vs ZEC: if I swapped XTZ -> USDT -> ZEC right now (after round-trip taker
                 // fees), how many ZEC would I end up with vs the original 16.256?
                 const zecEquivAfterFees = (XTZ_HELD * xtzPrice * ROUND_TRIP_RETENTION) / zecPrice;
@@ -559,8 +567,12 @@
                 // USDT from the ZEC sell?). Leg-1 fee is sunk either way.
                 const usdtEquivAfterFee = XTZ_HELD * xtzPrice * (1 - TAKER_FEE);
                 const pnlVsUsd = usdtEquivAfterFee - LEG1_NET_USDT;
+                const pnlVsUsdGbp = pnlVsUsd * usdToGbp;
                 const pnlVsUsdEl = document.getElementById('pnlVsUsd');
-                pnlVsUsdEl.textContent = (pnlVsUsd >= 0 ? '+' : '') + '$' + fmt(pnlVsUsd, 2);
+                const pnlSign = pnlVsUsd >= 0 ? '+' : '-';
+                const pnlAbsUsd = Math.abs(pnlVsUsd);
+                const pnlAbsGbp = Math.abs(pnlVsUsdGbp);
+                pnlVsUsdEl.textContent = pnlSign + '$' + fmt(pnlAbsUsd, 2) + ' / ' + pnlSign + '£' + fmt(pnlAbsGbp, 2);
                 pnlVsUsdEl.classList.remove('text-teal-400', 'text-yellow-400', 'text-slate-300');
                 pnlVsUsdEl.classList.add(pnlVsUsd >= 0 ? 'text-teal-400' : 'text-yellow-400');
 
