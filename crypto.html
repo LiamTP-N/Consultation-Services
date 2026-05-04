@@ -98,7 +98,7 @@
                     </thead>
                     <tbody>
                         <tr id="rowRS">
-                            <td class="pr-2 md:pr-3 py-px text-sm md:text-base text-teal-300">RS</td>
+                            <td class="pr-2 md:pr-3 py-px text-sm md:text-base" style="color:#a78bfa;">RS</td>
                             <td class="pr-2 md:pr-3 py-px text-right text-slate-600">-</td>
                             <td class="pl-2 md:pl-3 py-px text-right" id="rsPct_trade">-</td>
                         </tr>
@@ -165,7 +165,6 @@
                     <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#2dd4bf;"></span><span class="xtz-gradient">XTZ idx</span></span>
                     <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#fde047;"></span><span class="zec-gradient">ZEC idx</span></span>
                     <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#a78bfa;"></span><span style="color:#a78bfa;">RS</span></span>
-                    <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#f7931a;"></span><span class="btc-gradient">BTC</span></span>
                 </div>
                 <span class="text-[10px] uppercase tracking-wider text-purple-300">Since trade (3 May 2026 21:57 BST)</span>
             </div>
@@ -250,9 +249,10 @@
             const el = document.getElementById(elId);
             if (!el) return;
             el.textContent = fmtRs(rs);
-            // Trade RS: teal when at/above BE threshold (+0.30pp), yellow below
+            // RS uses the same purple as the chart's RS line - colour cohesion across the page.
+            // Profitability signal lives on the +0.30pp chart line and the headline colour.
             el.classList.remove('text-emerald-400', 'text-rose-400', 'text-teal-400', 'text-yellow-400');
-            el.classList.add(rs >= BREAK_EVEN_RS_PP ? 'text-teal-400' : 'text-yellow-400');
+            el.style.color = '#a78bfa';
         }
         // Find index of candle whose open-time is closest to targetMs
         function findBaselineIdx(klines, targetMs) {
@@ -359,12 +359,10 @@
             const xtzPt = dp.find(p => p.dataset.label === 'XTZ');
             const zecPt = dp.find(p => p.dataset.label === 'ZEC');
             const rsPt  = dp.find(p => p.dataset.label === 'RS');
-            const btcPt = dp.find(p => p.dataset.label === 'BTC');
             let html = `<div class="hc-title">${title}</div>`;
             if (rsPt)  html += `<div class="hc-row"><span class="hc-label" style="color:#a78bfa;">RS</span><span style="color:#a78bfa;font-weight:700;">${fmtRs(rsPt.parsed.y)}</span></div>`;
             if (xtzPt) html += `<div class="hc-row"><span class="hc-label" style="color:#2dd4bf;">XTZ idx</span><span>${fmtPct(xtzPt.parsed.y)}</span></div>`;
             if (zecPt) html += `<div class="hc-row"><span class="hc-label" style="color:#fde047;">ZEC idx</span><span>${fmtPct(zecPt.parsed.y)}</span></div>`;
-            if (btcPt) html += `<div class="hc-row"><span class="hc-label" style="color:#f7931a;">BTC idx</span><span>${fmtPct(btcPt.parsed.y)}</span></div>`;
             hoverCard.innerHTML = html;
             hoverCard.classList.add('visible');
         }
@@ -375,34 +373,40 @@
         //   [0] XTZ indexed % (teal, left axis y)
         //   [1] ZEC indexed % (yellow, left axis y - shared scale with XTZ)
         //   [2] RS = xtz% - zec% (purple, right hidden axis yRs)
-        //   [3] BTC indexed % (orange, right hidden axis yBtc)
+        // BTC is fetched but not plotted - it appears only in the hero summary table.
         // Reference lines for the main trade chart, drawn on the RS (yRs) axis:
         //   0pp = price-only break-even (where the trade started)
         //   +BREAK_EVEN_RS_PP (+0.30pp) = post-fee break-even with margin
+        //   currentRs = live RS value (updated each tick), so you can see at a glance
+        //   how far the live reading sits from the two static reference lines.
+        let liveRsLineValue = null;
         const tradeChartRefLines = {
             id: 'tradeChartRefLines',
             afterDatasetsDraw(chart) {
                 const { ctx, chartArea, scales } = chart;
                 const yScale = scales.yRs;
                 if (!yScale || !chartArea) return;
-                const drawLine = (value, color, dash) => {
+                const drawLine = (value, color, dash, label) => {
+                    if (value === null || isNaN(value)) return;
                     const y = yScale.getPixelForValue(value);
                     if (y < chartArea.top || y > chartArea.bottom) return;
                     ctx.save();
                     ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.setLineDash(dash);
                     ctx.beginPath(); ctx.moveTo(chartArea.left, y); ctx.lineTo(chartArea.right, y); ctx.stroke();
-                    // Label on the right
                     ctx.setLineDash([]);
                     ctx.fillStyle = color;
                     ctx.font = '10px -apple-system, BlinkMacSystemFont, sans-serif';
                     ctx.textAlign = 'right';
                     ctx.textBaseline = 'middle';
-                    const label = (value >= 0 ? '+' : '') + value.toFixed(2) + 'pp';
                     ctx.fillText(label, chartArea.right - 4, y - 7);
                     ctx.restore();
                 };
-                drawLine(0, 'rgba(148,163,184,0.45)', [4, 3]);                 // 0pp = trade entry
-                drawLine(BREAK_EVEN_RS_PP, 'rgba(45,212,191,0.55)', [2, 3]);   // +0.30pp = post-fee BE + margin
+                drawLine(0, 'rgba(148,163,184,0.45)', [4, 3], '+0.00pp');                              // 0pp = trade entry
+                drawLine(BREAK_EVEN_RS_PP, 'rgba(45,212,191,0.55)', [2, 3], '+' + BREAK_EVEN_RS_PP.toFixed(2) + 'pp'); // +0.30pp = post-fee BE + margin
+                if (liveRsLineValue !== null) {
+                    const sign = liveRsLineValue >= 0 ? '+' : '';
+                    drawLine(liveRsLineValue, 'rgba(167,139,250,0.85)', [1, 4], sign + liveRsLineValue.toFixed(2) + 'pp'); // current RS
+                }
             }
         };
 
@@ -413,8 +417,7 @@
                 datasets: [
                     { label: 'XTZ', data: [], borderColor: 'rgba(45,212,191,0.85)', backgroundColor: 'rgba(45,212,191,0.07)', borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
                     { label: 'ZEC', data: [], borderColor: 'rgba(253,224,71,0.80)',  backgroundColor: 'transparent',          borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
-                    { label: 'RS',  data: [], borderColor: 'rgba(167,139,250,0.85)', backgroundColor: 'rgba(167,139,250,0.06)', borderWidth: 1.5,  pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'yRs', borderDash: [3, 2] },
-                    { label: 'BTC', data: [], borderColor: 'rgba(249,115,22,0.55)',  backgroundColor: 'transparent',          borderWidth: 1.0,  pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'yBtc', borderDash: [5, 3] }
+                    { label: 'RS',  data: [], borderColor: 'rgba(167,139,250,0.85)', backgroundColor: 'rgba(167,139,250,0.18)', borderWidth: 1.5,  pointRadius: 0, tension: 0.2, fill: 'origin', yAxisID: 'yRs', borderDash: [3, 2] }
                 ]
             },
             options: {
@@ -423,8 +426,7 @@
                 scales: {
                     x:    { display: false },
                     y:    { display: false },
-                    yRs:  { display: false, position: 'right' },
-                    yBtc: { display: false, position: 'right' }
+                    yRs:  { display: false, position: 'right' }
                 },
                 plugins: {
                     legend: { display: false },
@@ -507,7 +509,8 @@
                 const btcIdx = btcSlice.map(v => ((v / btcBase) - 1) * 100);
                 const rs     = xtzIdx.map((x, i) => x - zecIdx[i]);
 
-                // Update main chart
+                // Update main chart (BTC is intentionally excluded from the chart - it's
+                // shown in the hero table but doesn't belong on the trade-baselined chart).
                 tradeChart.data.labels = kSlice.map(k => {
                     const dt = new Date(k[0]);
                     return dt.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
@@ -515,7 +518,6 @@
                 tradeChart.data.datasets[0].data = xtzIdx;
                 tradeChart.data.datasets[1].data = zecIdx;
                 tradeChart.data.datasets[2].data = rs;
-                tradeChart.data.datasets[3].data = btcIdx;
 
                 const allIdx = [...xtzIdx, ...zecIdx];
                 const idxMin = Math.min(...allIdx); const idxMax = Math.max(...allIdx);
@@ -523,17 +525,14 @@
                 tradeChart.options.scales.y.min = idxMin - idxPad;
                 tradeChart.options.scales.y.max = idxMax + idxPad;
 
-                // RS axis: include both reference lines (0pp and +0.30pp) so they're always visible
-                const rsValues = [...rs, 0, BREAK_EVEN_RS_PP];
+                // RS axis: include both reference lines (0pp and +0.30pp) plus current value
+                // so all three are always visible regardless of how the live RS drifts
+                const currentRsForRange = xtzIdx[xtzIdx.length - 1] - zecIdx[zecIdx.length - 1];
+                const rsValues = [...rs, 0, BREAK_EVEN_RS_PP, currentRsForRange];
                 const rsMin = Math.min(...rsValues); const rsMax = Math.max(...rsValues);
                 const rsRange = (rsMax - rsMin) || 1; const rsPad = rsRange * 0.1;
                 tradeChart.options.scales.yRs.min = rsMin - rsPad;
                 tradeChart.options.scales.yRs.max = rsMax + rsPad;
-
-                const btcMin = Math.min(...btcIdx); const btcMax = Math.max(...btcIdx);
-                const btcRange = (btcMax - btcMin) || 1; const btcPad = btcRange * 0.1;
-                tradeChart.options.scales.yBtc.min = btcMin - btcPad;
-                tradeChart.options.scales.yBtc.max = btcMax + btcPad;
 
                 tradeChart.update();
 
@@ -547,11 +546,17 @@
                 writePct('btcPct_trade', btcPctTrade);
                 writeRs('rsPct_trade', currentRsTrade);
 
-                // Headline RS
+                // Headline RS: purple (matches the chart RS line + table RS row).
+                // Profitability indication lives on the +0.30pp chart line, the BE ratio,
+                // the favicon colour, and the P&L readouts.
                 const profitable = currentRsTrade >= BREAK_EVEN_RS_PP;
                 const rsEl = document.getElementById('rsHeadline');
                 rsEl.textContent = fmtRs(currentRsTrade);
-                rsEl.className = 'text-base md:text-xl font-bold ml-1 ' + (profitable ? 'text-teal-400' : 'text-yellow-400');
+                rsEl.className = 'text-base md:text-xl font-bold ml-1';
+                rsEl.style.color = '#a78bfa';
+
+                // Update the live RS reference line on the main chart
+                liveRsLineValue = currentRsTrade;
 
                 // Hero sparkline (RS series since trade)
                 heroSparkChart.data.labels = rs.map((_, i) => i);
