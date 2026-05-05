@@ -21,41 +21,15 @@
             html, body { height: 100dvh; height: 100vh; overflow: hidden; max-width: 100%; }
             body { width: 100%; padding: 4px; }
             #chartCard { flex: 1 1 auto; min-height: 0; }
-            /* Stack hero block vertically: table on top, side card below */
-            #heroRateBlock {
-                padding: 6px 8px; gap: 4px;
-                flex-direction: column; flex-wrap: nowrap;
-                align-items: stretch;
-            }
-            #heroRateBlock > table {
-                font-size: 11px;
-                width: 100%;
-            }
+            #heroRateBlock { padding: 6px 8px; }
+            #heroRateBlock > table { font-size: 11px; }
             #heroRateBlock > table th,
             #heroRateBlock > table td { padding-top: 1px; padding-bottom: 1px; }
-            /* Side card: tight horizontal rows, full width, left-aligned, with a thin top divider */
-            #sideCard {
-                flex-direction: column; align-items: stretch;
-                gap: 2px; width: 100%; min-width: 0; overflow-x: hidden;
-                border-left: none; padding-left: 0;
-                padding-top: 4px;
-                border-top: 1px solid rgba(148,163,184,0.12);
-            }
-            #sideCard .side-label { display: none; }
-            #sideCard .side-row {
-                display: flex; align-items: center;
-                justify-content: space-between;
-                gap: 4px; font-size: 11px; line-height: 1.4;
-                white-space: nowrap;
-            }
-            #sideCard .holdings-row { font-size: 13px; font-weight: 700; }
             /* Compress chart legend to one row */
             #chartLegendRow { font-size: 9px; gap: 4px; }
             #chartLegendRow .legend-title { font-size: 9px; }
         }
-        @media (min-width: 768px) {
-            #sideCard .side-row { display: flex; align-items: center; gap: 8px; }
-        }
+        @media (min-width: 768px) { }
         .glass-card {
             background: #000; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(148, 163, 184, 0.12); border-radius: 12px;
@@ -99,9 +73,6 @@
                 <span id="rsHeadline" class="text-base md:text-xl font-bold ml-1">-</span>
                 <span class="hidden md:inline text-slate-500 text-xs md:text-sm ml-1">since trade</span>
             </h1>
-            <div class="hidden md:block" style="width:80px;height:28px;position:relative;">
-                <canvas id="heroSparkline"></canvas>
-            </div>
             <div class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 md:gap-3 text-xs">
                 <div class="flex items-center gap-1.5">
                     <span id="liveDot" class="live-dot"></span>
@@ -113,8 +84,7 @@
 
         <!-- HERO -->
         <section class="flex-none">
-            <div id="heroRateBlock" class="glass-card-accent p-1.5 md:p-3 flex flex-wrap items-center justify-between gap-2 md:gap-5">
-                <!-- Primary: single trade-baseline column -->
+            <div id="heroRateBlock" class="glass-card-accent p-1.5 md:p-3 flex items-center gap-2 md:gap-5">
                 <table class="text-[11px] md:text-sm font-semibold flex-none">
                     <thead>
                         <tr class="text-[9px] md:text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
@@ -141,36 +111,6 @@
                         </tr>
                     </tbody>
                 </table>
-                <!-- Secondary: holdings + FX + ratio + trade ledger -->
-                <div id="sideCard" class="flex flex-col items-end gap-1.5 flex-none md:border-l md:border-slate-700/40 md:pl-5">
-                    <div class="side-label text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">XTZ Holdings</div>
-                    <div class="side-row holdings-row text-sm md:text-base font-semibold text-slate-100">
-                        <span class="text-slate-500 text-xs">🇺🇸</span> <span id="holdingsUsd">-</span>
-                        <span class="text-slate-600">&middot;</span>
-                        <span class="text-slate-500 text-xs">🇨🇦</span> <span id="holdingsCad">-</span>
-                        <span class="text-slate-600">&middot;</span>
-                        <span class="text-slate-500 text-xs">GBP</span> <span id="holdingsGbp">-</span>
-                    </div>
-                    <div class="side-row text-[11px] text-slate-400">
-                        <span>GBP/🇺🇸</span> <span id="fxGbpUsd" class="font-semibold text-slate-300">-</span>
-                        <span class="text-slate-600">&middot;</span>
-                        <span>GBP/&#127464;&#127462;</span> <span id="fxGbpCad" class="font-semibold text-slate-300">-</span>
-                    </div>
-
-                    <!-- Trade ledger -->
-                    <div class="side-label text-[10px] text-slate-500 uppercase tracking-wider mt-2 mb-0.5">Trade ledger</div>
-                    <div class="side-row text-[11px] text-slate-400">
-                        <span>Cost</span> <span id="costBasis" class="font-semibold text-slate-300">-</span>
-                        <span class="text-slate-600">&middot;</span>
-                        <span>Fees</span> <span id="feesPaid" class="font-semibold text-slate-300">-</span>
-                        <span class="text-slate-600">&middot;</span>
-                        <span title="USDT gap between leg-1 ZEC sell net and leg-2 XTZ buy cost (12s price tick)">Slip</span> <span id="slippage" class="font-semibold text-slate-300">-</span>
-                    </div>
-                    <div class="side-row text-[11px] text-slate-400">
-                        <span title="Current fiat value of XTZ holdings (after one-leg sell fee) minus the leg-1 USDT received">P&amp;L vs Fiat</span>
-                        <span id="pnlVsUsd" class="font-semibold text-slate-300">-</span>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -207,25 +147,8 @@
         // ==============================================================
 
         // --- CONFIG ---
-        // Trade ledger (3 May 2026 20:57:45-57 UTC, two-leg swap ZEC -> USDT -> XTZ)
-        const ZEC_HELD_PRE_TRADE     = 16.256;          // ZEC sold in leg 1
-        const XTZ_HELD               = 18004.7772;      // XTZ held after leg 2 (post-fee)
-        const COST_BASIS_USDT        = 6585.55317;      // USDT spent on leg 2 (XTZ buy total)
-        const LEG1_NET_USDT          = 6585.32695;      // USDT netted from leg 1 (ZEC sell, post-fee)
-        const FEE_LEG1_USDT          = 6.59191887;      // ZEC-sell fee (paid in USDT)
-        const FEE_LEG2_XTZ           = 18.0228;         // XTZ-buy fee (paid in XTZ)
-        const FEE_LEG2_USDT_AT_TRADE = 6.58552;         // FEE_LEG2_XTZ * leg2 avg price (0.36540123)
-        const FEES_PAID_USDT         = FEE_LEG1_USDT + FEE_LEG2_USDT_AT_TRADE; // 13.17744 USDT total entry fees
-        const INTERLEG_USDT_GAP      = COST_BASIS_USDT - LEG1_NET_USDT;        // 0.22622 USDT (12s price tick)
-
         const TRADE_DATE_UTC_MS = Date.UTC(2026, 4, 3, 20, 57, 57);
-
-        // Break-even maths (Binance taker = 0.1% per leg, +margin)
-        const TAKER_FEE = 0.001;
-        const ROUND_TRIP_RETENTION = (1 - TAKER_FEE) * (1 - TAKER_FEE); // 0.998001
-        const BREAK_EVEN_RS_PP = 0.30;
-        const ENTRY_RATIO_ZEC_PER_XTZ = ZEC_HELD_PRE_TRADE / XTZ_HELD; // ~0.0009029
-        const BREAK_EVEN_RATIO = ENTRY_RATIO_ZEC_PER_XTZ * (1 + BREAK_EVEN_RS_PP / 100); // ~0.0009056
+        const BREAK_EVEN_RS_PP  = 0.30; // post-fee BE threshold; updates sparkline ref line + favicon colour
 
         // Trade kline source: 15m candles, 1000 limit (~10 days of room)
         const TRADE_KLINE_INTERVAL = '15m';
@@ -235,9 +158,6 @@
         const STALE_MS = 5000;
         let consecutiveErrors = 0;
 
-        let gbpToCad = null;
-        const GBP_CAD_REFRESH_MS = 5 * 60 * 1000;
-
         // --- NETWORK DETECTION (privacy overlay) ---
         const WORK_IPS = ['193.63.36.242'];
         let detectedIp = null;
@@ -245,10 +165,8 @@
 
         // --- HELPERS ---
         const fmt = (n, d = 2) => Number(n).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
-        const fmtUsd = (n) => '$' + fmt(n, n < 1 ? 4 : 2);
         const fmtPct = (n) => (n >= 0 ? '+' : '') + fmt(n, 1) + '%';
         const fmtRs  = (n) => (n >= 0 ? '+' : '') + fmt(n, 1) + 'pp';
-        const fmtInt = (n) => Math.round(Number(n)).toLocaleString('en-GB');
 
         function setChangeColour(el, val) {
             el.classList.remove('text-emerald-400', 'text-rose-400', 'text-yellow-300', 'text-teal-300');
@@ -331,21 +249,6 @@
         }
         detectNetwork();
 
-        // --- GBP/CAD ---
-        async function refreshGbpCad() {
-            try {
-                const r = await fetch('https://api.frankfurter.dev/v1/latest?base=GBP&symbols=CAD');
-                const data = await r.json();
-                if (data && data.rates && typeof data.rates.CAD === 'number') {
-                    gbpToCad = data.rates.CAD;
-                    const el = document.getElementById('fxGbpCad');
-                    if (el) el.textContent = fmt(gbpToCad, 4);
-                }
-            } catch (e) { console.warn('GBP/CAD fetch failed', e); }
-        }
-        refreshGbpCad();
-        setInterval(refreshGbpCad, GBP_CAD_REFRESH_MS);
-
         // --- FAVICON (teal when net-profitable, yellow otherwise) ---
         const faviconEl = document.getElementById('favicon');
         const favCanvas = document.createElement('canvas');
@@ -405,14 +308,34 @@
             }
         };
 
+        // Gradient colours applied to XTZ and ZEC lines after layout (needs chartArea).
+        // XTZ: navy (#1e3a8a) → teal (#2dd4bf), matching .xtz-gradient in CSS.
+        // ZEC: yellow (#fde047) → dark gold (#ca8a04), matching .zec-gradient in CSS.
+        const lineGradientPlugin = {
+            id: 'lineGradients',
+            afterLayout(chart) {
+                const { ctx, chartArea } = chart;
+                if (!chartArea) return;
+                const { left, right } = chartArea;
+                const xtzG = ctx.createLinearGradient(left, 0, right, 0);
+                xtzG.addColorStop(0, 'rgba(30,58,138,0.9)');
+                xtzG.addColorStop(1, 'rgba(45,212,191,0.9)');
+                const zecG = ctx.createLinearGradient(left, 0, right, 0);
+                zecG.addColorStop(0, 'rgba(253,224,71,0.9)');
+                zecG.addColorStop(1, 'rgba(202,138,4,0.9)');
+                chart.data.datasets[0].borderColor = xtzG;
+                chart.data.datasets[1].borderColor = zecG;
+            }
+        };
+
         const tradeChart = new Chart(document.getElementById('chartTrade').getContext('2d'), {
             type: 'line',
             data: {
                 labels: [],
                 datasets: [
-                    { label: 'XTZ', data: [], borderColor: 'rgba(45,212,191,0.85)', backgroundColor: 'rgba(45,212,191,0.07)', borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
-                    { label: 'ZEC', data: [], borderColor: 'rgba(253,224,71,0.80)',  backgroundColor: 'transparent',          borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
-                    { label: 'RS',  data: [], borderColor: 'rgba(167,139,250,0.85)', backgroundColor: 'rgba(167,139,250,0.18)', borderWidth: 1.5,  pointRadius: 0, tension: 0.2, fill: 'origin', yAxisID: 'yRs', borderDash: [3, 2] }
+                    { label: 'XTZ', data: [], borderColor: 'rgba(45,212,191,0.9)',  backgroundColor: 'rgba(45,212,191,0.07)', borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
+                    { label: 'ZEC', data: [], borderColor: 'rgba(253,224,71,0.9)',  backgroundColor: 'transparent',          borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
+                    { label: 'RS',  data: [], borderColor: 'rgba(167,139,250,0.85)', backgroundColor: 'rgba(167,139,250,0.18)', borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: 'origin', yAxisID: 'yRs' }
                 ]
             },
             options: {
@@ -428,37 +351,7 @@
                     tooltip: { enabled: false }
                 }
             },
-            plugins: [tradeChartRefLines]
-        });
-
-        // --- HERO SPARKLINE (RS series since trade, with reference lines) ---
-        const refLinesPlugin = {
-            id: 'rsRefLines',
-            afterDatasetsDraw(chart) {
-                const { ctx, chartArea, scales } = chart;
-                const yScale = scales.y;
-                if (!yScale || !chartArea) return;
-                const drawLine = (value, color, dash) => {
-                    const y = yScale.getPixelForValue(value);
-                    if (y < chartArea.top || y > chartArea.bottom) return;
-                    ctx.save();
-                    ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.setLineDash(dash);
-                    ctx.beginPath(); ctx.moveTo(chartArea.left, y); ctx.lineTo(chartArea.right, y); ctx.stroke();
-                    ctx.restore();
-                };
-                drawLine(0, 'rgba(148,163,184,0.55)', [4, 3]);                // 0pp = trade entry
-                drawLine(BREAK_EVEN_RS_PP, 'rgba(45,212,191,0.55)', [2, 3]);  // +0.30pp = post-fee BE + margin
-            }
-        };
-        const heroSparkChart = new Chart(document.getElementById('heroSparkline').getContext('2d'), {
-            type: 'line',
-            data: { labels: [], datasets: [{ data: [], borderColor: 'rgba(167,139,250,0.7)', backgroundColor: 'rgba(167,139,250,0.08)', borderWidth: 1.5, pointRadius: 0, tension: 0.3, fill: true }] },
-            options: {
-                responsive: true, maintainAspectRatio: false, animation: false,
-                scales: { x: { display: false }, y: { display: false } },
-                plugins: { legend: { display: false }, tooltip: { enabled: false } }
-            },
-            plugins: [refLinesPlugin]
+            plugins: [tradeChartRefLines, lineGradientPlugin]
         });
 
         // --- DATA FETCH ---
@@ -466,22 +359,13 @@
             const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`);
             return r.json();
         }
-        async function fetch24h(symbol) {
-            const r = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`);
-            return r.json();
-        }
-
         // --- MAIN UPDATE ---
         async function updateAll() {
             try {
-                const [zecK, xtzK, btcK, zecT, xtzT, gbpT, btcT] = await Promise.all([
+                const [zecK, xtzK, btcK] = await Promise.all([
                     fetchKlines('ZECUSDT', TRADE_KLINE_INTERVAL, TRADE_KLINE_LIMIT),
                     fetchKlines('XTZUSDT', TRADE_KLINE_INTERVAL, TRADE_KLINE_LIMIT),
-                    fetchKlines('BTCUSDT', TRADE_KLINE_INTERVAL, TRADE_KLINE_LIMIT),
-                    fetch24h('ZECUSDT'),
-                    fetch24h('XTZUSDT'),
-                    fetch24h('GBPUSDT'),
-                    fetch24h('BTCUSDT')
+                    fetchKlines('BTCUSDT', TRADE_KLINE_INTERVAL, TRADE_KLINE_LIMIT)
                 ]);
 
                 const zecClose = zecK.map(c => parseFloat(c[4]));
@@ -552,53 +436,6 @@
 
                 // Update the live RS reference line on the main chart
                 liveRsLineValue = currentRsTrade;
-
-                // Hero sparkline (RS series since trade)
-                heroSparkChart.data.labels = rs.map((_, i) => i);
-                heroSparkChart.data.datasets[0].data = rs;
-                heroSparkChart.update();
-
-                // Prices, holdings, FX, ratio
-                const xtzPrice = parseFloat(xtzT.lastPrice);
-                const zecPrice = parseFloat(zecT.lastPrice);
-                const usdToGbp = 1 / parseFloat(gbpT.lastPrice);
-                const usdToCad = gbpToCad !== null ? usdToGbp * gbpToCad : null;
-                const holdingsUsd = XTZ_HELD * xtzPrice;
-                const holdingsCad = usdToCad !== null ? holdingsUsd * usdToCad : null;
-                const holdingsGbp = holdingsUsd * usdToGbp;
-                document.getElementById('holdingsUsd').textContent = '$' + fmtInt(holdingsUsd);
-                document.getElementById('holdingsCad').textContent = holdingsCad !== null ? 'CA$' + fmtInt(holdingsCad) : '-';
-                document.getElementById('holdingsGbp').textContent = '£' + fmtInt(holdingsGbp);
-                document.getElementById('fxGbpUsd').textContent = fmt(parseFloat(gbpT.lastPrice), 4);
-
-                // Trade ledger - static USD values + live CAD/GBP equivalents
-                const costBasisCad  = usdToCad !== null ? COST_BASIS_USDT  * usdToCad : null;
-                const feesPaidCad   = usdToCad !== null ? FEES_PAID_USDT   * usdToCad : null;
-                const slippageCad   = usdToCad !== null ? INTERLEG_USDT_GAP * usdToCad : null;
-                const costBasisGbp  = COST_BASIS_USDT  * usdToGbp;
-                const feesPaidGbp   = FEES_PAID_USDT   * usdToGbp;
-                const slippageGbp   = INTERLEG_USDT_GAP * usdToGbp;
-                const cadOrDash = (v, dp) => v !== null ? 'CA$' + fmt(v, dp) : '-';
-                document.getElementById('costBasis').textContent = '$' + fmt(COST_BASIS_USDT, 2) + ' / ' + cadOrDash(costBasisCad, 2) + ' / £' + fmt(costBasisGbp, 2);
-                document.getElementById('feesPaid').textContent  = '$' + fmt(FEES_PAID_USDT, 2)  + ' / ' + cadOrDash(feesPaidCad, 2)  + ' / £' + fmt(feesPaidGbp, 2);
-                document.getElementById('slippage').textContent  = '$' + fmt(INTERLEG_USDT_GAP, 2) + ' / ' + cadOrDash(slippageCad, 2) + ' / £' + fmt(slippageGbp, 2);
-
-                // P&L vs Fiat: if I sold XTZ -> USDT right now (after one-leg taker fee),
-                // how many USDT vs the leg-1 net (i.e. would I be ahead of just keeping the
-                // USDT from the ZEC sell?). Leg-1 fee is sunk either way.
-                const usdtEquivAfterFee = XTZ_HELD * xtzPrice * (1 - TAKER_FEE);
-                const pnlVsUsd = usdtEquivAfterFee - LEG1_NET_USDT;
-                const pnlVsUsdCad = usdToCad !== null ? pnlVsUsd * usdToCad : null;
-                const pnlVsUsdGbp = pnlVsUsd * usdToGbp;
-                const pnlVsUsdEl = document.getElementById('pnlVsUsd');
-                const pnlSign = pnlVsUsd >= 0 ? '+' : '-';
-                const pnlAbsUsd = Math.abs(pnlVsUsd);
-                const pnlAbsCad = pnlVsUsdCad !== null ? Math.abs(pnlVsUsdCad) : null;
-                const pnlAbsGbp = Math.abs(pnlVsUsdGbp);
-                const cadPnlStr = pnlAbsCad !== null ? ' / ' + pnlSign + 'CA$' + fmt(pnlAbsCad, 2) : '';
-                pnlVsUsdEl.textContent = pnlSign + '$' + fmt(pnlAbsUsd, 2) + cadPnlStr + ' / ' + pnlSign + '£' + fmt(pnlAbsGbp, 2);
-                pnlVsUsdEl.classList.remove('text-teal-400', 'text-yellow-400', 'text-slate-300');
-                pnlVsUsdEl.classList.add(pnlVsUsd >= 0 ? 'text-teal-400' : 'text-yellow-400');
 
                 // Favicon + tab title
                 setFavicon(profitable);
