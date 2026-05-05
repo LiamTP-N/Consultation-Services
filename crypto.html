@@ -602,7 +602,7 @@
 
                 // Favicon + tab title
                 setFavicon(profitable);
-                document.title = `RS ${fmtRs(currentRsTrade)} | ꜩ${xtzPrice.toFixed(3)} | ZEC $${fmtInt(zecPrice)} | ₿$${fmtInt(parseFloat(btcT.lastPrice))}`;
+                document.title = fmtRs(currentRsTrade);
 
                 // Status
                 lastSuccessTs = Date.now();
