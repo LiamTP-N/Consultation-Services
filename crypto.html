@@ -18,9 +18,13 @@
         /* Mobile: keep everything in viewport, no scroll. Tighten gaps + padding,
            drop redundant labels, pin chart to remaining space. */
         @media (max-width: 767px) {
-            html, body { height: 100dvh; height: 100vh; overflow: hidden; max-width: 100%; }
+            /* Cap chart in a rectangular box rather than stretching it
+               to fill all remaining viewport height (which made the
+               chart look comically tall on phones). Body scrolls if needed. */
+            html, body { height: auto; min-height: 100%; overflow-y: auto; overflow-x: hidden; max-width: 100%; }
             body { width: 100%; padding: 4px; }
-            #chartCard { flex: 1 1 auto; min-height: 0; }
+            #chartCard { flex: 0 0 auto; min-height: 0; }
+            #chartCard > div.flex-1 { height: 45vh; max-height: 420px; min-height: 240px; flex: 0 0 auto; }
             #heroRateBlock { padding: 6px 8px; }
             #heroRateBlock > table { font-size: 11px; }
             #heroRateBlock > table th,
@@ -63,27 +67,31 @@
     <div class="max-w-screen-2xl mx-auto w-full flex-1 flex flex-col gap-1 md:gap-2 min-h-0">
 
         <!-- HEADER -->
-        <header class="relative flex items-center flex-none">
-            <h1 class="text-sm md:text-base font-semibold tracking-tight leading-tight flex flex-wrap items-baseline gap-x-2 gap-y-0.5 pr-16">
-                <span class="flex items-baseline gap-x-1.5">
+        <header class="relative flex-none pr-16">
+            <div class="text-sm md:text-base font-semibold tracking-tight leading-tight flex flex-col gap-y-0.5">
+                <div class="flex items-baseline gap-x-1.5">
                     <span class="text-lg md:text-2xl font-bold xtz-gradient">XTZ</span>
                     <span class="text-slate-400 text-sm md:text-base">vs</span>
                     <span class="text-lg md:text-2xl font-bold zec-gradient">ZEC</span>
-                </span>
-                <span class="text-slate-500 text-xs font-normal">since trade:</span>
-                <span class="flex items-baseline gap-x-1">
-                    <span class="xtz-gradient font-bold">XTZ</span>
-                    <span id="xtzPct_trade" class="font-bold">-</span>
-                </span>
-                <span class="text-slate-600">·</span>
-                <span class="flex items-baseline gap-x-1">
-                    <span class="zec-gradient font-bold">ZEC</span>
-                    <span id="zecPct_trade" class="font-bold">-</span>
-                </span>
-                <span class="text-slate-600">·</span>
-                <span class="font-bold" style="color:#a78bfa;">RS</span>
-                <span id="rsHeadline" class="font-bold" style="color:#a78bfa;">-</span>
-            </h1>
+                </div>
+                <div class="text-slate-500 text-xs font-normal">since trade:</div>
+                <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                    <span class="flex items-baseline gap-x-1">
+                        <span class="xtz-gradient font-bold">XTZ:</span>
+                        <span id="xtzPct_trade" class="font-bold">-</span>
+                    </span>
+                    <span class="text-slate-600">·</span>
+                    <span class="flex items-baseline gap-x-1">
+                        <span class="zec-gradient font-bold">ZEC:</span>
+                        <span id="zecPct_trade" class="font-bold">-</span>
+                    </span>
+                    <span class="text-slate-600">·</span>
+                    <span class="flex items-baseline gap-x-1">
+                        <span class="font-bold" style="color:#a78bfa;">RS:</span>
+                        <span id="rsHeadline" class="font-bold" style="color:#a78bfa;">-</span>
+                    </span>
+                </div>
+            </div>
             <div class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 md:gap-3 text-xs">
                 <div class="flex items-center gap-1.5">
                     <span id="liveDot" class="live-dot"></span>
