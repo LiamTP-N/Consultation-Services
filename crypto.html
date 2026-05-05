@@ -146,15 +146,21 @@
         const fmtPct = (n) => (n >= 0 ? '+' : '') + fmt(n, 1) + '%';
         const fmtRs  = (n) => (n >= 0 ? '+' : '') + fmt(n, 1) + 'pp';
 
-        function setChangeColour(el, val) {
-            el.classList.remove('text-emerald-400', 'text-rose-400', 'text-yellow-300', 'text-teal-300');
-            el.classList.add(val >= 0 ? 'text-emerald-400' : 'text-rose-400');
+        // Colour scale: orange at zero, green for positive, red for negative.
+        // scale = the value at which the colour reaches full saturation.
+        function valueColour(val, scale) {
+            const t = Math.min(Math.abs(val) / scale, 1);
+            const o = [251, 146,  60];  // orange (zero)
+            const g = [ 52, 211, 153];  // emerald (positive)
+            const r = [248, 113, 113];  // red (negative)
+            const to = val >= 0 ? g : r;
+            return `rgb(${Math.round(o[0]+(to[0]-o[0])*t)},${Math.round(o[1]+(to[1]-o[1])*t)},${Math.round(o[2]+(to[2]-o[2])*t)})`;
         }
-        function writePct(elId, pct) {
+        function writePct(elId, pct, scale = 3) {
             const el = document.getElementById(elId);
             if (!el) return;
             el.textContent = fmtPct(pct);
-            setChangeColour(el, pct);
+            el.style.color = valueColour(pct, scale);
         }
         // Find index of candle whose open-time is closest to targetMs
         function findBaselineIdx(klines, targetMs) {
@@ -388,7 +394,9 @@
 
                 // Headline RS in header
                 const profitable = currentRsTrade >= BREAK_EVEN_RS_PP;
-                document.getElementById('rsHeadline').textContent = fmtRs(currentRsTrade);
+                const rsEl = document.getElementById('rsHeadline');
+                rsEl.textContent = fmtRs(currentRsTrade);
+                rsEl.style.color = valueColour(currentRsTrade, 1);
 
                 // Update the live RS reference line on the main chart
                 liveRsLineValue = currentRsTrade;
