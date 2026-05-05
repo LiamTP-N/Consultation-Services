@@ -23,14 +23,14 @@
                chart look comically tall on phones). Body scrolls if needed. */
             html, body { height: auto; min-height: 100%; overflow-y: auto; overflow-x: hidden; max-width: 100%; }
             body { width: 100%; padding: 4px; }
-            #chartCard { flex: 0 0 auto; min-height: 0; }
-            #chartCard > div.flex-1 { height: 45vh; max-height: 420px; min-height: 240px; flex: 0 0 auto; }
+            #chartCard { flex: 0 0 auto; min-height: 0; padding: 4px 6px; }
+            #chartCard > div.flex-1 { height: 38vh; max-height: 360px; min-height: 220px; flex: 0 0 auto; }
             #heroRateBlock { padding: 6px 8px; }
             #heroRateBlock > table { font-size: 11px; }
             #heroRateBlock > table th,
             #heroRateBlock > table td { padding-top: 1px; padding-bottom: 1px; }
-            /* Compress chart legend to one row */
-            #chartLegendRow { font-size: 9px; gap: 4px; }
+            /* Compress chart legend to one row, tighter padding */
+            #chartLegendRow { font-size: 9px; gap: 4px; margin-bottom: 2px; }
             #chartLegendRow .legend-title { font-size: 9px; }
         }
         @media (min-width: 768px) { }
@@ -75,21 +75,26 @@
                     <span class="text-lg md:text-2xl font-bold zec-gradient">ZEC</span>
                 </div>
                 <div class="text-slate-500 text-xs font-normal">since trade:</div>
-                <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                    <span class="flex items-baseline gap-x-1">
-                        <span class="xtz-gradient font-bold">XTZ:</span>
-                        <span id="xtzPct_trade" class="font-bold">-</span>
-                    </span>
-                    <span class="text-slate-600">·</span>
-                    <span class="flex items-baseline gap-x-1">
-                        <span class="zec-gradient font-bold">ZEC:</span>
-                        <span id="zecPct_trade" class="font-bold">-</span>
-                    </span>
-                    <span class="text-slate-600">·</span>
-                    <span class="flex items-baseline gap-x-1">
-                        <span class="font-bold" style="color:#a78bfa;">RS:</span>
-                        <span id="rsHeadline" class="font-bold" style="color:#a78bfa;">-</span>
-                    </span>
+                <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0">
+                    <span class="xtz-gradient font-bold">XTZ:</span>
+                    <span id="xtzPct_trade" class="font-bold">-</span>
+                    <span class="text-slate-500 font-normal text-xs">/</span>
+                    <span id="xtzPrice" class="text-slate-300 font-normal text-xs">-</span>
+                </div>
+                <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0">
+                    <span class="zec-gradient font-bold">ZEC:</span>
+                    <span id="zecPct_trade" class="font-bold">-</span>
+                    <span class="text-slate-500 font-normal text-xs">/</span>
+                    <span id="zecPrice" class="text-slate-300 font-normal text-xs">-</span>
+                </div>
+                <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0">
+                    <span class="font-bold" style="color:#a78bfa;">RS:</span>
+                    <span id="rsHeadline" class="font-bold" style="color:#a78bfa;">-</span>
+                    <span class="text-slate-500 font-normal text-xs">/</span>
+                    <span class="font-bold text-xs" style="color:#fb923c;">BTC:</span>
+                    <span id="btcPct_trade" class="font-bold text-xs" style="color:#fb923c;">-</span>
+                    <span class="text-slate-500 font-normal text-xs">/</span>
+                    <span id="btcPrice" class="text-slate-300 font-normal text-xs">-</span>
                 </div>
             </div>
             <div class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 md:gap-3 text-xs">
@@ -102,8 +107,8 @@
         </header>
 
         <!-- MAIN TRADE CHART -->
-        <section id="chartCard" class="glass-card p-1 md:p-2 flex flex-col flex-1 min-h-0">
-            <div id="chartLegendRow" class="flex items-center mb-1 flex-none text-xs font-semibold gap-2 flex-nowrap">
+        <section id="chartCard" class="glass-card p-1 md:p-1.5 flex flex-col flex-1 min-h-0">
+            <div id="chartLegendRow" class="flex items-center mb-0.5 flex-none text-xs font-semibold gap-2 flex-nowrap">
                 <div class="flex items-center gap-2 md:gap-3 text-[10px] flex-nowrap whitespace-nowrap">
                     <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#2dd4bf;"></span><span class="xtz-gradient">XTZ</span></span>
                     <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#fde047;"></span><span class="zec-gradient">ZEC</span></span>
@@ -144,6 +149,14 @@
         const STALE_MS = 5000;
         let consecutiveErrors = 0;
 
+        // FX rates (USD -> GBP, USD -> CAD) - refreshed periodically from
+        // exchangerate.host (free, no key required). Cached so a transient
+        // failure doesn't blank out the price labels.
+        let usdToGbp = null;
+        let usdToCad = null;
+        const FX_REFRESH_MS = 10 * 60 * 1000; // 10 min
+        let lastFxFetchTs = 0;
+
         // --- NETWORK DETECTION (privacy overlay) ---
         const WORK_IPS = ['193.63.36.242'];
         let detectedIp = null;
@@ -153,6 +166,20 @@
         const fmt = (n, d = 2) => Number(n).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
         const fmtPct = (n) => (n >= 0 ? '+' : '') + fmt(n, 1) + '%';
         const fmtRs  = (n) => (n >= 0 ? '+' : '') + fmt(n, 1) + 'pp';
+
+        // Format a USD value into a compact "$X · £Y · C$Z" string.
+        // For sub-dollar prices (XTZ ~ $0.36) shows more precision.
+        function fmtMultiCcy(usd, gbpRate, cadRate) {
+            if (!isFinite(usd) || usd <= 0) return '-';
+            const sub1 = usd < 1;
+            const dollarsD = sub1 ? 4 : (usd >= 1000 ? 0 : 2);
+            const poundsD  = sub1 ? 4 : (usd >= 1000 ? 0 : 2);
+            const cadD     = sub1 ? 4 : (usd >= 1000 ? 0 : 2);
+            const usdStr = '$' + fmt(usd, dollarsD);
+            const gbp = (gbpRate && isFinite(gbpRate)) ? '£' + fmt(usd * gbpRate, poundsD) : null;
+            const cad = (cadRate && isFinite(cadRate)) ? 'C$' + fmt(usd * cadRate, cadD) : null;
+            return [usdStr, gbp, cad].filter(Boolean).join(' · ');
+        }
 
         // Colour scale: orange at zero, green for positive, red for negative.
         // scale = the value at which the colour reaches full saturation.
@@ -339,20 +366,38 @@
             const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`);
             return r.json();
         }
+        // FX: open.er-api.com is free, no key, USD-base, ~hourly granularity (plenty)
+        async function fetchFxIfStale() {
+            const now = Date.now();
+            if (usdToGbp !== null && (now - lastFxFetchTs) < FX_REFRESH_MS) return;
+            try {
+                const r = await fetch('https://open.er-api.com/v6/latest/USD');
+                const j = await r.json();
+                if (j && j.rates) {
+                    if (isFinite(j.rates.GBP)) usdToGbp = j.rates.GBP;
+                    if (isFinite(j.rates.CAD)) usdToCad = j.rates.CAD;
+                    lastFxFetchTs = now;
+                }
+            } catch (e) { console.warn('[FX] fetch failed', e); }
+        }
         // --- MAIN UPDATE ---
         async function updateAll() {
             try {
-                const [zecK, xtzK] = await Promise.all([
+                fetchFxIfStale(); // fire-and-forget; doesn't block crypto refresh
+                const [zecK, xtzK, btcK] = await Promise.all([
                     fetchKlines('ZECUSDT', TRADE_KLINE_INTERVAL, TRADE_KLINE_LIMIT),
-                    fetchKlines('XTZUSDT', TRADE_KLINE_INTERVAL, TRADE_KLINE_LIMIT)
+                    fetchKlines('XTZUSDT', TRADE_KLINE_INTERVAL, TRADE_KLINE_LIMIT),
+                    fetchKlines('BTCUSDT', TRADE_KLINE_INTERVAL, TRADE_KLINE_LIMIT)
                 ]);
 
                 const zecClose = zecK.map(c => parseFloat(c[4]));
                 const xtzClose = xtzK.map(c => parseFloat(c[4]));
+                const btcClose = btcK.map(c => parseFloat(c[4]));
 
                 const tradeIdx = findBaselineIdx(xtzK, TRADE_DATE_UTC_MS);
                 const xtzBase = xtzClose[tradeIdx];
                 const zecBase = zecClose[tradeIdx];
+                const btcBase = btcClose[Math.min(tradeIdx, btcClose.length - 1)];
 
                 // Build sliced series starting at trade entry
                 const xtzSlice = xtzClose.slice(tradeIdx);
@@ -396,6 +441,23 @@
                 const currentRsTrade = xtzPctTrade - zecPctTrade;
                 writePct('xtzPct_trade', xtzPctTrade);
                 writePct('zecPct_trade', zecPctTrade);
+
+                // BTC headline % (vs trade-entry candle close) - benchmark only
+                const xtzPriceNow = xtzSlice[xtzSlice.length - 1];
+                const zecPriceNow = zecSlice[zecSlice.length - 1];
+                const btcPriceNow = btcClose[btcClose.length - 1];
+                if (isFinite(btcBase) && btcBase > 0 && isFinite(btcPriceNow)) {
+                    const btcPctTrade = ((btcPriceNow / btcBase) - 1) * 100;
+                    writePct('btcPct_trade', btcPctTrade);
+                }
+
+                // Live multi-currency price labels
+                const xtzPriceEl = document.getElementById('xtzPrice');
+                const zecPriceEl = document.getElementById('zecPrice');
+                const btcPriceEl = document.getElementById('btcPrice');
+                if (xtzPriceEl) xtzPriceEl.textContent = fmtMultiCcy(xtzPriceNow, usdToGbp, usdToCad);
+                if (zecPriceEl) zecPriceEl.textContent = fmtMultiCcy(zecPriceNow, usdToGbp, usdToCad);
+                if (btcPriceEl) btcPriceEl.textContent = fmtMultiCcy(btcPriceNow, usdToGbp, usdToCad);
 
                 // Headline RS in header
                 const profitable = currentRsTrade >= BREAK_EVEN_RS_PP;
