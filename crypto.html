@@ -318,11 +318,11 @@
                 if (!chartArea) return;
                 const { left, right } = chartArea;
                 const xtzG = ctx.createLinearGradient(left, 0, right, 0);
-                xtzG.addColorStop(0, 'rgba(30,58,138,0.9)');
-                xtzG.addColorStop(1, 'rgba(45,212,191,0.9)');
+                xtzG.addColorStop(0, 'rgba(30,58,138,0.75)');
+                xtzG.addColorStop(1, 'rgba(45,212,191,0.75)');
                 const zecG = ctx.createLinearGradient(left, 0, right, 0);
-                zecG.addColorStop(0, 'rgba(253,224,71,0.9)');
-                zecG.addColorStop(1, 'rgba(202,138,4,0.9)');
+                zecG.addColorStop(0, 'rgba(253,224,71,0.75)');
+                zecG.addColorStop(1, 'rgba(202,138,4,0.75)');
                 chart.data.datasets[0].borderColor = xtzG;
                 chart.data.datasets[1].borderColor = zecG;
             }
@@ -333,8 +333,8 @@
             data: {
                 labels: [],
                 datasets: [
-                    { label: 'XTZ', data: [], borderColor: 'rgba(45,212,191,0.9)',  backgroundColor: 'rgba(45,212,191,0.07)', borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
-                    { label: 'ZEC', data: [], borderColor: 'rgba(253,224,71,0.9)',  backgroundColor: 'transparent',          borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
+                    { label: 'XTZ', data: [], borderColor: 'rgba(45,212,191,0.75)',  backgroundColor: 'rgba(45,212,191,0.07)', borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
+                    { label: 'ZEC', data: [], borderColor: 'rgba(253,224,71,0.75)',  backgroundColor: 'transparent',          borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
                     { label: 'RS',  data: [], borderColor: 'rgba(167,139,250,0.85)', backgroundColor: 'rgba(167,139,250,0.18)', borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: 'origin', yAxisID: 'yRs' }
                 ]
             },
