@@ -36,7 +36,7 @@
             /* Side card: tight horizontal rows, full width, left-aligned, with a thin top divider */
             #sideCard {
                 flex-direction: column; align-items: stretch;
-                gap: 2px; width: 100%; min-width: 0;
+                gap: 2px; width: 100%; min-width: 0; overflow-x: hidden;
                 border-left: none; padding-left: 0;
                 padding-top: 4px;
                 border-top: 1px solid rgba(148,163,184,0.12);
@@ -84,15 +84,6 @@
         .privacy-toggle:hover { background: rgba(148, 163, 184, 0.6); transform: scale(1.3); }
         body.revealed .privacy-toggle { background: rgba(34, 211, 238, 0.4); }
         @media (hover: none) and (pointer: coarse) { .privacy-overlay, .privacy-toggle { display: none; } }
-        #hoverCard {
-            display: none; background: rgba(0,0,0,0.95); border: 1px solid rgba(45,212,191,0.4);
-            border-radius: 8px; padding: 8px 12px; font-size: 11px; color: #e2e8f0;
-            min-width: 160px; pointer-events: none;
-        }
-        #hoverCard.visible { display: block; }
-        #hoverCard .hc-title { color: #94a3b8; font-size: 10px; font-weight: 600; margin-bottom: 4px; }
-        #hoverCard .hc-row { display: flex; justify-content: space-between; gap: 16px; line-height: 1.7; }
-        #hoverCard .hc-label { color: #64748b; }
     </style>
 </head>
 <body class="text-slate-100 p-1 md:p-3 flex flex-col">
@@ -128,29 +119,24 @@
                     <thead>
                         <tr class="text-[9px] md:text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
                             <th class="pr-2 md:pr-3 py-px text-left">&nbsp;</th>
-                            <th class="pr-2 md:pr-3 py-px text-right">Price</th>
                             <th class="pl-2 md:pl-3 py-px text-right text-purple-300">Since trade</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr id="rowRS">
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base" style="color:#a78bfa;">RS</td>
-                            <td class="pr-2 md:pr-3 py-px text-right text-slate-600">-</td>
                             <td class="pl-2 md:pl-3 py-px text-right" id="rsPct_trade">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="zec-gradient">ZEC</span></td>
-                            <td class="pr-2 md:pr-3 py-px text-right text-slate-100" id="zecPrice">-</td>
                             <td class="pl-2 md:pl-3 py-px text-right" id="zecPct_trade">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="xtz-gradient">XTZ</span></td>
-                            <td class="pr-2 md:pr-3 py-px text-right text-slate-100" id="xtzPrice">-</td>
                             <td class="pl-2 md:pl-3 py-px text-right" id="xtzPct_trade">-</td>
                         </tr>
                         <tr>
                             <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="btc-gradient">BTC</span></td>
-                            <td class="pr-2 md:pr-3 py-px text-right text-slate-100" id="btcPrice">-</td>
                             <td class="pl-2 md:pl-3 py-px text-right" id="btcPct_trade">-</td>
                         </tr>
                     </tbody>
@@ -159,19 +145,16 @@
                 <div id="sideCard" class="flex flex-col items-end gap-1.5 flex-none md:border-l md:border-slate-700/40 md:pl-5">
                     <div class="side-label text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">XTZ Holdings</div>
                     <div class="side-row holdings-row text-sm md:text-base font-semibold text-slate-100">
-                        <span class="text-slate-500 text-xs">USD</span> <span id="holdingsUsd">-</span>
+                        <span class="text-slate-500 text-xs">🇺🇸</span> <span id="holdingsUsd">-</span>
+                        <span class="text-slate-600">&middot;</span>
+                        <span class="text-slate-500 text-xs">🇨🇦</span> <span id="holdingsCad">-</span>
                         <span class="text-slate-600">&middot;</span>
                         <span class="text-slate-500 text-xs">GBP</span> <span id="holdingsGbp">-</span>
                     </div>
                     <div class="side-row text-[11px] text-slate-400">
-                        <span>GBP/USD</span> <span id="fxGbpUsd" class="font-semibold text-slate-300">-</span>
+                        <span>GBP/🇺🇸</span> <span id="fxGbpUsd" class="font-semibold text-slate-300">-</span>
                         <span class="text-slate-600">&middot;</span>
                         <span>GBP/&#127464;&#127462;</span> <span id="fxGbpCad" class="font-semibold text-slate-300">-</span>
-                    </div>
-                    <div class="side-row text-[11px] text-slate-400">
-                        <span>XTZ/ZEC</span> <span id="currentRatio" class="font-semibold text-slate-300">-</span>
-                        <span class="text-slate-600">&middot;</span>
-                        <span>BE</span> <span id="breakEvenRatio" class="font-semibold text-slate-500">-</span>
                     </div>
 
                     <!-- Trade ledger -->
@@ -184,10 +167,7 @@
                         <span title="USDT gap between leg-1 ZEC sell net and leg-2 XTZ buy cost (12s price tick)">Slip</span> <span id="slippage" class="font-semibold text-slate-300">-</span>
                     </div>
                     <div class="side-row text-[11px] text-slate-400">
-                        <span title="Current ZEC-equivalent of XTZ holdings (after round-trip swap-back fees) minus the original 16.256 ZEC">P&amp;L<span class="hidden md:inline"> vs ZEC</span></span>
-                        <span id="pnlVsZec" class="font-semibold text-slate-300">-</span>
-                        <span class="text-slate-600">&middot;</span>
-                        <span title="Current USD value of XTZ holdings (after one-leg sell fee) minus the leg-1 USDT received"><span class="hidden md:inline">P&amp;L </span>vs USD</span>
+                        <span title="Current fiat value of XTZ holdings (after one-leg sell fee) minus the leg-1 USDT received">P&amp;L vs Fiat</span>
                         <span id="pnlVsUsd" class="font-semibold text-slate-300">-</span>
                     </div>
                 </div>
@@ -207,7 +187,6 @@
             <div class="flex-1 min-h-0 relative"><canvas id="chartTrade"></canvas></div>
         </section>
 
-        <div id="hoverCard" class="flex-none"></div>
     </div>
 
     <!-- Privacy overlay -->
@@ -384,26 +363,6 @@
             faviconEl.href = favCanvas.toDataURL('image/png');
         }
 
-        // --- HOVER TOOLTIP (shared by both charts) ---
-        const hoverCard = document.getElementById('hoverCard');
-        function externalTooltipHandler(context) {
-            const { tooltip } = context;
-            if (tooltip.opacity === 0) { hoverCard.classList.remove('visible'); return; }
-            if (!tooltip.dataPoints || tooltip.dataPoints.length === 0) return;
-            const dp = tooltip.dataPoints;
-            const title = tooltip.title && tooltip.title[0] ? tooltip.title[0] : '';
-            const xtzPt = dp.find(p => p.dataset.label === 'XTZ');
-            const zecPt = dp.find(p => p.dataset.label === 'ZEC');
-            const rsPt  = dp.find(p => p.dataset.label === 'RS');
-            let html = `<div class="hc-title">${title}</div>`;
-            if (rsPt)  html += `<div class="hc-row"><span class="hc-label" style="color:#a78bfa;">RS</span><span style="color:#a78bfa;font-weight:700;">${fmtRs(rsPt.parsed.y)}</span></div>`;
-            if (xtzPt) html += `<div class="hc-row"><span class="hc-label" style="color:#2dd4bf;">XTZ idx</span><span>${fmtPct(xtzPt.parsed.y)}</span></div>`;
-            if (zecPt) html += `<div class="hc-row"><span class="hc-label" style="color:#fde047;">ZEC idx</span><span>${fmtPct(zecPt.parsed.y)}</span></div>`;
-            hoverCard.innerHTML = html;
-            hoverCard.classList.add('visible');
-        }
-        document.getElementById('chartCard').addEventListener('mouseleave', () => { hoverCard.classList.remove('visible'); });
-
         // --- MAIN TRADE CHART ---
         // Datasets:
         //   [0] XTZ indexed % (teal, left axis y)
@@ -466,7 +425,7 @@
                 },
                 plugins: {
                     legend: { display: false },
-                    tooltip: { enabled: false, external: externalTooltipHandler }
+                    tooltip: { enabled: false }
                 }
             },
             plugins: [tradeChartRefLines]
@@ -602,51 +561,42 @@
                 // Prices, holdings, FX, ratio
                 const xtzPrice = parseFloat(xtzT.lastPrice);
                 const zecPrice = parseFloat(zecT.lastPrice);
-                const ratio = xtzPrice / zecPrice;
-                const ratioEl = document.getElementById('currentRatio');
-                ratioEl.textContent = fmt(ratio, 6);
-                ratioEl.classList.remove('text-slate-300', 'text-teal-400', 'text-yellow-400');
-                ratioEl.classList.add(ratio >= BREAK_EVEN_RATIO ? 'text-teal-400' : 'text-yellow-400');
-                document.getElementById('breakEvenRatio').textContent = fmt(BREAK_EVEN_RATIO, 6);
-                document.getElementById('xtzPrice').textContent = fmtUsd(xtzPrice);
-                document.getElementById('zecPrice').textContent = fmtUsd(zecPrice);
-                document.getElementById('btcPrice').textContent = '$' + fmtInt(parseFloat(btcT.lastPrice));
-
                 const usdToGbp = 1 / parseFloat(gbpT.lastPrice);
+                const usdToCad = gbpToCad !== null ? usdToGbp * gbpToCad : null;
                 const holdingsUsd = XTZ_HELD * xtzPrice;
+                const holdingsCad = usdToCad !== null ? holdingsUsd * usdToCad : null;
                 const holdingsGbp = holdingsUsd * usdToGbp;
                 document.getElementById('holdingsUsd').textContent = '$' + fmtInt(holdingsUsd);
+                document.getElementById('holdingsCad').textContent = holdingsCad !== null ? 'CA$' + fmtInt(holdingsCad) : '-';
                 document.getElementById('holdingsGbp').textContent = '£' + fmtInt(holdingsGbp);
                 document.getElementById('fxGbpUsd').textContent = fmt(parseFloat(gbpT.lastPrice), 4);
 
-                // Trade ledger - static USD values + live GBP equivalents
+                // Trade ledger - static USD values + live CAD/GBP equivalents
+                const costBasisCad  = usdToCad !== null ? COST_BASIS_USDT  * usdToCad : null;
+                const feesPaidCad   = usdToCad !== null ? FEES_PAID_USDT   * usdToCad : null;
+                const slippageCad   = usdToCad !== null ? INTERLEG_USDT_GAP * usdToCad : null;
                 const costBasisGbp  = COST_BASIS_USDT  * usdToGbp;
                 const feesPaidGbp   = FEES_PAID_USDT   * usdToGbp;
                 const slippageGbp   = INTERLEG_USDT_GAP * usdToGbp;
-                document.getElementById('costBasis').textContent = '$' + fmt(COST_BASIS_USDT, 2)  + ' / £' + fmt(costBasisGbp, 2);
-                document.getElementById('feesPaid').textContent  = '$' + fmt(FEES_PAID_USDT, 2)   + ' / £' + fmt(feesPaidGbp, 2);
-                document.getElementById('slippage').textContent  = '$' + fmt(INTERLEG_USDT_GAP, 2) + ' / £' + fmt(slippageGbp, 2);
+                const cadOrDash = (v, dp) => v !== null ? 'CA$' + fmt(v, dp) : '-';
+                document.getElementById('costBasis').textContent = '$' + fmt(COST_BASIS_USDT, 2) + ' / ' + cadOrDash(costBasisCad, 2) + ' / £' + fmt(costBasisGbp, 2);
+                document.getElementById('feesPaid').textContent  = '$' + fmt(FEES_PAID_USDT, 2)  + ' / ' + cadOrDash(feesPaidCad, 2)  + ' / £' + fmt(feesPaidGbp, 2);
+                document.getElementById('slippage').textContent  = '$' + fmt(INTERLEG_USDT_GAP, 2) + ' / ' + cadOrDash(slippageCad, 2) + ' / £' + fmt(slippageGbp, 2);
 
-                // P&L vs ZEC: if I swapped XTZ -> USDT -> ZEC right now (after round-trip taker
-                // fees), how many ZEC would I end up with vs the original 16.256?
-                const zecEquivAfterFees = (XTZ_HELD * xtzPrice * ROUND_TRIP_RETENTION) / zecPrice;
-                const pnlVsZec = zecEquivAfterFees - ZEC_HELD_PRE_TRADE;
-                const pnlVsZecEl = document.getElementById('pnlVsZec');
-                pnlVsZecEl.textContent = (pnlVsZec >= 0 ? '+' : '') + fmt(pnlVsZec, 3) + ' ZEC';
-                pnlVsZecEl.classList.remove('text-teal-400', 'text-yellow-400', 'text-slate-300');
-                pnlVsZecEl.classList.add(pnlVsZec >= 0 ? 'text-teal-400' : 'text-yellow-400');
-
-                // P&L vs USD: if I sold XTZ -> USDT right now (after one-leg taker fee),
+                // P&L vs Fiat: if I sold XTZ -> USDT right now (after one-leg taker fee),
                 // how many USDT vs the leg-1 net (i.e. would I be ahead of just keeping the
                 // USDT from the ZEC sell?). Leg-1 fee is sunk either way.
                 const usdtEquivAfterFee = XTZ_HELD * xtzPrice * (1 - TAKER_FEE);
                 const pnlVsUsd = usdtEquivAfterFee - LEG1_NET_USDT;
+                const pnlVsUsdCad = usdToCad !== null ? pnlVsUsd * usdToCad : null;
                 const pnlVsUsdGbp = pnlVsUsd * usdToGbp;
                 const pnlVsUsdEl = document.getElementById('pnlVsUsd');
                 const pnlSign = pnlVsUsd >= 0 ? '+' : '-';
                 const pnlAbsUsd = Math.abs(pnlVsUsd);
+                const pnlAbsCad = pnlVsUsdCad !== null ? Math.abs(pnlVsUsdCad) : null;
                 const pnlAbsGbp = Math.abs(pnlVsUsdGbp);
-                pnlVsUsdEl.textContent = pnlSign + '$' + fmt(pnlAbsUsd, 2) + ' / ' + pnlSign + '£' + fmt(pnlAbsGbp, 2);
+                const cadPnlStr = pnlAbsCad !== null ? ' / ' + pnlSign + 'CA$' + fmt(pnlAbsCad, 2) : '';
+                pnlVsUsdEl.textContent = pnlSign + '$' + fmt(pnlAbsUsd, 2) + cadPnlStr + ' / ' + pnlSign + '£' + fmt(pnlAbsGbp, 2);
                 pnlVsUsdEl.classList.remove('text-teal-400', 'text-yellow-400', 'text-slate-300');
                 pnlVsUsdEl.classList.add(pnlVsUsd >= 0 ? 'text-teal-400' : 'text-yellow-400');
 
