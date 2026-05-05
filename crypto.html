@@ -120,6 +120,7 @@
                     <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#2dd4bf;"></span><span class="xtz-gradient">XTZ</span></span>
                     <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#fde047;"></span><span class="zec-gradient">ZEC</span></span>
                     <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#a78bfa;"></span><span style="color:#a78bfa;">RS</span></span>
+                    <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#fb923c;"></span><span style="color:#fb923c;">BTC</span></span>
                 </div>
             </div>
             <div class="flex-1 min-h-0 relative"><canvas id="chartTrade"></canvas></div>
@@ -317,10 +318,12 @@
             }
         };
 
-        // Gradient colours + opacity fade applied to XTZ and ZEC lines after layout.
-        // Both lines are nearly invisible at the left (oldest data) and ramp up to full
-        // opacity at the right (most recent data). Opacity build starts around 30% width.
-        // XTZ: navy (#1e3a8a) → teal (#2dd4bf) · ZEC: yellow (#fde047) → dark gold (#ca8a04)
+        // Gradient colours + opacity fade applied to XTZ, ZEC, and BTC lines after layout.
+        // All three lines are nearly invisible at the left (oldest data) and ramp up to
+        // full opacity at the right (most recent data). Opacity build starts around 30% width.
+        // XTZ: navy (#1e3a8a) -> teal (#2dd4bf)
+        // ZEC: yellow (#fde047) -> dark gold (#ca8a04)
+        // BTC: burnt umber (#7c2d12) -> orange (#fb923c) to match the BTC label colour
         const lineGradientPlugin = {
             id: 'lineGradients',
             afterLayout(chart) {
@@ -337,8 +340,14 @@
                 zecG.addColorStop(0.30, 'rgba(253,224, 71,0.06)');
                 zecG.addColorStop(0.60, 'rgba(222,172, 31,0.42)');
                 zecG.addColorStop(1.00, 'rgba(202,138,  4,0.90)');
+                const btcG = ctx.createLinearGradient(left, 0, right, 0);
+                btcG.addColorStop(0.00, 'rgba(124, 45, 18,0.00)');  // burnt umber, invisible
+                btcG.addColorStop(0.30, 'rgba(124, 45, 18,0.06)');
+                btcG.addColorStop(0.60, 'rgba(194, 95, 39,0.42)');
+                btcG.addColorStop(1.00, 'rgba(251,146, 60,0.90)');  // full orange at right
                 chart.data.datasets[0].borderColor = xtzG;
                 chart.data.datasets[1].borderColor = zecG;
+                if (chart.data.datasets[3]) chart.data.datasets[3].borderColor = btcG;
             }
         };
 
@@ -349,7 +358,8 @@
                 datasets: [
                     { label: 'XTZ', data: [], borderColor: 'rgba(45,212,191,0.90)',  backgroundColor: 'rgba(45,212,191,0.07)', borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
                     { label: 'ZEC', data: [], borderColor: 'rgba(202,138,4,0.90)',   backgroundColor: 'transparent',          borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
-                    { label: 'RS',  data: [], borderColor: 'rgba(167,139,250,0.85)', backgroundColor: 'rgba(167,139,250,0.18)', borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: 'origin', yAxisID: 'yRs' }
+                    { label: 'RS',  data: [], borderColor: 'rgba(167,139,250,0.85)', backgroundColor: 'rgba(167,139,250,0.18)', borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: 'origin', yAxisID: 'yRs' },
+                    { label: 'BTC', data: [], borderColor: 'rgba(251,146,60,0.90)',  backgroundColor: 'transparent',          borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' }
                 ]
             },
             options: {
@@ -415,8 +425,8 @@
                 const zecIdx = zecSlice.map(v => ((v / zecBase) - 1) * 100);
                 const rs     = xtzIdx.map((x, i) => x - zecIdx[i]);
 
-                // Update main chart (BTC is intentionally excluded from the chart - it's
-                // shown in the hero table but doesn't belong on the trade-baselined chart).
+                // Update main chart. BTC is now overlaid on the indexed-% axis as a
+                // benchmark line - same gradient/opacity treatment as XTZ and ZEC.
                 tradeChart.data.labels = kSlice.map(k => {
                     const dt = new Date(k[0]);
                     return dt.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
@@ -425,7 +435,17 @@
                 tradeChart.data.datasets[1].data = zecIdx;
                 tradeChart.data.datasets[2].data = rs;
 
-                const allIdx = [...xtzIdx, ...zecIdx];
+                // BTC indexed % aligned to the same time slice
+                const btcSlice = btcClose.slice(Math.min(tradeIdx, btcClose.length - 1));
+                const btcIdx = (isFinite(btcBase) && btcBase > 0)
+                    ? btcSlice.map(v => ((v / btcBase) - 1) * 100)
+                    : [];
+                // Pad/trim BTC series to match xtz length (kline timestamps line up
+                // by interval so this is a safety guard rather than a realignment)
+                const btcAligned = btcIdx.slice(0, xtzIdx.length);
+                tradeChart.data.datasets[3].data = btcAligned;
+
+                const allIdx = [...xtzIdx, ...zecIdx, ...btcAligned];
                 const idxMin = Math.min(...allIdx); const idxMax = Math.max(...allIdx);
                 const idxRange = (idxMax - idxMin) || 1; const idxPad = idxRange * 0.08;
                 tradeChart.options.scales.y.min = idxMin - idxPad;
