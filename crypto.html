@@ -246,13 +246,9 @@
         //   [0] XTZ indexed % (teal, left axis y)
         //   [1] ZEC indexed % (yellow, left axis y - shared scale with XTZ)
         //   [2] RS = xtz% - zec% (purple, right hidden axis yRs)
-        // BTC is fetched but not plotted - it appears only in the hero summary table.
-        // Reference lines for the main trade chart, drawn on the RS (yRs) axis:
-        //   0pp = price-only break-even (where the trade started)
+        // Reference lines on the RS axis:
+        //   0pp = trade entry
         //   +BREAK_EVEN_RS_PP (+0.30pp) = post-fee break-even with margin
-        //   currentRs = live RS value (updated each tick), so you can see at a glance
-        //   how far the live reading sits from the two static reference lines.
-        let liveRsLineValue = null;
         const tradeChartRefLines = {
             id: 'tradeChartRefLines',
             afterDatasetsDraw(chart) {
@@ -274,18 +270,15 @@
                     ctx.fillText(label, chartArea.right - 4, y - 7);
                     ctx.restore();
                 };
-                drawLine(0, 'rgba(148,163,184,0.45)', [4, 3], '+0.00pp');                              // 0pp = trade entry
-                drawLine(BREAK_EVEN_RS_PP, 'rgba(45,212,191,0.55)', [2, 3], '+' + BREAK_EVEN_RS_PP.toFixed(2) + 'pp'); // +0.30pp = post-fee BE + margin
-                if (liveRsLineValue !== null) {
-                    const sign = liveRsLineValue >= 0 ? '+' : '';
-                    drawLine(liveRsLineValue, 'rgba(167,139,250,0.85)', [1, 4], sign + liveRsLineValue.toFixed(2) + 'pp'); // current RS
-                }
+                drawLine(0, 'rgba(148,163,184,0.45)', [4, 3], '+0.00pp');
+                drawLine(BREAK_EVEN_RS_PP, 'rgba(45,212,191,0.55)', [2, 3], '+' + BREAK_EVEN_RS_PP.toFixed(2) + 'pp');
             }
         };
 
-        // Gradient colours applied to XTZ and ZEC lines after layout (needs chartArea).
-        // XTZ: navy (#1e3a8a) → teal (#2dd4bf), matching .xtz-gradient in CSS.
-        // ZEC: yellow (#fde047) → dark gold (#ca8a04), matching .zec-gradient in CSS.
+        // Gradient colours + opacity fade applied to XTZ and ZEC lines after layout.
+        // Both lines are nearly invisible at the left (oldest data) and ramp up to full
+        // opacity at the right (most recent data). Opacity build starts around 30% width.
+        // XTZ: navy (#1e3a8a) → teal (#2dd4bf) · ZEC: yellow (#fde047) → dark gold (#ca8a04)
         const lineGradientPlugin = {
             id: 'lineGradients',
             afterLayout(chart) {
@@ -293,11 +286,15 @@
                 if (!chartArea) return;
                 const { left, right } = chartArea;
                 const xtzG = ctx.createLinearGradient(left, 0, right, 0);
-                xtzG.addColorStop(0, 'rgba(30,58,138,0.75)');
-                xtzG.addColorStop(1, 'rgba(45,212,191,0.75)');
+                xtzG.addColorStop(0.00, 'rgba(30, 58,138,0.00)');   // invisible at far left
+                xtzG.addColorStop(0.30, 'rgba(30, 58,138,0.06)');   // barely visible at 30%
+                xtzG.addColorStop(0.60, 'rgba(39,150,170,0.42)');   // mid-opacity at 60%
+                xtzG.addColorStop(1.00, 'rgba(45,212,191,0.90)');   // full at right
                 const zecG = ctx.createLinearGradient(left, 0, right, 0);
-                zecG.addColorStop(0, 'rgba(253,224,71,0.75)');
-                zecG.addColorStop(1, 'rgba(202,138,4,0.75)');
+                zecG.addColorStop(0.00, 'rgba(253,224, 71,0.00)');
+                zecG.addColorStop(0.30, 'rgba(253,224, 71,0.06)');
+                zecG.addColorStop(0.60, 'rgba(222,172, 31,0.42)');
+                zecG.addColorStop(1.00, 'rgba(202,138,  4,0.90)');
                 chart.data.datasets[0].borderColor = xtzG;
                 chart.data.datasets[1].borderColor = zecG;
             }
@@ -308,8 +305,8 @@
             data: {
                 labels: [],
                 datasets: [
-                    { label: 'XTZ', data: [], borderColor: 'rgba(45,212,191,0.75)',  backgroundColor: 'rgba(45,212,191,0.07)', borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
-                    { label: 'ZEC', data: [], borderColor: 'rgba(253,224,71,0.75)',  backgroundColor: 'transparent',          borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
+                    { label: 'XTZ', data: [], borderColor: 'rgba(45,212,191,0.90)',  backgroundColor: 'rgba(45,212,191,0.07)', borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
+                    { label: 'ZEC', data: [], borderColor: 'rgba(202,138,4,0.90)',   backgroundColor: 'transparent',          borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: false, yAxisID: 'y' },
                     { label: 'RS',  data: [], borderColor: 'rgba(167,139,250,0.85)', backgroundColor: 'rgba(167,139,250,0.18)', borderWidth: 1.75, pointRadius: 0, tension: 0.2, fill: 'origin', yAxisID: 'yRs' }
                 ]
             },
@@ -397,9 +394,6 @@
                 const rsEl = document.getElementById('rsHeadline');
                 rsEl.textContent = fmtRs(currentRsTrade);
                 rsEl.style.color = valueColour(currentRsTrade, 1);
-
-                // Update the live RS reference line on the main chart
-                liveRsLineValue = currentRsTrade;
 
                 // Favicon + tab title
                 setFavicon(profitable);
