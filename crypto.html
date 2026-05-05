@@ -42,7 +42,6 @@
         }
         .zec-gradient { background: linear-gradient(to right, #fde047, #ca8a04); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .xtz-gradient { background: linear-gradient(to right, #1e3a8a, #2dd4bf); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .btc-gradient { background: linear-gradient(to right, #fb923c, #ea580c); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e; animation: pulse 2s infinite; }
         .live-dot.stale { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
         .live-dot.error { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
@@ -64,14 +63,26 @@
     <div class="max-w-screen-2xl mx-auto w-full flex-1 flex flex-col gap-1 md:gap-2 min-h-0">
 
         <!-- HEADER -->
-        <header class="relative flex items-center justify-start gap-3 flex-none">
-            <h1 class="text-xl md:text-2xl font-bold tracking-tight leading-tight flex items-baseline gap-x-2">
-                <span class="xtz-gradient">XTZ</span>
-                <span class="text-slate-400 mx-1">vs</span>
-                <span class="zec-gradient">ZEC</span>
-                <span class="text-slate-500 text-base md:text-lg ml-1">RS</span>
-                <span id="rsHeadline" class="text-base md:text-xl font-bold ml-1">-</span>
-                <span class="hidden md:inline text-slate-500 text-xs md:text-sm ml-1">since trade</span>
+        <header class="relative flex items-center flex-none">
+            <h1 class="text-sm md:text-base font-semibold tracking-tight leading-tight flex flex-wrap items-baseline gap-x-2 gap-y-0.5 pr-16">
+                <span class="flex items-baseline gap-x-1.5">
+                    <span class="text-lg md:text-2xl font-bold xtz-gradient">XTZ</span>
+                    <span class="text-slate-400 text-sm md:text-base">vs</span>
+                    <span class="text-lg md:text-2xl font-bold zec-gradient">ZEC</span>
+                </span>
+                <span class="text-slate-500 text-xs font-normal">since trade:</span>
+                <span class="flex items-baseline gap-x-1">
+                    <span class="xtz-gradient font-bold">XTZ</span>
+                    <span id="xtzPct_trade" class="font-bold">-</span>
+                </span>
+                <span class="text-slate-600">·</span>
+                <span class="flex items-baseline gap-x-1">
+                    <span class="zec-gradient font-bold">ZEC</span>
+                    <span id="zecPct_trade" class="font-bold">-</span>
+                </span>
+                <span class="text-slate-600">·</span>
+                <span class="font-bold" style="color:#a78bfa;">RS</span>
+                <span id="rsHeadline" class="font-bold" style="color:#a78bfa;">-</span>
             </h1>
             <div class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 md:gap-3 text-xs">
                 <div class="flex items-center gap-1.5">
@@ -82,47 +93,14 @@
             </div>
         </header>
 
-        <!-- HERO -->
-        <section class="flex-none">
-            <div id="heroRateBlock" class="glass-card-accent p-1.5 md:p-3 flex items-center gap-2 md:gap-5">
-                <table class="text-[11px] md:text-sm font-semibold flex-none">
-                    <thead>
-                        <tr class="text-[9px] md:text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
-                            <th class="pr-2 md:pr-3 py-px text-left">&nbsp;</th>
-                            <th class="pl-2 md:pl-3 py-px text-right text-purple-300">Since trade</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr id="rowRS">
-                            <td class="pr-2 md:pr-3 py-px text-sm md:text-base" style="color:#a78bfa;">RS</td>
-                            <td class="pl-2 md:pl-3 py-px text-right" id="rsPct_trade">-</td>
-                        </tr>
-                        <tr>
-                            <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="zec-gradient">ZEC</span></td>
-                            <td class="pl-2 md:pl-3 py-px text-right" id="zecPct_trade">-</td>
-                        </tr>
-                        <tr>
-                            <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="xtz-gradient">XTZ</span></td>
-                            <td class="pl-2 md:pl-3 py-px text-right" id="xtzPct_trade">-</td>
-                        </tr>
-                        <tr>
-                            <td class="pr-2 md:pr-3 py-px text-sm md:text-base"><span class="btc-gradient">BTC</span></td>
-                            <td class="pl-2 md:pl-3 py-px text-right" id="btcPct_trade">-</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
         <!-- MAIN TRADE CHART -->
         <section id="chartCard" class="glass-card p-1 md:p-2 flex flex-col flex-1 min-h-0">
-            <div id="chartLegendRow" class="flex items-center justify-between mb-1 flex-none text-xs font-semibold gap-2 flex-nowrap">
+            <div id="chartLegendRow" class="flex items-center mb-1 flex-none text-xs font-semibold gap-2 flex-nowrap">
                 <div class="flex items-center gap-2 md:gap-3 text-[10px] flex-nowrap whitespace-nowrap">
-                    <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#2dd4bf;"></span><span class="xtz-gradient">XTZ idx</span></span>
-                    <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#fde047;"></span><span class="zec-gradient">ZEC idx</span></span>
+                    <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#2dd4bf;"></span><span class="xtz-gradient">XTZ</span></span>
+                    <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#fde047;"></span><span class="zec-gradient">ZEC</span></span>
                     <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#a78bfa;"></span><span style="color:#a78bfa;">RS</span></span>
                 </div>
-                <span class="legend-title text-[10px] uppercase tracking-wider text-purple-300 whitespace-nowrap">Since trade<span class="hidden md:inline"> (3 May 2026 21:57 BST)</span></span>
             </div>
             <div class="flex-1 min-h-0 relative"><canvas id="chartTrade"></canvas></div>
         </section>
@@ -177,15 +155,6 @@
             if (!el) return;
             el.textContent = fmtPct(pct);
             setChangeColour(el, pct);
-        }
-        function writeRs(elId, rs) {
-            const el = document.getElementById(elId);
-            if (!el) return;
-            el.textContent = fmtRs(rs);
-            // RS uses the same purple as the chart's RS line - colour cohesion across the page.
-            // Profitability signal lives on the +0.30pp chart line and the headline colour.
-            el.classList.remove('text-emerald-400', 'text-rose-400', 'text-teal-400', 'text-yellow-400');
-            el.style.color = '#a78bfa';
         }
         // Find index of candle whose open-time is closest to targetMs
         function findBaselineIdx(klines, targetMs) {
@@ -362,30 +331,25 @@
         // --- MAIN UPDATE ---
         async function updateAll() {
             try {
-                const [zecK, xtzK, btcK] = await Promise.all([
+                const [zecK, xtzK] = await Promise.all([
                     fetchKlines('ZECUSDT', TRADE_KLINE_INTERVAL, TRADE_KLINE_LIMIT),
-                    fetchKlines('XTZUSDT', TRADE_KLINE_INTERVAL, TRADE_KLINE_LIMIT),
-                    fetchKlines('BTCUSDT', TRADE_KLINE_INTERVAL, TRADE_KLINE_LIMIT)
+                    fetchKlines('XTZUSDT', TRADE_KLINE_INTERVAL, TRADE_KLINE_LIMIT)
                 ]);
 
                 const zecClose = zecK.map(c => parseFloat(c[4]));
                 const xtzClose = xtzK.map(c => parseFloat(c[4]));
-                const btcClose = btcK.map(c => parseFloat(c[4]));
 
                 const tradeIdx = findBaselineIdx(xtzK, TRADE_DATE_UTC_MS);
                 const xtzBase = xtzClose[tradeIdx];
                 const zecBase = zecClose[tradeIdx];
-                const btcBase = btcClose[tradeIdx];
 
                 // Build sliced series starting at trade entry
                 const xtzSlice = xtzClose.slice(tradeIdx);
                 const zecSlice = zecClose.slice(tradeIdx);
-                const btcSlice = btcClose.slice(tradeIdx);
                 const kSlice   = xtzK.slice(tradeIdx);
 
                 const xtzIdx = xtzSlice.map(v => ((v / xtzBase) - 1) * 100);
                 const zecIdx = zecSlice.map(v => ((v / zecBase) - 1) * 100);
-                const btcIdx = btcSlice.map(v => ((v / btcBase) - 1) * 100);
                 const rs     = xtzIdx.map((x, i) => x - zecIdx[i]);
 
                 // Update main chart (BTC is intentionally excluded from the chart - it's
@@ -418,21 +382,13 @@
                 // Hero table cells
                 const xtzPctTrade = xtzIdx[xtzIdx.length - 1];
                 const zecPctTrade = zecIdx[zecIdx.length - 1];
-                const btcPctTrade = btcIdx[btcIdx.length - 1];
                 const currentRsTrade = xtzPctTrade - zecPctTrade;
                 writePct('xtzPct_trade', xtzPctTrade);
                 writePct('zecPct_trade', zecPctTrade);
-                writePct('btcPct_trade', btcPctTrade);
-                writeRs('rsPct_trade', currentRsTrade);
 
-                // Headline RS: purple (matches the chart RS line + table RS row).
-                // Profitability indication lives on the +0.30pp chart line, the BE ratio,
-                // the favicon colour, and the P&L readouts.
+                // Headline RS in header
                 const profitable = currentRsTrade >= BREAK_EVEN_RS_PP;
-                const rsEl = document.getElementById('rsHeadline');
-                rsEl.textContent = fmtRs(currentRsTrade);
-                rsEl.className = 'text-base md:text-xl font-bold ml-1';
-                rsEl.style.color = '#a78bfa';
+                document.getElementById('rsHeadline').textContent = fmtRs(currentRsTrade);
 
                 // Update the live RS reference line on the main chart
                 liveRsLineValue = currentRsTrade;
@@ -447,7 +403,6 @@
                 document.getElementById('liveDot').classList.remove('stale', 'error');
                 document.getElementById('liveStatus').textContent = 'Live';
                 document.getElementById('errCount').classList.add('hidden');
-                document.getElementById('heroRateBlock').classList.remove('stale-dim');
 
             } catch (err) {
                 consecutiveErrors++;
@@ -466,10 +421,8 @@
             const ageMs = Date.now() - lastSuccessTs;
             const liveDot = document.getElementById('liveDot');
             const liveStatus = document.getElementById('liveStatus');
-            const rateBlock = document.getElementById('heroRateBlock');
             if (ageMs > STALE_MS) {
                 if (!liveDot.classList.contains('error')) { liveDot.classList.add('stale'); liveStatus.textContent = 'Stale'; }
-                rateBlock.classList.add('stale-dim');
             }
         }, 1000);
 
