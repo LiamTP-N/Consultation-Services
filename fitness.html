@@ -340,6 +340,24 @@
                 </div>
                 <p id="hr-track-empty" class="text-center text-xs text-slate-500 mt-2">Connect a monitor above to begin.</p>
             </div>
+            <!-- Activity picker. Pills are mutually exclusive. Selection is required
+                 before Start. 'Other' opens a prompt() for a free-text label that
+                 still records as activityDetail='Other: <text>'. Disabled while a
+                 recording is in progress (locked in for the whole session). -->
+            <div class="glass-card p-3 rounded-2xl">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mb-2">What are you doing?</p>
+                <div id="hr-track-activity-pills" class="flex flex-wrap justify-center gap-1.5">
+                    <button class="hr-activity-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800/50 border border-slate-700/30 text-slate-300 hover:border-red-500/40 active:scale-[0.97] transition-all" data-activity="Walk">Walk</button>
+                    <button class="hr-activity-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800/50 border border-slate-700/30 text-slate-300 hover:border-red-500/40 active:scale-[0.97] transition-all" data-activity="Run">Run</button>
+                    <button class="hr-activity-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800/50 border border-slate-700/30 text-slate-300 hover:border-red-500/40 active:scale-[0.97] transition-all" data-activity="Cycle">Cycle</button>
+                    <button class="hr-activity-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800/50 border border-slate-700/30 text-slate-300 hover:border-red-500/40 active:scale-[0.97] transition-all" data-activity="Hike">Hike</button>
+                    <button class="hr-activity-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800/50 border border-slate-700/30 text-slate-300 hover:border-red-500/40 active:scale-[0.97] transition-all" data-activity="Mobility / stretch">Mobility / stretch</button>
+                    <button class="hr-activity-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800/50 border border-slate-700/30 text-slate-300 hover:border-red-500/40 active:scale-[0.97] transition-all" data-activity="Yoga">Yoga</button>
+                    <button class="hr-activity-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800/50 border border-slate-700/30 text-slate-300 hover:border-red-500/40 active:scale-[0.97] transition-all" data-activity="Manual labour">Manual labour</button>
+                    <button class="hr-activity-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800/50 border border-slate-700/30 text-slate-300 hover:border-red-500/40 active:scale-[0.97] transition-all" data-activity="__other__">Other...</button>
+                </div>
+                <p id="hr-track-activity-chosen" class="hidden text-[10px] text-center text-slate-400 mt-2"></p>
+            </div>
             <!-- Elapsed timer + recording state. -->
             <div class="glass-card p-4 rounded-2xl text-center">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Elapsed</p>
@@ -1592,7 +1610,8 @@
             timer:null,              // setInterval handle for elapsed clock
             sessionId:null,          // shared id for both people in this session
             lastSparkYou:0,
-            lastSparkWife:0
+            lastSparkWife:0,
+            activityDetail:''        // chosen activity label (e.g. 'Walk', 'Run', 'Other: gardening')
         };
         const btnHrYouTrack=document.getElementById('btn-hr-you-track');
         const btnHrWifeTrack=document.getElementById('btn-hr-wife-track');
@@ -1611,11 +1630,59 @@
         const btnHrTrackStart=document.getElementById('btn-hr-track-start');
         const btnHrTrackStop=document.getElementById('btn-hr-track-stop');
         const btnHrTrackBack=document.getElementById('btn-hr-track-back');
+        const hrTrackPills=document.querySelectorAll('#hr-track-activity-pills .hr-activity-pill');
+        const hrTrackChosenEl=document.getElementById('hr-track-activity-chosen');
+
+        // Reset the activity-pill UI to its empty default state.
+        function resetHrTrackActivity(){
+            hrTrack.activityDetail='';
+            hrTrackPills.forEach(p=>{
+                p.classList.remove('bg-red-600/30','border-red-500/60','text-white');
+                p.classList.add('bg-slate-800/50','border-slate-700/30','text-slate-300');
+                p.disabled=false;
+            });
+            hrTrackChosenEl.classList.add('hidden');
+            hrTrackChosenEl.innerText='';
+        }
+
+        // Apply selected styling to one pill and clear the rest. label is the
+        // human-readable string we'll send to Sheets (handles the 'Other...' case).
+        function selectHrTrackPill(targetBtn,label){
+            hrTrackPills.forEach(p=>{
+                if(p===targetBtn){
+                    p.classList.remove('bg-slate-800/50','border-slate-700/30','text-slate-300');
+                    p.classList.add('bg-red-600/30','border-red-500/60','text-white');
+                }else{
+                    p.classList.remove('bg-red-600/30','border-red-500/60','text-white');
+                    p.classList.add('bg-slate-800/50','border-slate-700/30','text-slate-300');
+                }
+            });
+            hrTrack.activityDetail=label;
+            hrTrackChosenEl.innerText='Tagged as: '+label;
+            hrTrackChosenEl.classList.remove('hidden');
+        }
+
+        // Pill click handler. 'Other...' opens a prompt for a free-text label.
+        hrTrackPills.forEach(p=>{
+            p.onclick=()=>{
+                if(hrTrack.active)return; // locked during a recording
+                const v=p.dataset.activity;
+                if(v==='__other__'){
+                    const txt=prompt('What are you doing?');
+                    if(!txt||!txt.trim())return;
+                    selectHrTrackPill(p,'Other: '+txt.trim());
+                }else{
+                    selectHrTrackPill(p,v);
+                }
+            };
+        });
 
         // Show the HR tracking screen and sync UI to current connection state.
+        // Activity selection resets each time the screen is entered fresh.
         function enterHrTrackScreen(){
             showScreen('hrTrack');
             if(!hasBLE){hrTrackBleWarn.classList.remove('hidden');btnHrTrackStart.disabled=true;btnHrTrackStart.classList.add('opacity-50','cursor-not-allowed');}
+            resetHrTrackActivity();
             updateHrTrackConnUI();
         }
 
@@ -1664,6 +1731,13 @@
                 setTimeout(()=>{hrTrackStatus.innerText=hrTrack.active?'Recording':'Not recording';hrTrackStatus.classList.remove('text-amber-300');},1800);
                 return;
             }
+            // Activity selection is required before recording can begin.
+            if(!hrTrack.activityDetail){
+                hrTrackStatus.innerText='Pick an activity first';
+                hrTrackStatus.classList.add('text-amber-300');
+                setTimeout(()=>{hrTrackStatus.innerText=hrTrack.active?'Recording':'Not recording';hrTrackStatus.classList.remove('text-amber-300');},1800);
+                return;
+            }
             hrTrack.active=true;
             hrTrack.startTime=Date.now();
             hrTrack.historyYou=[];
@@ -1671,6 +1745,8 @@
             hrTrack.sessionId=mintSessionId();
             hrTrack.lastSparkYou=0;
             hrTrack.lastSparkWife=0;
+            // Lock the activity pills - selection is fixed for the duration of the recording.
+            hrTrackPills.forEach(p=>{p.disabled=true;p.classList.add('opacity-60');});
             btnHrTrackStart.classList.add('hidden');
             btnHrTrackStop.classList.remove('hidden');
             hrTrackStatus.innerText='Recording';
@@ -1703,6 +1779,8 @@
             }
             btnHrTrackStop.classList.add('hidden');
             btnHrTrackStart.classList.remove('hidden');
+            // Unlock pills and reset selection ready for next session.
+            hrTrackPills.forEach(p=>{p.disabled=false;p.classList.remove('opacity-60');});
             hrTrackStatus.innerText='Saved';
             hrTrackStatus.classList.remove('text-green-300');
             hrTrackStatus.classList.add('text-blue-300');
@@ -1710,6 +1788,7 @@
                 hrTrackElapsed.innerText='0:00';
                 hrTrackStatus.innerText='Not recording';
                 hrTrackStatus.classList.remove('text-blue-300');
+                resetHrTrackActivity();
             },2200);
         };
 
@@ -1722,6 +1801,7 @@
                 if(hrTrack.timer){clearInterval(hrTrack.timer);hrTrack.timer=null;}
                 btnHrTrackStop.classList.add('hidden');
                 btnHrTrackStart.classList.remove('hidden');
+                hrTrackPills.forEach(p=>{p.disabled=false;p.classList.remove('opacity-60');});
                 hrTrackElapsed.innerText='0:00';
                 hrTrackStatus.innerText='Not recording';
                 hrTrackStatus.classList.remove('text-green-300','text-blue-300');
@@ -1732,7 +1812,8 @@
         // Compute a stripped-down HR-only payload for the Sheets webhook. Reuses
         // the same metric helpers as boxing where they make sense (zones,
         // calories, mean/peak HR), but omits round/work/rest fields that have
-        // no meaning for free-form HR tracking.
+        // no meaning for free-form HR tracking. activityDetail tags what was
+        // actually being done (Walk/Run/Cycle/Other: <text> etc).
         function buildHrTrackDoc(personId,history,profile,sessionId,durationSec){
             if(!history||history.length<2)return null;
             // Re-shape into the same input format computePersonMetrics expects.
@@ -1744,6 +1825,7 @@
             return {
                 sessionId,
                 activity:'HR Tracking',
+                activityDetail:hrTrack.activityDetail||'',
                 person:personId,
                 date:new Date().toISOString(),
                 mode:'standalone',
@@ -2076,7 +2158,7 @@
                 const dur=Math.min(60,settings.restBase+(session.totalPlanRoundsCompleted*PROGRESSIVE_REST_INCREMENT_SECS));
                 session.time=dur;session.total=dur;
                 if(isW){ui.timerBg.className="bg-red-600 rest-pulse";}
-                else{ui.timerBg.className="bg-black rest-pulse";}
+                else{ui.timerBg.className="bg-orange-500";}
                 autoSizeFocus("Rest");ui.roundFocus.innerText="Rest";
                 if(session.round<maxRoundsInBlock){
                     const pi=session.round;setNextUp(plan[pi]?plan[pi].name:'');
