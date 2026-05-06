@@ -15,25 +15,21 @@
             align-items: center; justify-content: center;
             text-align: center; text-shadow: 0 2px 8px rgba(0,0,0,0.7);
         }
-        #widgetLabel {
-            font-size: 4vmin; font-weight: 600; letter-spacing: 0.08em;
-            text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 0.3em;
-        }
         #widgetNumber {
-            font-size: 18vmin; font-weight: bold; line-height: 1; white-space: nowrap;
+            font-size: 13vmin; font-weight: bold; line-height: 1; white-space: nowrap;
+            background: linear-gradient(to right, #1e3a8a, #2dd4bf);
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; color: transparent;
+            text-shadow: none;
         }
-        /* XTZ up since trade = teal; down since trade = red */
-        .up #widgetNumber { color: #2dd4bf; }
-        .down #widgetNumber { color: #f87171; }
         #widgetSub {
-            font-size: 3.5vmin; font-weight: 500; color: rgba(255,255,255,0.40);
-            margin-top: 0.4em; letter-spacing: 0.04em;
+            font-size: 13vmin; font-weight: bold; line-height: 1; white-space: nowrap;
+            margin-top: 0.25em; letter-spacing: 0.01em;
         }
     </style>
 </head>
 <body>
     <div id="widgetContainer">
-        <div id="widgetLabel">XTZ since trade</div>
         <div id="widgetNumber">-</div>
         <div id="widgetSub">-</div>
     </div>
@@ -72,6 +68,24 @@
             return '$' + n.toFixed(4);
         }
 
+        // Map % change to colour. Saturates at +/- 10%.
+        // Negative -> red (#f87171), 0 -> neutral grey-white, Positive -> green (#22c55e).
+        function pctColour(pct) {
+            const cap = 10;
+            const t = Math.max(-1, Math.min(1, pct / cap));
+            // anchor colours
+            const neutral = [220, 220, 220];
+            const green   = [34, 197, 94];
+            const red     = [248, 113, 113];
+            let rgb;
+            if (t >= 0) {
+                rgb = neutral.map((c, i) => Math.round(c + (green[i] - c) * t));
+            } else {
+                rgb = neutral.map((c, i) => Math.round(c + (red[i]   - c) * (-t)));
+            }
+            return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+        }
+
         async function updateWidget() {
             try {
                 const [xtzK, xtzLast] = await Promise.all([
@@ -85,15 +99,13 @@
                 if (!xtzBase) return;
 
                 const xtzPct = ((xtzLast / xtzBase) - 1) * 100;
-                const up = xtzPct >= 0;
 
                 const numEl = document.getElementById('widgetNumber');
                 const subEl = document.getElementById('widgetSub');
-                const containerEl = document.getElementById('widgetContainer');
 
                 numEl.textContent = fmtPrice(xtzLast);
-                containerEl.className = up ? 'up' : 'down';
                 subEl.textContent = fmtPct(xtzPct);
+                subEl.style.color = pctColour(xtzPct);
 
                 document.title = "XTZ " + fmtPrice(xtzLast) + " " + fmtPct(xtzPct);
             } catch (e) {
