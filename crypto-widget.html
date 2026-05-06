@@ -15,6 +15,11 @@
             align-items: center; justify-content: center;
             text-align: center; text-shadow: 0 2px 8px rgba(0,0,0,0.7);
         }
+        #widgetBtc {
+            font-size: 9vmin; font-weight: bold; line-height: 1; white-space: nowrap;
+            color: #fb923c;
+            margin-bottom: 0.35em;
+        }
         #widgetNumber {
             font-size: 13vmin; font-weight: bold; line-height: 1; white-space: nowrap;
             background: linear-gradient(to right, #1e3a8a, #2dd4bf);
@@ -30,12 +35,14 @@
 </head>
 <body>
     <div id="widgetContainer">
+        <div id="widgetBtc">-</div>
         <div id="widgetNumber">-</div>
         <div id="widgetSub">-</div>
     </div>
 
     <script>
         // XTZ price + % change since trade entry (3 May 2026 21:57 BST = 20:57 UTC).
+        // BTC current spot price shown above for benchmark context.
 
         const TRADE_DATE_UTC_MS = Date.UTC(2026, 4, 3, 20, 57, 57);
 
@@ -67,13 +74,15 @@
         function fmtPrice(n) {
             return '$' + n.toFixed(4);
         }
+        function fmtBtc(n) {
+            return '$' + Math.round(n).toLocaleString('en-US');
+        }
 
         // Map % change to colour. Saturates at +/- 10%.
         // Negative -> red (#f87171), 0 -> neutral grey-white, Positive -> green (#22c55e).
         function pctColour(pct) {
             const cap = 10;
             const t = Math.max(-1, Math.min(1, pct / cap));
-            // anchor colours
             const neutral = [220, 220, 220];
             const green   = [34, 197, 94];
             const red     = [248, 113, 113];
@@ -88,9 +97,10 @@
 
         async function updateWidget() {
             try {
-                const [xtzK, xtzLast] = await Promise.all([
+                const [xtzK, xtzLast, btcLast] = await Promise.all([
                     fetchKlines('XTZUSDT', '15m', 1000),
-                    fetchLastPrice('XTZUSDT')
+                    fetchLastPrice('XTZUSDT'),
+                    fetchLastPrice('BTCUSDT')
                 ]);
                 if (!xtzK.length || !xtzLast) return;
 
@@ -100,9 +110,11 @@
 
                 const xtzPct = ((xtzLast / xtzBase) - 1) * 100;
 
+                const btcEl = document.getElementById('widgetBtc');
                 const numEl = document.getElementById('widgetNumber');
                 const subEl = document.getElementById('widgetSub');
 
+                if (btcLast) btcEl.textContent = fmtBtc(btcLast);
                 numEl.textContent = fmtPrice(xtzLast);
                 subEl.textContent = fmtPct(xtzPct);
                 subEl.style.color = pctColour(xtzPct);
