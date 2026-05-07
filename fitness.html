@@ -1961,21 +1961,26 @@
         // Returns HTML for direct innerHTML assignment.
         function applyEmphasisColour(html,pattern){
             if(!pattern)return html;
-            // Wrap the result in a span. For solid colours we just set color. For
-            // gradients we use background-clip:text and let the parent's
-            // -webkit-text-stroke (set via t-stroke-heavy on #round-focus, paint-order
-            // stroke fill) draw the black outline BEHIND the gradient fill so the
-            // letters still have the chunky black halo even when colour-shifting.
-            // The trick: set color:transparent so the fill paints transparent (gradient
-            // shows through via background-clip), but DON'T zero out the text-stroke
-            // - that way paint-order:stroke fill still draws the stroke first.
+            // For solid colours, the parent #round-focus's t-stroke-heavy (-webkit-text-stroke 6px
+            // black, paint-order stroke fill) automatically gives the chunky black halo.
+            // No special handling needed - we just set color and the stroke comes through.
             if(pattern==='speed')return '<span style="color:#4ade80">'+html+'</span>';
             if(pattern==='power')return '<span style="color:#dc2626">'+html+'</span>';
+            // For gradients, background-clip:text + transparent fill normally CLIPS the
+            // -webkit-text-stroke as well (the stroke gets cut to the gradient shape, which
+            // breaks the halo - stroke fragments visible only where gradient doesn't paint).
+            // Fix: explicitly zero -webkit-text-stroke on the gradient span and use filter
+            // drop-shadow for the halo instead. Drop-shadow is applied AFTER background-clip,
+            // so it traces the FINAL rendered text shape uniformly. Stacking 4 drop-shadows
+            // (one per cardinal direction) at ~3px each builds an even ~6px outline that
+            // visually matches the solid version's -webkit-text-stroke:6px halo.
+            const haloFilter='drop-shadow(0 0 0 #000) drop-shadow(3px 0 0 #000) drop-shadow(-3px 0 0 #000) drop-shadow(0 3px 0 #000) drop-shadow(0 -3px 0 #000)';
+            const baseStyle='-webkit-text-stroke:0;color:transparent;-webkit-text-fill-color:transparent;-webkit-background-clip:text;background-clip:text;filter:'+haloFilter+';';
             if(pattern==='speed-power'){
-                return '<span style="background:linear-gradient(90deg,#4ade80 0%,#dc2626 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;">'+html+'</span>';
+                return '<span style="background:linear-gradient(90deg,#4ade80 0%,#dc2626 100%);'+baseStyle+'">'+html+'</span>';
             }
             if(pattern==='power-speed'){
-                return '<span style="background:linear-gradient(90deg,#dc2626 0%,#4ade80 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;">'+html+'</span>';
+                return '<span style="background:linear-gradient(90deg,#dc2626 0%,#4ade80 100%);'+baseStyle+'">'+html+'</span>';
             }
             return html;
         }
