@@ -75,8 +75,6 @@
         #timer-bg{position:fixed;bottom:0;left:0;width:100%;z-index:0;transition:height 1s linear,background-color 0.3s ease;}
         @keyframes restPulse{0%,100%{opacity:1;}50%{opacity:0.8;}}
         .rest-pulse{animation:restPulse 4s ease-in-out infinite;}
-        @keyframes surpriseQueuedPulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
-        .surprise-queued-dot{animation:surpriseQueuedPulse 1.4s ease-in-out infinite;}
         .home-btn{transition:all 0.2s ease;position:relative;overflow:hidden;}
         .home-btn:active{transform:scale(0.97);}
         .exercise-card{animation:slideIn 0.3s ease forwards;opacity:0;}
@@ -546,7 +544,7 @@
             <div class="timer-top w-full flex justify-between items-start">
                 <div class="flex flex-col items-start" style="gap:0.5dvh;">
                     <div id="hr-live-you" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-green-600/20 border border-green-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-green-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-bpm" class="hr-bpm font-black font-mono-display text-green-300">--</span></div><canvas id="hr-spark-you" class="rounded" style="display:block;"></canvas></div>
-                    <div style="display:flex;flex-direction:column;gap:clamp(2px,0.4dvh,6px);"><p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p><div class="flex items-baseline" style="gap:0.3rem;"><span id="current-round" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span><span class="round-slash text-white/60 font-bold t-stroke">/</span><span id="total-rounds" class="round-slash text-white/60 font-bold t-stroke">12</span></div><div id="surprise-queued-badge" class="hidden mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-600/25 border border-red-500/50" style="width:fit-content;"><span class="w-1.5 h-1.5 rounded-full bg-red-400 surprise-queued-dot"></span><span class="text-[9px] sm:text-[10px] font-bold text-red-300 uppercase tracking-wider whitespace-nowrap">+ Surprise queued</span></div></div>
+                    <div style="display:flex;flex-direction:column;gap:clamp(2px,0.4dvh,6px);"><p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p><div class="flex items-baseline" style="gap:0.3rem;"><span id="current-round" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span><span class="round-slash text-white/60 font-bold t-stroke">/</span><span id="total-rounds" class="round-slash text-white/60 font-bold t-stroke">12</span></div></div>
                 </div>
                 <div class="flex flex-col items-end" style="gap:0.5dvh;">
                     <div id="hr-live-wife" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-purple-600/20 border border-purple-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-purple-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-bpm" class="hr-bpm font-black font-mono-display text-purple-300">--</span></div><canvas id="hr-spark-wife" class="rounded" style="display:block;"></canvas></div>
@@ -780,7 +778,12 @@
             surpriseTask:'',       // 'STRAIGHTS' or 'HOOKS' (randomised per surprise)
             currentBlock:1,        // 1 or 2 - which block we're currently in
             totalPlanRoundsCompleted:0,  // Drives progressive rest escalation in Solo mode
-            doubleSurprise:false   // Flag: current surprise is a chained second surprise. See DOUBLE_SURPRISE_CHANCE.
+            doubleSurprise:false,  // Flag: current surprise is a chained second surprise. See DOUBLE_SURPRISE_CHANCE.
+            // Emphasis pattern of the CURRENT work round, used to drive the timer
+            // colour transition during work. null when not in a work phase, or when
+            // the round has no emphasis (warm-up / burnout). One of 'speed', 'power',
+            // 'speed-power', 'power-speed'. Set in setPhase('work'), cleared elsewhere.
+            currentEmphasisPattern:null
         };
         let audioCtx=null,masterGain=null,wakeLock=null,currentGymDay=null,voiceMuted=true,soundMuted=true;
         let hrDeviceYou=null,hrDeviceWife=null,hrCharYou=null,hrCharWife=null,hrValueYou=null,hrValueWife=null;
@@ -1958,16 +1961,21 @@
         // Returns HTML for direct innerHTML assignment.
         function applyEmphasisColour(html,pattern){
             if(!pattern)return html;
-            // Wrap in a span. For solid colours we just use color. For gradients we use
-            // background-clip:text so the chevrons (which already have an inline color)
-            // aren't recoloured by the gradient - their inline style overrides ours.
+            // Wrap the result in a span. For solid colours we just set color. For
+            // gradients we use background-clip:text and let the parent's
+            // -webkit-text-stroke (set via t-stroke-heavy on #round-focus, paint-order
+            // stroke fill) draw the black outline BEHIND the gradient fill so the
+            // letters still have the chunky black halo even when colour-shifting.
+            // The trick: set color:transparent so the fill paints transparent (gradient
+            // shows through via background-clip), but DON'T zero out the text-stroke
+            // - that way paint-order:stroke fill still draws the stroke first.
             if(pattern==='speed')return '<span style="color:#4ade80">'+html+'</span>';
             if(pattern==='power')return '<span style="color:#dc2626">'+html+'</span>';
             if(pattern==='speed-power'){
-                return '<span style="background:linear-gradient(90deg,#4ade80 0%,#dc2626 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;-webkit-text-stroke:0;">'+html+'</span>';
+                return '<span style="background:linear-gradient(90deg,#4ade80 0%,#dc2626 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;">'+html+'</span>';
             }
             if(pattern==='power-speed'){
-                return '<span style="background:linear-gradient(90deg,#dc2626 0%,#4ade80 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;-webkit-text-stroke:0;">'+html+'</span>';
+                return '<span style="background:linear-gradient(90deg,#dc2626 0%,#4ade80 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;">'+html+'</span>';
             }
             return html;
         }
@@ -2245,12 +2253,15 @@
             if((session.phase==='rest'||session.phase==='change'||session.phase==='block-rest')&&phase==='work'){if(endOfWorkHRYou!==null&&hrValueYou!==null){const d=endOfWorkHRYou-hrValueYou;if(d>0)recoveryDropsYou.push(d);}if(endOfWorkHRWife!==null&&hrValueWife!==null){const d=endOfWorkHRWife-hrValueWife;if(d>0)recoveryDropsWife.push(d);}endOfWorkHRYou=null;endOfWorkHRWife=null;}
             if(session.phase==='surprise'){exitSurpriseColours();setSurpriseTimerColour(false);}
             session.phase=phase;session.halfwayPlayed=false;session.last10Played=false;
+            // Default: clear emphasis pattern. Re-set inside the work branch if applicable.
+            // This drives the timer colour transition - null means no transition (white timer).
+            session.currentEmphasisPattern=null;
             // Reset cosmetic state left over from surprise / 10s warning transitions.
             ui.timerDisplay.style.color='';ui.timerDisplay.style.webkitTextStrokeColor='';ui.roundFocus.style.webkitTextStrokeColor='';ui.timerBg.classList.remove('rest-pulse');
-            // Hide the in-session "+ Surprise queued" badge by default. Re-enabled
-            // below in the 'work' branch only when the current round has a queued surprise.
-            const surpriseBadge=document.getElementById('surprise-queued-badge');
-            if(surpriseBadge)surpriseBadge.classList.add('hidden');
+            // Clear inline timerBg backgroundColor (set by rest/change phases for vivid
+            // orange). Without this clear, the inline style would persist and override
+            // the next phase's Tailwind bg class.
+            ui.timerBg.style.backgroundColor='';
             // Clear change-phase styling on every phase change so it doesn't
             // bleed into rest/work/etc. (re-applied below if entering 'change').
             ui.roundFocus.classList.remove('change-icon');
@@ -2311,6 +2322,10 @@
                 const pi=isW?Math.floor((session.round-1)/2):session.round-1;
                 const rd=plan[pi]||{name:'Round '+absoluteRound,moves:[]};
                 autoSizeFocus(rd.name);ui.roundFocus.innerHTML=styledRoundName(rd.name,rd.emphasisPattern);
+                // Capture this round's emphasis so updateUI() can drive the timer colour
+                // transition. For solid 'speed' / 'power' the timer stays one colour;
+                // for the gradient patterns it interpolates start->end across the round.
+                session.currentEmphasisPattern=rd.emphasisPattern||null;
                 ui.roundCur.innerText=absoluteRound;
                 ui.roundTot.innerText=totalPlanRounds;
                 setNextUp('');
@@ -2319,14 +2334,6 @@
                 if(isW){ui.timerBg.className=(session.round%2!==0)?"bg-green-950":"bg-purple-950";}
                 else{ui.timerBg.className="bg-green-950";}
                 speak(`Round ${absoluteRound}, ${rd.name}`);
-                // "+ Surprise queued" badge: show when the current round (per-person in
-                // Wife mode) has a queued, untriggered surprise. Mirrors the trigger
-                // logic in the end-of-work branch of next() (uses pi/iy/ip the same way).
-                const iy=!isW||(session.round%2!==0);
-                const ip=isW&&(session.round%2===0);
-                const queued=(iy&&currentSurpriseYou().has(pi)&&!currentTriggeredYou().has(pi))
-                           ||(ip&&currentSurpriseWife().has(pi)&&!currentTriggeredWife().has(pi));
-                if(queued&&surpriseBadge)surpriseBadge.classList.remove('hidden');
             }
             else if(phase==='rest'){
                 // Solo mode only - progressive rest escalates by PROGRESSIVE_REST_INCREMENT_SECS
@@ -2336,7 +2343,9 @@
                 const dur=Math.min(60,settings.restBase+(session.totalPlanRoundsCompleted*PROGRESSIVE_REST_INCREMENT_SECS));
                 session.time=dur;session.total=dur;
                 if(isW){ui.timerBg.className="bg-red-600 rest-pulse";}
-                else{ui.timerBg.className="bg-orange-500";}
+                // Solo rest: vivid pure orange. Replaces Tailwind bg-orange-500 (#f97316)
+                // which read more amber than orange - this is full-saturation orange.
+                else{ui.timerBg.className="";ui.timerBg.style.backgroundColor='#ff6a00';}
                 autoSizeFocus("Rest");ui.roundFocus.innerText="Rest";
                 if(session.round<maxRoundsInBlock){
                     const pi=session.round;setNextUp(plan[pi]?plan[pi].name:'');
@@ -2348,7 +2357,8 @@
                 // Wife mode only - 10s changeover between user and wife working the same
                 // plan round. Big swap-arrow glyph shown as focus.
                 session.time=PARTNER_CHANGEOVER_SECS;session.total=PARTNER_CHANGEOVER_SECS;
-                ui.timerBg.className="bg-orange-500";
+                // Vivid pure orange (matches solo rest) - was bg-orange-500.
+                ui.timerBg.className="";ui.timerBg.style.backgroundColor='#ff6a00';
                 ui.roundFocus.classList.add('change-icon');
                 ui.roundFocus.innerHTML='&#x21C4;';
                 document.body.classList.add('change-active');
@@ -2448,6 +2458,36 @@
                 // Clamp height calculation defensively (see note above).
                 const h2=Math.max(0,Math.min(100,(t/session.total)*100));
                 ui.timerBg.style.height=`${h2}%`;
+                // Emphasis-driven timer colour during work phases. The black text-stroke
+                // (t-stroke-heavy on #timer-display via paint-order:stroke fill) is preserved
+                // - we only touch the fill colour, not the stroke. Solid 'speed' / 'power'
+                // patterns set one colour for the whole round; the gradient patterns
+                // ('speed-power' / 'power-speed') interpolate between two endpoints based on
+                // round progress (0 = full duration remaining, 1 = phase end).
+                if(session.phase==='work'&&session.currentEmphasisPattern){
+                    const SPEED_RGB=[74,222,128]; // Tailwind green-400 #4ade80
+                    const POWER_RGB=[220,38,38];  // Tailwind red-600 #dc2626
+                    const progress=session.total>0?Math.max(0,Math.min(1,(session.total-session.time)/session.total)):0;
+                    let rgb;
+                    const p=session.currentEmphasisPattern;
+                    if(p==='speed')rgb=SPEED_RGB;
+                    else if(p==='power')rgb=POWER_RGB;
+                    else if(p==='speed-power'){
+                        // Start green (progress 0), end red (progress 1).
+                        rgb=[
+                            Math.round(SPEED_RGB[0]+(POWER_RGB[0]-SPEED_RGB[0])*progress),
+                            Math.round(SPEED_RGB[1]+(POWER_RGB[1]-SPEED_RGB[1])*progress),
+                            Math.round(SPEED_RGB[2]+(POWER_RGB[2]-SPEED_RGB[2])*progress)
+                        ];
+                    }else if(p==='power-speed'){
+                        rgb=[
+                            Math.round(POWER_RGB[0]+(SPEED_RGB[0]-POWER_RGB[0])*progress),
+                            Math.round(POWER_RGB[1]+(SPEED_RGB[1]-POWER_RGB[1])*progress),
+                            Math.round(POWER_RGB[2]+(SPEED_RGB[2]-POWER_RGB[2])*progress)
+                        ];
+                    }
+                    if(rgb)ui.timerDisplay.style.color=`rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+                }
             }
             if(settings.mode==='quick-rest'){ui.btnPrev.innerText="+10s";ui.btnNext.innerText="-10s";}
             else{ui.btnPrev.innerText="\u2190 Prev";ui.btnNext.innerText="Next \u2192";}
@@ -2655,9 +2695,6 @@
             document.body.classList.remove('change-active');
             ui.roundFocus.classList.remove('change-icon');
             exitSurpriseColours();setSurpriseTimerColour(false);
-            // Defensive: hide the "+ Surprise queued" badge in case end() is called
-            // mid-work-phase (e.g. user taps End before a queued surprise has fired).
-            const sb=document.getElementById('surprise-queued-badge');if(sb)sb.classList.add('hidden');
             exitFullscreen();
             // Show summary if either device is still connected OR we have history data
             // captured during the session (covers the case where the device disconnected
