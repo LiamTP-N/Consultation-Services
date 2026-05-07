@@ -723,29 +723,83 @@ def scrape_canadabuys():
     text = r.content.decode("utf-8-sig", errors="replace")
     reader = csv.DictReader(io.StringIO(text))
 
+    def clean(v):
+        # CanadaBuys CSV prefixes many cell values with '*' and joins multi-value
+        # cells with newlines (e.g. region = '*Canada\n*British Columbia\n*Richmond').
+        # Strip both so they do not poison filtering or display.
+        if not v:
+            return ""
+        v = v.replace("*", "").replace("\r", " ").replace("\n", ", ").strip(" ,")
+        return re.sub(r"\s+", " ", v)
+
+    # ----------------------------------------------------------------
+    # Resilient column lookup. CanadaBuys renamed almost every column
+    # we care about in 2026 (and may rename them again). For each
+    # logical field we try the current name first, then any historical
+    # names as fallback - whichever is non-empty wins. If they rename
+    # again, only the first entry in each tuple needs updating.
+    # Schema confirmed against the live CSV header on 2026-05-07.
+    # ----------------------------------------------------------------
+    TITLE_KEYS = ("title-titre-eng", "title-titre")
+    DESC_KEYS = (
+        "tenderDescription-descriptionAppelOffres-eng",
+        "noticeDescription-descriptionAvis-eng",
+    )
+    BUYER_KEYS = (
+        "contractingEntityName-nomEntitContractante-eng",   # current (note 'Entit', sic)
+        "contractingEntityName-nomEntiteContractante-eng",  # pre-2026
+        "buyerName",
+    )
+    REF_KEYS = (
+        "referenceNumber-numeroReference",
+        "solicitationNumber-numeroSollicitation",
+    )
+    URL_KEYS = (
+        "noticeURL-URLavis-eng",
+        "tenderNoticeURL-URLavisAppelOffres-eng",
+    )
+    DUE_KEYS = (
+        "tenderClosingDate-appelOffresDateCloture",   # current
+        "tenderClosingDate-dateClotureSoumissions",   # pre-2026
+        "expiryDate-dateExpiration",                  # pre-2026 alt
+    )
+    CAT_KEYS = (
+        "procurementCategory-categorieApprovisionnement",   # current
+        "procurementCategoryCode-codeCategorieAchats",      # pre-2026
+    )
+    REGION_KEYS = (
+        "regionsOfDelivery-regionsLivraison-eng",                    # current
+        "regionsOfOpportunity-regionAppelOffres-eng",                # current alt
+        "regionsOfDeliveryName-nomRegionsLivraison-eng",             # pre-2026
+        "regionsOfOpportunityName-nomRegionsOpportunite-eng",        # pre-2026 alt
+    )
+
+    def first(row, keys):
+        for k in keys:
+            v = row.get(k)
+            if v:
+                return v
+        return ""
+
     count = 0
     for row in reader:
-        title = (row.get("title-titre-eng") or row.get("title-titre") or "")
-        desc = (row.get("tenderDescription-descriptionAppelOffres-eng")
-                or row.get("noticeDescription-descriptionAvis-eng") or "")
-        buyer = (row.get("contractingEntityName-nomEntiteContractante-eng")
-                 or row.get("buyerName") or "")
-        ref = (row.get("referenceNumber-numeroReference")
-               or row.get("solicitationNumber-numeroSollicitation") or "")
-        url = (row.get("noticeURL-URLavis-eng")
-               or row.get("tenderNoticeURL-URLavisAppelOffres-eng") or "")
+        title = clean(first(row, TITLE_KEYS))
+        desc = clean(first(row, DESC_KEYS))
+        buyer = clean(first(row, BUYER_KEYS))
+        ref = first(row, REF_KEYS).strip()
+        url = first(row, URL_KEYS).strip()
         # Fallback: build the public tender-notice URL from the reference number.
         # Pattern confirmed: https://canadabuys.canada.ca/en/tender-opportunities/tender-notice/{ref}
         if not url and ref:
             url = "https://canadabuys.canada.ca/en/tender-opportunities/tender-notice/" + ref.lower()
-        due = parse_iso_date(
-            row.get("expiryDate-dateExpiration")
-            or row.get("tenderClosingDate-dateClotureSoumissions") or ""
-        )
-        cat_code = row.get("procurementCategoryCode-codeCategorieAchats", "")
-        region = (row.get("regionsOfDeliveryName-nomRegionsLivraison-eng")
-                  or row.get("regionsOfOpportunityName-nomRegionsOpportunite-eng")
-                  or "Canada")
+        due = parse_iso_date(first(row, DUE_KEYS))
+        # UNSPSC code now lives in its own column (e.g. '*72141206' for dredging).
+        # Concatenate it to the procurement category so matches_cpv() can hit it.
+        cat_code = clean(first(row, CAT_KEYS))
+        unspsc = clean(row.get("unspsc") or "")
+        if unspsc:
+            cat_code = (cat_code + " " + unspsc).strip()
+        region = clean(first(row, REGION_KEYS)) or "Canada"
 
         if not title:
             continue
