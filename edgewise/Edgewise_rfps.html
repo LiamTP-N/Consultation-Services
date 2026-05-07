@@ -42,6 +42,10 @@ CHANGE LOG
                activated via the nunavuttenders.ca mirror (which
                doesn't have Cloudflare in front of it). Active scraped
                source count now 26.
+- 07 May 2026: Fixed inverted sort comparator. Default Due column now
+               genuinely shows soonest-due first (was previously sorting
+               descending despite the up-arrow). Records with no due date
+               are pushed to the bottom in either sort direction.
 ================================================================================
 -->
 <html lang="en-GB">
@@ -683,14 +687,24 @@ CHANGE LOG
         });
         rfps.sort((a, b) => {
             let va = a[sortCol] || '', vb = b[sortCol] || '';
+            // Records with no due date always sink to the bottom, regardless of
+            // sort direction - we don't want unknown deadlines polluting the
+            // soonest-first or latest-first views.
             if (sortCol === 'due_date') {
-                va = va ? new Date(va).getTime() : Infinity;
-                vb = vb ? new Date(vb).getTime() : Infinity;
+                const aBlank = !va, bBlank = !vb;
+                if (aBlank && bBlank) return 0;
+                if (aBlank) return 1;
+                if (bBlank) return -1;
+                va = new Date(va).getTime();
+                vb = new Date(vb).getTime();
             } else {
                 va = va.toString().toLowerCase();
                 vb = vb.toString().toLowerCase();
             }
-            return va < vb ? sortDir : va > vb ? -sortDir : 0;
+            // sortDir = 1 means ascending (smallest/earliest first),
+            // sortDir = -1 means descending. The up-arrow header glyph
+            // matches sortDir = 1.
+            return va > vb ? sortDir : va < vb ? -sortDir : 0;
         });
         return rfps;
     }
