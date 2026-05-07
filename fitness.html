@@ -75,6 +75,8 @@
         #timer-bg{position:fixed;bottom:0;left:0;width:100%;z-index:0;transition:height 1s linear,background-color 0.3s ease;}
         @keyframes restPulse{0%,100%{opacity:1;}50%{opacity:0.8;}}
         .rest-pulse{animation:restPulse 4s ease-in-out infinite;}
+        @keyframes surpriseQueuedPulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+        .surprise-queued-dot{animation:surpriseQueuedPulse 1.4s ease-in-out infinite;}
         .home-btn{transition:all 0.2s ease;position:relative;overflow:hidden;}
         .home-btn:active{transform:scale(0.97);}
         .exercise-card{animation:slideIn 0.3s ease forwards;opacity:0;}
@@ -231,7 +233,6 @@
         #setup-columns{min-height:0;}
         /* Settings scroll: takes remaining height, scrolls internally */
         #settings-scroll{overflow-y:auto;min-height:0;height:100%;}
-        #preview-scroll{overflow-y:auto;min-height:0;}
         @keyframes heartPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
         .hr-pulse{animation:heartPulse 0.8s ease-in-out infinite;}
         .hr-badge{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:all 0.3s ease;}
@@ -427,6 +428,13 @@
                     <button id="btn-hr-wife" aria-label="Connect Ash's heart rate monitor" class="flex-1 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold bg-slate-800/50 border border-slate-700/30 hover:border-purple-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-purple-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-label">Ash's HR</span></button>
                     </div>
                 </div>
+                <!-- Live session summary stripe. Sits inside the HR/mode card so it's
+                     always visible even when Bluetooth (and therefore #hr-setup) is hidden.
+                     Updated by updateSessionSummary() whenever any setup choice changes. -->
+                <div id="session-summary" class="mt-3 pt-3 border-t border-slate-700/50">
+                    <p class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center mb-1">Session</p>
+                    <p id="session-summary-line" class="text-[11px] sm:text-xs text-white text-center leading-snug font-mono-display">12 rounds + 2 bursts = 14 active phases &middot; ~17 min</p>
+                </div>
             </div>
             <div class="grid grid-cols-6 gap-2 mb-2 sm:mb-3 flex-shrink-0">
                 <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-xs sm:text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="60"><span>Rest</span><span class="opacity-70 text-[10px]">1min</span></button>
@@ -439,7 +447,20 @@
                 <!-- Left: settings -->
                 <div class="flex-1 min-w-0 flex flex-col min-h-0">
                     <div id="settings-scroll" class="glass-card p-3 sm:p-4 rounded-2xl space-y-3 flex-1 custom-scrollbar overflow-y-auto">
-                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Rounds</label><div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5" id="grid-rounds"></div></div>
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between ml-1 mr-0.5">
+                                <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rounds</label>
+                                <!-- Inline Randomise toggle: previously sat in the right column above the round preview list.
+                                     Now lives next to the Rounds label since the right column has been repurposed for Block 2. -->
+                                <label class="relative inline-flex items-center cursor-pointer flex-shrink-0 gap-1.5">
+                                    <span id="random-label-text" class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Randomise</span>
+                                    <input type="checkbox" id="in-random" class="sr-only peer" checked>
+                                    <div id="toggle-bg" class="w-8 sm:w-9 h-4 sm:h-5 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-3 sm:after:h-4 after:w-3 sm:after:w-4 after:transition-all"></div>
+                                </label>
+                            </div>
+                            <div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5" id="grid-rounds"></div>
+                            <p id="random-desc" class="text-[8px] sm:text-[9px] text-slate-500 leading-tight ml-1">Randomises rounds 2 to 11</p>
+                        </div>
                         <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Round Length</label><div class="grid grid-cols-3 gap-1.5"><button class="btn-select py-3 rounded-xl text-xs font-mono-display" onclick="selectWork(30,this)">30s</button><button class="btn-select py-3 rounded-xl text-xs font-mono-display" onclick="selectWork(45,this)">45s</button><button class="btn-select active py-3 rounded-xl text-xs font-mono-display" onclick="selectWork(60,this)">60s</button></div></div>
                         <div class="space-y-1.5"><div class="flex items-center gap-1.5 ml-1"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">"Surprise" Rounds</label><button id="btn-surprise-info" type="button" aria-label="What is a surprise round?" class="info-btn">i</button></div><div class="grid grid-cols-4 gap-1.5" id="grid-surprise">
                             <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(0,this)">0</button>
@@ -447,47 +468,55 @@
                             <button class="btn-select active py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(2,this)">2</button>
                             <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(3,this)">3</button>
                         </div></div>
-                        <hr class="border-slate-700/50">
-                        <div class="space-y-1.5">
-                            <div class="flex items-center gap-1.5 ml-1"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Training Blocks</label><button id="btn-blocks-info" type="button" aria-label="What are training blocks?" class="info-btn">i</button></div>
-                            <div class="grid grid-cols-2 gap-1.5">
-                                <button id="btn-block-1" class="btn-select active py-3 rounded-xl text-xs font-bold" onclick="selectBlocks(1,this)">1 Block</button>
-                                <button id="btn-block-2" class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectBlocks(2,this)">2 Blocks</button>
-                            </div>
-                        </div>
-                        <div id="block2-inline-summary" class="hidden text-[9px] text-slate-400 text-center py-1">Block 2: <span id="b2-summary-text">6 rounds, 3min rest, 2 "surprise" rounds</span> <button id="btn-b2-edit" class="text-purple-400 font-bold ml-1 underline">Edit</button></div>
                     </div>
                 </div>
-                <!-- Right: preview panel -->
-                <div class="w-[140px] sm:w-[180px] md:w-[220px] flex-shrink-0 flex flex-col"><div class="glass-card p-2 sm:p-3 rounded-2xl flex flex-col flex-1 min-h-0 space-y-1">
-                    <div class="flex-shrink-0"><div class="flex items-center justify-between mb-1"><span class="text-[10px] sm:text-xs font-bold text-white">Randomise</span><label class="relative inline-flex items-center cursor-pointer flex-shrink-0"><input type="checkbox" id="in-random" class="sr-only peer" checked><div id="toggle-bg" class="w-9 sm:w-10 h-5 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-4 sm:peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label></div><p id="random-desc" class="text-[8px] sm:text-[9px] text-slate-400 leading-tight">Randomises rounds 2 to 11</p><hr class="border-slate-700/50 mt-1"></div>
-                    <h3 class="font-bold text-white text-[9px] sm:text-xs uppercase tracking-widest ml-1 opacity-70 flex-shrink-0">Rounds</h3>
-                    <div id="preview-scroll" class="flex-1 min-h-0 space-y-0.5 pr-1 custom-scrollbar overflow-y-auto"><div id="round-preview"></div></div>
-                </div></div>
-            </div>
-            <button id="btn-boxing-back" class="w-full py-2 rounded-xl text-xs font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98] flex-shrink-0 mt-1">&larr; Back</button>
-        </div>
-        <!-- BLOCK 2 MODAL -->
-        <div id="block2-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm px-4 pb-6" role="dialog" aria-modal="true" aria-labelledby="block2-modal-title">
-            <div class="bg-slate-800 border border-slate-600 rounded-2xl p-4 max-w-sm w-full shadow-2xl space-y-3">
-                <div class="flex items-center justify-between"><h3 id="block2-modal-title" class="text-sm font-bold text-white">Block 2 Settings</h3><button id="btn-b2-close" aria-label="Close Block 2 settings" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button></div>
-                <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block Rest</label><div class="grid grid-cols-3 gap-1.5">
-                    <button class="btn-select py-3 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(120,this)">2min</button>
-                    <button class="btn-select active py-3 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(180,this)">3min</button>
-                    <button class="btn-select py-3 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(300,this)">5min</button>
-                </div></div>
-                <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 Rounds</label><div class="grid grid-cols-3 gap-1.5" id="grid-rounds-b2"></div></div>
-                <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block 2 "Surprise" Rounds</label><div class="grid grid-cols-4 gap-1.5" id="grid-surprise-b2">
-                    <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(0,this)">0</button>
-                    <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(1,this)">1</button>
-                    <button class="btn-select active py-3 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(2,this)">2</button>
-                    <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(3,this)">3</button>
-                </div></div>
-                <div class="grid grid-cols-2 gap-2">
-                    <button id="btn-b2-back" class="w-full py-3 rounded-xl text-sm font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98]">&larr; 1 Block</button>
-                    <button id="btn-b2-done" class="theme-btn w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-[0.98]">Done</button>
+                <!-- Right: Block 2 panel (replaces former randomise + round-preview column).
+                     When 1 Block: shows a "tap to enable" CTA. When 2 Blocks: shows live, inline-editable
+                     Block 2 settings (block rest, rounds, surprise count). The old modal has been removed. -->
+                <div class="w-[140px] sm:w-[180px] md:w-[220px] flex-shrink-0 flex flex-col">
+                    <div id="block2-panel" class="glass-card rounded-2xl flex flex-col flex-1 min-h-0 overflow-hidden">
+                        <!-- 1 Block: CTA view. Uses div role="button" so the nested info
+                             button can stop propagation cleanly (button-in-button is invalid HTML). -->
+                        <div id="btn-block2-enable" role="button" tabindex="0" aria-label="Enable Block 2" class="flex-1 flex flex-col items-center justify-center gap-2 p-3 sm:p-4 text-center cursor-pointer hover:bg-white/5 active:scale-[0.98] transition-all">
+                            <div class="w-9 h-9 rounded-full border-2 border-dashed border-slate-500/60 flex items-center justify-center text-slate-400 text-lg font-light">+</div>
+                            <div>
+                                <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 2</p>
+                                <p class="text-[9px] sm:text-[10px] text-slate-400 mt-0.5 leading-tight">Disabled<br>Tap to enable</p>
+                            </div>
+                            <div class="flex items-center gap-1 mt-1"><button type="button" class="info-btn" id="btn-blocks-info" aria-label="What are training blocks?">i</button><span class="text-[8px] sm:text-[9px] text-slate-500 uppercase tracking-wider">What is this?</span></div>
+                        </div>
+                        <!-- 2 Blocks: editable settings view -->
+                        <div id="block2-edit" class="hidden flex-1 flex flex-col p-2.5 sm:p-3 space-y-2 overflow-y-auto custom-scrollbar">
+                            <div class="flex items-center justify-between flex-shrink-0">
+                                <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 2</p>
+                                <button id="btn-block2-disable" type="button" aria-label="Disable Block 2" class="text-slate-400 hover:text-red-400 text-base leading-none px-1.5 active:scale-95 transition-all">&times;</button>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest block ml-0.5">Block Rest</label>
+                                <div class="grid grid-cols-3 gap-1">
+                                    <button class="btn-select py-2 rounded-lg text-[10px] font-mono-display" onclick="selectBlockRest(120,this)">2min</button>
+                                    <button class="btn-select active py-2 rounded-lg text-[10px] font-mono-display" onclick="selectBlockRest(180,this)">3min</button>
+                                    <button class="btn-select py-2 rounded-lg text-[10px] font-mono-display" onclick="selectBlockRest(300,this)">5min</button>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest block ml-0.5">Rounds</label>
+                                <div class="grid grid-cols-3 gap-1" id="grid-rounds-b2"></div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest block ml-0.5">"Surprise"</label>
+                                <div class="grid grid-cols-4 gap-1" id="grid-surprise-b2">
+                                    <button class="btn-select py-2 rounded-lg text-[10px] font-bold" onclick="selectSurpriseB2(0,this)">0</button>
+                                    <button class="btn-select py-2 rounded-lg text-[10px] font-bold" onclick="selectSurpriseB2(1,this)">1</button>
+                                    <button class="btn-select active py-2 rounded-lg text-[10px] font-bold" onclick="selectSurpriseB2(2,this)">2</button>
+                                    <button class="btn-select py-2 rounded-lg text-[10px] font-bold" onclick="selectSurpriseB2(3,this)">3</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <button id="btn-boxing-back" class="w-full py-2 rounded-xl text-xs font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98] flex-shrink-0 mt-1">&larr; Back</button>
         </div>
         <!-- SURPRISE ROUNDS INFO MODAL -->
         <div id="surprise-info-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" role="dialog" aria-modal="true" aria-labelledby="surprise-info-title">
@@ -512,7 +541,7 @@
             <div class="timer-top w-full flex justify-between items-start">
                 <div class="flex flex-col items-start" style="gap:0.5dvh;">
                     <div id="hr-live-you" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-green-600/20 border border-green-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-green-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-bpm" class="hr-bpm font-black font-mono-display text-green-300">--</span></div><canvas id="hr-spark-you" class="rounded" style="display:block;"></canvas></div>
-                    <div style="display:flex;flex-direction:column;gap:clamp(2px,0.4dvh,6px);"><p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p><div class="flex items-baseline" style="gap:0.3rem;"><span id="current-round" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span><span class="round-slash text-white/60 font-bold t-stroke">/</span><span id="total-rounds" class="round-slash text-white/60 font-bold t-stroke">12</span></div></div>
+                    <div style="display:flex;flex-direction:column;gap:clamp(2px,0.4dvh,6px);"><p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p><div class="flex items-baseline" style="gap:0.3rem;"><span id="current-round" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span><span class="round-slash text-white/60 font-bold t-stroke">/</span><span id="total-rounds" class="round-slash text-white/60 font-bold t-stroke">12</span></div><div id="surprise-queued-badge" class="hidden mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-600/25 border border-red-500/50" style="width:fit-content;"><span class="w-1.5 h-1.5 rounded-full bg-red-400 surprise-queued-dot"></span><span class="text-[9px] sm:text-[10px] font-bold text-red-300 uppercase tracking-wider whitespace-nowrap">+ Surprise queued</span></div></div>
                 </div>
                 <div class="flex flex-col items-end" style="gap:0.5dvh;">
                     <div id="hr-live-wife" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-purple-600/20 border border-purple-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-purple-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-bpm" class="hr-bpm font-black font-mono-display text-purple-300">--</span></div><canvas id="hr-spark-wife" class="rounded" style="display:block;"></canvas></div>
@@ -1357,7 +1386,7 @@
         // screen has the `hidden` class removed; all others have it added.
         const screens={home:document.getElementById('home-screen'),gymDay:document.getElementById('gym-day-screen'),gymWorkout:document.getElementById('gym-workout-screen'),setup:document.getElementById('setup-screen'),timer:document.getElementById('timer-screen'),summary:document.getElementById('summary-screen'),hrTrack:document.getElementById('hr-track-screen')};
         // Shorthand cache of frequently-accessed DOM elements.
-        const ui={timerBg:document.getElementById('timer-bg'),modeSolo:document.getElementById('mode-solo'),modeWife:document.getElementById('mode-wife'),restInfo:document.getElementById('rest-info'),inRandom:document.getElementById('in-random'),randomDesc:document.getElementById('random-desc'),toggleBg:document.getElementById('toggle-bg'),gridRounds:document.getElementById('grid-rounds'),previewList:document.getElementById('round-preview'),timerDisplay:document.getElementById('timer-display'),roundCur:document.getElementById('current-round'),roundTot:document.getElementById('total-rounds'),nextUp:document.getElementById('next-up'),roundFocus:document.getElementById('round-focus'),btnStart:document.getElementById('btn-start'),btnPause:document.getElementById('btn-pause'),btnEnd:document.getElementById('btn-end'),btnNext:document.getElementById('btn-next'),btnPrev:document.getElementById('btn-prev'),gymDayLabel:document.getElementById('gym-day-label'),gymExerciseList:document.getElementById('gym-exercise-list')};
+        const ui={timerBg:document.getElementById('timer-bg'),modeSolo:document.getElementById('mode-solo'),modeWife:document.getElementById('mode-wife'),restInfo:document.getElementById('rest-info'),inRandom:document.getElementById('in-random'),randomDesc:document.getElementById('random-desc'),toggleBg:document.getElementById('toggle-bg'),gridRounds:document.getElementById('grid-rounds'),timerDisplay:document.getElementById('timer-display'),roundCur:document.getElementById('current-round'),roundTot:document.getElementById('total-rounds'),nextUp:document.getElementById('next-up'),roundFocus:document.getElementById('round-focus'),btnStart:document.getElementById('btn-start'),btnPause:document.getElementById('btn-pause'),btnEnd:document.getElementById('btn-end'),btnNext:document.getElementById('btn-next'),btnPrev:document.getElementById('btn-prev'),gymDayLabel:document.getElementById('gym-day-label'),gymExerciseList:document.getElementById('gym-exercise-list')};
 
         // Switch visible screen. Also toggles #main-wrap padding so the timer and
         // gym-workout screens go edge-to-edge (they manage their own padding for
@@ -1861,18 +1890,19 @@
         // Round count: also updates the "Randomise" description text (ALL rounds vs middle-only).
         window.selectRound=(n,el)=>{settings.rounds=n;Array.from(ui.gridRounds.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');ui.randomDesc.innerText=n<=6?"Randomises ALL rounds":`Randomises rounds 2 to ${n-1}`;generateSessionPlan();};
         window.selectRoundB2=(n,el)=>{settings.roundsB2=n;Array.from(gridRoundsB2.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');generateSessionPlan();};
-        window.selectWork=(n,el)=>{settings.work=n;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
-        window.selectSurprise=(n,el)=>{settings.surpriseCount=n;Array.from(document.getElementById('grid-surprise').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
+        window.selectWork=(n,el)=>{settings.work=n;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');updateSessionSummary();};
+        window.selectSurprise=(n,el)=>{settings.surpriseCount=n;Array.from(document.getElementById('grid-surprise').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');updateSessionSummary();};
         // Info modals for "Surprise Rounds" and "Training Blocks". Tap the (i)
         // button next to each label to open the modal; close via X or Got it.
-        // Uses the same pattern as the Block 2 settings modal so users already
-        // recognise the interaction.
+        // The Training Blocks (i) button is nested inside the Block 2 CTA panel,
+        // so its onclick must stopPropagation to prevent the parent CTA from also
+        // firing (which would enable Block 2 every time the user taps "What is this?").
         (()=>{
-            const wire=(triggerId,modalId,closeIds)=>{
+            const wire=(triggerId,modalId,closeIds,stopProp)=>{
                 const trigger=document.getElementById(triggerId);
                 const modal=document.getElementById(modalId);
                 if(!trigger||!modal)return;
-                trigger.onclick=()=>modal.classList.remove('hidden');
+                trigger.onclick=(e)=>{if(stopProp)e.stopPropagation();modal.classList.remove('hidden');};
                 closeIds.forEach(id=>{
                     const el=document.getElementById(id);
                     if(el)el.onclick=()=>modal.classList.add('hidden');
@@ -1880,21 +1910,31 @@
                 // Tapping the backdrop (but not the card itself) also closes.
                 modal.onclick=e=>{if(e.target===modal)modal.classList.add('hidden');};
             };
-            wire('btn-surprise-info','surprise-info-modal',['btn-surprise-info-close','btn-surprise-info-done']);
-            wire('btn-blocks-info','blocks-info-modal',['btn-blocks-info-close','btn-blocks-info-done']);
+            wire('btn-surprise-info','surprise-info-modal',['btn-surprise-info-close','btn-surprise-info-done'],false);
+            wire('btn-blocks-info','blocks-info-modal',['btn-blocks-info-close','btn-blocks-info-done'],true);
         })();
-        window.selectSurpriseB2=(n,el)=>{settings.surpriseCountB2=n;Array.from(document.getElementById('grid-surprise-b2').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
-        // Update the inline block-2 summary text (e.g. "6 rds, 3m rest, 2 surprise").
-        function updateB2Summary(){const restLabel=settings.blockRestSecs>=60?Math.floor(settings.blockRestSecs/60)+'min':settings.blockRestSecs+'s';document.getElementById('b2-summary-text').innerText=`${settings.roundsB2} rounds, ${restLabel} rest, ${settings.surpriseCountB2} "surprise" rounds`;}
-        // Block count toggle (1 block vs 2 blocks). Selecting "2 Blocks" opens the modal.
-        window.selectBlocks=(n,el)=>{settings.blocks=n;document.getElementById('btn-block-1').classList.toggle('active',n===1);document.getElementById('btn-block-2').classList.toggle('active',n===2);document.getElementById('block2-inline-summary').classList.toggle('hidden',n===1);if(n===2){updateB2Summary();document.getElementById('block2-modal').classList.remove('hidden');}generateSessionPlan();};
-        // Block 2 modal open/close handlers.
-        document.getElementById('btn-b2-edit').onclick=()=>document.getElementById('block2-modal').classList.remove('hidden');
-        document.getElementById('btn-b2-close').onclick=()=>{document.getElementById('block2-modal').classList.add('hidden');updateB2Summary();};
-        document.getElementById('btn-b2-done').onclick=()=>{document.getElementById('block2-modal').classList.add('hidden');updateB2Summary();};
-        // "Back to 1 Block" button inside the modal: reverts blocks=1 and closes modal.
-        document.getElementById('btn-b2-back').onclick=()=>{document.getElementById('block2-modal').classList.add('hidden');selectBlocks(1,document.getElementById('btn-block-1'));};
-        window.selectBlockRest=(s,el)=>{settings.blockRestSecs=s;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');};
+        window.selectSurpriseB2=(n,el)=>{settings.surpriseCountB2=n;Array.from(document.getElementById('grid-surprise-b2').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');updateSessionSummary();};
+        // Toggle the inline Block 2 panel between its CTA and edit views.
+        // selectBlocks(1) -> show CTA, selectBlocks(2) -> show editable settings.
+        // No modal - all editing happens in the right column. Both Block 1 (single)
+        // and Block 2 (enabled) sessions are configured by direct field edits, so
+        // there's no "save/cancel" - changes are live.
+        function showBlock2View(enabled){
+            document.getElementById('btn-block2-enable').classList.toggle('hidden',enabled);
+            document.getElementById('block2-edit').classList.toggle('hidden',!enabled);
+        }
+        window.selectBlocks=(n)=>{settings.blocks=n;showBlock2View(n===2);generateSessionPlan();};
+        // CTA panel: tapping the "Block 2 Disabled - Tap to enable" panel switches to 2 blocks.
+        // div role="button" needs explicit keyboard handling (Enter and Space).
+        (()=>{
+            const enableEl=document.getElementById('btn-block2-enable');
+            const enable=()=>selectBlocks(2);
+            enableEl.onclick=enable;
+            enableEl.onkeydown=(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();enable();}};
+        })();
+        // Disable (X) button inside the edit view: switches back to 1 block.
+        document.getElementById('btn-block2-disable').onclick=(e)=>{e.stopPropagation();selectBlocks(1);};
+        window.selectBlockRest=(s,el)=>{settings.blockRestSecs=s;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');updateSessionSummary();};
 
         // Responsive font-sizing for the main "round focus" text, based on length.
         // Prevents long round names from overflowing on narrow phone screens.
@@ -1905,8 +1945,28 @@
         //   (green for Speed, red for Power) on its own line below the moves.
         // - Splits on " > " separators and renders them as greyed-out chevrons.
         // - Wraps to 2 lines if there are 4 parts (so it reads as "A > B / C > D").
+        // - Optional emphasisPattern argument: 'speed' fills the whole text green,
+        //   'power' fills it red, 'speed-power' applies a left-to-right green->red
+        //   linear gradient, 'power-speed' applies the reverse. null/undefined
+        //   keeps the default white. Used during the round's work phase to give
+        //   Liam and Ash a visual cue for the round's emphasis without text labels.
         // Returns HTML for direct innerHTML assignment.
-        function styledRoundName(name){
+        function applyEmphasisColour(html,pattern){
+            if(!pattern)return html;
+            // Wrap in a span. For solid colours we just use color. For gradients we use
+            // background-clip:text so the chevrons (which already have an inline color)
+            // aren't recoloured by the gradient - their inline style overrides ours.
+            if(pattern==='speed')return '<span style="color:#4ade80">'+html+'</span>';
+            if(pattern==='power')return '<span style="color:#dc2626">'+html+'</span>';
+            if(pattern==='speed-power'){
+                return '<span style="background:linear-gradient(90deg,#4ade80 0%,#dc2626 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;-webkit-text-stroke:0;">'+html+'</span>';
+            }
+            if(pattern==='power-speed'){
+                return '<span style="background:linear-gradient(90deg,#dc2626 0%,#4ade80 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;-webkit-text-stroke:0;">'+html+'</span>';
+            }
+            return html;
+        }
+        function styledRoundName(name,emphasisPattern){
             const emphMatch=name.match(/\s*\((Speed|Power)\)$/);
             let base=emphMatch?name.replace(/\s*\((Speed|Power)\)$/,''):name;
             const arrow='<span style="color:#4b5563">&gt;</span>';
@@ -1915,7 +1975,7 @@
             if(parts.length===4){result=parts[0]+' '+arrow+' '+parts[1]+' '+arrow+'<br>'+parts[2]+' '+arrow+' '+parts[3];}
             else{result=parts.join(' '+arrow+' ');}
             if(emphMatch){const col=emphMatch[1]==='Speed'?'#4ade80':'#dc2626';result+='<br><span style="font-size:0.75em">(<span style="color:'+col+'">'+emphMatch[1]+'</span>)</span>';}
-            return result;
+            return applyEmphasisColour(result,emphasisPattern);
         }
         // Inline variant for the round-preview sidebar: no line breaking, just inline
         // colouring of chevrons and emphasis tags.
@@ -2020,14 +2080,115 @@
                     plan[slot]=HOOKS_ONLY_ENTRIES[Math.floor(Math.random()*HOOKS_ONLY_ENTRIES.length)];
                 }
             }
-            return plan;
+            // Wrap entries (shallow clone) so we can attach a per-plan emphasisPattern
+            // without mutating the shared ROUND_POOL / PROGRAM_12_ROUNDS objects.
+            const wrapped=plan.map(r=>Object.assign({},r));
+            assignEmphasisPatterns(wrapped);
+            return wrapped;
+        }
+
+        // Per-round emphasis pattern: 'speed' (full green), 'power' (full red),
+        // 'speed-power' (green-to-red gradient L-R), 'power-speed' (red-to-green
+        // gradient L-R), or null (neutral white). Warm-up and burnout always stay
+        // neutral; every other round gets one of the four patterns assigned with
+        // simple variety constraints (avoid 3-in-a-row of the same emphasis bias).
+        // The assignment is deterministic-per-call but reshuffles every plan rebuild
+        // (i.e. every settings change), so users get visual variety across sessions.
+        const EMPHASIS_PATTERNS=['speed','power','speed-power','power-speed'];
+        function emphasisLeansSpeed(p){return p==='speed'||p==='speed-power';}
+        function emphasisLeansPower(p){return p==='power'||p==='power-speed';}
+        function assignEmphasisPatterns(plan){
+            for(let i=0;i<plan.length;i++){
+                const r=plan[i];
+                // Warm-up and burnout categories stay neutral.
+                if(r.cat==='warmup'||r.cat==='burnout'){r.emphasisPattern=null;continue;}
+                // Look at last 2 patterns to avoid 3 same-bias rounds in a row.
+                const p1=i>=1?plan[i-1].emphasisPattern:null;
+                const p2=i>=2?plan[i-2].emphasisPattern:null;
+                const speedStreak=emphasisLeansSpeed(p1)&&emphasisLeansSpeed(p2);
+                const powerStreak=emphasisLeansPower(p1)&&emphasisLeansPower(p2);
+                let candidates=EMPHASIS_PATTERNS.filter(p=>{
+                    if(speedStreak&&emphasisLeansSpeed(p))return false;
+                    if(powerStreak&&emphasisLeansPower(p))return false;
+                    return true;
+                });
+                if(candidates.length===0)candidates=EMPHASIS_PATTERNS.slice();
+                r.emphasisPattern=candidates[Math.floor(Math.random()*candidates.length)];
+            }
         }
         // Rebuild both block plans from current settings and refresh the sidebar preview.
         // Called whenever any setup control changes.
-        function generateSessionPlan(){session.plan=buildPlan(settings.rounds);session.planB2=settings.blocks===2?buildPlan(settings.roundsB2):[];updatePreview();}
-        // Render the round-by-round preview list in the right sidebar of the setup screen.
-        // Colour coded: purple text in Wife mode, grey in Solo.
-        function updatePreview(){ui.previewList.innerHTML='';for(let i=0;i<settings.rounds;i++){const rd=session.plan[i],rn=i+1,cc=settings.mode==='wife'?"text-purple-300":"text-slate-300";const d=document.createElement('div');d.className="text-[8px] sm:text-[9px] py-1 px-1.5 rounded bg-slate-800/40 border border-slate-700/50";d.innerHTML=`<span class="font-bold ${cc} truncate block">${rn}. ${styledRoundNameInline(rd.name)}</span>`;ui.previewList.appendChild(d);}}
+        function generateSessionPlan(){session.plan=buildPlan(settings.rounds);session.planB2=settings.blocks===2?buildPlan(settings.roundsB2):[];updatePreview();updateSessionSummary();}
+
+        // ── SESSION SUMMARY STRIPE ──────────────────────────────────────────────
+        // Live, plain-English summary of the configured session shown inside the
+        // HR/mode card. Surprise rounds are 35s bursts ATTACHED to randomly chosen
+        // work rounds, not extra rounds - so the maths is:
+        //   work_phases = rounds (block1) + rounds (block2 if 2 blocks)
+        //   bursts      = surpriseCount + (surpriseCountB2 if 2 blocks)
+        //   active      = work_phases + bursts
+        // Estimated total time accounts for: warmup 'ready' phase, every work
+        // phase, every surprise burst, rest/changeovers, and the inter-block rest.
+        // Rounded to nearest minute for the user-facing number.
+        function updateSessionSummary(){
+            const el=document.getElementById('session-summary-line');
+            if(!el)return;
+            const isW=settings.mode==='wife';
+            const r1=settings.rounds, s1=settings.surpriseCount;
+            const has2=settings.blocks===2;
+            const r2=has2?settings.roundsB2:0, s2=has2?settings.surpriseCountB2:0;
+            const totalRounds=r1+r2;
+            const totalSurprise=s1+s2;
+            const activePhases=totalRounds+totalSurprise;
+
+            // Time estimate (seconds). For Solo: each round = work + progressive rest.
+            // Progressive rest = restBase + (i-1)*PROGRESSIVE_REST_INCREMENT_SECS, capped at 60s
+            // (matches in-session cap). For Wife: each round = work + 10s changeover, doubled
+            // because partner rounds run back-to-back (you-work / change / wife-work / change / ...).
+            // Final phase has no trailing rest.
+            let totalSec=READY_PHASE_SECS;
+            const computeBlock=(rounds)=>{
+                let s=0;
+                if(isW){
+                    // Each plan-round in wife mode = 2 work phases + 2 changeovers (last one trims).
+                    // Approximation: 2*work + 2*PARTNER_CHANGEOVER per plan round.
+                    s+=rounds*(2*settings.work+2*PARTNER_CHANGEOVER_SECS);
+                }else{
+                    s+=rounds*settings.work;
+                    // Progressive rest sum: cap each at 60s.
+                    for(let i=1;i<=rounds;i++){
+                        const r=Math.min(60,settings.restBase+(i-1)*PROGRESSIVE_REST_INCREMENT_SECS);
+                        s+=r;
+                    }
+                }
+                return s;
+            };
+            totalSec+=computeBlock(r1);
+            // Surprise bursts add SURPRISE_TOTAL each, occupying the rest slot
+            // - so add the burst time but subtract one rest/changeover per burst.
+            const surpriseExtra=(secs)=>secs?(SURPRISE_TOTAL-(isW?PARTNER_CHANGEOVER_SECS:Math.min(60,settings.restBase))):0;
+            totalSec+=s1*surpriseExtra(SURPRISE_TOTAL);
+            if(has2){totalSec+=settings.blockRestSecs+computeBlock(r2)+s2*surpriseExtra(SURPRISE_TOTAL);}
+            // Trim final trailing rest (last round has no rest after it).
+            if(isW)totalSec-=PARTNER_CHANGEOVER_SECS;
+            else totalSec-=Math.min(60,settings.restBase+(totalRounds-1)*PROGRESSIVE_REST_INCREMENT_SECS);
+
+            const mins=Math.max(1,Math.round(totalSec/60));
+            const roundsLabel=totalRounds===1?'1 round':`${totalRounds} rounds`;
+            const burstsLabel=totalSurprise===0?'no bursts':(totalSurprise===1?'1 burst':`${totalSurprise} bursts`);
+            const phasesLabel=activePhases===1?'1 active phase':`${activePhases} active phases`;
+            // Compact line. Drop the "+ bursts =" segment when there are no surprises.
+            if(totalSurprise===0){
+                el.innerHTML=`${roundsLabel} &middot; ~${mins} min`;
+            }else{
+                el.innerHTML=`${roundsLabel} + ${burstsLabel} = ${phasesLabel} &middot; ~${mins} min`;
+            }
+        }
+        // Round-by-round preview list was previously rendered in the right sidebar.
+        // That sidebar has been replaced by the Block 2 panel - the preview list is gone.
+        // Keep a no-op stub so generateSessionPlan() doesn't break (the plan is still
+        // built and used; only the visual preview was removed).
+        function updatePreview(){}
         // Pick `count` distinct round indices (0-based) to fire surprise bursts on.
         // Excludes the first (index 0) and last (index total-1) rounds - no surprises
         // on warm-up or burnout. Pool size is `total-2`; if `count` exceeds that
@@ -2081,6 +2242,10 @@
             session.phase=phase;session.halfwayPlayed=false;session.last10Played=false;
             // Reset cosmetic state left over from surprise / 10s warning transitions.
             ui.timerDisplay.style.color='';ui.timerDisplay.style.webkitTextStrokeColor='';ui.roundFocus.style.webkitTextStrokeColor='';ui.timerBg.classList.remove('rest-pulse');
+            // Hide the in-session "+ Surprise queued" badge by default. Re-enabled
+            // below in the 'work' branch only when the current round has a queued surprise.
+            const surpriseBadge=document.getElementById('surprise-queued-badge');
+            if(surpriseBadge)surpriseBadge.classList.add('hidden');
             // Clear change-phase styling on every phase change so it doesn't
             // bleed into rest/work/etc. (re-applied below if entering 'change').
             ui.roundFocus.classList.remove('change-icon');
@@ -2140,7 +2305,7 @@
                 if(isFinalRound)playDoubleBell();else playBell();
                 const pi=isW?Math.floor((session.round-1)/2):session.round-1;
                 const rd=plan[pi]||{name:'Round '+absoluteRound,moves:[]};
-                autoSizeFocus(rd.name);ui.roundFocus.innerHTML=styledRoundName(rd.name);
+                autoSizeFocus(rd.name);ui.roundFocus.innerHTML=styledRoundName(rd.name,rd.emphasisPattern);
                 ui.roundCur.innerText=absoluteRound;
                 ui.roundTot.innerText=totalPlanRounds;
                 setNextUp('');
@@ -2149,6 +2314,14 @@
                 if(isW){ui.timerBg.className=(session.round%2!==0)?"bg-green-950":"bg-purple-950";}
                 else{ui.timerBg.className="bg-green-950";}
                 speak(`Round ${absoluteRound}, ${rd.name}`);
+                // "+ Surprise queued" badge: show when the current round (per-person in
+                // Wife mode) has a queued, untriggered surprise. Mirrors the trigger
+                // logic in the end-of-work branch of next() (uses pi/iy/ip the same way).
+                const iy=!isW||(session.round%2!==0);
+                const ip=isW&&(session.round%2===0);
+                const queued=(iy&&currentSurpriseYou().has(pi)&&!currentTriggeredYou().has(pi))
+                           ||(ip&&currentSurpriseWife().has(pi)&&!currentTriggeredWife().has(pi));
+                if(queued&&surpriseBadge)surpriseBadge.classList.remove('hidden');
             }
             else if(phase==='rest'){
                 // Solo mode only - progressive rest escalates by PROGRESSIVE_REST_INCREMENT_SECS
@@ -2477,6 +2650,9 @@
             document.body.classList.remove('change-active');
             ui.roundFocus.classList.remove('change-icon');
             exitSurpriseColours();setSurpriseTimerColour(false);
+            // Defensive: hide the "+ Surprise queued" badge in case end() is called
+            // mid-work-phase (e.g. user taps End before a queued surprise has fired).
+            const sb=document.getElementById('surprise-queued-badge');if(sb)sb.classList.add('hidden');
             exitFullscreen();
             // Show summary if either device is still connected OR we have history data
             // captured during the session (covers the case where the device disconnected
