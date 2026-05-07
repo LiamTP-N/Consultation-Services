@@ -434,6 +434,9 @@
                 <!-- Left: settings -->
                 <div class="flex-1 min-w-0 flex flex-col min-h-0">
                     <div id="settings-scroll" class="glass-card p-3 sm:p-4 rounded-2xl space-y-3 flex-1 custom-scrollbar overflow-y-auto">
+                        <!-- BLOCK 1 header. Mirrors the Block 2 panel's heading so users see
+                             a parallel structure: each block has its own card with its own settings. -->
+                        <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider ml-1">Block 1</p>
                         <div class="space-y-1.5">
                             <div class="flex items-center justify-between ml-1 mr-0.5">
                                 <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rounds</label>
@@ -491,7 +494,7 @@
                                 <div class="grid grid-cols-3 gap-1" id="grid-rounds-b2"></div>
                             </div>
                             <div class="space-y-1">
-                                <label class="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest block ml-0.5">"Surprise"</label>
+                                <label class="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest block ml-0.5">"Surprise" Rounds</label>
                                 <div class="grid grid-cols-4 gap-1" id="grid-surprise-b2">
                                     <button class="btn-select py-2 rounded-lg text-[10px] font-bold" onclick="selectSurpriseB2(0,this)">0</button>
                                     <button class="btn-select py-2 rounded-lg text-[10px] font-bold" onclick="selectSurpriseB2(1,this)">1</button>
@@ -508,7 +511,7 @@
                  order is: configure -> review -> start. -->
             <div class="glass-card p-2.5 sm:p-3 rounded-2xl flex-shrink-0 mt-2 sm:mt-3" id="session-summary">
                 <p class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center mb-1">Session</p>
-                <p id="session-summary-line" class="text-[11px] sm:text-xs text-white text-center leading-snug font-mono-display">12 rounds + 2 bursts = 14 active phases &middot; ~17 min</p>
+                <p id="session-summary-line" class="text-[11px] sm:text-xs text-white text-center leading-snug font-mono-display">12 rounds + 2 surprise rounds = 14 active phases &middot; ~17 min</p>
             </div>
             <!-- Action row: quick-rest timers and Begin Session. Now sits below the
                  settings + summary so the user follows a top-down configure-then-go flow. -->
@@ -2177,13 +2180,13 @@
 
             const mins=Math.max(1,Math.round(totalSec/60));
             const roundsLabel=totalRounds===1?'1 round':`${totalRounds} rounds`;
-            const burstsLabel=totalSurprise===0?'no bursts':(totalSurprise===1?'1 burst':`${totalSurprise} bursts`);
+            const surpriseLabel=totalSurprise===0?'no surprise rounds':(totalSurprise===1?'1 surprise round':`${totalSurprise} surprise rounds`);
             const phasesLabel=activePhases===1?'1 active phase':`${activePhases} active phases`;
-            // Compact line. Drop the "+ bursts =" segment when there are no surprises.
+            // Compact line. Drop the "+ surprise rounds =" segment when there are no surprises.
             if(totalSurprise===0){
                 el.innerHTML=`${roundsLabel} &middot; ~${mins} min`;
             }else{
-                el.innerHTML=`${roundsLabel} + ${burstsLabel} = ${phasesLabel} &middot; ~${mins} min`;
+                el.innerHTML=`${roundsLabel} + ${surpriseLabel} = ${phasesLabel} &middot; ~${mins} min`;
             }
         }
         // Round-by-round preview list was previously rendered in the right sidebar.
