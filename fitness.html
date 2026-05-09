@@ -427,15 +427,17 @@
                     </div>
                 </div>
             </div>
-            <!-- Main layout: settings left, Block 2 panel right -->
-            <div id="setup-columns" class="flex flex-row gap-2 sm:gap-3 items-stretch">
-                <!-- Left: settings -->
-                <div class="flex-1 min-w-0 flex flex-col min-h-0">
-                    <div id="settings-scroll" class="glass-card p-3 sm:p-4 rounded-2xl space-y-3 flex-1 custom-scrollbar overflow-y-auto">
+            <!-- Main layout: Block 1 stacked above Block 2 (full width each).
+                 Previously side-by-side; restructured for accessibility - bigger tap
+                 targets, reading order matches mental order (configure 1, then 2). -->
+            <div id="setup-columns" class="flex flex-col gap-2 items-stretch">
+                <!-- Block 1: full-width settings card -->
+                <div class="flex flex-col min-h-0">
+                    <div id="settings-scroll" class="glass-card p-2.5 sm:p-3 rounded-2xl space-y-2.5 flex-1 custom-scrollbar overflow-y-auto">
                         <!-- BLOCK 1 header. Mirrors the Block 2 panel's heading so users see
                              a parallel structure: each block has its own card with its own settings. -->
                         <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider ml-1">Block 1</p>
-                        <div class="space-y-1.5">
+                        <div class="space-y-1">
                             <div class="flex items-center justify-between ml-1 mr-0.5">
                                 <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rounds</label>
                                 <!-- Inline Randomise toggle: previously sat in the right column above the round preview list.
@@ -446,19 +448,19 @@
                                     <div id="toggle-bg" class="relative w-8 sm:w-9 h-4 sm:h-5 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-3 sm:after:h-4 after:w-3 sm:after:w-4 after:transition-all"></div>
                                 </label>
                             </div>
-                            <div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5" id="grid-rounds"></div>
+                            <div class="grid grid-cols-6 sm:grid-cols-12 gap-1" id="grid-rounds"></div>
                             <p id="random-desc" class="text-[8px] sm:text-[9px] text-slate-500 leading-tight ml-1">Randomises rounds 2 to 11</p>
                         </div>
-                        <div class="space-y-1.5"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Round Length</label><div class="grid grid-cols-3 gap-1.5"><button class="btn-select py-3 rounded-xl text-xs font-mono-display" onclick="selectWork(30,this)">30s</button><button class="btn-select py-3 rounded-xl text-xs font-mono-display" onclick="selectWork(45,this)">45s</button><button class="btn-select active py-3 rounded-xl text-xs font-mono-display" onclick="selectWork(60,this)">60s</button></div></div>
-                        <div class="space-y-1.5"><div class="flex items-center gap-1.5 ml-1"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">"Surprise" Rounds</label><button id="btn-surprise-info" type="button" aria-label="What is a surprise round?" class="info-btn">i</button></div><div class="grid grid-cols-4 gap-1.5" id="grid-surprise">
-                            <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(0,this)">0</button>
-                            <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(1,this)">1</button>
-                            <button class="btn-select active py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(2,this)">2</button>
-                            <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(3,this)">3</button>
+                        <div class="space-y-1"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Round Length</label><div class="grid grid-cols-3 gap-1"><button class="btn-select py-2.5 rounded-xl text-xs font-mono-display" onclick="selectWork(30,this)">30s</button><button class="btn-select py-2.5 rounded-xl text-xs font-mono-display" onclick="selectWork(45,this)">45s</button><button class="btn-select active py-2.5 rounded-xl text-xs font-mono-display" onclick="selectWork(60,this)">60s</button></div></div>
+                        <div class="space-y-1"><div class="flex items-center gap-1.5 ml-1"><label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">"Surprise" Rounds</label><button id="btn-surprise-info" type="button" aria-label="What is a surprise round?" class="info-btn">i</button></div><div class="grid grid-cols-4 gap-1" id="grid-surprise">
+                            <button class="btn-select py-2.5 rounded-xl text-xs font-bold" onclick="selectSurprise(0,this)">0</button>
+                            <button class="btn-select py-2.5 rounded-xl text-xs font-bold" onclick="selectSurprise(1,this)">1</button>
+                            <button class="btn-select active py-2.5 rounded-xl text-xs font-bold" onclick="selectSurprise(2,this)">2</button>
+                            <button class="btn-select py-2.5 rounded-xl text-xs font-bold" onclick="selectSurprise(3,this)">3</button>
                         </div>
                         <!-- Surprise EVERY round toggle: when on, fires a surprise burst at the END of every work round.
                              Overrides the 0-3 grid count above (which becomes redundant - greyed visually). -->
-                        <div class="flex items-center justify-between ml-1 mr-0.5 pt-1">
+                        <div class="flex items-center justify-between ml-1 mr-0.5 pt-0.5">
                             <label for="in-surprise-every" class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest cursor-pointer">EVERY Round</label>
                             <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
                                 <input type="checkbox" id="in-surprise-every" class="sr-only peer">
@@ -467,46 +469,46 @@
                         </div></div>
                     </div>
                 </div>
-                <!-- Right: Block 2 panel (replaces former randomise + round-preview column).
-                     When 1 Block: shows a "tap to enable" CTA. When 2 Blocks: shows live, inline-editable
-                     Block 2 settings (block rest, rounds, surprise count). The old modal has been removed. -->
-                <div class="w-[140px] sm:w-[180px] md:w-[220px] flex-shrink-0 flex flex-col">
-                    <div id="block2-panel" class="glass-card rounded-2xl flex flex-col flex-1 min-h-0 overflow-hidden">
-                        <!-- 1 Block: CTA view. Uses div role="button" so the nested info
+                <!-- Block 2: full-width panel below Block 1.
+                     When 1 Block: shows a slim "tap to enable" strip (compact, doesn't dominate).
+                     When 2 Blocks: shows live, inline-editable Block 2 settings (block rest, rounds, surprise count). -->
+                <div class="flex flex-col">
+                    <div id="block2-panel" class="glass-card rounded-2xl flex flex-col overflow-hidden">
+                        <!-- 1 Block: compact CTA strip. Uses div role="button" so the nested info
                              button can stop propagation cleanly (button-in-button is invalid HTML). -->
-                        <div id="btn-block2-enable" role="button" tabindex="0" aria-label="Enable Block 2" class="flex-1 flex flex-col items-center justify-center gap-2 p-3 sm:p-4 text-center cursor-pointer hover:bg-white/5 active:scale-[0.98] transition-all">
-                            <div class="w-9 h-9 rounded-full border-2 border-dashed border-slate-500/60 flex items-center justify-center text-slate-400 text-lg font-light">+</div>
-                            <div>
+                        <div id="btn-block2-enable" role="button" tabindex="0" aria-label="Enable Block 2" class="flex flex-row items-center justify-between gap-2 px-3 py-2 cursor-pointer hover:bg-white/5 active:scale-[0.99] transition-all">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full border-2 border-dashed border-slate-500/60 flex items-center justify-center text-slate-400 text-sm font-light">+</div>
                                 <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 2</p>
-                                <p class="text-[9px] sm:text-[10px] text-slate-400 mt-0.5 leading-tight">Disabled<br>Tap to enable</p>
+                                <p class="text-[9px] sm:text-[10px] text-slate-400 leading-tight">Disabled - tap to enable</p>
                             </div>
-                            <div class="flex items-center gap-1 mt-1"><button type="button" class="info-btn" id="btn-blocks-info" aria-label="What are training blocks?">i</button><span class="text-[8px] sm:text-[9px] text-slate-500 uppercase tracking-wider">What is this?</span></div>
+                            <div class="flex items-center gap-1"><button type="button" class="info-btn" id="btn-blocks-info" aria-label="What are training blocks?">i</button></div>
                         </div>
-                        <!-- 2 Blocks: editable settings view -->
-                        <div id="block2-edit" class="hidden flex-1 flex flex-col p-2.5 sm:p-3 space-y-2 overflow-y-auto custom-scrollbar">
+                        <!-- 2 Blocks: editable settings view (full width, mirrors Block 1's layout) -->
+                        <div id="block2-edit" class="hidden flex flex-col p-2.5 sm:p-3 space-y-2.5 overflow-y-auto custom-scrollbar">
                             <div class="flex items-center justify-between flex-shrink-0">
                                 <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 2</p>
                                 <button id="btn-block2-disable" type="button" aria-label="Disable Block 2" class="text-slate-400 hover:text-red-400 text-base leading-none px-1.5 active:scale-95 transition-all">&times;</button>
                             </div>
                             <div class="space-y-1">
-                                <label class="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest block ml-0.5">Block Rest</label>
+                                <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block Rest</label>
                                 <div class="grid grid-cols-3 gap-1">
-                                    <button class="btn-select py-2 rounded-lg text-[10px] font-mono-display" onclick="selectBlockRest(120,this)">2min</button>
-                                    <button class="btn-select active py-2 rounded-lg text-[10px] font-mono-display" onclick="selectBlockRest(180,this)">3min</button>
-                                    <button class="btn-select py-2 rounded-lg text-[10px] font-mono-display" onclick="selectBlockRest(300,this)">5min</button>
+                                    <button class="btn-select py-2.5 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(120,this)">2min</button>
+                                    <button class="btn-select active py-2.5 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(180,this)">3min</button>
+                                    <button class="btn-select py-2.5 rounded-xl text-xs font-mono-display" onclick="selectBlockRest(300,this)">5min</button>
                                 </div>
                             </div>
                             <div class="space-y-1">
-                                <label class="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest block ml-0.5">Rounds</label>
-                                <div class="grid grid-cols-3 gap-1" id="grid-rounds-b2"></div>
+                                <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Rounds</label>
+                                <div class="grid grid-cols-6 gap-1" id="grid-rounds-b2"></div>
                             </div>
                             <div class="space-y-1">
-                                <label class="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest block ml-0.5">"Surprise" Rounds</label>
+                                <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">"Surprise" Rounds</label>
                                 <div class="grid grid-cols-4 gap-1" id="grid-surprise-b2">
-                                    <button class="btn-select py-2 rounded-lg text-[10px] font-bold" onclick="selectSurpriseB2(0,this)">0</button>
-                                    <button class="btn-select py-2 rounded-lg text-[10px] font-bold" onclick="selectSurpriseB2(1,this)">1</button>
-                                    <button class="btn-select active py-2 rounded-lg text-[10px] font-bold" onclick="selectSurpriseB2(2,this)">2</button>
-                                    <button class="btn-select py-2 rounded-lg text-[10px] font-bold" onclick="selectSurpriseB2(3,this)">3</button>
+                                    <button class="btn-select py-2.5 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(0,this)">0</button>
+                                    <button class="btn-select py-2.5 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(1,this)">1</button>
+                                    <button class="btn-select active py-2.5 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(2,this)">2</button>
+                                    <button class="btn-select py-2.5 rounded-xl text-xs font-bold" onclick="selectSurpriseB2(3,this)">3</button>
                                 </div>
                             </div>
                         </div>
@@ -516,13 +518,13 @@
             <!-- Session summary stripe: live readout of the configured session.
                  Sits between the settings cards and the action row so the reading
                  order is: configure -> review -> start. -->
-            <div class="glass-card p-2.5 sm:p-3 rounded-2xl flex-shrink-0 mt-2 sm:mt-3" id="session-summary">
-                <p class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center mb-1">Session</p>
+            <div class="glass-card p-2 sm:p-2.5 rounded-2xl flex-shrink-0 mt-2" id="session-summary">
+                <p class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center mb-0.5">Session</p>
                 <p id="session-summary-line" class="text-[11px] sm:text-xs text-white text-center leading-snug font-mono-display">12 rounds + 2 surprise rounds = 14 active phases &middot; ~17 min</p>
             </div>
             <!-- Action row: quick-rest timers and Begin Session. Now sits below the
                  settings + summary so the user follows a top-down configure-then-go flow. -->
-            <div class="grid grid-cols-6 gap-2 mt-2 sm:mt-3 flex-shrink-0">
+            <div class="grid grid-cols-6 gap-2 mt-2 flex-shrink-0">
                 <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-xs sm:text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="60"><span>Rest</span><span class="opacity-70 text-[10px]">1min</span></button>
                 <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-xs sm:text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="120"><span>Rest</span><span class="opacity-70 text-[10px]">2min</span></button>
                 <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-2xl text-xs sm:text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="180"><span>Rest</span><span class="opacity-70 text-[10px]">3min</span></button>
