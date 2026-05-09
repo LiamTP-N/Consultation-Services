@@ -242,11 +242,11 @@
         .gym-card .gym-card-num{width:clamp(22px,3.5dvh,36px);height:clamp(22px,3.5dvh,36px);border-radius:clamp(5px,0.8dvh,10px);font-size:clamp(9px,1.4dvh,13px);}
         .gym-card .gym-card-name{font-size:clamp(12px,1.8dvh,17px);}
         .gym-card .gym-card-muscle{font-size:clamp(8px,1.1dvh,11px);}
-        /* Setup screen: fixed height, inner settings panel scrolls */
-        #setup-screen{max-height:100vh;max-height:100dvh;overflow-y:auto;display:flex;flex-direction:column;}
-        #setup-columns{min-height:0;}
-        /* Settings scroll: takes remaining height, scrolls internally */
-        #settings-scroll{overflow-y:auto;min-height:0;height:100%;}
+        /* Setup screen: scrolls vertically as one block. The previous flex-column
+           layout caused children (notably block2-panel with overflow-hidden) to be
+           shrunk to fit the viewport, clipping Block 2 content when both blocks
+           were enabled. Plain block flow + overflow-y:auto restores natural scroll. */
+        #setup-screen{max-height:100vh;max-height:100dvh;overflow-y:auto;}
         @keyframes heartPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
         .hr-pulse{animation:heartPulse 0.8s ease-in-out infinite;}
         .hr-badge{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:all 0.3s ease;}
@@ -521,7 +521,7 @@
                     </button>
                 </div>
                 <!-- Block 2: collapsed CTA strip until tapped, then full editable panel. -->
-                <div id="block2-panel" class="glass-card rounded-2xl overflow-hidden">
+                <div id="block2-panel" class="glass-card rounded-2xl">
                     <!-- 1 Block: compact CTA strip. Uses div role="button" so the nested info
                          button can stop propagation cleanly (button-in-button is invalid HTML). -->
                     <div id="btn-block2-enable" role="button" tabindex="0" aria-label="Enable Block 2" class="flex items-center justify-center gap-2 px-2 py-2 cursor-pointer hover:bg-white/5 active:scale-[0.99] transition-all">
