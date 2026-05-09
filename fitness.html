@@ -455,6 +455,15 @@
                             <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(1,this)">1</button>
                             <button class="btn-select active py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(2,this)">2</button>
                             <button class="btn-select py-3 rounded-xl text-xs font-bold" onclick="selectSurprise(3,this)">3</button>
+                        </div>
+                        <!-- Surprise EVERY round toggle: when on, fires a surprise burst at the END of every work round.
+                             Overrides the 0-3 grid count above (which becomes redundant - greyed visually). -->
+                        <div class="flex items-center justify-between ml-1 mr-0.5 pt-1">
+                            <label for="in-surprise-every" class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest cursor-pointer">EVERY Round</label>
+                            <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                                <input type="checkbox" id="in-surprise-every" class="sr-only peer">
+                                <div class="relative w-8 sm:w-9 h-4 sm:h-5 bg-slate-800 rounded-full peer peer-checked:bg-red-600 peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-3 sm:after:h-4 after:w-3 sm:after:w-4 after:transition-all"></div>
+                            </label>
                         </div></div>
                     </div>
                 </div>
@@ -527,6 +536,7 @@
                 <div class="flex items-center justify-between"><h3 id="surprise-info-title" class="text-sm font-bold text-white">"Surprise" Rounds</h3><button id="btn-surprise-info-close" aria-label="Close" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button></div>
                 <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed">A random burnout burst dropped into the middle of your session. The screen flashes white with a 5-second "GET READY" countdown, then 30 seconds of one task - STRAIGHTS or HOOKS (chosen at random).</p>
                 <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed">Slots fall anywhere within the middle rounds. In partner mode, each of you gets different surprise rounds at different random times.</p>
+                <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed"><span class="text-red-400 font-bold">EVERY Round toggle:</span> overrides the 0-3 count above. Fires a surprise burst at the end of every work round (warm-up and burnout included).</p>
                 <button id="btn-surprise-info-done" class="theme-btn w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-[0.98]">Got it</button>
             </div>
         </div>
@@ -748,6 +758,7 @@
             restBase:30,           // Solo mode base rest before progressive increment
             randomiseMiddle:true,  // Shuffle middle rounds (keeps warm-up / burnout fixed when >6 rounds)
             surpriseCount:2,       // Number of "surprise" bursts injected into block 1
+            surpriseEveryRound:false,  // When true, overrides surpriseCount/B2 - fires a surprise after EVERY work round
             blocks:1,              // 1 or 2 training blocks
             blockRestSecs:180,     // Rest between block 1 and block 2 (120/180/300s)
             roundsB2:6,            // Block 2 round count
@@ -1900,6 +1911,21 @@
         window.selectRoundB2=(n,el)=>{settings.roundsB2=n;Array.from(gridRoundsB2.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');generateSessionPlan();};
         window.selectWork=(n,el)=>{settings.work=n;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');updateSessionSummary();};
         window.selectSurprise=(n,el)=>{settings.surpriseCount=n;Array.from(document.getElementById('grid-surprise').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');updateSessionSummary();};
+        // Surprise EVERY round toggle: overrides the 0-3 count above. When on, the
+        // 0-3 grid is visually dimmed (still tappable but its value is ignored at runtime).
+        // Affects both Block 1 and Block 2 - one toggle governs the whole session.
+        (()=>{
+            const cb=document.getElementById('in-surprise-every');
+            const grid=document.getElementById('grid-surprise');
+            const gridB2=document.getElementById('grid-surprise-b2');
+            if(!cb)return;
+            const applyDim=()=>{
+                const dim=cb.checked;
+                [grid,gridB2].forEach(g=>{if(g)g.style.opacity=dim?'0.4':'1';});
+            };
+            cb.addEventListener('change',()=>{settings.surpriseEveryRound=cb.checked;applyDim();updateSessionSummary();});
+            applyDim();
+        })();
         // Info modals for "Surprise Rounds" and "Training Blocks". Tap the (i)
         // button next to each label to open the modal; close via X or Got it.
         // The Training Blocks (i) button is nested inside the Block 2 CTA panel,
@@ -2152,9 +2178,9 @@
             const el=document.getElementById('session-summary-line');
             if(!el)return;
             const isW=settings.mode==='wife';
-            const r1=settings.rounds, s1=settings.surpriseCount;
+            const r1=settings.rounds, s1=settings.surpriseEveryRound?settings.rounds:settings.surpriseCount;
             const has2=settings.blocks===2;
-            const r2=has2?settings.roundsB2:0, s2=has2?settings.surpriseCountB2:0;
+            const r2=has2?settings.roundsB2:0, s2=has2?(settings.surpriseEveryRound?settings.roundsB2:settings.surpriseCountB2):0;
             const totalRounds=r1+r2;
             const totalSurprise=s1+s2;
             const activePhases=totalRounds+totalSurprise;
@@ -2580,11 +2606,16 @@
                 if(session.phase==='work'){
                     // At end of work round: check if a surprise is scheduled for this plan index
                     // (and person - in Wife mode surprise sets are per-person).
+                    // EVERY round override: when settings.surpriseEveryRound is on, EVERY work
+                    // round fires a surprise regardless of the per-block surpriseCount sets.
+                    // No triggered tracking needed since it's deterministic per round.
                     const pi=isW?Math.floor((session.round-1)/2):session.round-1;
                     const iy=!isW||(session.round%2!==0);  // "is you's round"
                     const ip=isW&&(session.round%2===0);   // "is partner's round"
                     let ts=false;
-                    if(iy&&currentSurpriseYou().has(pi)&&!currentTriggeredYou().has(pi)){currentTriggeredYou().add(pi);ts=true;}
+                    if(settings.surpriseEveryRound){
+                        ts=true;
+                    }else if(iy&&currentSurpriseYou().has(pi)&&!currentTriggeredYou().has(pi)){currentTriggeredYou().add(pi);ts=true;}
                     else if(ip&&currentSurpriseWife().has(pi)&&!currentTriggeredWife().has(pi)){currentTriggeredWife().add(pi);ts=true;}
                     if(ts){setPhase('surprise');return;}
                     // No surprise - either end the block or go to rest/change.
@@ -2971,7 +3002,9 @@
             if(!m)return null;
             const durationSec=Math.max(30,Math.round((Date.now()-sessionStartTime)/1000));
             const totalRounds=settings.blocks===2?(settings.rounds+settings.roundsB2):settings.rounds;
-            const surpriseRounds=settings.blocks===2?(settings.surpriseCount+settings.surpriseCountB2):settings.surpriseCount;
+            const surpriseRounds=settings.surpriseEveryRound
+                ?totalRounds
+                :(settings.blocks===2?(settings.surpriseCount+settings.surpriseCountB2):settings.surpriseCount);
             return {
                 sessionId,
                 activity:'Boxing',
