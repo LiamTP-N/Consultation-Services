@@ -51,12 +51,15 @@ CHANGE LOG
                Clicking the same row again collapses it; clicking another
                row moves the expansion. Standalone #detail-panel removed.
 - 09 May 2026: Added "applied for" tracking - independent of status field.
-               A green tick + date appears inline next to the project title
-               on any row where applied.date is set. The expanded detail
-               card carries the form controls (date, outcome, free-text note)
-               and writes the new `applied` object straight to the JSON via
-               ghPut. The scraper's merge_with_existing preserves it across
-               daily runs.
+               A new sortable "Applied" column at the right end of the table
+               holds a tick-box (with the date underneath when set). Clicking
+               an empty tick prompts for the date (defaults to today) and
+               saves immediately to the JSON via ghPut. Clicking a ticked one
+               prompts to remove the marker. The detail card shows the saved
+               applied info read-only when present. Outcome (pending/won/lost)
+               and free-text note can be added by editing the JSON directly
+               or via a future inline edit. The scraper's merge_with_existing
+               preserves the `applied` object across daily runs.
 ================================================================================
 -->
 <html lang="en-GB">
@@ -206,50 +209,42 @@ CHANGE LOG
         .add-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 3px; display: block; }
         .add-required { color: #f87171; }
 
-        .delete-btn { opacity: 0.35; transition: opacity 0.15s, color 0.15s; }
-        .delete-btn:hover { opacity: 1; }
+        .delete-btn { color: #ef4444; opacity: 0.85; transition: opacity 0.15s, color 0.15s; }
+        .delete-btn:hover { color: #f87171; opacity: 1; }
 
-        /* Applied-for tick shown inline beside project title */
-        .applied-tick {
+        /* Applied-for column: tick-box style toggle, with date underneath when set */
+        .applied-toggle-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 5px;
+            border: 1.5px solid #334155;
+            background: transparent;
+            color: #475569;
+            font-size: 0.95rem;
+            line-height: 1;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            padding: 1px 6px;
-            margin-left: 4px;
-            border-radius: 4px;
-            background: #14532d;
-            color: #86efac;
-            border: 1px solid #166534;
-            white-space: nowrap;
-        }
-        .applied-tick .check { font-size: 0.75rem; line-height: 1; }
-        .applied-outcome-pending { background: #1e293b; color: #cbd5e1; border-color: #334155; }
-        .applied-outcome-won     { background: #064e3b; color: #6ee7b7; border-color: #047857; }
-        .applied-outcome-lost    { background: #4c1d1d; color: #fca5a5; border-color: #7f1d1d; }
-
-        /* Compact form rows inside the detail card for applied-for fields */
-        .applied-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
-        .applied-form input[type="date"],
-        .applied-form input[type="text"],
-        .applied-form select {
-            padding: 4px 8px;
-            border-radius: 4px;
-            border: 1px solid #334155;
-            background: #0f172a;
-            color: #e2e8f0;
-            font-size: 0.75rem;
-        }
-        .applied-form input[type="text"] { flex: 1; min-width: 160px; }
-        .applied-form input:focus, .applied-form select:focus { outline: none; border-color: #10b981; }
-        .applied-form .applied-checkbox-wrap {
-            display: inline-flex; align-items: center; gap: 6px;
-            font-size: 0.75rem; color: #cbd5e1;
-            padding: 4px 10px; border: 1px solid #334155; border-radius: 4px; background: #0f172a;
+            justify-content: center;
             cursor: pointer;
+            transition: all 0.15s;
+            padding: 0;
         }
-        .applied-form .applied-checkbox-wrap input { margin: 0; accent-color: #10b981; }
+        .applied-toggle-btn:hover { border-color: #10b981; color: #10b981; }
+        .applied-toggle-btn:disabled { cursor: wait; opacity: 0.5; }
+        .applied-toggle-btn.is-on {
+            background: #14532d;
+            border-color: #166534;
+            color: #86efac;
+        }
+        .applied-toggle-btn.is-on.outcome-won  { background: #064e3b; border-color: #047857; color: #6ee7b7; }
+        .applied-toggle-btn.is-on.outcome-lost { background: #4c1d1d; border-color: #7f1d1d; color: #fca5a5; }
+        .applied-date-label {
+            font-size: 0.6rem;
+            color: #94a3b8;
+            margin-top: 3px;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
@@ -343,10 +338,11 @@ CHANGE LOG
                             <th class="sortable px-4 py-3 text-left hidden md:table-cell" data-col="source">Source <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left" data-col="status">Status <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left sorted" data-col="due_date">Due <span class="sort-arrow">&#8593;</span></th>
+                            <th class="sortable px-4 py-3 text-center" data-col="applied">Applied <span class="sort-arrow">&#8597;</span></th>
                         </tr>
                     </thead>
                     <tbody id="rfps-body">
-                        <tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">Loading Edgewise_rfps.json...</td></tr>
+                        <tr><td colspan="6" class="px-4 py-12 text-center text-slate-500 text-sm">Loading Edgewise_rfps.json...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -692,25 +688,6 @@ CHANGE LOG
         return 'status-open';
     }
 
-    // ---- Applied-for helpers ----
-    function appliedOutcomeClass(o) {
-        const l = (o || 'pending').toLowerCase();
-        if (l === 'won')  return 'applied-outcome-won';
-        if (l === 'lost') return 'applied-outcome-lost';
-        return 'applied-outcome-pending';
-    }
-    function appliedTickHtml(applied) {
-        if (!applied || !applied.date) return '';
-        const outcome = (applied.outcome || 'pending').toLowerCase();
-        const cls = appliedOutcomeClass(outcome);
-        const note = applied.note ? ' - ' + applied.note : '';
-        const titleAttr = 'Applied ' + applied.date + ' (' + outcome + ')' + note;
-        return '<span class="applied-tick ' + cls + '" title="' + escHtml(titleAttr) + '">' +
-               '<span class="check">&#10003;</span>Applied ' + escHtml(applied.date) +
-               (outcome !== 'pending' ? ' (' + escHtml(outcome) + ')' : '') +
-               '</span>';
-    }
-
     // ---- Filter predicates ----
     function matchesStatus(r, f) {
         const s = (r.status || 'open').toLowerCase();
@@ -757,6 +734,16 @@ CHANGE LOG
                 if (bBlank) return -1;
                 va = new Date(va).getTime();
                 vb = new Date(vb).getTime();
+            } else if (sortCol === 'applied') {
+                // Sort by applied.date. Unapplied tenders sink to the bottom
+                // either way, mirroring the due_date treatment.
+                const ad = (a.applied && a.applied.date) || '';
+                const bd = (b.applied && b.applied.date) || '';
+                if (!ad && !bd) return 0;
+                if (!ad) return 1;
+                if (!bd) return -1;
+                va = new Date(ad).getTime();
+                vb = new Date(bd).getTime();
             } else {
                 va = va.toString().toLowerCase();
                 vb = vb.toString().toLowerCase();
@@ -774,19 +761,30 @@ CHANGE LOG
         const rfps = getFilteredRfps();
         const tbody = document.getElementById('rfps-body');
         if (!rfps.length) {
-            tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No RFPs match this filter.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-12 text-center text-slate-500 text-sm">No RFPs match this filter.</td></tr>';
             updateStats();
             return;
         }
         tbody.innerHTML = rfps.map(r => {
             const realIdx = allRfps.indexOf(r);
+            const a = r.applied || {};
+            const isApplied = !!a.date;
+            const outcome = (a.outcome || 'pending').toLowerCase();
+            const tickCell =
+                '<td class="px-4 py-3 text-center whitespace-nowrap applied-cell" data-idx="' + realIdx + '">' +
+                    '<button class="applied-toggle-btn ' + (isApplied ? 'is-on outcome-' + outcome : '') + '" ' +
+                            'title="' + (isApplied ? escHtml('Applied ' + a.date + ' (' + outcome + ')' + (a.note ? ' - ' + a.note : '')) : 'Mark as applied') + '" ' +
+                            'aria-label="' + (isApplied ? 'Mark as not applied' : 'Mark as applied') + '">' +
+                        (isApplied ? '<span class="check">&#10003;</span>' : '<span class="empty">&#9633;</span>') +
+                    '</button>' +
+                    (isApplied ? '<div class="applied-date-label">' + escHtml(a.date) + '</div>' : '') +
+                '</td>';
             return '<tr class="border-b border-slate-700/50 hover:bg-slate-800/60 transition-colors cursor-pointer" data-idx="' + realIdx + '">' +
                 '<td class="px-4 py-3"><div class="flex items-start gap-2">' +
-                    '<button class="delete-btn flex-shrink-0 mt-0.5 text-slate-600 hover:text-rose-400 text-base leading-none" title="Delete this tender">&times;</button>' +
+                    '<button class="delete-btn flex-shrink-0 mt-0.5 text-base leading-none" title="Delete this tender">&times;</button>' +
                     '<div>' +
                         '<a href="' + escHtml(safeUrl(r.url)) + '" target="_blank" rel="noopener" class="font-semibold text-slate-200 hover:text-blue-400 transition-colors text-sm" onclick="event.stopPropagation()">' + escHtml(r.project) + '</a> ' +
                         '<span class="region-badge ' + regionClass(r.region) + '">' + escHtml(regionTag(r.region)) + '</span>' +
-                        appliedTickHtml(r.applied) +
                         (r.summary ? '<div class="text-xs text-slate-500 mt-0.5 line-clamp-1">' + escHtml(r.summary) + '</div>' : '') +
                     '</div>' +
                 '</div></td>' +
@@ -794,13 +792,26 @@ CHANGE LOG
                 '<td class="px-4 py-3 hidden md:table-cell whitespace-nowrap"><span class="source-badge ' + srcClass(r.source) + '">' + escHtml(r.source || '-') + '</span></td>' +
                 '<td class="px-4 py-3 whitespace-nowrap"><span class="source-badge ' + statusClass(r.status) + '">' + escHtml(r.status || 'open') + '</span></td>' +
                 '<td class="px-4 py-3 text-xs whitespace-nowrap ' + dueClass(r.due_date) + '">' + escHtml(dueLabel(r.due_date)) + '</td>' +
+                tickCell +
             '</tr>';
         }).join('');
 
         tbody.querySelectorAll('tr[data-idx]').forEach(tr => {
             tr.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn')) return;
+                if (e.target.closest('.applied-toggle-btn')) return;
                 toggleDetail(tr, allRfps[parseInt(tr.dataset.idx, 10)]);
+            });
+        });
+
+        tbody.querySelectorAll('.applied-toggle-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const cell = btn.closest('.applied-cell');
+                const idx = parseInt(cell.dataset.idx, 10);
+                const rec = allRfps[idx];
+                if (!rec) return;
+                await handleAppliedToggle(rec, btn);
             });
         });
 
@@ -877,6 +888,58 @@ CHANGE LOG
     // Inline expansion: a single extra <tr> is inserted directly after
     // the clicked row, holding the detail card. Clicking the same row
     // again removes it; clicking a different row moves it.
+    // Applied-for column toggle. Empty -> prompt for date (defaults to today),
+    // optional outcome and note via a single string parse, save. Ticked ->
+    // confirm before clearing.
+    async function handleAppliedToggle(rec, btn) {
+        const wasApplied = !!(rec.applied && rec.applied.date);
+        let newApplied;
+
+        if (!wasApplied) {
+            const todayStr = new Date().toISOString().slice(0, 10);
+            const entered = prompt(
+                'Mark "' + (rec.project || 'this tender').slice(0, 80) + '" as applied for.\n\n' +
+                'Date applied (YYYY-MM-DD):',
+                todayStr
+            );
+            if (entered === null) return;
+            const date = entered.trim() || todayStr;
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { alert('Date must be YYYY-MM-DD.'); return; }
+            newApplied = { date: date, outcome: 'pending', note: '' };
+        } else {
+            const ok = confirm('Remove the "applied" marker from this tender?');
+            if (!ok) return;
+            newApplied = null;
+        }
+
+        btn.disabled = true;
+        const prevHtml = btn.innerHTML;
+        btn.innerHTML = '<span class="empty">&hellip;</span>';
+        try {
+            const fileData = await ghGet(GH_RFPS_PATH);
+            const existing = JSON.parse(atob(fileData.content.replace(/\n/g, '')));
+            const target = existing.rfps.find(x => x.id === rec.id);
+            if (!target) throw new Error('Tender no longer present in JSON');
+            if (newApplied) target.applied = newApplied;
+            else delete target.applied;
+            existing.last_updated = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+            await ghPut(
+                GH_RFPS_PATH,
+                JSON.stringify(existing, null, 2),
+                fileData.sha,
+                'chore: ' + (newApplied ? 'mark applied' : 'unmark applied') + ' - ' + (rec.project || '').slice(0, 60)
+            );
+            // Sync in-memory and re-render
+            if (newApplied) rec.applied = newApplied;
+            else delete rec.applied;
+            renderTable();
+        } catch (e) {
+            alert('Save failed: ' + e.message);
+            btn.innerHTML = prevHtml;
+            btn.disabled = false;
+        }
+    }
+
     function closeDetailRow() {
         const existing = document.getElementById('detail-row');
         if (existing) existing.remove();
@@ -906,37 +969,27 @@ CHANGE LOG
         }
         if (r.url) body.push('<a href="' + escHtml(safeUrl(r.url)) + '" target="_blank" rel="noopener" class="inline-block text-xs px-3 py-1.5 rounded border border-blue-600 text-blue-400 hover:bg-blue-600/10 transition mt-2">Open tender notice &rarr;</a>');
 
-        // Applied-for form: independent of status field. Stored on r.applied
-        // as { date, outcome, note }. Absent / no date = not applied for.
-        const a = r.applied || {};
-        const isApplied = !!a.date;
-        const todayStr = new Date().toISOString().slice(0, 10);
-        const appliedSection =
-            '<div class="border-l-2 border-emerald-600 pl-3 pt-2">' +
-                '<p class="text-xs text-emerald-400 uppercase tracking-wider mb-2">Applied for</p>' +
-                '<div class="applied-form">' +
-                    '<label class="applied-checkbox-wrap">' +
-                        '<input type="checkbox" id="applied-toggle" ' + (isApplied ? 'checked' : '') + '>' +
-                        '<span>We applied for this</span>' +
-                    '</label>' +
-                    '<input type="date" id="applied-date" value="' + escHtml(a.date || todayStr) + '" ' + (isApplied ? '' : 'disabled') + '>' +
-                    '<select id="applied-outcome" ' + (isApplied ? '' : 'disabled') + '>' +
-                        '<option value="pending"' + ((a.outcome || 'pending') === 'pending' ? ' selected' : '') + '>Pending</option>' +
-                        '<option value="won"' + (a.outcome === 'won' ? ' selected' : '') + '>Won</option>' +
-                        '<option value="lost"' + (a.outcome === 'lost' ? ' selected' : '') + '>Lost</option>' +
-                    '</select>' +
-                    '<input type="text" id="applied-note" placeholder="Proposal ref / note (optional)" value="' + escHtml(a.note || '') + '" ' + (isApplied ? '' : 'disabled') + '>' +
-                    '<button id="applied-save-btn" class="text-xs px-3 py-1 rounded border border-emerald-600 text-emerald-400 hover:bg-emerald-600/10 transition">Save</button>' +
-                    '<span id="applied-status" class="text-xs text-slate-500"></span>' +
-                '</div>' +
-            '</div>';
-        body.push(appliedSection);
+        // Show applied-for status read-only inside the detail card if set.
+        // The tick-box in the Applied column is the single edit point.
+        if (r.applied && r.applied.date) {
+            const o = (r.applied.outcome || 'pending').toLowerCase();
+            const note = r.applied.note ? ' &mdash; ' + escHtml(r.applied.note) : '';
+            body.push(
+                '<div class="border-l-2 border-emerald-600 pl-3 pt-2">' +
+                    '<p class="text-xs text-emerald-400 uppercase tracking-wider mb-1">Applied for</p>' +
+                    '<p class="text-sm">' +
+                        '<span class="font-semibold">' + escHtml(r.applied.date) + '</span>' +
+                        ' <span class="text-slate-400">(' + escHtml(o) + ')</span>' + note +
+                    '</p>' +
+                '</div>'
+            );
+        }
 
         const detailTr = document.createElement('tr');
         detailTr.id = 'detail-row';
         detailTr.className = 'bg-slate-800/40';
         detailTr.innerHTML =
-            '<td colspan="5" class="px-4 py-4 border-b border-slate-700/50">' +
+            '<td colspan="6" class="px-4 py-4 border-b border-slate-700/50">' +
                 '<div class="bg-slate-800 border border-slate-700 rounded-lg p-5">' +
                     '<div class="flex items-start justify-between gap-4 mb-3">' +
                         '<div>' +
@@ -956,67 +1009,6 @@ CHANGE LOG
         detailTr.querySelector('#detail-close').addEventListener('click', (e) => {
             e.stopPropagation();
             closeDetailRow();
-        });
-
-        // Wire up applied-for form
-        const toggle  = detailTr.querySelector('#applied-toggle');
-        const dateIn  = detailTr.querySelector('#applied-date');
-        const outIn   = detailTr.querySelector('#applied-outcome');
-        const noteIn  = detailTr.querySelector('#applied-note');
-        const saveBtn = detailTr.querySelector('#applied-save-btn');
-        const statusSpan = detailTr.querySelector('#applied-status');
-
-        toggle.addEventListener('change', () => {
-            const on = toggle.checked;
-            dateIn.disabled = !on;
-            outIn.disabled = !on;
-            noteIn.disabled = !on;
-            if (on && !dateIn.value) dateIn.value = todayStr;
-        });
-
-        saveBtn.addEventListener('click', async () => {
-            saveBtn.disabled = true;
-            statusSpan.textContent = 'Saving...';
-            statusSpan.className = 'text-xs text-blue-400';
-            try {
-                const fileData = await ghGet(GH_RFPS_PATH);
-                const existing = JSON.parse(atob(fileData.content.replace(/\n/g, '')));
-                const target = existing.rfps.find(x => x.id === r.id);
-                if (!target) throw new Error('Tender no longer present in JSON');
-
-                if (toggle.checked) {
-                    target.applied = {
-                        date: dateIn.value || todayStr,
-                        outcome: outIn.value || 'pending',
-                        note: noteIn.value.trim()
-                    };
-                } else {
-                    delete target.applied;
-                }
-                existing.last_updated = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
-
-                await ghPut(
-                    GH_RFPS_PATH,
-                    JSON.stringify(existing, null, 2),
-                    fileData.sha,
-                    'chore: update applied-for status - ' + (r.project || '').slice(0, 60)
-                );
-
-                // Sync in-memory record so the row reflects immediately
-                if (toggle.checked) {
-                    r.applied = { date: dateIn.value || todayStr, outcome: outIn.value || 'pending', note: noteIn.value.trim() };
-                } else {
-                    delete r.applied;
-                }
-                statusSpan.textContent = 'Saved \u2713';
-                statusSpan.className = 'text-xs text-emerald-400';
-                renderTable();
-            } catch (e) {
-                statusSpan.textContent = 'Save failed: ' + e.message;
-                statusSpan.className = 'text-xs text-rose-400';
-            } finally {
-                saveBtn.disabled = false;
-            }
         });
 
         // Scroll the expanded row into view if it's off-screen.
@@ -1091,7 +1083,7 @@ CHANGE LOG
             renderPortals();
         } catch (e) {
             const tbody = document.getElementById('rfps-body');
-            tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load Edgewise_rfps.json.<br><span class="text-xs text-slate-600" id="err-msg"></span></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load Edgewise_rfps.json.<br><span class="text-xs text-slate-600" id="err-msg"></span></td></tr>';
             const errEl = document.getElementById('err-msg');
             if (errEl) errEl.textContent = e.message;
         }
