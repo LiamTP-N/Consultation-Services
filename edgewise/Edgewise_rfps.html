@@ -46,6 +46,10 @@ CHANGE LOG
                genuinely shows soonest-due first (was previously sorting
                descending despite the up-arrow). Records with no due date
                are pushed to the bottom in either sort direction.
+- 09 May 2026: Detail card now expands inline directly beneath the clicked
+               row instead of appearing in a fixed panel under the table.
+               Clicking the same row again collapses it; clicking another
+               row moves the expansion. Standalone #detail-panel removed.
 ================================================================================
 -->
 <html lang="en-GB">
@@ -114,6 +118,7 @@ CHANGE LOG
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable:hover { color: #60a5fa; }
         th.sorted { color: #60a5fa; }
+        tr.detail-open { background: rgba(30, 64, 175, 0.08); }
         .filter-active { background: #1e40af !important; color: #fff !important; border-color: #1e40af !important; }
 
         .due-soon  { color: #fbbf24; font-weight: 600; }
@@ -295,19 +300,6 @@ CHANGE LOG
                         <tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">Loading Edgewise_rfps.json...</td></tr>
                     </tbody>
                 </table>
-            </div>
-
-            <!-- Detail panel -->
-            <div id="detail-panel" class="hidden mt-6 p-5 bg-slate-800 border border-slate-700 rounded-lg">
-                <div class="flex items-start justify-between gap-4 mb-3">
-                    <div>
-                        <h2 id="detail-title" class="text-lg font-bold text-slate-100"></h2>
-                        <p id="detail-entity" class="text-sm text-slate-400 mt-0.5"></p>
-                    </div>
-                    <button id="detail-close" class="text-slate-500 hover:text-slate-300 text-xl leading-none px-2">&times;</button>
-                </div>
-                <div id="detail-meta" class="flex flex-wrap gap-2 mb-3"></div>
-                <div id="detail-body" class="text-sm text-slate-300 space-y-3"></div>
             </div>
 
             <!-- ====================================================
@@ -739,7 +731,7 @@ CHANGE LOG
         tbody.querySelectorAll('tr[data-idx]').forEach(tr => {
             tr.addEventListener('click', (e) => {
                 if (e.target.closest('.delete-btn')) return;
-                showDetail(allRfps[parseInt(tr.dataset.idx, 10)]);
+                toggleDetail(tr, allRfps[parseInt(tr.dataset.idx, 10)]);
             });
         });
 
@@ -802,7 +794,7 @@ CHANGE LOG
                     }
 
                     renderTable();
-                    document.getElementById('detail-panel').classList.add('hidden');
+                    closeDetailRow();
 
                 } catch (err) {
                     alert('Delete failed: ' + err.message);
@@ -813,17 +805,29 @@ CHANGE LOG
         updateStats();
     }
 
-    function showDetail(r) {
+    // Inline expansion: a single extra <tr> is inserted directly after
+    // the clicked row, holding the detail card. Clicking the same row
+    // again removes it; clicking a different row moves it.
+    function closeDetailRow() {
+        const existing = document.getElementById('detail-row');
+        if (existing) existing.remove();
+        document.querySelectorAll('tr.detail-open').forEach(t => t.classList.remove('detail-open'));
+    }
+
+    function toggleDetail(tr, r) {
         if (!r) return;
-        document.getElementById('detail-title').textContent = r.project || '';
-        document.getElementById('detail-entity').textContent = (r.entity || '') + (r.region ? ' \u00b7 ' + r.region : '');
+        const existing = document.getElementById('detail-row');
+        const wasOpenForThisRow = existing && existing.previousElementSibling === tr;
+        closeDetailRow();
+        if (wasOpenForThisRow) return;
+
         const meta = [];
         if (r.status)    meta.push('<span class="source-badge ' + statusClass(r.status) + '">' + escHtml(r.status) + '</span>');
         if (r.due_date)  meta.push('<span class="text-xs text-slate-400">Due: <span class="' + dueClass(r.due_date) + '">' + escHtml(dueLabel(r.due_date)) + '</span></span>');
         if (r.budget)    meta.push('<span class="text-xs text-slate-400">Budget: <span class="text-slate-200">' + escHtml(r.budget) + '</span></span>');
         if (r.source)    meta.push('<span class="source-badge ' + srcClass(r.source) + '">' + escHtml(r.source) + '</span>');
         if (r.reference) meta.push('<span class="text-xs text-slate-500 font-mono">' + escHtml(r.reference) + '</span>');
-        document.getElementById('detail-meta').innerHTML = meta.join('');
+
         const body = [];
         if (r.summary)  body.push('<p>' + escHtml(r.summary) + '</p>');
         if (r.why_fits) body.push('<div class="border-l-2 border-blue-500 pl-3"><p class="text-xs text-blue-400 uppercase tracking-wider mb-1">Why this fits</p><p>' + escHtml(r.why_fits) + '</p></div>');
@@ -832,15 +836,39 @@ CHANGE LOG
             body.push('<div class="flex flex-wrap gap-1.5 pt-2">' + r.tags.map(t => '<span class="text-xs px-2 py-0.5 rounded bg-slate-700/50 text-slate-400">' + escHtml(t) + '</span>').join('') + '</div>');
         }
         if (r.url) body.push('<a href="' + escHtml(safeUrl(r.url)) + '" target="_blank" rel="noopener" class="inline-block text-xs px-3 py-1.5 rounded border border-blue-600 text-blue-400 hover:bg-blue-600/10 transition mt-2">Open tender notice &rarr;</a>');
-        document.getElementById('detail-body').innerHTML = body.join('');
-        const panel = document.getElementById('detail-panel');
-        panel.classList.remove('hidden');
-        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
 
-    document.getElementById('detail-close').addEventListener('click', () => {
-        document.getElementById('detail-panel').classList.add('hidden');
-    });
+        const detailTr = document.createElement('tr');
+        detailTr.id = 'detail-row';
+        detailTr.className = 'bg-slate-800/40';
+        detailTr.innerHTML =
+            '<td colspan="5" class="px-4 py-4 border-b border-slate-700/50">' +
+                '<div class="bg-slate-800 border border-slate-700 rounded-lg p-5">' +
+                    '<div class="flex items-start justify-between gap-4 mb-3">' +
+                        '<div>' +
+                            '<h2 class="text-lg font-bold text-slate-100">' + escHtml(r.project || '') + '</h2>' +
+                            '<p class="text-sm text-slate-400 mt-0.5">' + escHtml((r.entity || '') + (r.region ? ' \u00b7 ' + r.region : '')) + '</p>' +
+                        '</div>' +
+                        '<button id="detail-close" class="text-slate-500 hover:text-slate-300 text-xl leading-none px-2">&times;</button>' +
+                    '</div>' +
+                    '<div class="flex flex-wrap gap-2 mb-3">' + meta.join('') + '</div>' +
+                    '<div class="text-sm text-slate-300 space-y-3">' + body.join('') + '</div>' +
+                '</div>' +
+            '</td>';
+
+        tr.classList.add('detail-open');
+        tr.parentNode.insertBefore(detailTr, tr.nextSibling);
+
+        detailTr.querySelector('#detail-close').addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeDetailRow();
+        });
+
+        // Scroll the expanded row into view if it's off-screen.
+        const rect = detailTr.getBoundingClientRect();
+        if (rect.bottom > window.innerHeight || rect.top < 0) {
+            detailTr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
 
     function updateStats() {
         const open = allRfps.filter(r => ['open', 'watching', 'bidding', 'submitted'].includes((r.status || 'open').toLowerCase()));
