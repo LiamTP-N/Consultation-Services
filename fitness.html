@@ -666,6 +666,16 @@
                 </div>
                 <div class="flex flex-col items-end" style="gap:0.5dvh;">
                     <div id="hr-live-wife" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-purple-600/20 border border-purple-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-purple-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-bpm" class="hr-bpm font-black font-mono-display text-purple-300">--</span></div><canvas id="hr-spark-wife" class="rounded" style="display:block;"></canvas></div>
+                    <!-- Per-person round counter for Ash (Team mode only). Mirrors Liam's
+                         counter on the left. Hidden in Solo via .hidden class set by JS. -->
+                    <div id="wife-round-wrap" class="hidden flex-col items-end" style="display:none;gap:clamp(2px,0.4dvh,6px);">
+                        <p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke">Ash</p>
+                        <div class="flex items-baseline" style="gap:0.3rem;">
+                            <span id="wife-round-cur" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">0</span>
+                            <span class="round-slash text-white/60 font-bold t-stroke">/</span>
+                            <span id="wife-round-tot" class="round-slash text-white/60 font-bold t-stroke">0</span>
+                        </div>
+                    </div>
                     <button id="btn-mute-voice" aria-label="Toggle voice announcements" aria-pressed="true" class="ctrl-btn flex items-center rounded-full backdrop-blur-md bg-black/20 border border-white/10 active:scale-95 transition-all"><svg id="icon-voice-on" class="hidden text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M11 5L6 9H2v6h4l5 4V5z"/></svg><svg id="icon-voice-off" class="text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/></svg><span id="voice-label" class="font-bold uppercase tracking-wider text-red-400">Voice</span></button>
                     <button id="btn-mute-sound" aria-label="Toggle sound effects" aria-pressed="true" class="ctrl-btn flex items-center rounded-full backdrop-blur-md bg-black/20 border border-white/10 active:scale-95 transition-all"><svg id="icon-sound-on" class="hidden text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M11 5L6 9H2v6h4l5 4V5z"/></svg><svg id="icon-sound-off" class="text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/></svg><span id="sound-label" class="font-bold uppercase tracking-wider text-red-400">Sound</span></button>
                 </div>
@@ -920,6 +930,9 @@
             surpriseTriggeredYou:new Set(),surpriseTriggeredWife:new Set(),
             surpriseRoundsYouB2:new Set(),surpriseRoundsWifeB2:new Set(),
             surpriseTriggeredYouB2:new Set(),surpriseTriggeredWifeB2:new Set(),
+            // Phase 3: per-block round schedule. Built at startSession() (and rebuilt
+            // when entering block 2). Each entry: {who, planIdx, isAlt}. See buildSchedule.
+            schedule:[],scheduleB2:[],
             halfwayPlayed:false,   // Prevents double-playing the halfway beep
             last10Played:false,    // Prevents double-playing the 10s warning tone
             targetEndTime:0,       // Wall-clock ms when current phase ends (drift-resistant)
@@ -975,9 +988,13 @@
             // (the legacy behaviour - no HR data will save anyway).
             const youConn=hrDeviceYou&&hrDeviceYou.gatt&&hrDeviceYou.gatt.connected;
             const wifeConn=hrDeviceWife&&hrDeviceWife.gatt&&hrDeviceWife.gatt.connected;
+            // Phase 3: schedule entry decides whose work/rest this is, not parity.
+            const sched=session.currentBlock===1?session.schedule:session.scheduleB2;
+            const ent=sched&&sched.length?sched[session.round-1]:null;
+            const isYouSlot=ent?ent.who==='you':true;
             if(session.phase==='work'||session.phase==='surprise'){
                 workMsTotal+=elapsedMs;
-                if(isW){if(session.round%2!==0)workMsYou+=elapsedMs;else workMsWife+=elapsedMs;}
+                if(isW){if(isYouSlot)workMsYou+=elapsedMs;else workMsWife+=elapsedMs;}
                 else{
                     if(youConn)workMsYou+=elapsedMs;
                     if(wifeConn)workMsWife+=elapsedMs;
@@ -985,7 +1002,7 @@
                 }
             }else if(session.phase==='rest'||session.phase==='change'||session.phase==='block-rest'){
                 restMsTotal+=elapsedMs;
-                if(isW){if(session.round%2!==0)restMsYou+=elapsedMs;else restMsWife+=elapsedMs;}
+                if(isW){if(isYouSlot)restMsYou+=elapsedMs;else restMsWife+=elapsedMs;}
                 else{
                     if(youConn)restMsYou+=elapsedMs;
                     if(wifeConn)restMsWife+=elapsedMs;
@@ -1038,13 +1055,16 @@
         // buffer (for the live sparkline during a working phase).
         // mySur: per-person surprise ownership flag for chart shading. The global
         // session.phase==='surprise' marks samples for both people, but in partner
-        // mode each surprise belongs to one person (odd rounds = Liam, even = Ash).
+        // mode each surprise belongs to one person. Phase 3: ownership comes from
+        // the schedule entry, not parity.
         // Solo mode: all surprises are Liam's.
         function recordHR(who,bpm){
             const isSur=session.phase==='surprise';
             const isW=settings.mode==='wife';
-            const youOwnsSur=isSur&&(!isW||(session.round%2!==0));
-            const wifeOwnsSur=isSur&&isW&&(session.round%2===0);
+            const sched=session.currentBlock===1?session.schedule:session.scheduleB2;
+            const ent=sched&&sched.length?sched[session.round-1]:null;
+            const youOwnsSur=isSur&&(!isW||(ent&&ent.who==='you'));
+            const wifeOwnsSur=isSur&&isW&&ent&&ent.who==='wife';
             const t=(Date.now()-sessionStartTime)/1000;
             if(who==='you'){
                 const e={t,bpm,round:session.round,phase:session.phase,mySur:youOwnsSur};
@@ -2465,7 +2485,16 @@
         }
         // Rebuild both block plans from current settings and refresh the sidebar preview.
         // Called whenever any setup control changes.
-        function generateSessionPlan(){session.plan=buildPlan(settings.rounds);session.planB2=settings.blocks===2?buildPlan(settings.roundsB2):[];updatePreview();updateSessionSummary();}
+        function generateSessionPlan(){
+            // Phase 3: plan length must cover whichever person picked more rounds, since
+            // the schedule's solo tail still needs distinct plan entries for each round.
+            const isTeam=settings.mode==='wife';
+            const r1=isTeam?Math.max(settings.you.rounds,settings.wife.rounds):settings.you.rounds;
+            const r2=isTeam?Math.max(settings.you.roundsB2,settings.wife.roundsB2):settings.you.roundsB2;
+            session.plan=buildPlan(r1);
+            session.planB2=settings.blocks===2?buildPlan(r2):[];
+            updatePreview();updateSessionSummary();
+        }
 
         // ── SESSION SUMMARY STRIPE ──────────────────────────────────────────────
         // Live, plain-English summary of the configured session shown inside the
@@ -2488,34 +2517,42 @@
             const youS2 =has2?((every==='both'||every==='you' )?settings.you.roundsB2 :settings.you.surpriseCountB2):0;
             const wifeS1=(every==='both'||every==='wife')?settings.wife.rounds  :settings.wife.surpriseCount;
             const wifeS2=has2?((every==='both'||every==='wife')?settings.wife.roundsB2:settings.wife.surpriseCountB2):0;
-            // Time estimate (Phase 1: runtime still uses Liam's values, so estimate
-            // matches Liam's path. Phase 2/3 will refine when work-length and round
-            // counts diverge).
+            // Time estimate (Phase 3: schedule-aware). For Team mode we conceptually
+            // simulate the schedule: pairs first (Liam.work + change + Ash.work + change),
+            // then a solo tail of whoever has the longer block (work + change after).
             let totalSec=READY_PHASE_SECS;
             const r1=settings.you.rounds, s1=youS1;
             const r2=has2?settings.you.roundsB2:0, s2=youS2;
-            const computeBlock=(rounds)=>{
+            const computeBlock=(yr,wr,yrSurp,wrSurp)=>{
                 let s=0;
                 if(isW){
-                    // Strict alternation: each plan-round = Liam.work + change + Ash.work + change.
-                    // Phase 2 honours per-person work length so the total respects asymmetry.
-                    s+=rounds*(settings.you.work+settings.wife.work+2*PARTNER_CHANGEOVER_SECS);
+                    const pairs=Math.min(yr,wr);
+                    const tail=Math.max(yr,wr)-pairs;
+                    const tailWork=yr>=wr?settings.you.work:settings.wife.work;
+                    s+=pairs*(settings.you.work+settings.wife.work+2*PARTNER_CHANGEOVER_SECS);
+                    s+=tail*(tailWork+PARTNER_CHANGEOVER_SECS);
+                    // Surprise burst budget across both partners' configured surprises.
+                    const surpExtra=SURPRISE_TOTAL-PARTNER_CHANGEOVER_SECS;
+                    s+=(yrSurp+wrSurp)*surpExtra;
                 }else{
-                    s+=rounds*settings.you.work;
-                    for(let i=1;i<=rounds;i++){
+                    s+=yr*settings.you.work;
+                    for(let i=1;i<=yr;i++){
                         const r=Math.min(60,settings.restBase+(i-1)*PROGRESSIVE_REST_INCREMENT_SECS);
                         s+=r;
                     }
+                    const surpExtra=SURPRISE_TOTAL-Math.min(60,settings.restBase);
+                    s+=yrSurp*surpExtra;
                 }
                 return s;
             };
-            totalSec+=computeBlock(r1);
-            const surpriseExtra=(secs)=>secs?(SURPRISE_TOTAL-(isW?PARTNER_CHANGEOVER_SECS:Math.min(60,settings.restBase))):0;
-            totalSec+=s1*surpriseExtra(SURPRISE_TOTAL);
-            if(has2){totalSec+=settings.blockRestSecs+computeBlock(r2)+s2*surpriseExtra(SURPRISE_TOTAL);}
-            const totalRounds=r1+r2;
+            totalSec+=computeBlock(settings.you.rounds,settings.wife.rounds,youS1,wifeS1);
+            if(has2){totalSec+=settings.blockRestSecs+computeBlock(settings.you.roundsB2,settings.wife.roundsB2,youS2,wifeS2);}
+            // Trim final trailing change/rest (last round has no rest after it).
             if(isW)totalSec-=PARTNER_CHANGEOVER_SECS;
-            else totalSec-=Math.min(60,settings.restBase+(totalRounds-1)*PROGRESSIVE_REST_INCREMENT_SECS);
+            else{
+                const totalSoloRounds=r1+r2;
+                totalSec-=Math.min(60,settings.restBase+(totalSoloRounds-1)*PROGRESSIVE_REST_INCREMENT_SECS);
+            }
             const mins=Math.max(1,Math.round(totalSec/60));
             // Detect asymmetry - in Team mode, are Liam and Ash configured differently?
             const sameSettings=settings.you.rounds===settings.wife.rounds
@@ -2577,6 +2614,47 @@
         //   true            = red text (used for transitions to coloured backgrounds)
         //   'black'         = pure black, no "NEXT:" label, for surprise task on white bg
         function setNextUp(content,color=false){if(!content){ui.nextUp.innerHTML='';return;}const col=color==='black'?'style="color:#000000;-webkit-text-stroke:0"':color?'style="color:#ef4444"':'';const styled=styledRoundName(content);const label=color==='black'?'':'<span class="next-label" '+col+'>NEXT:</span>';ui.nextUp.innerHTML=`${label}<span class="next-content" ${col}>${styled}</span>`;}
+        // ── PER-PERSON ROUND COUNTERS (Phase 3) ─────────────────────────────────
+        // In Team mode each partner gets their own round counter at the top of the
+        // timer screen (Liam left, Ash right). Counts are scoped to the *current block*.
+        // When one partner finishes early, their counter freezes at total/total with
+        // a tick mark so they see they're done while the other continues.
+        // In Solo mode these are hidden and the legacy single counter is used.
+        function updatePerPersonCounters(){
+            const labelEl=document.getElementById('round-label');
+            const wifeWrap=document.getElementById('wife-round-wrap');
+            const isTeam=settings.mode==='wife';
+            if(!isTeam){
+                if(labelEl)labelEl.innerText='Round';
+                if(wifeWrap){wifeWrap.classList.add('hidden');wifeWrap.style.display='none';}
+                return;
+            }
+            // Team mode: count completed rounds for each person up to (and including) the current entry.
+            const sched=session.currentBlock===1?session.schedule:session.scheduleB2;
+            if(!sched||!sched.length)return;
+            let youDone=0,wifeDone=0,youTotal=0,wifeTotal=0;
+            for(let i=0;i<sched.length;i++){
+                if(sched[i].who==='you')youTotal++;else wifeTotal++;
+                if(i<session.round){
+                    if(sched[i].who==='you')youDone++;else wifeDone++;
+                }
+            }
+            // Left label/value = Liam; right wrapper = Ash.
+            if(labelEl)labelEl.innerText='Liam';
+            ui.roundCur.innerText=youDone;
+            ui.roundTot.innerText=youTotal;
+            const wifeCur=document.getElementById('wife-round-cur');
+            const wifeTot=document.getElementById('wife-round-tot');
+            if(wifeCur)wifeCur.innerText=wifeDone;
+            if(wifeTot)wifeTot.innerText=wifeTotal;
+            if(wifeWrap){wifeWrap.classList.remove('hidden');wifeWrap.style.display='flex';}
+            // Drop-out tick: when a person has done all their rounds, append a check mark.
+            // Greys their counter to signal they're complete.
+            const youDropped=youDone>=youTotal;
+            const wifeDropped=wifeDone>=wifeTotal;
+            ui.roundCur.style.opacity=youDropped?'0.5':'1';
+            if(wifeCur)wifeCur.style.opacity=wifeDropped?'0.5':'1';
+        }
 
         // ── BLOCK HELPERS ───────────────────────────────────────────────────────
         // Thin accessors that return the right state bucket based on currentBlock.
@@ -2588,6 +2666,62 @@
         function currentTriggeredYou(){return session.currentBlock===1?session.surpriseTriggeredYou:session.surpriseTriggeredYouB2;}
         function currentTriggeredWife(){return session.currentBlock===1?session.surpriseTriggeredWife:session.surpriseTriggeredWifeB2;}
         function currentBlockRounds(){return session.currentBlock===1?settings.rounds:settings.roundsB2;}
+        // ── PHASE 3: PER-PERSON SCHEDULE ────────────────────────────────────────
+        // Per-block round schedule. Built at startSession() and again at each block
+        // boundary (block-rest -> block 2). Each entry describes one work phase:
+        //   { who: 'you'|'wife', planIdx: N, isAlt: bool }
+        // - `who`     : whose work phase this is.
+        // - `planIdx` : 0-based index into the block's plan[] for the round content.
+        // - `isAlt`   : true while both partners are still active (= "alternation"),
+        //               false once the longer person has gone solo. Used to decide
+        //               whether to insert a 'change' (alt) or 'rest' (solo) phase
+        //               after the work phase.
+        // Schedule construction:
+        //   Solo: [Y0, Y1, Y2, ...]
+        //   Team symmetric: [Y0, W0, Y1, W1, ...]
+        //   Team asymmetric (Liam=12, Ash=8): pairs Y0,W0..Y7,W7 then solo tail Y8..Y11.
+        //   Team asymmetric (Liam=8, Ash=12): pairs Y0,W0..Y7,W7 then solo tail W8..W11.
+        // Plan indexes for the solo tail keep counting up from where pairing ended,
+        // so each work phase gets a distinct plan entry (no repeat focus).
+        function buildSchedule(youRounds,wifeRounds,isTeam){
+            const out=[];
+            if(!isTeam){
+                for(let i=0;i<youRounds;i++)out.push({who:'you',planIdx:i,isAlt:false});
+                return out;
+            }
+            const pairs=Math.min(youRounds,wifeRounds);
+            for(let i=0;i<pairs;i++){
+                out.push({who:'you', planIdx:i,isAlt:true});
+                out.push({who:'wife',planIdx:i,isAlt:true});
+            }
+            // Solo tail - whoever picked more rounds keeps going alone.
+            if(youRounds>wifeRounds){
+                for(let i=pairs;i<youRounds;i++)out.push({who:'you',planIdx:i,isAlt:false});
+            }else if(wifeRounds>youRounds){
+                for(let i=pairs;i<wifeRounds;i++)out.push({who:'wife',planIdx:i,isAlt:false});
+            }
+            return out;
+        }
+        // Active schedule for the current block.
+        function currentSchedule(){return session.currentBlock===1?session.schedule:session.scheduleB2;}
+        // Schedule entry for the current internal session.round (1-based).
+        // Returns null if we're past the end (shouldn't happen during normal flow).
+        function currentScheduleEntry(){
+            const s=currentSchedule();
+            return s[session.round-1]||null;
+        }
+        // Replaces the old `session.round % 2` parity checks. Returns true if
+        // the current internal round is Liam's; false if it's Ash's.
+        function isYouRound(){
+            if(settings.mode!=='wife')return true;
+            const e=currentScheduleEntry();
+            return e?e.who==='you':true;
+        }
+        function isWifeRound(){
+            if(settings.mode!=='wife')return false;
+            const e=currentScheduleEntry();
+            return e?e.who==='wife':false;
+        }
 
         // ── PHASE STATE MACHINE ─────────────────────────────────────────────────
         // Every phase transition goes through setPhase(). Responsibilities:
@@ -2653,17 +2787,21 @@
             // ── DERIVED LOCALS FOR PHASE CONFIG ──
             const isW=settings.mode==='wife';
             const plan=currentPlan();
+            const sched=currentSchedule();
+            const maxRoundsInBlock=sched.length;
             const blockRounds=currentBlockRounds();
-            // In Wife mode each plan-round = 2 session-rounds (user then wife).
-            const maxRoundsInBlock=isW?blockRounds*2:blockRounds;
-            // Display round number shown to the user (1..blockRounds), collapsing pairs in Wife mode.
-            const displayRound=isW?Math.ceil(session.round/2):session.round;
+            // Phase 3: schedule-based positioning. The current schedule entry tells us
+            // whose work this is (`who`) and which plan entry to read (`planIdx`).
+            // The displayRound is the position in this schedule, 1-based.
+            const ent=sched[session.round-1]||{who:'you',planIdx:0,isAlt:false};
+            const displayRound=session.round;
             // Total plan rounds across both blocks (for the "X / Y" counter).
-            const totalPlanRounds=settings.blocks===2?(settings.rounds+settings.roundsB2):settings.rounds;
+            const totalPlanRounds=settings.blocks===2?(maxRoundsInBlock+session.scheduleB2.length):maxRoundsInBlock;
             // Absolute round (1..totalPlanRounds) accounting for block 2 offset.
-            const absoluteRound=session.currentBlock===1?displayRound:displayRound+settings.rounds;
+            const absoluteRound=session.currentBlock===1?displayRound:displayRound+session.schedule.length;
             // isFinalRound triggers the double-bell instead of single bell on the last work phase.
             const isFinalRound=(phase==='work')&&(session.round===maxRoundsInBlock)&&(settings.blocks===1||session.currentBlock===2);
+            const isAshRound=isW&&ent.who==='wife';
 
             if(phase==='ready'){
                 // "Gloves On" countdown at very start of session.
@@ -2673,17 +2811,13 @@
                 setNextUp(plan[0]?plan[0].name:'');
             }
             else if(phase==='work'){
-                // Work interval. Plan index `pi` converts from 1-based display round to
-                // 0-based plan index. In Wife mode each plan round drives TWO session rounds
-                // (user then wife), so we divide by 2.
-                // Phase 2: per-person work length. In Team mode odd rounds (1,3,5...) are
-                // Liam's, even rounds (2,4,6...) are Ash's. Each uses their own
-                // settings.{you|wife}.work duration. Solo always uses Liam's.
-                const isAshRound=isW&&(session.round%2===0);
+                // Work interval. Phase 3: schedule entry decides whose work this is and
+                // which plan entry to read. Each person uses their own settings.{you|wife}.work
+                // duration. Solo always uses Liam's.
                 const workDur=isAshRound?settings.wife.work:settings.you.work;
                 session.time=workDur;session.total=workDur;
                 if(isFinalRound)playDoubleBell();else playBell();
-                const pi=isW?Math.floor((session.round-1)/2):session.round-1;
+                const pi=ent.planIdx;
                 const rd=plan[pi]||{name:'Round '+absoluteRound,moves:[]};
                 autoSizeFocus(rd.name);ui.roundFocus.innerHTML=styledRoundName(rd.name,rd.emphasisPattern);
                 // Capture this round's emphasis so updateUI() can drive the timer colour
@@ -2692,10 +2826,17 @@
                 session.currentEmphasisPattern=rd.emphasisPattern||null;
                 ui.roundCur.innerText=absoluteRound;
                 ui.roundTot.innerText=totalPlanRounds;
+                // Phase 3: per-person round counters at the top of the timer screen.
+                // In Team mode the left counter shows Liam's progress and the right
+                // shows Ash's. Each shows their own current-round-count / total-rounds
+                // for the *current block*, so the user sees how far each is into THIS
+                // block, not the whole session. In Solo, we keep the legacy single
+                // counter (label "Round", shows absolute progress).
+                updatePerPersonCounters();
                 setNextUp('');
-                // Background colour cue: green = user's work, purple = wife's work (Wife mode),
-                // plain green in Solo. Odd rounds = user, even = wife.
-                if(isW){ui.timerBg.className=(session.round%2!==0)?"bg-green-950":"bg-purple-950";}
+                // Background colour cue: green = Liam's work, purple = Ash's work (Team),
+                // plain green in Solo.
+                if(isW){ui.timerBg.className=isAshRound?"bg-purple-950":"bg-green-950";}
                 else{ui.timerBg.className="bg-green-950";}
                 speak(`Round ${absoluteRound}, ${rd.name}`);
             }
@@ -2712,7 +2853,10 @@
                 else{ui.timerBg.className="";ui.timerBg.style.backgroundColor='#ff6a00';}
                 autoSizeFocus("Rest");ui.roundFocus.innerText="Rest";
                 if(session.round<maxRoundsInBlock){
-                    const pi=session.round;setNextUp(plan[pi]?plan[pi].name:'');
+                    // Phase 3: next round's plan index comes from the schedule entry.
+                    const nextEnt=sched[session.round];
+                    const ni=nextEnt?nextEnt.planIdx:session.round;
+                    setNextUp(plan[ni]?plan[ni].name:'');
                 }else if(settings.blocks===2&&session.currentBlock===1){setNextUp('Block 2 Up Next');}
                 else{setNextUp('Final Round Complete');}
                 playBell();
@@ -2726,12 +2870,11 @@
                 ui.roundFocus.classList.add('change-icon');
                 ui.roundFocus.innerHTML='&#x21C4;';
                 document.body.classList.add('change-active');
-                // Next-up lookup: change phase only entered in Wife mode, where each plan
-                // round spans 2 session rounds. Floor(round/2) gives the NEXT plan index.
-                // Guard with isW for safety even though change is Wife-only today.
+                // Next-up lookup uses the schedule for the upcoming round's plan index.
                 if(session.round<maxRoundsInBlock){
-                    const nextPlanIdx=isW?Math.floor(session.round/2):session.round;
-                    const nn=plan[nextPlanIdx];
+                    const nextEnt=sched[session.round];
+                    const ni=nextEnt?nextEnt.planIdx:session.round;
+                    const nn=plan[ni];
                     setNextUp(nn?nn.name:'');
                 }else if(settings.blocks===2&&session.currentBlock===1){
                     setNextUp('Block 2 Up Next');
@@ -2933,8 +3076,19 @@
                     setPhase('work');return;
                 }
 
-                const blockRounds=currentBlockRounds();
-                const mx=isW?blockRounds*2:blockRounds;
+                const sched=currentSchedule();
+                const mx=sched.length;
+                // Helpers based on the schedule entry for the current internal round.
+                const curEnt=sched[session.round-1]||null;
+                const nextEnt=sched[session.round]||null;
+                // After a work phase, decide whether the next gap is a change (alternation
+                // continues) or a rest (solo - no partner to swap to). Use the NEXT entry's
+                // isAlt flag, falling back to the current entry's if there is no next.
+                const nextGapPhase=()=>{
+                    if(!isW)return 'rest';
+                    const ref=nextEnt||curEnt;
+                    return (ref&&ref.isAlt)?'change':'rest';
+                };
 
                 if(session.phase==='work'){
                     // At end of work round: check if a surprise is scheduled for this plan index
@@ -2944,9 +3098,10 @@
                     //   'you'  - Liam fires every round (Ash uses her set)
                     //   'wife' - Ash fires every round (Liam uses his set)
                     //   'both' - both fire every round
-                    const pi=isW?Math.floor((session.round-1)/2):session.round-1;
-                    const iy=!isW||(session.round%2!==0);  // "is you's round"
-                    const ip=isW&&(session.round%2===0);   // "is partner's round"
+                    // Phase 3: identity comes from the schedule entry, not parity.
+                    const pi=curEnt?curEnt.planIdx:0;
+                    const iy=!isW||(curEnt&&curEnt.who==='you');
+                    const ip=isW&&curEnt&&curEnt.who==='wife';
                     const everyMode=settings.surpriseEvery;
                     const everyForYou=everyMode==='both'||everyMode==='you';
                     const everyForWife=everyMode==='both'||everyMode==='wife';
@@ -2960,15 +3115,22 @@
                     if(session.round>=mx){
                         if(settings.blocks===2&&session.currentBlock===1){setPhase('block-rest');}
                         else{end();}
-                    }else{setPhase(isW?'change':'rest');}
+                    }else{setPhase(nextGapPhase());}
                     return;
                 }
 
                 if(session.phase==='change'||session.phase==='rest'){
-                    // End of rest/change: advance round counter. In Wife mode only even rounds
-                    // (pair complete) bump the "plan rounds completed" counter that drives progressive rest.
+                    // End of rest/change: advance round counter. The progressive-rest
+                    // counter bumps once per "plan round completed" - in alternation that
+                    // means after every Ash-work, in solo runs it means after every work.
+                    // Phase 3: derive from the schedule entry that just ended.
+                    const justEnt=curEnt;
                     if(!isW){session.totalPlanRoundsCompleted++;}
-                    else if(session.round%2===0){session.totalPlanRoundsCompleted++;}
+                    else if(justEnt&&(justEnt.who==='wife'||!justEnt.isAlt)){
+                        // Pair-mode: bump after Ash's work (closes a pair).
+                        // Solo-tail: bump after every solo work (no pair to wait for).
+                        session.totalPlanRoundsCompleted++;
+                    }
                     session.round++;
                     setPhase('work');return;
                 }
@@ -2979,24 +3141,30 @@
                     // the round counter, so the chained surprise counts against the same round.
                     if(!session.doubleSurprise&&Math.random()<DOUBLE_SURPRISE_CHANCE){session.doubleSurprise=true;setPhase('surprise');return;}
                     session.doubleSurprise=false;
-                    const blockRounds2=currentBlockRounds();
-                    const mx2=isW?blockRounds2*2:blockRounds2;
-                    if(session.round>=mx2){
+                    if(session.round>=mx){
                         if(settings.blocks===2&&session.currentBlock===1){setPhase('block-rest');}
                         else{end();}
-                    }else{setPhase(isW?'change':'rest');}
+                    }else{setPhase(nextGapPhase());}
                     return;
                 }
 
             }else{
                 // Reverse (Prev button). Steps backward through the state machine.
+                const sched=currentSchedule();
                 if(session.phase==='work'){
                     if(session.round>1){
                         // Rewind one round and go back to the rest/change that preceded it.
                         session.round--;
+                        // Mirror the forward bump: undo when stepping out of an Ash-work or
+                        // a solo-tail work round.
+                        const prevEnt=sched[session.round-1]||null;
                         if(!isW){session.totalPlanRoundsCompleted=Math.max(0,session.totalPlanRoundsCompleted-1);}
-                        else if(session.round%2===0){session.totalPlanRoundsCompleted=Math.max(0,session.totalPlanRoundsCompleted-1);}
-                        setPhase(isW?'change':'rest');
+                        else if(prevEnt&&(prevEnt.who==='wife'||!prevEnt.isAlt)){
+                            session.totalPlanRoundsCompleted=Math.max(0,session.totalPlanRoundsCompleted-1);
+                        }
+                        // Choose the gap phase based on whether THAT round was alt or solo.
+                        const wasAlt=prevEnt?prevEnt.isAlt:false;
+                        setPhase(isW?(wasAlt?'change':'rest'):'rest');
                     }else if(session.currentBlock===2){
                         // At round 1 of block 2: go back to block-rest.
                         setPhase('block-rest');
@@ -3017,11 +3185,18 @@
                     // User pressed Prev during block-rest: rewind to the end of block 1.
                     // Set round to last round of block 1 and restore progressive-rest counter
                     // to what it would have been at that point (all block 1 rounds completed).
+                    // Phase 3: schedule.length is authoritative now.
                     session.currentBlock=1;
-                    const b1mx=isW?settings.rounds*2:settings.rounds;
+                    const b1mx=session.schedule.length;
                     session.round=b1mx;
-                    // In Solo mode, every round increments; in Wife mode only even (pair completed).
-                    session.totalPlanRoundsCompleted=isW?Math.floor(b1mx/2):b1mx;
+                    // Total plan-rounds completed at end of block 1 = number of pair-closes
+                    // (Ash works) + solo-tail entries. Easier to count by walking the schedule.
+                    if(!isW){session.totalPlanRoundsCompleted=b1mx;}
+                    else{
+                        let c=0;
+                        for(const e of session.schedule){if(e.who==='wife'||!e.isAlt)c++;}
+                        session.totalPlanRoundsCompleted=c;
+                    }
                     setPhase('work');return;
                 }
             }
@@ -3101,7 +3276,17 @@
             showScreen('timer');
             session.round=1;session.active=true;session.currentBlock=1;
             session.totalPlanRoundsCompleted=0;
-            const totalDisplay=settings.blocks===2?(settings.rounds+settings.roundsB2):settings.rounds;
+            // Phase 3: build the per-block round schedule. Honours per-person round counts
+            // and inserts a solo tail when one partner picked more rounds than the other.
+            const isTeam=settings.mode==='wife';
+            session.schedule=buildSchedule(settings.you.rounds,settings.wife.rounds,isTeam);
+            session.scheduleB2=settings.blocks===2
+                ?buildSchedule(settings.you.roundsB2,settings.wife.roundsB2,isTeam)
+                :[];
+            // Total across both blocks for the "X / Y" display in the timer header.
+            const totalDisplay=settings.blocks===2
+                ?(session.schedule.length+session.scheduleB2.length)
+                :session.schedule.length;
             ui.roundTot.innerText=totalDisplay;ui.roundCur.innerText='1';
             // Pick surprise round indices for block 1 (always) and block 2 (if 2 blocks).
             // Per-person sets in Wife mode - user and wife may each get surprise rounds
