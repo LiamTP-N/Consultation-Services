@@ -442,37 +442,6 @@
                             <div class="grid grid-cols-6 gap-1" id="grid-rounds"></div>
                             <p id="random-desc" class="text-[8px] sm:text-[9px] text-slate-500 leading-tight ml-1">Randomises rounds 2 to 11</p>
                         </div>
-                        <!-- Round Length: hidden behind an Advanced disclosure since 60s is the
-                             near-universal choice. Tap "Advanced" to reveal the 30/45/60 picker. -->
-                        <div class="space-y-1">
-                            <button id="btn-advanced-toggle" type="button" class="w-full flex items-center justify-between ml-1 mr-0.5 py-0.5 cursor-pointer hover:text-white transition-colors" aria-expanded="false" aria-controls="advanced-panel">
-                                <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Advanced</span>
-                                <span class="flex items-center gap-1.5">
-                                    <span id="advanced-summary" class="text-[9px] sm:text-[10px] font-mono-display text-slate-500">60s</span>
-                                    <span id="advanced-chevron" class="text-slate-400 text-[10px] leading-none transition-transform">&#x25BE;</span>
-                                </span>
-                            </button>
-                            <div id="advanced-panel" class="hidden space-y-1.5">
-                                <div class="space-y-1">
-                                    <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Round Length</label>
-                                    <div class="grid grid-cols-3 gap-1">
-                                        <button class="btn-select py-1.5 rounded-xl text-sm font-mono-display" onclick="selectWork(30,this)">30s</button>
-                                        <button class="btn-select py-1.5 rounded-xl text-sm font-mono-display" onclick="selectWork(45,this)">45s</button>
-                                        <button class="btn-select active py-1.5 rounded-xl text-sm font-mono-display" onclick="selectWork(60,this)">60s</button>
-                                    </div>
-                                </div>
-                                <!-- Randomise toggle: order of the round-pool entries. When off, plays the
-                                     fixed sequence (Warm Up, BODY, ..., Burnout). When on, middle rounds
-                                     are shuffled. Lives in Advanced because most users leave it on. -->
-                                <div class="flex items-center justify-between ml-1 mr-0.5 pt-0.5">
-                                    <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest cursor-pointer">Randomise</label>
-                                    <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
-                                        <input type="checkbox" id="in-random" class="sr-only peer" checked>
-                                        <div id="toggle-bg" class="relative w-8 sm:w-9 h-4 sm:h-5 bg-slate-800 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-3 sm:after:h-4 after:w-3 sm:after:w-4 after:transition-all"></div>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
                         <div class="space-y-1">
                             <!-- Surprise Rounds header: label (with info button) on the left,
                                  EVERY-round toggle on the right - same pattern as Rounds + Randomise. -->
@@ -494,6 +463,15 @@
                                 <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise(3,this)">3</button>
                             </div>
                         </div>
+                        <!-- Advanced: opens a modal with Round Length + Randomise (rarely-changed
+                             settings). Each option in the modal has its own info "i" button. -->
+                        <button id="btn-advanced-toggle" type="button" class="w-full flex items-center justify-between ml-1 mr-0.5 py-0.5 cursor-pointer hover:text-white transition-colors mt-auto">
+                            <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Advanced</span>
+                            <span class="flex items-center gap-1.5">
+                                <span id="advanced-summary" class="text-[9px] sm:text-[10px] font-mono-display text-slate-500">60s &middot; Random</span>
+                                <span class="text-slate-400 text-[10px] leading-none">&rsaquo;</span>
+                            </span>
+                        </button>
                     </div>
                 </div>
                 <!-- Block 2: panel beside Block 1 (right column).
@@ -576,6 +554,58 @@
                 <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed">Split your session into two separate blocks with a longer rest between them - e.g. 12 rounds, 3min rest, then 4 more rounds.</p>
                 <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed">Each block gets its own round count, work length, and surprise round count. Pick "2 Blocks" to configure Block 2's settings; "1 Block" for a standard single-block session.</p>
                 <button id="btn-blocks-info-done" class="theme-btn w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-[0.98]">Got it</button>
+            </div>
+        </div>
+        <!-- ADVANCED MODAL: opens from the "Advanced" link in Block 1. Contains Round Length
+             and Randomise toggle. Each option has its own info "i" button that opens a
+             nested info modal. -->
+        <div id="advanced-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" role="dialog" aria-modal="true" aria-labelledby="advanced-title">
+            <div class="bg-slate-800 border border-slate-600 rounded-2xl p-4 max-w-sm w-full shadow-2xl space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 id="advanced-title" class="text-sm font-bold text-white">Advanced</h3>
+                    <button id="btn-advanced-close" aria-label="Close" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button>
+                </div>
+                <div class="space-y-1.5">
+                    <div class="flex items-center gap-1.5 ml-1">
+                        <label class="text-[10px] sm:text-xs font-bold text-slate-300 uppercase tracking-widest">Round Length</label>
+                        <button id="btn-roundlen-info" type="button" aria-label="What does round length do?" class="info-btn">i</button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button class="btn-select py-2 rounded-xl text-sm font-mono-display" onclick="selectWork(30,this)">30s</button>
+                        <button class="btn-select py-2 rounded-xl text-sm font-mono-display" onclick="selectWork(45,this)">45s</button>
+                        <button class="btn-select active py-2 rounded-xl text-sm font-mono-display" onclick="selectWork(60,this)">60s</button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between ml-1 mr-0.5">
+                    <div class="flex items-center gap-1.5">
+                        <label class="text-[10px] sm:text-xs font-bold text-slate-300 uppercase tracking-widest cursor-pointer">Randomise</label>
+                        <button id="btn-random-info" type="button" aria-label="What does randomise do?" class="info-btn">i</button>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                        <input type="checkbox" id="in-random" class="sr-only peer" checked>
+                        <div id="toggle-bg" class="relative w-9 h-5 bg-slate-900 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                    </label>
+                </div>
+                <button id="btn-advanced-done" class="theme-btn w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-[0.98]">Got it</button>
+            </div>
+        </div>
+        <!-- ROUND LENGTH INFO MODAL -->
+        <div id="roundlen-info-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" role="dialog" aria-modal="true" aria-labelledby="roundlen-info-title">
+            <div class="bg-slate-800 border border-slate-600 rounded-2xl p-4 max-w-sm w-full shadow-2xl space-y-3">
+                <div class="flex items-center justify-between"><h3 id="roundlen-info-title" class="text-sm font-bold text-white">Round Length</h3><button id="btn-roundlen-info-close" aria-label="Close" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button></div>
+                <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed">How long each work phase runs. Standard amateur boxing rounds are 60 seconds; 30s and 45s options are for shorter, higher-intensity sessions.</p>
+                <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed">Rest length is unaffected - progressive rest still starts at 30s and grows by 5s per round (capped at 60s).</p>
+                <button id="btn-roundlen-info-done" class="theme-btn w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-[0.98]">Got it</button>
+            </div>
+        </div>
+        <!-- RANDOMISE INFO MODAL -->
+        <div id="random-info-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" role="dialog" aria-modal="true" aria-labelledby="random-info-title">
+            <div class="bg-slate-800 border border-slate-600 rounded-2xl p-4 max-w-sm w-full shadow-2xl space-y-3">
+                <div class="flex items-center justify-between"><h3 id="random-info-title" class="text-sm font-bold text-white">Randomise</h3><button id="btn-random-info-close" aria-label="Close" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button></div>
+                <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed"><span class="font-bold text-white">On:</span> middle rounds are shuffled from the round pool, with variety constraints so the same focus does not repeat back-to-back. Warm Up always opens, Burnout always closes.</p>
+                <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed"><span class="font-bold text-white">Off:</span> rounds run in the curated fixed order from PROGRAM_12_ROUNDS.</p>
+                <p id="random-desc-modal" class="text-[11px] sm:text-xs text-slate-400 leading-relaxed italic">Randomises rounds 2 to 11</p>
+                <button id="btn-random-info-done" class="theme-btn w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-[0.98]">Got it</button>
             </div>
         </div>
         <!-- TIMER SCREEN (flex-col set in CSS above) -->
@@ -1936,7 +1966,7 @@
         // onclick= attributes in the HTML). Each toggles active styling and regenerates
         // the session plan preview where relevant.
         // Round count: also updates the "Randomise" description text (ALL rounds vs middle-only).
-        window.selectRound=(n,el)=>{settings.rounds=n;Array.from(ui.gridRounds.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');ui.randomDesc.innerText=n<=6?"Randomises ALL rounds":`Randomises rounds 2 to ${n-1}`;generateSessionPlan();};
+        window.selectRound=(n,el)=>{settings.rounds=n;Array.from(ui.gridRounds.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');const t=n<=6?"Randomises ALL rounds":`Randomises rounds 2 to ${n-1}`;ui.randomDesc.innerText=t;const m=document.getElementById('random-desc-modal');if(m)m.innerText=t;generateSessionPlan();};
         window.selectRoundB2=(n,el)=>{settings.roundsB2=n;Array.from(gridRoundsB2.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');generateSessionPlan();};
         // Refresh the Advanced disclosure summary line, e.g. "60s · Random" or "60s · Fixed".
         function updateAdvancedSummary(){
@@ -1947,19 +1977,6 @@
             s.textContent=`${work}s · ${rand}`;
         }
         window.selectWork=(n,el)=>{settings.work=n;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');updateAdvancedSummary();updateSessionSummary();};
-        // Advanced disclosure: hides Round Length behind a tap-to-expand row since
-        // 60s is the default and rarely changed. The summary text mirrors settings.work.
-        (()=>{
-            const btn=document.getElementById('btn-advanced-toggle');
-            const panel=document.getElementById('advanced-panel');
-            const chev=document.getElementById('advanced-chevron');
-            if(!btn||!panel)return;
-            btn.addEventListener('click',()=>{
-                const open=!panel.classList.contains('hidden');
-                if(open){panel.classList.add('hidden');btn.setAttribute('aria-expanded','false');if(chev)chev.style.transform='rotate(0deg)';}
-                else{panel.classList.remove('hidden');btn.setAttribute('aria-expanded','true');if(chev)chev.style.transform='rotate(180deg)';}
-            });
-        })();
         window.selectSurprise=(n,el)=>{settings.surpriseCount=n;Array.from(document.getElementById('grid-surprise').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');updateSessionSummary();};
         // Surprise EVERY round toggle: overrides the 0-3 count above. When on, the
         // 0-3 grid is visually dimmed (still tappable but its value is ignored at runtime).
@@ -1996,6 +2013,9 @@
             };
             wire('btn-surprise-info','surprise-info-modal',['btn-surprise-info-close','btn-surprise-info-done'],false);
             wire('btn-blocks-info','blocks-info-modal',['btn-blocks-info-close','btn-blocks-info-done'],true);
+            wire('btn-advanced-toggle','advanced-modal',['btn-advanced-close','btn-advanced-done'],false);
+            wire('btn-roundlen-info','roundlen-info-modal',['btn-roundlen-info-close','btn-roundlen-info-done'],false);
+            wire('btn-random-info','random-info-modal',['btn-random-info-close','btn-random-info-done'],false);
         })();
         window.selectSurpriseB2=(n,el)=>{settings.surpriseCountB2=n;Array.from(document.getElementById('grid-surprise-b2').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');updateSessionSummary();};
         // Toggle the inline Block 2 panel between its CTA and edit views.
