@@ -50,6 +50,13 @@ CHANGE LOG
                row instead of appearing in a fixed panel under the table.
                Clicking the same row again collapses it; clicking another
                row moves the expansion. Standalone #detail-panel removed.
+- 09 May 2026: Added "applied for" tracking - independent of status field.
+               A green tick + date appears inline next to the project title
+               on any row where applied.date is set. The expanded detail
+               card carries the form controls (date, outcome, free-text note)
+               and writes the new `applied` object straight to the JSON via
+               ghPut. The scraper's merge_with_existing preserves it across
+               daily runs.
 ================================================================================
 -->
 <html lang="en-GB">
@@ -201,6 +208,48 @@ CHANGE LOG
 
         .delete-btn { opacity: 0.35; transition: opacity 0.15s, color 0.15s; }
         .delete-btn:hover { opacity: 1; }
+
+        /* Applied-for tick shown inline beside project title */
+        .applied-tick {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 1px 6px;
+            margin-left: 4px;
+            border-radius: 4px;
+            background: #14532d;
+            color: #86efac;
+            border: 1px solid #166534;
+            white-space: nowrap;
+        }
+        .applied-tick .check { font-size: 0.75rem; line-height: 1; }
+        .applied-outcome-pending { background: #1e293b; color: #cbd5e1; border-color: #334155; }
+        .applied-outcome-won     { background: #064e3b; color: #6ee7b7; border-color: #047857; }
+        .applied-outcome-lost    { background: #4c1d1d; color: #fca5a5; border-color: #7f1d1d; }
+
+        /* Compact form rows inside the detail card for applied-for fields */
+        .applied-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+        .applied-form input[type="date"],
+        .applied-form input[type="text"],
+        .applied-form select {
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 0.75rem;
+        }
+        .applied-form input[type="text"] { flex: 1; min-width: 160px; }
+        .applied-form input:focus, .applied-form select:focus { outline: none; border-color: #10b981; }
+        .applied-form .applied-checkbox-wrap {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.75rem; color: #cbd5e1;
+            padding: 4px 10px; border: 1px solid #334155; border-radius: 4px; background: #0f172a;
+            cursor: pointer;
+        }
+        .applied-form .applied-checkbox-wrap input { margin: 0; accent-color: #10b981; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
@@ -643,6 +692,25 @@ CHANGE LOG
         return 'status-open';
     }
 
+    // ---- Applied-for helpers ----
+    function appliedOutcomeClass(o) {
+        const l = (o || 'pending').toLowerCase();
+        if (l === 'won')  return 'applied-outcome-won';
+        if (l === 'lost') return 'applied-outcome-lost';
+        return 'applied-outcome-pending';
+    }
+    function appliedTickHtml(applied) {
+        if (!applied || !applied.date) return '';
+        const outcome = (applied.outcome || 'pending').toLowerCase();
+        const cls = appliedOutcomeClass(outcome);
+        const note = applied.note ? ' - ' + applied.note : '';
+        const titleAttr = 'Applied ' + applied.date + ' (' + outcome + ')' + note;
+        return '<span class="applied-tick ' + cls + '" title="' + escHtml(titleAttr) + '">' +
+               '<span class="check">&#10003;</span>Applied ' + escHtml(applied.date) +
+               (outcome !== 'pending' ? ' (' + escHtml(outcome) + ')' : '') +
+               '</span>';
+    }
+
     // ---- Filter predicates ----
     function matchesStatus(r, f) {
         const s = (r.status || 'open').toLowerCase();
@@ -718,6 +786,7 @@ CHANGE LOG
                     '<div>' +
                         '<a href="' + escHtml(safeUrl(r.url)) + '" target="_blank" rel="noopener" class="font-semibold text-slate-200 hover:text-blue-400 transition-colors text-sm" onclick="event.stopPropagation()">' + escHtml(r.project) + '</a> ' +
                         '<span class="region-badge ' + regionClass(r.region) + '">' + escHtml(regionTag(r.region)) + '</span>' +
+                        appliedTickHtml(r.applied) +
                         (r.summary ? '<div class="text-xs text-slate-500 mt-0.5 line-clamp-1">' + escHtml(r.summary) + '</div>' : '') +
                     '</div>' +
                 '</div></td>' +
@@ -837,6 +906,32 @@ CHANGE LOG
         }
         if (r.url) body.push('<a href="' + escHtml(safeUrl(r.url)) + '" target="_blank" rel="noopener" class="inline-block text-xs px-3 py-1.5 rounded border border-blue-600 text-blue-400 hover:bg-blue-600/10 transition mt-2">Open tender notice &rarr;</a>');
 
+        // Applied-for form: independent of status field. Stored on r.applied
+        // as { date, outcome, note }. Absent / no date = not applied for.
+        const a = r.applied || {};
+        const isApplied = !!a.date;
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const appliedSection =
+            '<div class="border-l-2 border-emerald-600 pl-3 pt-2">' +
+                '<p class="text-xs text-emerald-400 uppercase tracking-wider mb-2">Applied for</p>' +
+                '<div class="applied-form">' +
+                    '<label class="applied-checkbox-wrap">' +
+                        '<input type="checkbox" id="applied-toggle" ' + (isApplied ? 'checked' : '') + '>' +
+                        '<span>We applied for this</span>' +
+                    '</label>' +
+                    '<input type="date" id="applied-date" value="' + escHtml(a.date || todayStr) + '" ' + (isApplied ? '' : 'disabled') + '>' +
+                    '<select id="applied-outcome" ' + (isApplied ? '' : 'disabled') + '>' +
+                        '<option value="pending"' + ((a.outcome || 'pending') === 'pending' ? ' selected' : '') + '>Pending</option>' +
+                        '<option value="won"' + (a.outcome === 'won' ? ' selected' : '') + '>Won</option>' +
+                        '<option value="lost"' + (a.outcome === 'lost' ? ' selected' : '') + '>Lost</option>' +
+                    '</select>' +
+                    '<input type="text" id="applied-note" placeholder="Proposal ref / note (optional)" value="' + escHtml(a.note || '') + '" ' + (isApplied ? '' : 'disabled') + '>' +
+                    '<button id="applied-save-btn" class="text-xs px-3 py-1 rounded border border-emerald-600 text-emerald-400 hover:bg-emerald-600/10 transition">Save</button>' +
+                    '<span id="applied-status" class="text-xs text-slate-500"></span>' +
+                '</div>' +
+            '</div>';
+        body.push(appliedSection);
+
         const detailTr = document.createElement('tr');
         detailTr.id = 'detail-row';
         detailTr.className = 'bg-slate-800/40';
@@ -861,6 +956,67 @@ CHANGE LOG
         detailTr.querySelector('#detail-close').addEventListener('click', (e) => {
             e.stopPropagation();
             closeDetailRow();
+        });
+
+        // Wire up applied-for form
+        const toggle  = detailTr.querySelector('#applied-toggle');
+        const dateIn  = detailTr.querySelector('#applied-date');
+        const outIn   = detailTr.querySelector('#applied-outcome');
+        const noteIn  = detailTr.querySelector('#applied-note');
+        const saveBtn = detailTr.querySelector('#applied-save-btn');
+        const statusSpan = detailTr.querySelector('#applied-status');
+
+        toggle.addEventListener('change', () => {
+            const on = toggle.checked;
+            dateIn.disabled = !on;
+            outIn.disabled = !on;
+            noteIn.disabled = !on;
+            if (on && !dateIn.value) dateIn.value = todayStr;
+        });
+
+        saveBtn.addEventListener('click', async () => {
+            saveBtn.disabled = true;
+            statusSpan.textContent = 'Saving...';
+            statusSpan.className = 'text-xs text-blue-400';
+            try {
+                const fileData = await ghGet(GH_RFPS_PATH);
+                const existing = JSON.parse(atob(fileData.content.replace(/\n/g, '')));
+                const target = existing.rfps.find(x => x.id === r.id);
+                if (!target) throw new Error('Tender no longer present in JSON');
+
+                if (toggle.checked) {
+                    target.applied = {
+                        date: dateIn.value || todayStr,
+                        outcome: outIn.value || 'pending',
+                        note: noteIn.value.trim()
+                    };
+                } else {
+                    delete target.applied;
+                }
+                existing.last_updated = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+
+                await ghPut(
+                    GH_RFPS_PATH,
+                    JSON.stringify(existing, null, 2),
+                    fileData.sha,
+                    'chore: update applied-for status - ' + (r.project || '').slice(0, 60)
+                );
+
+                // Sync in-memory record so the row reflects immediately
+                if (toggle.checked) {
+                    r.applied = { date: dateIn.value || todayStr, outcome: outIn.value || 'pending', note: noteIn.value.trim() };
+                } else {
+                    delete r.applied;
+                }
+                statusSpan.textContent = 'Saved \u2713';
+                statusSpan.className = 'text-xs text-emerald-400';
+                renderTable();
+            } catch (e) {
+                statusSpan.textContent = 'Save failed: ' + e.message;
+                statusSpan.className = 'text-xs text-rose-400';
+            } finally {
+                saveBtn.disabled = false;
+            }
         });
 
         // Scroll the expanded row into view if it's off-screen.
