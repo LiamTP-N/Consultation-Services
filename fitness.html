@@ -75,7 +75,14 @@
            Rounds grid uses .tint-mode -> tint follows --theme-color (green=Solo, purple=Team).
            Surprise grids use .tint-white -> faint white wash so the red active state pops. */
         .tint-mode .btn-select:not(.active){background:color-mix(in srgb,var(--theme-color) 18%,rgba(30,41,59,0.8));color:#e2e8f0;border-color:color-mix(in srgb,var(--theme-color) 30%,rgba(255,255,255,0.1));}
-        .tint-white .btn-select:not(.active){background:rgba(255,255,255,0.12);color:#e2e8f0;border-color:rgba(255,255,255,0.18);}
+        .tint-white .btn-select:not(.active){background:rgba(255,255,255,0.22);color:#f8fafc;border-color:rgba(255,255,255,0.3);}
+        .tint-white .btn-select.active{background:#ef4444;color:white;border-color:#ef4444;}
+        /* Per-person tabs (Liam | Ash) inside Block 1 / Block 2 cards. */
+        .b1-tab,.b2-tab{color:#94a3b8;}
+        .b1-tab.active,.b2-tab.active{background:var(--theme-color);color:#fff;}
+        /* 4-way EVERY pill picker (Off / Liam / Ash / Both in Team; Off / On in Solo). */
+        .every-pill{color:#94a3b8;}
+        .every-pill.active{background:#ef4444;color:#fff;}
         .hidden{display:none !important;}
         #timer-bg{position:fixed;bottom:0;left:0;width:100%;z-index:0;transition:height 1s linear,background-color 0.3s ease;}
         @keyframes restPulse{0%,100%{opacity:1;}50%{opacity:0.8;}}
@@ -439,27 +446,38 @@
                 <!-- Block 1: settings card (left column) -->
                 <div class="flex flex-col min-h-0">
                     <div id="settings-scroll" class="glass-card p-2 rounded-2xl space-y-1.5 flex-1 custom-scrollbar overflow-y-auto overflow-x-hidden">
-                        <!-- BLOCK 1 header. Mirrors the Block 2 panel's heading so users see
-                             a parallel structure: each block has its own card with its own settings. -->
-                        <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider ml-1">Block 1</p>
+                        <!-- BLOCK 1 header + per-person tabs (Team mode only). The tabs let
+                             each person tune their own rounds and surprise count. In Solo,
+                             tabs hide and the controls bind to settings.you. -->
+                        <div class="flex items-center justify-between ml-1 mr-0.5">
+                            <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 1</p>
+                            <div id="b1-tabs" class="hidden flex p-0.5 bg-slate-800/60 rounded-lg" role="tablist" aria-label="Block 1 settings tab">
+                                <button id="b1-tab-you"  type="button" role="tab" class="b1-tab px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all">Liam</button>
+                                <button id="b1-tab-wife" type="button" role="tab" class="b1-tab px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all">Ash</button>
+                            </div>
+                        </div>
                         <div class="space-y-1">
                             <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Rounds</label>
                             <div class="grid grid-cols-6 gap-1 tint-mode" id="grid-rounds"></div>
                             <p id="random-desc" class="text-[8px] sm:text-[9px] text-slate-500 leading-tight ml-1">Randomises rounds 2 to 11</p>
                         </div>
                         <div class="space-y-1">
-                            <!-- Surprise Rounds header: label (with info button) on the left,
-                                 EVERY-round toggle on the right - same pattern as Rounds + Randomise. -->
-                            <div class="flex items-center justify-between ml-1 mr-0.5">
+                            <!-- Surprise Rounds header: label (with info button) on the left.
+                                 EVERY picker (right) is binary in Solo, 4-way in Team. -->
+                            <div class="flex items-center justify-between ml-1 mr-0.5 gap-2 flex-wrap">
                                 <div class="flex items-center gap-1.5">
                                     <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">"Surprise" Rounds</label>
                                     <button id="btn-surprise-info" type="button" aria-label="What is a surprise round?" class="info-btn">i</button>
                                 </div>
-                                <label class="relative inline-flex items-center cursor-pointer flex-shrink-0 gap-1.5">
+                                <div class="flex items-center gap-1">
                                     <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">EVERY</span>
-                                    <input type="checkbox" id="in-surprise-every" class="sr-only peer">
-                                    <div class="relative w-8 sm:w-9 h-4 sm:h-5 bg-slate-800 rounded-full peer peer-checked:bg-red-600 peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-3 sm:after:h-4 after:w-3 sm:after:w-4 after:transition-all"></div>
-                                </label>
+                                    <div id="every-picker" class="flex p-0.5 bg-slate-800/60 rounded-lg" role="group" aria-label="Surprise EVERY round mode">
+                                        <button type="button" data-every="off"  class="every-pill px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all">Off</button>
+                                        <button type="button" data-every="you"  class="every-pill hidden px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all">Liam</button>
+                                        <button type="button" data-every="wife" class="every-pill hidden px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all">Ash</button>
+                                        <button type="button" data-every="both" class="every-pill px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all">On</button>
+                                    </div>
+                                </div>
                             </div>
                             <div class="grid grid-cols-4 gap-1 tint-white" id="grid-surprise">
                                 <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise(0,this)">0</button>
@@ -495,9 +513,13 @@
                             <button type="button" class="info-btn" id="btn-blocks-info" aria-label="What are training blocks?">i</button>
                         </div>
                         <!-- 2 Blocks: editable settings view (right column, mirrors Block 1's layout) -->
-                        <div id="block2-edit" class="hidden flex flex-col p-2 space-y-1.5 overflow-y-auto custom-scrollbar">
-                            <div class="flex items-center justify-between flex-shrink-0">
+                        <div id="block2-edit" class="hidden flex flex-col p-2 space-y-1.5 overflow-y-auto custom-scrollbar overflow-x-hidden">
+                            <div class="flex items-center justify-between flex-shrink-0 gap-2">
                                 <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 2</p>
+                                <div id="b2-tabs" class="hidden flex p-0.5 bg-slate-800/60 rounded-lg" role="tablist" aria-label="Block 2 settings tab">
+                                    <button id="b2-tab-you"  type="button" role="tab" class="b2-tab px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all">Liam</button>
+                                    <button id="b2-tab-wife" type="button" role="tab" class="b2-tab px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all">Ash</button>
+                                </div>
                                 <button id="btn-block2-disable" type="button" aria-label="Disable Block 2" class="text-slate-400 hover:text-red-400 text-base leading-none px-1.5 active:scale-95 transition-all">&times;</button>
                             </div>
                             <div class="space-y-1">
@@ -817,17 +839,46 @@
         // is a transient mode for the standalone 120s rest timer).
         let settings={
             mode:'wife',           // 'solo' (user only) | 'wife' (partner mode) | 'quick-rest'
-            rounds:12,             // Block 1 round count (1-12)
-            work:60,               // Work interval duration per round (30/45/60s)
+            // ── PER-PERSON SETTINGS ─────────────────────────────────────────────
+            // Phase 1 of partner asymmetry: each person has their own copy of the
+            // training-load fields. In Solo, `you` is the only one used. In Team,
+            // both objects exist; Phase 1 only honours `you` for the live runtime
+            // (Phase 2 adds per-person work length, Phase 3 adds drop-out logic).
+            you:{ rounds:12, work:60, surpriseCount:2, roundsB2:6, surpriseCountB2:2 },
+            wife:{ rounds:12, work:60, surpriseCount:2, roundsB2:6, surpriseCountB2:2 },
+            // 4-way EVERY toggle: 'off' | 'you' | 'wife' | 'both'.
+            // 'off'  - use the per-block surpriseCount values
+            // 'you'  - Liam fires a surprise after every work round (Ash uses count)
+            // 'wife' - Ash fires a surprise after every work round (Liam uses count)
+            // 'both' - both partners fire after every work round (= old `true`)
+            surpriseEvery:'off',
+            // Currently-active settings tab in Block 1/2 cards. UI-only state.
+            activeTab:'you',
             restBase:30,           // Solo mode base rest before progressive increment
             randomiseMiddle:true,  // Shuffle middle rounds (keeps warm-up / burnout fixed when >6 rounds)
-            surpriseCount:2,       // Number of "surprise" bursts injected into block 1
-            surpriseEveryRound:false,  // When true, overrides surpriseCount/B2 - fires a surprise after EVERY work round
             blocks:1,              // 1 or 2 training blocks
-            blockRestSecs:180,     // Rest between block 1 and block 2 (120/180/300s)
-            roundsB2:6,            // Block 2 round count
-            surpriseCountB2:2      // Block 2 surprise count
+            blockRestSecs:180      // Rest between block 1 and block 2 (120/180/300s)
         },prevMode='wife';
+        // Backward-compatible accessors: existing runtime code reads/writes
+        // settings.rounds, settings.work, settings.surpriseCount, settings.roundsB2,
+        // settings.surpriseCountB2, settings.surpriseEveryRound. These now map
+        // transparently to settings.you.* (live runtime always uses Liam's values
+        // in Phase 1) and translate the surpriseEvery enum to the old boolean.
+        (()=>{
+            const proxy=(key)=>{
+                Object.defineProperty(settings,key,{
+                    get(){return settings.you[key];},
+                    set(v){settings.you[key]=v;},
+                    configurable:true,enumerable:true
+                });
+            };
+            ['rounds','work','surpriseCount','roundsB2','surpriseCountB2'].forEach(proxy);
+            Object.defineProperty(settings,'surpriseEveryRound',{
+                get(){return settings.surpriseEvery==='both'||settings.surpriseEvery==='you';},
+                set(v){settings.surpriseEvery=v?'both':'off';},
+                configurable:true,enumerable:true
+            });
+        })();
 
         // ── SESSION STATE ───────────────────────────────────────────────────────
         // Represents the LIVE session as it runs. Reset at startSession().
@@ -1968,36 +2019,136 @@
         for(let i=1;i<=6;i++){const b=document.createElement('button');b.className=`btn-select py-1.5 rounded-lg text-sm font-bold ${i===6?'active':''}`;b.innerText=i;b.onclick=()=>selectRoundB2(i,b);gridRoundsB2.appendChild(b);}
 
         // Global-scope select handlers (called from generated buttons and from inline
-        // onclick= attributes in the HTML). Each toggles active styling and regenerates
-        // the session plan preview where relevant.
+        // onclick= attributes in the HTML). Each writes to the active tab's per-person
+        // settings (settings.you or settings.wife), then refreshes the active button
+        // styling and the session summary.
+        // The active tab is settings.activeTab ('you' | 'wife'). In Solo it is forced
+        // to 'you' since Ash's settings are inactive.
+        const activePerson=()=>settings[settings.activeTab];
         // Round count: also updates the "Randomise" description text (ALL rounds vs middle-only).
-        window.selectRound=(n,el)=>{settings.rounds=n;Array.from(ui.gridRounds.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');const t=n<=6?"Randomises ALL rounds":`Randomises rounds 2 to ${n-1}`;ui.randomDesc.innerText=t;const m=document.getElementById('random-desc-modal');if(m)m.innerText=t;generateSessionPlan();};
-        window.selectRoundB2=(n,el)=>{settings.roundsB2=n;Array.from(gridRoundsB2.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');generateSessionPlan();};
+        window.selectRound=(n,el)=>{
+            activePerson().rounds=n;
+            Array.from(ui.gridRounds.children).forEach(b=>b.classList.remove('active'));
+            el.classList.add('active');
+            // Random description always reflects Liam's count (used at runtime).
+            const lr=settings.you.rounds;
+            const t=lr<=6?"Randomises ALL rounds":`Randomises rounds 2 to ${lr-1}`;
+            ui.randomDesc.innerText=t;
+            const m=document.getElementById('random-desc-modal');if(m)m.innerText=t;
+            generateSessionPlan();
+        };
+        window.selectRoundB2=(n,el)=>{
+            activePerson().roundsB2=n;
+            Array.from(gridRoundsB2.children).forEach(b=>b.classList.remove('active'));
+            el.classList.add('active');
+            generateSessionPlan();
+        };
         // Refresh the Advanced disclosure summary line, e.g. "60s · Random" or "60s · Fixed".
         function updateAdvancedSummary(){
             const s=document.getElementById('advanced-summary');
             if(!s)return;
-            const work=settings.work;
+            const work=settings.you.work;
             const rand=settings.randomiseMiddle?'Random':'Fixed';
             s.textContent=`${work}s · ${rand}`;
         }
-        window.selectWork=(n,el)=>{settings.work=n;Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));el.classList.add('active');updateAdvancedSummary();updateSessionSummary();};
-        window.selectSurprise=(n,el)=>{settings.surpriseCount=n;Array.from(document.getElementById('grid-surprise').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');updateSessionSummary();};
-        // Surprise EVERY round toggle: overrides the 0-3 count above. When on, the
-        // 0-3 grid is visually dimmed (still tappable but its value is ignored at runtime).
-        // Affects both Block 1 and Block 2 - one toggle governs the whole session.
+        window.selectWork=(n,el)=>{
+            // Work length is currently shared (Phase 2 will make this per-person too).
+            // For now we write to both copies so they stay in lockstep.
+            settings.you.work=n;settings.wife.work=n;
+            Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));
+            el.classList.add('active');
+            updateAdvancedSummary();updateSessionSummary();
+        };
+        window.selectSurprise=(n,el)=>{
+            activePerson().surpriseCount=n;
+            Array.from(document.getElementById('grid-surprise').children).forEach(b=>b.classList.remove('active'));
+            el.classList.add('active');
+            updateSessionSummary();
+        };
+        window.selectSurpriseB2=(n,el)=>{
+            activePerson().surpriseCountB2=n;
+            Array.from(document.getElementById('grid-surprise-b2').children).forEach(b=>b.classList.remove('active'));
+            el.classList.add('active');
+            updateSessionSummary();
+        };
+        // Re-render Block 1 + Block 2 grids to reflect the *active* person's selections.
+        // Called whenever the tab switches or mode flips. Doesn't rebuild buttons - just
+        // moves the .active class to match the per-person value.
+        function refreshGridsToActive(){
+            const p=activePerson();
+            // Block 1 rounds
+            Array.from(ui.gridRounds.children).forEach(b=>{
+                b.classList.toggle('active',Number(b.innerText)===p.rounds);
+            });
+            // Block 1 surprise
+            const gs=document.getElementById('grid-surprise');
+            if(gs)Array.from(gs.children).forEach(b=>{
+                b.classList.toggle('active',Number(b.innerText)===p.surpriseCount);
+            });
+            // Block 2 rounds
+            if(gridRoundsB2)Array.from(gridRoundsB2.children).forEach(b=>{
+                b.classList.toggle('active',Number(b.innerText)===p.roundsB2);
+            });
+            // Block 2 surprise
+            const gs2=document.getElementById('grid-surprise-b2');
+            if(gs2)Array.from(gs2.children).forEach(b=>{
+                b.classList.toggle('active',Number(b.innerText)===p.surpriseCountB2);
+            });
+        }
+        // 4-way EVERY pill picker. In Team mode shows Off / Liam / Ash / Both.
+        // In Solo mode the Liam and Ash pills hide, leaving Off / On (where "On" maps
+        // to 'both' internally, since Solo only has one person).
         (()=>{
-            const cb=document.getElementById('in-surprise-every');
+            const picker=document.getElementById('every-picker');
             const grid=document.getElementById('grid-surprise');
             const gridB2=document.getElementById('grid-surprise-b2');
-            if(!cb)return;
-            const applyDim=()=>{
-                const dim=cb.checked;
+            if(!picker)return;
+            const pills=Array.from(picker.querySelectorAll('.every-pill'));
+            const refresh=()=>{
+                const v=settings.surpriseEvery;
+                pills.forEach(p=>p.classList.toggle('active',p.dataset.every===v));
+                // Dim the count grids based on whether the active tab's person is
+                // currently overridden by EVERY. Liam dimmed when every='you'/'both',
+                // Ash dimmed when every='wife'/'both'.
+                const tab=settings.activeTab;
+                const dim=v==='both'||v===tab;
                 [grid,gridB2].forEach(g=>{if(g)g.style.opacity=dim?'0.4':'1';});
             };
-            cb.addEventListener('change',()=>{settings.surpriseEveryRound=cb.checked;applyDim();updateSessionSummary();});
-            applyDim();
+            pills.forEach(p=>{
+                p.addEventListener('click',()=>{
+                    settings.surpriseEvery=p.dataset.every;
+                    refresh();updateSessionSummary();
+                });
+            });
+            // Expose refresh so setMode() and tab-switch can recolour the dim state.
+            window._refreshEveryPicker=refresh;
+            refresh();
         })();
+        // Tab switching for Block 1 / Block 2 (Team mode only). Clicking a tab updates
+        // settings.activeTab and re-renders the grids. Active styling is theme-coloured.
+        (()=>{
+            const wireTabs=(youId,wifeId)=>{
+                const yb=document.getElementById(youId);
+                const wb=document.getElementById(wifeId);
+                if(!yb||!wb)return;
+                yb.addEventListener('click',()=>setActiveTab('you'));
+                wb.addEventListener('click',()=>setActiveTab('wife'));
+            };
+            wireTabs('b1-tab-you','b1-tab-wife');
+            wireTabs('b2-tab-you','b2-tab-wife');
+        })();
+        function setActiveTab(who){
+            settings.activeTab=who;
+            // Toggle .active class on both Block 1 and Block 2 tab pairs.
+            ['b1','b2'].forEach(prefix=>{
+                const yb=document.getElementById(prefix+'-tab-you');
+                const wb=document.getElementById(prefix+'-tab-wife');
+                if(yb)yb.classList.toggle('active',who==='you');
+                if(wb)wb.classList.toggle('active',who==='wife');
+            });
+            refreshGridsToActive();
+            if(window._refreshEveryPicker)window._refreshEveryPicker();
+        }
         // Info modals for "Surprise Rounds" and "Training Blocks". Tap the (i)
         // button next to each label to open the modal; close via X or Got it.
         // The Training Blocks (i) button is nested inside the Block 2 CTA panel,
@@ -2022,7 +2173,6 @@
             wire('btn-roundlen-info','roundlen-info-modal',['btn-roundlen-info-close','btn-roundlen-info-done'],false);
             wire('btn-random-info','random-info-modal',['btn-random-info-close','btn-random-info-done'],false);
         })();
-        window.selectSurpriseB2=(n,el)=>{settings.surpriseCountB2=n;Array.from(document.getElementById('grid-surprise-b2').children).forEach(b=>b.classList.remove('active'));el.classList.add('active');updateSessionSummary();};
         // Toggle the inline Block 2 panel between its CTA and edit views.
         // selectBlocks(1) -> show CTA, selectBlocks(2) -> show editable settings.
         // No modal - all editing happens in the right column. Both Block 1 (single)
@@ -2131,6 +2281,27 @@
                 root.style.setProperty('--theme-color','#a855f7');root.style.setProperty('--theme-shadow','rgba(168,85,247,0.4)');
                 ui.toggleBg.classList.remove('peer-checked:bg-green-600');ui.toggleBg.classList.add('peer-checked:bg-purple-600');
             }
+            // Tabs and EVERY pills are Team-mode only. In Solo, force activeTab='you'
+            // and reduce the EVERY picker to a binary Off/On (Liam/Ash pills hide).
+            const isTeam=mode==='wife';
+            ['b1-tabs','b2-tabs'].forEach(id=>{
+                const el=document.getElementById(id);
+                if(el)el.classList.toggle('hidden',!isTeam);
+            });
+            // Per-person pills (Liam/Ash) only in Team. Off and Both/On always shown.
+            document.querySelectorAll('.every-pill').forEach(p=>{
+                const v=p.dataset.every;
+                if(v==='you'||v==='wife')p.classList.toggle('hidden',!isTeam);
+            });
+            // Relabel the "both" pill to "On" in Solo, "Both" in Team.
+            const bothPill=document.querySelector('.every-pill[data-every="both"]');
+            if(bothPill)bothPill.textContent=isTeam?'Both':'On';
+            // If switching to Solo while Ash tab was active, reset to Liam.
+            if(!isTeam&&settings.activeTab!=='you')setActiveTab('you');
+            else refreshGridsToActive();
+            // EVERY enum: in Solo we collapse 'you'/'wife' to 'both' since both = On.
+            if(!isTeam&&(settings.surpriseEvery==='you'||settings.surpriseEvery==='wife'))settings.surpriseEvery='both';
+            if(window._refreshEveryPicker)window._refreshEveryPicker();
             generateSessionPlan();
         }
         ui.modeSolo.onclick=()=>setMode('solo');ui.modeWife.onclick=()=>setMode('wife');
@@ -2253,28 +2424,24 @@
             const el=document.getElementById('session-summary-line');
             if(!el)return;
             const isW=settings.mode==='wife';
-            const r1=settings.rounds, s1=settings.surpriseEveryRound?settings.rounds:settings.surpriseCount;
             const has2=settings.blocks===2;
-            const r2=has2?settings.roundsB2:0, s2=has2?(settings.surpriseEveryRound?settings.roundsB2:settings.surpriseCountB2):0;
-            const totalRounds=r1+r2;
-            const totalSurprise=s1+s2;
-            const activePhases=totalRounds+totalSurprise;
-
-            // Time estimate (seconds). For Solo: each round = work + progressive rest.
-            // Progressive rest = restBase + (i-1)*PROGRESSIVE_REST_INCREMENT_SECS, capped at 60s
-            // (matches in-session cap). For Wife: each round = work + 10s changeover, doubled
-            // because partner rounds run back-to-back (you-work / change / wife-work / change / ...).
-            // Final phase has no trailing rest.
+            const every=settings.surpriseEvery;
+            // Effective per-person surprise counts (EVERY override expands to all rounds).
+            const youS1 =(every==='both'||every==='you' )?settings.you.rounds   :settings.you.surpriseCount;
+            const youS2 =has2?((every==='both'||every==='you' )?settings.you.roundsB2 :settings.you.surpriseCountB2):0;
+            const wifeS1=(every==='both'||every==='wife')?settings.wife.rounds  :settings.wife.surpriseCount;
+            const wifeS2=has2?((every==='both'||every==='wife')?settings.wife.roundsB2:settings.wife.surpriseCountB2):0;
+            // Time estimate (Phase 1: runtime still uses Liam's values, so estimate
+            // matches Liam's path. Phase 2/3 will refine when work-length and round
+            // counts diverge).
             let totalSec=READY_PHASE_SECS;
+            const r1=settings.you.rounds, s1=youS1;
+            const r2=has2?settings.you.roundsB2:0, s2=youS2;
             const computeBlock=(rounds)=>{
                 let s=0;
-                if(isW){
-                    // Each plan-round in wife mode = 2 work phases + 2 changeovers (last one trims).
-                    // Approximation: 2*work + 2*PARTNER_CHANGEOVER per plan round.
-                    s+=rounds*(2*settings.work+2*PARTNER_CHANGEOVER_SECS);
-                }else{
-                    s+=rounds*settings.work;
-                    // Progressive rest sum: cap each at 60s.
+                if(isW){s+=rounds*(2*settings.you.work+2*PARTNER_CHANGEOVER_SECS);}
+                else{
+                    s+=rounds*settings.you.work;
                     for(let i=1;i<=rounds;i++){
                         const r=Math.min(60,settings.restBase+(i-1)*PROGRESSIVE_REST_INCREMENT_SECS);
                         s+=r;
@@ -2283,33 +2450,41 @@
                 return s;
             };
             totalSec+=computeBlock(r1);
-            // Surprise bursts add SURPRISE_TOTAL each, occupying the rest slot
-            // - so add the burst time but subtract one rest/changeover per burst.
             const surpriseExtra=(secs)=>secs?(SURPRISE_TOTAL-(isW?PARTNER_CHANGEOVER_SECS:Math.min(60,settings.restBase))):0;
             totalSec+=s1*surpriseExtra(SURPRISE_TOTAL);
             if(has2){totalSec+=settings.blockRestSecs+computeBlock(r2)+s2*surpriseExtra(SURPRISE_TOTAL);}
-            // Trim final trailing rest (last round has no rest after it).
+            const totalRounds=r1+r2;
             if(isW)totalSec-=PARTNER_CHANGEOVER_SECS;
             else totalSec-=Math.min(60,settings.restBase+(totalRounds-1)*PROGRESSIVE_REST_INCREMENT_SECS);
-
             const mins=Math.max(1,Math.round(totalSec/60));
-            // Build the descriptive line. Two-block sessions show the breakdown explicitly
-            // (B1 + B2) so the user can see how their config maps to the run, rather than
-            // just a flattened total. Surprise rounds appear inline per block when present.
-            const fmtBlock=(r,s,label)=>{
-                if(s===0)return `${label}: ${r}`;
-                return `${label}: ${r} + ${s} surprise`;
+            // Detect asymmetry - in Team mode, are Liam and Ash configured differently?
+            const sameSettings=settings.you.rounds===settings.wife.rounds
+                &&settings.you.surpriseCount===settings.wife.surpriseCount
+                &&(!has2||(settings.you.roundsB2===settings.wife.roundsB2&&settings.you.surpriseCountB2===settings.wife.surpriseCountB2));
+            const asymmetric=isW&&!sameSettings;
+            const fmtBlock=(r,s,label)=>s===0?`${label}: ${r}`:`${label}: ${r} + ${s} surprise`;
+            const fmtPersonLine=(name,p,sB1,sB2)=>{
+                if(has2)return `${name} - ${fmtBlock(p.rounds,sB1,'B1')} &rarr; ${fmtBlock(p.roundsB2,sB2,'B2')}`;
+                const total=p.rounds, totalSurp=sB1;
+                if(totalSurp===0)return `${name} - ${total} rounds`;
+                return `${name} - ${total} rounds + ${totalSurp} surprise`;
             };
             let line;
-            if(has2){
+            if(asymmetric){
+                const liam=fmtPersonLine('Liam',settings.you,youS1,youS2);
+                const ash =fmtPersonLine('Ash', settings.wife,wifeS1,wifeS2);
+                line=`${liam}<br>${ash}<br>~${mins} min`;
+            }else if(has2){
+                const activePhases=r1+r2+s1+s2;
                 const phasesLabel=activePhases===1?'1 phase':`${activePhases} active phases`;
                 line=`${fmtBlock(r1,s1,'B1')} &rarr; ${fmtBlock(r2,s2,'B2')} = ${phasesLabel} &middot; ~${mins} min`;
             }else{
                 const roundsLabel=totalRounds===1?'1 round':`${totalRounds} rounds`;
-                if(totalSurprise===0){
+                if(s1===0){
                     line=`${roundsLabel} &middot; ~${mins} min`;
                 }else{
-                    const surpriseLabel=totalSurprise===1?'1 surprise round':`${totalSurprise} surprise rounds`;
+                    const activePhases=r1+s1;
+                    const surpriseLabel=s1===1?'1 surprise round':`${s1} surprise rounds`;
                     const phasesLabel=activePhases===1?'1 active phase':`${activePhases} active phases`;
                     line=`${roundsLabel} + ${surpriseLabel} = ${phasesLabel} &middot; ~${mins} min`;
                 }
@@ -2694,16 +2869,21 @@
                 if(session.phase==='work'){
                     // At end of work round: check if a surprise is scheduled for this plan index
                     // (and person - in Wife mode surprise sets are per-person).
-                    // EVERY round override: when settings.surpriseEveryRound is on, EVERY work
-                    // round fires a surprise regardless of the per-block surpriseCount sets.
-                    // No triggered tracking needed since it's deterministic per round.
+                    // EVERY round override: settings.surpriseEvery is a 4-way enum
+                    //   'off'  - use the per-person sets
+                    //   'you'  - Liam fires every round (Ash uses her set)
+                    //   'wife' - Ash fires every round (Liam uses his set)
+                    //   'both' - both fire every round
                     const pi=isW?Math.floor((session.round-1)/2):session.round-1;
                     const iy=!isW||(session.round%2!==0);  // "is you's round"
                     const ip=isW&&(session.round%2===0);   // "is partner's round"
+                    const everyMode=settings.surpriseEvery;
+                    const everyForYou=everyMode==='both'||everyMode==='you';
+                    const everyForWife=everyMode==='both'||everyMode==='wife';
                     let ts=false;
-                    if(settings.surpriseEveryRound){
-                        ts=true;
-                    }else if(iy&&currentSurpriseYou().has(pi)&&!currentTriggeredYou().has(pi)){currentTriggeredYou().add(pi);ts=true;}
+                    if(iy&&everyForYou){ts=true;}
+                    else if(ip&&everyForWife){ts=true;}
+                    else if(iy&&currentSurpriseYou().has(pi)&&!currentTriggeredYou().has(pi)){currentTriggeredYou().add(pi);ts=true;}
                     else if(ip&&currentSurpriseWife().has(pi)&&!currentTriggeredWife().has(pi)){currentTriggeredWife().add(pi);ts=true;}
                     if(ts){setPhase('surprise');return;}
                     // No surprise - either end the block or go to rest/change.
@@ -2855,15 +3035,16 @@
             ui.roundTot.innerText=totalDisplay;ui.roundCur.innerText='1';
             // Pick surprise round indices for block 1 (always) and block 2 (if 2 blocks).
             // Per-person sets in Wife mode - user and wife may each get surprise rounds
-            // at different indices (adds unpredictability for the partner too).
-            session.surpriseRoundsYou=pickSurpriseIndices(settings.surpriseCount,settings.rounds);
+            // at different indices (adds unpredictability for the partner too). Each
+            // person uses their own surpriseCount from settings.you/wife.
+            session.surpriseRoundsYou=pickSurpriseIndices(settings.you.surpriseCount,settings.you.rounds);
             session.surpriseTriggeredYou=new Set();
-            if(settings.mode==='wife'){session.surpriseRoundsWife=pickSurpriseIndices(settings.surpriseCount,settings.rounds);session.surpriseTriggeredWife=new Set();}
+            if(settings.mode==='wife'){session.surpriseRoundsWife=pickSurpriseIndices(settings.wife.surpriseCount,settings.wife.rounds);session.surpriseTriggeredWife=new Set();}
             else{session.surpriseRoundsWife=new Set();session.surpriseTriggeredWife=new Set();}
             if(settings.blocks===2){
-                session.surpriseRoundsYouB2=pickSurpriseIndices(settings.surpriseCountB2,settings.roundsB2);
+                session.surpriseRoundsYouB2=pickSurpriseIndices(settings.you.surpriseCountB2,settings.you.roundsB2);
                 session.surpriseTriggeredYouB2=new Set();
-                if(settings.mode==='wife'){session.surpriseRoundsWifeB2=pickSurpriseIndices(settings.surpriseCountB2,settings.roundsB2);session.surpriseTriggeredWifeB2=new Set();}
+                if(settings.mode==='wife'){session.surpriseRoundsWifeB2=pickSurpriseIndices(settings.wife.surpriseCountB2,settings.wife.roundsB2);session.surpriseTriggeredWifeB2=new Set();}
                 else{session.surpriseRoundsWifeB2=new Set();session.surpriseTriggeredWifeB2=new Set();}
             }
             setPhase('ready');run();
@@ -3175,6 +3356,7 @@
         // ── INIT ────────────────────────────────────────────────────────────────
         // Show home screen, build the default plan preview, and apply Wife mode styling.
         generateSessionPlan();
+        setActiveTab('you');
         setMode('wife');
         updateAdvancedSummary();
     });
