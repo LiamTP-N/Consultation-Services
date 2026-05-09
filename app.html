@@ -1036,12 +1036,15 @@
             isSignUp = !isSignUp;
             const btn = document.getElementById('auth-login-btn');
             const toggle = document.getElementById('auth-toggle-btn');
+            const pwInput = document.getElementById('auth-password');
             if (isSignUp) {
                 btn.innerText = 'Create Account';
                 toggle.innerHTML = 'Already have an account? <span class="font-bold">Sign In</span>';
+                if (pwInput) pwInput.setAttribute('autocomplete', 'new-password');
             } else {
                 btn.innerText = 'Sign In';
                 toggle.innerHTML = "Don't have an account? <span class=\"font-bold\">Sign Up</span>";
+                if (pwInput) pwInput.setAttribute('autocomplete', 'current-password');
             }
             document.getElementById('auth-error').classList.add('hidden');
         };
@@ -1074,6 +1077,14 @@
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-container').style.display = 'block';
             document.getElementById('app-nav').style.display = 'flex';
+
+            // Reset per-session UI state on every login (handles user switching
+            // and same-user next-day return - warm-ups must be re-done daily)
+            warmupsComplete = { 'warmup-1': false, 'warmup-2': false };
+            document.querySelectorAll('.warmup-card').forEach(c => c.classList.remove('done'));
+            const nextBtn = document.getElementById('warmup-next-btn');
+            if (nextBtn) nextBtn.disabled = true;
+
             refreshStats();
             switchView('warmup');
             // Show onboarding for new users (no sessions recorded yet)
@@ -1189,6 +1200,10 @@
         // Created on first camera use so a CDN failure doesn't kill the whole app
         let pose = null;
         let poseInitFailed = false;
+
+        // Countdown interval handle - hoisted so stopAllCameras can cancel it
+        // when the user navigates away mid-countdown
+        let countdownIntervalId = null;
 
         function ensurePoseReady() {
             if (pose) return true;
@@ -1397,6 +1412,10 @@
                 trainAngles = [];
                 showOverlay('train', 'waiting');
                 calculateDailyTarget();
+                // Guarantee at least 8 deg between target and exit so a real
+                // ascent is required to register a rep, even when a stiff user's
+                // standing-derived exit threshold sits close to today's target.
+                SQUAT_EXIT_ANGLE = Math.max(SQUAT_EXIT_ANGLE, dailyTarget + 8);
                 const baseline = window.userData?.baselineRom || 'unknown';
                 speak(`Camera is starting. Place your phone down and stand sideways. Your baseline is ${baseline} degrees. Today's target is ${dailyTarget} degrees. I will find you when you are ready.`);
             }
@@ -1448,6 +1467,12 @@
 
         window.stopAllCameras = () => {
             clearSpeech();
+            // Cancel an in-flight countdown so it can't flip cameraState
+            // back to 'tracking' after the user has navigated away
+            if (countdownIntervalId) {
+                clearInterval(countdownIntervalId);
+                countdownIntervalId = null;
+            }
             if (window._activeStream) {
                 window._activeStream.getTracks().forEach(t => t.stop());
                 window._activeStream = null;
@@ -1470,7 +1495,7 @@
                 if (el) el.classList.toggle('hidden', s !== state);
             });
 
-            // HUD elements
+            // HUD elements - shown only during 'tracking' state
             if (mode === 'assess') {
                 const hud = document.getElementById('assess-hud');
                 if (hud) hud.classList.toggle('hidden', state !== 'tracking');
@@ -1480,14 +1505,6 @@
                 const bottomHud = document.getElementById('train-bottom-hud');
                 if (hud) hud.classList.toggle('hidden', state !== 'tracking');
                 if (bottomHud) bottomHud.classList.toggle('hidden', state !== 'tracking');
-            }
-
-            // If showing 'tracking' state, hide all overlays
-            if (state === 'tracking') {
-                states.forEach(s => {
-                    const el = document.getElementById(`${prefix}-overlay-${s}`);
-                    if (el) el.classList.add('hidden');
-                });
             }
         }
 
@@ -1554,13 +1571,20 @@
             numEl.innerText = count;
             speak('Three');
 
-            const interval = setInterval(() => {
+            // Cancel any pre-existing countdown before starting a new one
+            if (countdownIntervalId) clearInterval(countdownIntervalId);
+            countdownIntervalId = setInterval(() => {
                 count--;
                 if (count > 0) {
                     numEl.innerText = count;
                     speak(count.toString());
                 } else {
-                    clearInterval(interval);
+                    clearInterval(countdownIntervalId);
+                    countdownIntervalId = null;
+                    // Guard against late firing after navigation - if the user
+                    // switched tabs during the 3-second countdown, stopAllCameras
+                    // will have set cameraState to 'off'. Don't clobber it.
+                    if (cameraState !== 'countdown') return;
                     cameraState = 'tracking';
                     showOverlay(mode, 'tracking');
                     isSquatting = false;
@@ -1872,6 +1896,10 @@
                 window._activeStream.getTracks().forEach(t => t.stop());
                 window._activeStream = null;
             }
+            // Halt the per-frame sendFrame loop. Without this, frames keep
+            // being requested (and pose.send may briefly fire on a stale
+            // last frame) until switchView eventually calls stopAllCameras.
+            cameraState = 'off';
         }
 
         // ==============================
