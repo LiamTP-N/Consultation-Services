@@ -597,10 +597,32 @@
                         <label class="text-[10px] sm:text-xs font-bold text-slate-300 uppercase tracking-widest">Round Length</label>
                         <button id="btn-roundlen-info" type="button" aria-label="What does round length do?" class="info-btn">i</button>
                     </div>
-                    <div class="grid grid-cols-3 gap-1.5">
-                        <button class="btn-select py-2 rounded-xl text-sm font-mono-display" onclick="selectWork(30,this)">30s</button>
-                        <button class="btn-select py-2 rounded-xl text-sm font-mono-display" onclick="selectWork(45,this)">45s</button>
-                        <button class="btn-select active py-2 rounded-xl text-sm font-mono-display" onclick="selectWork(60,this)">60s</button>
+                    <!-- Solo mode: single row writes to settings.you.work. Visible in Solo only. -->
+                    <div id="roundlen-solo" class="grid grid-cols-3 gap-1.5">
+                        <button class="btn-select py-2 rounded-xl text-sm font-mono-display" onclick="selectWorkPerson('you',30,this)">30s</button>
+                        <button class="btn-select py-2 rounded-xl text-sm font-mono-display" onclick="selectWorkPerson('you',45,this)">45s</button>
+                        <button class="btn-select active py-2 rounded-xl text-sm font-mono-display" onclick="selectWorkPerson('you',60,this)">60s</button>
+                    </div>
+                    <!-- Team mode: two rows (Liam + Ash). Visible in Team only.
+                         Each row writes only to its own person, so partners can run
+                         different work durations under strict alternation. -->
+                    <div id="roundlen-team" class="hidden space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-10 flex-shrink-0">Liam</span>
+                            <div class="grid grid-cols-3 gap-1.5 flex-1" id="roundlen-row-you">
+                                <button class="btn-select py-2 rounded-xl text-sm font-mono-display" onclick="selectWorkPerson('you',30,this)">30s</button>
+                                <button class="btn-select py-2 rounded-xl text-sm font-mono-display" onclick="selectWorkPerson('you',45,this)">45s</button>
+                                <button class="btn-select active py-2 rounded-xl text-sm font-mono-display" onclick="selectWorkPerson('you',60,this)">60s</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-10 flex-shrink-0">Ash</span>
+                            <div class="grid grid-cols-3 gap-1.5 flex-1" id="roundlen-row-wife">
+                                <button class="btn-select py-2 rounded-xl text-sm font-mono-display" onclick="selectWorkPerson('wife',30,this)">30s</button>
+                                <button class="btn-select py-2 rounded-xl text-sm font-mono-display" onclick="selectWorkPerson('wife',45,this)">45s</button>
+                                <button class="btn-select active py-2 rounded-xl text-sm font-mono-display" onclick="selectWorkPerson('wife',60,this)">60s</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="flex items-center justify-between ml-1 mr-0.5">
@@ -2043,17 +2065,28 @@
             el.classList.add('active');
             generateSessionPlan();
         };
-        // Refresh the Advanced disclosure summary line, e.g. "60s · Random" or "60s · Fixed".
+        // Refresh the Advanced disclosure summary line, e.g. "60s · Random" or
+        // when partners have different work lengths: "L 60s / A 45s · Random".
         function updateAdvancedSummary(){
             const s=document.getElementById('advanced-summary');
             if(!s)return;
-            const work=settings.you.work;
+            const isW=settings.mode==='wife';
+            const yw=settings.you.work, ww=settings.wife.work;
+            const workTxt=(isW&&yw!==ww)?`L ${yw}s / A ${ww}s`:`${yw}s`;
             const rand=settings.randomiseMiddle?'Random':'Fixed';
-            s.textContent=`${work}s · ${rand}`;
+            s.textContent=`${workTxt} · ${rand}`;
         }
+        window.selectWorkPerson=(who,n,el)=>{
+            // Phase 2: per-person work length. Writes only to the specified person
+            // (settings.you.work or settings.wife.work). Each Round Length row in the
+            // Advanced modal owns its own person, so partners can run different durations.
+            settings[who].work=n;
+            Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));
+            el.classList.add('active');
+            updateAdvancedSummary();updateSessionSummary();
+        };
+        // Back-compat shim: any legacy call to selectWork(n,el) writes to both partners.
         window.selectWork=(n,el)=>{
-            // Work length is currently shared (Phase 2 will make this per-person too).
-            // For now we write to both copies so they stay in lockstep.
             settings.you.work=n;settings.wife.work=n;
             Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));
             el.classList.add('active');
@@ -2302,7 +2335,31 @@
             // EVERY enum: in Solo we collapse 'you'/'wife' to 'both' since both = On.
             if(!isTeam&&(settings.surpriseEvery==='you'||settings.surpriseEvery==='wife'))settings.surpriseEvery='both';
             if(window._refreshEveryPicker)window._refreshEveryPicker();
+            // Round Length layout: single row in Solo, two rows (Liam + Ash) in Team.
+            const rlSolo=document.getElementById('roundlen-solo');
+            const rlTeam=document.getElementById('roundlen-team');
+            if(rlSolo)rlSolo.classList.toggle('hidden',isTeam);
+            if(rlTeam)rlTeam.classList.toggle('hidden',!isTeam);
+            // Sync the active class on whichever row is showing, in case settings have
+            // diverged or this is the first render after a mode change.
+            refreshRoundLengthButtons();
+            updateAdvancedSummary();
             generateSessionPlan();
+        }
+        // Re-apply .active to whichever Round Length button matches each person's
+        // current settings.{you|wife}.work. Called from setMode() and on init.
+        function refreshRoundLengthButtons(){
+            const sync=(rowId,workVal)=>{
+                const row=document.getElementById(rowId);
+                if(!row)return;
+                Array.from(row.children).forEach(b=>{
+                    const n=parseInt(b.innerText,10);
+                    b.classList.toggle('active',n===workVal);
+                });
+            };
+            sync('roundlen-solo',settings.you.work);
+            sync('roundlen-row-you',settings.you.work);
+            sync('roundlen-row-wife',settings.wife.work);
         }
         ui.modeSolo.onclick=()=>setMode('solo');ui.modeWife.onclick=()=>setMode('wife');
         ui.inRandom.onchange=e=>{settings.randomiseMiddle=e.target.checked;updateAdvancedSummary();generateSessionPlan();};
@@ -2439,8 +2496,11 @@
             const r2=has2?settings.you.roundsB2:0, s2=youS2;
             const computeBlock=(rounds)=>{
                 let s=0;
-                if(isW){s+=rounds*(2*settings.you.work+2*PARTNER_CHANGEOVER_SECS);}
-                else{
+                if(isW){
+                    // Strict alternation: each plan-round = Liam.work + change + Ash.work + change.
+                    // Phase 2 honours per-person work length so the total respects asymmetry.
+                    s+=rounds*(settings.you.work+settings.wife.work+2*PARTNER_CHANGEOVER_SECS);
+                }else{
                     s+=rounds*settings.you.work;
                     for(let i=1;i<=rounds;i++){
                         const r=Math.min(60,settings.restBase+(i-1)*PROGRESSIVE_REST_INCREMENT_SECS);
@@ -2459,15 +2519,20 @@
             const mins=Math.max(1,Math.round(totalSec/60));
             // Detect asymmetry - in Team mode, are Liam and Ash configured differently?
             const sameSettings=settings.you.rounds===settings.wife.rounds
+                &&settings.you.work===settings.wife.work
                 &&settings.you.surpriseCount===settings.wife.surpriseCount
                 &&(!has2||(settings.you.roundsB2===settings.wife.roundsB2&&settings.you.surpriseCountB2===settings.wife.surpriseCountB2));
             const asymmetric=isW&&!sameSettings;
             const fmtBlock=(r,s,label)=>s===0?`${label}: ${r}`:`${label}: ${r} + ${s} surprise`;
+            // Show work length in the per-person line only when partners differ on work,
+            // otherwise it's redundant noise.
+            const workDiffers=settings.you.work!==settings.wife.work;
             const fmtPersonLine=(name,p,sB1,sB2)=>{
-                if(has2)return `${name} - ${fmtBlock(p.rounds,sB1,'B1')} &rarr; ${fmtBlock(p.roundsB2,sB2,'B2')}`;
+                const wTag=workDiffers?` &middot; ${p.work}s`:'';
+                if(has2)return `${name}${wTag} - ${fmtBlock(p.rounds,sB1,'B1')} &rarr; ${fmtBlock(p.roundsB2,sB2,'B2')}`;
                 const total=p.rounds, totalSurp=sB1;
-                if(totalSurp===0)return `${name} - ${total} rounds`;
-                return `${name} - ${total} rounds + ${totalSurp} surprise`;
+                if(totalSurp===0)return `${name}${wTag} - ${total} rounds`;
+                return `${name}${wTag} - ${total} rounds + ${totalSurp} surprise`;
             };
             let line;
             if(asymmetric){
@@ -2611,7 +2676,12 @@
                 // Work interval. Plan index `pi` converts from 1-based display round to
                 // 0-based plan index. In Wife mode each plan round drives TWO session rounds
                 // (user then wife), so we divide by 2.
-                session.time=settings.work;session.total=settings.work;
+                // Phase 2: per-person work length. In Team mode odd rounds (1,3,5...) are
+                // Liam's, even rounds (2,4,6...) are Ash's. Each uses their own
+                // settings.{you|wife}.work duration. Solo always uses Liam's.
+                const isAshRound=isW&&(session.round%2===0);
+                const workDur=isAshRound?settings.wife.work:settings.you.work;
+                session.time=workDur;session.total=workDur;
                 if(isFinalRound)playDoubleBell();else playBell();
                 const pi=isW?Math.floor((session.round-1)/2):session.round-1;
                 const rd=plan[pi]||{name:'Round '+absoluteRound,moves:[]};
