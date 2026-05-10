@@ -31,6 +31,21 @@
             font-size: 13vmin; font-weight: bold; line-height: 1; white-space: nowrap;
             margin-top: 0.25em; letter-spacing: 0.01em;
         }
+        .infoRow {
+            font-size: 4.2vmin; font-weight: 600; line-height: 1.15;
+            margin-top: 0.55em; color: #d1d5db; white-space: nowrap;
+        }
+        .infoRow .label {
+            color: #9ca3af; font-weight: 500; margin-right: 0.4em;
+        }
+        .infoRow .gbp {
+            color: #9ca3af; font-weight: 500; font-size: 0.78em;
+        }
+        #balanceRow { margin-top: 0.7em; }
+        #balanceRow .gbpLine {
+            display: block; margin-top: 0.15em;
+            font-size: 3.4vmin; color: #9ca3af; font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -38,13 +53,35 @@
         <div id="widgetBtc">-</div>
         <div id="widgetNumber">-</div>
         <div id="widgetSub">-</div>
+        <div id="balanceRow" class="infoRow">
+            <span class="label">Bal</span><span id="balanceXtz">-</span>
+            <span class="gbpLine" id="balanceGbp">-</span>
+        </div>
+        <div id="pendingRow" class="infoRow">
+            <span class="label">Pending</span><span id="pendingXtz">-</span>
+        </div>
+        <div id="settledRow" class="infoRow">
+            <span class="label">Last</span><span id="settledXtz">-</span>
+        </div>
     </div>
 
     <script>
         // XTZ price + % change since trade entry (3 May 2026 21:57 BST = 20:57 UTC).
         // BTC current spot price shown above for benchmark context.
+        // Below: delegated balance (XTZ + GBP), pending cycle projected reward, last settled cycle reward.
 
         const TRADE_DATE_UTC_MS = Date.UTC(2026, 4, 3, 20, 57, 57);
+        const TZ_ADDRESS = "tz1cg93LEsvZ7Uy64SkXpwAL7NUMZCwgZPxp";
+
+        // Cache GBP/USD between price ticks so we don't hammer the FX API.
+        let gbpRate = null;
+        let gbpRateFetchedAt = 0;
+        const GBP_TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+        // Cache TzKT data; refresh every 60s (rewards update per-cycle, not per-second).
+        let tzktCache = null;
+        let tzktFetchedAt = 0;
+        const TZKT_TTL_MS = 60 * 1000;
 
         async function fetchKlines(symbol, interval, limit) {
             const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`);
@@ -55,6 +92,146 @@
             const r = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
             const d = await r.json();
             return parseFloat(d.price);
+        }
+
+        async function fetchGbpRate() {
+            const now = Date.now();
+            if (gbpRate && (now - gbpRateFetchedAt) < GBP_TTL_MS) return gbpRate;
+            try {
+                const r = await fetch("https://open.er-api.com/v6/latest/USD");
+                const d = await r.json();
+                if (d && d.rates && d.rates.GBP) {
+                    gbpRate = d.rates.GBP;
+                    gbpRateFetchedAt = now;
+                }
+            } catch (e) {
+                console.error("GBP rate fetch failed", e);
+            }
+            return gbpRate;
+        }
+
+        // Compute delegator share of a cycle's rewards based on TzKT data.
+        function computeDelegatorReward(rewardEntry) {
+            if (!rewardEntry) return 0;
+            const br = rewardEntry.bakerRewards || {};
+            const myDelegated = rewardEntry.delegatedBalance || 0;
+            const ownDel = br.ownDelegatedBalance || 0;
+            const extDel = br.externalDelegatedBalance || 0;
+            const pool = ownDel + extDel;
+            if (pool <= 0 || myDelegated <= 0) return 0;
+            const share = myDelegated / pool;
+
+            // Delegated portion of all reward streams.
+            const settled =
+                (br.blockRewardsDelegated || 0) +
+                (br.attestationRewardsDelegated || 0) +
+                (br.dalAttestationRewardsDelegated || 0) +
+                (br.vdfRevelationRewardsDelegated || 0) +
+                (br.nonceRevelationRewardsDelegated || 0) +
+                (br.blockFees || 0);
+
+            // Future (unsettled) rewards still to be earned this cycle.
+            // These accrue to the delegated portion proportionally.
+            const future =
+                (br.futureBlockRewards || 0) +
+                (br.futureAttestationRewards || 0) +
+                (br.futureDalAttestationRewards || 0);
+
+            // Approximate delegated share of future rewards using current pool ratio.
+            const total = settled + future * (pool > 0 ? (ownDel + extDel) / (pool + (br.ownStakedBalance || 0) + (br.externalStakedBalance || 0)) : 0);
+
+            return (total * share) / 1e6; // mutez -> XTZ
+        }
+
+        // Simpler/cleaner: split into already-settled vs projected-total for the cycle.
+        function rewardBreakdown(rewardEntry) {
+            if (!rewardEntry) return { settled: 0, total: 0 };
+            const br = rewardEntry.bakerRewards || {};
+            const myDelegated = rewardEntry.delegatedBalance || 0;
+            const ownDel = br.ownDelegatedBalance || 0;
+            const extDel = br.externalDelegatedBalance || 0;
+            const ownSt = br.ownStakedBalance || 0;
+            const extSt = br.externalStakedBalance || 0;
+            const delegatedPool = ownDel + extDel;
+            const totalPool = delegatedPool + ownSt + extSt;
+            if (delegatedPool <= 0 || myDelegated <= 0) return { settled: 0, total: 0 };
+
+            const myShareOfDelPool = myDelegated / delegatedPool;
+            const delPortionOfTotal = totalPool > 0 ? delegatedPool / totalPool : 0;
+
+            const settledDelegated =
+                (br.blockRewardsDelegated || 0) +
+                (br.attestationRewardsDelegated || 0) +
+                (br.dalAttestationRewardsDelegated || 0) +
+                (br.vdfRevelationRewardsDelegated || 0) +
+                (br.nonceRevelationRewardsDelegated || 0) +
+                (br.blockFees || 0);
+
+            const futureTotal =
+                (br.futureBlockRewards || 0) +
+                (br.futureAttestationRewards || 0) +
+                (br.futureDalAttestationRewards || 0);
+
+            const settledMine = settledDelegated * myShareOfDelPool;
+            const futureMine = futureTotal * delPortionOfTotal * myShareOfDelPool;
+
+            return {
+                settled: settledMine / 1e6,
+                total: (settledMine + futureMine) / 1e6
+            };
+        }
+
+        async function fetchTzkt() {
+            const now = Date.now();
+            if (tzktCache && (now - tzktFetchedAt) < TZKT_TTL_MS) return tzktCache;
+            try {
+                const [acctR, rewardsR] = await Promise.all([
+                    fetch(`https://api.tzkt.io/v1/accounts/${TZ_ADDRESS}`),
+                    fetch(`https://api.tzkt.io/v1/rewards/delegators/${TZ_ADDRESS}?limit=10`)
+                ]);
+                const acct = await acctR.json();
+                const rewards = await rewardsR.json();
+
+                // Balance in XTZ (includes delegated; TzKT balance field is spendable + frozen).
+                const balanceXtz = (acct.balance || 0) / 1e6;
+
+                // rewards[0] = newest cycle (current/pending); find first cycle with actual settled rewards.
+                let pending = null;
+                let settled = null;
+                if (rewards.length) {
+                    pending = rewards[0]; // current cycle, may be partly future
+                    for (let i = 0; i < rewards.length; i++) {
+                        const br = rewards[i].bakerRewards || {};
+                        const settledAmt =
+                            (br.blockRewardsDelegated || 0) +
+                            (br.attestationRewardsDelegated || 0) +
+                            (br.blockFees || 0);
+                        const futureAmt =
+                            (br.futureBlockRewards || 0) +
+                            (br.futureAttestationRewards || 0);
+                        // Settled cycle = no future rewards remaining AND non-zero past rewards.
+                        if (futureAmt === 0 && settledAmt > 0) {
+                            settled = rewards[i];
+                            break;
+                        }
+                    }
+                }
+
+                const pendingBreak = rewardBreakdown(pending);
+                const settledBreak = rewardBreakdown(settled);
+
+                tzktCache = {
+                    balanceXtz,
+                    pendingProjected: pendingBreak.total,
+                    pendingCycle: pending ? pending.cycle : null,
+                    settledAmount: settledBreak.total,
+                    settledCycle: settled ? settled.cycle : null
+                };
+                tzktFetchedAt = now;
+            } catch (e) {
+                console.error("TzKT fetch failed", e);
+            }
+            return tzktCache;
         }
 
         function findBaselineIdx(klines, targetMs) {
@@ -68,14 +245,24 @@
         }
 
         function fmtPct(n) {
-            const sign = n >= 0 ? '+' : '';
-            return sign + n.toFixed(2) + '%';
+            const sign = n >= 0 ? "+" : "";
+            return sign + n.toFixed(2) + "%";
         }
         function fmtPrice(n) {
-            return '$' + n.toFixed(4);
+            return "$" + n.toFixed(4);
         }
         function fmtBtc(n) {
-            return '$' + Math.round(n).toLocaleString('en-US');
+            return "$" + Math.round(n).toLocaleString("en-US");
+        }
+        function fmtXtzBalance(n) {
+            return n.toLocaleString("en-GB", { maximumFractionDigits: 2, minimumFractionDigits: 2 }) + " XTZ";
+        }
+        function fmtXtzReward(n) {
+            if (n < 0.0001) return "0.0000 XTZ";
+            return n.toFixed(4) + " XTZ";
+        }
+        function fmtGbp(n) {
+            return "\u00A3" + n.toLocaleString("en-GB", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
         }
 
         // Map % change to colour. Saturates at +/- 10%.
@@ -97,10 +284,12 @@
 
         async function updateWidget() {
             try {
-                const [xtzK, xtzLast, btcLast] = await Promise.all([
-                    fetchKlines('XTZUSDT', '15m', 1000),
-                    fetchLastPrice('XTZUSDT'),
-                    fetchLastPrice('BTCUSDT')
+                const [xtzK, xtzLast, btcLast, gbp, tz] = await Promise.all([
+                    fetchKlines("XTZUSDT", "15m", 1000),
+                    fetchLastPrice("XTZUSDT"),
+                    fetchLastPrice("BTCUSDT"),
+                    fetchGbpRate(),
+                    fetchTzkt()
                 ]);
                 if (!xtzK.length || !xtzLast) return;
 
@@ -110,9 +299,9 @@
 
                 const xtzPct = ((xtzLast / xtzBase) - 1) * 100;
 
-                const btcEl = document.getElementById('widgetBtc');
-                const numEl = document.getElementById('widgetNumber');
-                const subEl = document.getElementById('widgetSub');
+                const btcEl = document.getElementById("widgetBtc");
+                const numEl = document.getElementById("widgetNumber");
+                const subEl = document.getElementById("widgetSub");
 
                 if (btcLast) btcEl.textContent = fmtBtc(btcLast);
                 numEl.textContent = fmtPrice(xtzLast);
@@ -120,8 +309,26 @@
                 subEl.style.color = pctColour(xtzPct);
 
                 document.title = "XTZ " + fmtPrice(xtzLast) + " " + fmtPct(xtzPct);
+
+                if (tz) {
+                    const balXtzEl = document.getElementById("balanceXtz");
+                    const balGbpEl = document.getElementById("balanceGbp");
+                    const pendEl = document.getElementById("pendingXtz");
+                    const setEl = document.getElementById("settledXtz");
+
+                    balXtzEl.textContent = fmtXtzBalance(tz.balanceXtz);
+                    if (gbp && xtzLast) {
+                        const balGbp = tz.balanceXtz * xtzLast * gbp;
+                        balGbpEl.textContent = fmtGbp(balGbp);
+                    } else {
+                        balGbpEl.textContent = "";
+                    }
+
+                    pendEl.textContent = fmtXtzReward(tz.pendingProjected);
+                    setEl.textContent = fmtXtzReward(tz.settledAmount);
+                }
             } catch (e) {
-                console.error('Widget update failed', e);
+                console.error("Widget update failed", e);
             }
         }
 
