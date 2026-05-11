@@ -98,10 +98,10 @@
            above plus a 25% whole-button drop so the unselected options recede). */
         .tint-you .btn-select.active,.tint-wife .btn-select.active,.tint-white .btn-select.active,.tint-orange .btn-select.active{font-size:1.15em;}
         .tint-you .btn-select:not(.active),.tint-wife .btn-select:not(.active),.tint-white .btn-select:not(.active),.tint-orange .btn-select:not(.active){opacity:0.75;}
-        /* Surprise grids only: enforce equal row heights so the 2nd row (4-5-6 + EVERY
-           ROUND) matches the 1st row (0-1-2-3) regardless of which button is active
-           or which row's content happens to be slightly taller from line-wrap. */
-        .tint-white .btn-select{min-height:44px;display:flex;align-items:center;justify-content:center;line-height:1.1;}
+        /* Tinted grid buttons: compact padding so the buttons aren't bulkier than
+           their text. Active state still scales font 1.15x; inactives sit at 75%
+           opacity. No fixed min-height - buttons size to content. */
+        .tint-you .btn-select,.tint-wife .btn-select,.tint-white .btn-select,.tint-orange .btn-select{padding-top:4px;padding-bottom:4px;line-height:1.1;display:flex;align-items:center;justify-content:center;}
         /* Per-person row label inside Block 1 / Block 2 cards (replaces the old tabs).
            Liam label swaps with mode (blue in Solo, green in Team). Ash always purple. */
         .person-row-label{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
@@ -490,49 +490,55 @@
                     <div class="flex items-center ml-1 mr-0.5">
                         <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 1</p>
                     </div>
-                    <!-- Liam: Rounds + Surprise rows -->
+                    <!-- Liam: Rounds + Round Length + Surprise rows -->
                     <div class="space-y-1" id="b1-row-you">
                         <div class="flex items-center justify-between ml-1 mr-0.5">
                             <span class="person-row-label you">Liam &middot; Rounds</span>
                             <span id="random-desc" class="text-[8px] sm:text-[9px] text-slate-500 leading-tight">Randomises rounds 2 to 11</span>
                         </div>
                         <div class="grid grid-cols-7 gap-1 tint-you" id="grid-rounds-you"></div>
+                        <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label you">Liam &middot; Round Length</span></div>
+                        <div class="grid grid-cols-3 gap-1 tint-you" id="grid-work-you">
+                            <button class="btn-select py-1 rounded-xl text-sm font-mono-display" onclick="selectWork('you',30,this)">30s</button>
+                            <button class="btn-select py-1 rounded-xl text-sm font-mono-display" onclick="selectWork('you',45,this)">45s</button>
+                            <button class="btn-select active py-1 rounded-xl text-sm font-mono-display" onclick="selectWork('you',60,this)">60s</button>
+                        </div>
                         <div class="flex items-center gap-1.5 ml-1 mr-0.5">
                             <span class="person-row-label you">Liam &middot; "Surprise" Rounds</span>
                             <button id="btn-surprise-info" type="button" aria-label="What is a surprise round?" class="info-btn">i</button>
                         </div>
-                        <!-- 8-cell grid: numeric counts 0-6 plus a final "EVERY ROUND" cell.
-                             EVERY ROUND sets surpriseEvery for this person (you/wife stacked
-                             internally to 'both' if both are on). -->
-                        <div class="grid grid-cols-4 gap-1 tint-white" id="grid-surprise-you">
-                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('you',0,this)">0</button>
-                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('you',1,this)">1</button>
-                            <button class="btn-select active py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('you',2,this)">2</button>
-                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('you',3,this)">3</button>
-                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('you',4,this)">4</button>
-                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('you',5,this)">5</button>
-                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('you',6,this)">6</button>
-                            <button class="btn-select every-round-btn py-1.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-tight" onclick="selectSurpriseEvery('you',this)">Every<br>Round</button>
+                        <!-- 8-cell grid on one row: counts 0-6 plus a final "EVERY" button. -->
+                        <div class="grid grid-cols-8 gap-1 tint-white" id="grid-surprise-you">
+                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',0,this)">0</button>
+                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',1,this)">1</button>
+                            <button class="btn-select active py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',2,this)">2</button>
+                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',3,this)">3</button>
+                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',4,this)">4</button>
+                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',5,this)">5</button>
+                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',6,this)">6</button>
+                            <button class="btn-select every-round-btn py-1 rounded-xl text-[10px] font-bold uppercase tracking-tight" onclick="selectSurpriseEvery('you',this)">EVERY</button>
                         </div>
                     </div>
-                    <!-- Ash: Rounds + Surprise rows (Team mode only) -->
+                    <!-- Ash: Rounds + Round Length + Surprise rows (Team mode only) -->
                     <div class="space-y-1 hidden" id="b1-row-wife">
-                        <div class="flex items-center ml-1 mr-0.5">
-                            <span class="person-row-label wife">Ash &middot; Rounds</span>
-                        </div>
+                        <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label wife">Ash &middot; Rounds</span></div>
                         <div class="grid grid-cols-7 gap-1 tint-wife" id="grid-rounds-wife"></div>
-                        <div class="flex items-center ml-1 mr-0.5">
-                            <span class="person-row-label wife">Ash &middot; "Surprise" Rounds</span>
+                        <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label wife">Ash &middot; Round Length</span></div>
+                        <div class="grid grid-cols-3 gap-1 tint-wife" id="grid-work-wife">
+                            <button class="btn-select py-1 rounded-xl text-sm font-mono-display" onclick="selectWork('wife',30,this)">30s</button>
+                            <button class="btn-select py-1 rounded-xl text-sm font-mono-display" onclick="selectWork('wife',45,this)">45s</button>
+                            <button class="btn-select active py-1 rounded-xl text-sm font-mono-display" onclick="selectWork('wife',60,this)">60s</button>
                         </div>
-                        <div class="grid grid-cols-4 gap-1 tint-white" id="grid-surprise-wife">
-                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',0,this)">0</button>
-                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',1,this)">1</button>
-                            <button class="btn-select active py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',2,this)">2</button>
-                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',3,this)">3</button>
-                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',4,this)">4</button>
-                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',5,this)">5</button>
-                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',6,this)">6</button>
-                            <button class="btn-select every-round-btn py-1.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-tight" onclick="selectSurpriseEvery('wife',this)">Every<br>Round</button>
+                        <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label wife">Ash &middot; "Surprise" Rounds</span></div>
+                        <div class="grid grid-cols-8 gap-1 tint-white" id="grid-surprise-wife">
+                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',0,this)">0</button>
+                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',1,this)">1</button>
+                            <button class="btn-select active py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',2,this)">2</button>
+                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',3,this)">3</button>
+                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',4,this)">4</button>
+                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',5,this)">5</button>
+                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',6,this)">6</button>
+                            <button class="btn-select every-round-btn py-1 rounded-xl text-[10px] font-bold uppercase tracking-tight" onclick="selectSurpriseEvery('wife',this)">EVERY</button>
                         </div>
                     </div>
                 </div>
@@ -555,25 +561,27 @@
                         <div class="space-y-1">
                             <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block Rest</label>
                             <div class="grid grid-cols-3 gap-1 tint-orange">
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(120,this)">2min</button>
-                                <button class="btn-select active py-1.5 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(180,this)">3min</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(300,this)">5min</button>
+                                <button class="btn-select py-1 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(120,this)">2min</button>
+                                <button class="btn-select active py-1 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(180,this)">3min</button>
+                                <button class="btn-select py-1 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(300,this)">5min</button>
                             </div>
                         </div>
-                        <!-- Liam: Rounds + Surprise rows -->
+                        <!-- Liam: Rounds + Surprise rows. Round Length is set once per
+                             person in Block 1 and applies to both blocks, so no work
+                             picker here. -->
                         <div class="space-y-1" id="b2-row-you">
                             <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label you">Liam &middot; Rounds</span></div>
                             <div class="grid grid-cols-7 gap-1 tint-you" id="grid-rounds-b2-you"></div>
                             <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label you">Liam &middot; "Surprise" Rounds</span></div>
-                            <div class="grid grid-cols-4 gap-1 tint-white" id="grid-surprise-b2-you">
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',0,this)">0</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',1,this)">1</button>
-                                <button class="btn-select active py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',2,this)">2</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',3,this)">3</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',4,this)">4</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',5,this)">5</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',6,this)">6</button>
-                                <button class="btn-select every-round-btn py-1.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-tight" onclick="selectSurpriseEveryB2('you',this)">Every<br>Round</button>
+                            <div class="grid grid-cols-8 gap-1 tint-white" id="grid-surprise-b2-you">
+                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',0,this)">0</button>
+                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',1,this)">1</button>
+                                <button class="btn-select active py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',2,this)">2</button>
+                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',3,this)">3</button>
+                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',4,this)">4</button>
+                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',5,this)">5</button>
+                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',6,this)">6</button>
+                                <button class="btn-select every-round-btn py-1 rounded-xl text-[10px] font-bold uppercase tracking-tight" onclick="selectSurpriseEveryB2('you',this)">EVERY</button>
                             </div>
                         </div>
                         <!-- Ash: Rounds + Surprise rows (Team mode only) -->
@@ -581,15 +589,15 @@
                             <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label wife">Ash &middot; Rounds</span></div>
                             <div class="grid grid-cols-7 gap-1 tint-wife" id="grid-rounds-b2-wife"></div>
                             <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label wife">Ash &middot; "Surprise" Rounds</span></div>
-                            <div class="grid grid-cols-4 gap-1 tint-white" id="grid-surprise-b2-wife">
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',0,this)">0</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',1,this)">1</button>
-                                <button class="btn-select active py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',2,this)">2</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',3,this)">3</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',4,this)">4</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',5,this)">5</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',6,this)">6</button>
-                                <button class="btn-select every-round-btn py-1.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-tight" onclick="selectSurpriseEveryB2('wife',this)">Every<br>Round</button>
+                            <div class="grid grid-cols-8 gap-1 tint-white" id="grid-surprise-b2-wife">
+                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',0,this)">0</button>
+                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',1,this)">1</button>
+                                <button class="btn-select active py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',2,this)">2</button>
+                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',3,this)">3</button>
+                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',4,this)">4</button>
+                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',5,this)">5</button>
+                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',6,this)">6</button>
+                                <button class="btn-select every-round-btn py-1 rounded-xl text-[10px] font-bold uppercase tracking-tight" onclick="selectSurpriseEveryB2('wife',this)">EVERY</button>
                             </div>
                         </div>
                     </div>
@@ -610,7 +618,7 @@
                 <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="60"><span>Rest</span><span class="opacity-70 text-[10px]">1min</span></button>
                 <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="120"><span>Rest</span><span class="opacity-70 text-[10px]">2min</span></button>
                 <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="180"><span>Rest</span><span class="opacity-70 text-[10px]">3min</span></button>
-                <button id="btn-advanced-toggle" type="button" class="col-span-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight"><span>Advanced</span><span id="advanced-summary" class="opacity-70 text-[10px] font-mono-display">60s &middot; Random</span></button>
+                <button id="btn-advanced-toggle" type="button" class="col-span-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight"><span>Advanced</span><span id="advanced-summary" class="opacity-70 text-[10px] font-mono-display">Random</span></button>
                 <button id="btn-start" class="col-span-3 bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-2xl text-base sm:text-xl active:scale-[0.98] transition-all">Begin Session</button>
             </div>
             <button id="btn-boxing-back" class="w-full py-1.5 rounded-xl text-xs font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98] flex-shrink-0 mt-1.5">&larr; Back</button>
@@ -634,25 +642,14 @@
                 <button id="btn-blocks-info-done" class="theme-btn w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-[0.98]">Got it</button>
             </div>
         </div>
-        <!-- ADVANCED MODAL: opens from the "Advanced" link in Block 1. Contains Round Length
-             and Randomise toggle. Each option has its own info "i" button that opens a
-             nested info modal. -->
+        <!-- ADVANCED MODAL: opens from the "Advanced" button in the action row. Now
+             contains just the Randomise toggle (Round Length has moved out, per-person,
+             into each person's settings row in Block 1). -->
         <div id="advanced-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" role="dialog" aria-modal="true" aria-labelledby="advanced-title">
             <div class="bg-slate-800 border border-slate-600 rounded-2xl p-4 max-w-sm w-full shadow-2xl space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 id="advanced-title" class="text-sm font-bold text-white">Advanced</h3>
                     <button id="btn-advanced-close" aria-label="Close" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button>
-                </div>
-                <div class="space-y-1.5">
-                    <div class="flex items-center gap-1.5 ml-1">
-                        <label class="text-[10px] sm:text-xs font-bold text-slate-300 uppercase tracking-widest">Round Length</label>
-                        <button id="btn-roundlen-info" type="button" aria-label="What does round length do?" class="info-btn">i</button>
-                    </div>
-                    <div class="grid grid-cols-3 gap-1.5">
-                        <button class="btn-select py-2 rounded-xl text-sm font-mono-display" onclick="selectWork(30,this)">30s</button>
-                        <button class="btn-select py-2 rounded-xl text-sm font-mono-display" onclick="selectWork(45,this)">45s</button>
-                        <button class="btn-select active py-2 rounded-xl text-sm font-mono-display" onclick="selectWork(60,this)">60s</button>
-                    </div>
                 </div>
                 <div class="flex items-center justify-between ml-1 mr-0.5">
                     <div class="flex items-center gap-1.5">
@@ -2073,7 +2070,7 @@
         function buildRoundButtons(gridEl,who,which,defaultN){
             for(let i=6;i<=12;i++){
                 const b=document.createElement('button');
-                b.className=`btn-select py-1.5 rounded-lg text-sm font-bold ${i===defaultN?'active':''}`;
+                b.className=`btn-select py-1 rounded-lg text-sm font-bold ${i===defaultN?'active':''}`;
                 b.innerText=i;
                 b.onclick=()=>(which==='b1'?selectRound:selectRoundB2)(who,i,b);
                 gridEl.appendChild(b);
@@ -2109,21 +2106,22 @@
             el.classList.add('active');
             generateSessionPlan();
         };
-        // Refresh the Advanced disclosure summary line, e.g. "60s · Random" or "60s · Fixed".
+        // Refresh the Advanced disclosure summary line. Now shows just Random/Fixed
+        // (Round Length lives per-person in the main panel, not in Advanced).
         function updateAdvancedSummary(){
             const s=document.getElementById('advanced-summary');
             if(!s)return;
-            const work=settings.you.work;
-            const rand=settings.randomiseMiddle?'Random':'Fixed';
-            s.textContent=`${work}s · ${rand}`;
+            s.textContent=settings.randomiseMiddle?'Random':'Fixed';
         }
-        window.selectWork=(n,el)=>{
-            // Work length is currently shared (Phase 2 will make this per-person too).
-            // For now we write to both copies so they stay in lockstep.
-            settings.you.work=n;settings.wife.work=n;
+        // Round Length is now per-person (was shared). The live runtime still uses
+        // Liam's value (Phase 1 limitation); allowing the UI to set Ash's value
+        // independently exposes asymmetry in the session summary so the user can
+        // see when the two diverge.
+        window.selectWork=(who,n,el)=>{
+            settings[who].work=n;
             Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));
             el.classList.add('active');
-            updateAdvancedSummary();updateSessionSummary();
+            updateSessionSummary();
         };
         // Helpers for the "EVERY ROUND" button (last cell in the surprise grid).
         // Per-person semantics: surpriseEvery is a 4-way enum 'off'|'you'|'wife'|'both'.
@@ -2183,6 +2181,15 @@
                     b.classList.toggle('active',Number(b.innerText)===val);
                 });
             };
+            const refreshWorkGrid=(gridId,val)=>{
+                const grid=document.getElementById(gridId);
+                if(!grid)return;
+                Array.from(grid.children).forEach(b=>{
+                    // Work buttons show "30s"/"45s"/"60s" - parse the digits.
+                    const n=parseInt(b.innerText,10);
+                    b.classList.toggle('active',n===val);
+                });
+            };
             const refreshSurpriseGrid=(gridId,val,everyOn)=>{
                 const grid=document.getElementById(gridId);
                 if(!grid)return;
@@ -2199,6 +2206,8 @@
             refreshRoundGrid(ui.gridRoundsWife,settings.wife.rounds);
             refreshRoundGrid(ui.gridRoundsB2You ,settings.you.roundsB2);
             refreshRoundGrid(ui.gridRoundsB2Wife,settings.wife.roundsB2);
+            refreshWorkGrid('grid-work-you' ,settings.you.work);
+            refreshWorkGrid('grid-work-wife',settings.wife.work);
             refreshSurpriseGrid('grid-surprise-you'    ,settings.you.surpriseCount    ,isEveryFor('you'));
             refreshSurpriseGrid('grid-surprise-wife'   ,settings.wife.surpriseCount   ,isEveryFor('wife'));
             refreshSurpriseGrid('grid-surprise-b2-you' ,settings.you.surpriseCountB2  ,isEveryFor('you'));
