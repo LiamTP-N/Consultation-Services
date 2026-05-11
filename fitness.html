@@ -79,50 +79,52 @@
         /* Inactive tints + active styling. Rounds grid is person-bound but mode-aware:
            - Solo: Liam row tints blue (since only Liam is visible)
            - Team: Liam row tints green, Ash row tints purple
-           Surprise grids use .tint-white -> faint white wash; red active state.
-           Active buttons across all grids bump font-size 1.15x and inactive buttons
-           dim to 85% opacity for a subtle "this one is selected" cue. */
-        body.mode-solo .tint-you  .btn-select:not(.active){background:rgba(59,130,246,0.18);color:#e2e8f0;border-color:rgba(59,130,246,0.30);}
-        body.mode-solo .tint-you  .btn-select.active{background:#3b82f6;border-color:#3b82f6;color:#fff;}
-        body.mode-wife .tint-you  .btn-select:not(.active){background:rgba(34,197,94,0.18);color:#e2e8f0;border-color:rgba(34,197,94,0.30);}
-        body.mode-wife .tint-you  .btn-select.active{background:#22c55e;border-color:#22c55e;color:#fff;}
+           Surprise grids use .tint-surprise-you / .tint-surprise-wife -> inactive
+           takes the person colour (like Rounds); active = solid red. */
+        /* Person-bound tints. Liam = green always, Ash = purple always (the body
+           mode-solo / mode-wife class no longer affects these - it only drives the
+           neutral chrome theme like the Solo mode-toggle button colour). Anything
+           attributed to a specific person carries their fixed identity colour. */
+        .tint-you  .btn-select:not(.active){background:rgba(34,197,94,0.18);color:#e2e8f0;border-color:rgba(34,197,94,0.30);}
+        .tint-you  .btn-select.active{background:#22c55e;border-color:#22c55e;color:#fff;}
         .tint-wife .btn-select:not(.active){background:rgba(168,85,247,0.18);color:#e2e8f0;border-color:rgba(168,85,247,0.30);}
         .tint-wife .btn-select.active{background:#a855f7;border-color:#a855f7;color:#fff;}
-        .tint-white .btn-select:not(.active){background:rgba(255,255,255,0.22);color:#f8fafc;border-color:rgba(255,255,255,0.3);}
-        .tint-white .btn-select.active{background:#ef4444;color:white;border-color:#ef4444;}
+        /* Surprise grids: numeric buttons take the person's colour (same as Rounds).
+           The trailing EVERY button is overridden to red regardless of person, so it
+           reads as the "burst / surprise" cue across the whole UI. */
+        .tint-surprise-you  .btn-select:not(.active){background:rgba(34,197,94,0.18);color:#e2e8f0;border-color:rgba(34,197,94,0.30);}
+        .tint-surprise-you  .btn-select.active{background:#22c55e;border-color:#22c55e;color:#fff;}
+        .tint-surprise-wife .btn-select:not(.active){background:rgba(168,85,247,0.18);color:#e2e8f0;border-color:rgba(168,85,247,0.30);}
+        .tint-surprise-wife .btn-select.active{background:#a855f7;border-color:#a855f7;color:#fff;}
+        .tint-surprise-you  .every-round-btn:not(.active),
+        .tint-surprise-wife .every-round-btn:not(.active){background:rgba(239,68,68,0.18);color:#e2e8f0;border-color:rgba(239,68,68,0.30);}
+        .tint-surprise-you  .every-round-btn.active,
+        .tint-surprise-wife .every-round-btn.active{background:#ef4444;border-color:#ef4444;color:#fff;}
         /* Orange tint for the Block Rest picker (2/3/5 min). Active = solid orange,
            inactives carry a faint orange wash so they read as "rest-related" controls. */
         .tint-orange .btn-select:not(.active){background:rgba(249,115,22,0.18);color:#e2e8f0;border-color:rgba(249,115,22,0.30);}
         .tint-orange .btn-select.active{background:#f97316;border-color:#f97316;color:#fff;}
         /* Active = larger font; inactives at 75% opacity (font dimming via colour rules
            above plus a 25% whole-button drop so the unselected options recede). */
-        .tint-you .btn-select.active,.tint-wife .btn-select.active,.tint-white .btn-select.active,.tint-orange .btn-select.active{font-size:1.15em;}
-        .tint-you .btn-select:not(.active),.tint-wife .btn-select:not(.active),.tint-white .btn-select:not(.active),.tint-orange .btn-select:not(.active){opacity:0.75;}
+        .tint-you .btn-select.active,.tint-wife .btn-select.active,.tint-orange .btn-select.active,.tint-surprise-you .btn-select.active,.tint-surprise-wife .btn-select.active{font-size:1.15em;}
+        .tint-you .btn-select:not(.active),.tint-wife .btn-select:not(.active),.tint-orange .btn-select:not(.active),.tint-surprise-you .btn-select:not(.active),.tint-surprise-wife .btn-select:not(.active){opacity:0.75;}
         /* Tinted grid buttons: compact padding so the buttons aren't bulkier than
            their text. Active state still scales font 1.15x; inactives sit at 75%
            opacity. No fixed min-height - buttons size to content. */
-        .tint-you .btn-select,.tint-wife .btn-select,.tint-white .btn-select,.tint-orange .btn-select{padding-top:4px;padding-bottom:4px;line-height:1.1;display:flex;align-items:center;justify-content:center;}
-        /* Per-person row label inside Block 1 / Block 2 cards (replaces the old tabs).
-           Liam label swaps with mode (blue in Solo, green in Team). Ash always purple. */
+        .tint-you .btn-select,.tint-wife .btn-select,.tint-orange .btn-select,.tint-surprise-you .btn-select,.tint-surprise-wife .btn-select{padding-top:4px;padding-bottom:4px;line-height:1.1;display:flex;align-items:center;justify-content:center;}
+        /* Per-person row label: Liam always green, Ash always purple. */
         .person-row-label{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
-        body.mode-solo .person-row-label.you{color:#60a5fa;}
-        body.mode-wife .person-row-label.you{color:#4ade80;}
+        .person-row-label.you{color:#4ade80;}
         .person-row-label.wife{color:#c084fc;}
-        /* HR connect button (Liam) and HR live badge (Liam): colour follows mode.
-           These get a stable class (.hr-btn-you / .hr-badge-you) and CSS keys the
-           accent colour off body.mode-solo / body.mode-wife. */
-        body.mode-solo .hr-btn-you:hover{border-color:rgba(59,130,246,0.40);}
-        body.mode-solo .hr-btn-you .hr-icon{color:#60a5fa;}
-        body.mode-wife .hr-btn-you:hover{border-color:rgba(34,197,94,0.40);}
-        body.mode-wife .hr-btn-you .hr-icon{color:#4ade80;}
-        body.mode-solo .hr-btn-you.hr-connected{border-color:rgba(59,130,246,0.60);}
-        body.mode-wife .hr-btn-you.hr-connected{border-color:rgba(34,197,94,0.60);}
-        body.mode-solo .hr-badge-you{background:rgba(59,130,246,0.20);border-color:rgba(59,130,246,0.30);}
-        body.mode-solo .hr-badge-you .hr-icon{color:#60a5fa;}
-        body.mode-solo .hr-badge-you .hr-bpm-text{color:#93c5fd;}
-        body.mode-wife .hr-badge-you{background:rgba(34,197,94,0.20);border-color:rgba(34,197,94,0.30);}
-        body.mode-wife .hr-badge-you .hr-icon{color:#4ade80;}
-        body.mode-wife .hr-badge-you .hr-bpm-text{color:#86efac;}
+        /* HR connect button (Liam) and HR live badge (Liam): always green - it's a
+           Liam-specific control, not theme chrome, so the mode toggle doesn't
+           influence its accent. Ash's matching elements stay purple inline. */
+        .hr-btn-you:hover{border-color:rgba(34,197,94,0.40);}
+        .hr-btn-you .hr-icon{color:#4ade80;}
+        .hr-btn-you.hr-connected{border-color:rgba(34,197,94,0.60);}
+        .hr-badge-you{background:rgba(34,197,94,0.20);border-color:rgba(34,197,94,0.30);}
+        .hr-badge-you .hr-icon{color:#4ade80;}
+        .hr-badge-you .hr-bpm-text{color:#86efac;}
         .hidden{display:none !important;}
         #timer-bg{position:fixed;bottom:0;left:0;width:100%;z-index:0;transition:height 1s linear,background-color 0.3s ease;}
         @keyframes restPulse{0%,100%{opacity:1;}50%{opacity:0.8;}}
@@ -493,22 +495,22 @@
                     <!-- Liam: Rounds + Round Length + Surprise rows -->
                     <div class="space-y-1" id="b1-row-you">
                         <div class="flex items-center justify-between ml-1 mr-0.5">
-                            <span class="person-row-label you">Liam &middot; Rounds</span>
+                            <span class="person-row-label you" data-base-label="Rounds">Liam &middot; Rounds</span>
                             <span id="random-desc" class="text-[8px] sm:text-[9px] text-slate-500 leading-tight">Randomises rounds 2 to 11</span>
                         </div>
                         <div class="grid grid-cols-7 gap-1 tint-you" id="grid-rounds-you"></div>
-                        <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label you">Liam &middot; Round Length</span></div>
+                        <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label you" data-base-label="Round Length">Liam &middot; Round Length</span></div>
                         <div class="grid grid-cols-3 gap-1 tint-you" id="grid-work-you">
                             <button class="btn-select py-1 rounded-xl text-sm font-mono-display" onclick="selectWork('you',30,this)">30s</button>
                             <button class="btn-select py-1 rounded-xl text-sm font-mono-display" onclick="selectWork('you',45,this)">45s</button>
                             <button class="btn-select active py-1 rounded-xl text-sm font-mono-display" onclick="selectWork('you',60,this)">60s</button>
                         </div>
                         <div class="flex items-center gap-1.5 ml-1 mr-0.5">
-                            <span class="person-row-label you">Liam &middot; "Surprise" Rounds</span>
+                            <span class="person-row-label you" data-base-label="&quot;Surprise&quot; Rounds">Liam &middot; "Surprise" Rounds</span>
                             <button id="btn-surprise-info" type="button" aria-label="What is a surprise round?" class="info-btn">i</button>
                         </div>
                         <!-- 8-cell grid on one row: counts 0-6 plus a final "EVERY" button. -->
-                        <div class="grid grid-cols-8 gap-1 tint-white" id="grid-surprise-you">
+                        <div class="grid grid-cols-8 gap-1 tint-surprise-you" id="grid-surprise-you">
                             <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',0,this)">0</button>
                             <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',1,this)">1</button>
                             <button class="btn-select active py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',2,this)">2</button>
@@ -530,7 +532,7 @@
                             <button class="btn-select active py-1 rounded-xl text-sm font-mono-display" onclick="selectWork('wife',60,this)">60s</button>
                         </div>
                         <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label wife">Ash &middot; "Surprise" Rounds</span></div>
-                        <div class="grid grid-cols-8 gap-1 tint-white" id="grid-surprise-wife">
+                        <div class="grid grid-cols-8 gap-1 tint-surprise-wife" id="grid-surprise-wife">
                             <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',0,this)">0</button>
                             <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',1,this)">1</button>
                             <button class="btn-select active py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',2,this)">2</button>
@@ -566,14 +568,20 @@
                                 <button class="btn-select py-1 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(300,this)">5min</button>
                             </div>
                         </div>
-                        <!-- Liam: Rounds + Surprise rows. Round Length is set once per
-                             person in Block 1 and applies to both blocks, so no work
-                             picker here. -->
+                        <!-- Liam: Rounds + Round Length + Surprise rows. Block 2 has its
+                             own Round Length so the user can run e.g. 60s in Block 1 and
+                             45s in Block 2. -->
                         <div class="space-y-1" id="b2-row-you">
-                            <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label you">Liam &middot; Rounds</span></div>
+                            <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label you" data-base-label="Rounds">Liam &middot; Rounds</span></div>
                             <div class="grid grid-cols-7 gap-1 tint-you" id="grid-rounds-b2-you"></div>
-                            <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label you">Liam &middot; "Surprise" Rounds</span></div>
-                            <div class="grid grid-cols-8 gap-1 tint-white" id="grid-surprise-b2-you">
+                            <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label you" data-base-label="Round Length">Liam &middot; Round Length</span></div>
+                            <div class="grid grid-cols-3 gap-1 tint-you" id="grid-work-b2-you">
+                                <button class="btn-select py-1 rounded-xl text-sm font-mono-display" onclick="selectWorkB2('you',30,this)">30s</button>
+                                <button class="btn-select py-1 rounded-xl text-sm font-mono-display" onclick="selectWorkB2('you',45,this)">45s</button>
+                                <button class="btn-select active py-1 rounded-xl text-sm font-mono-display" onclick="selectWorkB2('you',60,this)">60s</button>
+                            </div>
+                            <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label you" data-base-label="&quot;Surprise&quot; Rounds">Liam &middot; "Surprise" Rounds</span></div>
+                            <div class="grid grid-cols-8 gap-1 tint-surprise-you" id="grid-surprise-b2-you">
                                 <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',0,this)">0</button>
                                 <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',1,this)">1</button>
                                 <button class="btn-select active py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',2,this)">2</button>
@@ -584,12 +592,18 @@
                                 <button class="btn-select every-round-btn py-1 rounded-xl text-[10px] font-bold uppercase tracking-tight" onclick="selectSurpriseEveryB2('you',this)">EVERY</button>
                             </div>
                         </div>
-                        <!-- Ash: Rounds + Surprise rows (Team mode only) -->
+                        <!-- Ash: Rounds + Round Length + Surprise rows (Team mode only) -->
                         <div class="space-y-1 hidden" id="b2-row-wife">
                             <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label wife">Ash &middot; Rounds</span></div>
                             <div class="grid grid-cols-7 gap-1 tint-wife" id="grid-rounds-b2-wife"></div>
+                            <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label wife">Ash &middot; Round Length</span></div>
+                            <div class="grid grid-cols-3 gap-1 tint-wife" id="grid-work-b2-wife">
+                                <button class="btn-select py-1 rounded-xl text-sm font-mono-display" onclick="selectWorkB2('wife',30,this)">30s</button>
+                                <button class="btn-select py-1 rounded-xl text-sm font-mono-display" onclick="selectWorkB2('wife',45,this)">45s</button>
+                                <button class="btn-select active py-1 rounded-xl text-sm font-mono-display" onclick="selectWorkB2('wife',60,this)">60s</button>
+                            </div>
                             <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label wife">Ash &middot; "Surprise" Rounds</span></div>
-                            <div class="grid grid-cols-8 gap-1 tint-white" id="grid-surprise-b2-wife">
+                            <div class="grid grid-cols-8 gap-1 tint-surprise-wife" id="grid-surprise-b2-wife">
                                 <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',0,this)">0</button>
                                 <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',1,this)">1</button>
                                 <button class="btn-select active py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',2,this)">2</button>
@@ -610,16 +624,14 @@
                 <p class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center mb-0.5">Session</p>
                 <p id="session-summary-line" class="text-[11px] sm:text-xs text-white text-center leading-snug font-mono-display">12 rounds + 2 surprise rounds = 14 active phases &middot; ~17 min</p>
             </div>
-            <!-- Action row: quick-rest timers, Advanced modal opener, and Begin Session.
-                 Sits below the settings + summary so the user follows top-down configure-
-                 then-go. The Advanced button shows a live summary (e.g. "60s · Random")
-                 of the modal's current state. -->
-            <div class="grid grid-cols-7 gap-1.5 mt-1.5 flex-shrink-0">
-                <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="60"><span>Rest</span><span class="opacity-70 text-[10px]">1min</span></button>
-                <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="120"><span>Rest</span><span class="opacity-70 text-[10px]">2min</span></button>
-                <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="180"><span>Rest</span><span class="opacity-70 text-[10px]">3min</span></button>
-                <button id="btn-advanced-toggle" type="button" class="col-span-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight"><span>Advanced</span><span id="advanced-summary" class="opacity-70 text-[10px] font-mono-display">Random</span></button>
-                <button id="btn-start" class="col-span-3 bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-2xl text-base sm:text-xl active:scale-[0.98] transition-all">Begin Session</button>
+            <!-- Action row: just Begin Session. The Advanced modal access and the
+                 three quick-rest timers have both been removed - the underlying logic
+                 (randomiseMiddle default, quick-rest pseudo-mode) is still wired in
+                 the JS in case the buttons return later, but there's no visible
+                 entry point. -->
+            <div class="mt-1.5 flex-shrink-0">
+                <button id="btn-advanced-toggle" type="button" class="hidden w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all"><span>Advanced</span> <span id="advanced-summary" class="opacity-70 text-[10px] font-mono-display">Random</span></button>
+                <button id="btn-start" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-2xl text-lg sm:text-2xl active:scale-[0.98] transition-all">Begin Session</button>
             </div>
             <button id="btn-boxing-back" class="w-full py-1.5 rounded-xl text-xs font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98] flex-shrink-0 mt-1.5">&larr; Back</button>
         </div>
@@ -888,28 +900,29 @@
         let settings={
             mode:'wife',           // 'solo' (user only) | 'wife' (partner mode) | 'quick-rest'
             // ── PER-PERSON SETTINGS ─────────────────────────────────────────────
-            // Phase 1 of partner asymmetry: each person has their own copy of the
-            // training-load fields. In Solo, `you` is the only one used. In Team,
-            // both objects exist; Phase 1 only honours `you` for the live runtime
-            // (Phase 2 adds per-person work length, Phase 3 adds drop-out logic).
-            you:{ rounds:12, work:60, surpriseCount:2, roundsB2:6, surpriseCountB2:2 },
-            wife:{ rounds:12, work:60, surpriseCount:2, roundsB2:6, surpriseCountB2:2 },
-            // 4-way EVERY toggle: 'off' | 'you' | 'wife' | 'both'.
-            // 'off'  - use the per-block surpriseCount values
-            // 'you'  - Liam fires a surprise after every work round (Ash uses count)
-            // 'wife' - Ash fires a surprise after every work round (Liam uses count)
-            // 'both' - both partners fire after every work round (= old `true`)
-            surpriseEvery:'off',
+            // Each person has their own copy of the training-load fields. Live
+            // runtime reads per-block per-person work and rounds (Phase 2 done);
+            // rounds count uses max(L, A) so changing either affects the alternation
+            // count (Phase 3 drop-out is still future work).
+            you:{ rounds:12, work:60, workB2:60, surpriseCount:2, roundsB2:8, surpriseCountB2:2 },
+            wife:{ rounds:12, work:60, workB2:60, surpriseCount:2, roundsB2:8, surpriseCountB2:2 },
+            // EVERY toggle is per-block now: each is a 4-way enum 'off'|'you'|'wife'|'both'.
+            // Block 1 and Block 2 are independent (e.g. Block 1 'off' + Block 2 'both' lets
+            // the second block fire a surprise after every work round while keeping Block 1
+            // at the configured count).
+            surpriseEvery:'off',   // Block 1
+            surpriseEveryB2:'off', // Block 2
             restBase:30,           // Solo mode base rest before progressive increment
             randomiseMiddle:true,  // Shuffle middle rounds (keeps warm-up / burnout fixed when >6 rounds)
             blocks:1,              // 1 or 2 training blocks
             blockRestSecs:180      // Rest between block 1 and block 2 (120/180/300s)
         },prevMode='wife';
-        // Backward-compatible accessors: existing runtime code reads/writes
-        // settings.rounds, settings.work, settings.surpriseCount, settings.roundsB2,
-        // settings.surpriseCountB2, settings.surpriseEveryRound. These now map
-        // transparently to settings.you.* (live runtime always uses Liam's values
-        // in Phase 1) and translate the surpriseEvery enum to the old boolean.
+        // Backward-compat accessors. Most runtime callers now read settings.you.* or
+        // settings.wife.* directly via the block-aware helpers below, but a few legacy
+        // call-sites still go through these proxies. settings.work / settings.rounds /
+        // settings.surpriseCount etc. all map to Liam's values; the work proxy is
+        // block-aware so legacy callers in the middle of a session read the correct
+        // block's work length.
         (()=>{
             const proxy=(key)=>{
                 Object.defineProperty(settings,key,{
@@ -918,10 +931,11 @@
                     configurable:true,enumerable:true
                 });
             };
-            ['rounds','work','surpriseCount','roundsB2','surpriseCountB2'].forEach(proxy);
-            Object.defineProperty(settings,'surpriseEveryRound',{
-                get(){return settings.surpriseEvery==='both'||settings.surpriseEvery==='you';},
-                set(v){settings.surpriseEvery=v?'both':'off';},
+            ['rounds','surpriseCount','roundsB2','surpriseCountB2'].forEach(proxy);
+            // Block-aware work proxy: returns workB2 during Block 2, work otherwise.
+            Object.defineProperty(settings,'work',{
+                get(){return (typeof session!=='undefined'&&session&&session.currentBlock===2)?settings.you.workB2:settings.you.work;},
+                set(v){settings.you.work=v;},
                 configurable:true,enumerable:true
             });
         })();
@@ -1136,6 +1150,9 @@
             else{hrDeviceWife=device;hrCharWife=ch;hrWifeLabel.innerText="Ash's HR";btnHrWife.classList.add('border-purple-500/60');}
             // Sync HR-track screen UI (no-op if those elements not yet wired).
             if(typeof updateHrTrackConnUI==='function')updateHrTrackConnUI();
+            // Row labels swap between generic and "Liam · ..." prefixed forms based on
+            // Liam's HR connection state in Solo mode (no-op for Ash and for Team).
+            if(typeof updateRowLabels==='function')updateRowLabels();
             device.addEventListener('gattserverdisconnected',async()=>{
                 // Auto-reconnect attempts: 3 retries, 1s apart. Silent during attempts.
                 for(let a=0;a<3;a++){try{await new Promise(r=>setTimeout(r,1000));if(!device.gatt)break;await setupDevice(device,who);return;}catch(e){}}
@@ -1143,6 +1160,7 @@
                 if(who==='you'){hrDeviceYou=null;hrCharYou=null;hrValueYou=null;hrYouLabel.innerText="Liam's HR";btnHrYou.classList.remove('hr-connected');hrYouBpm.innerText='--';}
                 else{hrDeviceWife=null;hrCharWife=null;hrValueWife=null;hrWifeLabel.innerText="Ash's HR";btnHrWife.classList.remove('border-purple-500/60');hrWifeBpm.innerText='--';}
                 if(typeof updateHrTrackConnUI==='function')updateHrTrackConnUI();
+                if(typeof updateRowLabels==='function')updateRowLabels();
                 showBleToast(who);
             });
         }
@@ -2080,8 +2098,6 @@
         buildRoundButtons(ui.gridRoundsWife,'wife','b1',12);
         buildRoundButtons(ui.gridRoundsB2You ,'you', 'b2',8);
         buildRoundButtons(ui.gridRoundsB2Wife,'wife','b2',8);
-        // Sync the default Block 2 setting to match the new floor (was 6, now 8).
-        settings.you.roundsB2=8;settings.wife.roundsB2=8;
 
         // Global-scope select handlers. Both Liam and Ash grids are visible at once
         // (Team mode) or only Liam's (Solo). Each handler takes a `who` argument so
@@ -2123,28 +2139,29 @@
             el.classList.add('active');
             updateSessionSummary();
         };
-        // Helpers for the "EVERY ROUND" button (last cell in the surprise grid).
-        // Per-person semantics: surpriseEvery is a 4-way enum 'off'|'you'|'wife'|'both'.
-        //   Liam EVERY on  -> 'you'  (or 'both' if Ash already has it)
-        //   Liam EVERY off -> 'off'  (or 'wife' if Ash still has it)
-        // Mirrors for Ash. Solo mode only ever sets/clears the 'you' side.
-        function isEveryFor(who){
-            const v=settings.surpriseEvery;
-            return v==='both'||v===who;
-        }
-        function setEveryFor(who,on){
+        window.selectWorkB2=(who,n,el)=>{
+            settings[who].workB2=n;
+            Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));
+            el.classList.add('active');
+            updateSessionSummary();
+        };
+        // EVERY helpers: per-person AND per-block. Block 1 (b1) and Block 2 (b2)
+        // each carry their own enum, so you can have Block 1 = 'off' (numeric counts)
+        // while Block 2 = 'you' (Liam fires every round in B2 only). Stacking: setting
+        // EVERY on both Liam and Ash rows of the same block bumps to 'both'.
+        function everyEnum(block){return block==='b2'?settings.surpriseEveryB2:settings.surpriseEvery;}
+        function setEveryEnum(block,v){if(block==='b2')settings.surpriseEveryB2=v;else settings.surpriseEvery=v;}
+        function isEveryFor(who,block){const v=everyEnum(block);return v==='both'||v===who;}
+        function setEveryFor(who,block,on){
             const other=who==='you'?'wife':'you';
-            const otherOn=isEveryFor(other);
-            if(on){
-                settings.surpriseEvery=otherOn?'both':who;
-            }else{
-                settings.surpriseEvery=otherOn?other:'off';
-            }
+            const otherOn=isEveryFor(other,block);
+            if(on)setEveryEnum(block,otherOn?'both':who);
+            else setEveryEnum(block,otherOn?other:'off');
         }
         window.selectSurprise=(who,n,el)=>{
             settings[who].surpriseCount=n;
-            // Selecting any numeric count clears EVERY ROUND for this person.
-            if(isEveryFor(who))setEveryFor(who,false);
+            // Selecting any numeric count clears EVERY for this person's Block 1.
+            if(isEveryFor(who,'b1'))setEveryFor(who,'b1',false);
             const grid=document.getElementById(who==='you'?'grid-surprise-you':'grid-surprise-wife');
             Array.from(grid.children).forEach(b=>b.classList.remove('active'));
             el.classList.add('active');
@@ -2153,21 +2170,20 @@
         };
         window.selectSurpriseB2=(who,n,el)=>{
             settings[who].surpriseCountB2=n;
-            if(isEveryFor(who))setEveryFor(who,false);
+            if(isEveryFor(who,'b2'))setEveryFor(who,'b2',false);
             const grid=document.getElementById(who==='you'?'grid-surprise-b2-you':'grid-surprise-b2-wife');
             Array.from(grid.children).forEach(b=>b.classList.remove('active'));
             el.classList.add('active');
             refreshGrids();
             updateSessionSummary();
         };
-        // EVERY ROUND button handlers - toggle this person's surpriseEvery flag.
         window.selectSurpriseEvery=(who,el)=>{
-            setEveryFor(who,!isEveryFor(who));
+            setEveryFor(who,'b1',!isEveryFor(who,'b1'));
             refreshGrids();
             updateSessionSummary();
         };
         window.selectSurpriseEveryB2=(who,el)=>{
-            setEveryFor(who,!isEveryFor(who));
+            setEveryFor(who,'b2',!isEveryFor(who,'b2'));
             refreshGrids();
             updateSessionSummary();
         };
@@ -2206,12 +2222,14 @@
             refreshRoundGrid(ui.gridRoundsWife,settings.wife.rounds);
             refreshRoundGrid(ui.gridRoundsB2You ,settings.you.roundsB2);
             refreshRoundGrid(ui.gridRoundsB2Wife,settings.wife.roundsB2);
-            refreshWorkGrid('grid-work-you' ,settings.you.work);
-            refreshWorkGrid('grid-work-wife',settings.wife.work);
-            refreshSurpriseGrid('grid-surprise-you'    ,settings.you.surpriseCount    ,isEveryFor('you'));
-            refreshSurpriseGrid('grid-surprise-wife'   ,settings.wife.surpriseCount   ,isEveryFor('wife'));
-            refreshSurpriseGrid('grid-surprise-b2-you' ,settings.you.surpriseCountB2  ,isEveryFor('you'));
-            refreshSurpriseGrid('grid-surprise-b2-wife',settings.wife.surpriseCountB2 ,isEveryFor('wife'));
+            refreshWorkGrid('grid-work-you'    ,settings.you.work);
+            refreshWorkGrid('grid-work-wife'   ,settings.wife.work);
+            refreshWorkGrid('grid-work-b2-you' ,settings.you.workB2);
+            refreshWorkGrid('grid-work-b2-wife',settings.wife.workB2);
+            refreshSurpriseGrid('grid-surprise-you'    ,settings.you.surpriseCount    ,isEveryFor('you','b1'));
+            refreshSurpriseGrid('grid-surprise-wife'   ,settings.wife.surpriseCount   ,isEveryFor('wife','b1'));
+            refreshSurpriseGrid('grid-surprise-b2-you' ,settings.you.surpriseCountB2  ,isEveryFor('you','b2'));
+            refreshSurpriseGrid('grid-surprise-b2-wife',settings.wife.surpriseCountB2 ,isEveryFor('wife','b2'));
         }
         // The old tabbed UI (b1-tabs / b2-tabs) and the EVERY-pill picker have been
         // replaced by stacked per-person rows visible at once. See refreshGrids above.
@@ -2354,10 +2372,31 @@
                 const el=document.getElementById(id);
                 if(el)el.classList.toggle('hidden',!isTeam);
             });
-            // EVERY enum: in Solo collapse 'wife'/'both' to 'you' (Ash side has no UI).
-            if(!isTeam&&(settings.surpriseEvery==='wife'||settings.surpriseEvery==='both'))settings.surpriseEvery='you';
+            // EVERY enum: in Solo collapse 'wife'/'both' to 'you' on BOTH blocks
+            // (Ash side has no UI). Each block's enum is independent.
+            if(!isTeam){
+                if(settings.surpriseEvery==='wife'||settings.surpriseEvery==='both')settings.surpriseEvery='you';
+                if(settings.surpriseEveryB2==='wife'||settings.surpriseEveryB2==='both')settings.surpriseEveryB2='you';
+            }
             refreshGrids();
+            updateRowLabels();
             generateSessionPlan();
+        }
+        // Liam's row labels (Rounds / Round Length / Surprise) drop the "Liam · "
+        // prefix in Solo mode when no HR monitor is connected - in that situation
+        // there's no second person on screen to disambiguate from, so the generic
+        // label is cleaner. Once Liam connects an HR monitor (or the user switches
+        // to Team), the prefix returns. Ash labels are static (Ash row only shows
+        // in Team mode anyway, where the prefix is always wanted).
+        function updateRowLabels(){
+            const isTeam=settings.mode==='wife';
+            const liamConnected=!!(hrDeviceYou&&hrDeviceYou.gatt&&hrDeviceYou.gatt.connected);
+            const showPrefix=isTeam||liamConnected;
+            document.querySelectorAll('.person-row-label.you').forEach(el=>{
+                const base=el.dataset.baseLabel;
+                if(!base)return;
+                el.innerHTML=showPrefix?('Liam &middot; '+base):base;
+            });
         }
         ui.modeSolo.onclick=()=>setMode('solo');ui.modeWife.onclick=()=>setMode('wife');
         ui.inRandom.onchange=e=>{settings.randomiseMiddle=e.target.checked;updateAdvancedSummary();generateSessionPlan();};
@@ -2480,44 +2519,65 @@
             if(!el)return;
             const isW=settings.mode==='wife';
             const has2=settings.blocks===2;
-            const every=settings.surpriseEvery;
             // Effective per-person surprise counts (EVERY override expands to all rounds).
-            const youS1 =(every==='both'||every==='you' )?settings.you.rounds   :settings.you.surpriseCount;
-            const youS2 =has2?((every==='both'||every==='you' )?settings.you.roundsB2 :settings.you.surpriseCountB2):0;
-            const wifeS1=(every==='both'||every==='wife')?settings.wife.rounds  :settings.wife.surpriseCount;
-            const wifeS2=has2?((every==='both'||every==='wife')?settings.wife.roundsB2:settings.wife.surpriseCountB2):0;
-            // Time estimate (Phase 1: runtime still uses Liam's values, so estimate
-            // matches Liam's path. Phase 2/3 will refine when work-length and round
-            // counts diverge).
+            const youS1 =isEveryFor('you' ,'b1')?settings.you.rounds   :settings.you.surpriseCount;
+            const youS2 =has2?(isEveryFor('you' ,'b2')?settings.you.roundsB2 :settings.you.surpriseCountB2):0;
+            const wifeS1=isEveryFor('wife','b1')?settings.wife.rounds  :settings.wife.surpriseCount;
+            const wifeS2=has2?(isEveryFor('wife','b2')?settings.wife.roundsB2:settings.wife.surpriseCountB2):0;
+            // Time estimate. In Team mode each "plan round" = one Liam work phase
+            // + one Ash work phase + two changeovers. Plan-round count is max(L,A)
+            // (Phase 3 drop-out is future work; for now both do max). Surprise bursts
+            // add (SURPRISE_TOTAL - changeover) each, per-person per-block.
             let totalSec=READY_PHASE_SECS;
-            const r1=settings.you.rounds, s1=youS1;
-            const r2=has2?settings.you.roundsB2:0, s2=youS2;
-            const computeBlock=(rounds)=>{
-                let s=0;
-                if(isW){s+=rounds*(2*settings.you.work+2*PARTNER_CHANGEOVER_SECS);}
-                else{
-                    s+=rounds*settings.you.work;
-                    for(let i=1;i<=rounds;i++){
-                        const r=Math.min(60,settings.restBase+(i-1)*PROGRESSIVE_REST_INCREMENT_SECS);
-                        s+=r;
-                    }
+            // Block-level helper. `roundsForBlock` is the plan-round count (max in
+            // Team, Liam's in Solo). `workY`/`workW` are the per-person work lengths
+            // for this specific block (B1 or B2).
+            const computeBlock=(roundsY,roundsW,workY,workW)=>{
+                if(isW){
+                    const pairs=Math.max(roundsY,roundsW);
+                    // Each pair: Liam work + Ash work + 2 changeovers.
+                    return pairs*(workY+workW+2*PARTNER_CHANGEOVER_SECS);
+                }
+                // Solo: just Liam's rounds with progressive rest.
+                let s=roundsY*workY;
+                for(let i=1;i<=roundsY;i++){
+                    s+=Math.min(60,settings.restBase+(i-1)*PROGRESSIVE_REST_INCREMENT_SECS);
                 }
                 return s;
             };
-            totalSec+=computeBlock(r1);
-            const surpriseExtra=(secs)=>secs?(SURPRISE_TOTAL-(isW?PARTNER_CHANGEOVER_SECS:Math.min(60,settings.restBase))):0;
-            totalSec+=s1*surpriseExtra(SURPRISE_TOTAL);
-            if(has2){totalSec+=settings.blockRestSecs+computeBlock(r2)+s2*surpriseExtra(SURPRISE_TOTAL);}
-            const totalRounds=r1+r2;
+            totalSec+=computeBlock(settings.you.rounds,settings.wife.rounds,settings.you.work,settings.wife.work);
+            // Surprise burst extra: each burst replaces a changeover (Team) or rest (Solo).
+            const restAvgSolo=Math.min(60,settings.restBase);
+            const surpriseExtra=isW?(SURPRISE_TOTAL-PARTNER_CHANGEOVER_SECS):(SURPRISE_TOTAL-restAvgSolo);
+            // Block 1 bursts: in Team, both Liam and Ash fire their own. In Solo, only Liam.
+            totalSec+=(isW?(youS1+wifeS1):youS1)*surpriseExtra;
+            if(has2){
+                totalSec+=settings.blockRestSecs;
+                totalSec+=computeBlock(settings.you.roundsB2,settings.wife.roundsB2,settings.you.workB2,settings.wife.workB2);
+                totalSec+=(isW?(youS2+wifeS2):youS2)*surpriseExtra;
+            }
+            // Trim the final rest/changeover since the session ends on a work or surprise phase.
             if(isW)totalSec-=PARTNER_CHANGEOVER_SECS;
-            else totalSec-=Math.min(60,settings.restBase+(totalRounds-1)*PROGRESSIVE_REST_INCREMENT_SECS);
+            else{
+                const totalSoloRounds=settings.you.rounds+(has2?settings.you.roundsB2:0);
+                totalSec-=Math.min(60,settings.restBase+(totalSoloRounds-1)*PROGRESSIVE_REST_INCREMENT_SECS);
+            }
             const mins=Math.max(1,Math.round(totalSec/60));
             // Detect asymmetry - in Team mode, are Liam and Ash configured differently?
             const sameSettings=settings.you.rounds===settings.wife.rounds
                 &&settings.you.surpriseCount===settings.wife.surpriseCount
-                &&(!has2||(settings.you.roundsB2===settings.wife.roundsB2&&settings.you.surpriseCountB2===settings.wife.surpriseCountB2));
+                &&settings.you.work===settings.wife.work
+                &&isEveryFor('you','b1')===isEveryFor('wife','b1')
+                &&(!has2||(settings.you.roundsB2===settings.wife.roundsB2
+                    &&settings.you.surpriseCountB2===settings.wife.surpriseCountB2
+                    &&settings.you.workB2===settings.wife.workB2
+                    &&isEveryFor('you','b2')===isEveryFor('wife','b2')));
             const asymmetric=isW&&!sameSettings;
             const fmtBlock=(r,s,label)=>s===0?`${label}: ${r}`:`${label}: ${r} + ${s} surprise`;
+            const r1Display=isW?Math.max(settings.you.rounds,settings.wife.rounds):settings.you.rounds;
+            const r2Display=has2?(isW?Math.max(settings.you.roundsB2,settings.wife.roundsB2):settings.you.roundsB2):0;
+            const s1Display=isW?(youS1+wifeS1):youS1;
+            const s2Display=isW?(youS2+wifeS2):youS2;
             const fmtPersonLine=(name,p,sB1,sB2)=>{
                 if(has2)return `${name} - ${fmtBlock(p.rounds,sB1,'B1')} &rarr; ${fmtBlock(p.roundsB2,sB2,'B2')}`;
                 const total=p.rounds, totalSurp=sB1;
@@ -2530,16 +2590,16 @@
                 const ash =fmtPersonLine('Ash', settings.wife,wifeS1,wifeS2);
                 line=`${liam}<br>${ash}<br>~${mins} min`;
             }else if(has2){
-                const activePhases=r1+r2+s1+s2;
+                const activePhases=r1Display+r2Display+s1Display+s2Display;
                 const phasesLabel=activePhases===1?'1 phase':`${activePhases} active phases`;
-                line=`${fmtBlock(r1,s1,'B1')} &rarr; ${fmtBlock(r2,s2,'B2')} = ${phasesLabel} &middot; ~${mins} min`;
+                line=`${fmtBlock(r1Display,s1Display,'B1')} &rarr; ${fmtBlock(r2Display,s2Display,'B2')} = ${phasesLabel} &middot; ~${mins} min`;
             }else{
-                const roundsLabel=totalRounds===1?'1 round':`${totalRounds} rounds`;
-                if(s1===0){
+                const roundsLabel=r1Display===1?'1 round':`${r1Display} rounds`;
+                if(s1Display===0){
                     line=`${roundsLabel} &middot; ~${mins} min`;
                 }else{
-                    const activePhases=r1+s1;
-                    const surpriseLabel=s1===1?'1 surprise round':`${s1} surprise rounds`;
+                    const activePhases=r1Display+s1Display;
+                    const surpriseLabel=s1Display===1?'1 surprise round':`${s1Display} surprise rounds`;
                     const phasesLabel=activePhases===1?'1 active phase':`${activePhases} active phases`;
                     line=`${roundsLabel} + ${surpriseLabel} = ${phasesLabel} &middot; ~${mins} min`;
                 }
@@ -2577,7 +2637,18 @@
         function currentSurpriseWife(){return session.currentBlock===1?session.surpriseRoundsWife:session.surpriseRoundsWifeB2;}
         function currentTriggeredYou(){return session.currentBlock===1?session.surpriseTriggeredYou:session.surpriseTriggeredYouB2;}
         function currentTriggeredWife(){return session.currentBlock===1?session.surpriseTriggeredWife:session.surpriseTriggeredWifeB2;}
-        function currentBlockRounds(){return session.currentBlock===1?settings.rounds:settings.roundsB2;}
+        // Number of plan-rounds in the current block. In Team mode, take the max
+        // of Liam's and Ash's setting so changing either drives the session length
+        // (Phase 3 drop-out would let the shorter person sit out; for now both do
+        // max rounds). In Solo, just Liam's value.
+        function currentBlockRounds(){
+            const b=session.currentBlock;
+            if(settings.mode==='wife'){
+                return b===2?Math.max(settings.you.roundsB2,settings.wife.roundsB2)
+                            :Math.max(settings.you.rounds  ,settings.wife.rounds);
+            }
+            return b===2?settings.you.roundsB2:settings.you.rounds;
+        }
 
         // ── PHASE STATE MACHINE ─────────────────────────────────────────────────
         // Every phase transition goes through setPhase(). Responsibilities:
@@ -2666,7 +2737,12 @@
                 // Work interval. Plan index `pi` converts from 1-based display round to
                 // 0-based plan index. In Wife mode each plan round drives TWO session rounds
                 // (user then wife), so we divide by 2.
-                session.time=settings.work;session.total=settings.work;
+                // Per-block per-person work length: odd rounds = Liam, even = Ash (Team).
+                // In Solo it's always Liam. Block 2 reads workB2 instead of work.
+                const isLiamRound=!isW||(session.round%2!==0);
+                const who=isLiamRound?'you':'wife';
+                const w=session.currentBlock===2?settings[who].workB2:settings[who].work;
+                session.time=w;session.total=w;
                 if(isFinalRound)playDoubleBell();else playBell();
                 const pi=isW?Math.floor((session.round-1)/2):session.round-1;
                 const rd=plan[pi]||{name:'Round '+absoluteRound,moves:[]};
@@ -2923,8 +2999,9 @@
 
                 if(session.phase==='work'){
                     // At end of work round: check if a surprise is scheduled for this plan index
-                    // (and person - in Wife mode surprise sets are per-person).
-                    // EVERY round override: settings.surpriseEvery is a 4-way enum
+                    // (and person - in Wife mode surprise sets are per-person). EVERY override is
+                    // per-block: settings.surpriseEvery covers Block 1, settings.surpriseEveryB2
+                    // covers Block 2.
                     //   'off'  - use the per-person sets
                     //   'you'  - Liam fires every round (Ash uses her set)
                     //   'wife' - Ash fires every round (Liam uses his set)
@@ -2932,7 +3009,7 @@
                     const pi=isW?Math.floor((session.round-1)/2):session.round-1;
                     const iy=!isW||(session.round%2!==0);  // "is you's round"
                     const ip=isW&&(session.round%2===0);   // "is partner's round"
-                    const everyMode=settings.surpriseEvery;
+                    const everyMode=session.currentBlock===2?settings.surpriseEveryB2:settings.surpriseEvery;
                     const everyForYou=everyMode==='both'||everyMode==='you';
                     const everyForWife=everyMode==='both'||everyMode==='wife';
                     let ts=false;
@@ -3326,9 +3403,12 @@
             if(!m)return null;
             const durationSec=Math.max(30,Math.round((Date.now()-sessionStartTime)/1000));
             const totalRounds=settings.blocks===2?(settings.rounds+settings.roundsB2):settings.rounds;
-            const surpriseRounds=settings.surpriseEveryRound
-                ?totalRounds
-                :(settings.blocks===2?(settings.surpriseCount+settings.surpriseCountB2):settings.surpriseCount);
+            // Effective surprise count = (EVERY ? all rounds in that block : configured count),
+            // summed per-block. Reflects Liam's settings since this doc is per-person and the
+            // Firestore schema currently records a single count.
+            const sB1=isEveryFor('you','b1')?settings.you.rounds:settings.you.surpriseCount;
+            const sB2=settings.blocks===2?(isEveryFor('you','b2')?settings.you.roundsB2:settings.you.surpriseCountB2):0;
+            const surpriseRounds=sB1+sB2;
             return {
                 sessionId,
                 activity:'Boxing',
