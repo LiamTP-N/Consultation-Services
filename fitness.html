@@ -81,44 +81,60 @@
            - Team: Liam row tints green, Ash row tints purple
            Surprise grids use .tint-surprise-you / .tint-surprise-wife -> inactive
            takes the person colour (like Rounds); active = solid red. */
-        /* Person-bound tints. Liam = green always, Ash = purple always (the body
-           mode-solo / mode-wife class no longer affects these - it only drives the
-           neutral chrome theme like the Solo mode-toggle button colour). Anything
-           attributed to a specific person carries their fixed identity colour. */
-        .tint-you  .btn-select:not(.active){background:rgba(34,197,94,0.18);color:#e2e8f0;border-color:rgba(34,197,94,0.30);}
-        .tint-you  .btn-select.active{background:#22c55e;border-color:#22c55e;color:#fff;}
+        /* Person-bound tints. The Liam ("you") row's colour depends on identity:
+           - Team mode: always green (Liam = green, Ash = purple)
+           - Solo + no HR connected: blue (the row hasn't been "claimed" by anyone)
+           - Solo + Liam's HR connected: green (Liam is training)
+           - Solo + Ash's HR connected: purple (Ash is doing the solo session)
+           The body carries one of three solo classes (solo-neutral / solo-you / solo-wife)
+           that gets toggled by updateSoloIdentity() whenever the mode or HR connection
+           state changes. The Ash row is purple always (only shown in Team anyway). */
+        body.mode-wife    .tint-you .btn-select:not(.active),
+        body.solo-you     .tint-you .btn-select:not(.active){background:rgba(34,197,94,0.18);color:#e2e8f0;border-color:rgba(34,197,94,0.30);}
+        body.mode-wife    .tint-you .btn-select.active,
+        body.solo-you     .tint-you .btn-select.active{background:#22c55e;border-color:#22c55e;color:#fff;}
+        body.solo-neutral .tint-you .btn-select:not(.active){background:rgba(59,130,246,0.18);color:#e2e8f0;border-color:rgba(59,130,246,0.30);}
+        body.solo-neutral .tint-you .btn-select.active{background:#3b82f6;border-color:#3b82f6;color:#fff;}
+        body.solo-wife    .tint-you .btn-select:not(.active){background:rgba(168,85,247,0.18);color:#e2e8f0;border-color:rgba(168,85,247,0.30);}
+        body.solo-wife    .tint-you .btn-select.active{background:#a855f7;border-color:#a855f7;color:#fff;}
         .tint-wife .btn-select:not(.active){background:rgba(168,85,247,0.18);color:#e2e8f0;border-color:rgba(168,85,247,0.30);}
         .tint-wife .btn-select.active{background:#a855f7;border-color:#a855f7;color:#fff;}
-        /* Surprise grids: numeric buttons take the person's colour (same as Rounds).
-           The trailing EVERY button is overridden to red regardless of person, so it
-           reads as the "burst / surprise" cue across the whole UI. */
-        .tint-surprise-you  .btn-select:not(.active){background:rgba(34,197,94,0.18);color:#e2e8f0;border-color:rgba(34,197,94,0.30);}
-        .tint-surprise-you  .btn-select.active{background:#22c55e;border-color:#22c55e;color:#fff;}
+        /* Surprise grids: numeric buttons mirror the Rounds-grid identity rules above.
+           The trailing EVERY and RANDOM buttons override to red regardless of person/
+           identity so they read as a consistent "burst / surprise" cue. */
+        body.mode-wife    .tint-surprise-you .btn-select:not(.active),
+        body.solo-you     .tint-surprise-you .btn-select:not(.active){background:rgba(34,197,94,0.18);color:#e2e8f0;border-color:rgba(34,197,94,0.30);}
+        body.mode-wife    .tint-surprise-you .btn-select.active,
+        body.solo-you     .tint-surprise-you .btn-select.active{background:#22c55e;border-color:#22c55e;color:#fff;}
+        body.solo-neutral .tint-surprise-you .btn-select:not(.active){background:rgba(59,130,246,0.18);color:#e2e8f0;border-color:rgba(59,130,246,0.30);}
+        body.solo-neutral .tint-surprise-you .btn-select.active{background:#3b82f6;border-color:#3b82f6;color:#fff;}
+        body.solo-wife    .tint-surprise-you .btn-select:not(.active){background:rgba(168,85,247,0.18);color:#e2e8f0;border-color:rgba(168,85,247,0.30);}
+        body.solo-wife    .tint-surprise-you .btn-select.active{background:#a855f7;border-color:#a855f7;color:#fff;}
         .tint-surprise-wife .btn-select:not(.active){background:rgba(168,85,247,0.18);color:#e2e8f0;border-color:rgba(168,85,247,0.30);}
         .tint-surprise-wife .btn-select.active{background:#a855f7;border-color:#a855f7;color:#fff;}
-        .tint-surprise-you  .every-round-btn:not(.active),
-        .tint-surprise-wife .every-round-btn:not(.active){background:rgba(239,68,68,0.18);color:#e2e8f0;border-color:rgba(239,68,68,0.30);}
-        .tint-surprise-you  .every-round-btn.active,
-        .tint-surprise-wife .every-round-btn.active{background:#ef4444;border-color:#ef4444;color:#fff;}
+        .tint-surprise-you  .every-round-btn:not(.active),.tint-surprise-wife .every-round-btn:not(.active),
+        .tint-surprise-you  .random-btn:not(.active),    .tint-surprise-wife .random-btn:not(.active){background:rgba(239,68,68,0.18);color:#e2e8f0;border-color:rgba(239,68,68,0.30);}
+        .tint-surprise-you  .every-round-btn.active,.tint-surprise-wife .every-round-btn.active,
+        .tint-surprise-you  .random-btn.active,    .tint-surprise-wife .random-btn.active{background:#ef4444;border-color:#ef4444;color:#fff;}
         /* Orange tint for the Block Rest picker (2/3/5 min). Active = solid orange,
            inactives carry a faint orange wash so they read as "rest-related" controls. */
         .tint-orange .btn-select:not(.active){background:rgba(249,115,22,0.18);color:#e2e8f0;border-color:rgba(249,115,22,0.30);}
         .tint-orange .btn-select.active{background:#f97316;border-color:#f97316;color:#fff;}
-        /* Active = larger font; inactives at 75% opacity (font dimming via colour rules
-           above plus a 25% whole-button drop so the unselected options recede). */
+        /* Active = larger font; inactives at 75% opacity. */
         .tint-you .btn-select.active,.tint-wife .btn-select.active,.tint-orange .btn-select.active,.tint-surprise-you .btn-select.active,.tint-surprise-wife .btn-select.active{font-size:1.15em;}
         .tint-you .btn-select:not(.active),.tint-wife .btn-select:not(.active),.tint-orange .btn-select:not(.active),.tint-surprise-you .btn-select:not(.active),.tint-surprise-wife .btn-select:not(.active){opacity:0.75;}
-        /* Tinted grid buttons: compact padding so the buttons aren't bulkier than
-           their text. Active state still scales font 1.15x; inactives sit at 75%
-           opacity. No fixed min-height - buttons size to content. */
+        /* Compact padding so the buttons aren't bulkier than their text. */
         .tint-you .btn-select,.tint-wife .btn-select,.tint-orange .btn-select,.tint-surprise-you .btn-select,.tint-surprise-wife .btn-select{padding-top:4px;padding-bottom:4px;line-height:1.1;display:flex;align-items:center;justify-content:center;}
-        /* Per-person row label: Liam always green, Ash always purple. */
+        /* Per-person row label: Liam follows the solo identity / Team rule; Ash always purple. */
         .person-row-label{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
-        .person-row-label.you{color:#4ade80;}
+        body.mode-wife    .person-row-label.you,
+        body.solo-you     .person-row-label.you{color:#4ade80;}
+        body.solo-neutral .person-row-label.you{color:#60a5fa;}
+        body.solo-wife    .person-row-label.you{color:#c084fc;}
         .person-row-label.wife{color:#c084fc;}
-        /* HR connect button (Liam) and HR live badge (Liam): always green - it's a
-           Liam-specific control, not theme chrome, so the mode toggle doesn't
-           influence its accent. Ash's matching elements stay purple inline. */
+        /* HR connect button (Liam) and HR live badge (Liam): always green - Liam's HR
+           button is Liam's identity, so it stays green regardless of which HR is
+           currently driving the solo chrome. Ash's matching elements stay purple inline. */
         .hr-btn-you:hover{border-color:rgba(34,197,94,0.40);}
         .hr-btn-you .hr-icon{color:#4ade80;}
         .hr-btn-you.hr-connected{border-color:rgba(34,197,94,0.60);}
@@ -509,16 +525,19 @@
                             <span class="person-row-label you" data-base-label="&quot;Surprise&quot; Rounds">Liam &middot; "Surprise" Rounds</span>
                             <button id="btn-surprise-info" type="button" aria-label="What is a surprise round?" class="info-btn">i</button>
                         </div>
-                        <!-- 8-cell grid on one row: counts 0-6 plus a final "EVERY" button. -->
-                        <div class="grid grid-cols-8 gap-1 tint-surprise-you" id="grid-surprise-you">
-                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',0,this)">0</button>
-                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',1,this)">1</button>
-                            <button class="btn-select active py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',2,this)">2</button>
-                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',3,this)">3</button>
-                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',4,this)">4</button>
-                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',5,this)">5</button>
-                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('you',6,this)">6</button>
-                            <button class="btn-select every-round-btn py-1 rounded-xl text-[10px] font-bold uppercase tracking-tight" onclick="selectSurpriseEvery('you',this)">EVERY</button>
+                        <!-- 9-cell grid on one row: counts 0-6 plus EVERY (force every round) and
+                             RANDOM (pick a random count at session start). EVERY/RANDOM are mutually
+                             exclusive with each other and with the numeric counts. -->
+                        <div class="grid grid-cols-9 gap-1 tint-surprise-you" id="grid-surprise-you">
+                            <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurprise('you',0,this)">0</button>
+                            <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurprise('you',1,this)">1</button>
+                            <button class="btn-select active py-1 rounded-xl text-xs font-bold" onclick="selectSurprise('you',2,this)">2</button>
+                            <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurprise('you',3,this)">3</button>
+                            <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurprise('you',4,this)">4</button>
+                            <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurprise('you',5,this)">5</button>
+                            <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurprise('you',6,this)">6</button>
+                            <button class="btn-select every-round-btn py-1 rounded-xl text-[9px] font-bold uppercase tracking-tight" onclick="selectSurpriseEvery('you',this)">EVERY</button>
+                            <button class="btn-select random-btn py-1 rounded-xl text-[9px] font-bold uppercase tracking-tight" onclick="selectSurpriseRandom('you',this)">RANDOM</button>
                         </div>
                     </div>
                     <!-- Ash: Rounds + Round Length + Surprise rows (Team mode only) -->
@@ -532,15 +551,16 @@
                             <button class="btn-select active py-1 rounded-xl text-sm font-mono-display" onclick="selectWork('wife',60,this)">60s</button>
                         </div>
                         <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label wife">Ash &middot; "Surprise" Rounds</span></div>
-                        <div class="grid grid-cols-8 gap-1 tint-surprise-wife" id="grid-surprise-wife">
-                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',0,this)">0</button>
-                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',1,this)">1</button>
-                            <button class="btn-select active py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',2,this)">2</button>
-                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',3,this)">3</button>
-                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',4,this)">4</button>
-                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',5,this)">5</button>
-                            <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',6,this)">6</button>
-                            <button class="btn-select every-round-btn py-1 rounded-xl text-[10px] font-bold uppercase tracking-tight" onclick="selectSurpriseEvery('wife',this)">EVERY</button>
+                        <div class="grid grid-cols-9 gap-1 tint-surprise-wife" id="grid-surprise-wife">
+                            <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurprise('wife',0,this)">0</button>
+                            <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurprise('wife',1,this)">1</button>
+                            <button class="btn-select active py-1 rounded-xl text-xs font-bold" onclick="selectSurprise('wife',2,this)">2</button>
+                            <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurprise('wife',3,this)">3</button>
+                            <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurprise('wife',4,this)">4</button>
+                            <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurprise('wife',5,this)">5</button>
+                            <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurprise('wife',6,this)">6</button>
+                            <button class="btn-select every-round-btn py-1 rounded-xl text-[9px] font-bold uppercase tracking-tight" onclick="selectSurpriseEvery('wife',this)">EVERY</button>
+                            <button class="btn-select random-btn py-1 rounded-xl text-[9px] font-bold uppercase tracking-tight" onclick="selectSurpriseRandom('wife',this)">RANDOM</button>
                         </div>
                     </div>
                 </div>
@@ -581,15 +601,16 @@
                                 <button class="btn-select active py-1 rounded-xl text-sm font-mono-display" onclick="selectWorkB2('you',60,this)">60s</button>
                             </div>
                             <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label you" data-base-label="&quot;Surprise&quot; Rounds">Liam &middot; "Surprise" Rounds</span></div>
-                            <div class="grid grid-cols-8 gap-1 tint-surprise-you" id="grid-surprise-b2-you">
-                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',0,this)">0</button>
-                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',1,this)">1</button>
-                                <button class="btn-select active py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',2,this)">2</button>
-                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',3,this)">3</button>
-                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',4,this)">4</button>
-                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',5,this)">5</button>
-                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',6,this)">6</button>
-                                <button class="btn-select every-round-btn py-1 rounded-xl text-[10px] font-bold uppercase tracking-tight" onclick="selectSurpriseEveryB2('you',this)">EVERY</button>
+                            <div class="grid grid-cols-9 gap-1 tint-surprise-you" id="grid-surprise-b2-you">
+                                <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurpriseB2('you',0,this)">0</button>
+                                <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurpriseB2('you',1,this)">1</button>
+                                <button class="btn-select active py-1 rounded-xl text-xs font-bold" onclick="selectSurpriseB2('you',2,this)">2</button>
+                                <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurpriseB2('you',3,this)">3</button>
+                                <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurpriseB2('you',4,this)">4</button>
+                                <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurpriseB2('you',5,this)">5</button>
+                                <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurpriseB2('you',6,this)">6</button>
+                                <button class="btn-select every-round-btn py-1 rounded-xl text-[9px] font-bold uppercase tracking-tight" onclick="selectSurpriseEveryB2('you',this)">EVERY</button>
+                                <button class="btn-select random-btn py-1 rounded-xl text-[9px] font-bold uppercase tracking-tight" onclick="selectSurpriseRandomB2('you',this)">RANDOM</button>
                             </div>
                         </div>
                         <!-- Ash: Rounds + Round Length + Surprise rows (Team mode only) -->
@@ -603,15 +624,16 @@
                                 <button class="btn-select active py-1 rounded-xl text-sm font-mono-display" onclick="selectWorkB2('wife',60,this)">60s</button>
                             </div>
                             <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label wife">Ash &middot; "Surprise" Rounds</span></div>
-                            <div class="grid grid-cols-8 gap-1 tint-surprise-wife" id="grid-surprise-b2-wife">
-                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',0,this)">0</button>
-                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',1,this)">1</button>
-                                <button class="btn-select active py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',2,this)">2</button>
-                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',3,this)">3</button>
-                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',4,this)">4</button>
-                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',5,this)">5</button>
-                                <button class="btn-select py-1 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',6,this)">6</button>
-                                <button class="btn-select every-round-btn py-1 rounded-xl text-[10px] font-bold uppercase tracking-tight" onclick="selectSurpriseEveryB2('wife',this)">EVERY</button>
+                            <div class="grid grid-cols-9 gap-1 tint-surprise-wife" id="grid-surprise-b2-wife">
+                                <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurpriseB2('wife',0,this)">0</button>
+                                <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurpriseB2('wife',1,this)">1</button>
+                                <button class="btn-select active py-1 rounded-xl text-xs font-bold" onclick="selectSurpriseB2('wife',2,this)">2</button>
+                                <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurpriseB2('wife',3,this)">3</button>
+                                <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurpriseB2('wife',4,this)">4</button>
+                                <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurpriseB2('wife',5,this)">5</button>
+                                <button class="btn-select py-1 rounded-xl text-xs font-bold" onclick="selectSurpriseB2('wife',6,this)">6</button>
+                                <button class="btn-select every-round-btn py-1 rounded-xl text-[9px] font-bold uppercase tracking-tight" onclick="selectSurpriseEveryB2('wife',this)">EVERY</button>
+                                <button class="btn-select random-btn py-1 rounded-xl text-[9px] font-bold uppercase tracking-tight" onclick="selectSurpriseRandomB2('wife',this)">RANDOM</button>
                             </div>
                         </div>
                     </div>
@@ -904,8 +926,8 @@
             // runtime reads per-block per-person work and rounds (Phase 2 done);
             // rounds count uses max(L, A) so changing either affects the alternation
             // count (Phase 3 drop-out is still future work).
-            you:{ rounds:12, work:60, workB2:60, surpriseCount:2, roundsB2:8, surpriseCountB2:2 },
-            wife:{ rounds:12, work:60, workB2:60, surpriseCount:2, roundsB2:8, surpriseCountB2:2 },
+            you:{ rounds:12, work:60, workB2:60, surpriseCount:2, roundsB2:8, surpriseCountB2:2, surpriseRandom:false, surpriseRandomB2:false },
+            wife:{ rounds:12, work:60, workB2:60, surpriseCount:2, roundsB2:8, surpriseCountB2:2, surpriseRandom:false, surpriseRandomB2:false },
             // EVERY toggle is per-block now: each is a 4-way enum 'off'|'you'|'wife'|'both'.
             // Block 1 and Block 2 are independent (e.g. Block 1 'off' + Block 2 'both' lets
             // the second block fire a surprise after every work round while keeping Block 1
@@ -1150,9 +1172,11 @@
             else{hrDeviceWife=device;hrCharWife=ch;hrWifeLabel.innerText="Ash's HR";btnHrWife.classList.add('border-purple-500/60');}
             // Sync HR-track screen UI (no-op if those elements not yet wired).
             if(typeof updateHrTrackConnUI==='function')updateHrTrackConnUI();
-            // Row labels swap between generic and "Liam · ..." prefixed forms based on
-            // Liam's HR connection state in Solo mode (no-op for Ash and for Team).
+            // Row labels swap between generic / Liam / Ash forms based on HR state;
+            // solo-identity body class repaints the Liam-row chrome colour. Both
+            // fire on every connect (Liam or Ash) since each affects Solo identity.
             if(typeof updateRowLabels==='function')updateRowLabels();
+            if(typeof updateSoloIdentity==='function')updateSoloIdentity();
             device.addEventListener('gattserverdisconnected',async()=>{
                 // Auto-reconnect attempts: 3 retries, 1s apart. Silent during attempts.
                 for(let a=0;a<3;a++){try{await new Promise(r=>setTimeout(r,1000));if(!device.gatt)break;await setupDevice(device,who);return;}catch(e){}}
@@ -1161,6 +1185,7 @@
                 else{hrDeviceWife=null;hrCharWife=null;hrValueWife=null;hrWifeLabel.innerText="Ash's HR";btnHrWife.classList.remove('border-purple-500/60');hrWifeBpm.innerText='--';}
                 if(typeof updateHrTrackConnUI==='function')updateHrTrackConnUI();
                 if(typeof updateRowLabels==='function')updateRowLabels();
+                if(typeof updateSoloIdentity==='function')updateSoloIdentity();
                 showBleToast(who);
             });
         }
@@ -2158,10 +2183,19 @@
             if(on)setEveryEnum(block,otherOn?'both':who);
             else setEveryEnum(block,otherOn?other:'off');
         }
+        // RANDOM helpers: per-person AND per-block boolean. When on, the surprise
+        // count is rolled at session start (between 1 and rounds-1 inclusive) rather
+        // than taken from the configured numeric. Mutually exclusive with EVERY and
+        // with the numeric counts (selecting any one clears the others for that
+        // person/block).
+        function randomField(block){return block==='b2'?'surpriseRandomB2':'surpriseRandom';}
+        function isRandomFor(who,block){return !!settings[who][randomField(block)];}
+        function setRandomFor(who,block,on){settings[who][randomField(block)]=!!on;}
         window.selectSurprise=(who,n,el)=>{
             settings[who].surpriseCount=n;
-            // Selecting any numeric count clears EVERY for this person's Block 1.
+            // Numeric selection clears both EVERY and RANDOM for this person+block.
             if(isEveryFor(who,'b1'))setEveryFor(who,'b1',false);
+            if(isRandomFor(who,'b1'))setRandomFor(who,'b1',false);
             const grid=document.getElementById(who==='you'?'grid-surprise-you':'grid-surprise-wife');
             Array.from(grid.children).forEach(b=>b.classList.remove('active'));
             el.classList.add('active');
@@ -2171,6 +2205,7 @@
         window.selectSurpriseB2=(who,n,el)=>{
             settings[who].surpriseCountB2=n;
             if(isEveryFor(who,'b2'))setEveryFor(who,'b2',false);
+            if(isRandomFor(who,'b2'))setRandomFor(who,'b2',false);
             const grid=document.getElementById(who==='you'?'grid-surprise-b2-you':'grid-surprise-b2-wife');
             Array.from(grid.children).forEach(b=>b.classList.remove('active'));
             el.classList.add('active');
@@ -2178,12 +2213,32 @@
             updateSessionSummary();
         };
         window.selectSurpriseEvery=(who,el)=>{
-            setEveryFor(who,'b1',!isEveryFor(who,'b1'));
+            const turningOn=!isEveryFor(who,'b1');
+            setEveryFor(who,'b1',turningOn);
+            // Turning EVERY on clears RANDOM for the same person/block.
+            if(turningOn&&isRandomFor(who,'b1'))setRandomFor(who,'b1',false);
             refreshGrids();
             updateSessionSummary();
         };
         window.selectSurpriseEveryB2=(who,el)=>{
-            setEveryFor(who,'b2',!isEveryFor(who,'b2'));
+            const turningOn=!isEveryFor(who,'b2');
+            setEveryFor(who,'b2',turningOn);
+            if(turningOn&&isRandomFor(who,'b2'))setRandomFor(who,'b2',false);
+            refreshGrids();
+            updateSessionSummary();
+        };
+        window.selectSurpriseRandom=(who,el)=>{
+            const turningOn=!isRandomFor(who,'b1');
+            setRandomFor(who,'b1',turningOn);
+            // Turning RANDOM on clears EVERY for the same person/block.
+            if(turningOn&&isEveryFor(who,'b1'))setEveryFor(who,'b1',false);
+            refreshGrids();
+            updateSessionSummary();
+        };
+        window.selectSurpriseRandomB2=(who,el)=>{
+            const turningOn=!isRandomFor(who,'b2');
+            setRandomFor(who,'b2',turningOn);
+            if(turningOn&&isEveryFor(who,'b2'))setEveryFor(who,'b2',false);
             refreshGrids();
             updateSessionSummary();
         };
@@ -2206,14 +2261,16 @@
                     b.classList.toggle('active',n===val);
                 });
             };
-            const refreshSurpriseGrid=(gridId,val,everyOn)=>{
+            const refreshSurpriseGrid=(gridId,val,everyOn,randomOn)=>{
                 const grid=document.getElementById(gridId);
                 if(!grid)return;
                 Array.from(grid.children).forEach(b=>{
                     b.classList.remove('active');
                     if(b.classList.contains('every-round-btn')){
                         if(everyOn)b.classList.add('active');
-                    }else if(!everyOn&&Number(b.innerText)===val){
+                    }else if(b.classList.contains('random-btn')){
+                        if(randomOn)b.classList.add('active');
+                    }else if(!everyOn&&!randomOn&&Number(b.innerText)===val){
                         b.classList.add('active');
                     }
                 });
@@ -2226,10 +2283,10 @@
             refreshWorkGrid('grid-work-wife'   ,settings.wife.work);
             refreshWorkGrid('grid-work-b2-you' ,settings.you.workB2);
             refreshWorkGrid('grid-work-b2-wife',settings.wife.workB2);
-            refreshSurpriseGrid('grid-surprise-you'    ,settings.you.surpriseCount    ,isEveryFor('you','b1'));
-            refreshSurpriseGrid('grid-surprise-wife'   ,settings.wife.surpriseCount   ,isEveryFor('wife','b1'));
-            refreshSurpriseGrid('grid-surprise-b2-you' ,settings.you.surpriseCountB2  ,isEveryFor('you','b2'));
-            refreshSurpriseGrid('grid-surprise-b2-wife',settings.wife.surpriseCountB2 ,isEveryFor('wife','b2'));
+            refreshSurpriseGrid('grid-surprise-you'    ,settings.you.surpriseCount    ,isEveryFor('you','b1') ,isRandomFor('you','b1'));
+            refreshSurpriseGrid('grid-surprise-wife'   ,settings.wife.surpriseCount   ,isEveryFor('wife','b1'),isRandomFor('wife','b1'));
+            refreshSurpriseGrid('grid-surprise-b2-you' ,settings.you.surpriseCountB2  ,isEveryFor('you','b2') ,isRandomFor('you','b2'));
+            refreshSurpriseGrid('grid-surprise-b2-wife',settings.wife.surpriseCountB2 ,isEveryFor('wife','b2'),isRandomFor('wife','b2'));
         }
         // The old tabbed UI (b1-tabs / b2-tabs) and the EVERY-pill picker have been
         // replaced by stacked per-person rows visible at once. See refreshGrids above.
@@ -2380,23 +2437,41 @@
             }
             refreshGrids();
             updateRowLabels();
+            updateSoloIdentity();
             generateSessionPlan();
         }
-        // Liam's row labels (Rounds / Round Length / Surprise) drop the "Liam · "
-        // prefix in Solo mode when no HR monitor is connected - in that situation
-        // there's no second person on screen to disambiguate from, so the generic
-        // label is cleaner. Once Liam connects an HR monitor (or the user switches
-        // to Team), the prefix returns. Ash labels are static (Ash row only shows
-        // in Team mode anyway, where the prefix is always wanted).
+        // Liam's row labels (Rounds / Round Length / Surprise) prefix with the
+        // currently-active person's name. Rules:
+        //   - Team mode: always "Liam · ..." (Ash's row has its own static "Ash · " labels)
+        //   - Solo + no HR connected: bare label ("Rounds")
+        //   - Solo + Liam's HR connected: "Liam · Rounds"
+        //   - Solo + Ash's HR connected: "Ash · Rounds" (Ash is the solo athlete)
+        // If both monitors are connected in Solo, Liam wins (he's the default identity).
         function updateRowLabels(){
             const isTeam=settings.mode==='wife';
             const liamConnected=!!(hrDeviceYou&&hrDeviceYou.gatt&&hrDeviceYou.gatt.connected);
-            const showPrefix=isTeam||liamConnected;
+            const ashConnected =!!(hrDeviceWife&&hrDeviceWife.gatt&&hrDeviceWife.gatt.connected);
+            let prefix='';
+            if(isTeam) prefix='Liam';
+            else if(liamConnected) prefix='Liam';
+            else if(ashConnected) prefix='Ash';
             document.querySelectorAll('.person-row-label.you').forEach(el=>{
                 const base=el.dataset.baseLabel;
                 if(!base)return;
-                el.innerHTML=showPrefix?('Liam &middot; '+base):base;
+                el.innerHTML=prefix?(prefix+' &middot; '+base):base;
             });
+        }
+        // Body class drives the Liam-row chrome colour in Solo. Team mode skips
+        // this (mode-wife handles it). The class is mutually exclusive: only one of
+        // solo-neutral / solo-you / solo-wife is set at a time.
+        function updateSoloIdentity(){
+            const isSolo=settings.mode==='solo';
+            const liamConnected=!!(hrDeviceYou&&hrDeviceYou.gatt&&hrDeviceYou.gatt.connected);
+            const ashConnected =!!(hrDeviceWife&&hrDeviceWife.gatt&&hrDeviceWife.gatt.connected);
+            const cl=document.body.classList;
+            cl.toggle('solo-neutral',isSolo&&!liamConnected&&!ashConnected);
+            cl.toggle('solo-you'    ,isSolo&&liamConnected); // Liam wins if both connected
+            cl.toggle('solo-wife'   ,isSolo&&!liamConnected&&ashConnected);
         }
         ui.modeSolo.onclick=()=>setMode('solo');ui.modeWife.onclick=()=>setMode('wife');
         ui.inRandom.onchange=e=>{settings.randomiseMiddle=e.target.checked;updateAdvancedSummary();generateSessionPlan();};
@@ -2519,11 +2594,19 @@
             if(!el)return;
             const isW=settings.mode==='wife';
             const has2=settings.blocks===2;
-            // Effective per-person surprise counts (EVERY override expands to all rounds).
-            const youS1 =isEveryFor('you' ,'b1')?settings.you.rounds   :settings.you.surpriseCount;
-            const youS2 =has2?(isEveryFor('you' ,'b2')?settings.you.roundsB2 :settings.you.surpriseCountB2):0;
-            const wifeS1=isEveryFor('wife','b1')?settings.wife.rounds  :settings.wife.surpriseCount;
-            const wifeS2=has2?(isEveryFor('wife','b2')?settings.wife.roundsB2:settings.wife.surpriseCountB2):0;
+            // Effective per-person surprise counts. Numeric values are used directly.
+            // EVERY expands to all rounds. RANDOM uses rounds/2 as a midpoint estimate
+            // (the actual count is rolled at session start, between 1 and rounds-1).
+            const surpEst=(who,block)=>{
+                const r=block==='b2'?settings[who].roundsB2:settings[who].rounds;
+                if(isEveryFor(who,block))return r;
+                if(isRandomFor(who,block))return Math.max(1,Math.round(r/2));
+                return block==='b2'?settings[who].surpriseCountB2:settings[who].surpriseCount;
+            };
+            const youS1 =surpEst('you' ,'b1');
+            const youS2 =has2?surpEst('you' ,'b2'):0;
+            const wifeS1=surpEst('wife','b1');
+            const wifeS2=has2?surpEst('wife','b2'):0;
             // Time estimate. In Team mode each "plan round" = one Liam work phase
             // + one Ash work phase + two changeovers. Plan-round count is max(L,A)
             // (Phase 3 drop-out is future work; for now both do max). Surprise bursts
@@ -2568,10 +2651,12 @@
                 &&settings.you.surpriseCount===settings.wife.surpriseCount
                 &&settings.you.work===settings.wife.work
                 &&isEveryFor('you','b1')===isEveryFor('wife','b1')
+                &&isRandomFor('you','b1')===isRandomFor('wife','b1')
                 &&(!has2||(settings.you.roundsB2===settings.wife.roundsB2
                     &&settings.you.surpriseCountB2===settings.wife.surpriseCountB2
                     &&settings.you.workB2===settings.wife.workB2
-                    &&isEveryFor('you','b2')===isEveryFor('wife','b2')));
+                    &&isEveryFor('you','b2')===isEveryFor('wife','b2')
+                    &&isRandomFor('you','b2')===isRandomFor('wife','b2')));
             const asymmetric=isW&&!sameSettings;
             const fmtBlock=(r,s,label)=>s===0?`${label}: ${r}`:`${label}: ${r} + ${s} surprise`;
             const r1Display=isW?Math.max(settings.you.rounds,settings.wife.rounds):settings.you.rounds;
@@ -3167,16 +3252,22 @@
             ui.roundTot.innerText=totalDisplay;ui.roundCur.innerText='1';
             // Pick surprise round indices for block 1 (always) and block 2 (if 2 blocks).
             // Per-person sets in Wife mode - user and wife may each get surprise rounds
-            // at different indices (adds unpredictability for the partner too). Each
-            // person uses their own surpriseCount from settings.you/wife.
-            session.surpriseRoundsYou=pickSurpriseIndices(settings.you.surpriseCount,settings.you.rounds);
+            // at different indices (adds unpredictability for the partner too). RANDOM
+            // mode rolls the count fresh per session (between 1 and rounds-1 inclusive).
+            const rollSurprise=(who,block)=>{
+                const r=block==='b2'?settings[who].roundsB2:settings[who].rounds;
+                const stored=block==='b2'?settings[who].surpriseCountB2:settings[who].surpriseCount;
+                if(isRandomFor(who,block))return 1+Math.floor(Math.random()*Math.max(1,r-1));
+                return stored;
+            };
+            session.surpriseRoundsYou=pickSurpriseIndices(rollSurprise('you','b1'),settings.you.rounds);
             session.surpriseTriggeredYou=new Set();
-            if(settings.mode==='wife'){session.surpriseRoundsWife=pickSurpriseIndices(settings.wife.surpriseCount,settings.wife.rounds);session.surpriseTriggeredWife=new Set();}
+            if(settings.mode==='wife'){session.surpriseRoundsWife=pickSurpriseIndices(rollSurprise('wife','b1'),settings.wife.rounds);session.surpriseTriggeredWife=new Set();}
             else{session.surpriseRoundsWife=new Set();session.surpriseTriggeredWife=new Set();}
             if(settings.blocks===2){
-                session.surpriseRoundsYouB2=pickSurpriseIndices(settings.you.surpriseCountB2,settings.you.roundsB2);
+                session.surpriseRoundsYouB2=pickSurpriseIndices(rollSurprise('you','b2'),settings.you.roundsB2);
                 session.surpriseTriggeredYouB2=new Set();
-                if(settings.mode==='wife'){session.surpriseRoundsWifeB2=pickSurpriseIndices(settings.wife.surpriseCountB2,settings.wife.roundsB2);session.surpriseTriggeredWifeB2=new Set();}
+                if(settings.mode==='wife'){session.surpriseRoundsWifeB2=pickSurpriseIndices(rollSurprise('wife','b2'),settings.wife.roundsB2);session.surpriseTriggeredWifeB2=new Set();}
                 else{session.surpriseRoundsWifeB2=new Set();session.surpriseTriggeredWifeB2=new Set();}
             }
             setPhase('ready');run();
