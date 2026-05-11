@@ -60,7 +60,12 @@
         }
     </script>
     <style>
-        :root{--accent-green:#22c55e;--accent-orange:#f97316;--accent-purple:#a855f7;--accent-red:#ef4444;--theme-color:#a855f7;--theme-shadow:rgba(168,85,247,0.4);}
+        :root{--accent-green:#22c55e;--accent-orange:#f97316;--accent-purple:#a855f7;--accent-red:#ef4444;--accent-blue:#3b82f6;}
+        /* Theme palette varies by mode. Solo = blue (only Liam visible, so the whole
+           UI takes one colour). Team/Wife = purple as the overall theme, but person-
+           bound elements override: Liam = green, Ash = purple. */
+        body.mode-solo{--theme-color:#3b82f6;--theme-shadow:rgba(59,130,246,0.4);}
+        body.mode-wife{--theme-color:#a855f7;--theme-shadow:rgba(168,85,247,0.4);}
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
         body{font-family:'DM Sans',system-ui,sans-serif;overscroll-behavior-y:contain;background-color:#000000;margin:0;-webkit-text-stroke:2px rgba(0,0,0,1);paint-order:stroke fill;}
         body.timer-running{overflow:hidden;}
@@ -71,23 +76,44 @@
         .custom-scrollbar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:4px;}
         .btn-select{background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;transition:all 0.2s;}
         .btn-select.active{background:var(--theme-color);color:white;border-color:var(--theme-color);font-weight:bold;}
-        /* Inactive tints: applied to grids that should hint at their selected colour.
-           Rounds grid uses .tint-mode -> tint follows --theme-color (green=Solo, purple=Team).
-           Surprise grids use .tint-white -> faint white wash so the red active state pops. */
-        .tint-mode .btn-select:not(.active){background:color-mix(in srgb,var(--theme-color) 18%,rgba(30,41,59,0.8));color:#e2e8f0;border-color:color-mix(in srgb,var(--theme-color) 30%,rgba(255,255,255,0.1));}
+        /* Inactive tints + active styling. Rounds grid is person-bound but mode-aware:
+           - Solo: Liam row tints blue (since only Liam is visible)
+           - Team: Liam row tints green, Ash row tints purple
+           Surprise grids use .tint-white -> faint white wash; red active state.
+           Active buttons across all grids bump font-size 1.15x and inactive buttons
+           dim to 85% opacity for a subtle "this one is selected" cue. */
+        body.mode-solo .tint-you  .btn-select:not(.active){background:rgba(59,130,246,0.18);color:#e2e8f0;border-color:rgba(59,130,246,0.30);}
+        body.mode-solo .tint-you  .btn-select.active{background:#3b82f6;border-color:#3b82f6;color:#fff;}
+        body.mode-wife .tint-you  .btn-select:not(.active){background:rgba(34,197,94,0.18);color:#e2e8f0;border-color:rgba(34,197,94,0.30);}
+        body.mode-wife .tint-you  .btn-select.active{background:#22c55e;border-color:#22c55e;color:#fff;}
+        .tint-wife .btn-select:not(.active){background:rgba(168,85,247,0.18);color:#e2e8f0;border-color:rgba(168,85,247,0.30);}
+        .tint-wife .btn-select.active{background:#a855f7;border-color:#a855f7;color:#fff;}
         .tint-white .btn-select:not(.active){background:rgba(255,255,255,0.22);color:#f8fafc;border-color:rgba(255,255,255,0.3);}
         .tint-white .btn-select.active{background:#ef4444;color:white;border-color:#ef4444;}
-        /* Per-person tabs (Liam | Ash) inside Block 1 / Block 2 cards.
-           Liam tabs always render green; Ash tabs always render purple - colours
-           are person-bound, not theme-bound, to mirror the per-person HR badge tints. */
-        .b1-tab,.b2-tab{color:#94a3b8;}
-        #b1-tab-you.active,#b2-tab-you.active{background:#22c55e;color:#fff;}
-        #b1-tab-wife.active,#b2-tab-wife.active{background:#a855f7;color:#fff;}
-        /* "EVERY ROUND" button inside the surprise-count grid: when active, takes the
-           active person's signature colour (Liam green / Ash purple). Spans the
-           full row's last slot via grid-column placement at the markup level. */
-        .every-round-btn.active.tint-you{background:#22c55e;border-color:#22c55e;color:#fff;}
-        .every-round-btn.active.tint-wife{background:#a855f7;border-color:#a855f7;color:#fff;}
+        /* Active = larger font; inactives slightly dimmed. Applied to all tinted grids. */
+        .tint-you .btn-select.active,.tint-wife .btn-select.active,.tint-white .btn-select.active{font-size:1.15em;}
+        .tint-you .btn-select:not(.active),.tint-wife .btn-select:not(.active),.tint-white .btn-select:not(.active){opacity:0.85;}
+        /* Per-person row label inside Block 1 / Block 2 cards (replaces the old tabs).
+           Liam label swaps with mode (blue in Solo, green in Team). Ash always purple. */
+        .person-row-label{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
+        body.mode-solo .person-row-label.you{color:#60a5fa;}
+        body.mode-wife .person-row-label.you{color:#4ade80;}
+        .person-row-label.wife{color:#c084fc;}
+        /* HR connect button (Liam) and HR live badge (Liam): colour follows mode.
+           These get a stable class (.hr-btn-you / .hr-badge-you) and CSS keys the
+           accent colour off body.mode-solo / body.mode-wife. */
+        body.mode-solo .hr-btn-you:hover{border-color:rgba(59,130,246,0.40);}
+        body.mode-solo .hr-btn-you .hr-icon{color:#60a5fa;}
+        body.mode-wife .hr-btn-you:hover{border-color:rgba(34,197,94,0.40);}
+        body.mode-wife .hr-btn-you .hr-icon{color:#4ade80;}
+        body.mode-solo .hr-btn-you.hr-connected{border-color:rgba(59,130,246,0.60);}
+        body.mode-wife .hr-btn-you.hr-connected{border-color:rgba(34,197,94,0.60);}
+        body.mode-solo .hr-badge-you{background:rgba(59,130,246,0.20);border-color:rgba(59,130,246,0.30);}
+        body.mode-solo .hr-badge-you .hr-icon{color:#60a5fa;}
+        body.mode-solo .hr-badge-you .hr-bpm-text{color:#93c5fd;}
+        body.mode-wife .hr-badge-you{background:rgba(34,197,94,0.20);border-color:rgba(34,197,94,0.30);}
+        body.mode-wife .hr-badge-you .hr-icon{color:#4ade80;}
+        body.mode-wife .hr-badge-you .hr-bpm-text{color:#86efac;}
         .hidden{display:none !important;}
         #timer-bg{position:fixed;bottom:0;left:0;width:100%;z-index:0;transition:height 1s linear,background-color 0.3s ease;}
         @keyframes restPulse{0%,100%{opacity:1;}50%{opacity:0.8;}}
@@ -329,7 +355,7 @@
             <div class="glass-card p-4 rounded-2xl space-y-2">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Heart Rate Monitors</p>
                 <div class="flex items-center gap-2">
-                    <button id="btn-hr-you-track" aria-label="Connect Liam's heart rate monitor" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-slate-800/50 border border-slate-700/30 hover:border-green-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-green-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-label-track">Liam's HR</span></button>
+                    <button id="btn-hr-you-track" aria-label="Connect Liam's heart rate monitor" class="hr-btn-you flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-slate-800/50 border border-slate-700/30 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="hr-icon w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-label-track">Liam's HR</span></button>
                     <button id="btn-hr-wife-track" aria-label="Connect Ash's heart rate monitor" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-slate-800/50 border border-slate-700/30 hover:border-purple-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-purple-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-label-track">Ash's HR</span></button>
                 </div>
                 <p id="hr-track-ble-warn" class="hidden text-[10px] text-amber-300 text-center">Web Bluetooth not supported on this browser.</p>
@@ -337,11 +363,11 @@
             <!-- Live BPM displays. Mirrors timer-screen badge styling. -->
             <div class="glass-card p-4 rounded-2xl">
                 <div class="flex items-center justify-around gap-3">
-                    <div id="hr-track-live-you" class="hidden flex-1 flex flex-col items-center rounded-xl bg-green-600/20 border border-green-500/30 p-3">
-                        <div class="text-[10px] font-bold uppercase tracking-widest text-green-300 mb-1">Liam</div>
+                    <div id="hr-track-live-you" class="hr-badge-you hidden flex-1 flex flex-col items-center rounded-xl border p-3">
+                        <div class="hr-bpm-text text-[10px] font-bold uppercase tracking-widest mb-1">Liam</div>
                         <div class="flex items-center gap-1.5">
-                            <svg class="w-5 h-5 text-green-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                            <span id="hr-track-bpm-you" class="text-3xl font-black font-mono-display text-green-300">--</span>
+                            <svg class="hr-icon w-5 h-5 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            <span id="hr-track-bpm-you" class="hr-bpm-text text-3xl font-black font-mono-display">--</span>
                         </div>
                         <canvas id="hr-track-spark-you" class="rounded mt-2" style="width:100%;height:36px;display:block;"></canvas>
                     </div>
@@ -439,116 +465,121 @@
                 </div>
                 <div id="hr-setup" class="hidden mt-3 pt-3 border-t border-slate-700/50">
                     <div class="flex items-center gap-2">
-                    <button id="btn-hr-you" aria-label="Connect Liam's heart rate monitor" class="flex-1 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold bg-slate-800/50 border border-slate-700/30 hover:border-green-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-green-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-label">Liam's HR</span></button>
+                    <button id="btn-hr-you" aria-label="Connect Liam's heart rate monitor" class="hr-btn-you flex-1 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold bg-slate-800/50 border border-slate-700/30 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="hr-icon w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-label">Liam's HR</span></button>
                     <button id="btn-hr-wife" aria-label="Connect Ash's heart rate monitor" class="flex-1 py-2 px-3 rounded-xl text-[10px] sm:text-xs font-bold bg-slate-800/50 border border-slate-700/30 hover:border-purple-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 text-purple-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-label">Ash's HR</span></button>
                     </div>
                 </div>
             </div>
-            <!-- Main layout: Block 1 and Block 2 side-by-side (each ~half width).
-                 Restored from a stacked layout to fit the whole setup on one screen
-                 without scrolling on most viewports. -->
-            <div id="setup-columns" class="grid grid-cols-2 gap-2 items-stretch">
-                <!-- Block 1: settings card (left column) -->
-                <div class="flex flex-col min-h-0">
-                    <div id="settings-scroll" class="glass-card p-2 rounded-2xl space-y-1.5 flex-1 custom-scrollbar overflow-y-auto overflow-x-hidden">
-                        <!-- BLOCK 1 header + per-person tabs (Team mode only). The tabs let
-                             each person tune their own rounds and surprise count. In Solo,
-                             tabs hide and the controls bind to settings.you. -->
+            <!-- Main layout: Block 1 stacked above Block 2 (full width each).
+                 Inside each block, per-person stacks (Liam + Ash) for Rounds and
+                 Surprise are both visible at once. In Solo mode the Ash stacks
+                 hide. No tabs - both people configure side-by-side vertically. -->
+            <div id="setup-columns" class="flex flex-col gap-1.5">
+                <!-- BLOCK 1 -->
+                <div class="glass-card p-2 rounded-2xl space-y-1.5 overflow-x-hidden">
+                    <div class="flex items-center ml-1 mr-0.5">
+                        <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 1</p>
+                    </div>
+                    <!-- Liam: Rounds + Surprise rows -->
+                    <div class="space-y-1" id="b1-row-you">
                         <div class="flex items-center justify-between ml-1 mr-0.5">
-                            <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 1</p>
-                            <div id="b1-tabs" class="hidden flex p-0.5 bg-slate-800/60 rounded-lg" role="tablist" aria-label="Block 1 settings tab">
-                                <button id="b1-tab-you"  type="button" role="tab" class="b1-tab px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all">Liam</button>
-                                <button id="b1-tab-wife" type="button" role="tab" class="b1-tab px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all">Ash</button>
-                            </div>
+                            <span class="person-row-label you">Liam &middot; Rounds</span>
+                            <span id="random-desc" class="text-[8px] sm:text-[9px] text-slate-500 leading-tight">Randomises rounds 2 to 11</span>
                         </div>
-                        <div class="space-y-1">
-                            <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Rounds</label>
-                            <div class="grid grid-cols-6 gap-1 tint-mode" id="grid-rounds"></div>
-                            <p id="random-desc" class="text-[8px] sm:text-[9px] text-slate-500 leading-tight ml-1">Randomises rounds 2 to 11</p>
+                        <div class="grid grid-cols-7 gap-1 tint-you" id="grid-rounds-you"></div>
+                        <div class="flex items-center gap-1.5 ml-1 mr-0.5">
+                            <span class="person-row-label you">Liam &middot; "Surprise" Rounds</span>
+                            <button id="btn-surprise-info" type="button" aria-label="What is a surprise round?" class="info-btn">i</button>
                         </div>
-                        <div class="space-y-1">
-                            <!-- Surprise Rounds header: label + info button.
-                                 The EVERY-mode picker that used to sit on the right has been
-                                 folded into the grid itself as a final "EVERY ROUND" button. -->
-                            <div class="flex items-center gap-1.5 ml-1 mr-0.5">
-                                <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">"Surprise" Rounds</label>
-                                <button id="btn-surprise-info" type="button" aria-label="What is a surprise round?" class="info-btn">i</button>
-                            </div>
-                            <!-- 8-cell grid: numeric counts 0-6 plus a final "EVERY ROUND" cell
-                                 that spans the last column of row 2. EVERY ROUND sets the active
-                                 person's surpriseEvery flag (Liam-tab -> 'you', Ash-tab -> 'wife',
-                                 stacking to 'both' if the other person is also set). -->
-                            <div class="grid grid-cols-4 gap-1 tint-white" id="grid-surprise">
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise(0,this)">0</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise(1,this)">1</button>
-                                <button class="btn-select active py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise(2,this)">2</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise(3,this)">3</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise(4,this)">4</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise(5,this)">5</button>
-                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise(6,this)">6</button>
-                                <button class="btn-select every-round-btn py-1.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-tight" onclick="selectSurpriseEvery(this)">Every<br>Round</button>
-                            </div>
+                        <!-- 8-cell grid: numeric counts 0-6 plus a final "EVERY ROUND" cell.
+                             EVERY ROUND sets surpriseEvery for this person (you/wife stacked
+                             internally to 'both' if both are on). -->
+                        <div class="grid grid-cols-4 gap-1 tint-white" id="grid-surprise-you">
+                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('you',0,this)">0</button>
+                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('you',1,this)">1</button>
+                            <button class="btn-select active py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('you',2,this)">2</button>
+                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('you',3,this)">3</button>
+                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('you',4,this)">4</button>
+                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('you',5,this)">5</button>
+                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('you',6,this)">6</button>
+                            <button class="btn-select every-round-btn py-1.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-tight" onclick="selectSurpriseEvery('you',this)">Every<br>Round</button>
                         </div>
-                        <!-- Advanced: opens a modal with Round Length + Randomise (rarely-changed
-                             settings). Each option in the modal has its own info "i" button. -->
-                        <button id="btn-advanced-toggle" type="button" class="w-full flex items-center justify-between px-1 py-0.5 cursor-pointer hover:text-white transition-colors mt-auto">
-                            <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Advanced</span>
-                            <span class="flex items-center gap-1.5">
-                                <span id="advanced-summary" class="text-[9px] sm:text-[10px] font-mono-display text-slate-500">60s &middot; Random</span>
-                                <span class="text-slate-400 text-[10px] leading-none">&rsaquo;</span>
-                            </span>
-                        </button>
+                    </div>
+                    <!-- Ash: Rounds + Surprise rows (Team mode only) -->
+                    <div class="space-y-1 hidden" id="b1-row-wife">
+                        <div class="flex items-center ml-1 mr-0.5">
+                            <span class="person-row-label wife">Ash &middot; Rounds</span>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 tint-wife" id="grid-rounds-wife"></div>
+                        <div class="flex items-center ml-1 mr-0.5">
+                            <span class="person-row-label wife">Ash &middot; "Surprise" Rounds</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-1 tint-white" id="grid-surprise-wife">
+                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',0,this)">0</button>
+                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',1,this)">1</button>
+                            <button class="btn-select active py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',2,this)">2</button>
+                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',3,this)">3</button>
+                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',4,this)">4</button>
+                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',5,this)">5</button>
+                            <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurprise('wife',6,this)">6</button>
+                            <button class="btn-select every-round-btn py-1.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-tight" onclick="selectSurpriseEvery('wife',this)">Every<br>Round</button>
+                        </div>
                     </div>
                 </div>
-                <!-- Block 2: panel beside Block 1 (right column).
-                     When 1 Block: shows a slim "tap to enable" strip (compact, doesn't dominate).
-                     When 2 Blocks: shows live, inline-editable Block 2 settings (block rest, rounds, surprise count). -->
-                <div class="flex flex-col">
-                    <div id="block2-panel" class="glass-card rounded-2xl flex flex-col overflow-hidden flex-1">
-                        <!-- 1 Block: compact CTA strip. Uses div role="button" so the nested info
-                             button can stop propagation cleanly (button-in-button is invalid HTML). -->
-                        <div id="btn-block2-enable" role="button" tabindex="0" aria-label="Enable Block 2" class="flex flex-col items-center justify-center gap-1.5 px-2 py-3 cursor-pointer hover:bg-white/5 active:scale-[0.99] transition-all flex-1">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-full border-2 border-dashed border-slate-500/60 flex items-center justify-center text-slate-400 text-sm font-light">+</div>
-                                <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 2</p>
-                            </div>
-                            <p class="text-[9px] sm:text-[10px] text-slate-400 leading-tight text-center">Disabled - tap to enable</p>
-                            <button type="button" class="info-btn" id="btn-blocks-info" aria-label="What are training blocks?">i</button>
+                <!-- BLOCK 2 panel: slim CTA when disabled, expands inline when enabled.
+                     Sits below Block 1 at full width. -->
+                <div id="block2-panel" class="glass-card rounded-2xl overflow-hidden">
+                    <!-- 1 Block: compact CTA strip. -->
+                    <div id="btn-block2-enable" role="button" tabindex="0" aria-label="Enable Block 2" class="flex items-center justify-center gap-2 px-2 py-2 cursor-pointer hover:bg-white/5 active:scale-[0.99] transition-all">
+                        <div class="w-5 h-5 rounded-full border-2 border-dashed border-slate-500/60 flex items-center justify-center text-slate-400 text-xs font-light">+</div>
+                        <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 2</p>
+                        <p class="text-[9px] sm:text-[10px] text-slate-400 leading-tight">Disabled - tap to enable</p>
+                        <button type="button" class="info-btn" id="btn-blocks-info" aria-label="What are training blocks?">i</button>
+                    </div>
+                    <!-- 2 Blocks: editable settings view, mirrors Block 1 -->
+                    <div id="block2-edit" class="hidden flex flex-col p-2 space-y-1.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 2</p>
+                            <button id="btn-block2-disable" type="button" aria-label="Disable Block 2" class="text-slate-400 hover:text-red-400 text-base leading-none px-1.5 active:scale-95 transition-all">&times;</button>
                         </div>
-                        <!-- 2 Blocks: editable settings view (right column, mirrors Block 1's layout) -->
-                        <div id="block2-edit" class="hidden flex flex-col p-2 space-y-1.5 overflow-y-auto custom-scrollbar overflow-x-hidden">
-                            <div class="flex items-center justify-between flex-shrink-0 gap-2">
-                                <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 2</p>
-                                <div id="b2-tabs" class="hidden flex p-0.5 bg-slate-800/60 rounded-lg" role="tablist" aria-label="Block 2 settings tab">
-                                    <button id="b2-tab-you"  type="button" role="tab" class="b2-tab px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all">Liam</button>
-                                    <button id="b2-tab-wife" type="button" role="tab" class="b2-tab px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all">Ash</button>
-                                </div>
-                                <button id="btn-block2-disable" type="button" aria-label="Disable Block 2" class="text-slate-400 hover:text-red-400 text-base leading-none px-1.5 active:scale-95 transition-all">&times;</button>
+                        <div class="space-y-1">
+                            <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block Rest</label>
+                            <div class="grid grid-cols-3 gap-1">
+                                <button class="btn-select py-1.5 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(120,this)">2min</button>
+                                <button class="btn-select active py-1.5 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(180,this)">3min</button>
+                                <button class="btn-select py-1.5 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(300,this)">5min</button>
                             </div>
-                            <div class="space-y-1">
-                                <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block Rest</label>
-                                <div class="grid grid-cols-3 gap-1">
-                                    <button class="btn-select py-1.5 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(120,this)">2min</button>
-                                    <button class="btn-select active py-1.5 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(180,this)">3min</button>
-                                    <button class="btn-select py-1.5 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(300,this)">5min</button>
-                                </div>
+                        </div>
+                        <!-- Liam: Rounds + Surprise rows -->
+                        <div class="space-y-1" id="b2-row-you">
+                            <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label you">Liam &middot; Rounds</span></div>
+                            <div class="grid grid-cols-7 gap-1 tint-you" id="grid-rounds-b2-you"></div>
+                            <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label you">Liam &middot; "Surprise" Rounds</span></div>
+                            <div class="grid grid-cols-4 gap-1 tint-white" id="grid-surprise-b2-you">
+                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',0,this)">0</button>
+                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',1,this)">1</button>
+                                <button class="btn-select active py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',2,this)">2</button>
+                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',3,this)">3</button>
+                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',4,this)">4</button>
+                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',5,this)">5</button>
+                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('you',6,this)">6</button>
+                                <button class="btn-select every-round-btn py-1.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-tight" onclick="selectSurpriseEveryB2('you',this)">Every<br>Round</button>
                             </div>
-                            <div class="space-y-1">
-                                <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Rounds</label>
-                                <div class="grid grid-cols-6 gap-1 tint-mode" id="grid-rounds-b2"></div>
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">"Surprise" Rounds</label>
-                                <div class="grid grid-cols-4 gap-1 tint-white" id="grid-surprise-b2">
-                                    <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2(0,this)">0</button>
-                                    <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2(1,this)">1</button>
-                                    <button class="btn-select active py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2(2,this)">2</button>
-                                    <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2(3,this)">3</button>
-                                    <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2(4,this)">4</button>
-                                    <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2(5,this)">5</button>
-                                    <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2(6,this)">6</button>
-                                    <button class="btn-select every-round-btn py-1.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-tight" onclick="selectSurpriseEveryB2(this)">Every<br>Round</button>
-                                </div>
+                        </div>
+                        <!-- Ash: Rounds + Surprise rows (Team mode only) -->
+                        <div class="space-y-1 hidden" id="b2-row-wife">
+                            <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label wife">Ash &middot; Rounds</span></div>
+                            <div class="grid grid-cols-7 gap-1 tint-wife" id="grid-rounds-b2-wife"></div>
+                            <div class="flex items-center ml-1 mr-0.5"><span class="person-row-label wife">Ash &middot; "Surprise" Rounds</span></div>
+                            <div class="grid grid-cols-4 gap-1 tint-white" id="grid-surprise-b2-wife">
+                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',0,this)">0</button>
+                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',1,this)">1</button>
+                                <button class="btn-select active py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',2,this)">2</button>
+                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',3,this)">3</button>
+                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',4,this)">4</button>
+                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',5,this)">5</button>
+                                <button class="btn-select py-1.5 rounded-xl text-sm font-bold" onclick="selectSurpriseB2('wife',6,this)">6</button>
+                                <button class="btn-select every-round-btn py-1.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-tight" onclick="selectSurpriseEveryB2('wife',this)">Every<br>Round</button>
                             </div>
                         </div>
                     </div>
@@ -561,12 +592,15 @@
                 <p class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center mb-0.5">Session</p>
                 <p id="session-summary-line" class="text-[11px] sm:text-xs text-white text-center leading-snug font-mono-display">12 rounds + 2 surprise rounds = 14 active phases &middot; ~17 min</p>
             </div>
-            <!-- Action row: quick-rest timers and Begin Session. Now sits below the
-                 settings + summary so the user follows a top-down configure-then-go flow. -->
-            <div class="grid grid-cols-6 gap-1.5 mt-1.5 flex-shrink-0">
+            <!-- Action row: quick-rest timers, Advanced modal opener, and Begin Session.
+                 Sits below the settings + summary so the user follows top-down configure-
+                 then-go. The Advanced button shows a live summary (e.g. "60s · Random")
+                 of the modal's current state. -->
+            <div class="grid grid-cols-7 gap-1.5 mt-1.5 flex-shrink-0">
                 <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="60"><span>Rest</span><span class="opacity-70 text-[10px]">1min</span></button>
                 <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="120"><span>Rest</span><span class="opacity-70 text-[10px]">2min</span></button>
                 <button class="btn-quick-rest col-span-1 bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight" data-secs="180"><span>Rest</span><span class="opacity-70 text-[10px]">3min</span></button>
+                <button id="btn-advanced-toggle" type="button" class="col-span-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-2xl text-sm active:scale-[0.98] transition-all flex flex-col items-center justify-center leading-tight"><span>Advanced</span><span id="advanced-summary" class="opacity-70 text-[10px] font-mono-display">60s &middot; Random</span></button>
                 <button id="btn-start" class="col-span-3 bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-2xl text-base sm:text-xl active:scale-[0.98] transition-all">Begin Session</button>
             </div>
             <button id="btn-boxing-back" class="w-full py-1.5 rounded-xl text-xs font-bold bg-red-500/50 hover:bg-red-500/60 border border-red-500/60 text-white transition-all active:scale-[0.98] flex-shrink-0 mt-1.5">&larr; Back</button>
@@ -577,7 +611,7 @@
                 <div class="flex items-center justify-between"><h3 id="surprise-info-title" class="text-sm font-bold text-white">"Surprise" Rounds</h3><button id="btn-surprise-info-close" aria-label="Close" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button></div>
                 <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed">A random burnout burst dropped into the middle of your session. The screen flashes white with a 5-second "GET READY" countdown, then 30 seconds of one task - STRAIGHTS or HOOKS (chosen at random).</p>
                 <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed">Slots fall anywhere within the middle rounds. In partner mode, each of you gets different surprise rounds at different random times.</p>
-                <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed"><span class="text-white font-bold">EVERY ROUND</span> (last button in the grid): overrides the numeric count for the active person and fires a surprise burst at the end of every work round (warm-up and burnout included). In partner mode, picking it on Liam's tab affects Liam only - select it again on Ash's tab to apply it to both.</p>
+                <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed"><span class="text-white font-bold">EVERY ROUND</span> (last button in each row): overrides the numeric count for that person and fires a surprise burst at the end of every work round (warm-up and burnout included). Liam and Ash each have their own row, so you can set EVERY ROUND for one without affecting the other.</p>
                 <button id="btn-surprise-info-done" class="theme-btn w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-[0.98]">Got it</button>
             </div>
         </div>
@@ -617,7 +651,7 @@
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
                         <input type="checkbox" id="in-random" class="sr-only peer" checked>
-                        <div id="toggle-bg" class="relative w-9 h-5 bg-slate-900 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                        <div id="toggle-bg" class="relative w-9 h-5 bg-slate-900 rounded-full peer peer-checked:bg-red-600 peer-checked:after:translate-x-4 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                     </label>
                 </div>
                 <button id="btn-advanced-done" class="theme-btn w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-[0.98]">Got it</button>
@@ -646,7 +680,7 @@
         <div id="timer-screen" class="hidden w-full max-w-lg">
             <div class="timer-top w-full flex justify-between items-start">
                 <div class="flex flex-col items-start" style="gap:0.5dvh;">
-                    <div id="hr-live-you" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-green-600/20 border border-green-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-green-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-bpm" class="hr-bpm font-black font-mono-display text-green-300">--</span></div><canvas id="hr-spark-you" class="rounded" style="display:block;"></canvas></div>
+                    <div id="hr-live-you" class="hr-badge-you hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl border"><div class="flex items-center" style="gap:0.3rem;"><svg class="hr-icon hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-bpm" class="hr-bpm-text hr-bpm font-black font-mono-display">--</span></div><canvas id="hr-spark-you" class="rounded" style="display:block;"></canvas></div>
                     <div style="display:flex;flex-direction:column;gap:clamp(2px,0.4dvh,6px);"><p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p><div class="flex items-baseline" style="gap:0.3rem;"><span id="current-round" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span><span class="round-slash text-white/60 font-bold t-stroke">/</span><span id="total-rounds" class="round-slash text-white/60 font-bold t-stroke">12</span></div></div>
                 </div>
                 <div class="flex flex-col items-end" style="gap:0.5dvh;">
@@ -859,8 +893,6 @@
             // 'wife' - Ash fires a surprise after every work round (Liam uses count)
             // 'both' - both partners fire after every work round (= old `true`)
             surpriseEvery:'off',
-            // Currently-active settings tab in Block 1/2 cards. UI-only state.
-            activeTab:'you',
             restBase:30,           // Solo mode base rest before progressive increment
             randomiseMiddle:true,  // Shuffle middle rounds (keeps warm-up / burnout fixed when >6 rounds)
             blocks:1,              // 1 or 2 training blocks
@@ -1093,7 +1125,7 @@
             await ch.startNotifications();
             const nm=device.name?device.name.substring(0,12):'Connected';
             ch.addEventListener('characteristicvaluechanged',e=>onHRReading(who,parseHR(e.target.value)));
-            if(who==='you'){hrDeviceYou=device;hrCharYou=ch;hrYouLabel.innerText="Liam's HR";btnHrYou.classList.add('border-green-500/60');}
+            if(who==='you'){hrDeviceYou=device;hrCharYou=ch;hrYouLabel.innerText="Liam's HR";btnHrYou.classList.add('hr-connected');}
             else{hrDeviceWife=device;hrCharWife=ch;hrWifeLabel.innerText="Ash's HR";btnHrWife.classList.add('border-purple-500/60');}
             // Sync HR-track screen UI (no-op if those elements not yet wired).
             if(typeof updateHrTrackConnUI==='function')updateHrTrackConnUI();
@@ -1101,7 +1133,7 @@
                 // Auto-reconnect attempts: 3 retries, 1s apart. Silent during attempts.
                 for(let a=0;a<3;a++){try{await new Promise(r=>setTimeout(r,1000));if(!device.gatt)break;await setupDevice(device,who);return;}catch(e){}}
                 // All retries failed: clear state and notify via toast.
-                if(who==='you'){hrDeviceYou=null;hrCharYou=null;hrValueYou=null;hrYouLabel.innerText="Liam's HR";btnHrYou.classList.remove('border-green-500/60');hrYouBpm.innerText='--';}
+                if(who==='you'){hrDeviceYou=null;hrCharYou=null;hrValueYou=null;hrYouLabel.innerText="Liam's HR";btnHrYou.classList.remove('hr-connected');hrYouBpm.innerText='--';}
                 else{hrDeviceWife=null;hrCharWife=null;hrValueWife=null;hrWifeLabel.innerText="Ash's HR";btnHrWife.classList.remove('border-purple-500/60');hrWifeBpm.innerText='--';}
                 if(typeof updateHrTrackConnUI==='function')updateHrTrackConnUI();
                 showBleToast(who);
@@ -1527,7 +1559,7 @@
         // screen has the `hidden` class removed; all others have it added.
         const screens={home:document.getElementById('home-screen'),gymDay:document.getElementById('gym-day-screen'),gymWorkout:document.getElementById('gym-workout-screen'),setup:document.getElementById('setup-screen'),timer:document.getElementById('timer-screen'),summary:document.getElementById('summary-screen'),hrTrack:document.getElementById('hr-track-screen')};
         // Shorthand cache of frequently-accessed DOM elements.
-        const ui={timerBg:document.getElementById('timer-bg'),modeSolo:document.getElementById('mode-solo'),modeWife:document.getElementById('mode-wife'),restInfo:document.getElementById('rest-info'),inRandom:document.getElementById('in-random'),randomDesc:document.getElementById('random-desc'),toggleBg:document.getElementById('toggle-bg'),gridRounds:document.getElementById('grid-rounds'),timerDisplay:document.getElementById('timer-display'),roundCur:document.getElementById('current-round'),roundTot:document.getElementById('total-rounds'),nextUp:document.getElementById('next-up'),roundFocus:document.getElementById('round-focus'),btnStart:document.getElementById('btn-start'),btnPause:document.getElementById('btn-pause'),btnEnd:document.getElementById('btn-end'),btnNext:document.getElementById('btn-next'),btnPrev:document.getElementById('btn-prev'),gymDayLabel:document.getElementById('gym-day-label'),gymExerciseList:document.getElementById('gym-exercise-list')};
+        const ui={timerBg:document.getElementById('timer-bg'),modeSolo:document.getElementById('mode-solo'),modeWife:document.getElementById('mode-wife'),restInfo:document.getElementById('rest-info'),inRandom:document.getElementById('in-random'),randomDesc:document.getElementById('random-desc'),toggleBg:document.getElementById('toggle-bg'),gridRoundsYou:document.getElementById('grid-rounds-you'),gridRoundsWife:document.getElementById('grid-rounds-wife'),gridRoundsB2You:document.getElementById('grid-rounds-b2-you'),gridRoundsB2Wife:document.getElementById('grid-rounds-b2-wife'),timerDisplay:document.getElementById('timer-display'),roundCur:document.getElementById('current-round'),roundTot:document.getElementById('total-rounds'),nextUp:document.getElementById('next-up'),roundFocus:document.getElementById('round-focus'),btnStart:document.getElementById('btn-start'),btnPause:document.getElementById('btn-pause'),btnEnd:document.getElementById('btn-end'),btnNext:document.getElementById('btn-next'),btnPrev:document.getElementById('btn-prev'),gymDayLabel:document.getElementById('gym-day-label'),gymExerciseList:document.getElementById('gym-exercise-list')};
 
         // Switch visible screen. Also toggles #main-wrap padding so the timer and
         // gym-workout screens go edge-to-edge (they manage their own padding for
@@ -1866,7 +1898,7 @@
             hrYouLabelTrack.innerText=youConn?(hrValueYou?"Liam's HR ("+hrValueYou+")":"Liam's HR"):"Liam's HR";
             hrWifeLabelTrack.innerText=wifeConn?(hrValueWife?"Ash's HR ("+hrValueWife+")":"Ash's HR"):"Ash's HR";
             // Border tint when connected.
-            btnHrYouTrack.classList.toggle('border-green-500/60',!!youConn);
+            btnHrYouTrack.classList.toggle('hr-connected',!!youConn);
             btnHrWifeTrack.classList.toggle('border-purple-500/60',!!wifeConn);
             // Live badges visible only when connected.
             hrTrackLiveYou.classList.toggle('hidden',!youConn);
@@ -2019,23 +2051,34 @@
         // format(): defensively clamps display-time to >=0. Used by updateUI for the timer text.
         const format=s=>Math.max(0,s).toString();
 
-        // Build block 1 round buttons (1-12). Default active = 12.
-        for(let i=1;i<=12;i++){const b=document.createElement('button');b.className=`btn-select py-1.5 rounded-lg text-sm font-bold ${i===12?'active':''}`;b.innerText=i;b.onclick=()=>selectRound(i,b);ui.gridRounds.appendChild(b);}
-        // Build block 2 round buttons (1-6). Default active = 6.
-        const gridRoundsB2=document.getElementById('grid-rounds-b2');
-        for(let i=1;i<=6;i++){const b=document.createElement('button');b.className=`btn-select py-1.5 rounded-lg text-sm font-bold ${i===6?'active':''}`;b.innerText=i;b.onclick=()=>selectRoundB2(i,b);gridRoundsB2.appendChild(b);}
+        // Build per-person round buttons (6-12). Each grid is bound to one person
+        // (Liam or Ash) and writes to that person's settings. Default active = 12.
+        // Block 2 defaults differ - the smaller second-block default is 8 (was 6
+        // when the range was 1-6; now that the floor is 6 we shift it to 8).
+        function buildRoundButtons(gridEl,who,which,defaultN){
+            for(let i=6;i<=12;i++){
+                const b=document.createElement('button');
+                b.className=`btn-select py-1.5 rounded-lg text-sm font-bold ${i===defaultN?'active':''}`;
+                b.innerText=i;
+                b.onclick=()=>(which==='b1'?selectRound:selectRoundB2)(who,i,b);
+                gridEl.appendChild(b);
+            }
+        }
+        buildRoundButtons(ui.gridRoundsYou ,'you', 'b1',12);
+        buildRoundButtons(ui.gridRoundsWife,'wife','b1',12);
+        buildRoundButtons(ui.gridRoundsB2You ,'you', 'b2',8);
+        buildRoundButtons(ui.gridRoundsB2Wife,'wife','b2',8);
+        // Sync the default Block 2 setting to match the new floor (was 6, now 8).
+        settings.you.roundsB2=8;settings.wife.roundsB2=8;
 
-        // Global-scope select handlers (called from generated buttons and from inline
-        // onclick= attributes in the HTML). Each writes to the active tab's per-person
-        // settings (settings.you or settings.wife), then refreshes the active button
-        // styling and the session summary.
-        // The active tab is settings.activeTab ('you' | 'wife'). In Solo it is forced
-        // to 'you' since Ash's settings are inactive.
-        const activePerson=()=>settings[settings.activeTab];
-        // Round count: also updates the "Randomise" description text (ALL rounds vs middle-only).
-        window.selectRound=(n,el)=>{
-            activePerson().rounds=n;
-            Array.from(ui.gridRounds.children).forEach(b=>b.classList.remove('active'));
+        // Global-scope select handlers. Both Liam and Ash grids are visible at once
+        // (Team mode) or only Liam's (Solo). Each handler takes a `who` argument so
+        // we know which person's settings to mutate without a tab state.
+        // Round count: also updates the "Randomise" description text (reflects Liam's count).
+        window.selectRound=(who,n,el)=>{
+            settings[who].rounds=n;
+            const grid=who==='you'?ui.gridRoundsYou:ui.gridRoundsWife;
+            Array.from(grid.children).forEach(b=>b.classList.remove('active'));
             el.classList.add('active');
             // Random description always reflects Liam's count (used at runtime).
             const lr=settings.you.rounds;
@@ -2044,9 +2087,10 @@
             const m=document.getElementById('random-desc-modal');if(m)m.innerText=t;
             generateSessionPlan();
         };
-        window.selectRoundB2=(n,el)=>{
-            activePerson().roundsB2=n;
-            Array.from(gridRoundsB2.children).forEach(b=>b.classList.remove('active'));
+        window.selectRoundB2=(who,n,el)=>{
+            settings[who].roundsB2=n;
+            const grid=who==='you'?ui.gridRoundsB2You:ui.gridRoundsB2Wife;
+            Array.from(grid.children).forEach(b=>b.classList.remove('active'));
             el.classList.add('active');
             generateSessionPlan();
         };
@@ -2068,10 +2112,9 @@
         };
         // Helpers for the "EVERY ROUND" button (last cell in the surprise grid).
         // Per-person semantics: surpriseEvery is a 4-way enum 'off'|'you'|'wife'|'both'.
-        //   Liam-tab EVERY ROUND on  -> 'you'  (or 'both' if Ash already has it)
-        //   Liam-tab EVERY ROUND off -> 'off'  (or 'wife' if Ash still has it)
-        // Mirrors for Ash. Solo mode is always activeTab='you', so EVERY ROUND
-        // toggles between 'off' and 'you' (the proxy getter treats 'you' as on).
+        //   Liam EVERY on  -> 'you'  (or 'both' if Ash already has it)
+        //   Liam EVERY off -> 'off'  (or 'wife' if Ash still has it)
+        // Mirrors for Ash. Solo mode only ever sets/clears the 'you' side.
         function isEveryFor(who){
             const v=settings.surpriseEvery;
             return v==='both'||v===who;
@@ -2085,104 +2128,69 @@
                 settings.surpriseEvery=otherOn?other:'off';
             }
         }
-        window.selectSurprise=(n,el)=>{
-            activePerson().surpriseCount=n;
-            // Selecting any numeric count clears EVERY ROUND for the active person.
-            if(isEveryFor(settings.activeTab))setEveryFor(settings.activeTab,false);
-            Array.from(document.getElementById('grid-surprise').children).forEach(b=>b.classList.remove('active','tint-you','tint-wife'));
+        window.selectSurprise=(who,n,el)=>{
+            settings[who].surpriseCount=n;
+            // Selecting any numeric count clears EVERY ROUND for this person.
+            if(isEveryFor(who))setEveryFor(who,false);
+            const grid=document.getElementById(who==='you'?'grid-surprise-you':'grid-surprise-wife');
+            Array.from(grid.children).forEach(b=>b.classList.remove('active'));
             el.classList.add('active');
+            refreshGrids();
             updateSessionSummary();
         };
-        window.selectSurpriseB2=(n,el)=>{
-            activePerson().surpriseCountB2=n;
-            if(isEveryFor(settings.activeTab))setEveryFor(settings.activeTab,false);
-            Array.from(document.getElementById('grid-surprise-b2').children).forEach(b=>b.classList.remove('active','tint-you','tint-wife'));
+        window.selectSurpriseB2=(who,n,el)=>{
+            settings[who].surpriseCountB2=n;
+            if(isEveryFor(who))setEveryFor(who,false);
+            const grid=document.getElementById(who==='you'?'grid-surprise-b2-you':'grid-surprise-b2-wife');
+            Array.from(grid.children).forEach(b=>b.classList.remove('active'));
             el.classList.add('active');
+            refreshGrids();
             updateSessionSummary();
         };
-        // EVERY ROUND button handlers - one per grid. Toggle the active person's
-        // surpriseEvery flag and refresh both grids so the tint class follows the tab.
-        window.selectSurpriseEvery=(el)=>{
-            const who=settings.activeTab;
-            const turningOn=!isEveryFor(who);
-            setEveryFor(who,turningOn);
-            refreshGridsToActive();
+        // EVERY ROUND button handlers - toggle this person's surpriseEvery flag.
+        window.selectSurpriseEvery=(who,el)=>{
+            setEveryFor(who,!isEveryFor(who));
+            refreshGrids();
             updateSessionSummary();
         };
-        window.selectSurpriseEveryB2=(el)=>{
-            const who=settings.activeTab;
-            const turningOn=!isEveryFor(who);
-            setEveryFor(who,turningOn);
-            refreshGridsToActive();
+        window.selectSurpriseEveryB2=(who,el)=>{
+            setEveryFor(who,!isEveryFor(who));
+            refreshGrids();
             updateSessionSummary();
         };
-        // Re-render Block 1 + Block 2 grids to reflect the *active* person's selections.
-        // Called whenever the tab switches or mode flips. Doesn't rebuild buttons - just
-        // moves the .active class to match the per-person value, and (for the trailing
-        // "EVERY ROUND" cell in the surprise grids) applies a tint matching the active
-        // person (Liam green, Ash purple) when EVERY ROUND is set for them.
-        function refreshGridsToActive(){
-            const p=activePerson();
-            const who=settings.activeTab;
-            const everyOn=isEveryFor(who);
-            const tintClass=who==='you'?'tint-you':'tint-wife';
-            // Block 1 rounds
-            Array.from(ui.gridRounds.children).forEach(b=>{
-                b.classList.toggle('active',Number(b.innerText)===p.rounds);
-            });
-            // Block 1 surprise: clear all, then activate either the matching numeric
-            // count cell OR the trailing every-round cell (mutually exclusive).
-            const gs=document.getElementById('grid-surprise');
-            if(gs)Array.from(gs.children).forEach(b=>{
-                b.classList.remove('active','tint-you','tint-wife');
-                if(b.classList.contains('every-round-btn')){
-                    if(everyOn){b.classList.add('active',tintClass);}
-                }else if(!everyOn&&Number(b.innerText)===p.surpriseCount){
-                    b.classList.add('active');
-                }
-            });
-            // Block 2 rounds
-            if(gridRoundsB2)Array.from(gridRoundsB2.children).forEach(b=>{
-                b.classList.toggle('active',Number(b.innerText)===p.roundsB2);
-            });
-            // Block 2 surprise
-            const gs2=document.getElementById('grid-surprise-b2');
-            if(gs2)Array.from(gs2.children).forEach(b=>{
-                b.classList.remove('active','tint-you','tint-wife');
-                if(b.classList.contains('every-round-btn')){
-                    if(everyOn){b.classList.add('active',tintClass);}
-                }else if(!everyOn&&Number(b.innerText)===p.surpriseCountB2){
-                    b.classList.add('active');
-                }
-            });
-        }
-        // The old "EVERY round" picker (Off/Liam/Ash/Both pills above the grid) has been
-        // folded into the surprise-count grid itself as a trailing "EVERY ROUND" cell.
-        // See selectSurpriseEvery / selectSurpriseEveryB2 above for the new wiring.
-        // Tab switching for Block 1 / Block 2 (Team mode only). Clicking a tab updates
-        // settings.activeTab and re-renders the grids. Active styling is theme-coloured.
-        (()=>{
-            const wireTabs=(youId,wifeId)=>{
-                const yb=document.getElementById(youId);
-                const wb=document.getElementById(wifeId);
-                if(!yb||!wb)return;
-                yb.addEventListener('click',()=>setActiveTab('you'));
-                wb.addEventListener('click',()=>setActiveTab('wife'));
+        // Re-render all four (or eight, if Block 2 active) per-person grids to match
+        // settings.you / settings.wife and the surpriseEvery enum. Doesn't rebuild
+        // buttons - just moves .active around.
+        function refreshGrids(){
+            const refreshRoundGrid=(grid,val)=>{
+                if(!grid)return;
+                Array.from(grid.children).forEach(b=>{
+                    b.classList.toggle('active',Number(b.innerText)===val);
+                });
             };
-            wireTabs('b1-tab-you','b1-tab-wife');
-            wireTabs('b2-tab-you','b2-tab-wife');
-        })();
-        function setActiveTab(who){
-            settings.activeTab=who;
-            // Toggle .active class on both Block 1 and Block 2 tab pairs.
-            ['b1','b2'].forEach(prefix=>{
-                const yb=document.getElementById(prefix+'-tab-you');
-                const wb=document.getElementById(prefix+'-tab-wife');
-                if(yb)yb.classList.toggle('active',who==='you');
-                if(wb)wb.classList.toggle('active',who==='wife');
-            });
-            refreshGridsToActive();
+            const refreshSurpriseGrid=(gridId,val,everyOn)=>{
+                const grid=document.getElementById(gridId);
+                if(!grid)return;
+                Array.from(grid.children).forEach(b=>{
+                    b.classList.remove('active');
+                    if(b.classList.contains('every-round-btn')){
+                        if(everyOn)b.classList.add('active');
+                    }else if(!everyOn&&Number(b.innerText)===val){
+                        b.classList.add('active');
+                    }
+                });
+            };
+            refreshRoundGrid(ui.gridRoundsYou ,settings.you.rounds);
+            refreshRoundGrid(ui.gridRoundsWife,settings.wife.rounds);
+            refreshRoundGrid(ui.gridRoundsB2You ,settings.you.roundsB2);
+            refreshRoundGrid(ui.gridRoundsB2Wife,settings.wife.roundsB2);
+            refreshSurpriseGrid('grid-surprise-you'    ,settings.you.surpriseCount    ,isEveryFor('you'));
+            refreshSurpriseGrid('grid-surprise-wife'   ,settings.wife.surpriseCount   ,isEveryFor('wife'));
+            refreshSurpriseGrid('grid-surprise-b2-you' ,settings.you.surpriseCountB2  ,isEveryFor('you'));
+            refreshSurpriseGrid('grid-surprise-b2-wife',settings.wife.surpriseCountB2 ,isEveryFor('wife'));
         }
+        // The old tabbed UI (b1-tabs / b2-tabs) and the EVERY-pill picker have been
+        // replaced by stacked per-person rows visible at once. See refreshGrids above.
         // Info modals for "Surprise Rounds" and "Training Blocks". Tap the (i)
         // button next to each label to open the modal; close via X or Got it.
         // The Training Blocks (i) button is nested inside the Block 2 CTA panel,
@@ -2285,49 +2293,46 @@
         function styledRoundNameInline(name){return name.replace(/>/g,'<span style="color:#4b5563">&gt;</span>').replace(/\(Speed\)/g,'(<span style="color:#4ade80">Speed</span>)').replace(/\(Power\)/g,'(<span style="color:#dc2626">Power</span>)');}
 
         // Toggle between Solo and Wife mode. Updates the UI chrome (active button
-        // styling, rest-info text, theme colour variables for the randomise toggle)
-        // and regenerates the session plan preview. 'quick-rest' is a transient
-        // pseudo-mode - we don't update UI for it here; it's set briefly by the
-        // quick-rest button and restored via `prevMode` when the rest ends.
+        // styling, rest-info text, body mode class for the CSS theme variables) and
+        // regenerates the session plan preview. 'quick-rest' is a transient pseudo-
+        // mode - we don't update UI for it here; it's set briefly by the quick-rest
+        // button and restored via `prevMode` when the rest ends.
         function setMode(mode){
             settings.mode=mode;if(mode!=='quick-rest')prevMode=mode;
-            const root=document.documentElement;
             if(hasBLE){
                 // Both HR buttons are always visible. Labels stay person-specific.
                 btnHrWife.classList.remove('hidden');
                 hrYouLabel.innerText=hrDeviceYou?(hrValueYou?"Liam's HR ("+hrValueYou+")":"Liam's HR"):"Liam's HR";
                 hrWifeLabel.innerText=hrDeviceWife?(hrValueWife?"Ash's HR ("+hrValueWife+")":"Ash's HR"):"Ash's HR";
             }
+            // Body class drives CSS theme (Solo blue / Team purple) and person-bound
+            // tints (Liam blue in Solo, green in Team; Ash always purple).
+            if(mode==='solo'||mode==='wife'){
+                document.body.classList.toggle('mode-solo',mode==='solo');
+                document.body.classList.toggle('mode-wife',mode==='wife');
+            }
             if(mode==='solo'){
-                ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-green-600 text-white";
+                ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-blue-600 text-white";
                 ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
                 ui.modeSolo.setAttribute('aria-pressed','true');
                 ui.modeWife.setAttribute('aria-pressed','false');
                 ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p>`;
-                root.style.setProperty('--theme-color','#22c55e');root.style.setProperty('--theme-shadow','rgba(34,197,94,0.4)');
-                ui.toggleBg.classList.remove('peer-checked:bg-purple-600');ui.toggleBg.classList.add('peer-checked:bg-green-600');
             }else if(mode==='wife'){
                 ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white";
                 ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
                 ui.modeSolo.setAttribute('aria-pressed','false');
                 ui.modeWife.setAttribute('aria-pressed','true');
                 ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-purple-300 font-bold uppercase tracking-widest">Team Mode</p><p class="text-[10px] sm:text-xs text-slate-400">Alternates each round, 10s changeover.</p>`;
-                root.style.setProperty('--theme-color','#a855f7');root.style.setProperty('--theme-shadow','rgba(168,85,247,0.4)');
-                ui.toggleBg.classList.remove('peer-checked:bg-green-600');ui.toggleBg.classList.add('peer-checked:bg-purple-600');
             }
-            // Tabs are Team-mode only. In Solo, force activeTab='you' and collapse
-            // any partner-side EVERY ROUND state (since Ash has no UI in Solo).
+            // Per-person rows: Ash stacks (rounds + surprise, both blocks) only show in Team mode.
             const isTeam=mode==='wife';
-            ['b1-tabs','b2-tabs'].forEach(id=>{
+            ['b1-row-wife','b2-row-wife'].forEach(id=>{
                 const el=document.getElementById(id);
                 if(el)el.classList.toggle('hidden',!isTeam);
             });
-            // If switching to Solo while Ash tab was active, reset to Liam.
-            if(!isTeam&&settings.activeTab!=='you')setActiveTab('you');
-            else refreshGridsToActive();
-            // EVERY enum: in Solo collapse 'wife'/'both' to 'you' (Ash side is inactive).
+            // EVERY enum: in Solo collapse 'wife'/'both' to 'you' (Ash side has no UI).
             if(!isTeam&&(settings.surpriseEvery==='wife'||settings.surpriseEvery==='both'))settings.surpriseEvery='you';
-            refreshGridsToActive();
+            refreshGrids();
             generateSessionPlan();
         }
         ui.modeSolo.onclick=()=>setMode('solo');ui.modeWife.onclick=()=>setMode('wife');
@@ -3382,8 +3387,8 @@
         // ── INIT ────────────────────────────────────────────────────────────────
         // Show home screen, build the default plan preview, and apply Wife mode styling.
         generateSessionPlan();
-        setActiveTab('you');
         setMode('wife');
+        refreshGrids();
         updateAdvancedSummary();
     });
     </script>
