@@ -940,8 +940,8 @@
             // runtime reads per-block per-person work and rounds (Phase 2 done);
             // rounds count uses max(L, A) so changing either affects the alternation
             // count (Phase 3 drop-out is still future work).
-            you:{ rounds:12, work:60, workB2:60, surpriseCount:2, roundsB2:8, surpriseCountB2:2, surpriseRandom:false, surpriseRandomB2:false },
-            wife:{ rounds:12, work:60, workB2:60, surpriseCount:2, roundsB2:8, surpriseCountB2:2, surpriseRandom:false, surpriseRandomB2:false },
+            you:{ rounds:12, work:60, workB2:60, surpriseCount:2, roundsB2:8, surpriseCountB2:2, surpriseRandom:false, surpriseRandomB2:false, surpriseRandomCount:0, surpriseRandomCountB2:0 },
+            wife:{ rounds:12, work:60, workB2:60, surpriseCount:2, roundsB2:8, surpriseCountB2:2, surpriseRandom:false, surpriseRandomB2:false, surpriseRandomCount:0, surpriseRandomCountB2:0 },
             // EVERY toggle is per-block now: each is a 4-way enum 'off'|'you'|'wife'|'both'.
             // Block 1 and Block 2 are independent (e.g. Block 1 'off' + Block 2 'both' lets
             // the second block fire a surprise after every work round while keeping Block 1
@@ -2152,6 +2152,9 @@
             const t=lr<=6?"Randomises ALL rounds":`Randomises rounds 2 to ${lr-1}`;
             ui.randomDesc.innerText=t;
             const m=document.getElementById('random-desc-modal');if(m)m.innerText=t;
+            // Re-roll stored random count if RANDOM is on for this person+block;
+            // the previous roll might exceed the new rounds value.
+            if(isRandomFor(who,'b1'))setStoredRandomCount(who,'b1',rollRandomCount(who,'b1'));
             generateSessionPlan();
         };
         window.selectRoundB2=(who,n,el)=>{
@@ -2159,6 +2162,7 @@
             const grid=who==='you'?ui.gridRoundsB2You:ui.gridRoundsB2Wife;
             Array.from(grid.children).forEach(b=>b.classList.remove('active'));
             el.classList.add('active');
+            if(isRandomFor(who,'b2'))setStoredRandomCount(who,'b2',rollRandomCount(who,'b2'));
             generateSessionPlan();
         };
         // Refresh the Advanced disclosure summary line. Now shows just Random/Fixed
@@ -2197,14 +2201,24 @@
             if(on)setEveryEnum(block,otherOn?'both':who);
             else setEveryEnum(block,otherOn?other:'off');
         }
-        // RANDOM helpers: per-person AND per-block boolean. When on, the surprise
-        // count is rolled at session start (between 1 and rounds-1 inclusive) rather
-        // than taken from the configured numeric. Mutually exclusive with EVERY and
-        // with the numeric counts (selecting any one clears the others for that
-        // person/block).
+        // RANDOM helpers: per-person AND per-block boolean. When toggled on, a count
+        // is rolled in [1, rounds] inclusive (so "every round" is possible, hitting
+        // the rounds-cap triggers EVERY behaviour at session start). The roll is
+        // stored on settings so the session summary can use the actual time without
+        // displaying the count to the user. Mutually exclusive with EVERY and the
+        // numeric counts (selecting any one clears the others for that person+block).
         function randomField(block){return block==='b2'?'surpriseRandomB2':'surpriseRandom';}
+        function randomCountField(block){return block==='b2'?'surpriseRandomCountB2':'surpriseRandomCount';}
         function isRandomFor(who,block){return !!settings[who][randomField(block)];}
         function setRandomFor(who,block,on){settings[who][randomField(block)]=!!on;}
+        function rollRandomCount(who,block){
+            const r=block==='b2'?settings[who].roundsB2:settings[who].rounds;
+            // Range [1, r] inclusive. r = "every round" - handled via the EVERY
+            // override at session start.
+            return 1+Math.floor(Math.random()*r);
+        }
+        function storedRandomCount(who,block){return settings[who][randomCountField(block)]||0;}
+        function setStoredRandomCount(who,block,n){settings[who][randomCountField(block)]=n;}
         window.selectSurprise=(who,n,el)=>{
             settings[who].surpriseCount=n;
             // Numeric selection clears both EVERY and RANDOM for this person+block.
@@ -2244,6 +2258,8 @@
         window.selectSurpriseRandom=(who,el)=>{
             const turningOn=!isRandomFor(who,'b1');
             setRandomFor(who,'b1',turningOn);
+            // Roll a fresh count when turning on; clear when turning off.
+            setStoredRandomCount(who,'b1',turningOn?rollRandomCount(who,'b1'):0);
             // Turning RANDOM on clears EVERY for the same person/block.
             if(turningOn&&isEveryFor(who,'b1'))setEveryFor(who,'b1',false);
             refreshGrids();
@@ -2252,6 +2268,7 @@
         window.selectSurpriseRandomB2=(who,el)=>{
             const turningOn=!isRandomFor(who,'b2');
             setRandomFor(who,'b2',turningOn);
+            setStoredRandomCount(who,'b2',turningOn?rollRandomCount(who,'b2'):0);
             if(turningOn&&isEveryFor(who,'b2'))setEveryFor(who,'b2',false);
             refreshGrids();
             updateSessionSummary();
@@ -2431,7 +2448,9 @@
                 ui.modeWife.setAttribute('aria-pressed','false');
                 ui.restInfo.innerHTML=`<p class="text-[9px] sm:text-[10px] text-orange-300 font-bold uppercase tracking-widest">Progressive Rest</p><p class="text-[10px] sm:text-xs text-slate-400">Starts at 30s, +5s each round.</p>`;
             }else if(mode==='wife'){
-                ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-purple-600 text-white";
+                // Active TEAM button: green->purple gradient signifies both Liam (green)
+                // and Ash (purple) training together.
+                ui.modeWife.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all bg-gradient-to-r from-green-500 to-purple-500 text-white";
                 ui.modeSolo.className="px-3 sm:px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all text-slate-400 hover:text-white";
                 ui.modeSolo.setAttribute('aria-pressed','false');
                 ui.modeWife.setAttribute('aria-pressed','true');
@@ -2609,14 +2628,23 @@
             const isW=settings.mode==='wife';
             const has2=settings.blocks===2;
             // Effective per-person surprise counts. Numeric values are used directly.
-            // EVERY expands to all rounds. RANDOM uses rounds/2 as a midpoint estimate
-            // (the actual count is rolled at session start, between 1 and rounds-1).
+            // EVERY expands to all rounds. RANDOM uses the pre-rolled stored count
+            // (rolled once when the user toggled RANDOM on, with a re-roll when the
+            // rounds count changes) - this keeps the displayed time honest while
+            // hiding the count from the user via "[random]" in the formatter below.
+            // A defensive fallback uses (rounds+1)/2 if the stored value is zero.
             const surpEst=(who,block)=>{
                 const r=block==='b2'?settings[who].roundsB2:settings[who].rounds;
                 if(isEveryFor(who,block))return r;
-                if(isRandomFor(who,block))return Math.max(1,Math.round(r/2));
+                if(isRandomFor(who,block)){
+                    const stored=storedRandomCount(who,block);
+                    return stored>0?stored:Math.max(1,Math.round((r+1)/2));
+                }
                 return block==='b2'?settings[who].surpriseCountB2:settings[who].surpriseCount;
             };
+            // Render the surprise-count text: "[random]" placeholder when RANDOM is
+            // on (hides the actual rolled value from the user), the numeric otherwise.
+            const surpText=(who,block,count)=>isRandomFor(who,block)?'[random]':String(count);
             const youS1 =surpEst('you' ,'b1');
             const youS2 =has2?surpEst('you' ,'b2'):0;
             const wifeS1=surpEst('wife','b1');
@@ -2672,33 +2700,44 @@
                     &&isEveryFor('you','b2')===isEveryFor('wife','b2')
                     &&isRandomFor('you','b2')===isRandomFor('wife','b2')));
             const asymmetric=isW&&!sameSettings;
-            const fmtBlock=(r,s,label)=>s===0?`${label}: ${r}`:`${label}: ${r} + ${s} surprise`;
+            // fmtBlock takes the rendered surprise-text (which may be "[random]") so
+            // the user sees the placeholder string for any block where RANDOM is on.
+            const fmtBlock=(r,sText,sNum,label)=>sNum===0?`${label}: ${r}`:`${label}: ${r} + ${sText} surprise`;
             const r1Display=isW?Math.max(settings.you.rounds,settings.wife.rounds):settings.you.rounds;
             const r2Display=has2?(isW?Math.max(settings.you.roundsB2,settings.wife.roundsB2):settings.you.roundsB2):0;
             const s1Display=isW?(youS1+wifeS1):youS1;
             const s2Display=isW?(youS2+wifeS2):youS2;
-            const fmtPersonLine=(name,p,sB1,sB2)=>{
-                if(has2)return `${name} - ${fmtBlock(p.rounds,sB1,'B1')} &rarr; ${fmtBlock(p.roundsB2,sB2,'B2')}`;
-                const total=p.rounds, totalSurp=sB1;
-                if(totalSurp===0)return `${name} - ${total} rounds`;
-                return `${name} - ${total} rounds + ${totalSurp} surprise`;
+            // Per-block surprise text. In Team, if EITHER person has RANDOM on for the
+            // block we render the combined value as "[random]" - revealing one
+            // person's specific count via the other's would still leak. In Solo only
+            // Liam matters.
+            const anyRandomB1=isW?(isRandomFor('you','b1')||isRandomFor('wife','b1')):isRandomFor('you','b1');
+            const anyRandomB2=isW?(isRandomFor('you','b2')||isRandomFor('wife','b2')):isRandomFor('you','b2');
+            const s1Text=anyRandomB1?'[random]':String(s1Display);
+            const s2Text=anyRandomB2?'[random]':String(s2Display);
+            const fmtPersonLine=(name,p,sB1,sB2,who)=>{
+                const t1=surpText(who,'b1',sB1);
+                const t2=surpText(who,'b2',sB2);
+                if(has2)return `${name} - ${fmtBlock(p.rounds,t1,sB1,'B1')} &rarr; ${fmtBlock(p.roundsB2,t2,sB2,'B2')}`;
+                if(sB1===0)return `${name} - ${p.rounds} rounds`;
+                return `${name} - ${p.rounds} rounds + ${t1} surprise`;
             };
             let line;
             if(asymmetric){
-                const liam=fmtPersonLine('Liam',settings.you,youS1,youS2);
-                const ash =fmtPersonLine('Ash', settings.wife,wifeS1,wifeS2);
+                const liam=fmtPersonLine('Liam',settings.you,youS1,youS2,'you');
+                const ash =fmtPersonLine('Ash', settings.wife,wifeS1,wifeS2,'wife');
                 line=`${liam}<br>${ash}<br>~${mins} min`;
             }else if(has2){
                 const activePhases=r1Display+r2Display+s1Display+s2Display;
                 const phasesLabel=activePhases===1?'1 phase':`${activePhases} active phases`;
-                line=`${fmtBlock(r1Display,s1Display,'B1')} &rarr; ${fmtBlock(r2Display,s2Display,'B2')} = ${phasesLabel} &middot; ~${mins} min`;
+                line=`${fmtBlock(r1Display,s1Text,s1Display,'B1')} &rarr; ${fmtBlock(r2Display,s2Text,s2Display,'B2')} = ${phasesLabel} &middot; ~${mins} min`;
             }else{
                 const roundsLabel=r1Display===1?'1 round':`${r1Display} rounds`;
                 if(s1Display===0){
                     line=`${roundsLabel} &middot; ~${mins} min`;
                 }else{
                     const activePhases=r1Display+s1Display;
-                    const surpriseLabel=s1Display===1?'1 surprise round':`${s1Display} surprise rounds`;
+                    const surpriseLabel=anyRandomB1?'[random] surprise rounds':(s1Display===1?'1 surprise round':`${s1Display} surprise rounds`);
                     const phasesLabel=activePhases===1?'1 active phase':`${activePhases} active phases`;
                     line=`${roundsLabel} + ${surpriseLabel} = ${phasesLabel} &middot; ~${mins} min`;
                 }
@@ -3109,8 +3148,14 @@
                     const iy=!isW||(session.round%2!==0);  // "is you's round"
                     const ip=isW&&(session.round%2===0);   // "is partner's round"
                     const everyMode=session.currentBlock===2?settings.surpriseEveryB2:settings.surpriseEvery;
-                    const everyForYou=everyMode==='both'||everyMode==='you';
-                    const everyForWife=everyMode==='both'||everyMode==='wife';
+                    // RANDOM can roll a count equal to rounds (= "every round"); that's
+                    // surfaced via session.surpriseEveryOverride which augments the
+                    // per-block enum at runtime.
+                    const blockKey=session.currentBlock===2?'b2':'b1';
+                    const ovrYou=!!(session.surpriseEveryOverride&&session.surpriseEveryOverride.you[blockKey]);
+                    const ovrWife=!!(session.surpriseEveryOverride&&session.surpriseEveryOverride.wife[blockKey]);
+                    const everyForYou=everyMode==='both'||everyMode==='you'||ovrYou;
+                    const everyForWife=everyMode==='both'||everyMode==='wife'||ovrWife;
                     let ts=false;
                     if(iy&&everyForYou){ts=true;}
                     else if(ip&&everyForWife){ts=true;}
@@ -3267,12 +3312,21 @@
             // Pick surprise round indices for block 1 (always) and block 2 (if 2 blocks).
             // Per-person sets in Wife mode - user and wife may each get surprise rounds
             // at different indices (adds unpredictability for the partner too). RANDOM
-            // mode rolls the count fresh per session (between 1 and rounds-1 inclusive).
+            // uses the count stored when the user toggled RANDOM on (range [1, rounds],
+            // so EVERY is possible). If the rolled count equals rounds, we flip into
+            // EVERY-style runtime behaviour via surpriseEveryOverride - pickSurpriseIndices
+            // tops out at rounds-2 distinct indices, so true "every round" needs the
+            // runtime override path.
+            session.surpriseEveryOverride={you:{b1:false,b2:false},wife:{b1:false,b2:false}};
             const rollSurprise=(who,block)=>{
-                const r=block==='b2'?settings[who].roundsB2:settings[who].rounds;
-                const stored=block==='b2'?settings[who].surpriseCountB2:settings[who].surpriseCount;
-                if(isRandomFor(who,block))return 1+Math.floor(Math.random()*Math.max(1,r-1));
-                return stored;
+                if(isRandomFor(who,block)){
+                    const r=block==='b2'?settings[who].roundsB2:settings[who].rounds;
+                    let count=storedRandomCount(who,block);
+                    if(!count){count=rollRandomCount(who,block);setStoredRandomCount(who,block,count);}
+                    if(count>=r){session.surpriseEveryOverride[who][block]=true;return 0;}
+                    return count;
+                }
+                return block==='b2'?settings[who].surpriseCountB2:settings[who].surpriseCount;
             };
             session.surpriseRoundsYou=pickSurpriseIndices(rollSurprise('you','b1'),settings.you.rounds);
             session.surpriseTriggeredYou=new Set();
