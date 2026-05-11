@@ -90,9 +90,18 @@
         .tint-wife .btn-select.active{background:#a855f7;border-color:#a855f7;color:#fff;}
         .tint-white .btn-select:not(.active){background:rgba(255,255,255,0.22);color:#f8fafc;border-color:rgba(255,255,255,0.3);}
         .tint-white .btn-select.active{background:#ef4444;color:white;border-color:#ef4444;}
-        /* Active = larger font; inactives slightly dimmed. Applied to all tinted grids. */
-        .tint-you .btn-select.active,.tint-wife .btn-select.active,.tint-white .btn-select.active{font-size:1.15em;}
-        .tint-you .btn-select:not(.active),.tint-wife .btn-select:not(.active),.tint-white .btn-select:not(.active){opacity:0.85;}
+        /* Orange tint for the Block Rest picker (2/3/5 min). Active = solid orange,
+           inactives carry a faint orange wash so they read as "rest-related" controls. */
+        .tint-orange .btn-select:not(.active){background:rgba(249,115,22,0.18);color:#e2e8f0;border-color:rgba(249,115,22,0.30);}
+        .tint-orange .btn-select.active{background:#f97316;border-color:#f97316;color:#fff;}
+        /* Active = larger font; inactives at 75% opacity (font dimming via colour rules
+           above plus a 25% whole-button drop so the unselected options recede). */
+        .tint-you .btn-select.active,.tint-wife .btn-select.active,.tint-white .btn-select.active,.tint-orange .btn-select.active{font-size:1.15em;}
+        .tint-you .btn-select:not(.active),.tint-wife .btn-select:not(.active),.tint-white .btn-select:not(.active),.tint-orange .btn-select:not(.active){opacity:0.75;}
+        /* Surprise grids only: enforce equal row heights so the 2nd row (4-5-6 + EVERY
+           ROUND) matches the 1st row (0-1-2-3) regardless of which button is active
+           or which row's content happens to be slightly taller from line-wrap. */
+        .tint-white .btn-select{min-height:44px;display:flex;align-items:center;justify-content:center;line-height:1.1;}
         /* Per-person row label inside Block 1 / Block 2 cards (replaces the old tabs).
            Liam label swaps with mode (blue in Solo, green in Team). Ash always purple. */
         .person-row-label{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
@@ -269,11 +278,12 @@
         .gym-card .gym-card-num{width:clamp(22px,3.5dvh,36px);height:clamp(22px,3.5dvh,36px);border-radius:clamp(5px,0.8dvh,10px);font-size:clamp(9px,1.4dvh,13px);}
         .gym-card .gym-card-name{font-size:clamp(12px,1.8dvh,17px);}
         .gym-card .gym-card-muscle{font-size:clamp(8px,1.1dvh,11px);}
-        /* Setup screen: fixed height, inner settings panel scrolls */
-        #setup-screen{max-height:100vh;max-height:100dvh;overflow-y:auto;display:flex;flex-direction:column;}
-        #setup-columns{min-height:0;}
-        /* Settings scroll: takes remaining height, scrolls internally */
-        #settings-scroll{overflow-y:auto;min-height:0;height:100%;}
+        /* Setup screen: natural height. The whole screen scrolls if content overflows
+           the viewport, rather than constraining max-height and forcing Block 1 to
+           shrink when Block 2 is enabled. The main-wrap's justify-content is swapped
+           to flex-start by showScreen('setup') so the top of Block 1 is always visible
+           when the page exceeds viewport height. */
+        #setup-screen{display:flex;flex-direction:column;}
         @keyframes heartPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
         .hr-pulse{animation:heartPulse 0.8s ease-in-out infinite;}
         .hr-badge{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:all 0.3s ease;}
@@ -528,7 +538,7 @@
                 </div>
                 <!-- BLOCK 2 panel: slim CTA when disabled, expands inline when enabled.
                      Sits below Block 1 at full width. -->
-                <div id="block2-panel" class="glass-card rounded-2xl overflow-hidden">
+                <div id="block2-panel" class="glass-card rounded-2xl">
                     <!-- 1 Block: compact CTA strip. -->
                     <div id="btn-block2-enable" role="button" tabindex="0" aria-label="Enable Block 2" class="flex items-center justify-center gap-2 px-2 py-2 cursor-pointer hover:bg-white/5 active:scale-[0.99] transition-all">
                         <div class="w-5 h-5 rounded-full border-2 border-dashed border-slate-500/60 flex items-center justify-center text-slate-400 text-xs font-light">+</div>
@@ -544,7 +554,7 @@
                         </div>
                         <div class="space-y-1">
                             <label class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest block ml-1">Block Rest</label>
-                            <div class="grid grid-cols-3 gap-1">
+                            <div class="grid grid-cols-3 gap-1 tint-orange">
                                 <button class="btn-select py-1.5 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(120,this)">2min</button>
                                 <button class="btn-select active py-1.5 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(180,this)">3min</button>
                                 <button class="btn-select py-1.5 rounded-xl text-sm font-mono-display" onclick="selectBlockRest(300,this)">5min</button>
@@ -1572,8 +1582,13 @@
             // Ensure HR badges visibility matches current BLE connection state when entering the timer.
             if(name==='timer')updateHRVisibility();
             const wrap=document.getElementById('main-wrap');
-            if(name==='timer'||name==='gymWorkout'){wrap.classList.remove('p-4','min-h-screen','justify-center');wrap.classList.add('p-0');}
-            else{wrap.classList.remove('p-0');wrap.classList.add('p-4','min-h-screen','justify-center');}
+            if(name==='timer'||name==='gymWorkout'){wrap.classList.remove('p-4','min-h-screen','justify-center','justify-start');wrap.classList.add('p-0');}
+            else if(name==='setup'){
+                // Setup pins to top so Block 1 + Block 2 stack downward and the page
+                // scrolls naturally when both blocks are enabled.
+                wrap.classList.remove('p-0','justify-center');wrap.classList.add('p-4','min-h-screen','justify-start');
+            }
+            else{wrap.classList.remove('p-0','justify-start');wrap.classList.add('p-4','min-h-screen','justify-center');}
         }
 
         // Home screen button wiring.
