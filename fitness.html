@@ -112,10 +112,24 @@
         body.solo-wife    .tint-surprise-you .btn-select.active{background:#a855f7;border-color:#a855f7;color:#fff;}
         .tint-surprise-wife .btn-select:not(.active){background:rgba(168,85,247,0.18);color:#e2e8f0;border-color:rgba(168,85,247,0.30);}
         .tint-surprise-wife .btn-select.active{background:#a855f7;border-color:#a855f7;color:#fff;}
-        .tint-surprise-you  .every-round-btn:not(.active),.tint-surprise-wife .every-round-btn:not(.active),
-        .tint-surprise-you  .random-btn:not(.active),    .tint-surprise-wife .random-btn:not(.active){background:rgba(239,68,68,0.18);color:#e2e8f0;border-color:rgba(239,68,68,0.30);}
-        .tint-surprise-you  .every-round-btn.active,.tint-surprise-wife .every-round-btn.active,
-        .tint-surprise-you  .random-btn.active,    .tint-surprise-wife .random-btn.active{background:#ef4444;border-color:#ef4444;color:#fff;}
+        .tint-surprise-you  .every-round-btn:not(.active),.tint-surprise-wife .every-round-btn:not(.active){background:rgba(239,68,68,0.18);color:#e2e8f0;border-color:rgba(239,68,68,0.30);}
+        .tint-surprise-you  .every-round-btn.active,.tint-surprise-wife .every-round-btn.active{background:#ef4444;border-color:#ef4444;color:#fff;}
+        .tint-surprise-you  .random-btn:not(.active),.tint-surprise-wife .random-btn:not(.active){background:rgba(59,130,246,0.18);color:#e2e8f0;border-color:rgba(59,130,246,0.30);}
+        .tint-surprise-you  .random-btn.active,.tint-surprise-wife .random-btn.active{background:#3b82f6;border-color:#3b82f6;color:#fff;}
+        /* The body.mode-wife / body.solo-* identity rules above carry (0,4,1)
+           specificity, which beats the (0,3,0) plain-class EVERY/RANDOM rules and
+           would force Liam's EVERY/RANDOM to render in his person colour. These
+           higher-specificity overrides (body + double-class on the button) match
+           (0,4,1) and follow in source order so they win regardless of identity.
+           EVERY = red, RANDOM = blue, for BOTH people across BOTH blocks. */
+        body .tint-surprise-you  .every-round-btn.btn-select:not(.active),
+        body .tint-surprise-wife .every-round-btn.btn-select:not(.active){background:rgba(239,68,68,0.18);color:#e2e8f0;border-color:rgba(239,68,68,0.30);}
+        body .tint-surprise-you  .every-round-btn.btn-select.active,
+        body .tint-surprise-wife .every-round-btn.btn-select.active{background:#ef4444;border-color:#ef4444;color:#fff;}
+        body .tint-surprise-you  .random-btn.btn-select:not(.active),
+        body .tint-surprise-wife .random-btn.btn-select:not(.active){background:rgba(59,130,246,0.18);color:#e2e8f0;border-color:rgba(59,130,246,0.30);}
+        body .tint-surprise-you  .random-btn.btn-select.active,
+        body .tint-surprise-wife .random-btn.btn-select.active{background:#3b82f6;border-color:#3b82f6;color:#fff;}
         /* Orange tint for the Block Rest picker (2/3/5 min). Active = solid orange,
            inactives carry a faint orange wash so they read as "rest-related" controls. */
         .tint-orange .btn-select:not(.active){background:rgba(249,115,22,0.18);color:#e2e8f0;border-color:rgba(249,115,22,0.30);}
