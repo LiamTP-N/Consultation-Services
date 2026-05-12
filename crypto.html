@@ -235,13 +235,24 @@
         // Split layout: 60% chart on left, 40% wallet card on right.
         // Wallet: address + balance + staking + reward history (TzKT).
         //
-        // NOTE on reward calculation:
-        // /v1/rewards/delegators/{addr} returns BAKER's totals per cycle,
-        // along with `balance` (delegator's snapshot balance) and
-        // `stakingBalance` (baker's total at snapshot). To get the
-        // delegator's expected payout we must compute:
-        //   share = balance / stakingBalance
-        //   payout = (gross baker rewards - losses) * share
+        // REWARD CALCULATION (post-Paris staking model):
+        //   Two pools per cycle, each with its own share basis:
+        //
+        //   1. Delegation pool (your portion of liquid delegated tez)
+        //      - Your slice: delegatedBalance / baker.externalDelegatedBalance
+        //      - Reward fields: *RewardsDelegated  (legacy: *Rewards minus *StakedOwn/Edge/Shared)
+        //
+        //   2. Staking pool (your portion of external stake)
+        //      - Your slice: stakedPseudotokens / baker.issuedPseudotokens
+        //      - Reward fields: *RewardsStakedShared (post baker commission/edge)
+        //
+        //   Total expected payout = delegationSlice + stakingSlice
+        //   For a pure staker (delegatedBalance = 0) only the staking slice applies.
+        //   For a pure delegator (stakedPseudotokens = 0) only the delegation slice applies.
+        //
+        //   The /v1/rewards/delegators/{addr} endpoint reports baker TOTALS;
+        //   to get baker pool sizes we hit /v1/rewards/bakers/{baker}?cycle... once,
+        //   keyed by cycle to match reward records.
         // ==============================================================
 
         // --- CONFIG ---
@@ -319,6 +330,13 @@
                 if (diff < bestDiff) { bestDiff = diff; best = i; }
             });
             return best;
+        }
+
+        function num(v) { return (typeof v === 'number' && isFinite(v)) ? v : 0; }
+        function sumFields(obj, fields) {
+            let t = 0;
+            for (const f of fields) t += num(obj[f]);
+            return t;
         }
 
         // --- PRIVACY ---
@@ -511,80 +529,137 @@
             } catch (e) { console.warn('[FX] fetch failed', e); }
         }
 
-        // --- TZKT FETCH ---
+        // --- TZKT REWARD MATH ---
         function mutezToXtz(mu) { return (mu || 0) / 1_000_000; }
 
-        // Sum of BAKER's gross rewards in mutez for the cycle.
-        // Includes all reward sources across protocol versions; harmless to
-        // include fields that don't exist (they're just undefined and skipped).
-        function sumBakerGrossMutez(r) {
+        // Reward field groups (per Tezos protocol, Atlas+ era).
+        // For each reward source we have up to 4 variants:
+        //   *Liquid       - paid as liquid tez (legacy / pre-Paris)
+        //   *StakedOwn    - baker's own staked portion
+        //   *StakedEdge   - baker's commission on external stake
+        //   *StakedShared - external stakers' portion (post-edge)
+        //   *Delegated    - liquid delegators' portion (post-Paris explicit split)
+        // We also include the older flat fields for backwards compatibility.
+        const REWARD_BASES = [
+            'ownBlockRewards', 'extraBlockRewards', 'futureBlockRewards',
+            'endorsementRewards', 'futureEndorsementRewards',
+            'attestationRewards', 'futureAttestationRewards',
+            'dalAttestationRewards', 'futureDalAttestationRewards',
+            'nonceRevelationRewards', 'vdfRevelationRewards',
+            'doubleBakingRewards', 'doubleEndorsingRewards', 'doublePreendorsingRewards'
+        ];
+
+        // Sum baker's TOTAL rewards going to the *delegated* pool for the cycle.
+        // Mostly populated by *RewardsDelegated suffix fields plus liquid block fees.
+        function sumBakerDelegatedPoolMutez(r) {
             if (!r || typeof r !== 'object') return 0;
             const fields = [
-                // Block rewards (legacy + split liquid/staked variants)
-                'ownBlockRewards', 'extraBlockRewards', 'futureBlockRewards',
-                'ownBlockRewardsLiquid', 'ownBlockRewardsStakedOwn', 'ownBlockRewardsStakedShared',
-                'extraBlockRewardsLiquid', 'extraBlockRewardsStakedOwn', 'extraBlockRewardsStakedShared',
-                // Endorsement / attestation rewards
-                'endorsementRewards', 'futureEndorsementRewards',
-                'endorsementRewardsLiquid', 'endorsementRewardsStakedOwn', 'endorsementRewardsStakedShared',
-                'attestationRewards', 'futureAttestationRewards',
-                'attestationRewardsLiquid', 'attestationRewardsStakedOwn', 'attestationRewardsStakedShared',
-                // DAL attestation rewards (Atlas+)
-                'dalAttestationRewards', 'futureDalAttestationRewards',
-                'dalAttestationRewardsLiquid', 'dalAttestationRewardsStakedOwn', 'dalAttestationRewardsStakedShared',
-                // Block fees
-                'ownBlockFees', 'extraBlockFees',
-                // Revelation / VDF / denunciation rewards
-                'nonceRevelationRewards', 'vdfRevelationRewards',
-                'nonceRevelationRewardsLiquid', 'nonceRevelationRewardsStakedOwn', 'nonceRevelationRewardsStakedShared',
-                'vdfRevelationRewardsLiquid', 'vdfRevelationRewardsStakedOwn', 'vdfRevelationRewardsStakedShared',
-                'doubleBakingRewards', 'doubleEndorsingRewards', 'doublePreendorsingRewards'
+                'ownBlockRewardsDelegated', 'extraBlockRewardsDelegated', 'futureBlockRewardsDelegated',
+                'endorsementRewardsDelegated', 'futureEndorsementRewardsDelegated',
+                'attestationRewardsDelegated', 'futureAttestationRewardsDelegated',
+                'dalAttestationRewardsDelegated', 'futureDalAttestationRewardsDelegated',
+                'nonceRevelationRewardsDelegated', 'vdfRevelationRewardsDelegated',
+                // Block fees are paid in liquid tez to the delegated pool
+                'ownBlockFees', 'extraBlockFees'
             ];
-            let total = 0;
-            for (const f of fields) {
-                const v = r[f];
-                if (typeof v === 'number' && isFinite(v)) total += v;
-            }
-            return total;
+            return sumFields(r, fields);
         }
 
-        // Sum of BAKER's losses in mutez for the cycle (deductions from gross).
-        function sumBakerLossesMutez(r) {
+        // Sum baker's TOTAL rewards going to the *external staked* pool (post baker edge).
+        function sumBakerStakedSharedPoolMutez(r) {
             if (!r || typeof r !== 'object') return 0;
             const fields = [
+                'ownBlockRewardsStakedShared', 'extraBlockRewardsStakedShared', 'futureBlockRewardsStakedShared',
+                'endorsementRewardsStakedShared', 'futureEndorsementRewardsStakedShared',
+                'attestationRewardsStakedShared', 'futureAttestationRewardsStakedShared',
+                'dalAttestationRewardsStakedShared', 'futureDalAttestationRewardsStakedShared',
+                'nonceRevelationRewardsStakedShared', 'vdfRevelationRewardsStakedShared'
+            ];
+            return sumFields(r, fields);
+        }
+
+        // Losses that should be deducted (penalties on the baker affect external stakers too).
+        function sumLossesMutez(r) {
+            if (!r || typeof r !== 'object') return 0;
+            return sumFields(r, [
                 'nonceRevelationLosses', 'revelationLosses',
-                'doubleBakingLostStaked', 'doubleBakingLostUnstaked',
-                'doubleEndorsingLostStaked', 'doubleEndorsingLostUnstaked',
-                'doublePreendorsingLostStaked', 'doublePreendorsingLostUnstaked',
-                // Legacy-named loss fields (pre-Paris)
+                'doubleBakingLostStaked', 'doubleEndorsingLostStaked', 'doublePreendorsingLostStaked',
+                'doubleBakingLostUnstaked', 'doubleEndorsingLostUnstaked', 'doublePreendorsingLostUnstaked',
                 'revelationLostRewards', 'revelationLostFees',
                 'doubleBakingLostDeposits', 'doubleBakingLostRewards', 'doubleBakingLostFees',
                 'doubleEndorsingLostDeposits', 'doubleEndorsingLostRewards', 'doubleEndorsingLostFees'
-            ];
-            let total = 0;
-            for (const f of fields) {
-                const v = r[f];
-                if (typeof v === 'number' && isFinite(v)) total += v;
-            }
-            return total;
+            ]);
         }
 
-        // Compute THIS delegator's expected payout in mutez for the cycle.
-        // The /rewards/delegators endpoint reports baker totals; we apply
-        // the delegator's share: balance / stakingBalance.
-        function computeDelegatorPayoutMutez(r) {
+        // Legacy/fallback: sum all reward fields as baker gross, ignoring the split.
+        // Used when the *Delegated / *StakedShared split is absent.
+        function sumBakerGrossLegacyMutez(r) {
             if (!r || typeof r !== 'object') return 0;
-            const grossBaker = sumBakerGrossMutez(r);
-            const lossesBaker = sumBakerLossesMutez(r);
-            const netBaker = Math.max(0, grossBaker - lossesBaker);
-            const sb = r.stakingBalance;
-            const bal = r.balance;
-            if (!sb || sb <= 0 || !bal || bal <= 0) return 0;
-            return netBaker * (bal / sb);
+            const fields = [];
+            for (const base of REWARD_BASES) fields.push(base);
+            fields.push('ownBlockFees', 'extraBlockFees');
+            return sumFields(r, fields);
+        }
+
+        // Compute THIS delegator/staker's expected payout in mutez for the cycle.
+        // r:      delegator reward record (/rewards/delegators)
+        // baker:  baker reward record for SAME cycle (/rewards/bakers/{baker})
+        function computeDelegatorPayoutMutez(r, baker) {
+            if (!r || typeof r !== 'object') return 0;
+            const losses = sumLossesMutez(r);
+
+            // --- DELEGATION SLICE ---
+            // r.balance (or delegatedBalance) is your liquid delegated portion at snapshot.
+            // baker.externalDelegatedBalance (or stakingBalance fallback) is the pool size.
+            let delegSlice = 0;
+            const myDelegated = num(r.delegatedBalance) || num(r.balance);
+            if (myDelegated > 0 && baker) {
+                const pool = num(baker.externalDelegatedBalance) || num(baker.stakingBalance);
+                if (pool > 0) {
+                    const delegPoolRewards = sumBakerDelegatedPoolMutez(baker);
+                    delegSlice = delegPoolRewards * (myDelegated / pool);
+                }
+            }
+
+            // --- STAKING SLICE ---
+            // Your slice via pseudotokens (the protocol's unit-of-account for stake shares).
+            let stakeSlice = 0;
+            const myPT = num(r.stakedPseudotokens);
+            if (myPT > 0 && baker) {
+                const issued = num(baker.issuedPseudotokens);
+                if (issued > 0) {
+                    const stakePoolRewards = sumBakerStakedSharedPoolMutez(baker);
+                    stakeSlice = stakePoolRewards * (myPT / issued);
+                }
+            }
+
+            // --- FALLBACK ---
+            // If the baker record is missing OR the new split fields aren't populated yet
+            // (e.g. very old cycles, or pre-Paris records), fall back to the legacy
+            // gross * (balance / stakingBalance) calculation.
+            if (delegSlice === 0 && stakeSlice === 0) {
+                const bakerGross = baker ? sumBakerGrossLegacyMutez(baker) : 0;
+                const sb = num(r.stakingBalance);
+                const bal = num(r.balance) || num(r.delegatedBalance);
+                if (bakerGross > 0 && sb > 0 && bal > 0) {
+                    return Math.max(0, bakerGross - losses) * (bal / sb);
+                }
+                return 0;
+            }
+
+            // Apply losses proportionally to combined slice (rare edge case)
+            const gross = delegSlice + stakeSlice;
+            const totalPool = (baker ? sumBakerDelegatedPoolMutez(baker) + sumBakerStakedSharedPoolMutez(baker) : 0);
+            const lossShare = (totalPool > 0) ? losses * (gross / totalPool) : 0;
+            return Math.max(0, gross - lossShare);
         }
 
         function isCycleInFuture(r) {
-            const futureFields = ['futureBlockRewards', 'futureEndorsementRewards', 'futureAttestationRewards', 'futureDalAttestationRewards'];
+            const futureFields = ['futureBlockRewards', 'futureEndorsementRewards', 'futureAttestationRewards', 'futureDalAttestationRewards',
+                                  'futureBlockRewardsDelegated', 'futureBlockRewardsStakedShared',
+                                  'futureEndorsementRewardsDelegated', 'futureEndorsementRewardsStakedShared',
+                                  'futureAttestationRewardsDelegated', 'futureAttestationRewardsStakedShared',
+                                  'futureDalAttestationRewardsDelegated', 'futureDalAttestationRewardsStakedShared'];
             for (const f of futureFields) {
                 if (typeof r[f] === 'number' && r[f] > 0) return true;
             }
@@ -620,12 +695,29 @@
                         || (bakerAddr ? bakerAddr.slice(0, 6) + '...' + bakerAddr.slice(-4) : '-');
                 }
 
-                // REWARDS - apply delegator share to baker totals
+                // BAKER REWARDS for matching cycles - needed to compute pool shares
+                let bakerByCycle = new Map();
+                if (bakerAddr && Array.isArray(rew) && rew.length > 0) {
+                    const cycles = rew.map(r => r.cycle).filter(c => typeof c === 'number');
+                    if (cycles.length > 0) {
+                        const minC = Math.min(...cycles);
+                        const maxC = Math.max(...cycles);
+                        try {
+                            const bRes = await fetch(`${TZKT_BASE}/rewards/bakers/${bakerAddr}?cycle.ge=${minC}&cycle.le=${maxC}&limit=${maxC - minC + 2}`);
+                            const bJson = await bRes.json();
+                            if (Array.isArray(bJson)) {
+                                bJson.forEach(b => { if (b && typeof b.cycle === 'number') bakerByCycle.set(b.cycle, b); });
+                            }
+                        } catch (e) { console.warn('[TzKT] baker rewards fetch failed', e); }
+                    }
+                }
+
+                // REWARDS - new dual-pool calculation
                 let parsedRewards = [];
                 if (Array.isArray(rew) && rew.length > 0) {
                     parsedRewards = rew.map(r => ({
                         cycle: r.cycle,
-                        xtz: mutezToXtz(computeDelegatorPayoutMutez(r)),
+                        xtz: mutezToXtz(computeDelegatorPayoutMutez(r, bakerByCycle.get(r.cycle))),
                         isFuture: isCycleInFuture(r),
                         dateMs: null
                     }));
@@ -745,7 +837,6 @@
             } else {
                 rewardFiatEl.textContent = '-';
             }
-            // Refresh table fiat column with new price
             const tbody = document.getElementById('rewardHistoryBody');
             const rows = tbody.querySelectorAll('tr.realised');
             const next = rewardHistory[0];
