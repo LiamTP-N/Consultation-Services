@@ -17,13 +17,20 @@
         @media (max-width: 767px) {
             html, body { height: auto; min-height: 100%; overflow-y: auto; overflow-x: hidden; max-width: 100%; }
             body { width: 100%; padding: 4px; }
+            #mainSplit { flex-direction: column; }
             #chartCard { flex: 0 0 auto; min-height: 0; padding: 4px 6px; }
             #chartCard > div.flex-1 { height: 38vh; max-height: 360px; min-height: 220px; flex: 0 0 auto; }
             #chartLegendRow { font-size: 9px; gap: 4px; margin-bottom: 2px; }
             #chartLegendRow .legend-title { font-size: 9px; }
-            #walletCard { font-size: 11px; padding: 4px 6px; }
+            #walletCard { font-size: 11px; padding: 6px 8px; flex: 0 0 auto; }
+            #walletCard .wallet-balance-xtz { font-size: 20px; }
+            #walletCard .wallet-balance-fiat { font-size: 11px; }
         }
-        @media (min-width: 768px) { }
+        @media (min-width: 768px) {
+            #mainSplit { flex-direction: row; }
+            #chartCard { flex: 0 0 60%; }
+            #walletCard { flex: 0 0 calc(40% - 8px); }
+        }
         .glass-card {
             background: #000; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(148, 163, 184, 0.12); border-radius: 12px;
@@ -45,16 +52,53 @@
         body.revealed .privacy-toggle { background: rgba(34, 211, 238, 0.4); }
         @media (hover: none) and (pointer: coarse) { .privacy-overlay, .privacy-toggle { display: none; } }
 
-        /* Wallet panel */
-        #walletCard { line-height: 1.35; }
+        /* Wallet card */
+        #walletCard { display: flex; flex-direction: column; gap: 6px; }
         .wallet-label { color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 9px; }
         .wallet-value { color: #e2e8f0; font-weight: 600; }
-        .wallet-xtz { color: #2dd4bf; font-weight: 700; }
         .wallet-sub { color: #94a3b8; font-size: 11px; }
-        .wallet-reward { color: #fbbf24; font-weight: 700; }
-        .wallet-pending { color: #94a3b8; font-style: italic; font-size: 10px; }
-        .wallet-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
         .wallet-divider { color: #334155; }
+
+        .addr-row {
+            display: flex; align-items: center; gap: 6px;
+            padding: 4px 8px; background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(148, 163, 184, 0.12); border-radius: 6px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+            color: #cbd5e1;
+        }
+        .addr-row code { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .icon-btn {
+            background: transparent; border: none; cursor: pointer;
+            color: #94a3b8; padding: 2px 4px; border-radius: 4px;
+            display: inline-flex; align-items: center; justify-content: center;
+            transition: color 0.15s ease, background 0.15s ease;
+        }
+        .icon-btn:hover { color: #2dd4bf; background: rgba(45, 212, 191, 0.08); }
+        .icon-btn svg { width: 14px; height: 14px; }
+
+        .wallet-balance-xtz { font-size: 24px; font-weight: 700; color: #2dd4bf; line-height: 1.1; }
+        .wallet-balance-fiat { color: #94a3b8; font-size: 12px; }
+
+        .reward-table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+        .reward-table th { text-align: left; color: #64748b; font-weight: 600; padding: 2px 4px; border-bottom: 1px solid rgba(148, 163, 184, 0.12); text-transform: uppercase; letter-spacing: 0.05em; font-size: 9px; }
+        .reward-table th.num { text-align: right; }
+        .reward-table td { padding: 2.5px 4px; color: #cbd5e1; }
+        .reward-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+        .reward-table tr.pending td { color: #fbbf24; font-style: italic; }
+        .reward-table tr.realised td.amount { color: #34d399; }
+
+        .toast {
+            position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.95); color: #e2e8f0;
+            padding: 6px 14px; border-radius: 6px; font-size: 12px;
+            border: 1px solid rgba(45, 212, 191, 0.4);
+            opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+            z-index: 10000;
+        }
+        .toast.visible { opacity: 1; }
+
+        /* Reward sparkline */
+        #rewardSparkWrap { height: 32px; position: relative; }
     </style>
 </head>
 <body class="text-slate-100 p-1 md:p-3 flex flex-col">
@@ -91,45 +135,90 @@
             </div>
         </header>
 
-        <!-- WALLET CARD (TzKT) -->
-        <section id="walletCard" class="glass-card p-1.5 md:p-2 flex-none text-xs">
-            <div class="wallet-row">
-                <span class="wallet-label">Wallet</span>
-                <span id="walletBalance" class="wallet-xtz">-</span>
-                <span class="wallet-divider">·</span>
-                <span id="walletFiat" class="wallet-sub">-</span>
-            </div>
-            <div class="wallet-row mt-0.5">
-                <span class="wallet-label">Staked</span>
-                <span id="walletStaked" class="wallet-value">-</span>
-                <span class="wallet-divider">·</span>
-                <span class="wallet-label">Baker</span>
-                <span id="walletBaker" class="wallet-value">-</span>
-                <span id="walletUnstakeWrap" class="hidden items-baseline gap-1">
-                    <span class="wallet-divider">·</span>
-                    <span class="wallet-label">Unstaking</span>
-                    <span id="walletUnstaking" class="wallet-value">-</span>
-                </span>
-            </div>
-            <div class="wallet-row mt-0.5">
-                <span class="wallet-label">Next reward (cycle <span id="rewardCycle">-</span>)</span>
-                <span id="rewardAmount" class="wallet-reward">-</span>
-                <span class="wallet-divider">·</span>
-                <span id="rewardFiat" class="wallet-sub">-</span>
-                <span id="rewardStatus" class="wallet-pending">-</span>
-            </div>
-        </section>
+        <!-- MAIN SPLIT: chart 60% | wallet 40% (desktop), stacked (mobile) -->
+        <div id="mainSplit" class="flex gap-1 md:gap-2 flex-1 min-h-0">
 
-        <!-- MAIN TRADE CHART -->
-        <section id="chartCard" class="glass-card p-1 md:p-1.5 flex flex-col flex-1 min-h-0">
-            <div id="chartLegendRow" class="flex items-center mb-0.5 flex-none text-xs font-semibold gap-2 flex-nowrap">
-                <div class="flex items-center gap-2 md:gap-3 text-[10px] flex-nowrap whitespace-nowrap">
-                    <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#2dd4bf;"></span><span class="xtz-gradient">XTZ</span></span>
-                    <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#fb923c;"></span><span style="color:#fb923c;">BTC</span></span>
+            <!-- LEFT: CHART -->
+            <section id="chartCard" class="glass-card p-1 md:p-1.5 flex flex-col min-h-0">
+                <div id="chartLegendRow" class="flex items-center mb-0.5 flex-none text-xs font-semibold gap-2 flex-nowrap">
+                    <div class="flex items-center gap-2 md:gap-3 text-[10px] flex-nowrap whitespace-nowrap">
+                        <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#2dd4bf;"></span><span class="xtz-gradient">XTZ</span></span>
+                        <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#fb923c;"></span><span style="color:#fb923c;">BTC</span></span>
+                    </div>
                 </div>
-            </div>
-            <div class="flex-1 min-h-0 relative"><canvas id="chartTrade"></canvas></div>
-        </section>
+                <div class="flex-1 min-h-0 relative"><canvas id="chartTrade"></canvas></div>
+            </section>
+
+            <!-- RIGHT: WALLET CARD -->
+            <section id="walletCard" class="glass-card p-2 md:p-2.5">
+
+                <!-- Address -->
+                <div class="addr-row">
+                    <code id="walletAddrShort">-</code>
+                    <button class="icon-btn" id="walletCopyBtn" title="Copy address" aria-label="Copy address">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                    <a class="icon-btn" id="walletExtLink" href="#" target="_blank" rel="noopener" title="Open on TzKT" aria-label="Open on TzKT">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </a>
+                </div>
+
+                <!-- Total balance -->
+                <div>
+                    <div class="wallet-label">Total balance</div>
+                    <div class="wallet-balance-xtz" id="walletBalance">-</div>
+                    <div class="wallet-balance-fiat" id="walletFiat">-</div>
+                </div>
+
+                <!-- Breakdown -->
+                <div class="flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
+                    <span><span class="wallet-label">Spendable</span> <span class="wallet-value" id="walletSpendable">-</span></span>
+                    <span><span class="wallet-label">Staked</span> <span class="wallet-value" id="walletStaked">-</span></span>
+                    <span id="walletUnstakeWrap" class="hidden"><span class="wallet-label">Unstaking</span> <span class="wallet-value" id="walletUnstaking">-</span></span>
+                </div>
+
+                <!-- Baker -->
+                <div class="text-[11px]">
+                    <span class="wallet-label">Baker</span>
+                    <a id="walletBakerLink" href="#" target="_blank" rel="noopener" class="wallet-value hover:text-teal-300 transition-colors" style="text-decoration: none;">-</a>
+                </div>
+
+                <!-- Next reward -->
+                <div class="border-t border-slate-700/40 pt-1.5">
+                    <div class="flex items-baseline justify-between gap-2">
+                        <span class="wallet-label">Next reward · cycle <span id="rewardCycle">-</span></span>
+                        <span id="rewardStatus" class="text-[9px] font-semibold uppercase tracking-wider">-</span>
+                    </div>
+                    <div class="flex items-baseline gap-2 mt-0.5">
+                        <span id="rewardAmount" class="text-sm font-bold text-amber-400">-</span>
+                        <span id="rewardFiat" class="wallet-sub">-</span>
+                    </div>
+                </div>
+
+                <!-- History sparkline -->
+                <div>
+                    <div class="wallet-label mb-1">Last 5 cycles</div>
+                    <div id="rewardSparkWrap"><canvas id="rewardSpark"></canvas></div>
+                </div>
+
+                <!-- History table -->
+                <table class="reward-table">
+                    <thead>
+                        <tr>
+                            <th>Cycle</th>
+                            <th>Date</th>
+                            <th class="num">XTZ</th>
+                            <th class="num">Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rewardHistoryBody">
+                        <tr><td colspan="4" class="text-center text-slate-500 italic">Loading...</td></tr>
+                    </tbody>
+                </table>
+
+            </section>
+
+        </div>
 
     </div>
 
@@ -137,41 +226,43 @@
     <div id="privacyOverlay" class="privacy-overlay"></div>
     <button id="privacyToggle" class="privacy-toggle" title="Click to reveal for 3 min" aria-label="Toggle visibility"></button>
 
+    <!-- Copy toast -->
+    <div id="copyToast" class="toast">Address copied</div>
+
     <script>
         // ==============================================================
         // CRYPTO.HTML - Trade-baseline + wallet view.
-        // XTZ + BTC indexed % since trade entry (3 May 2026 20:57:57 UTC).
-        // TzKT integration: live wallet balance, staking, latest reward.
+        // Split layout: 60% chart on left, 40% wallet card on right.
+        // Wallet: address + balance + staking + reward history (TzKT).
         // ==============================================================
 
         // --- CONFIG ---
         const TRADE_DATE_UTC_MS = Date.UTC(2026, 4, 3, 20, 57, 57);
-
-        // Trade kline source: 15m candles, 1000 limit (~10 days of room)
         const TRADE_KLINE_INTERVAL = '15m';
         const TRADE_KLINE_LIMIT = 1000;
 
         // Tezos wallet (TzKT)
         const TEZOS_ADDRESS = 'tz1cg93LEsvZ7Uy64SkXpwAL7NUMZCwgZPxp';
         const TZKT_BASE = 'https://api.tzkt.io/v1';
-        const TZKT_REFRESH_MS = 60 * 1000;   // wallet balance & rewards refresh
+        const TZKT_REFRESH_MS = 60 * 1000;
+        const REWARD_HISTORY_COUNT = 6; // 1 pending + 5 realised
         let lastTzktFetchTs = 0;
-        let walletBalanceXtz = null;         // current spendable+staked balance in XTZ
-        let latestRewardXtz = null;          // latest (possibly future) cycle reward in XTZ
-        let latestRewardCycle = null;
-        let latestRewardIsFuture = false;
+        let walletBalanceXtz = null;
+        let walletSpendableXtz = null;
+        let latestRewardXtz = null;
+        let rewardHistory = []; // [{cycle, xtz, dateMs, isFuture}, ...]
 
         let lastSuccessTs = 0;
         const STALE_MS = 5000;
         let consecutiveErrors = 0;
 
-        // FX rates (USD -> GBP, USD -> CAD)
+        // FX rates
         let usdToGbp = null;
         let usdToCad = null;
         const FX_REFRESH_MS = 10 * 60 * 1000;
         let lastFxFetchTs = 0;
 
-        // --- NETWORK DETECTION (privacy overlay) ---
+        // Network detection
         const WORK_IPS = ['193.63.36.242'];
         let detectedIp = null;
         let isWorkNetwork = false;
@@ -192,7 +283,11 @@
             return [usdStr, gbp, cad].filter(Boolean).join(' · ');
         }
 
-        // Colour scale: orange at zero, green for positive, red for negative.
+        function fmtDate(ms) {
+            if (!ms || !isFinite(ms)) return '-';
+            return new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+        }
+
         function valueColour(val, scale) {
             const t = Math.min(Math.abs(val) / scale, 1);
             const o = [251, 146,  60];
@@ -268,7 +363,7 @@
         }
         detectNetwork();
 
-        // --- FAVICON (teal when XTZ up since trade, orange otherwise) ---
+        // --- FAVICON ---
         const faviconEl = document.getElementById('favicon');
         const favCanvas = document.createElement('canvas');
         favCanvas.width = 32; favCanvas.height = 32;
@@ -285,10 +380,36 @@
             faviconEl.href = favCanvas.toDataURL('image/png');
         }
 
+        // --- ADDRESS BAR INIT ---
+        function initAddressBar() {
+            const a = TEZOS_ADDRESS;
+            document.getElementById('walletAddrShort').textContent = a.slice(0, 8) + '...' + a.slice(-6);
+            document.getElementById('walletExtLink').href = `https://tzkt.io/${a}/operations`;
+
+            document.getElementById('walletCopyBtn').addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(a);
+                    showToast('Address copied');
+                } catch (e) {
+                    const ta = document.createElement('textarea');
+                    ta.value = a; document.body.appendChild(ta);
+                    ta.select(); document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    showToast('Address copied');
+                }
+            });
+        }
+        let toastTimer = null;
+        function showToast(msg) {
+            const t = document.getElementById('copyToast');
+            t.textContent = msg;
+            t.classList.add('visible');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => t.classList.remove('visible'), 1500);
+        }
+        initAddressBar();
+
         // --- MAIN TRADE CHART ---
-        // Datasets:
-        //   [0] XTZ indexed % (teal gradient)
-        //   [1] BTC indexed % (orange gradient) - benchmark
         const lineGradientPlugin = {
             id: 'lineGradients',
             afterLayout(chart) {
@@ -310,7 +431,6 @@
             }
         };
 
-        // Zero reference line on the indexed-% axis (trade entry baseline).
         const zeroRefLine = {
             id: 'zeroRefLine',
             afterDatasetsDraw(chart) {
@@ -346,16 +466,22 @@
             options: {
                 responsive: true, maintainAspectRatio: false, animation: false,
                 interaction: { mode: 'index', intersect: false },
-                scales: {
-                    x: { display: false },
-                    y: { display: false }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { enabled: false }
-                }
+                scales: { x: { display: false }, y: { display: false } },
+                plugins: { legend: { display: false }, tooltip: { enabled: false } }
             },
             plugins: [zeroRefLine, lineGradientPlugin]
+        });
+
+        // --- REWARD SPARKLINE ---
+        const rewardSparkChart = new Chart(document.getElementById('rewardSpark').getContext('2d'), {
+            type: 'line',
+            data: { labels: [], datasets: [{ data: [], borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.15)', borderWidth: 1.5, pointRadius: 2.5, pointBackgroundColor: '#fbbf24', tension: 0.3, fill: true }] },
+            options: {
+                responsive: true, maintainAspectRatio: false, animation: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: { x: { display: false }, y: { display: false } },
+                plugins: { legend: { display: false }, tooltip: { enabled: false } }
+            }
         });
 
         // --- DATA FETCH ---
@@ -378,13 +504,10 @@
         }
 
         // --- TZKT FETCH ---
-        // /v1/accounts/{addr}        -> balance, stakedBalance, unstakedBalance, delegate
-        // /v1/rewards/delegators/{addr}?limit=1 -> latest cycle reward (incl. future)
         function mutezToXtz(mu) { return (mu || 0) / 1_000_000; }
 
         function sumRewardMutez(r) {
             if (!r || typeof r !== 'object') return 0;
-            // All possible Tezos reward fields (Atlas/Paris+ era), realised + future.
             const fields = [
                 'ownBlockRewardsLiquid', 'ownBlockRewardsStakedOwn', 'ownBlockRewardsStakedShared',
                 'extraBlockRewardsLiquid', 'extraBlockRewardsStakedOwn', 'extraBlockRewardsStakedShared',
@@ -408,8 +531,6 @@
         }
 
         function isCycleInFuture(r) {
-            // A reward record is "future" if any *future* fields are non-zero
-            // OR if all realised fields are zero (cycle not yet closed).
             const futureFields = ['futureBlockRewards', 'futureEndorsementRewards', 'futureAttestationRewards', 'futureDalAttestationRewards'];
             for (const f of futureFields) {
                 if (typeof r[f] === 'number' && r[f] > 0) return true;
@@ -423,112 +544,167 @@
             try {
                 const [accRes, rewRes] = await Promise.all([
                     fetch(`${TZKT_BASE}/accounts/${TEZOS_ADDRESS}`),
-                    fetch(`${TZKT_BASE}/rewards/delegators/${TEZOS_ADDRESS}?limit=1`)
+                    fetch(`${TZKT_BASE}/rewards/delegators/${TEZOS_ADDRESS}?limit=${REWARD_HISTORY_COUNT}`)
                 ]);
                 const acc = await accRes.json();
                 const rew = await rewRes.json();
 
                 // ACCOUNT
-                // `balance` in TzKT includes spendable + frozen + staked (mutez).
                 const totalMutez = acc.balance || 0;
                 const stakedMutez = acc.stakedBalance || 0;
                 const unstakedMutez = acc.unstakedBalance || 0;
+                const spendableMutez = totalMutez - stakedMutez - unstakedMutez;
                 walletBalanceXtz = mutezToXtz(totalMutez);
+                walletSpendableXtz = mutezToXtz(spendableMutez);
                 const stakedXtz = mutezToXtz(stakedMutez);
                 const unstakedXtz = mutezToXtz(unstakedMutez);
 
-                // Baker alias or shortened address
                 let bakerLabel = '-';
+                let bakerAddr = null;
                 if (acc.delegate) {
+                    bakerAddr = acc.delegate.address || null;
                     bakerLabel = acc.delegate.alias
-                        || (acc.delegate.address ? acc.delegate.address.slice(0, 6) + '..' + acc.delegate.address.slice(-4) : '-');
+                        || (bakerAddr ? bakerAddr.slice(0, 6) + '...' + bakerAddr.slice(-4) : '-');
                 }
 
-                // REWARDS (latest cycle, may be future/pending)
-                let rewardXtz = 0;
-                let rewardCycle = null;
-                let rewardFuture = false;
+                // REWARDS
+                let parsedRewards = [];
                 if (Array.isArray(rew) && rew.length > 0) {
-                    const latest = rew[0];
-                    rewardCycle = latest.cycle;
-                    rewardFuture = isCycleInFuture(latest);
-                    rewardXtz = mutezToXtz(sumRewardMutez(latest));
+                    parsedRewards = rew.map(r => ({
+                        cycle: r.cycle,
+                        xtz: mutezToXtz(sumRewardMutez(r)),
+                        isFuture: isCycleInFuture(r),
+                        dateMs: null
+                    }));
                 }
-                latestRewardXtz = rewardXtz;
-                latestRewardCycle = rewardCycle;
-                latestRewardIsFuture = rewardFuture;
 
+                // Cycle metadata for dates
+                if (parsedRewards.length > 0) {
+                    const cycles = parsedRewards.map(p => p.cycle);
+                    const minC = Math.min(...cycles);
+                    const maxC = Math.max(...cycles);
+                    try {
+                        const cyclesRes = await fetch(`${TZKT_BASE}/cycles?cycle.ge=${minC}&cycle.le=${maxC}&select=index,endTime&limit=${maxC - minC + 1}`);
+                        const cyclesJson = await cyclesRes.json();
+                        const cycleEndMap = new Map();
+                        if (Array.isArray(cyclesJson)) {
+                            cyclesJson.forEach(c => {
+                                if (c && typeof c.index === 'number' && c.endTime) {
+                                    cycleEndMap.set(c.index, new Date(c.endTime).getTime());
+                                }
+                            });
+                        }
+                        parsedRewards.forEach(p => { p.dateMs = cycleEndMap.get(p.cycle) || null; });
+                    } catch (e) { console.warn('[TzKT] cycles fetch failed', e); }
+                }
+
+                rewardHistory = parsedRewards;
+                latestRewardXtz = parsedRewards.length > 0 ? parsedRewards[0].xtz : 0;
                 lastTzktFetchTs = now;
 
-                // Stash for renderer
                 renderWallet({
-                    totalXtz: walletBalanceXtz,
-                    stakedXtz,
-                    unstakedXtz,
-                    bakerLabel,
-                    rewardXtz,
-                    rewardCycle,
-                    rewardFuture
+                    totalXtz: walletBalanceXtz, spendableXtz: walletSpendableXtz,
+                    stakedXtz, unstakedXtz, bakerLabel, bakerAddr
                 });
+                renderRewards(parsedRewards);
             } catch (e) {
                 console.warn('[TzKT] fetch failed', e);
             }
         }
 
         function renderWallet(s) {
-            const balEl = document.getElementById('walletBalance');
-            const fiatEl = document.getElementById('walletFiat');
-            const stakedEl = document.getElementById('walletStaked');
-            const bakerEl = document.getElementById('walletBaker');
+            document.getElementById('walletBalance').textContent = fmt(s.totalXtz, 2) + ' XTZ';
+            document.getElementById('walletSpendable').textContent = fmt(s.spendableXtz, 2) + ' XTZ';
+            document.getElementById('walletStaked').textContent = fmt(s.stakedXtz, 2) + ' XTZ';
+
             const unstakeWrap = document.getElementById('walletUnstakeWrap');
             const unstakeEl = document.getElementById('walletUnstaking');
-            const rewardEl = document.getElementById('rewardAmount');
-            const rewardFiatEl = document.getElementById('rewardFiat');
-            const rewardCycleEl = document.getElementById('rewardCycle');
-            const rewardStatusEl = document.getElementById('rewardStatus');
-
-            balEl.textContent = fmt(s.totalXtz, 2) + ' XTZ';
-            stakedEl.textContent = fmt(s.stakedXtz, 2) + ' XTZ';
-            bakerEl.textContent = s.bakerLabel;
-
             if (s.unstakedXtz > 0) {
                 unstakeWrap.classList.remove('hidden');
-                unstakeWrap.classList.add('inline-flex');
                 unstakeEl.textContent = fmt(s.unstakedXtz, 2) + ' XTZ';
             } else {
                 unstakeWrap.classList.add('hidden');
-                unstakeWrap.classList.remove('inline-flex');
             }
 
-            // Latest reward
-            rewardCycleEl.textContent = (s.rewardCycle != null) ? s.rewardCycle : '-';
-            rewardEl.textContent = (s.rewardXtz > 0) ? '+' + fmt(s.rewardXtz, 4) + ' XTZ' : '-';
-            rewardStatusEl.textContent = s.rewardFuture ? '(pending)' : '(realised)';
-            rewardStatusEl.style.color = s.rewardFuture ? '#94a3b8' : '#34d399';
+            const bakerEl = document.getElementById('walletBakerLink');
+            bakerEl.textContent = s.bakerLabel;
+            bakerEl.href = s.bakerAddr ? `https://tzkt.io/${s.bakerAddr}` : '#';
+            updateWalletFiat();
+        }
 
-            // Fiat values (recomputed on every price tick separately via updateWalletFiat)
-            updateWalletFiat(s.totalXtz, s.rewardXtz);
+        function renderRewards(rewards) {
+            if (!rewards || rewards.length === 0) {
+                document.getElementById('rewardCycle').textContent = '-';
+                document.getElementById('rewardAmount').textContent = '-';
+                document.getElementById('rewardStatus').textContent = '-';
+                document.getElementById('rewardHistoryBody').innerHTML = '<tr><td colspan="4" class="text-center text-slate-500 italic">No data</td></tr>';
+                return;
+            }
+
+            const next = rewards[0];
+            document.getElementById('rewardCycle').textContent = next.cycle;
+            document.getElementById('rewardAmount').textContent = (next.xtz > 0 ? '+' : '') + fmt(next.xtz, 4) + ' XTZ';
+            const statusEl = document.getElementById('rewardStatus');
+            statusEl.textContent = next.isFuture ? 'PENDING' : 'REALISED';
+            statusEl.style.color = next.isFuture ? '#fbbf24' : '#34d399';
+
+            const history = next.isFuture ? rewards.slice(1) : rewards.slice(0);
+
+            const sparkData = history.slice().reverse();
+            rewardSparkChart.data.labels = sparkData.map(h => 'C' + h.cycle);
+            rewardSparkChart.data.datasets[0].data = sparkData.map(h => h.xtz);
+            rewardSparkChart.update();
+
+            const tbody = document.getElementById('rewardHistoryBody');
+            if (history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-slate-500 italic">No realised cycles yet</td></tr>';
+            } else {
+                tbody.innerHTML = history.map(h => {
+                    const gbpVal = (lastXtzPriceUsd && usdToGbp && h.xtz > 0)
+                        ? "£" + fmt(h.xtz * lastXtzPriceUsd * usdToGbp, 2)
+                        : '-';
+                    return `<tr class="realised">
+                        <td>${h.cycle}</td>
+                        <td>${fmtDate(h.dateMs)}</td>
+                        <td class="num amount">+${fmt(h.xtz, 4)}</td>
+                        <td class="num text-slate-400">${gbpVal}</td>
+                    </tr>`;
+                }).join('');
+            }
+
+            updateWalletFiat();
         }
 
         let lastXtzPriceUsd = null;
-        function updateWalletFiat(totalXtz, rewardXtz) {
+        function updateWalletFiat() {
             const fiatEl = document.getElementById('walletFiat');
             const rewardFiatEl = document.getElementById('rewardFiat');
             if (lastXtzPriceUsd == null) {
-                if (fiatEl) fiatEl.textContent = '-';
-                if (rewardFiatEl) rewardFiatEl.textContent = '-';
+                fiatEl.textContent = '-';
+                rewardFiatEl.textContent = '-';
                 return;
             }
-            if (fiatEl && totalXtz != null) {
-                fiatEl.textContent = fmtMultiCcy(totalXtz * lastXtzPriceUsd, usdToGbp, usdToCad);
+            if (walletBalanceXtz != null) {
+                fiatEl.textContent = fmtMultiCcy(walletBalanceXtz * lastXtzPriceUsd, usdToGbp, usdToCad);
             }
-            if (rewardFiatEl && rewardXtz != null) {
-                if (rewardXtz > 0) {
-                    rewardFiatEl.textContent = fmtMultiCcy(rewardXtz * lastXtzPriceUsd, usdToGbp, usdToCad);
-                } else {
-                    rewardFiatEl.textContent = '-';
+            if (latestRewardXtz != null && latestRewardXtz > 0) {
+                rewardFiatEl.textContent = fmtMultiCcy(latestRewardXtz * lastXtzPriceUsd, usdToGbp, usdToCad);
+            } else {
+                rewardFiatEl.textContent = '-';
+            }
+            // Refresh table fiat column with new price
+            const tbody = document.getElementById('rewardHistoryBody');
+            const rows = tbody.querySelectorAll('tr.realised');
+            const next = rewardHistory[0];
+            const history = (next && next.isFuture) ? rewardHistory.slice(1) : rewardHistory.slice(0);
+            rows.forEach((row, i) => {
+                const h = history[i];
+                if (!h) return;
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 4 && lastXtzPriceUsd && usdToGbp && h.xtz > 0) {
+                    cells[3].textContent = "£" + fmt(h.xtz * lastXtzPriceUsd * usdToGbp, 2);
                 }
-            }
+            });
         }
 
         // --- MAIN UPDATE ---
@@ -573,7 +749,6 @@
 
                 tradeChart.update();
 
-                // Hero values
                 const xtzPctTrade = xtzIdx[xtzIdx.length - 1];
                 writePct('xtzPct_trade', xtzPctTrade);
 
@@ -589,9 +764,8 @@
                 if (xtzPriceEl) xtzPriceEl.textContent = fmtMultiCcy(xtzPriceNow, usdToGbp, usdToCad);
                 if (btcPriceEl) btcPriceEl.textContent = fmtMultiCcy(btcPriceNow, usdToGbp, usdToCad);
 
-                // Update wallet fiat with fresh XTZ price
                 lastXtzPriceUsd = xtzPriceNow;
-                updateWalletFiat(walletBalanceXtz, latestRewardXtz);
+                updateWalletFiat();
 
                 const profitable = xtzPctTrade >= 0;
                 setFavicon(profitable);
@@ -614,7 +788,6 @@
             }
         }
 
-        // Stale watcher
         setInterval(() => {
             if (lastSuccessTs === 0) return;
             const ageMs = Date.now() - lastSuccessTs;
