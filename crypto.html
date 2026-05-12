@@ -234,6 +234,14 @@
         // CRYPTO.HTML - Trade-baseline + wallet view.
         // Split layout: 60% chart on left, 40% wallet card on right.
         // Wallet: address + balance + staking + reward history (TzKT).
+        //
+        // NOTE on reward calculation:
+        // /v1/rewards/delegators/{addr} returns BAKER's totals per cycle,
+        // along with `balance` (delegator's snapshot balance) and
+        // `stakingBalance` (baker's total at snapshot). To get the
+        // delegator's expected payout we must compute:
+        //   share = balance / stakingBalance
+        //   payout = (gross baker rewards - losses) * share
         // ==============================================================
 
         // --- CONFIG ---
@@ -506,21 +514,31 @@
         // --- TZKT FETCH ---
         function mutezToXtz(mu) { return (mu || 0) / 1_000_000; }
 
-        function sumRewardMutez(r) {
+        // Sum of BAKER's gross rewards in mutez for the cycle.
+        // Includes all reward sources across protocol versions; harmless to
+        // include fields that don't exist (they're just undefined and skipped).
+        function sumBakerGrossMutez(r) {
             if (!r || typeof r !== 'object') return 0;
             const fields = [
+                // Block rewards (legacy + split liquid/staked variants)
+                'ownBlockRewards', 'extraBlockRewards', 'futureBlockRewards',
                 'ownBlockRewardsLiquid', 'ownBlockRewardsStakedOwn', 'ownBlockRewardsStakedShared',
                 'extraBlockRewardsLiquid', 'extraBlockRewardsStakedOwn', 'extraBlockRewardsStakedShared',
-                'futureBlockRewards', 'ownBlockRewards', 'extraBlockRewards',
+                // Endorsement / attestation rewards
+                'endorsementRewards', 'futureEndorsementRewards',
                 'endorsementRewardsLiquid', 'endorsementRewardsStakedOwn', 'endorsementRewardsStakedShared',
-                'futureEndorsementRewards', 'endorsementRewards',
+                'attestationRewards', 'futureAttestationRewards',
                 'attestationRewardsLiquid', 'attestationRewardsStakedOwn', 'attestationRewardsStakedShared',
-                'futureAttestationRewards', 'attestationRewards',
+                // DAL attestation rewards (Atlas+)
+                'dalAttestationRewards', 'futureDalAttestationRewards',
                 'dalAttestationRewardsLiquid', 'dalAttestationRewardsStakedOwn', 'dalAttestationRewardsStakedShared',
-                'futureDalAttestationRewards', 'dalAttestationRewards',
+                // Block fees
                 'ownBlockFees', 'extraBlockFees',
+                // Revelation / VDF / denunciation rewards
+                'nonceRevelationRewards', 'vdfRevelationRewards',
+                'nonceRevelationRewardsLiquid', 'nonceRevelationRewardsStakedOwn', 'nonceRevelationRewardsStakedShared',
                 'vdfRevelationRewardsLiquid', 'vdfRevelationRewardsStakedOwn', 'vdfRevelationRewardsStakedShared',
-                'nonceRevelationRewardsLiquid', 'nonceRevelationRewardsStakedOwn', 'nonceRevelationRewardsStakedShared'
+                'doubleBakingRewards', 'doubleEndorsingRewards', 'doublePreendorsingRewards'
             ];
             let total = 0;
             for (const f of fields) {
@@ -528,6 +546,41 @@
                 if (typeof v === 'number' && isFinite(v)) total += v;
             }
             return total;
+        }
+
+        // Sum of BAKER's losses in mutez for the cycle (deductions from gross).
+        function sumBakerLossesMutez(r) {
+            if (!r || typeof r !== 'object') return 0;
+            const fields = [
+                'nonceRevelationLosses', 'revelationLosses',
+                'doubleBakingLostStaked', 'doubleBakingLostUnstaked',
+                'doubleEndorsingLostStaked', 'doubleEndorsingLostUnstaked',
+                'doublePreendorsingLostStaked', 'doublePreendorsingLostUnstaked',
+                // Legacy-named loss fields (pre-Paris)
+                'revelationLostRewards', 'revelationLostFees',
+                'doubleBakingLostDeposits', 'doubleBakingLostRewards', 'doubleBakingLostFees',
+                'doubleEndorsingLostDeposits', 'doubleEndorsingLostRewards', 'doubleEndorsingLostFees'
+            ];
+            let total = 0;
+            for (const f of fields) {
+                const v = r[f];
+                if (typeof v === 'number' && isFinite(v)) total += v;
+            }
+            return total;
+        }
+
+        // Compute THIS delegator's expected payout in mutez for the cycle.
+        // The /rewards/delegators endpoint reports baker totals; we apply
+        // the delegator's share: balance / stakingBalance.
+        function computeDelegatorPayoutMutez(r) {
+            if (!r || typeof r !== 'object') return 0;
+            const grossBaker = sumBakerGrossMutez(r);
+            const lossesBaker = sumBakerLossesMutez(r);
+            const netBaker = Math.max(0, grossBaker - lossesBaker);
+            const sb = r.stakingBalance;
+            const bal = r.balance;
+            if (!sb || sb <= 0 || !bal || bal <= 0) return 0;
+            return netBaker * (bal / sb);
         }
 
         function isCycleInFuture(r) {
@@ -567,12 +620,12 @@
                         || (bakerAddr ? bakerAddr.slice(0, 6) + '...' + bakerAddr.slice(-4) : '-');
                 }
 
-                // REWARDS
+                // REWARDS - apply delegator share to baker totals
                 let parsedRewards = [];
                 if (Array.isArray(rew) && rew.length > 0) {
                     parsedRewards = rew.map(r => ({
                         cycle: r.cycle,
-                        xtz: mutezToXtz(sumRewardMutez(r)),
+                        xtz: mutezToXtz(computeDelegatorPayoutMutez(r)),
                         isFuture: isCycleInFuture(r),
                         dateMs: null
                     }));
