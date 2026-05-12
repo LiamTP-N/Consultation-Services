@@ -66,34 +66,49 @@
     </div>
 
     <script>
-        // XTZ price + % change since trade entry (3 May 2026 21:57 BST = 20:57 UTC).
-        // BTC current spot price shown above for benchmark context.
-        // Below: delegated balance (XTZ + GBP), pending cycle projected reward, last settled cycle reward.
+        // ==============================================================
+        // CRYPTO-WIDGET.HTML
+        // Top block (always-on-display friendly):
+        //   BTC current spot price
+        //   XTZ current price
+        //   XTZ % change since trade entry
+        // Below block (TzKT-powered):
+        //   Total balance (XTZ + GBP)
+        //   Pending reward (current/next cycle, projected)
+        //   Last realised reward
+        //
+        // REWARD CALCULATION matches crypto.html:
+        //   Dual pool model. Your stake earns from the staking pool;
+        //   any delegated balance earns from the delegation pool.
+        //     stakeSlice = (sum *StakedShared rewards) * (stakedPseudotokens / issuedPseudotokens)
+        //     delegSlice = (sum *Delegated rewards)   * (delegatedBalance / externalDelegatedBalance)
+        //   total = stakeSlice + delegSlice  (losses pro-rata)
+        // ==============================================================
 
         const TRADE_DATE_UTC_MS = Date.UTC(2026, 4, 3, 20, 57, 57);
         const TZ_ADDRESS = "tz1cg93LEsvZ7Uy64SkXpwAL7NUMZCwgZPxp";
+        const TZKT_BASE = "https://api.tzkt.io/v1";
 
-        // Cache GBP/USD between price ticks so we don't hammer the FX API.
+        // FX cache (USD -> GBP)
         let gbpRate = null;
         let gbpRateFetchedAt = 0;
-        const GBP_TTL_MS = 30 * 60 * 1000; // 30 minutes
+        const GBP_TTL_MS = 30 * 60 * 1000;
 
-        // Cache TzKT data; refresh every 60s (rewards update per-cycle, not per-second).
+        // TzKT cache - balance + rewards refresh on the minute, not the second
         let tzktCache = null;
         let tzktFetchedAt = 0;
         const TZKT_TTL_MS = 60 * 1000;
 
+        // --- BINANCE / FX ---
         async function fetchKlines(symbol, interval, limit) {
             const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`);
             return r.json();
         }
-
         async function fetchLastPrice(symbol) {
             const r = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
             const d = await r.json();
             return parseFloat(d.price);
         }
-
         async function fetchGbpRate() {
             const now = Date.now();
             if (gbpRate && (now - gbpRateFetchedAt) < GBP_TTL_MS) return gbpRate;
@@ -104,81 +119,114 @@
                     gbpRate = d.rates.GBP;
                     gbpRateFetchedAt = now;
                 }
-            } catch (e) {
-                console.error("GBP rate fetch failed", e);
-            }
+            } catch (e) { console.error("GBP rate fetch failed", e); }
             return gbpRate;
         }
 
-        // Compute delegator share of a cycle's rewards based on TzKT data.
-        function computeDelegatorReward(rewardEntry) {
-            if (!rewardEntry) return 0;
-            const br = rewardEntry.bakerRewards || {};
-            const myDelegated = rewardEntry.delegatedBalance || 0;
-            const ownDel = br.ownDelegatedBalance || 0;
-            const extDel = br.externalDelegatedBalance || 0;
-            const pool = ownDel + extDel;
-            if (pool <= 0 || myDelegated <= 0) return 0;
-            const share = myDelegated / pool;
-
-            // Delegated portion of all reward streams.
-            const settled =
-                (br.blockRewardsDelegated || 0) +
-                (br.attestationRewardsDelegated || 0) +
-                (br.dalAttestationRewardsDelegated || 0) +
-                (br.vdfRevelationRewardsDelegated || 0) +
-                (br.nonceRevelationRewardsDelegated || 0) +
-                (br.blockFees || 0);
-
-            // Future (unsettled) rewards still to be earned this cycle.
-            // These accrue to the delegated portion proportionally.
-            const future =
-                (br.futureBlockRewards || 0) +
-                (br.futureAttestationRewards || 0) +
-                (br.futureDalAttestationRewards || 0);
-
-            // Approximate delegated share of future rewards using current pool ratio.
-            const total = settled + future * (pool > 0 ? (ownDel + extDel) / (pool + (br.ownStakedBalance || 0) + (br.externalStakedBalance || 0)) : 0);
-
-            return (total * share) / 1e6; // mutez -> XTZ
+        // --- TZKT REWARD MATH (mirrors crypto.html) ---
+        function num(v) { return (typeof v === "number" && isFinite(v)) ? v : 0; }
+        function sumFields(obj, fields) {
+            let t = 0;
+            for (const f of fields) t += num(obj[f]);
+            return t;
         }
 
-        // Simpler/cleaner: split into already-settled vs projected-total for the cycle.
-        function rewardBreakdown(rewardEntry) {
-            if (!rewardEntry) return { settled: 0, total: 0 };
-            const br = rewardEntry.bakerRewards || {};
-            const myDelegated = rewardEntry.delegatedBalance || 0;
-            const ownDel = br.ownDelegatedBalance || 0;
-            const extDel = br.externalDelegatedBalance || 0;
-            const ownSt = br.ownStakedBalance || 0;
-            const extSt = br.externalStakedBalance || 0;
-            const delegatedPool = ownDel + extDel;
-            const totalPool = delegatedPool + ownSt + extSt;
-            if (delegatedPool <= 0 || myDelegated <= 0) return { settled: 0, total: 0 };
+        function sumBakerDelegatedPoolMutez(b) {
+            if (!b) return 0;
+            return sumFields(b, [
+                "ownBlockRewardsDelegated", "extraBlockRewardsDelegated", "futureBlockRewardsDelegated",
+                "endorsementRewardsDelegated", "futureEndorsementRewardsDelegated",
+                "attestationRewardsDelegated", "futureAttestationRewardsDelegated",
+                "dalAttestationRewardsDelegated", "futureDalAttestationRewardsDelegated",
+                "nonceRevelationRewardsDelegated", "vdfRevelationRewardsDelegated",
+                "ownBlockFees", "extraBlockFees"
+            ]);
+        }
+        function sumBakerStakedSharedPoolMutez(b) {
+            if (!b) return 0;
+            return sumFields(b, [
+                "ownBlockRewardsStakedShared", "extraBlockRewardsStakedShared", "futureBlockRewardsStakedShared",
+                "endorsementRewardsStakedShared", "futureEndorsementRewardsStakedShared",
+                "attestationRewardsStakedShared", "futureAttestationRewardsStakedShared",
+                "dalAttestationRewardsStakedShared", "futureDalAttestationRewardsStakedShared",
+                "nonceRevelationRewardsStakedShared", "vdfRevelationRewardsStakedShared"
+            ]);
+        }
+        function sumLossesMutez(r) {
+            if (!r) return 0;
+            return sumFields(r, [
+                "nonceRevelationLosses", "revelationLosses",
+                "doubleBakingLostStaked", "doubleEndorsingLostStaked", "doublePreendorsingLostStaked",
+                "doubleBakingLostUnstaked", "doubleEndorsingLostUnstaked", "doublePreendorsingLostUnstaked",
+                "revelationLostRewards", "revelationLostFees",
+                "doubleBakingLostDeposits", "doubleBakingLostRewards", "doubleBakingLostFees",
+                "doubleEndorsingLostDeposits", "doubleEndorsingLostRewards", "doubleEndorsingLostFees"
+            ]);
+        }
+        function sumBakerGrossLegacyMutez(b) {
+            if (!b) return 0;
+            return sumFields(b, [
+                "ownBlockRewards", "extraBlockRewards", "futureBlockRewards",
+                "endorsementRewards", "futureEndorsementRewards",
+                "attestationRewards", "futureAttestationRewards",
+                "dalAttestationRewards", "futureDalAttestationRewards",
+                "nonceRevelationRewards", "vdfRevelationRewards",
+                "doubleBakingRewards", "doubleEndorsingRewards", "doublePreendorsingRewards",
+                "ownBlockFees", "extraBlockFees"
+            ]);
+        }
 
-            const myShareOfDelPool = myDelegated / delegatedPool;
-            const delPortionOfTotal = totalPool > 0 ? delegatedPool / totalPool : 0;
+        function computeDelegatorPayoutMutez(r, baker) {
+            if (!r) return 0;
+            const losses = sumLossesMutez(r);
 
-            const settledDelegated =
-                (br.blockRewardsDelegated || 0) +
-                (br.attestationRewardsDelegated || 0) +
-                (br.dalAttestationRewardsDelegated || 0) +
-                (br.vdfRevelationRewardsDelegated || 0) +
-                (br.nonceRevelationRewardsDelegated || 0) +
-                (br.blockFees || 0);
+            // DELEGATION SLICE
+            let delegSlice = 0;
+            const myDelegated = num(r.delegatedBalance) || num(r.balance);
+            if (myDelegated > 0 && baker) {
+                const pool = num(baker.externalDelegatedBalance) || num(baker.stakingBalance);
+                if (pool > 0) {
+                    delegSlice = sumBakerDelegatedPoolMutez(baker) * (myDelegated / pool);
+                }
+            }
 
-            const futureTotal =
-                (br.futureBlockRewards || 0) +
-                (br.futureAttestationRewards || 0) +
-                (br.futureDalAttestationRewards || 0);
+            // STAKING SLICE
+            let stakeSlice = 0;
+            const myPT = num(r.stakedPseudotokens);
+            if (myPT > 0 && baker) {
+                const issued = num(baker.issuedPseudotokens);
+                if (issued > 0) {
+                    stakeSlice = sumBakerStakedSharedPoolMutez(baker) * (myPT / issued);
+                }
+            }
 
-            const settledMine = settledDelegated * myShareOfDelPool;
-            const futureMine = futureTotal * delPortionOfTotal * myShareOfDelPool;
+            // Fallback for old/transition cycles
+            if (delegSlice === 0 && stakeSlice === 0) {
+                const bakerGross = baker ? sumBakerGrossLegacyMutez(baker) : 0;
+                const sb = num(r.stakingBalance);
+                const bal = num(r.balance) || num(r.delegatedBalance);
+                if (bakerGross > 0 && sb > 0 && bal > 0) {
+                    return Math.max(0, bakerGross - losses) * (bal / sb);
+                }
+                return 0;
+            }
 
-            return {
-                settled: settledMine / 1e6,
-                total: (settledMine + futureMine) / 1e6
-            };
+            const gross = delegSlice + stakeSlice;
+            const totalPool = sumBakerDelegatedPoolMutez(baker) + sumBakerStakedSharedPoolMutez(baker);
+            const lossShare = (totalPool > 0) ? losses * (gross / totalPool) : 0;
+            return Math.max(0, gross - lossShare);
+        }
+
+        function isCycleInFuture(r) {
+            const fields = ["futureBlockRewards", "futureEndorsementRewards", "futureAttestationRewards", "futureDalAttestationRewards",
+                            "futureBlockRewardsDelegated", "futureBlockRewardsStakedShared",
+                            "futureEndorsementRewardsDelegated", "futureEndorsementRewardsStakedShared",
+                            "futureAttestationRewardsDelegated", "futureAttestationRewardsStakedShared",
+                            "futureDalAttestationRewardsDelegated", "futureDalAttestationRewardsStakedShared"];
+            for (const f of fields) {
+                if (typeof r[f] === "number" && r[f] > 0) return true;
+            }
+            return false;
         }
 
         async function fetchTzkt() {
@@ -186,47 +234,50 @@
             if (tzktCache && (now - tzktFetchedAt) < TZKT_TTL_MS) return tzktCache;
             try {
                 const [acctR, rewardsR] = await Promise.all([
-                    fetch(`https://api.tzkt.io/v1/accounts/${TZ_ADDRESS}`),
-                    fetch(`https://api.tzkt.io/v1/rewards/delegators/${TZ_ADDRESS}?limit=10`)
+                    fetch(`${TZKT_BASE}/accounts/${TZ_ADDRESS}`),
+                    fetch(`${TZKT_BASE}/rewards/delegators/${TZ_ADDRESS}?limit=10`)
                 ]);
                 const acct = await acctR.json();
                 const rewards = await rewardsR.json();
 
-                // Balance in XTZ (includes delegated; TzKT balance field is spendable + frozen).
                 const balanceXtz = (acct.balance || 0) / 1e6;
+                const bakerAddr = (acct.delegate && acct.delegate.address) ? acct.delegate.address : null;
 
-                // rewards[0] = newest cycle (current/pending); find first cycle with actual settled rewards.
-                let pending = null;
-                let settled = null;
-                if (rewards.length) {
-                    pending = rewards[0]; // current cycle, may be partly future
+                // Fetch baker reward records for the same cycles, so we can compute pool shares.
+                let bakerByCycle = new Map();
+                if (bakerAddr && Array.isArray(rewards) && rewards.length > 0) {
+                    const cycles = rewards.map(r => r.cycle).filter(c => typeof c === "number");
+                    if (cycles.length > 0) {
+                        const minC = Math.min(...cycles);
+                        const maxC = Math.max(...cycles);
+                        try {
+                            const bRes = await fetch(`${TZKT_BASE}/rewards/bakers/${bakerAddr}?cycle.ge=${minC}&cycle.le=${maxC}&limit=${maxC - minC + 2}`);
+                            const bJson = await bRes.json();
+                            if (Array.isArray(bJson)) {
+                                bJson.forEach(b => { if (b && typeof b.cycle === "number") bakerByCycle.set(b.cycle, b); });
+                            }
+                        } catch (e) { console.warn("[TzKT] baker rewards fetch failed", e); }
+                    }
+                }
+
+                // Pending = the first record (newest cycle), regardless of future flag
+                // (gives projected total for the cycle currently in progress).
+                let pendingXtz = 0;
+                let settledXtz = 0;
+                if (Array.isArray(rewards) && rewards.length > 0) {
+                    const newest = rewards[0];
+                    pendingXtz = computeDelegatorPayoutMutez(newest, bakerByCycle.get(newest.cycle)) / 1e6;
+
+                    // Last realised = first record where there are no future rewards remaining.
                     for (let i = 0; i < rewards.length; i++) {
-                        const br = rewards[i].bakerRewards || {};
-                        const settledAmt =
-                            (br.blockRewardsDelegated || 0) +
-                            (br.attestationRewardsDelegated || 0) +
-                            (br.blockFees || 0);
-                        const futureAmt =
-                            (br.futureBlockRewards || 0) +
-                            (br.futureAttestationRewards || 0);
-                        // Settled cycle = no future rewards remaining AND non-zero past rewards.
-                        if (futureAmt === 0 && settledAmt > 0) {
-                            settled = rewards[i];
+                        if (!isCycleInFuture(rewards[i])) {
+                            settledXtz = computeDelegatorPayoutMutez(rewards[i], bakerByCycle.get(rewards[i].cycle)) / 1e6;
                             break;
                         }
                     }
                 }
 
-                const pendingBreak = rewardBreakdown(pending);
-                const settledBreak = rewardBreakdown(settled);
-
-                tzktCache = {
-                    balanceXtz,
-                    pendingProjected: pendingBreak.total,
-                    pendingCycle: pending ? pending.cycle : null,
-                    settledAmount: settledBreak.total,
-                    settledCycle: settled ? settled.cycle : null
-                };
+                tzktCache = { balanceXtz, pendingXtz, settledXtz };
                 tzktFetchedAt = now;
             } catch (e) {
                 console.error("TzKT fetch failed", e);
@@ -248,17 +299,13 @@
             const sign = n >= 0 ? "+" : "";
             return sign + n.toFixed(2) + "%";
         }
-        function fmtPrice(n) {
-            return "$" + n.toFixed(4);
-        }
-        function fmtBtc(n) {
-            return "$" + Math.round(n).toLocaleString("en-US");
-        }
+        function fmtPrice(n) { return "$" + n.toFixed(4); }
+        function fmtBtc(n) { return "$" + Math.round(n).toLocaleString("en-US"); }
         function fmtXtzBalance(n) {
             return n.toLocaleString("en-GB", { maximumFractionDigits: 2, minimumFractionDigits: 2 }) + " XTZ";
         }
         function fmtXtzReward(n) {
-            if (n < 0.0001) return "0.0000 XTZ";
+            if (!isFinite(n) || n < 0.0001) return "0.0000 XTZ";
             return n.toFixed(4) + " XTZ";
         }
         function fmtGbp(n) {
@@ -266,7 +313,6 @@
         }
 
         // Map % change to colour. Saturates at +/- 10%.
-        // Negative -> red (#f87171), 0 -> neutral grey-white, Positive -> green (#22c55e).
         function pctColour(pct) {
             const cap = 10;
             const t = Math.max(-1, Math.min(1, pct / cap));
@@ -318,14 +364,13 @@
 
                     balXtzEl.textContent = fmtXtzBalance(tz.balanceXtz);
                     if (gbp && xtzLast) {
-                        const balGbp = tz.balanceXtz * xtzLast * gbp;
-                        balGbpEl.textContent = fmtGbp(balGbp);
+                        balGbpEl.textContent = fmtGbp(tz.balanceXtz * xtzLast * gbp);
                     } else {
                         balGbpEl.textContent = "";
                     }
 
-                    pendEl.textContent = fmtXtzReward(tz.pendingProjected);
-                    setEl.textContent = fmtXtzReward(tz.settledAmount);
+                    pendEl.textContent = fmtXtzReward(tz.pendingXtz);
+                    setEl.textContent = fmtXtzReward(tz.settledXtz);
                 }
             } catch (e) {
                 console.error("Widget update failed", e);
