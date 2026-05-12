@@ -21,6 +21,7 @@
             #chartCard > div.flex-1 { height: 38vh; max-height: 360px; min-height: 220px; flex: 0 0 auto; }
             #chartLegendRow { font-size: 9px; gap: 4px; margin-bottom: 2px; }
             #chartLegendRow .legend-title { font-size: 9px; }
+            #walletCard { font-size: 11px; padding: 4px 6px; }
         }
         @media (min-width: 768px) { }
         .glass-card {
@@ -43,6 +44,17 @@
         .privacy-toggle:hover { background: rgba(148, 163, 184, 0.6); transform: scale(1.3); }
         body.revealed .privacy-toggle { background: rgba(34, 211, 238, 0.4); }
         @media (hover: none) and (pointer: coarse) { .privacy-overlay, .privacy-toggle { display: none; } }
+
+        /* Wallet panel */
+        #walletCard { line-height: 1.35; }
+        .wallet-label { color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 9px; }
+        .wallet-value { color: #e2e8f0; font-weight: 600; }
+        .wallet-xtz { color: #2dd4bf; font-weight: 700; }
+        .wallet-sub { color: #94a3b8; font-size: 11px; }
+        .wallet-reward { color: #fbbf24; font-weight: 700; }
+        .wallet-pending { color: #94a3b8; font-style: italic; font-size: 10px; }
+        .wallet-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+        .wallet-divider { color: #334155; }
     </style>
 </head>
 <body class="text-slate-100 p-1 md:p-3 flex flex-col">
@@ -79,6 +91,35 @@
             </div>
         </header>
 
+        <!-- WALLET CARD (TzKT) -->
+        <section id="walletCard" class="glass-card p-1.5 md:p-2 flex-none text-xs">
+            <div class="wallet-row">
+                <span class="wallet-label">Wallet</span>
+                <span id="walletBalance" class="wallet-xtz">-</span>
+                <span class="wallet-divider">·</span>
+                <span id="walletFiat" class="wallet-sub">-</span>
+            </div>
+            <div class="wallet-row mt-0.5">
+                <span class="wallet-label">Staked</span>
+                <span id="walletStaked" class="wallet-value">-</span>
+                <span class="wallet-divider">·</span>
+                <span class="wallet-label">Baker</span>
+                <span id="walletBaker" class="wallet-value">-</span>
+                <span id="walletUnstakeWrap" class="hidden items-baseline gap-1">
+                    <span class="wallet-divider">·</span>
+                    <span class="wallet-label">Unstaking</span>
+                    <span id="walletUnstaking" class="wallet-value">-</span>
+                </span>
+            </div>
+            <div class="wallet-row mt-0.5">
+                <span class="wallet-label">Next reward (cycle <span id="rewardCycle">-</span>)</span>
+                <span id="rewardAmount" class="wallet-reward">-</span>
+                <span class="wallet-divider">·</span>
+                <span id="rewardFiat" class="wallet-sub">-</span>
+                <span id="rewardStatus" class="wallet-pending">-</span>
+            </div>
+        </section>
+
         <!-- MAIN TRADE CHART -->
         <section id="chartCard" class="glass-card p-1 md:p-1.5 flex flex-col flex-1 min-h-0">
             <div id="chartLegendRow" class="flex items-center mb-0.5 flex-none text-xs font-semibold gap-2 flex-nowrap">
@@ -98,8 +139,9 @@
 
     <script>
         // ==============================================================
-        // CRYPTO.HTML - Trade-baseline only view.
+        // CRYPTO.HTML - Trade-baseline + wallet view.
         // XTZ + BTC indexed % since trade entry (3 May 2026 20:57:57 UTC).
+        // TzKT integration: live wallet balance, staking, latest reward.
         // ==============================================================
 
         // --- CONFIG ---
@@ -108,6 +150,16 @@
         // Trade kline source: 15m candles, 1000 limit (~10 days of room)
         const TRADE_KLINE_INTERVAL = '15m';
         const TRADE_KLINE_LIMIT = 1000;
+
+        // Tezos wallet (TzKT)
+        const TEZOS_ADDRESS = 'tz1cg93LEsvZ7Uy64SkXpwAL7NUMZCwgZPxp';
+        const TZKT_BASE = 'https://api.tzkt.io/v1';
+        const TZKT_REFRESH_MS = 60 * 1000;   // wallet balance & rewards refresh
+        let lastTzktFetchTs = 0;
+        let walletBalanceXtz = null;         // current spendable+staked balance in XTZ
+        let latestRewardXtz = null;          // latest (possibly future) cycle reward in XTZ
+        let latestRewardCycle = null;
+        let latestRewardIsFuture = false;
 
         let lastSuccessTs = 0;
         const STALE_MS = 5000;
@@ -325,10 +377,165 @@
             } catch (e) { console.warn('[FX] fetch failed', e); }
         }
 
+        // --- TZKT FETCH ---
+        // /v1/accounts/{addr}        -> balance, stakedBalance, unstakedBalance, delegate
+        // /v1/rewards/delegators/{addr}?limit=1 -> latest cycle reward (incl. future)
+        function mutezToXtz(mu) { return (mu || 0) / 1_000_000; }
+
+        function sumRewardMutez(r) {
+            if (!r || typeof r !== 'object') return 0;
+            // All possible Tezos reward fields (Atlas/Paris+ era), realised + future.
+            const fields = [
+                'ownBlockRewardsLiquid', 'ownBlockRewardsStakedOwn', 'ownBlockRewardsStakedShared',
+                'extraBlockRewardsLiquid', 'extraBlockRewardsStakedOwn', 'extraBlockRewardsStakedShared',
+                'futureBlockRewards', 'ownBlockRewards', 'extraBlockRewards',
+                'endorsementRewardsLiquid', 'endorsementRewardsStakedOwn', 'endorsementRewardsStakedShared',
+                'futureEndorsementRewards', 'endorsementRewards',
+                'attestationRewardsLiquid', 'attestationRewardsStakedOwn', 'attestationRewardsStakedShared',
+                'futureAttestationRewards', 'attestationRewards',
+                'dalAttestationRewardsLiquid', 'dalAttestationRewardsStakedOwn', 'dalAttestationRewardsStakedShared',
+                'futureDalAttestationRewards', 'dalAttestationRewards',
+                'ownBlockFees', 'extraBlockFees',
+                'vdfRevelationRewardsLiquid', 'vdfRevelationRewardsStakedOwn', 'vdfRevelationRewardsStakedShared',
+                'nonceRevelationRewardsLiquid', 'nonceRevelationRewardsStakedOwn', 'nonceRevelationRewardsStakedShared'
+            ];
+            let total = 0;
+            for (const f of fields) {
+                const v = r[f];
+                if (typeof v === 'number' && isFinite(v)) total += v;
+            }
+            return total;
+        }
+
+        function isCycleInFuture(r) {
+            // A reward record is "future" if any *future* fields are non-zero
+            // OR if all realised fields are zero (cycle not yet closed).
+            const futureFields = ['futureBlockRewards', 'futureEndorsementRewards', 'futureAttestationRewards', 'futureDalAttestationRewards'];
+            for (const f of futureFields) {
+                if (typeof r[f] === 'number' && r[f] > 0) return true;
+            }
+            return false;
+        }
+
+        async function fetchTzktIfStale() {
+            const now = Date.now();
+            if (walletBalanceXtz !== null && (now - lastTzktFetchTs) < TZKT_REFRESH_MS) return;
+            try {
+                const [accRes, rewRes] = await Promise.all([
+                    fetch(`${TZKT_BASE}/accounts/${TEZOS_ADDRESS}`),
+                    fetch(`${TZKT_BASE}/rewards/delegators/${TEZOS_ADDRESS}?limit=1`)
+                ]);
+                const acc = await accRes.json();
+                const rew = await rewRes.json();
+
+                // ACCOUNT
+                // `balance` in TzKT includes spendable + frozen + staked (mutez).
+                const totalMutez = acc.balance || 0;
+                const stakedMutez = acc.stakedBalance || 0;
+                const unstakedMutez = acc.unstakedBalance || 0;
+                walletBalanceXtz = mutezToXtz(totalMutez);
+                const stakedXtz = mutezToXtz(stakedMutez);
+                const unstakedXtz = mutezToXtz(unstakedMutez);
+
+                // Baker alias or shortened address
+                let bakerLabel = '-';
+                if (acc.delegate) {
+                    bakerLabel = acc.delegate.alias
+                        || (acc.delegate.address ? acc.delegate.address.slice(0, 6) + '..' + acc.delegate.address.slice(-4) : '-');
+                }
+
+                // REWARDS (latest cycle, may be future/pending)
+                let rewardXtz = 0;
+                let rewardCycle = null;
+                let rewardFuture = false;
+                if (Array.isArray(rew) && rew.length > 0) {
+                    const latest = rew[0];
+                    rewardCycle = latest.cycle;
+                    rewardFuture = isCycleInFuture(latest);
+                    rewardXtz = mutezToXtz(sumRewardMutez(latest));
+                }
+                latestRewardXtz = rewardXtz;
+                latestRewardCycle = rewardCycle;
+                latestRewardIsFuture = rewardFuture;
+
+                lastTzktFetchTs = now;
+
+                // Stash for renderer
+                renderWallet({
+                    totalXtz: walletBalanceXtz,
+                    stakedXtz,
+                    unstakedXtz,
+                    bakerLabel,
+                    rewardXtz,
+                    rewardCycle,
+                    rewardFuture
+                });
+            } catch (e) {
+                console.warn('[TzKT] fetch failed', e);
+            }
+        }
+
+        function renderWallet(s) {
+            const balEl = document.getElementById('walletBalance');
+            const fiatEl = document.getElementById('walletFiat');
+            const stakedEl = document.getElementById('walletStaked');
+            const bakerEl = document.getElementById('walletBaker');
+            const unstakeWrap = document.getElementById('walletUnstakeWrap');
+            const unstakeEl = document.getElementById('walletUnstaking');
+            const rewardEl = document.getElementById('rewardAmount');
+            const rewardFiatEl = document.getElementById('rewardFiat');
+            const rewardCycleEl = document.getElementById('rewardCycle');
+            const rewardStatusEl = document.getElementById('rewardStatus');
+
+            balEl.textContent = fmt(s.totalXtz, 2) + ' XTZ';
+            stakedEl.textContent = fmt(s.stakedXtz, 2) + ' XTZ';
+            bakerEl.textContent = s.bakerLabel;
+
+            if (s.unstakedXtz > 0) {
+                unstakeWrap.classList.remove('hidden');
+                unstakeWrap.classList.add('inline-flex');
+                unstakeEl.textContent = fmt(s.unstakedXtz, 2) + ' XTZ';
+            } else {
+                unstakeWrap.classList.add('hidden');
+                unstakeWrap.classList.remove('inline-flex');
+            }
+
+            // Latest reward
+            rewardCycleEl.textContent = (s.rewardCycle != null) ? s.rewardCycle : '-';
+            rewardEl.textContent = (s.rewardXtz > 0) ? '+' + fmt(s.rewardXtz, 4) + ' XTZ' : '-';
+            rewardStatusEl.textContent = s.rewardFuture ? '(pending)' : '(realised)';
+            rewardStatusEl.style.color = s.rewardFuture ? '#94a3b8' : '#34d399';
+
+            // Fiat values (recomputed on every price tick separately via updateWalletFiat)
+            updateWalletFiat(s.totalXtz, s.rewardXtz);
+        }
+
+        let lastXtzPriceUsd = null;
+        function updateWalletFiat(totalXtz, rewardXtz) {
+            const fiatEl = document.getElementById('walletFiat');
+            const rewardFiatEl = document.getElementById('rewardFiat');
+            if (lastXtzPriceUsd == null) {
+                if (fiatEl) fiatEl.textContent = '-';
+                if (rewardFiatEl) rewardFiatEl.textContent = '-';
+                return;
+            }
+            if (fiatEl && totalXtz != null) {
+                fiatEl.textContent = fmtMultiCcy(totalXtz * lastXtzPriceUsd, usdToGbp, usdToCad);
+            }
+            if (rewardFiatEl && rewardXtz != null) {
+                if (rewardXtz > 0) {
+                    rewardFiatEl.textContent = fmtMultiCcy(rewardXtz * lastXtzPriceUsd, usdToGbp, usdToCad);
+                } else {
+                    rewardFiatEl.textContent = '-';
+                }
+            }
+        }
+
         // --- MAIN UPDATE ---
         async function updateAll() {
             try {
                 fetchFxIfStale();
+                fetchTzktIfStale();
                 const [xtzK, btcK] = await Promise.all([
                     fetchKlines('XTZUSDT', TRADE_KLINE_INTERVAL, TRADE_KLINE_LIMIT),
                     fetchKlines('BTCUSDT', TRADE_KLINE_INTERVAL, TRADE_KLINE_LIMIT)
@@ -381,6 +588,10 @@
                 const btcPriceEl = document.getElementById('btcPrice');
                 if (xtzPriceEl) xtzPriceEl.textContent = fmtMultiCcy(xtzPriceNow, usdToGbp, usdToCad);
                 if (btcPriceEl) btcPriceEl.textContent = fmtMultiCcy(btcPriceNow, usdToGbp, usdToCad);
+
+                // Update wallet fiat with fresh XTZ price
+                lastXtzPriceUsd = xtzPriceNow;
+                updateWalletFiat(walletBalanceXtz, latestRewardXtz);
 
                 const profitable = xtzPctTrade >= 0;
                 setFavicon(profitable);
