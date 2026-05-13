@@ -548,7 +548,6 @@
                     <button class="session-type-pill flex-shrink-0 flex items-center px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all active:scale-[0.97]" data-preset="endurance">Endurance Test</button>
                     <button class="session-type-pill flex-shrink-0 flex items-center px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all active:scale-[0.97]" data-preset="gauntlet">Gauntlet</button>
                     <button class="session-type-pill flex-shrink-0 flex items-center px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all active:scale-[0.97]" data-preset="deathvalley">Death Valley</button>
-                    <button class="session-type-pill flex-shrink-0 flex items-center px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all active:scale-[0.97]" data-preset="pyramid">Pyramid</button>
                     <button class="session-type-pill flex-shrink-0 flex items-center px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all active:scale-[0.97]" data-preset="rivals">Rivals</button>
                     <button class="session-type-pill flex-shrink-0 flex items-center px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all active:scale-[0.97]" data-preset="tagteam">Tag Team</button>
                 </div>
@@ -557,7 +556,6 @@
             <div id="preset-desc-box" class="hidden glass-card p-3 rounded-2xl space-y-1.5">
                 <p id="preset-desc-title" class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider"></p>
                 <p id="preset-desc-text" class="text-[11px] sm:text-xs text-slate-300 leading-relaxed"></p>
-                <p id="preset-desc-modes" class="text-[10px] text-slate-400 leading-relaxed italic"></p>
             </div>
             <!-- PRESET TWEAKS PANEL: rendered dynamically per preset -->
             <div id="preset-tweaks-panel" class="hidden glass-card p-2 rounded-2xl space-y-1.5 overflow-x-hidden"></div>
@@ -3726,7 +3724,6 @@
                 label:'Custom',
                 title:'Custom',
                 body:'Full manual control. Configure rounds, round length, surprise rounds, and blocks exactly as you want.',
-                modes:'Works in both Solo and Team mode.',
                 tweaks:[],
                 apply:()=>{
                     // Nothing to apply - user controls everything.
@@ -3737,8 +3734,13 @@
                 label:'Blitz & Burn',
                 title:'Blitz & Burn',
                 visibleIn:'both',
-                body:'Two blocks of 6 x 60s rounds, with 3 min rest between blocks. Block 1 is clean - no surprises, focused on <span style="color:#4ade80">speed</span> work. Block 2 hits a surprise after every round - <span style="color:#dc2626">power</span> cardio finisher attached to every <span style="color:#4ade80">speed</span> round. Escalating intensity across the session.',
-                modes:'Works in both Solo and Team mode. In Team, both Liam and Ash get the surprise on every Block 2 round.',
+                describe:()=>{
+                    const r1=settings.you.rounds,r2=settings.you.roundsB2,w=settings.you.work;
+                    const S='<span style="color:#4ade80">speed</span>',P='<span style="color:#dc2626">power</span>';
+                    const REST='<span style="color:#ff6a00">3 min rest</span>';
+                    const SURP='<span style="color:#ffffff;font-weight:700">surprise</span>';
+                    return `Block 1: ${r1} \u00d7 ${w}s ${S} rounds.<br>${REST}<br>Block 2: ${r2} \u00d7 ${w}s ${P} rounds + ${SURP} after <strong>every</strong> round.`;
+                },
                 tweaks:[
                     {label:'Block 1 Rounds',who:'both',block:'b1',type:'rounds'},
                     {label:'Block 2 Rounds',who:'both',block:'b2',type:'rounds'},
@@ -3747,15 +3749,12 @@
                 apply:(mode)=>{
                     settings.flatRest=false;
                     const isT=mode==='wife';
-                    // B1: 6 rounds each, no surprise
                     settings.you.rounds=6;settings.you.work=60;settings.you.surpriseCount=0;
                     setEveryFor('you','b1',false);setRandomFor('you','b1',false);
                     if(isT){settings.wife.rounds=6;settings.wife.work=60;settings.wife.surpriseCount=0;setEveryFor('wife','b1',false);setRandomFor('wife','b1',false);}
-                    // B2: 6 rounds each, EVERY surprise
                     settings.you.roundsB2=6;settings.you.workB2=60;settings.you.surpriseCountB2=0;
                     setEveryFor('you','b2',true);setRandomFor('you','b2',false);
                     if(isT){settings.wife.roundsB2=6;settings.wife.workB2=60;settings.wife.surpriseCountB2=0;setEveryFor('wife','b2',true);setRandomFor('wife','b2',false);}
-                    // 3 min block rest
                     settings.blockRestSecs=180;
                     selectBlocks(2);
                 }
@@ -3764,8 +3763,13 @@
                 label:'Endurance Test',
                 title:'Endurance Test',
                 visibleIn:'both',
-                body:'12 x 60s rounds, single block. Rounds cycle through <span style="color:#4ade80">speed</span>, <span style="color:#dc2626">power</span>, and mixed emphasis. 2 surprise rounds dropped in at random positions. Progressive rest between rounds (starts at 30s, grows 5s per round). No gimmicks - just volume.',
-                modes:'Works in both Solo and Team mode.',
+                describe:()=>{
+                    const r=settings.you.rounds,w=settings.you.work;
+                    const S='<span style="color:#4ade80">speed</span>',P='<span style="color:#dc2626">power</span>';
+                    const SURP='<span style="color:#ffffff;font-weight:700">surprise</span>';
+                    const restPart=settings.mode==='solo'?' Progressive rest.':'';
+                    return `${r} \u00d7 ${w}s rounds + 2 ${SURP} finishers at <strong>random positions</strong>.${restPart}`;
+                },
                 tweaks:[
                     {label:'Rounds',who:'both',block:'b1',type:'rounds'},
                     {label:'Round Length',who:'both',block:'b1',type:'work'},
@@ -3783,8 +3787,11 @@
                 label:'Gauntlet',
                 title:'Gauntlet',
                 visibleIn:'both',
-                body:'10 x 60s rounds, single block. Every round has a surprise add-on - <span style="color:#dc2626">power</span> and <span style="color:#4ade80">speed</span> cardio finishers on every single round with no reprieve. Rounds themselves cycle through all emphasis types. Progressive rest still runs in Solo.',
-                modes:'Works in both Solo and Team mode. In Team, both Liam and Ash get the surprise on every round.',
+                describe:()=>{
+                    const r=settings.you.rounds,w=settings.you.work;
+                    const SURP='<span style="color:#ffffff;font-weight:700">surprise</span>';
+                    return `${r} \u00d7 ${w}s rounds, <strong>every</strong> round followed by a ${SURP}. No reprieve.`;
+                },
                 tweaks:[
                     {label:'Rounds',who:'both',block:'b1',type:'rounds'},
                     {label:'Round Length',who:'both',block:'b1',type:'work'},
@@ -3802,8 +3809,11 @@
                 label:'Death Valley',
                 title:'Death Valley',
                 visibleIn:'solo',
-                body:'10 x 60s rounds, single block. 3 surprise rounds at random positions - a mix of <span style="color:#dc2626">power</span> and <span style="color:#4ade80">speed</span> finishers. Rest is locked flat at 30s throughout - no progressive increase. The rounds are standard; the recovery is the punishment.',
-                modes:'Solo only. In Team mode, rest is already fixed so flat rest has no effect - this preset is hidden.',
+                describe:()=>{
+                    const r=settings.you.rounds,w=settings.you.work;
+                    const SURP='<span style="color:#ffffff;font-weight:700">surprise</span>';
+                    return `${r} \u00d7 ${w}s rounds, 3 ${SURP} finishers at random. Rest locked flat at 30s - no progressive increase.`;
+                },
                 tweaks:[
                     {label:'Rounds',who:'you',block:'b1',type:'rounds'},
                     {label:'Round Length',who:'you',block:'b1',type:'work'},
@@ -3817,38 +3827,15 @@
                     selectBlocks(1);
                 }
             },
-            pyramid:{
-                label:'Pyramid',
-                title:'Pyramid',
-                visibleIn:'both',
-                body:'Two blocks of 6 x 60s rounds, with 3 min rest between. Block 1 has 1 surprise at a random point - one <span style="color:#dc2626">power</span> or <span style="color:#4ade80">speed</span> finisher dropped in. Block 2 goes full Gauntlet - every round gets a surprise. 12 rounds total, escalating pressure.',
-                modes:'Works in both Solo and Team mode. In Team, both Liam and Ash share the escalating pressure.',
-                tweaks:[
-                    {label:'Block 1 Rounds',who:'both',block:'b1',type:'rounds'},
-                    {label:'Block 2 Rounds',who:'both',block:'b2',type:'rounds'},
-                    {label:'Round Length',who:'both',block:'b1',type:'work'},
-                ],
-                apply:(mode)=>{
-                    settings.flatRest=false;
-                    const isT=mode==='wife';
-                    // B1: 6 rounds, 1 surprise each
-                    settings.you.rounds=6;settings.you.work=60;settings.you.surpriseCount=1;
-                    setEveryFor('you','b1',false);setRandomFor('you','b1',false);
-                    if(isT){settings.wife.rounds=6;settings.wife.work=60;settings.wife.surpriseCount=1;setEveryFor('wife','b1',false);setRandomFor('wife','b1',false);}
-                    // B2: 6 rounds, EVERY surprise
-                    settings.you.roundsB2=6;settings.you.workB2=60;
-                    setEveryFor('you','b2',true);setRandomFor('you','b2',false);
-                    if(isT){settings.wife.roundsB2=6;settings.wife.workB2=60;setEveryFor('wife','b2',true);setRandomFor('wife','b2',false);}
-                    settings.blockRestSecs=180;
-                    selectBlocks(2);
-                }
-            },
             rivals:{
                 label:'Rivals',
                 title:'Rivals',
                 visibleIn:'team',
-                body:'10 x 60s rounds, single block. Liam gets a <span style="color:#dc2626">power</span> or <span style="color:#4ade80">speed</span> surprise add-on after every one of his rounds; Ash gets a clean session. Swap roles next time. One person takes the punishment while the other watches.',
-                modes:'Team mode only.',
+                describe:()=>{
+                    const r=settings.you.rounds,w=settings.you.work;
+                    const SURP='<span style="color:#ffffff;font-weight:700">surprise</span>';
+                    return `${r} \u00d7 ${w}s rounds. Liam gets a ${SURP} every round. Ash stays clean. <strong>Swap next session</strong>.`;
+                },
                 tweaks:[
                     {label:'Rounds',who:'both',block:'b1',type:'rounds'},
                     {label:'Round Length',who:'both',block:'b1',type:'work'},
@@ -3861,7 +3848,6 @@
                         settings.wife.rounds=10;settings.wife.work=60;settings.wife.surpriseCount=0;
                         setEveryFor('wife','b1',false);setRandomFor('wife','b1',false);
                     }else{
-                        // Solo fallback: same as Gauntlet
                         settings.you.rounds=10;settings.you.work=60;
                         setEveryFor('you','b1',true);setRandomFor('you','b1',false);
                     }
@@ -3872,8 +3858,12 @@
                 label:'Tag Team',
                 title:'Tag Team',
                 visibleIn:'team',
-                body:'Two blocks of 6 x 60s rounds, 3 min rest between. Block 1: Liam gets a <span style="color:#dc2626">power</span> or <span style="color:#4ade80">speed</span> surprise every round, Ash gets none. Block 2 flips it: Ash gets the surprise every round, Liam gets none. 12 rounds total - each person owns one block.',
-                modes:'Team mode only.',
+                describe:()=>{
+                    const r1=settings.you.rounds,r2=settings.wife.roundsB2,w=settings.you.work;
+                    const REST='<span style="color:#ff6a00">3 min rest</span>';
+                    const SURP='<span style="color:#ffffff;font-weight:700">surprise</span>';
+                    return `Block 1: ${r1} \u00d7 ${w}s rounds - Liam gets a ${SURP} every round, Ash is clean.<br>${REST}<br>Block 2: ${r2} \u00d7 ${w}s rounds - Ash\'s turn for the ${SURP}, Liam is clean.`;
+                },
                 tweaks:[
                     {label:'Block 1 Rounds',who:'both',block:'b1',type:'rounds'},
                     {label:'Block 2 Rounds',who:'both',block:'b2',type:'rounds'},
@@ -3882,12 +3872,10 @@
                 apply:(mode)=>{
                     settings.flatRest=false;
                     if(mode==='wife'){
-                        // B1: Liam EVERY, Ash off
                         settings.you.rounds=6;settings.you.work=60;
                         setEveryFor('you','b1',true);setRandomFor('you','b1',false);
                         settings.wife.rounds=6;settings.wife.work=60;settings.wife.surpriseCount=0;
                         setEveryFor('wife','b1',false);setRandomFor('wife','b1',false);
-                        // B2: Ash EVERY, Liam off
                         settings.you.roundsB2=6;settings.you.workB2=60;settings.you.surpriseCountB2=0;
                         setEveryFor('you','b2',false);setRandomFor('you','b2',false);
                         settings.wife.roundsB2=6;settings.wife.workB2=60;
@@ -3895,7 +3883,6 @@
                         settings.blockRestSecs=180;
                         selectBlocks(2);
                     }else{
-                        // Solo fallback: Blitz & Burn
                         settings.you.rounds=6;settings.you.work=60;settings.you.surpriseCount=0;
                         setEveryFor('you','b1',false);setRandomFor('you','b1',false);
                         settings.you.roundsB2=6;settings.you.workB2=60;
@@ -3908,6 +3895,17 @@
         };
 
         // Build the tweaks panel for the active preset.
+        // Re-renders the description text for the active preset using live settings.
+        // Called after any tweak button changes a value.
+        function refreshPresetDesc(){
+            const key=settings.sessionPreset;
+            if(!key||key==='custom')return;
+            const preset=SESSION_PRESETS[key];
+            if(!preset||!preset.describe)return;
+            const el=document.getElementById('preset-desc-text');
+            if(el)el.innerHTML=preset.describe();
+        }
+
         // Dedicated select helpers that clear siblings within the tweaks panel row
         // (el.parentNode), not the main hidden grid. Also update settings and
         // regenerate the plan so the session summary stays live.
@@ -3917,12 +3915,14 @@
             el.classList.add('active');
             if(block==='b1'&&isRandomFor(who,'b1'))setStoredRandomCount(who,'b1',rollRandomCount(who,'b1'));
             if(block==='b2'&&isRandomFor(who,'b2'))setStoredRandomCount(who,'b2',rollRandomCount(who,'b2'));
+            refreshPresetDesc();
             generateSessionPlan();
         };
         window.selectTweakWork=(who,n,block,el)=>{
             if(block==='b2')settings[who].workB2=n;else settings[who].work=n;
             Array.from(el.parentNode.children).forEach(b=>b.classList.remove('active'));
             el.classList.add('active');
+            refreshPresetDesc();
             updateSessionSummary();
         };
 
@@ -3988,8 +3988,7 @@
                 descBox.classList.toggle('hidden',isCustom);
                 if(!isCustom){
                     document.getElementById('preset-desc-title').textContent=preset.title;
-                    document.getElementById('preset-desc-text').innerHTML=preset.body;
-                    document.getElementById('preset-desc-modes').textContent=preset.modes;
+                    document.getElementById('preset-desc-text').innerHTML=preset.describe?preset.describe():'';
                 }
             }
             renderTweaksPanel(isCustom?null:preset);
