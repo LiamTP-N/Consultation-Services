@@ -2934,6 +2934,7 @@
             document.getElementById('current-round').parentElement.style.visibility='';
             document.getElementById('btn-mute-voice').style.visibility='';
             document.getElementById('btn-mute-sound').style.visibility='';
+            document.querySelector('.timer-bottom').style.visibility='';
 
             // ── DERIVED LOCALS FOR PHASE CONFIG ──
             const isW=settings.mode==='wife';
@@ -3044,11 +3045,15 @@
             else if(phase==='surprise'){
                 // Surprise burst: flash-to-white background, SURPRISE_TOTAL (35s) including
                 // 5s GET READY countdown then 30s of task. Task randomised STRAIGHTS or HOOKS.
-                // Full top-bar hidden so user sees only the huge task text + timer.
+                // All UI chrome hidden - only timer, next-up (during countdown), and focus
+                // text (during work) are visible.
                 session.time=SURPRISE_TOTAL;session.total=SURPRISE_TOTAL;
                 ui.timerBg.className="bg-white";
                 enterSurpriseColours();setSurpriseTimerColour(true);
                 session.surpriseTask=Math.random()>0.5?"STRAIGHTS":"HOOKS";
+                // Hide entire top bar and bottom controls.
+                document.querySelector('.timer-top').style.visibility='hidden';
+                document.querySelector('.timer-bottom').style.visibility='hidden';
                 // No "GET READY" focus text during the 5-second lead-in - just the timer
                 // and the task name (STRAIGHTS/HOOKS) shown in the next-up area below.
                 autoSizeFocus("");ui.roundFocus.innerText="";
