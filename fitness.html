@@ -320,10 +320,48 @@
         .hr-pulse{animation:heartPulse 0.8s ease-in-out infinite;}
         .hr-badge{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:all 0.3s ease;}
         .zone-segment{height:24px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:rgba(255,255,255,0.95);text-shadow:0 1px 2px rgba(0,0,0,0.5);min-width:0;overflow:hidden;letter-spacing:0.02em;}
-        /* Safe-area padding for devices with notches, gesture bars, or system
-           overlays (applies on modern Android Chrome as well as any browser that
-           honours env(safe-area-inset-bottom)). */
-        #home-screen,#gym-day-screen,#setup-screen,#summary-screen{padding-bottom:max(1rem,env(safe-area-inset-bottom));}
+        /* Session type preset pills. Active pill uses the current theme colour.
+           Inactive pills are dark-slate with a subtle border. The (i) span inside
+           each pill is styled as a small inline circular info trigger - NOT a real
+           button element so it doesn't break the pill's own click target. JS
+           intercepts the click on the span and routes to the info modal. */
+        .session-type-pill{
+            background:rgba(30,41,59,0.6);
+            border-color:rgba(71,85,105,0.5);
+            color:#94a3b8;
+            white-space:nowrap;
+        }
+        .session-type-pill.active{
+            background-color:var(--theme-color);
+            border-color:transparent;
+            color:#ffffff;
+        }
+        .preset-info-btn{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width:12px;
+            height:12px;
+            border-radius:9999px;
+            border:1px solid currentColor;
+            font-style:italic;
+            font-family:Georgia,serif;
+            font-size:8px;
+            font-weight:700;
+            line-height:1;
+            opacity:0.7;
+            cursor:pointer;
+            flex-shrink:0;
+        }
+        /* Preset controls overlay: managed via JS show/hide of per-block overlay divs.
+           The .preset-active class on #setup-columns disables pointer events only. */
+        #setup-columns.preset-active{
+            pointer-events:none;
+        }
+        /* Hide scrollbar on the pill row on all browsers while keeping scroll functional. */
+        .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
+        .no-scrollbar::-webkit-scrollbar{display:none;}
+
         /* Screen-reader-only utility (invisible to sighted users, readable by assistive tech). */
         .sr-only-a11y{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
         /* Small circular info button for field explanations (e.g. Surprise Rounds,
@@ -516,9 +554,48 @@
                  Inside each block, per-person stacks (Liam + Ash) for Rounds and
                  Surprise are both visible at once. In Solo mode the Ash stacks
                  hide. No tabs - both people configure side-by-side vertically. -->
+            <!-- SESSION TYPE PICKER -->
+            <!-- A horizontal pill-scroll of named presets. Tapping a preset silently
+                 applies the relevant settings and dims the manual controls below (still
+                 tappable to switch back to Custom). Each pill has an (i) button that
+                 opens a description modal. "Custom" restores full manual control. -->
+            <div class="glass-card p-2 rounded-2xl flex-shrink-0 mb-1.5" id="session-type-card">
+                <div class="flex items-center gap-1.5 ml-1 mb-1.5">
+                    <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Session Type</p>
+                    <p class="text-[9px] text-slate-400">Tap a preset or build your own below</p>
+                </div>
+                <div class="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar" id="session-type-pills">
+                    <button class="session-type-pill flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all active:scale-[0.97]" data-preset="custom">Custom</button>
+                    <button class="session-type-pill flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all active:scale-[0.97]" data-preset="blitz">Blitz &amp; Burn <span class="preset-info-btn" data-preset="blitz">i</span></button>
+                    <button class="session-type-pill flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all active:scale-[0.97]" data-preset="endurance">Endurance Test <span class="preset-info-btn" data-preset="endurance">i</span></button>
+                    <button class="session-type-pill flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all active:scale-[0.97]" data-preset="gauntlet">Gauntlet <span class="preset-info-btn" data-preset="gauntlet">i</span></button>
+                    <button class="session-type-pill flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all active:scale-[0.97]" data-preset="deathvalley">Death Valley <span class="preset-info-btn" data-preset="deathvalley">i</span></button>
+                    <button class="session-type-pill flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all active:scale-[0.97]" data-preset="pyramid">Pyramid <span class="preset-info-btn" data-preset="pyramid">i</span></button>
+                    <button class="session-type-pill flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all active:scale-[0.97]" data-preset="rivals">Rivals <span class="preset-info-btn" data-preset="rivals">i</span></button>
+                    <button class="session-type-pill flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-bold border transition-all active:scale-[0.97]" data-preset="tagteam">Tag Team <span class="preset-info-btn" data-preset="tagteam">i</span></button>
+                </div>
+            </div>
+            <!-- SESSION TYPE PRESET INFO MODAL -->
+            <div id="preset-info-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" role="dialog" aria-modal="true" aria-labelledby="preset-info-title">
+                <div class="bg-slate-800 border border-slate-600 rounded-2xl p-4 max-w-sm w-full shadow-2xl space-y-3">
+                    <div class="flex items-center justify-between"><h3 id="preset-info-title" class="text-sm font-bold text-white"></h3><button id="btn-preset-info-close" aria-label="Close" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button></div>
+                    <p id="preset-info-body" class="text-[11px] sm:text-xs text-slate-300 leading-relaxed"></p>
+                    <p id="preset-info-modes" class="text-[10px] text-slate-400 leading-relaxed italic"></p>
+                    <button id="btn-preset-info-done" class="theme-btn w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-[0.98]">Got it</button>
+                </div>
+            </div>
             <div id="setup-columns" class="flex flex-col gap-1.5">
                 <!-- BLOCK 1 -->
-                <div class="glass-card p-2 rounded-2xl space-y-1.5 overflow-x-hidden">
+                <div id="block1-panel" class="glass-card p-2 rounded-2xl space-y-1.5 overflow-x-hidden">
+                    <!-- Preset-active overlay: shown when a session type preset is selected.
+                         Mimics the Block 2 disabled CTA strip so both blocks look consistent. -->
+                    <div id="block1-preset-overlay" class="hidden flex items-center justify-center gap-2 px-2 py-1">
+                        <div class="w-5 h-5 rounded-full border-2 border-dashed border-slate-500/60 flex items-center justify-center text-slate-400 text-xs font-light">&mdash;</div>
+                        <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 1</p>
+                        <p class="text-[9px] sm:text-[10px] text-slate-400 leading-tight">Preset active</p>
+                    </div>
+                    <!-- Normal Block 1 content, hidden when preset active -->
+                    <div id="block1-content">
                     <div class="flex items-center ml-1 mr-0.5">
                         <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 1</p>
                     </div>
@@ -577,15 +654,17 @@
                             <button class="btn-select random-btn py-1 rounded-xl text-[9px] font-bold uppercase tracking-tight" onclick="selectSurpriseRandom('wife',this)">RANDOM</button>
                         </div>
                     </div>
-                </div>
+                    </div><!-- /block1-content -->
+                </div><!-- /block1-panel -->
                 <!-- BLOCK 2 panel: slim CTA when disabled, expands inline when enabled.
                      Sits below Block 1 at full width. -->
                 <div id="block2-panel" class="glass-card rounded-2xl">
-                    <!-- 1 Block: compact CTA strip. -->
+                    <!-- 1 Block: compact CTA strip. The subtitle text swaps to "Preset active"
+                         when a session type is selected, via applySessionPreset(). -->
                     <div id="btn-block2-enable" role="button" tabindex="0" aria-label="Enable Block 2" class="flex items-center justify-center gap-2 px-2 py-2 cursor-pointer hover:bg-white/5 active:scale-[0.99] transition-all">
-                        <div class="w-5 h-5 rounded-full border-2 border-dashed border-slate-500/60 flex items-center justify-center text-slate-400 text-xs font-light">+</div>
+                        <div id="block2-enable-icon" class="w-5 h-5 rounded-full border-2 border-dashed border-slate-500/60 flex items-center justify-center text-slate-400 text-xs font-light">+</div>
                         <p class="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">Block 2</p>
-                        <p class="text-[9px] sm:text-[10px] text-slate-400 leading-tight">Disabled - tap to enable</p>
+                        <p id="block2-enable-subtitle" class="text-[9px] sm:text-[10px] text-slate-400 leading-tight">Disabled - tap to enable</p>
                         <button type="button" class="info-btn" id="btn-blocks-info" aria-label="What are training blocks?">i</button>
                     </div>
                     <!-- 2 Blocks: editable settings view, mirrors Block 1 -->
@@ -657,7 +736,7 @@
                  Sits between the settings cards and the action row so the reading
                  order is: configure -> review -> start. -->
             <div class="glass-card p-1.5 rounded-2xl flex-shrink-0 mt-1.5" id="session-summary">
-                <p class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center mb-0.5">Session</p>
+                <p id="session-summary-label" class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center mb-0.5">Session</p>
                 <p id="session-summary-line" class="text-[11px] sm:text-xs text-white text-center leading-snug font-mono-display">12 rounds + 2 surprise rounds = 14 active phases &middot; ~17 min</p>
             </div>
             <!-- Action row: just Begin Session. The Advanced modal access and the
@@ -949,9 +1028,11 @@
             surpriseEvery:'off',   // Block 1
             surpriseEveryB2:'off', // Block 2
             restBase:30,           // Solo mode base rest before progressive increment
+            flatRest:false,        // When true (Death Valley preset), suppresses the progressive increment so rest stays flat at restBase
             randomiseMiddle:true,  // Shuffle middle rounds (keeps warm-up / burnout fixed when >6 rounds)
             blocks:1,              // 1 or 2 training blocks
-            blockRestSecs:180      // Rest between block 1 and block 2 (120/180/300s)
+            blockRestSecs:180,     // Rest between block 1 and block 2 (120/180/300s)
+            sessionPreset:'custom' // Active session type preset key, or 'custom' for manual
         },prevMode='wife';
         // Backward-compat accessors. Most runtime callers now read settings.you.* or
         // settings.wife.* directly via the block-aware helpers below, but a few legacy
@@ -2625,6 +2706,9 @@
         function updateSessionSummary(){
             const el=document.getElementById('session-summary-line');
             if(!el)return;
+            // When a preset is active, only show the time estimate - nothing that
+            // reveals rounds, blocks, or surprise counts.
+            const presetActive=settings.sessionPreset&&settings.sessionPreset!=='custom';
             const isW=settings.mode==='wife';
             const has2=settings.blocks===2;
             // Effective per-person surprise counts. Numeric values are used directly.
@@ -2722,6 +2806,8 @@
                 if(sB1===0)return `${name} - ${p.rounds} rounds`;
                 return `${name} - ${p.rounds} rounds + ${t1} surprise`;
             };
+            // Preset active: show only the time estimate. Everything else is hidden.
+            if(presetActive){el.innerHTML=`~${mins} min`;return;}
             let line;
             if(asymmetric){
                 const liam=fmtPersonLine('Liam',settings.you,youS1,youS2,'you');
@@ -2903,7 +2989,7 @@
                 // per completed plan round. E.g. restBase=30, after 3 rounds = 30 + 3*5 = 45s.
                 // Wife mode does NOT enter 'rest' - it uses 'change' (10s) because user's work
                 // IS wife's rest by design.
-                const dur=Math.min(60,settings.restBase+(session.totalPlanRoundsCompleted*PROGRESSIVE_REST_INCREMENT_SECS));
+                const dur=settings.flatRest?settings.restBase:Math.min(60,settings.restBase+(session.totalPlanRoundsCompleted*PROGRESSIVE_REST_INCREMENT_SECS));
                 session.time=dur;session.total=dur;
                 if(isW){ui.timerBg.className="bg-red-600 rest-pulse";}
                 // Solo rest: vivid pure orange. Replaces Tailwind bg-orange-500 (#f97316)
@@ -3647,12 +3733,268 @@
             }catch(e){console.warn('saveIncrementalSnapshot:',e);}
         }
 
+        // ── SESSION TYPE PRESETS ────────────────────────────────────────────────
+        // Named session presets. Each entry defines the human-readable label,
+        // info modal content, and an `apply(mode)` function that mutates `settings`
+        // to match the preset for the current mode (Solo / Team). apply() is called
+        // after settings.mode is already set, so it can branch on mode.
+        //
+        // Presets ONLY affect the fields they care about; they call selectBlocks(),
+        // the grid-refresh helpers, and generateSessionPlan() at the end so the UI
+        // stays in sync. flatRest is reset to false by default and only set true by
+        // Death Valley.
+        //
+        // Rivals and Tag Team are meaningful in Team mode only; in Solo they fall
+        // back to a sensible equivalent (Rivals -> Gauntlet, Tag Team -> Blitz).
+        const SESSION_PRESETS={
+            custom:{
+                label:'Custom',
+                title:'Custom',
+                body:'Full manual control. Configure rounds, round length, surprise rounds, and blocks exactly as you want.',
+                modes:'Works in both Solo and Team mode.',
+                apply:()=>{
+                    // Nothing to apply - user controls everything.
+                    settings.flatRest=false;
+                }
+            },
+            blitz:{
+                label:'Blitz & Burn',
+                title:'Blitz & Burn',
+                body:'6 standard warm-up rounds in Block 1, then 3 min rest, then 6 rounds in Block 2 where every round has a surprise add-on guaranteed. Escalating intensity across the session.',
+                modes:'Works in both Solo and Team mode. In Team, both Liam and Ash get the surprise on every Block 2 round.',
+                apply:(mode)=>{
+                    settings.flatRest=false;
+                    const isT=mode==='wife';
+                    // B1: 6 rounds each, no surprise
+                    settings.you.rounds=6;settings.you.work=60;settings.you.surpriseCount=0;
+                    setEveryFor('you','b1',false);setRandomFor('you','b1',false);
+                    if(isT){settings.wife.rounds=6;settings.wife.work=60;settings.wife.surpriseCount=0;setEveryFor('wife','b1',false);setRandomFor('wife','b1',false);}
+                    // B2: 6 rounds each, EVERY surprise
+                    settings.you.roundsB2=6;settings.you.workB2=60;settings.you.surpriseCountB2=0;
+                    setEveryFor('you','b2',true);setRandomFor('you','b2',false);
+                    if(isT){settings.wife.roundsB2=6;settings.wife.workB2=60;settings.wife.surpriseCountB2=0;setEveryFor('wife','b2',true);setRandomFor('wife','b2',false);}
+                    // 3 min block rest
+                    settings.blockRestSecs=180;
+                    selectBlocks(2);
+                }
+            },
+            endurance:{
+                label:'Endurance Test',
+                title:'Endurance Test',
+                body:'12 rounds, 2 surprise rounds at random positions. Standard progressive rest. Built for the long haul - no tricks, just volume.',
+                modes:'Works in both Solo and Team mode.',
+                apply:(mode)=>{
+                    settings.flatRest=false;
+                    const isT=mode==='wife';
+                    settings.you.rounds=12;settings.you.work=60;settings.you.surpriseCount=2;
+                    setEveryFor('you','b1',false);setRandomFor('you','b1',false);
+                    if(isT){settings.wife.rounds=12;settings.wife.work=60;settings.wife.surpriseCount=2;setEveryFor('wife','b1',false);setRandomFor('wife','b1',false);}
+                    selectBlocks(1);
+                }
+            },
+            gauntlet:{
+                label:'Gauntlet',
+                title:'Gauntlet',
+                body:'10 rounds. Every single round has a surprise add-on - no clean rounds, no reprieve. In Solo, progressive rest still runs between rounds.',
+                modes:'Works in both Solo and Team mode. In Team, both Liam and Ash get the surprise on every round.',
+                apply:(mode)=>{
+                    settings.flatRest=false;
+                    const isT=mode==='wife';
+                    settings.you.rounds=10;settings.you.work=60;
+                    setEveryFor('you','b1',true);setRandomFor('you','b1',false);
+                    if(isT){settings.wife.rounds=10;settings.wife.work=60;setEveryFor('wife','b1',true);setRandomFor('wife','b1',false);}
+                    selectBlocks(1);
+                }
+            },
+            deathvalley:{
+                label:'Death Valley',
+                title:'Death Valley',
+                body:'10 rounds, 2-3 surprise rounds, but rest is locked flat at 30s throughout - no progressive increase. The rounds are standard; the recovery is the punishment.',
+                modes:'Applies in Solo mode only. In Team, changeover is already a fixed 10s so this preset behaves identically to Endurance Test.',
+                apply:(mode)=>{
+                    settings.flatRest=true;
+                    const isT=mode==='wife';
+                    settings.you.rounds=10;settings.you.work=60;settings.you.surpriseCount=3;
+                    setEveryFor('you','b1',false);setRandomFor('you','b1',false);
+                    if(isT){settings.wife.rounds=10;settings.wife.work=60;settings.wife.surpriseCount=3;setEveryFor('wife','b1',false);setRandomFor('wife','b1',false);}
+                    selectBlocks(1);
+                }
+            },
+            pyramid:{
+                label:'Pyramid',
+                title:'Pyramid',
+                body:'6 rounds in Block 1 with 1 surprise round, then 3 min rest, then 6 rounds in Block 2 where every round has a surprise. Gentle start, brutal finish.',
+                modes:'Works in both Solo and Team mode. In Team, both Liam and Ash share the escalating pressure.',
+                apply:(mode)=>{
+                    settings.flatRest=false;
+                    const isT=mode==='wife';
+                    // B1: 6 rounds, 1 surprise each
+                    settings.you.rounds=6;settings.you.work=60;settings.you.surpriseCount=1;
+                    setEveryFor('you','b1',false);setRandomFor('you','b1',false);
+                    if(isT){settings.wife.rounds=6;settings.wife.work=60;settings.wife.surpriseCount=1;setEveryFor('wife','b1',false);setRandomFor('wife','b1',false);}
+                    // B2: 6 rounds, EVERY surprise
+                    settings.you.roundsB2=6;settings.you.workB2=60;
+                    setEveryFor('you','b2',true);setRandomFor('you','b2',false);
+                    if(isT){settings.wife.roundsB2=6;settings.wife.workB2=60;setEveryFor('wife','b2',true);setRandomFor('wife','b2',false);}
+                    settings.blockRestSecs=180;
+                    selectBlocks(2);
+                }
+            },
+            rivals:{
+                label:'Rivals',
+                title:'Rivals',
+                body:'10 rounds. Liam gets a surprise add-on on every round; Ash gets none. Swap next session. One person takes the punishment while the other watches.',
+                modes:'Team mode only. In Solo, falls back to Gauntlet (every round surprises for you).',
+                apply:(mode)=>{
+                    settings.flatRest=false;
+                    if(mode==='wife'){
+                        settings.you.rounds=10;settings.you.work=60;
+                        setEveryFor('you','b1',true);setRandomFor('you','b1',false);
+                        settings.wife.rounds=10;settings.wife.work=60;settings.wife.surpriseCount=0;
+                        setEveryFor('wife','b1',false);setRandomFor('wife','b1',false);
+                    }else{
+                        // Solo fallback: same as Gauntlet
+                        settings.you.rounds=10;settings.you.work=60;
+                        setEveryFor('you','b1',true);setRandomFor('you','b1',false);
+                    }
+                    selectBlocks(1);
+                }
+            },
+            tagteam:{
+                label:'Tag Team',
+                title:'Tag Team',
+                body:'Two blocks. Block 1 is Liam\'s punishment - surprises on every one of his rounds, Ash gets none. Block 2 flips it: Ash gets every surprise, Liam gets none. Each owns a block.',
+                modes:'Team mode only. In Solo, falls back to Blitz & Burn.',
+                apply:(mode)=>{
+                    settings.flatRest=false;
+                    if(mode==='wife'){
+                        // B1: Liam EVERY, Ash off
+                        settings.you.rounds=6;settings.you.work=60;
+                        setEveryFor('you','b1',true);setRandomFor('you','b1',false);
+                        settings.wife.rounds=6;settings.wife.work=60;settings.wife.surpriseCount=0;
+                        setEveryFor('wife','b1',false);setRandomFor('wife','b1',false);
+                        // B2: Ash EVERY, Liam off
+                        settings.you.roundsB2=6;settings.you.workB2=60;settings.you.surpriseCountB2=0;
+                        setEveryFor('you','b2',false);setRandomFor('you','b2',false);
+                        settings.wife.roundsB2=6;settings.wife.workB2=60;
+                        setEveryFor('wife','b2',true);setRandomFor('wife','b2',false);
+                        settings.blockRestSecs=180;
+                        selectBlocks(2);
+                    }else{
+                        // Solo fallback: Blitz & Burn
+                        settings.you.rounds=6;settings.you.work=60;settings.you.surpriseCount=0;
+                        setEveryFor('you','b1',false);setRandomFor('you','b1',false);
+                        settings.you.roundsB2=6;settings.you.workB2=60;
+                        setEveryFor('you','b2',true);setRandomFor('you','b2',false);
+                        settings.blockRestSecs=180;
+                        selectBlocks(2);
+                    }
+                }
+            }
+        };
+
+        // Apply a named preset. Updates settings, refreshes all grids, dims or
+        // restores the manual controls overlay, and highlights the active pill.
+        function applySessionPreset(key){
+            const preset=SESSION_PRESETS[key];
+            if(!preset)return;
+            settings.sessionPreset=key;
+            preset.apply(settings.mode);
+            refreshGrids();
+            generateSessionPlan();
+            // Pill highlighting
+            document.querySelectorAll('.session-type-pill').forEach(p=>{
+                p.classList.toggle('active',p.dataset.preset===key);
+            });
+            const isCustom=key==='custom';
+            // Block 1: swap between overlay strip and full content
+            const b1overlay=document.getElementById('block1-preset-overlay');
+            const b1content=document.getElementById('block1-content');
+            if(b1overlay)b1overlay.classList.toggle('hidden',isCustom);
+            if(b1content)b1content.classList.toggle('hidden',!isCustom);
+            // Block 2: update the disabled CTA subtitle; if Block 2 is currently
+            // expanded (edit view), collapse it back to the CTA strip first.
+            const b2subtitle=document.getElementById('block2-enable-subtitle');
+            const b2icon=document.getElementById('block2-enable-icon');
+            if(b2subtitle)b2subtitle.textContent=isCustom?'Disabled - tap to enable':'Preset active';
+            if(b2icon)b2icon.textContent=isCustom?'+':'\u2014';
+            const b2info=document.getElementById('btn-blocks-info');
+            if(b2info)b2info.classList.toggle('hidden',!isCustom);
+            // If preset active, always keep Block 2 in CTA strip mode (never show edit view)
+            if(!isCustom){showBlock2View(false);}
+            // pointer-events guard on the whole columns div
+            const cols=document.getElementById('setup-columns');
+            if(cols)cols.classList.toggle('preset-active',!isCustom);
+            // Session summary label
+            const lbl=document.getElementById('session-summary-label');
+            if(lbl)lbl.textContent=isCustom?'Session':'Session (preset)';
+        }
+
+        // Wire up session type pills. Clicks on the (i) span open the info modal;
+        // clicks anywhere else on the pill (or on Custom) apply the preset.
+        (()=>{
+            const modal=document.getElementById('preset-info-modal');
+            const titleEl=document.getElementById('preset-info-title');
+            const bodyEl=document.getElementById('preset-info-body');
+            const modesEl=document.getElementById('preset-info-modes');
+            const closeModal=()=>modal.classList.add('hidden');
+            document.getElementById('btn-preset-info-close').onclick=closeModal;
+            document.getElementById('btn-preset-info-done').onclick=closeModal;
+            modal.onclick=e=>{if(e.target===modal)closeModal();};
+
+            document.querySelectorAll('.session-type-pill').forEach(pill=>{
+                pill.onclick=e=>{
+                    const infoSpan=e.target.closest('.preset-info-btn');
+                    if(infoSpan){
+                        e.stopPropagation();
+                        const p=SESSION_PRESETS[infoSpan.dataset.preset];
+                        if(!p)return;
+                        titleEl.textContent=p.title;
+                        bodyEl.textContent=p.body;
+                        modesEl.textContent=p.modes;
+                        modal.classList.remove('hidden');
+                        return;
+                    }
+                    applySessionPreset(pill.dataset.preset);
+                };
+            });
+
+            // When mode changes, re-apply the active preset so settings stay correct.
+            // We patch setMode() with a post-hook after it's defined.
+            const _origSetMode=setMode;
+            // setMode is not reassignable from outside its closure; instead we'll
+            // hook via the mode button onclick handlers after the fact. See below.
+        })();
+
+        // Re-apply active preset when mode toggle is tapped so a preset configured
+        // for Team doesn't leave stale EVERY flags in Solo (and vice versa).
+        // We override the mode button onclick handlers that were set in setMode's
+        // wiring to wrap them.
+        (()=>{
+            const soloBtn=document.getElementById('mode-solo');
+            const wifeBtn=document.getElementById('mode-wife');
+            const wrap=(btn,mode)=>{
+                const orig=btn.onclick;
+                btn.onclick=()=>{
+                    if(orig)orig();
+                    // After mode has changed, re-apply the current preset if not Custom.
+                    if(settings.sessionPreset&&settings.sessionPreset!=='custom'){
+                        applySessionPreset(settings.sessionPreset);
+                    }
+                };
+            };
+            // Defer so setMode wiring (which runs a few lines later in INIT) has run first.
+            setTimeout(()=>{wrap(soloBtn,'solo');wrap(wifeBtn,'wife');},0);
+        })();
+
         // ── INIT ────────────────────────────────────────────────────────────────
         // Show home screen, build the default plan preview, and apply Wife mode styling.
         generateSessionPlan();
         setMode('wife');
         refreshGrids();
         updateAdvancedSummary();
+        // Highlight Custom pill on load (no preset active by default).
+        applySessionPreset('custom');
     });
     </script>
 </body>
