@@ -762,7 +762,7 @@
         </div>
         <!-- SESSION SUMMARY -->
         <div id="summary-screen" class="hidden w-full max-w-lg py-6 px-2 space-y-4 overflow-y-auto max-h-[100dvh]">
-            <div class="text-center"><h1 class="text-2xl font-bold text-white tracking-tight">Session Complete</h1><p id="summary-duration" class="text-sm text-slate-400 mt-1"></p></div>
+            <div class="text-center"><h1 class="text-2xl font-bold text-white tracking-tight">Session Complete</h1><p id="summary-duration" class="text-sm text-slate-400 mt-1"></p><p id="summary-datetime" class="text-xs text-slate-500 mt-0.5"></p></div>
             <div id="summary-capture" class="space-y-4"><div id="summary-combined"></div><div id="summary-you"></div><div id="summary-wife"></div></div>
             <div class="grid grid-cols-2 gap-3">
                 <button id="btn-summary-save" class="bg-slate-700/50 hover:bg-slate-700/70 border border-white/5 text-white font-bold py-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 3v12m0 0l-4-4m4 4l4-4"/></svg>Save Image</button>
@@ -1554,7 +1554,7 @@
 
         // Render the summary screen. Delays chart draw by 80ms so the card HTML
         // has reflowed and canvas elements report correct offsetWidth.
-        function showSummary(){const hY=hrHistoryYou.length>=2,hW=hrHistoryWife.length>=2;if(!hY&&!hW){showScreen('setup');setMode(prevMode);return;}const ds=Math.round((Date.now()-sessionStartTime)/1000),dM=Math.floor(ds/60),dS=ds%60;document.getElementById('summary-duration').innerText=`${dM}:${dS.toString().padStart(2,'0')} total`;const isW=settings.mode==='wife';
+        function showSummary(){const hY=hrHistoryYou.length>=2,hW=hrHistoryWife.length>=2;if(!hY&&!hW){showScreen('setup');setMode(prevMode);return;}const ds=Math.round((Date.now()-sessionStartTime)/1000),dM=Math.floor(ds/60),dS=ds%60;document.getElementById('summary-duration').innerText=`${dM}:${dS.toString().padStart(2,'0')} total`;const _now=new Date();document.getElementById('summary-datetime').innerText=_now.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+' \u00b7 '+_now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});const isW=settings.mode==='wife';
             // Per-person work/rest seconds. In Wife mode use the round-parity attribution.
             // In Solo mode use the per-strap attribution from accumulatePhaseTime.
             const wYou=isW?workSecs('you'):workSecs('you');const rYou=isW?restSecs('you'):restSecs('you');
