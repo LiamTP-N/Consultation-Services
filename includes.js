@@ -1,23 +1,9 @@
-/**
- * Shared navigation & footer for all pages.
- * Usage: <script src="includes.js" defer></script>
- *        <nav id="main-nav"></nav>           (place where nav should render)
- *        <footer id="main-footer"></footer>  (place where footer should render)
- *
- * Each page sets:  <meta name="current-page" content="index">  (or live-research, portfolio, cv, jobs, etc.)
- *
- * Also injects:
- *   - Twitter/X card meta tags (derived from existing OG tags)
- *   - Back-to-top button
- *   - Client-side site search modal
- */
-
 (function () {
     const page = document.querySelector('meta[name="current-page"]')?.content || '';
 
-    // ---------------------------------------------------------------
-    // Twitter/X card meta injection (reads existing OG tags)
-    // ---------------------------------------------------------------
+    
+    
+    
     (function injectTwitterCards() {
         const mapping = [
             { twitter: 'twitter:card',        fallback: 'summary_large_image' },
@@ -26,7 +12,7 @@
             { twitter: 'twitter:image',       og: 'og:image' },
         ];
         mapping.forEach(function (entry) {
-            if (document.querySelector('meta[name="' + entry.twitter + '"]')) return; // already set
+            if (document.querySelector('meta[name="' + entry.twitter + '"]')) return; 
             var meta = document.createElement('meta');
             meta.setAttribute('name', entry.twitter);
             if (entry.og) {
@@ -39,9 +25,9 @@
         });
     })();
 
-    // ---------------------------------------------------------------
-    // Shared CSS
-    // ---------------------------------------------------------------
+    
+    
+    
     const sharedCSS = document.createElement('style');
     sharedCSS.textContent = `
         html { scroll-behavior: smooth; }
@@ -53,7 +39,7 @@
         }
         .glow-text { text-shadow: 0 0 8px rgba(34, 197, 94, 0.4); }
 
-        /* Back-to-top button */
+        
         #back-to-top {
             position: fixed;
             bottom: 2rem;
@@ -87,7 +73,7 @@
             border-color: rgba(59, 130, 246, 0.5);
         }
 
-        /* Search modal */
+        
         #site-search-overlay {
             position: fixed;
             inset: 0;
@@ -170,9 +156,9 @@
     `;
     document.head.appendChild(sharedCSS);
 
-    // ---------------------------------------------------------------
-    // Helpers
-    // ---------------------------------------------------------------
+    
+    
+    
     function linkClass(id) {
         if (id === 'live-research') return 'text-green-500 font-bold animate-pulse glow-text';
         return page === id ? 'text-white' : 'hover:text-blue-400 transition-colors';
@@ -190,9 +176,9 @@
         { id: 'jobs', label: 'Jobs', href: 'jobs.html' },
     ];
 
-    // ---------------------------------------------------------------
-    // Navigation (no search icon)
-    // ---------------------------------------------------------------
+    
+    
+    
     const nav = document.getElementById('main-nav');
     if (nav) {
         nav.className = 'fixed w-full z-50 transition-all duration-300 bg-transparent py-4';
@@ -222,7 +208,7 @@
             </div>
         </div>`;
 
-        // scroll behaviour (throttled to ~60fps)
+        
         let scrollTick = false;
         const handleScroll = () => {
             if (window.scrollY > 50) {
@@ -244,7 +230,7 @@
         });
         handleScroll();
 
-        // mobile menu toggle
+        
         const btn = document.getElementById('mobile-menu-btn');
         const menu = document.getElementById('mobile-menu');
         if (btn && menu) {
@@ -252,9 +238,9 @@
         }
     }
 
-    // ---------------------------------------------------------------
-    // Footer
-    // ---------------------------------------------------------------
+    
+    
+    
     const footer = document.getElementById('main-footer');
     if (footer) {
         const year = new Date().getFullYear();
@@ -292,9 +278,9 @@
         </div>`;
     }
 
-    // ---------------------------------------------------------------
-    // Back-to-top button
-    // ---------------------------------------------------------------
+    
+    
+    
     (function initBackToTop() {
         var btt = document.createElement('button');
         btt.id = 'back-to-top';
@@ -328,11 +314,11 @@
         });
     })();
 
-    // ---------------------------------------------------------------
-    // Site search (Ctrl/Cmd+K still works, just no visible button)
-    // ---------------------------------------------------------------
+    
+    
+    
     (function initSiteSearch() {
-        // Build overlay
+        
         var overlay = document.createElement('div');
         overlay.id = 'site-search-overlay';
         overlay.innerHTML = `
@@ -361,12 +347,12 @@
             activeIdx = -1;
         }
 
-        // Close on overlay click (not box)
+        
         overlay.addEventListener('click', function (e) {
             if (e.target === overlay) closeSearch();
         });
 
-        // Keyboard: Ctrl/Cmd+K to open, Esc to close
+        
         document.addEventListener('keydown', function (e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
@@ -377,7 +363,7 @@
             }
         });
 
-        // Load index on first open
+        
         function ensureIndex(cb) {
             if (searchIndex) return cb();
             fetch('search-index.json')
@@ -399,7 +385,7 @@
                 var score = 0;
                 terms.forEach(function (t) {
                     if (haystack.indexOf(t) !== -1) score++;
-                    if (item.title.toLowerCase().indexOf(t) !== -1) score += 2; // title match bonus
+                    if (item.title.toLowerCase().indexOf(t) !== -1) score += 2; 
                 });
                 return { item: item, score: score };
             }).filter(function (s) { return s.score > 0; });
@@ -455,9 +441,9 @@
         });
     })();
 
-    // ---------------------------------------------------------------
-    // Fade-in animation
-    // ---------------------------------------------------------------
+    
+    
+    
     document.querySelectorAll('.animate-fade-in').forEach((el, i) => {
         setTimeout(() => el.classList.add('loaded'), 50 * (i + 1));
     });
