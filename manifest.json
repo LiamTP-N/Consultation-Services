@@ -1,7 +1,7 @@
 {
   "name": "Fitness Timer",
   "short_name": "Fitness",
-  "start_url": "./fitness.html",
+  "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

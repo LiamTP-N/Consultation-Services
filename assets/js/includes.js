@@ -366,7 +366,7 @@
         
         function ensureIndex(cb) {
             if (searchIndex) return cb();
-            fetch('search-index.json')
+            fetch('scraper/search-index.json')
                 .then(function (r) { return r.json(); })
                 .then(function (data) { searchIndex = data; cb(); })
                 .catch(function () {

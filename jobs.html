@@ -166,7 +166,7 @@
 
     <footer id="main-footer"></footer>
 
-    <script src="includes.js" defer></script>
+    <script src="assets/js/includes.js" defer></script>
     <script>
     const MAX_AGE_DAYS = 30;
     const PAGE_SIZE = 30;
@@ -438,7 +438,7 @@
 
     async function loadJobs() {
         try {
-            const res = await fetch('jobs.json?v=' + Date.now());
+            const res = await fetch('scraper/jobs.json?v=' + Date.now());
             const data = await res.json();
             allJobs = deduplicateJobs(data.jobs || []);
             const upd = data.last_updated

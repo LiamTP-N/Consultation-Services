@@ -1,6 +1,6 @@
-const CACHE_NAME = 'fitness-v2';
+const CACHE_NAME = 'consultation-v1';
 const ASSETS = [
-  './fitness.html',
+  './app.html',
   './manifest.json',
   './assets/tailwind.cdn.js',
   'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap'
