@@ -1,2 +1,2 @@
-const GH_TOKEN = 'github_pat_11BJ' + 'Q6G4A0PFWYPhGSOX8A_unXzzrQmf6359zSiPgzS4xSG0T980CweUeJIbrR1lq0IYKJQU2DZNLtImXV';
+const GH_TOKEN = '';
 const PASSPHRASE = 'LAK';
