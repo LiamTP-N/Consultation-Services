@@ -2,7 +2,7 @@
 
 **Live site:** [liamtp-n.github.io/Consultation-Services/](https://liamtp-n.github.io/Consultation-Services/)
 **Hosting:** GitHub Pages (static only - no server-side code)
-**Stack:** Vanilla HTML/CSS/JS · Tailwind CSS via CDN · Firebase/Firestore · Google Apps Script
+**Stack:** Vanilla HTML/CSS/JS · Tailwind CSS (self-hosted, `assets/tailwind.cdn.js`) · Firebase/Firestore · Google Apps Script
 
 A personal professional website covering consultancy services, academic CV/portfolio, an automated job board for exercise science roles across the UK and Canada, a live research studies feed, and a pose-estimation fitness web app (ROM-based Exercise).
 
@@ -29,7 +29,10 @@ A personal professional website covering consultancy services, academic CV/portf
 ├── sw.js                   Service worker
 ├── SECURITY.md             Security disclosure policy
 ├── scrape.py               Daily job scraper script
-└── scrape.yml              GitHub Actions workflow for the scraper
+├── scrape.yml              GitHub Actions workflow for the scraper
+├── assets/
+│   ├── images/             Static image assets
+│   └── tailwind.cdn.js     Self-hosted Tailwind CSS Play CDN script (replaces cdn.tailwindcss.com)
 ```
 
 ---
@@ -111,7 +114,7 @@ The scraper pulls roles matching exercise science, kinesiology, physiology, biom
 ## Key technical rules
 
 - **Static hosting only** - no server-side code, no build steps. All changes are committed via GitHub Desktop or the `github.dev` browser editor.
-- **Tailwind CSS via CDN** - intentional; do not replace with a compiled stylesheet. JIT/arbitrary values depend on it.
+- **Tailwind CSS is self-hosted** as `assets/tailwind.cdn.js` (the Play CDN script, downloaded from cdn.tailwindcss.com). Do not replace with a compiled stylesheet - JIT/arbitrary values depend on the Play CDN runtime. To update, re-download `cdn.tailwindcss.com` and overwrite `assets/tailwind.cdn.js`.
 - **`includes.js` pattern is mandatory** for all public pages. Never use inline nav/footer placeholders, fake `href="#"` links, or image placeholder divs.
 - **Real image paths must always be preserved** - images live in `assets/images/` with their original filenames.
 
