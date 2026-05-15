@@ -783,8 +783,9 @@
             <div class="timer-top w-full flex justify-between items-start">
                 <div class="flex flex-col items-start" style="gap:0.5dvh;">
                     <div id="hr-live-you" class="hr-badge-you hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl border"><div class="flex items-center" style="gap:0.3rem;"><svg class="hr-icon hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-you-bpm" class="hr-bpm-text hr-bpm font-black font-mono-display">--</span></div><canvas id="hr-spark-you" class="rounded" style="display:block;"></canvas></div>
-                    <div style="display:flex;flex-direction:column;gap:clamp(2px,0.4dvh,6px);"><p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p><div class="flex items-baseline" style="gap:0.3rem;"><span id="current-round" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span><span class="round-slash text-white/60 font-bold t-stroke">/</span><span id="total-rounds" class="round-slash text-white/60 font-bold t-stroke">12</span></div></div>
+                    <div style="display:flex;flex-direction:column;gap:clamp(2px,0.4dvh,6px);"><p class="round-label-text font-bold text-white/60 uppercase tracking-[0.2em] t-stroke" id="round-label">Round</p><div class="flex items-baseline" style="gap:0.3rem;"><span id="current-round" class="round-num font-black font-mono-display text-white drop-shadow-md t-stroke-heavy">1</span><span class="round-slash text-white/60 font-bold t-stroke">/</span><span id="total-rounds" class="round-slash text-white/60 font-bold t-stroke">12</span></div><span id="surprise-count-hint" class="hidden round-label-text text-white/40 t-stroke" style="font-size:clamp(0.55rem,1.3dvh,0.8rem);letter-spacing:0.05em;"></span></div>
                 </div>
+                <div class="flex flex-col items-center justify-start" style="gap:0.5dvh;"><span id="session-type-badge" class="hidden ctrl-btn flex items-center rounded-full backdrop-blur-md bg-black/20 border border-white/10 t-stroke-btn" style="white-space:nowrap;"></span></div>
                 <div class="flex flex-col items-end" style="gap:0.5dvh;">
                     <div id="hr-live-wife" class="hidden hr-badge-box hr-badge flex flex-col items-center rounded-xl bg-purple-600/20 border border-purple-500/30"><div class="flex items-center" style="gap:0.3rem;"><svg class="text-purple-400 hr-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span id="hr-wife-bpm" class="hr-bpm font-black font-mono-display text-purple-300">--</span></div><canvas id="hr-spark-wife" class="rounded" style="display:block;"></canvas></div>
                     <button id="btn-mute-voice" aria-label="Toggle voice announcements" aria-pressed="true" class="ctrl-btn flex items-center rounded-full backdrop-blur-md bg-black/20 border border-white/10 active:scale-95 transition-all"><svg id="icon-voice-on" class="hidden text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M11 5L6 9H2v6h4l5 4V5z"/></svg><svg id="icon-voice-off" class="text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/></svg><span id="voice-label" class="font-bold uppercase tracking-wider text-red-400">Voice</span></button>
@@ -2819,6 +2820,17 @@
         //   true            = red text (used for transitions to coloured backgrounds)
         //   'black'         = pure black, no "NEXT:" label, for surprise task on white bg
         function setNextUp(content,color=false){if(!content){ui.nextUp.innerHTML='';return;}const col=color==='black'?'style="color:#000000;-webkit-text-stroke:0"':color?'style="color:#ef4444"':'';const styled=styledRoundName(content);const label=color==='black'?'':'<span class="next-label" '+col+'>NEXT:</span>';ui.nextUp.innerHTML=`${label}<span class="next-content" ${col}>${styled}</span>`;}
+        // Surprise-count hint below the round counter. Shows "+N \u2605" for fixed counts;
+        // hidden when random (preserves surprise) or zero.
+        function updateSurpriseHint(block){
+            const el=document.getElementById('surprise-count-hint');if(!el)return;
+            const isW=settings.mode==='wife';
+            if(isRandomFor('you',block)||(isW&&isRandomFor('wife',block))){el.classList.add('hidden');return;}
+            const youS=block==='b2'?(isEveryFor('you','b2')?settings.you.roundsB2:settings.you.surpriseCountB2):(isEveryFor('you','b1')?settings.you.rounds:settings.you.surpriseCount);
+            const wifeS=isW?(block==='b2'?(isEveryFor('wife','b2')?settings.wife.roundsB2:settings.wife.surpriseCountB2):(isEveryFor('wife','b1')?settings.wife.rounds:settings.wife.surpriseCount)):0;
+            const total=isW?youS+wifeS:youS;
+            if(total>0){el.textContent='+'+total+' \u2605';el.classList.remove('hidden');}else{el.classList.add('hidden');}
+        }
 
         // ── BLOCK HELPERS ───────────────────────────────────────────────────────
         // Thin accessors that return the right state bucket based on currentBlock.
@@ -2944,8 +2956,7 @@
                 // transition. For solid 'speed' / 'power' the timer stays one colour;
                 // for the gradient patterns it interpolates start->end across the round.
                 session.currentEmphasisPattern=rd.emphasisPattern||null;
-                ui.roundCur.innerText=absoluteRound;
-                ui.roundTot.innerText=totalPlanRounds;
+                if(settings.blocks===2){const _rlEl=document.getElementById('round-label');if(_rlEl)_rlEl.textContent=session.currentBlock===1?'B1':'B2';ui.roundCur.innerText=displayRound;ui.roundTot.innerText=blockRounds;updateSurpriseHint(session.currentBlock===1?'b1':'b2');}else{ui.roundCur.innerText=absoluteRound;ui.roundTot.innerText=totalPlanRounds;updateSurpriseHint('b1');}
                 setNextUp('');
                 // Background colour cue: green = user's work, purple = wife's work (Wife mode),
                 // plain green in Solo. Odd rounds = user, even = wife.
@@ -3368,6 +3379,10 @@
             session.totalPlanRoundsCompleted=0;
             const totalDisplay=settings.blocks===2?(settings.rounds+settings.roundsB2):settings.rounds;
             ui.roundTot.innerText=totalDisplay;ui.roundCur.innerText='1';
+            const _rlElS=document.getElementById('round-label');if(_rlElS)_rlElS.textContent=settings.blocks===2?'B1':'Round';
+            updateSurpriseHint('b1');
+            const _stBadge=document.getElementById('session-type-badge');
+            if(_stBadge){const _pk=settings.sessionPreset;if(_pk&&_pk!=='custom'&&SESSION_PRESETS[_pk]){_stBadge.textContent=SESSION_PRESETS[_pk].label;_stBadge.classList.remove('hidden');}else{_stBadge.classList.add('hidden');}}
             // Pick surprise round indices for block 1 (always) and block 2 (if 2 blocks).
             // Per-person sets in Wife mode - user and wife may each get surprise rounds
             // at different indices (adds unpredictability for the partner too). RANDOM
