@@ -1,0 +1,51 @@
+stages:
+  - scrape
+  - deploy
+
+# -----------------------------------------------------------------------
+# Daily job scrape - runs on a GitLab scheduled pipeline (07:00 UTC).
+# Set up at: CI/CD > Schedules > "0 7 * * *" targeting main.
+# -----------------------------------------------------------------------
+scrape:
+  stage: scrape
+  image: python:3.11-slim
+  only:
+    - schedules
+  script:
+    - apt-get update -qq && apt-get install -y -qq git
+    - pip install --quiet requests beautifulsoup4 lxml
+    - python scraper/scrape.py
+    - git config user.name "gitlab-ci[bot]"
+    - git config user.email "gitlab-ci[bot]@noreply.gitlab.com"
+    - git remote set-url origin "https://gitlab-ci-token:${CI_PUSH_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+    - git fetch origin main
+    - git checkout main
+    - cp scraper/jobs.json /tmp/jobs.json
+    - git checkout main -- scraper/jobs.json
+    - cp /tmp/jobs.json scraper/jobs.json
+    - git add scraper/jobs.json
+    - |
+      if git diff --staged --quiet; then
+        echo "No changes to commit."
+      else
+        git commit -m "chore: daily job scrape $(date -u +'%Y-%m-%d %H:%M UTC')"
+        git push origin main
+      fi
+  artifacts:
+    paths:
+      - scraper/jobs.json
+    expire_in: 2 hrs
+
+# -----------------------------------------------------------------------
+# Pages deployment - runs on every push to main.
+# -----------------------------------------------------------------------
+pages:
+  stage: deploy
+  script:
+    - mkdir -p public
+    - cp -r * public/ 2>/dev/null || true
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
