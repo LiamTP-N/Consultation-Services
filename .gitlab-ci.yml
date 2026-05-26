@@ -38,14 +38,20 @@ scrape:
 
 # -----------------------------------------------------------------------
 # Pages deployment - runs on every push to main.
+# Uses the modern `pages:` keyword + `publish:` directive required by
+# GitLab Pages. The `pages` job builds the artifact; GitLab's internal
+# `pages:deploy` step then publishes it.
 # -----------------------------------------------------------------------
 pages:
   stage: deploy
+  image: alpine:latest
   script:
     - mkdir -p public
-    - cp -r * public/ 2>/dev/null || true
+    - cp -r $(ls -A | grep -v '^public$' | grep -v '^\.git$') public/
+  pages: true
+  publish: public
   artifacts:
     paths:
       - public
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
