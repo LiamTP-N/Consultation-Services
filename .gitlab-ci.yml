@@ -46,8 +46,12 @@ pages:
   stage: deploy
   image: alpine:latest
   script:
-    - mkdir -p public
-    - cp -r $(ls -A | grep -v '^public$' | grep -v '^\.git$') public/
+    - rm -rf public
+    - mkdir public
+    - find . -maxdepth 1 -mindepth 1 ! -name public ! -name '.git' ! -name '.gitlab-ci.yml' -exec cp -r {} public/ \;
+    - echo "=== Verifying deployed jobs.json ==="
+    - ls -la public/scraper/
+    - tail -c 100 public/scraper/jobs.json
   pages: true
   publish: public
   artifacts:
