@@ -24,6 +24,8 @@
         .source-highered    { background: #1a2f1a; color: #86efac; }
         .source-uaffairs    { background: #2d1a1a; color: #fca5a5; }
         .source-adzuna      { background: #2d2a1a; color: #fde68a; }
+        .source-greenhouse  { background: #1a3a1a; color: #86efac; }
+        .source-lever       { background: #3a2a1a; color: #fdba74; }
         .country-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
         .country-uk     { background: #1e3050; color: #93c5fd; }
         .country-ca     { background: #2d1818; color: #fca5a5; }
@@ -87,6 +89,8 @@
                     <option value="all">All sources</option>
                     <option value="Jobs.ac.uk">Jobs.ac.uk</option>
                     <option value="Adzuna">Adzuna</option>
+                    <option value="Greenhouse">Greenhouse (industry)</option>
+                    <option value="Lever">Lever (industry)</option>
                     <option value="THEunijobs">THEunijobs</option>
                     <option value="HigherEdJobs">HigherEdJobs</option>
                     <option value="University Affairs">University Affairs</option>
@@ -283,6 +287,8 @@
         if (l.includes('highered'))            return 'source-highered';
         if (l.includes('university affairs'))  return 'source-uaffairs';
         if (l.includes('adzuna'))              return 'source-adzuna';
+        if (l.includes('greenhouse'))          return 'source-greenhouse';
+        if (l.includes('lever'))               return 'source-lever';
         return '';
     }
 

@@ -1,6 +1,6 @@
 """
 ================================================================
-SCRAPE.PY - automated job scraper for the jobs board (Phase 2)
+SCRAPE.PY - automated job scraper for the jobs board (Phase 3)
 ================================================================
 
 Purpose
@@ -11,21 +11,29 @@ computes a per-job fit score weighted to Liam's profile, dedupes
 across sources, and writes the result to jobs.json for the static
 site (jobs.html) to render client-side.
 
-Sources (Phase 2)
+Sources (Phase 3)
 -----------------
 UK:
-  - Jobs.ac.uk RSS (12 feeds: sport, lab/tech, health/medical,
-    biology, nutrition, computer science, library/info services,
-    professional/managerial, research related, PhDs, engineering,
-    mathematics/statistics)
-  - Adzuna API UK (opt-in, set ADZUNA_APP_ID + ADZUNA_APP_KEY env vars)
-  - Bluesky (@jobsinsportscience.bsky.social feed)
+  - Jobs.ac.uk RSS (12 feeds)
+  - Adzuna API UK (opt-in)
+  - Bluesky
 
 Canada:
   - THEunijobs Canada RSS
   - HigherEdJobs RSS (2 category feeds)
-  - University Affairs HTML scrape (proper URL: /search-jobs/)
-  - Adzuna API Canada (opt-in, same env vars as UK)
+  - University Affairs HTML
+  - Adzuna API Canada (opt-in)
+
+Industry (global, country inferred from location):
+  - Greenhouse Job Board API (curated list of health-tech /
+    sport-tech companies: WHOOP, Oura, Strava, Hinge Health,
+    Sword Health, Catapult, Hudl, Stats Perform, etc.)
+  - Lever Postings API (curated list: Eight Sleep, Polar, Garmin,
+    STATSports, Kitman Labs, Output Sports, etc.)
+
+Greenhouse and Lever both expose public, unauthenticated JSON
+endpoints per company. Edit GREENHOUSE_COMPANIES / LEVER_COMPANIES
+at the top of the file to add or remove employers.
 
 Adzuna integration
 ------------------
@@ -151,6 +159,15 @@ CATEGORY_KEYWORDS = {
         "consulting biomechanist", "movement specialist",
         "exercise specialist", "exercise physiologist",
         "athlete development",
+        # Phase 3: industry sport-tech / health-tech roles
+        "product manager health", "product manager sport",
+        "sports technology", "sports tech",
+        "applied research scientist", "applied scientist sport",
+        "motion capture engineer", "biomechanics engineer",
+        "sensor engineer", "wearable engineer",
+        "computer vision engineer", "ml researcher sport",
+        "physiology researcher industry", "fitness research",
+        "clinical exercise",
     ],
     "research_postdoc": [
         "research fellow", "postdoc", "postdoctoral",
@@ -173,7 +190,7 @@ CATEGORY_WEIGHTS = {
     "health_tech":       22,  # RBE app, MediaPipe, NHS pathway
     "fe_he_teaching":    15,
     "research_mgmt":     12,
-    "industry_applied":  10,
+    "industry_applied":  15,  # Phase 3: bumped from 10 (sport/health-tech industry weight)
 }
 
 # Cap to keep fit_score visually clean (0-100 scale)
@@ -228,6 +245,47 @@ CANADA_RSS_FEEDS = [
 
 BLUESKY_ACCOUNTS = [
     "jobsinsportscience.bsky.social",
+]
+
+# Phase 3: industry company ATS lists
+# Greenhouse: free public API, no auth, no rate limit
+# https://boards-api.greenhouse.io/v1/boards/{token}/jobs?content=true
+# Tokens taken from each company's careers page URL on boards.greenhouse.io
+GREENHOUSE_COMPANIES = [
+    # Health-tech / digital health
+    ("hingehealth", "Hinge Health"),
+    ("sword", "Sword Health"),
+    ("oura", "Oura"),
+    ("whoop", "WHOOP"),
+    ("strava", "Strava"),
+    ("livongo", "Livongo"),
+    ("omadahealth", "Omada Health"),
+    ("bigleafnetworks", ""),  # placeholder removed if 404
+    ("calm", "Calm"),
+    ("headspace", "Headspace"),
+    # Sport tech / performance analytics
+    ("catapultsports", "Catapult Sports"),
+    ("hudl", "Hudl"),
+    ("secondspectrum", "Second Spectrum"),
+    ("statsperform", "Stats Perform"),
+    # Adjacent research / applied science
+    ("vivahealth", "Viva Health"),
+    ("23andme", "23andMe"),
+]
+
+# Lever: free public API, no auth
+# https://api.lever.co/v0/postings/{client}?mode=json
+LEVER_COMPANIES = [
+    ("oura", "Oura"),  # some use both; harmless duplicates filtered
+    ("levels", "Levels Health"),
+    ("forwardhealth", "Forward"),
+    ("eightsleep", "Eight Sleep"),
+    ("polarteampro", "Polar"),
+    ("garmin", "Garmin"),
+    ("statsports", "STATSports"),
+    ("playermaker", "Playermaker"),
+    ("kitmanlabs", "Kitman Labs"),
+    ("output-sports", "Output Sports"),
 ]
 
 # Adzuna API: country code, country label, query list
@@ -669,6 +727,132 @@ def scrape_adzuna(country_code: str, country_label: str) -> list:
 
 
 # ---------------------------------------------------------------------------
+# Greenhouse Job Board API (industry health-tech / sport-tech)
+# ---------------------------------------------------------------------------
+
+def scrape_greenhouse() -> list:
+    """Public job board API. No auth, no rate limit. Each company's token
+    is the slug in their boards.greenhouse.io URL."""
+    jobs = []
+    print(f"  Greenhouse: {len(GREENHOUSE_COMPANIES)} companies")
+    for token, label in GREENHOUSE_COMPANIES:
+        if not token:
+            continue
+        url = f"https://boards-api.greenhouse.io/v1/boards/{token}/jobs?content=true"
+        try:
+            r = requests.get(url, timeout=15, headers={"Accept": "application/json"})
+            if r.status_code != 200:
+                print(f"    {token}: HTTP {r.status_code}, skipping")
+                continue
+            data = r.json()
+            for item in data.get("jobs", []):
+                try:
+                    title = clean(item.get("title", ""))
+                    href = clean_url(item.get("absolute_url", ""))
+                    if not title or not href:
+                        continue
+                    location_obj = item.get("location", {})
+                    loc = ""
+                    if isinstance(location_obj, dict):
+                        loc = clean(location_obj.get("name", ""))
+                    # Infer country from location text
+                    loc_lower = loc.lower()
+                    if any(c in loc_lower for c in ("united kingdom", "london", "manchester", "edinburgh", "uk", "britain", "england", "scotland", "wales")):
+                        country = "UK"
+                    elif any(c in loc_lower for c in ("canada", "toronto", "vancouver", "montreal", "ottawa", "calgary")):
+                        country = "Canada"
+                    elif "remote" in loc_lower:
+                        country = ""  # surfaces in all-country view
+                    else:
+                        country = ""  # unknown / US / EU - still shows in All
+                    updated = item.get("updated_at", "")
+                    date_str = updated[:10] if updated else datetime.date.today().isoformat()
+                    description = clean(item.get("content", ""))
+                    jobs.append({
+                        "id": make_id(href, title),
+                        "title": title,
+                        "organisation": label or token,
+                        "location": loc,
+                        "country": country,
+                        "source": "Greenhouse",
+                        "url": href,
+                        "date_posted": date_str,
+                        "closing_date": "",
+                        "type": "",
+                        "description": description,
+                    })
+                except Exception as e:
+                    print(f"    {token} item parse error: {e}")
+        except Exception as e:
+            print(f"  GET failed Greenhouse {token}: {e}")
+        time.sleep(0.5)
+    return jobs
+
+
+# ---------------------------------------------------------------------------
+# Lever Postings API (industry sport-tech / wearables)
+# ---------------------------------------------------------------------------
+
+def scrape_lever() -> list:
+    """Public postings API. No auth. Each company's client name is the slug
+    in jobs.lever.co URLs."""
+    jobs = []
+    print(f"  Lever: {len(LEVER_COMPANIES)} companies")
+    for client, label in LEVER_COMPANIES:
+        url = f"https://api.lever.co/v0/postings/{client}?mode=json"
+        try:
+            r = requests.get(url, timeout=15, headers={"Accept": "application/json"})
+            if r.status_code != 200:
+                print(f"    {client}: HTTP {r.status_code}, skipping")
+                continue
+            data = r.json()
+            for item in data:
+                try:
+                    title = clean(item.get("text", ""))
+                    href = clean_url(item.get("hostedUrl", ""))
+                    if not title or not href:
+                        continue
+                    categories = item.get("categories", {}) or {}
+                    loc = clean(categories.get("location", ""))
+                    loc_lower = loc.lower()
+                    if any(c in loc_lower for c in ("united kingdom", "london", "manchester", "edinburgh", "uk", "britain", "england", "scotland", "wales")):
+                        country = "UK"
+                    elif any(c in loc_lower for c in ("canada", "toronto", "vancouver", "montreal", "ottawa", "calgary")):
+                        country = "Canada"
+                    else:
+                        country = ""
+                    created = item.get("createdAt")
+                    if created:
+                        try:
+                            date_str = datetime.datetime.utcfromtimestamp(created / 1000).date().isoformat()
+                        except Exception:
+                            date_str = datetime.date.today().isoformat()
+                    else:
+                        date_str = datetime.date.today().isoformat()
+                    description = clean(item.get("descriptionPlain", "") or item.get("description", ""))
+                    commitment = clean(categories.get("commitment", ""))
+                    jobs.append({
+                        "id": make_id(href, title),
+                        "title": title,
+                        "organisation": label or client,
+                        "location": loc,
+                        "country": country,
+                        "source": "Lever",
+                        "url": href,
+                        "date_posted": date_str,
+                        "closing_date": "",
+                        "type": commitment,
+                        "description": description,
+                    })
+                except Exception as e:
+                    print(f"    {client} item parse error: {e}")
+        except Exception as e:
+            print(f"  GET failed Lever {client}: {e}")
+        time.sleep(0.5)
+    return jobs
+
+
+# ---------------------------------------------------------------------------
 # Bluesky - public AT Protocol API
 # ---------------------------------------------------------------------------
 
@@ -749,7 +933,7 @@ def scrape_bluesky() -> list:
 # ---------------------------------------------------------------------------
 
 def main():
-    print("=== JobScan scraper starting (Phase 2: fit-score + Adzuna + UA fix) ===")
+    print("=== JobScan scraper starting (Phase 3: industry sources via Greenhouse + Lever) ===")
     existing = load_existing()
     existing["jobs"] = backfill_categories(existing.get("jobs", []))
     existing_ids = {j["id"] for j in existing["jobs"]}
@@ -819,6 +1003,32 @@ def main():
         print(f"    +{added} new from Adzuna Canada")
     except Exception as e:
         print(f"  ERROR Adzuna Canada: {e}")
+
+    print("  Running Greenhouse scraper (industry health/sport tech)...")
+    try:
+        results = scrape_greenhouse()
+        added = 0
+        for j in results:
+            if j["id"] not in existing_ids and passes_filter(j):
+                new_jobs.append(j)
+                existing_ids.add(j["id"])
+                added += 1
+        print(f"    +{added} new from Greenhouse")
+    except Exception as e:
+        print(f"  ERROR Greenhouse: {e}")
+
+    print("  Running Lever scraper (industry sport-tech / wearables)...")
+    try:
+        results = scrape_lever()
+        added = 0
+        for j in results:
+            if j["id"] not in existing_ids and passes_filter(j):
+                new_jobs.append(j)
+                existing_ids.add(j["id"])
+                added += 1
+        print(f"    +{added} new from Lever")
+    except Exception as e:
+        print(f"  ERROR Lever: {e}")
 
     print("  Running Bluesky scraper...")
     try:
