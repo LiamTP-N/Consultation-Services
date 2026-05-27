@@ -212,17 +212,18 @@ EXCLUDE_KEYWORDS = [
 ]
 
 # Jobs.ac.uk RSS feeds (UK) - Phase 2: expanded to 12 feeds
+# NB trailing slash matters - some feeds 404 without it; others 404 with.
+# These URLs verified by browser as of 27 May 2026.
 JOBSAC_RSS_FEEDS = [
     ("https://www.jobs.ac.uk/jobs/sport-and-leisure/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/laboratory-clinical-and-technician/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/health-and-medical/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/biological-sciences/?format=rss", "Jobs.ac.uk"),
-    ("https://www.jobs.ac.uk/jobs/nutrition-and-food-science/?format=rss", "Jobs.ac.uk"),
+    ("https://www.jobs.ac.uk/jobs/nutrition/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/computer-sciences/?format=rss", "Jobs.ac.uk"),
-    ("https://www.jobs.ac.uk/jobs/information-and-library-services/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/professional-or-managerial/?format=rss", "Jobs.ac.uk"),
-    ("https://www.jobs.ac.uk/jobs/research-related/?format=rss", "Jobs.ac.uk"),
-    ("https://www.jobs.ac.uk/jobs/phd/?format=rss", "Jobs.ac.uk"),
+    ("https://www.jobs.ac.uk/jobs/phds/?format=rss", "Jobs.ac.uk"),
+    ("https://www.jobs.ac.uk/jobs/studentships/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/engineering-and-technology/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/mathematics-and-statistics/?format=rss", "Jobs.ac.uk"),
 ]
@@ -586,12 +587,23 @@ def scrape_canada_rss() -> list:
 def scrape_university_affairs() -> list:
     """Phase 2 fix: the previous URL (/career-centre/job-board/) no longer
     exists. The live jobs page is /search-jobs/. Parse the listing markup
-    which is a flat sequence of H2 anchors followed by university + date."""
+    which is a flat sequence of H2 anchors followed by university + date.
+    Phase 3.1: add Referer + browser Accept header to defeat the 403."""
     jobs = []
     url = "https://www.universityaffairs.ca/search-jobs/"
     print(f"  University Affairs HTML scrape...")
-    r = get(url)
-    if not r:
+    ua_headers = dict(HEADERS)
+    ua_headers["Referer"] = "https://www.universityaffairs.ca/"
+    ua_headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+    ua_headers["Accept-Encoding"] = "gzip, deflate, br"
+    ua_headers["Sec-Fetch-Dest"] = "document"
+    ua_headers["Sec-Fetch-Mode"] = "navigate"
+    ua_headers["Sec-Fetch-Site"] = "same-origin"
+    try:
+        r = requests.get(url, headers=ua_headers, timeout=20)
+        r.raise_for_status()
+    except Exception as e:
+        print(f"  GET failed {url}: {e}")
         return jobs
     try:
         soup = BeautifulSoup(r.text, "html.parser")
@@ -680,6 +692,12 @@ def scrape_adzuna(country_code: str, country_label: str) -> list:
         )
         try:
             r = requests.get(url, timeout=15, headers={"Accept": "application/json"})
+            if r.status_code == 401:
+                # Show first 200 chars of body to surface the actual auth
+                # error - bad keys vs whitespace vs swapped id/key etc.
+                body_preview = r.text[:200].replace("\n", " ")
+                print(f"  Adzuna {country_label} 401: {body_preview}")
+                return jobs  # no point hammering with bad creds
             r.raise_for_status()
             data = r.json()
             for item in data.get("results", []):
