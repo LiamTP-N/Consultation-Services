@@ -250,42 +250,33 @@ BLUESKY_ACCOUNTS = [
 # Phase 3: industry company ATS lists
 # Greenhouse: free public API, no auth, no rate limit
 # https://boards-api.greenhouse.io/v1/boards/{token}/jobs?content=true
-# Tokens taken from each company's careers page URL on boards.greenhouse.io
+# Tokens verified live as of 27 May 2026; prune dead ones from here
 GREENHOUSE_COMPANIES = [
     # Health-tech / digital health
-    ("hingehealth", "Hinge Health"),
-    ("sword", "Sword Health"),
     ("oura", "Oura"),
-    ("whoop", "WHOOP"),
-    ("strava", "Strava"),
-    ("livongo", "Livongo"),
     ("omadahealth", "Omada Health"),
-    ("bigleafnetworks", ""),  # placeholder removed if 404
     ("calm", "Calm"),
-    ("headspace", "Headspace"),
-    # Sport tech / performance analytics
+    ("myfitnesspal", "MyFitnessPal"),
+    ("amwell", "Amwell"),
+    ("doctolib", "Doctolib"),
+    ("biofourmis", "Biofourmis"),
+    ("hellofresh", "HelloFresh"),
+    # Sport tech / performance
     ("catapultsports", "Catapult Sports"),
     ("hudl", "Hudl"),
-    ("secondspectrum", "Second Spectrum"),
-    ("statsperform", "Stats Perform"),
-    # Adjacent research / applied science
-    ("vivahealth", "Viva Health"),
-    ("23andme", "23andMe"),
+    ("peloton", "Peloton"),
+    ("tempo", "Tempo"),
+    ("geniussports", "Genius Sports"),
+    # AI / ML research (Liam's data-science narrative)
+    ("deepmind", "DeepMind"),
+    ("anthropic", "Anthropic"),
 ]
 
 # Lever: free public API, no auth
 # https://api.lever.co/v0/postings/{client}?mode=json
 LEVER_COMPANIES = [
-    ("oura", "Oura"),  # some use both; harmless duplicates filtered
-    ("levels", "Levels Health"),
-    ("forwardhealth", "Forward"),
-    ("eightsleep", "Eight Sleep"),
-    ("polarteampro", "Polar"),
-    ("garmin", "Garmin"),
-    ("statsports", "STATSports"),
-    ("playermaker", "Playermaker"),
+    ("whoop", "WHOOP"),
     ("kitmanlabs", "Kitman Labs"),
-    ("output-sports", "Output Sports"),
 ]
 
 # Adzuna API: country code, country label, query list
