@@ -1,40 +1,65 @@
 """
 ================================================================
-SCRAPE.PY - automated job scraper for the consultancy jobs board
+SCRAPE.PY - automated job scraper for the jobs board
 ================================================================
 
 Purpose
 -------
 Pulls fresh job postings from multiple UK and Canadian sources,
-filters them against a keyword list tuned for applied health and
-exercise science, dedupes across sources, and writes the result
+filters them against a category-tagged keyword dictionary tuned
+for Dr Liam T. Pearson-Noseworthy's broadened applicability
+(applied health and exercise science, plus data science, health
+tech, FE/HE teaching, research management, and research
+technician roles), dedupes across sources, and writes the result
 to jobs.json for the static site (jobs.html) to render client-side.
 
 Sources
 -------
 UK:
-  - Indeed UK     (RSS per search term)
   - Jobs.ac.uk    (RSS, academic-focused)
-  - LinkedIn UK   (HTML scrape per search term)
   - Bluesky       (@jobsinsportscience.bsky.social feed)
 
 Canada:
-  - Indeed Canada         (RSS)
-  - LinkedIn Canada       (HTML)
   - THEunijobs Canada     (RSS)
   - HigherEdJobs          (RSS)
   - University Affairs    (HTML)
 
-Search terms live in SEARCH_TERMS_UK / SEARCH_TERMS_CA near the
-top of the file - edit there to tune what's pulled.
+Note: Indeed and LinkedIn HTML scrapers have been removed in
+Phase 1 - they were producing low signal and high noise. They
+can be reintroduced in Phase 2 if needed.
 
-Filtering
----------
+Filtering and categorisation
+----------------------------
 Each candidate job passes through passes_filter():
-  - REQUIRED_KEYWORDS: at least one must match title/org/type
-  - EXCLUDE_KEYWORDS:  any match rejects the job
-This is coarse by design - the jobs.html frontend can refilter
-interactively.
+  - CATEGORY_KEYWORDS: dict of category -> keyword list. A job is
+    tagged with every category whose keywords match anywhere in
+    title/organisation/type. A job with zero matched categories
+    is rejected.
+  - EXCLUDE_KEYWORDS: any match rejects the job outright. Slimmed
+    in Phase 1 to keep medical-clinical roles out but allow
+    software/data/health-tech roles in.
+
+Output jobs now include a "categories": [str] field consumed by
+the frontend category filter.
+
+Categories (Phase 1)
+--------------------
+  academic_sport      Sport/exercise/biomech academic posts
+  academic_adjacent   Kinesiology, rehab science, gerontology,
+                      public health, human movement, motor control
+  technician          Lab/research technician, lab manager,
+                      research software engineer
+  data_science        Data scientist, ML engineer, applied
+                      analytics, research software engineer
+  health_tech         Digital health, medical device, mHealth,
+                      wearable/sensor, NHS digital, clinical
+                      software
+  fe_he_teaching      Lecturer, tutor, curriculum, IQA/EQA,
+                      programme leader, assessor (any subject)
+  research_mgmt       Research manager/coordinator, grants
+                      officer, ethics, research operations
+  industry_applied    S&C coach, performance analyst, sport
+                      scientist, consulting biomechanist
 
 Dedup strategy
 --------------
@@ -42,28 +67,26 @@ Two layers:
   1. make_id(url, title) -> stable 16-char hash, used to merge
      the same posting scraped repeatedly across daily runs.
   2. deduplicate() runs at the end on (title, organisation, source)
-     tuples to kill cross-term duplicates within a single run
-     (e.g. the same Indeed job surfaced by two search terms).
-LinkedIn URLs are normalised first (query string stripped) so
-tracking params don't defeat the URL-based id.
+     tuples to kill cross-term duplicates within a single run.
 
 Output: jobs.json
 -----------------
 Shape:
   {
-    "last_updated": "2026-04-24T07:00:00Z",  # ISO-8601 UTC
+    "last_updated": "2026-05-27T07:00:00Z",
     "jobs": [
       {
-        "id":            "<16-char md5>",
+        "id":            str,
         "title":         str,
         "organisation":  str,
         "location":      str,
-        "type":          str,     # full-time/part-time/etc where available
+        "type":          str,
         "url":           str,
-        "source":        str,     # "Indeed UK", "Jobs.ac.uk", etc.
-        "date_posted":   str,     # ISO-8601, may be empty
-        "description":   str,     # truncated to MAX_FIELD_LEN
-        "country":       str      # "UK" or "Canada"
+        "source":        str,
+        "date_posted":   str,
+        "description":   str,
+        "country":       str,
+        "categories":    [str]
       },
       ...
     ]
@@ -74,33 +97,6 @@ Retention
 MAX_DAYS_OLD = 30. prune_old() drops anything older than that on
 each run to stop jobs.json growing unbounded. Jobs without a
 parseable date_posted are kept (erring on the side of visibility).
-
-Scheduling
-----------
-Run daily at 07:00 UTC by .github/workflows/scrape.yml on a
-GitHub Actions ubuntu-latest runner. The workflow commits the
-updated jobs.json back to main with retry-on-conflict (up to 5
-attempts with rebase), so the static site updates without a
-redeploy.
-
-Run manually:
-    python scrape.py
-
-Or trigger the workflow via the Actions tab (workflow_dispatch).
-
-Dependencies
-------------
-requests, beautifulsoup4, lxml. Installed by the workflow via
-pip; for local runs: pip install requests beautifulsoup4 lxml
-
-Notes
------
-- HEADERS sets a desktop-Chrome UA and en-GB accept-language.
-  LinkedIn in particular blocks default python-requests UA.
-- Each scraper function is self-contained and returns a list[dict]
-  in the unified shape above, so sources can be added or removed
-  by editing main() without touching anything else.
-- All timestamps stored UTC with "Z" suffix for consistency.
 """
 
 import json
@@ -128,36 +124,129 @@ HEADERS = {
     "Accept-Language": "en-GB,en;q=0.9",
 }
 
-REQUIRED_KEYWORDS = [
-    "sport", "exercise", "physical activity", "biomechanics", "wearable",
-    "strength", "conditioning", "physiology", "fitness", "health science",
-    "human movement", "rehabilitation", "performance", "kinesiology",
-    "human kinetics", "physical education",
-    "lecturer", "senior lecturer", "professor", "assistant professor",
-    "associate professor", "research fellow", "postdoc", "postdoctoral",
-    "lab technician", "laboratory", "data scientist", "python", "machine learning",
-    "resistance training", "older adult", "ageing", "aging", "musculoskeletal",
-    "nutrition", "dietetics", "diet",
-]
+# ---------------------------------------------------------------------------
+# CATEGORY-TAGGED KEYWORDS
+# ---------------------------------------------------------------------------
+# Each category lists the keywords that, when matched in title/org/type,
+# tag the job with that category. A job needs at least one category to pass.
+# Keywords are matched as case-insensitive substrings, so multi-word phrases
+# only fire if the full phrase appears in order. Keep single-word keywords
+# (e.g. "lecturer") generic enough to catch variants but specific enough not
+# to false-positive on unrelated postings.
 
+CATEGORY_KEYWORDS = {
+    "academic_sport": [
+        "sport science", "sports science", "exercise science",
+        "exercise physiology", "sport and exercise", "sports and exercise",
+        "biomechanics", "biomechanist", "strength and conditioning",
+        "sport psychology", "sports psychology", "sport coaching",
+        "sport nutrition", "sports nutrition",
+    ],
+    "academic_adjacent": [
+        "kinesiology", "human kinetics", "human movement", "movement science",
+        "motor control", "motor learning", "skill acquisition",
+        "rehabilitation science", "rehabilitation research", "physical therapy research",
+        "gerontology", "ageing research", "aging research", "healthy ageing", "healthy aging",
+        "public health", "population health", "epidemiology",
+        "physical activity", "physical education",
+        "musculoskeletal research", "neuromuscular",
+    ],
+    "technician": [
+        "lab technician", "laboratory technician", "research technician",
+        "senior technician", "technical specialist", "technical officer",
+        "lab manager", "laboratory manager", "facility manager",
+        "research software engineer", "rse",
+        "research assistant",
+    ],
+    "data_science": [
+        "data scientist", "data science", "data analyst", "data engineer",
+        "machine learning", "ml engineer", "ai engineer",
+        "applied scientist", "research scientist",
+        "python developer", "computational scientist",
+        "quantitative analyst", "bioinformatic", "health data",
+        "statistical programmer", "biostatistic",
+    ],
+    "health_tech": [
+        "digital health", "health technology", "health tech",
+        "medical device", "medical technology", "medtech",
+        "mhealth", "ehealth", "telehealth", "telemedicine",
+        "wearable", "wearables", "inertial sensor", "imu",
+        "clinical software", "clinical informatics", "nhs digital",
+        "health informatics", "digital therapeutic",
+        "computer vision health", "pose estimation",
+    ],
+    "fe_he_teaching": [
+        "lecturer", "senior lecturer", "principal lecturer",
+        "assistant professor", "associate professor", "professor",
+        "teaching fellow", "teaching associate", "tutor",
+        "course leader", "programme leader", "programme director",
+        "curriculum developer", "curriculum designer", "curriculum lead",
+        "internal quality assurance", "iqa", "external quality assurance", "eqa",
+        "assessor", "internal verifier", "external verifier",
+        "head of teaching", "head of department",
+        "instructor", "academic skills",
+    ],
+    "research_mgmt": [
+        "research manager", "research coordinator", "research operations",
+        "research administrator", "research office", "research officer",
+        "grants officer", "grants manager", "research funding",
+        "ethics officer", "ethics coordinator", "research integrity",
+        "research impact", "knowledge exchange", "research development",
+        "programme manager research", "research programme manager",
+        "research strategy",
+    ],
+    "industry_applied": [
+        "performance analyst", "performance scientist",
+        "strength coach", "s&c coach", "conditioning coach",
+        "sport scientist", "applied sport scientist",
+        "consulting biomechanist", "movement specialist",
+        "exercise specialist", "exercise physiologist",
+        "athlete development",
+    ],
+    # Doctoral + postdoc + fellow roles tagged separately so the frontend
+    # can surface them via the "research" facet without forcing them into
+    # academic_sport vs academic_adjacent.
+    "research_postdoc": [
+        "research fellow", "postdoc", "postdoctoral",
+        "research associate", "phd studentship", "doctoral researcher",
+        "doctoral candidate", "studentship",
+    ],
+}
+
+# Phase 1 exclude list: slimmed to remove software/data/business analyst
+# excludes (those were killing the broadening). Kept clinical-medical
+# excludes since Liam doesn't qualify for those.
 EXCLUDE_KEYWORDS = [
+    # Clinical-medical roles Liam can't credibly apply to
     "clinical fellow", "junior fellow", "medical fellow", "surgical fellow",
     "haematology", "oncology", "cardiology", "anaesthetic", "radiographer",
-    "pharmacist", "nurse", "physiotherapist", "occupational therapist",
-    "business analyst", "investment analyst", "financial analyst",
-    "software engineer", "front-end", "back-end", "devops",
-    "tiktok", "ecommerce", "anti-fraud",
+    "pharmacist", "nurse", "nursing", "midwife",
+    "physiotherapist", "occupational therapist",
     "urology", "gynaecology", "neurosurgery", "ophthalmology",
     "pathology", "dentist", "dental", "veterinary",
+    "psychiatrist", "psychologist clinical",
+    "speech and language", "speech therapist", "speech-language",
+    # Non-academic finance roles
+    "investment analyst", "financial analyst", "actuarial",
+    # Sales/marketing/HR roles that sometimes match "performance"
+    "sales executive", "marketing executive", "hr business partner",
+    "recruitment consultant",
+    # Niche spam terms previously seen in feeds
+    "tiktok", "anti-fraud",
 ]
 
-# Jobs.ac.uk RSS feeds (UK only)
+# Jobs.ac.uk RSS feeds (UK)
+# Broadened in Phase 1 to include managerial/research-ops and IT/data feeds.
 JOBSAC_RSS_FEEDS = [
     ("https://www.jobs.ac.uk/jobs/sport-and-leisure/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/laboratory-clinical-and-technician/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/health-and-medical/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/biological-sciences/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/nutrition-and-food-science/?format=rss", "Jobs.ac.uk"),
+    ("https://www.jobs.ac.uk/jobs/computer-sciences/?format=rss", "Jobs.ac.uk"),
+    ("https://www.jobs.ac.uk/jobs/information-and-library-services/?format=rss", "Jobs.ac.uk"),
+    ("https://www.jobs.ac.uk/jobs/professional-or-managerial/?format=rss", "Jobs.ac.uk"),
+    ("https://www.jobs.ac.uk/jobs/research-related/?format=rss", "Jobs.ac.uk"),
 ]
 
 # Canadian RSS feeds (THEunijobs Canada, HigherEdJobs)
@@ -182,9 +271,6 @@ BLUESKY_ACCOUNTS = [
 
 OUTPUT_FILE = Path("scraper/jobs.json")
 MAX_DAYS_OLD = 30
-
-# Max characters we'll keep for any single field - prevents runaway payloads
-# and keeps jobs.json a sensible size.
 MAX_FIELD_LEN = 500
 
 
@@ -193,18 +279,9 @@ def make_id(url: str, title: str) -> str:
 
 
 def clean(text: str) -> str:
-    """Sanitise a text field pulled from an external source.
-
-    Steps:
-      1. Strip any HTML tags (script/style tags and their contents removed).
-      2. Decode HTML entities (&amp; -> &, &#39; -> ', etc).
-      3. Collapse all whitespace to single spaces.
-      4. Remove ASCII control characters (null bytes, backspaces etc.).
-      5. Cap length at MAX_FIELD_LEN characters.
-    """
+    """Sanitise a text field pulled from an external source."""
     if not text:
         return ""
-    # 1. Strip tags via BeautifulSoup (handles malformed HTML, drops script/style)
     try:
         soup = BeautifulSoup(str(text), "html.parser")
         for bad in soup(["script", "style"]):
@@ -212,47 +289,67 @@ def clean(text: str) -> str:
         stripped = soup.get_text(separator=" ")
     except Exception:
         stripped = str(text)
-    # 2. Decode entities twice in case of double-encoded payloads
     stripped = html_module.unescape(html_module.unescape(stripped))
-    # 3. Normalise whitespace
     stripped = re.sub(r"\s+", " ", stripped).strip()
-    # 4. Drop control characters (keep tab/newline/cr already handled by step 3)
     stripped = "".join(ch for ch in stripped if ord(ch) >= 32 or ch in "\t")
-    # 5. Cap length
     if len(stripped) > MAX_FIELD_LEN:
         stripped = stripped[:MAX_FIELD_LEN].rstrip() + "..."
     return stripped
 
 
 def clean_url(url: str) -> str:
-    """Only accept http/https URLs. Strip anything else (javascript:, data:,
-    vbscript:, file:, etc.) so a poisoned listing cannot inject an active
-    scheme into the front-end."""
+    """Only accept http/https URLs."""
     if not url:
         return ""
     url = str(url).strip()
-    # Control character check - reject outright
     if any(ord(ch) < 32 for ch in url):
         return ""
     try:
         parsed = urllib.parse.urlparse(url)
         if parsed.scheme.lower() in ("http", "https") and parsed.netloc:
-            # Rebuild a clean URL to normalise it
             return urllib.parse.urlunparse(parsed)
     except Exception:
         pass
     return ""
 
 
+def categorise(job: dict) -> list:
+    """Return the list of categories matched by this job's text. Order
+    follows CATEGORY_KEYWORDS dict insertion order so the frontend can
+    sort consistently."""
+    text = (
+        f"{job.get('title', '')} "
+        f"{job.get('organisation', '')} "
+        f"{job.get('type', '')} "
+        f"{job.get('description', '')}"
+    ).lower()
+    matched = []
+    for cat, keywords in CATEGORY_KEYWORDS.items():
+        for kw in keywords:
+            if kw in text:
+                matched.append(cat)
+                break
+    return matched
+
+
 def passes_filter(job: dict) -> bool:
-    text = f"{job.get('title', '')} {job.get('organisation', '')} {job.get('type', '')}".lower()
+    """A job passes if (a) no exclude keyword matches and (b) at least
+    one category keyword matches. Categories are stamped on the job
+    in place so the caller doesn't need to re-run categorise()."""
+    text = (
+        f"{job.get('title', '')} "
+        f"{job.get('organisation', '')} "
+        f"{job.get('type', '')} "
+        f"{job.get('description', '')}"
+    ).lower()
     for kw in EXCLUDE_KEYWORDS:
         if kw in text:
             return False
-    for kw in REQUIRED_KEYWORDS:
-        if kw in text:
-            return True
-    return False
+    cats = categorise(job)
+    if not cats:
+        return False
+    job["categories"] = cats
+    return True
 
 
 def load_existing() -> dict:
@@ -286,10 +383,23 @@ def prune_old(jobs: list) -> list:
     return kept
 
 
+def backfill_categories(jobs: list) -> list:
+    """Existing jobs in jobs.json from before the category migration
+    won't have a 'categories' field. Backfill it on load so they
+    surface correctly on the frontend without waiting for a fresh
+    scrape to displace them."""
+    for j in jobs:
+        if "categories" not in j or not j["categories"]:
+            cats = categorise(j)
+            j["categories"] = cats if cats else ["academic_sport"]  # legacy default
+    return jobs
+
+
 def deduplicate(jobs: list) -> list:
     """Remove duplicates based on normalised title + organisation + source.
-    Keeps the first occurrence (which will be the earliest-scraped copy)."""
-    seen = set()
+    Keeps the first occurrence. When merging duplicates, union the
+    categories lists so we don't lose any tags."""
+    seen = {}
     unique = []
     for j in jobs:
         key = (
@@ -298,8 +408,13 @@ def deduplicate(jobs: list) -> list:
             j.get("source", "").strip().lower(),
         )
         if key not in seen:
-            seen.add(key)
+            seen[key] = j
             unique.append(j)
+        else:
+            # union categories onto the kept copy
+            existing_cats = set(seen[key].get("categories", []))
+            new_cats = set(j.get("categories", []))
+            seen[key]["categories"] = sorted(existing_cats | new_cats)
     return unique
 
 
@@ -373,6 +488,7 @@ def scrape_jobsac_rss() -> list:
                         "date_posted": date_str,
                         "closing_date": closing,
                         "type": "",
+                        "description": clean(desc),
                     })
                 except Exception as e:
                     print(f"    item parse error: {e}")
@@ -427,6 +543,7 @@ def scrape_canada_rss() -> list:
                         "date_posted": date_str,
                         "closing_date": "",
                         "type": "",
+                        "description": clean(desc),
                     })
                 except Exception as e:
                     print(f"    item parse error: {e}")
@@ -441,7 +558,6 @@ def scrape_canada_rss() -> list:
 # ---------------------------------------------------------------------------
 
 def scrape_university_affairs() -> list:
-    """Scrape the University Affairs job board (Canada's primary academic job listing)."""
     jobs = []
     url = "https://www.universityaffairs.ca/career-centre/job-board/"
     print(f"  University Affairs HTML scrape...")
@@ -450,21 +566,17 @@ def scrape_university_affairs() -> list:
         return jobs
     try:
         soup = BeautifulSoup(r.text, "html.parser")
-        # Job listings are typically in article or li elements with job data
         listings = soup.select("article.job, li.job-listing, div.job-item, .views-row")
         if not listings:
-            # Fallback: look for any links with job-like href patterns
             listings = soup.select("h2 a, h3 a, .job-title a")
         for item in listings[:40]:
             try:
-                # Try to find title
                 title_el = item.select_one("h2, h3, .job-title, a") if hasattr(item, 'select_one') else item
                 if not title_el:
                     continue
                 title = clean(title_el.get_text())
                 if not title or len(title) < 5:
                     continue
-                # Find link
                 link_el = item.select_one("a") if hasattr(item, 'select_one') else item
                 href = ""
                 if link_el and link_el.get("href"):
@@ -472,7 +584,6 @@ def scrape_university_affairs() -> list:
                     if href.startswith("/"):
                         href = "https://www.universityaffairs.ca" + href
                 href = clean_url(href)
-                # Find organisation
                 org_el = item.select_one(".institution, .employer, .university, .org")
                 org = clean(org_el.get_text()) if org_el else ""
                 jobs.append({
@@ -486,6 +597,7 @@ def scrape_university_affairs() -> list:
                     "date_posted": datetime.date.today().isoformat(),
                     "closing_date": "",
                     "type": "",
+                    "description": "",
                 })
             except Exception as e:
                 print(f"    item parse error: {e}")
@@ -561,6 +673,7 @@ def scrape_bluesky() -> list:
                         "date_posted": date_str,
                         "closing_date": "",
                         "type": "Social post" if job_url == post_url else "Job listing",
+                        "description": clean(text),
                     })
                 except Exception as e:
                     print(f"    post parse error: {e}")
@@ -575,12 +688,13 @@ def scrape_bluesky() -> list:
 # ---------------------------------------------------------------------------
 
 def main():
-    print("=== JobScan scraper starting ===")
+    print("=== JobScan scraper starting (Phase 1: category-tagged) ===")
     existing = load_existing()
-    existing_ids = {j["id"] for j in existing.get("jobs", [])}
+    # Backfill categories on existing jobs so post-migration runs don't drop
+    # them from the frontend until they age out naturally.
+    existing["jobs"] = backfill_categories(existing.get("jobs", []))
+    existing_ids = {j["id"] for j in existing["jobs"]}
     new_jobs = []
-
-    # --- UK sources ---
 
     print("  Running Jobs.ac.uk RSS scraper...")
     try:
@@ -594,8 +708,6 @@ def main():
         print(f"    +{added} new from Jobs.ac.uk RSS")
     except Exception as e:
         print(f"  ERROR jobs.ac.uk RSS: {e}")
-
-    # --- Canadian sources ---
 
     print("  Running Canadian RSS scrapers (THEunijobs, HigherEdJobs)...")
     try:
@@ -623,14 +735,16 @@ def main():
     except Exception as e:
         print(f"  ERROR University Affairs: {e}")
 
-    # --- Bluesky ---
-
     print("  Running Bluesky scraper...")
     try:
         bsky_results = scrape_bluesky()
         added = 0
         for j in bsky_results:
             if j["id"] not in existing_ids:
+                # Bluesky posts bypass the category filter but still get
+                # categorised so the frontend can place them sensibly.
+                cats = categorise(j)
+                j["categories"] = cats if cats else ["industry_applied"]
                 new_jobs.append(j)
                 existing_ids.add(j["id"])
                 added += 1
@@ -638,7 +752,7 @@ def main():
     except Exception as e:
         print(f"  ERROR bluesky: {e}")
 
-    all_jobs = existing.get("jobs", []) + new_jobs
+    all_jobs = existing["jobs"] + new_jobs
     all_jobs = prune_old(all_jobs)
     all_jobs = deduplicate(all_jobs)
     all_jobs.sort(key=lambda j: j.get("date_posted") or "", reverse=True)
