@@ -7,7 +7,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Job Tracker | Dr. Liam T. Pearson-Noseworthy</title>
-    <meta name="description" content="Daily-updated job board across sport science, biomechanics, data science, health tech, FE/HE teaching, research management, and lab technician roles. Scraped from Jobs.ac.uk, THEunijobs, HigherEdJobs, University Affairs, and Bluesky.">
+    <meta name="description" content="Daily-updated job board across sport science, biomechanics, data science, health tech, FE/HE teaching, research management, and lab technician roles. Scraped from Jobs.ac.uk, Adzuna, THEunijobs, HigherEdJobs, University Affairs, and Bluesky.">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Job Tracker | Dr. Liam T. Pearson-Noseworthy">
@@ -23,6 +23,7 @@
         .source-thejobs     { background: #1a1a3d; color: #a78bfa; }
         .source-highered    { background: #1a2f1a; color: #86efac; }
         .source-uaffairs    { background: #2d1a1a; color: #fca5a5; }
+        .source-adzuna      { background: #2d2a1a; color: #fde68a; }
         .country-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
         .country-uk     { background: #1e3050; color: #93c5fd; }
         .country-ca     { background: #2d1818; color: #fca5a5; }
@@ -36,6 +37,10 @@
         .cat-research_mgmt      { background: #1a2d30; color: #67e8f9; }
         .cat-industry_applied   { background: #3a1a2d; color: #f9a8d4; }
         .cat-research_postdoc   { background: #1a1a3a; color: #a5b4fc; }
+        .fit-score { font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 4px; display: inline-block; min-width: 36px; text-align: center; }
+        .fit-high   { background: #064e3b; color: #6ee7b7; }
+        .fit-med    { background: #1e3a5f; color: #93c5fd; }
+        .fit-low    { background: #374151; color: #9ca3af; }
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable:hover { color: #60a5fa; }
         th.sorted { color: #60a5fa; }
@@ -51,7 +56,7 @@
             <h1 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight mb-2">
                 <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text">Job Tracker</span>
             </h1>
-            <p class="text-slate-400 text-sm mb-6">UK &amp; Canada &middot; broadened across sport science, biomechanics, data science, health tech, FE/HE teaching, research management, and lab technician roles &middot; scraped daily at 07:00 UTC. Showing roles posted in the last 30 days.</p>
+            <p class="text-slate-400 text-sm mb-6">UK &amp; Canada &middot; broadened across sport science, biomechanics, data science, health tech, FE/HE teaching, research management, and lab technician roles &middot; scraped daily at 07:00 UTC. Showing roles posted in the last 30 days. Roles ranked by fit score against my CV.</p>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                 <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
@@ -81,10 +86,18 @@
                 <select id="source-filter" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
                     <option value="all">All sources</option>
                     <option value="Jobs.ac.uk">Jobs.ac.uk</option>
+                    <option value="Adzuna">Adzuna</option>
                     <option value="THEunijobs">THEunijobs</option>
                     <option value="HigherEdJobs">HigherEdJobs</option>
                     <option value="University Affairs">University Affairs</option>
                     <option value="Bluesky">Bluesky</option>
+                </select>
+                <select id="minfit-filter" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
+                    <option value="0">Any fit score</option>
+                    <option value="20">Fit &ge; 20</option>
+                    <option value="40">Fit &ge; 40</option>
+                    <option value="60">Fit &ge; 60</option>
+                    <option value="80">Fit &ge; 80</option>
                 </select>
                 <input id="search" type="text" placeholder="Search title or organisation..." class="px-3 py-1.5 rounded-lg text-xs border border-slate-600 bg-slate-800 text-slate-300 placeholder-slate-600 focus:outline-none focus:border-blue-500 flex-1 min-w-[180px]">
             </div>
@@ -103,7 +116,7 @@
                 <button class="cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-cat="research_mgmt">Research Mgmt</button>
                 <button class="cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-cat="industry_applied">Industry / Applied</button>
             </div>
-            <p class="text-xs text-slate-600 mb-4">Tip: click a category to filter. Categories are multi-tagged - a "Research Software Engineer on rehab apps" can sit in Data, Health Tech, and Technician at once.</p>
+            <p class="text-xs text-slate-600 mb-4">Fit score weights multi-category roles higher. Default sort is by score then date.</p>
         </div>
     </header>
 
@@ -113,14 +126,15 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="bg-slate-800 text-slate-500 text-xs uppercase tracking-wider">
+                            <th class="sortable px-4 py-3 text-left sorted" data-col="fit_score">Fit <span class="sort-arrow">&#8595;</span></th>
                             <th class="sortable px-4 py-3 text-left" data-col="title">Role <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left hidden md:table-cell" data-col="organisation">Organisation <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left" data-col="source">Source <span class="sort-arrow">&#8597;</span></th>
-                            <th class="sortable px-4 py-3 text-left sorted" data-col="date_posted">Posted <span class="sort-arrow">&#8595;</span></th>
+                            <th class="sortable px-4 py-3 text-left" data-col="date_posted">Posted <span class="sort-arrow">&#8597;</span></th>
                         </tr>
                     </thead>
                     <tbody id="jobs-body">
-                        <tr><td colspan="4" class="px-4 py-12 text-center text-slate-500 text-sm">Loading jobs.json...</td></tr>
+                        <tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">Loading jobs.json...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -144,7 +158,9 @@
                     <a href="https://www.jobs.ac.uk/search/?keywords=lecturer&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Lecturer</a>
                     <a href="https://www.jobs.ac.uk/search/?keywords=research+manager&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Research Manager</a>
                     <a href="https://www.jobs.ac.uk/search/?keywords=laboratory+technician&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Lab Tech</a>
-                    <a href="https://www.universityaffairs.ca/career-centre/job-board/" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">University Affairs - Canada</a>
+                    <a href="https://www.adzuna.co.uk/search?q=sport+science" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Adzuna UK</a>
+                    <a href="https://www.adzuna.ca/search?q=kinesiology" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Adzuna Canada</a>
+                    <a href="https://www.universityaffairs.ca/search-jobs/" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">University Affairs</a>
                     <a href="https://www.timeshighereducation.com/unijobs/listings/canada/" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">THEunijobs - Canada</a>
                     <a href="https://www.higheredjobs.com/faculty/search.cfm?JobCat=161" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">HigherEdJobs - Kinesiology</a>
                     <a href="https://bsky.app/profile/jobsinsportscience.bsky.social" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Bluesky - Jobs in Sport Science</a>
@@ -161,12 +177,13 @@
     const PAGE_SIZE = 30;
 
     let allJobs = [];
-    let sortCol = 'date_posted';
+    let sortCol = 'fit_score';
     let sortDir = 1;
     let searchTerm = '';
     let sourceFilter = 'all';
     let countryFilter = 'all';
     let categoryFilter = 'all';
+    let minFit = 0;
     let visibleCount = PAGE_SIZE;
 
     const CATEGORY_LABELS = {
@@ -221,10 +238,11 @@
         jobs.forEach(j => {
             const key = `${(j.title || '').trim().toLowerCase()}|${(j.organisation || '').trim().toLowerCase()}|${(j.source || '').trim().toLowerCase()}`;
             if (seen.has(key)) {
-                
                 const existing = seen.get(key);
                 const merged = new Set([...(existing.categories || []), ...(j.categories || [])]);
                 existing.categories = Array.from(merged);
+                
+                if ((j.fit_score || 0) > (existing.fit_score || 0)) existing.fit_score = j.fit_score;
                 return;
             }
             seen.set(key, j);
@@ -264,6 +282,7 @@
         if (l.includes('thejobs') || l.includes('unijobs') || l.includes('times higher')) return 'source-thejobs';
         if (l.includes('highered'))            return 'source-highered';
         if (l.includes('university affairs'))  return 'source-uaffairs';
+        if (l.includes('adzuna'))              return 'source-adzuna';
         return '';
     }
 
@@ -282,25 +301,43 @@
         ).join('');
     }
 
+    function fitScoreHtml(j) {
+        const s = j.fit_score || 0;
+        let cls = 'fit-low';
+        if (s >= 60) cls = 'fit-high';
+        else if (s >= 30) cls = 'fit-med';
+        return `<span class="fit-score ${cls}">${s}</span>`;
+    }
+
     function getFilteredJobs() {
         let jobs = allJobs.filter(j => {
             if (!isRecent(j.date_posted)) return false;
             if (!matchesCountry(j, countryFilter)) return false;
             if (sourceFilter !== 'all' && j.source !== sourceFilter) return false;
             if (!matchesCategory(j, categoryFilter)) return false;
+            if ((j.fit_score || 0) < minFit) return false;
             const hay = `${j.title} ${j.organisation} ${j.type}`.toLowerCase();
             if (searchTerm && !hay.includes(searchTerm)) return false;
             return true;
         });
 
         jobs.sort((a, b) => {
-            let va = a[sortCol] || '', vb = b[sortCol] || '';
+            let va = a[sortCol], vb = b[sortCol];
             if (sortCol === 'date_posted') {
                 va = va ? new Date(va).getTime() : 0;
                 vb = vb ? new Date(vb).getTime() : 0;
+            } else if (sortCol === 'fit_score') {
+                va = a.fit_score || 0;
+                vb = b.fit_score || 0;
+                
+                if (va === vb) {
+                    const da = a.date_posted ? new Date(a.date_posted).getTime() : 0;
+                    const db = b.date_posted ? new Date(b.date_posted).getTime() : 0;
+                    return da < db ? sortDir : da > db ? -sortDir : 0;
+                }
             } else {
-                va = va.toString().toLowerCase();
-                vb = vb.toString().toLowerCase();
+                va = (va || '').toString().toLowerCase();
+                vb = (vb || '').toString().toLowerCase();
             }
             return va < vb ? sortDir : va > vb ? -sortDir : 0;
         });
@@ -314,7 +351,7 @@
         const tbody = document.getElementById('jobs-body');
 
         if (!jobs.length) {
-            tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs match this filter.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs match this filter.</td></tr>`;
             updateLoadMore(0, 0);
             updateStats();
             return;
@@ -322,6 +359,7 @@
 
         tbody.innerHTML = page.map(j => {
             return `<tr class="border-b border-slate-700/50 hover:bg-slate-800/60 transition-colors">
+                <td class="px-4 py-3 whitespace-nowrap align-top">${fitScoreHtml(j)}</td>
                 <td class="px-4 py-3">
                     <div>
                         <a href="${escHtml(safeUrl(j.url))}" target="_blank" rel="noopener"
@@ -331,11 +369,11 @@
                         <div class="mt-1">${categoryBadgesHtml(j)}</div>
                     </div>
                 </td>
-                <td class="px-4 py-3 text-slate-400 text-xs hidden md:table-cell">${escHtml(j.organisation) || '-'}</td>
-                <td class="px-4 py-3 whitespace-nowrap">
+                <td class="px-4 py-3 text-slate-400 text-xs hidden md:table-cell align-top">${escHtml(j.organisation) || '-'}</td>
+                <td class="px-4 py-3 whitespace-nowrap align-top">
                     <span class="source-badge ${srcClass(j.source)}">${escHtml(j.source) || '-'}</span>${countryBadgeHtml(j)}
                 </td>
-                <td class="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">${fmtDate(j.date_posted)}</td>
+                <td class="px-4 py-3 text-slate-500 text-xs whitespace-nowrap align-top">${fmtDate(j.date_posted)}</td>
             </tr>`;
         }).join('');
 
@@ -372,13 +410,13 @@
             const recent = allJobs.filter(j => isRecent(j.date_posted));
             if (!recent.length) {
                 document.getElementById('jobs-body').innerHTML =
-                    `<tr><td colspan="4" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 30 days - check back after the next 07:00 UTC scrape.</td></tr>`;
+                    `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 30 days - check back after the next 07:00 UTC scrape.</td></tr>`;
             } else {
                 renderTable();
             }
         } catch (e) {
             const tbody = document.getElementById('jobs-body');
-            tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load jobs.json.<br><span class="text-xs text-slate-600" id="err-msg"></span></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load jobs.json.<br><span class="text-xs text-slate-600" id="err-msg"></span></td></tr>`;
             const errEl = document.getElementById('err-msg');
             if (errEl) errEl.textContent = e.message;
         }
@@ -393,6 +431,12 @@
 
     document.getElementById('source-filter').addEventListener('change', e => {
         sourceFilter = e.target.value;
+        visibleCount = PAGE_SIZE;
+        renderTable();
+    });
+
+    document.getElementById('minfit-filter').addEventListener('change', e => {
+        minFit = parseInt(e.target.value, 10) || 0;
         visibleCount = PAGE_SIZE;
         renderTable();
     });

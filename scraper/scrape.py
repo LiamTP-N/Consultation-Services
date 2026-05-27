@@ -1,105 +1,60 @@
 """
 ================================================================
-SCRAPE.PY - automated job scraper for the jobs board
+SCRAPE.PY - automated job scraper for the jobs board (Phase 2)
 ================================================================
 
 Purpose
 -------
 Pulls fresh job postings from multiple UK and Canadian sources,
-filters them against a category-tagged keyword dictionary tuned
-for Dr Liam T. Pearson-Noseworthy's broadened applicability
-(applied health and exercise science, plus data science, health
-tech, FE/HE teaching, research management, and research
-technician roles), dedupes across sources, and writes the result
-to jobs.json for the static site (jobs.html) to render client-side.
+tags each with applicable categories from a CV-anchored dictionary,
+computes a per-job fit score weighted to Liam's profile, dedupes
+across sources, and writes the result to jobs.json for the static
+site (jobs.html) to render client-side.
 
-Sources
--------
+Sources (Phase 2)
+-----------------
 UK:
-  - Jobs.ac.uk    (RSS, academic-focused)
-  - Bluesky       (@jobsinsportscience.bsky.social feed)
+  - Jobs.ac.uk RSS (12 feeds: sport, lab/tech, health/medical,
+    biology, nutrition, computer science, library/info services,
+    professional/managerial, research related, PhDs, engineering,
+    mathematics/statistics)
+  - Adzuna API UK (opt-in, set ADZUNA_APP_ID + ADZUNA_APP_KEY env vars)
+  - Bluesky (@jobsinsportscience.bsky.social feed)
 
 Canada:
-  - THEunijobs Canada     (RSS)
-  - HigherEdJobs          (RSS)
-  - University Affairs    (HTML)
+  - THEunijobs Canada RSS
+  - HigherEdJobs RSS (2 category feeds)
+  - University Affairs HTML scrape (proper URL: /search-jobs/)
+  - Adzuna API Canada (opt-in, same env vars as UK)
 
-Note: Indeed and LinkedIn HTML scrapers have been removed in
-Phase 1 - they were producing low signal and high noise. They
-can be reintroduced in Phase 2 if needed.
+Adzuna integration
+------------------
+Adzuna offers a free-tier REST API covering UK + Canada with 
+generous rate limits. Activate by setting two GitLab CI variables:
+  ADZUNA_APP_ID, ADZUNA_APP_KEY (register at developer.adzuna.com)
+Without them the Adzuna step is silently skipped.
 
-Filtering and categorisation
-----------------------------
-Each candidate job passes through passes_filter():
-  - CATEGORY_KEYWORDS: dict of category -> keyword list. A job is
-    tagged with every category whose keywords match anywhere in
-    title/organisation/type. A job with zero matched categories
-    is rejected.
-  - EXCLUDE_KEYWORDS: any match rejects the job outright. Slimmed
-    in Phase 1 to keep medical-clinical roles out but allow
-    software/data/health-tech roles in.
-
-Output jobs now include a "categories": [str] field consumed by
-the frontend category filter.
-
-Categories (Phase 1)
---------------------
-  academic_sport      Sport/exercise/biomech academic posts
-  academic_adjacent   Kinesiology, rehab science, gerontology,
-                      public health, human movement, motor control
-  technician          Lab/research technician, lab manager,
-                      research software engineer
-  data_science        Data scientist, ML engineer, applied
-                      analytics, research software engineer
-  health_tech         Digital health, medical device, mHealth,
-                      wearable/sensor, NHS digital, clinical
-                      software
-  fe_he_teaching      Lecturer, tutor, curriculum, IQA/EQA,
-                      programme leader, assessor (any subject)
-  research_mgmt       Research manager/coordinator, grants
-                      officer, ethics, research operations
-  industry_applied    S&C coach, performance analyst, sport
-                      scientist, consulting biomechanist
-
-Dedup strategy
+Categorisation
 --------------
-Two layers:
-  1. make_id(url, title) -> stable 16-char hash, used to merge
-     the same posting scraped repeatedly across daily runs.
-  2. deduplicate() runs at the end on (title, organisation, source)
-     tuples to kill cross-term duplicates within a single run.
+CATEGORY_KEYWORDS dict maps each category to keyword list. A job is
+tagged with every matching category. Zero matches => rejected.
+EXCLUDE_KEYWORDS retained from Phase 1 (slimmed; clinical-medical
+roles only).
 
-Output: jobs.json
------------------
-Shape:
-  {
-    "last_updated": "2026-05-27T07:00:00Z",
-    "jobs": [
-      {
-        "id":            str,
-        "title":         str,
-        "organisation":  str,
-        "location":      str,
-        "type":          str,
-        "url":           str,
-        "source":        str,
-        "date_posted":   str,
-        "description":   str,
-        "country":       str,
-        "categories":    [str]
-      },
-      ...
-    ]
-  }
+Fit score (NEW in Phase 2)
+--------------------------
+Each job gets a numeric `fit_score` based on weighted category
+matches. Weights live in CATEGORY_WEIGHTS at the top of the file.
+Higher weights = roles Liam's CV most directly supports. The
+frontend sorts and filters by fit_score so the strongest matches
+surface first.
 
-Retention
----------
-MAX_DAYS_OLD = 30. prune_old() drops anything older than that on
-each run to stop jobs.json growing unbounded. Jobs without a
-parseable date_posted are kept (erring on the side of visibility).
+Output: jobs.json shape unchanged from Phase 1 except `fit_score`
+field is added to each job (int, 0-100 normalised).
 """
 
 import json
+import os
 import hashlib
 import html as html_module
 import time
@@ -125,14 +80,8 @@ HEADERS = {
 }
 
 # ---------------------------------------------------------------------------
-# CATEGORY-TAGGED KEYWORDS
+# CATEGORY-TAGGED KEYWORDS (Phase 2)
 # ---------------------------------------------------------------------------
-# Each category lists the keywords that, when matched in title/org/type,
-# tag the job with that category. A job needs at least one category to pass.
-# Keywords are matched as case-insensitive substrings, so multi-word phrases
-# only fire if the full phrase appears in order. Keep single-word keywords
-# (e.g. "lecturer") generic enough to catch variants but specific enough not
-# to false-positive on unrelated postings.
 
 CATEGORY_KEYWORDS = {
     "academic_sport": [
@@ -203,9 +152,6 @@ CATEGORY_KEYWORDS = {
         "exercise specialist", "exercise physiologist",
         "athlete development",
     ],
-    # Doctoral + postdoc + fellow roles tagged separately so the frontend
-    # can surface them via the "research" facet without forcing them into
-    # academic_sport vs academic_adjacent.
     "research_postdoc": [
         "research fellow", "postdoc", "postdoctoral",
         "research associate", "phd studentship", "doctoral researcher",
@@ -213,11 +159,27 @@ CATEGORY_KEYWORDS = {
     ],
 }
 
-# Phase 1 exclude list: slimmed to remove software/data/business analyst
-# excludes (those were killing the broadening). Kept clinical-medical
-# excludes since Liam doesn't qualify for those.
+# Category weights for fit_score calculation.
+# Higher = better match to Liam's CV/cover-letter profile. These are
+# tunable - bias is currently toward academic+biomech and the data/
+# health-tech crossover (Liam's strongest narratives), with FE teaching
+# and pure industry weighted lower.
+CATEGORY_WEIGHTS = {
+    "academic_sport":    25,
+    "academic_adjacent": 18,
+    "research_postdoc":  15,
+    "technician":        20,  # current role; transferable anywhere
+    "data_science":      22,  # 2.2M-record ML pipeline + Python/R
+    "health_tech":       22,  # RBE app, MediaPipe, NHS pathway
+    "fe_he_teaching":    15,
+    "research_mgmt":     12,
+    "industry_applied":  10,
+}
+
+# Cap to keep fit_score visually clean (0-100 scale)
+FIT_SCORE_CAP = 100
+
 EXCLUDE_KEYWORDS = [
-    # Clinical-medical roles Liam can't credibly apply to
     "clinical fellow", "junior fellow", "medical fellow", "surgical fellow",
     "haematology", "oncology", "cardiology", "anaesthetic", "radiographer",
     "pharmacist", "nurse", "nursing", "midwife",
@@ -226,17 +188,13 @@ EXCLUDE_KEYWORDS = [
     "pathology", "dentist", "dental", "veterinary",
     "psychiatrist", "psychologist clinical",
     "speech and language", "speech therapist", "speech-language",
-    # Non-academic finance roles
     "investment analyst", "financial analyst", "actuarial",
-    # Sales/marketing/HR roles that sometimes match "performance"
     "sales executive", "marketing executive", "hr business partner",
     "recruitment consultant",
-    # Niche spam terms previously seen in feeds
     "tiktok", "anti-fraud",
 ]
 
-# Jobs.ac.uk RSS feeds (UK)
-# Broadened in Phase 1 to include managerial/research-ops and IT/data feeds.
+# Jobs.ac.uk RSS feeds (UK) - Phase 2: expanded to 12 feeds
 JOBSAC_RSS_FEEDS = [
     ("https://www.jobs.ac.uk/jobs/sport-and-leisure/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/laboratory-clinical-and-technician/?format=rss", "Jobs.ac.uk"),
@@ -247,6 +205,9 @@ JOBSAC_RSS_FEEDS = [
     ("https://www.jobs.ac.uk/jobs/information-and-library-services/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/professional-or-managerial/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/research-related/?format=rss", "Jobs.ac.uk"),
+    ("https://www.jobs.ac.uk/jobs/phd/?format=rss", "Jobs.ac.uk"),
+    ("https://www.jobs.ac.uk/jobs/engineering-and-technology/?format=rss", "Jobs.ac.uk"),
+    ("https://www.jobs.ac.uk/jobs/mathematics-and-statistics/?format=rss", "Jobs.ac.uk"),
 ]
 
 # Canadian RSS feeds (THEunijobs Canada, HigherEdJobs)
@@ -269,6 +230,19 @@ BLUESKY_ACCOUNTS = [
     "jobsinsportscience.bsky.social",
 ]
 
+# Adzuna API: country code, country label, query list
+# Queries chosen to span Liam's CV categories without burning quota
+ADZUNA_QUERIES = [
+    "sport science",
+    "biomechanics",
+    "research software engineer",
+    "data scientist health",
+    "digital health",
+    "kinesiology",
+    "lecturer exercise",
+    "research technician",
+]
+
 OUTPUT_FILE = Path("scraper/jobs.json")
 MAX_DAYS_OLD = 30
 MAX_FIELD_LEN = 500
@@ -279,7 +253,6 @@ def make_id(url: str, title: str) -> str:
 
 
 def clean(text: str) -> str:
-    """Sanitise a text field pulled from an external source."""
     if not text:
         return ""
     try:
@@ -298,7 +271,6 @@ def clean(text: str) -> str:
 
 
 def clean_url(url: str) -> str:
-    """Only accept http/https URLs."""
     if not url:
         return ""
     url = str(url).strip()
@@ -314,9 +286,6 @@ def clean_url(url: str) -> str:
 
 
 def categorise(job: dict) -> list:
-    """Return the list of categories matched by this job's text. Order
-    follows CATEGORY_KEYWORDS dict insertion order so the frontend can
-    sort consistently."""
     text = (
         f"{job.get('title', '')} "
         f"{job.get('organisation', '')} "
@@ -332,10 +301,18 @@ def categorise(job: dict) -> list:
     return matched
 
 
+def compute_fit_score(categories: list) -> int:
+    """Sum the weights of all matched categories, cap at FIT_SCORE_CAP.
+    A single strong match scores ~20-25; a multi-tagged crossover role
+    (e.g. RSE on rehab apps tagged data_science + health_tech + technician)
+    scores 60+."""
+    if not categories:
+        return 0
+    total = sum(CATEGORY_WEIGHTS.get(c, 0) for c in categories)
+    return min(total, FIT_SCORE_CAP)
+
+
 def passes_filter(job: dict) -> bool:
-    """A job passes if (a) no exclude keyword matches and (b) at least
-    one category keyword matches. Categories are stamped on the job
-    in place so the caller doesn't need to re-run categorise()."""
     text = (
         f"{job.get('title', '')} "
         f"{job.get('organisation', '')} "
@@ -349,6 +326,7 @@ def passes_filter(job: dict) -> bool:
     if not cats:
         return False
     job["categories"] = cats
+    job["fit_score"] = compute_fit_score(cats)
     return True
 
 
@@ -384,21 +362,19 @@ def prune_old(jobs: list) -> list:
 
 
 def backfill_categories(jobs: list) -> list:
-    """Existing jobs in jobs.json from before the category migration
-    won't have a 'categories' field. Backfill it on load so they
-    surface correctly on the frontend without waiting for a fresh
-    scrape to displace them."""
+    """Backfill categories AND fit_score on legacy entries."""
     for j in jobs:
         if "categories" not in j or not j["categories"]:
             cats = categorise(j)
-            j["categories"] = cats if cats else ["academic_sport"]  # legacy default
+            j["categories"] = cats if cats else ["academic_sport"]
+        if "fit_score" not in j:
+            j["fit_score"] = compute_fit_score(j["categories"])
     return jobs
 
 
 def deduplicate(jobs: list) -> list:
-    """Remove duplicates based on normalised title + organisation + source.
-    Keeps the first occurrence. When merging duplicates, union the
-    categories lists so we don't lose any tags."""
+    """Union categories across duplicates and recompute fit_score from
+    the unioned set."""
     seen = {}
     unique = []
     for j in jobs:
@@ -411,10 +387,11 @@ def deduplicate(jobs: list) -> list:
             seen[key] = j
             unique.append(j)
         else:
-            # union categories onto the kept copy
             existing_cats = set(seen[key].get("categories", []))
             new_cats = set(j.get("categories", []))
-            seen[key]["categories"] = sorted(existing_cats | new_cats)
+            merged = sorted(existing_cats | new_cats)
+            seen[key]["categories"] = merged
+            seen[key]["fit_score"] = compute_fit_score(merged)
     return unique
 
 
@@ -554,38 +531,59 @@ def scrape_canada_rss() -> list:
 
 
 # ---------------------------------------------------------------------------
-# University Affairs - HTML scrape (Canada)
+# University Affairs - HTML scrape (Canada) - FIXED in Phase 2
 # ---------------------------------------------------------------------------
 
 def scrape_university_affairs() -> list:
+    """Phase 2 fix: the previous URL (/career-centre/job-board/) no longer
+    exists. The live jobs page is /search-jobs/. Parse the listing markup
+    which is a flat sequence of H2 anchors followed by university + date."""
     jobs = []
-    url = "https://www.universityaffairs.ca/career-centre/job-board/"
+    url = "https://www.universityaffairs.ca/search-jobs/"
     print(f"  University Affairs HTML scrape...")
     r = get(url)
     if not r:
         return jobs
     try:
         soup = BeautifulSoup(r.text, "html.parser")
-        listings = soup.select("article.job, li.job-listing, div.job-item, .views-row")
-        if not listings:
-            listings = soup.select("h2 a, h3 a, .job-title a")
-        for item in listings[:40]:
+        # Each job is an <h2> with <a> link inside, followed by university name
+        # and a "Posting date YYYY-MM-DD" string somewhere nearby.
+        for h2 in soup.find_all("h2")[:80]:
             try:
-                title_el = item.select_one("h2, h3, .job-title, a") if hasattr(item, 'select_one') else item
-                if not title_el:
+                a = h2.find("a")
+                if not a or not a.get("href"):
                     continue
-                title = clean(title_el.get_text())
+                href = a["href"]
+                if "job_id=" not in href:
+                    continue  # not a job link
+                if href.startswith("/"):
+                    href = "https://universityaffairs.ca" + href
+                href = clean_url(href)
+                title = clean(a.get_text())
                 if not title or len(title) < 5:
                     continue
-                link_el = item.select_one("a") if hasattr(item, 'select_one') else item
-                href = ""
-                if link_el and link_el.get("href"):
-                    href = link_el["href"]
-                    if href.startswith("/"):
-                        href = "https://www.universityaffairs.ca" + href
-                href = clean_url(href)
-                org_el = item.select_one(".institution, .employer, .university, .org")
-                org = clean(org_el.get_text()) if org_el else ""
+                # Walk forward to find org + posting date
+                org = ""
+                date_str = datetime.date.today().isoformat()
+                sibling = h2.next_sibling
+                walked = 0
+                while sibling is not None and walked < 6:
+                    text = ""
+                    if hasattr(sibling, "get_text"):
+                        text = sibling.get_text(" ", strip=True)
+                    elif isinstance(sibling, str):
+                        text = sibling.strip()
+                    if text:
+                        # University name typically the first non-empty
+                        # non-"Location"/"Posting" line
+                        if not org and "Location" not in text and "Posting" not in text:
+                            org = clean(text[:200])
+                        m = re.search(r"Posting date\s*(\d{4}-\d{2}-\d{2})", text)
+                        if m:
+                            date_str = m.group(1)
+                            break
+                    sibling = sibling.next_sibling
+                    walked += 1
                 jobs.append({
                     "id": make_id(href or title, title),
                     "title": title,
@@ -594,7 +592,7 @@ def scrape_university_affairs() -> list:
                     "country": "Canada",
                     "source": "University Affairs",
                     "url": href,
-                    "date_posted": datetime.date.today().isoformat(),
+                    "date_posted": date_str,
                     "closing_date": "",
                     "type": "",
                     "description": "",
@@ -604,6 +602,69 @@ def scrape_university_affairs() -> list:
         print(f"    found {len(jobs)} listings from University Affairs")
     except Exception as e:
         print(f"  ERROR University Affairs: {e}")
+    return jobs
+
+
+# ---------------------------------------------------------------------------
+# Adzuna API (UK + Canada) - Phase 2 addition
+# ---------------------------------------------------------------------------
+
+def scrape_adzuna(country_code: str, country_label: str) -> list:
+    """Adzuna REST API. Requires ADZUNA_APP_ID and ADZUNA_APP_KEY env vars.
+    Silently returns [] if absent so deploy still works without them."""
+    app_id = os.environ.get("ADZUNA_APP_ID", "").strip()
+    app_key = os.environ.get("ADZUNA_APP_KEY", "").strip()
+    if not app_id or not app_key:
+        print(f"  Adzuna {country_label}: ADZUNA_APP_ID/KEY not set, skipping")
+        return []
+    jobs = []
+    print(f"  Adzuna {country_label} ({country_code}): {len(ADZUNA_QUERIES)} queries")
+    for query in ADZUNA_QUERIES:
+        url = (
+            f"https://api.adzuna.com/v1/api/jobs/{country_code}/search/1"
+            f"?app_id={urllib.parse.quote(app_id)}"
+            f"&app_key={urllib.parse.quote(app_key)}"
+            f"&results_per_page=20"
+            f"&what={urllib.parse.quote(query)}"
+            f"&sort_by=date"
+            f"&content-type=application/json"
+        )
+        try:
+            r = requests.get(url, timeout=15, headers={"Accept": "application/json"})
+            r.raise_for_status()
+            data = r.json()
+            for item in data.get("results", []):
+                try:
+                    href = clean_url(item.get("redirect_url", ""))
+                    title = clean(item.get("title", ""))
+                    if not title or not href:
+                        continue
+                    company = item.get("company", {})
+                    org = clean(company.get("display_name", "")) if isinstance(company, dict) else ""
+                    location_obj = item.get("location", {})
+                    loc = ""
+                    if isinstance(location_obj, dict):
+                        loc = clean(location_obj.get("display_name", ""))
+                    created = item.get("created", "")
+                    date_str = created[:10] if created else datetime.date.today().isoformat()
+                    jobs.append({
+                        "id": make_id(href, title),
+                        "title": title,
+                        "organisation": org,
+                        "location": loc,
+                        "country": country_label,
+                        "source": "Adzuna",
+                        "url": href,
+                        "date_posted": date_str,
+                        "closing_date": "",
+                        "type": clean(item.get("contract_time", "") or item.get("contract_type", "")),
+                        "description": clean(item.get("description", "")),
+                    })
+                except Exception as e:
+                    print(f"    item parse error: {e}")
+        except Exception as e:
+            print(f"  GET failed Adzuna {country_label} q={query[:30]}: {e}")
+        time.sleep(1)  # polite rate-limit
     return jobs
 
 
@@ -688,15 +749,13 @@ def scrape_bluesky() -> list:
 # ---------------------------------------------------------------------------
 
 def main():
-    print("=== JobScan scraper starting (Phase 1: category-tagged) ===")
+    print("=== JobScan scraper starting (Phase 2: fit-score + Adzuna + UA fix) ===")
     existing = load_existing()
-    # Backfill categories on existing jobs so post-migration runs don't drop
-    # them from the frontend until they age out naturally.
     existing["jobs"] = backfill_categories(existing.get("jobs", []))
     existing_ids = {j["id"] for j in existing["jobs"]}
     new_jobs = []
 
-    print("  Running Jobs.ac.uk RSS scraper...")
+    print("  Running Jobs.ac.uk RSS scraper (12 feeds)...")
     try:
         results = scrape_jobsac_rss()
         added = 0
@@ -735,16 +794,41 @@ def main():
     except Exception as e:
         print(f"  ERROR University Affairs: {e}")
 
+    print("  Running Adzuna API scraper (UK)...")
+    try:
+        results = scrape_adzuna("gb", "UK")
+        added = 0
+        for j in results:
+            if j["id"] not in existing_ids and passes_filter(j):
+                new_jobs.append(j)
+                existing_ids.add(j["id"])
+                added += 1
+        print(f"    +{added} new from Adzuna UK")
+    except Exception as e:
+        print(f"  ERROR Adzuna UK: {e}")
+
+    print("  Running Adzuna API scraper (Canada)...")
+    try:
+        results = scrape_adzuna("ca", "Canada")
+        added = 0
+        for j in results:
+            if j["id"] not in existing_ids and passes_filter(j):
+                new_jobs.append(j)
+                existing_ids.add(j["id"])
+                added += 1
+        print(f"    +{added} new from Adzuna Canada")
+    except Exception as e:
+        print(f"  ERROR Adzuna Canada: {e}")
+
     print("  Running Bluesky scraper...")
     try:
         bsky_results = scrape_bluesky()
         added = 0
         for j in bsky_results:
             if j["id"] not in existing_ids:
-                # Bluesky posts bypass the category filter but still get
-                # categorised so the frontend can place them sensibly.
                 cats = categorise(j)
                 j["categories"] = cats if cats else ["industry_applied"]
+                j["fit_score"] = compute_fit_score(j["categories"])
                 new_jobs.append(j)
                 existing_ids.add(j["id"])
                 added += 1
