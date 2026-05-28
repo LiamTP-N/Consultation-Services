@@ -45,6 +45,7 @@ scrape:
 pages:
   stage: deploy
   image: alpine:latest
+  interruptible: true
   script:
     - rm -rf public
     - mkdir public
@@ -54,5 +55,6 @@ pages:
   artifacts:
     paths:
       - public
+    expire_in: 1 day
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
