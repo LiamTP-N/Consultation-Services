@@ -255,18 +255,28 @@
         return out;
     }
 
+    // Local date-only helper (audit FE1): job dates are "YYYY-MM-DD" strings, and
+    // new Date("YYYY-MM-DD") parses as UTC midnight. Comparing that to a local
+    // `new Date()` can shift the day boundary by one in negative-UTC zones, so we
+    // compare date-only strings built in local time instead. (Nil effect for a UK
+    // viewer; correct everywhere.)
+    function localDateStr(dt) {
+        const y = dt.getFullYear();
+        const m = String(dt.getMonth() + 1).padStart(2, '0');
+        const d = String(dt.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
     function isRecent(dateStr) {
         if (!dateStr) return false;
-        const posted = new Date(dateStr);
         const cutoff = new Date();
         cutoff.setDate(cutoff.getDate() - MAX_AGE_DAYS);
-        return posted >= cutoff;
+        return dateStr.slice(0, 10) >= localDateStr(cutoff);
     }
 
     function isToday(d) {
         if (!d) return false;
-        const t = new Date(), p = new Date(d);
-        return p.getFullYear() === t.getFullYear() && p.getMonth() === t.getMonth() && p.getDate() === t.getDate();
+        return d.slice(0, 10) === localDateStr(new Date());
     }
 
     function fmtDate(d) {

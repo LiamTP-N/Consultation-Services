@@ -484,10 +484,10 @@ def scrape_jobsac_rss() -> list:
                     if not title:
                         continue
                     link = item.find("link")
-                    href = link.get_text().strip() if link else ""
-                    if not href and link:
-                        href = link.next_sibling
-                    href = clean_url(href)
+                    # RSS 2.0 carries the URL as <link> text; the old next_sibling
+                    # fallback only fired when <link> had no text, yielding an
+                    # adjacent node clean_url rejects anyway (audit P5).
+                    href = clean_url(link.get_text().strip() if link else "")
                     desc_el = item.find("description")
                     desc = BeautifulSoup(desc_el.get_text(), "html.parser").get_text() if desc_el else ""
                     org = ""
@@ -544,10 +544,10 @@ def scrape_canada_rss() -> list:
                     if not title:
                         continue
                     link = item.find("link")
-                    href = link.get_text().strip() if link else ""
-                    if not href and link:
-                        href = link.next_sibling
-                    href = clean_url(href)
+                    # RSS 2.0 carries the URL as <link> text; the old next_sibling
+                    # fallback only fired when <link> had no text, yielding an
+                    # adjacent node clean_url rejects anyway (audit P5).
+                    href = clean_url(link.get_text().strip() if link else "")
                     desc_el = item.find("description")
                     desc = BeautifulSoup(desc_el.get_text(), "html.parser").get_text() if desc_el else ""
                     org = ""
@@ -736,6 +736,34 @@ def scrape_adzuna(country_code: str, country_label: str) -> list:
 
 
 # ---------------------------------------------------------------------------
+# Country inference (shared by Greenhouse + Lever)
+# ---------------------------------------------------------------------------
+
+_UK_CITY_TERMS = (
+    "united kingdom", "london", "manchester", "edinburgh",
+    "britain", "england", "scotland", "wales",
+)
+_CA_CITY_TERMS = (
+    "canada", "toronto", "vancouver", "montreal", "ottawa", "calgary",
+)
+# Match the bare token "uk" only on word boundaries. The old `"uk" in loc_lower`
+# test matched any location merely containing those two letters - e.g.
+# "Tukwila, WA" (US) was tagged UK (audit P4, same class as news scraper H11).
+_UK_WORD_RE = re.compile(r"\buk\b")
+
+
+def infer_country(loc: str) -> str:
+    """Infer 'UK' / 'Canada' / '' from a free-text location. Remote and
+    unknown both return '' (the front end surfaces those in the All view)."""
+    t = (loc or "").lower()
+    if _UK_WORD_RE.search(t) or any(c in t for c in _UK_CITY_TERMS):
+        return "UK"
+    if any(c in t for c in _CA_CITY_TERMS):
+        return "Canada"
+    return ""
+
+
+# ---------------------------------------------------------------------------
 # Greenhouse Job Board API (industry health-tech / sport-tech)
 # ---------------------------------------------------------------------------
 
@@ -764,16 +792,10 @@ def scrape_greenhouse() -> list:
                     loc = ""
                     if isinstance(location_obj, dict):
                         loc = clean(location_obj.get("name", ""))
-                    # Infer country from location text
-                    loc_lower = loc.lower()
-                    if any(c in loc_lower for c in ("united kingdom", "london", "manchester", "edinburgh", "uk", "britain", "england", "scotland", "wales")):
-                        country = "UK"
-                    elif any(c in loc_lower for c in ("canada", "toronto", "vancouver", "montreal", "ottawa", "calgary")):
-                        country = "Canada"
-                    elif "remote" in loc_lower:
-                        country = ""  # surfaces in all-country view
-                    else:
-                        country = ""  # unknown / US / EU - still shows in All
+                    # Infer country from location text (audit P4: word-boundary
+                    # "uk" so "Tukwila, WA" no longer mis-tags as UK; remote and
+                    # unknown both fall through to "" = shown in the All view).
+                    country = infer_country(loc)
                     updated = item.get("updated_at", "")
                     date_str = updated[:10] if updated else datetime.date.today().isoformat()
                     description = clean(item.get("content", ""))
@@ -823,13 +845,7 @@ def scrape_lever() -> list:
                         continue
                     categories = item.get("categories", {}) or {}
                     loc = clean(categories.get("location", ""))
-                    loc_lower = loc.lower()
-                    if any(c in loc_lower for c in ("united kingdom", "london", "manchester", "edinburgh", "uk", "britain", "england", "scotland", "wales")):
-                        country = "UK"
-                    elif any(c in loc_lower for c in ("canada", "toronto", "vancouver", "montreal", "ottawa", "calgary")):
-                        country = "Canada"
-                    else:
-                        country = ""
+                    country = infer_country(loc)  # audit P4: word-boundary "uk"
                     created = item.get("createdAt")
                     if created:
                         try:

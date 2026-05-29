@@ -374,6 +374,16 @@
                 });
         }
 
+        // Escape HTML-special chars before inserting self-authored search-index
+        // fields into innerHTML, matching the escaping jobs.html / live-research.html
+        // already apply (audit G2). includes.js had no escHtml of its own.
+        function escHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
         function doSearch(query) {
             if (!searchIndex) return;
             var q = query.toLowerCase().trim();
@@ -400,8 +410,8 @@
 
             resultsDiv.innerHTML = scored.map(function (s, i) {
                 return '<a href="' + s.item.url + '" class="search-result-item" data-idx="' + i + '">' +
-                    '<div class="sr-title">' + s.item.title + '</div>' +
-                    '<div class="sr-desc">' + s.item.description + '</div>' +
+                    '<div class="sr-title">' + escHtml(s.item.title) + '</div>' +
+                    '<div class="sr-desc">' + escHtml(s.item.description) + '</div>' +
                     '</a>';
             }).join('');
             activeIdx = -1;

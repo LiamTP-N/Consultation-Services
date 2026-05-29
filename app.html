@@ -1292,19 +1292,27 @@
         
         
         
+        function weeksAndAllowance(baselineDate) {
+            // Single source of truth for the week count and allowance %, shared by
+            // calculateDailyTarget and refreshStats so the two cannot drift (audit A7).
+            let weeks = 0;
+            if (baselineDate) {
+                weeks = Math.floor((Date.now() - new Date(baselineDate).getTime()) / (7 * 24 * 60 * 60 * 1000));
+            }
+            const allowancePercent = Math.max(0, 20 - (weeks * 2));
+            return { weeks, allowancePercent };
+        }
+
         function calculateDailyTarget() {
             const baseline = window.userData?.baselineRom || 90;
             const baselineDate = window.userData?.baselineDate;
             const standingAngle = window.userData?.standingRom || 170;
 
-            let weeksElapsed = 0;
-            if (baselineDate) {
-                const msElapsed = Date.now() - new Date(baselineDate).getTime();
-                weeksElapsed = Math.floor(msElapsed / (7 * 24 * 60 * 60 * 1000));
-            }
+            const { weeks: weeksElapsed, allowancePercent } = weeksAndAllowance(baselineDate);
 
             
-            const allowancePercent = Math.max(0, 20 - (weeksElapsed * 2));
+            // allowancePercent now comes from weeksAndAllowance() above (audit A7);
+            // the duplicate inline formula was removed.
             const range = standingAngle - baseline;
             const buffer = range * (allowancePercent / 100);
             dailyTarget = Math.round(baseline + buffer);
@@ -1325,11 +1333,7 @@
             document.getElementById('stat-baseline').innerText = d.baselineRom ? d.baselineRom + '\u00B0' : '--';
             document.getElementById('stat-sessions').innerText = d.sessionsCompleted || 0;
 
-            let weeksElapsed = 0;
-            if (d.baselineDate) {
-                weeksElapsed = Math.floor((Date.now() - new Date(d.baselineDate).getTime()) / (7 * 24 * 60 * 60 * 1000));
-            }
-            const allowance = Math.max(0, 20 - (weeksElapsed * 2));
+            const { weeks: weeksElapsed, allowancePercent: allowance } = weeksAndAllowance(d.baselineDate);
             document.getElementById('stat-allowance').innerText = allowance + '%';
             document.getElementById('stat-week').innerText = weeksElapsed + 1;
 
@@ -1373,6 +1377,16 @@
         
         
         
+        function resetRepState() {
+            // Reset the rep state-machine globals shared by assess and train so a
+            // half-finished session in one mode cannot carry stale squat state into
+            // the other (audit A3). Called on entry to each mode below.
+            isSquatting = false;
+            squatEntryTime = 0;
+            standReturnTime = 0;
+            currentRepDeepest = 180;
+        }
+
         window.beginCameraSequence = async (mode) => {
             
             if (!ensurePoseReady()) {
@@ -1383,7 +1397,7 @@
 
             currentMode = mode;
             cameraState = 'waiting';
-            isSquatting = false;
+            resetRepState();
             lastLandmarkPositions = null;
             stabiliseStartTime = 0;
 
@@ -1805,7 +1819,12 @@
             if (kneeAngle < 170) {
                 const totalDist = 170 - dailyTarget;
                 const currentDist = 170 - kneeAngle;
-                percentage = Math.min(100, Math.max(0, (currentDist / totalDist) * 100));
+                // Guard bad baseline data: if dailyTarget >= 170 then totalDist <= 0
+                // and the division yields NaN/Infinity, making the bar width "NaN%"
+                // (audit A2). Normal targets (~90-120) are unaffected.
+                percentage = totalDist > 0
+                    ? Math.min(100, Math.max(0, (currentDist / totalDist) * 100))
+                    : 0;
             }
 
             const bar = document.getElementById('depth-bar');
@@ -2082,6 +2101,9 @@
         window.skipQuestionnaire = async () => {
             document.getElementById('questionnaire-modal').classList.add('hidden');
             const d = window._pendingSessionData;
+            // Null immediately so a rapid re-trigger cannot save the same session
+            // twice and double-count totalReps/sessionsCompleted (audit A4).
+            window._pendingSessionData = null;
             if (d && window.saveSession) {
                 await window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, false);
             }
@@ -2090,6 +2112,9 @@
 
         window.submitQuestionnaire = async () => {
             const d = window._pendingSessionData || {};
+            // Null immediately so a double-tap / re-entry cannot save the same
+            // session twice and double-count totals (audit A4).
+            window._pendingSessionData = null;
             const weeksElapsed = (() => {
                 if (!window.userData?.baselineDate) return 0;
                 return Math.floor((Date.now() - new Date(window.userData.baselineDate).getTime()) / (7 * 24 * 60 * 60 * 1000));
@@ -2145,7 +2170,7 @@
                 }
             }
 
-            if (window.saveSession) {
+            if (d.reps != null && window.saveSession) {
                 await window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, true);
             }
             switchView('food');

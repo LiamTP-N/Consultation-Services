@@ -21,6 +21,11 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Only handle GET. Non-GET requests (the consultation app's Firebase / Apps
+  // Script POSTs) cannot be written to the Cache API; without this guard the
+  // handler reaches cache.put() and throws "Request method 'POST' is unsupported"
+  // as an unhandled rejection (console noise). Matches Personal/sw.js (audit G3).
+  if (e.request.method !== 'GET') return;
   e.respondWith(
     caches.match(e.request).then(cached => {
       const fetched = fetch(e.request).then(response => {

@@ -259,28 +259,42 @@
 
     
 
+    // Parse a date as LOCAL midnight (audit FE1). new Date("YYYY-MM-DD") parses as
+    // UTC midnight, so comparing it to a local now/today shifts the day boundary by
+    // one in non-UK (negative-UTC) zones - a study closing "today" could read as
+    // already closed. Parsing the Y-M-D parts as local removes the skew in every
+    // zone; UK behaviour is unchanged. Full timestamps fall back to native parsing.
+    function parseDateLocal(v) {
+        if (!v) return null;
+        const s = String(v).trim();
+        const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+        const d = new Date(s);
+        return isNaN(d) ? null : d;
+    }
+
     function isExpired(closingDate) {
-        if (!closingDate) return false;
-        const d = new Date(closingDate);
-        if (isNaN(d)) return false;
+        const d = parseDateLocal(closingDate);
+        if (!d) return false;
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         return d < today;
     }
 
     function isClosingSoon(closingDate) {
-        if (!closingDate) return false;
-        const d = new Date(closingDate);
-        if (isNaN(d)) return false;
-        const now = new Date();
-        const diff = (d - now) / (1000 * 60 * 60 * 24);
+        const d = parseDateLocal(closingDate);
+        if (!d) return false;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const diff = (d - today) / (1000 * 60 * 60 * 24);
         return diff >= 0 && diff <= 14;
     }
 
     function isTooOld(dateSubmitted) {
-        if (!dateSubmitted) return false;
-        const d = new Date(dateSubmitted);
+        const d = parseDateLocal(dateSubmitted);
+        if (!d) return false;
         const cutoff = new Date();
+        cutoff.setHours(0, 0, 0, 0);
         cutoff.setDate(cutoff.getDate() - MAX_AGE_DAYS);
         return d < cutoff;
     }
