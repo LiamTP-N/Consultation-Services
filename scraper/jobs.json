@@ -1,6 +1,23 @@
 {
   "jobs": [
     {
+      "id": "5d67e3fda402d042",
+      "title": "Associate Professor A - Quantum Computing",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS669/associate-professor-a-quantum-computing/",
+      "date_posted": "2026-05-31",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Limerick - Faculty of Science & Engineering - Department of Computer Science & Information Systems Salary: €91,094 to €120,069 per annum",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
       "id": "2ce58f8cc1137161",
       "title": "Teaching & Research Technician",
       "organisation": "",
@@ -633,6 +650,23 @@
         "fe_he_teaching"
       ],
       "fit_score": 15
+    },
+    {
+      "id": "48b26d6fe3755986",
+      "title": "Data Scientist, Marketing",
+      "organisation": "Anthropic",
+      "location": "New York City, NY | Seattle, WA; San Francisco, CA",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/anthropic/jobs/5161402008",
+      "date_posted": "2026-05-30",
+      "closing_date": "",
+      "type": "",
+      "description": "<div class=\"content-intro\"><h2><strong>About Anthropic</strong></h2> <p>Anthropic’s mission is to create reliable, interpretable, and steerable AI systems. We want AI to be safe and beneficial for our users and for society as a whole. Our team is a quickly growing group of committed researchers, engineers, policy experts, and business leaders working together to build beneficial AI systems.</p></div><h2>Job Description</h2> <p>As an early member of our Data Science team, you will play an instrum...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
     },
     {
       "id": "e2697534b79b0686",
@@ -25047,5 +25081,5 @@
       "fit_score": 20
     }
   ],
-  "last_updated": "2026-05-30T07:08:03.906098Z"
+  "last_updated": "2026-05-31T07:08:18.938065Z"
 }
