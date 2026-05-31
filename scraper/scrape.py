@@ -16,6 +16,7 @@ Sources (Phase 3)
 UK:
   - Jobs.ac.uk RSS (12 feeds)
   - Adzuna API UK (opt-in)
+  - Reed.co.uk Jobseeker API (opt-in)
   - Bluesky
 
 Canada:
@@ -41,6 +42,16 @@ Adzuna offers a free-tier REST API covering UK + Canada with
 generous rate limits. Activate by setting two GitLab CI variables:
   ADZUNA_APP_ID, ADZUNA_APP_KEY (register at developer.adzuna.com)
 Without them the Adzuna step is silently skipped.
+
+Reed integration
+-----------------
+Reed.co.uk offers a free Jobseeker API (UK only). Activate by setting
+one GitLab CI variable:
+  REED_API_KEY (register at https://www.reed.co.uk/developers/jobseeker)
+Auth is HTTP Basic with the key as username and empty password.
+Without it the Reed step is silently skipped. Added to close the
+FE/college-sector coverage gap that the academic-skewed and US-skewed
+sources miss.
 
 Categorisation
 --------------
@@ -142,6 +153,10 @@ CATEGORY_KEYWORDS = {
         "assessor", "internal verifier", "external verifier",
         "head of teaching", "head of department",
         "instructor", "academic skills",
+        # FE/college-sector leadership (broadened with Reed source)
+        "head of college", "head of faculty", "head of curriculum",
+        "curriculum manager", "head of youth", "college leadership",
+        "vice principal", "deputy principal", "head of school",
     ],
     "research_mgmt": [
         "research manager", "research coordinator", "research operations",
@@ -291,6 +306,37 @@ ADZUNA_QUERIES = [
     "kinesiology",
     "lecturer exercise",
     "research technician",
+]
+
+# Reed.co.uk Jobseeker API queries (UK only). Free key from
+# https://www.reed.co.uk/developers/jobseeker, set REED_API_KEY env var.
+# Broad coverage: CV-category terms PLUS FE/college-leadership terms that
+# the academic-skewed sources (Jobs.ac.uk) and US-skewed sources
+# (Greenhouse/Lever) systematically miss. Everything still passes through
+# passes_filter (category match + exclude list) and fit scoring, so a wide
+# net here does not flood the board with irrelevant commercial roles.
+REED_QUERIES = [
+    # CV categories
+    "sport science",
+    "biomechanics",
+    "exercise physiology",
+    "research software engineer",
+    "data scientist health",
+    "digital health",
+    "kinesiology",
+    "research technician",
+    "lab manager",
+    "performance analyst",
+    "strength and conditioning",
+    # FE / HE college leadership (the gap that motivated this source)
+    "head of college",
+    "head of faculty",
+    "head of department education",
+    "college leadership",
+    "curriculum manager",
+    "head of curriculum",
+    "lecturer sport",
+    "programme leader",
 ]
 
 OUTPUT_FILE = Path("scraper/jobs.json")
@@ -463,6 +509,21 @@ def parse_rss_date(date_str: str) -> str:
         return dt.date().isoformat()
     except Exception:
         return datetime.date.today().isoformat()
+
+
+def parse_reed_date(date_str: str) -> str:
+    """Reed returns dates as dd/mm/yyyy. Convert to ISO yyyy-mm-dd. Falls
+    back to today on anything unparseable so a bad value never crashes the
+    run or trips prune_old's ISO parse."""
+    if not date_str:
+        return datetime.date.today().isoformat()
+    s = str(date_str).strip()
+    for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%d/%m/%y"):
+        try:
+            return datetime.datetime.strptime(s, fmt).date().isoformat()
+        except Exception:
+            continue
+    return datetime.date.today().isoformat()
 
 
 # ---------------------------------------------------------------------------
@@ -736,6 +797,85 @@ def scrape_adzuna(country_code: str, country_label: str) -> list:
 
 
 # ---------------------------------------------------------------------------
+# Reed.co.uk Jobseeker API (UK) - Phase 3.2 addition
+# ---------------------------------------------------------------------------
+
+def scrape_reed() -> list:
+    """Reed.co.uk Jobseeker API (UK). Requires REED_API_KEY env var.
+    Auth is HTTP Basic with the key as username and an empty password.
+    Silently returns [] if the key is absent so deploy still works without
+    it (same pattern as Adzuna). UK-only coverage; country hard-set to UK.
+
+    Added to close the FE/college-sector gap: the role that motivated this
+    source (Head of Youth College) was live on Reed but never surfaced via
+    the other sources, and Adzuna's claimed Reed aggregation did not cover
+    it in practice."""
+    api_key = os.environ.get("REED_API_KEY", "").strip()
+    if not api_key:
+        print("  Reed: REED_API_KEY not set, skipping")
+        return []
+    jobs = []
+    print(f"  Reed ({len(REED_QUERIES)} queries)")
+    seen_ids_local = set()
+    for query in REED_QUERIES:
+        url = (
+            "https://www.reed.co.uk/api/1.0/search"
+            f"?keywords={urllib.parse.quote(query)}"
+            "&resultsToTake=100"
+        )
+        try:
+            # Basic auth: key as username, blank password. requests builds
+            # the header itself from the tuple, so the key is never placed
+            # into the URL or any logged string.
+            r = requests.get(
+                url,
+                timeout=15,
+                headers={"Accept": "application/json"},
+                auth=(api_key, ""),
+            )
+            if r.status_code == 401:
+                print("  Reed 401: check REED_API_KEY value")
+                return jobs  # bad creds, no point continuing
+            r.raise_for_status()
+            data = r.json()
+            for item in data.get("results", []):
+                try:
+                    job_id = item.get("jobId")
+                    if job_id is None or job_id in seen_ids_local:
+                        continue
+                    seen_ids_local.add(job_id)
+                    title = clean(item.get("jobTitle", ""))
+                    href = clean_url(item.get("jobUrl", "")
+                                     or f"https://www.reed.co.uk/jobs/{job_id}")
+                    if not title or not href:
+                        continue
+                    org = clean(item.get("employerName", ""))
+                    loc = clean(item.get("locationName", ""))
+                    date_raw = item.get("date", "") or item.get("datePosted", "")
+                    date_str = parse_reed_date(date_raw)
+                    closing = item.get("expirationDate", "") or ""
+                    jobs.append({
+                        "id": make_id(href, title),
+                        "title": title,
+                        "organisation": org,
+                        "location": loc,
+                        "country": "UK",
+                        "source": "Reed",
+                        "url": href,
+                        "date_posted": date_str,
+                        "closing_date": clean(closing),
+                        "type": "",
+                        "description": clean(item.get("jobDescription", "")),
+                    })
+                except Exception as e:
+                    print(f"    item parse error: {e}")
+        except Exception as e:
+            print(f"  GET failed Reed q={query[:30]}: {e}")
+        time.sleep(1)  # polite rate-limit
+    return jobs
+
+
+# ---------------------------------------------------------------------------
 # Country inference (shared by Greenhouse + Lever)
 # ---------------------------------------------------------------------------
 
@@ -958,7 +1098,7 @@ def scrape_bluesky() -> list:
 # ---------------------------------------------------------------------------
 
 def main():
-    print("=== JobScan scraper starting (Phase 3: industry sources via Greenhouse + Lever) ===")
+    print("=== JobScan scraper starting (Phase 3.2: + Reed.co.uk Jobseeker API) ===")
     existing = load_existing()
     existing["jobs"] = backfill_categories(existing.get("jobs", []))
     existing_ids = {j["id"] for j in existing["jobs"]}
@@ -1028,6 +1168,19 @@ def main():
         print(f"    +{added} new from Adzuna Canada")
     except Exception as e:
         print(f"  ERROR Adzuna Canada: {e}")
+
+    print("  Running Reed.co.uk API scraper (UK)...")
+    try:
+        results = scrape_reed()
+        added = 0
+        for j in results:
+            if j["id"] not in existing_ids and passes_filter(j):
+                new_jobs.append(j)
+                existing_ids.add(j["id"])
+                added += 1
+        print(f"    +{added} new from Reed")
+    except Exception as e:
+        print(f"  ERROR Reed: {e}")
 
     print("  Running Greenhouse scraper (industry health/sport tech)...")
     try:
