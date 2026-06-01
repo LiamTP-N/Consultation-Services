@@ -1,6 +1,142 @@
 {
   "jobs": [
     {
+      "id": "b9436673efebb308",
+      "title": "Data Engineer",
+      "organisation": "Brio Digital",
+      "location": "Holbeck, Leeds",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5747010967?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "contract",
+      "description": "Salary: £? - ? per year Requirements: We require prior experience working within NHS England, the UK Health Security Agency, the Department of Health and Social Care, or another central government data environment. We require solid experience with Python, PySpark, Power BI, and AWS. We require strong communication skills and the ability to engage confidently with both technical peers and non-technical clinical or operational stakeholders. We require availability on two weeks notice or less. We …",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "2d8edae11dc8007c",
+      "title": "Senior Data Scientist",
+      "organisation": "CURE TALENT LIMITED",
+      "location": "Lychpit, Basingstoke",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5747009000?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Salary: £75,000 - 75,000 per year Requirements: Strong experience in signal processing and analysis of time-series or physiological data Experience developing algorithms or models using MATLAB, Python, or similar high-level tools Understanding of techniques such as filtering, noise reduction, and feature extraction Experience working with non-invasive physiological signals (e.g. ECG, PPG, respiratory data) Ability to design experiments and work with real-world and clinical datasets Nice to have…",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "52978d1ef7325b8d",
+      "title": "Principal Machine Learning Engineer (Live Sports Insights)",
+      "organisation": "Sky",
+      "location": "TW75QD",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/principal-machine-learning-engineer-live-sports-insights/56961930",
+      "date_posted": "2026-06-01",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "We believe in better. And we make it happen. Better content. Better products. And better careers. Working in Tech, Product or Data at Sky is about building the next and the new. From broadband to broadcast, streaming to mobile, SkyQ to Sky Glass, we never stand still. We optimise and innovate. We turn big ideas into the products, content and services millions of people love. And we do it all right here at Sky. Join us to rethink how sports are e...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "aa84f8a1316a7058",
+      "title": "Principal Machine Learning Engineer",
+      "organisation": "Sky",
+      "location": "TW75QD",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/principal-machine-learning-engineer/56961929",
+      "date_posted": "2026-06-01",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "We believe in better. And we make it happen. Better content. Better products. And better careers. Working in Tech, Product or Data at Sky is about building the next and the new. From broadband to broadcast, streaming to mobile, SkyQ to Sky Glass, we never stand still. We optimise and innovate. We turn big ideas into the products, content and services millions of people love. And we do it all right here at Sky. What you'll do We are seeking a hig...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "faa852ddaf53b02c",
+      "title": "Senior Machine Learning Engineer (Recommendation)",
+      "organisation": "Sky",
+      "location": "TW75QD",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/senior-machine-learning-engineer-recommendation/56961928",
+      "date_posted": "2026-06-01",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "We believe in better. And we make it happen. Better content. Better products. And better careers. Working in Tech, Product or Data at Sky is about building the next and the new. From broadband to broadcast, streaming to mobile, SkyQ to Sky Glass, we never stand still. We optimise and innovate. We turn big ideas into the products, content and services millions of people love. And we do it all right here at Sky. What you'll do We are seeking a hig...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "4ddd7b31bcb8d64d",
+      "title": "Principal Data Engineer",
+      "organisation": "Sky",
+      "location": "TW75QD",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/principal-data-engineer/56961945",
+      "date_posted": "2026-06-01",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "We don't just believe in better. We make it happen. \" Better content. Better products. And better careers.\" \" \" Working in Tech, Product or Data at Sky is about building the next and the new. From broadband to broadcast, streaming to mobile, Sky Stream to Sky Glass, we never stand still. We optimise and innovate. We turn big ideas into the products, content and services millions of people love. And we do it all right here at Sky. \" \" Team overvi...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "8528764e601d8439",
+      "title": "Digital Operations Controller",
+      "organisation": "Sky",
+      "location": "TW75QD",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/digital-operations-controller/56961941",
+      "date_posted": "2026-06-01",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "Want to do the best work of your life? With 24 million customers in 6 countries, make your mark at Europe's leading media and entertainment brand. A workplace where you can proudly be yourself; our people make Sky a truly exciting and inclusive place to work. Working on the Digital team that oversees growing and new business within Media across Sky News and Sports content on websites and applications alongside social, distribution and CTV channe...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "25fde169a821f423",
+      "title": "Timetabling Officer - Leeds",
+      "organisation": "Gedu",
+      "location": "Leeds",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/timetabling-officer-leeds/56960998",
+      "date_posted": "2026-06-01",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "Department: Registry Location: Leeds Type of Contract: Full Time / Permanent Salary: 27,500 - 31,000 Our Vision: Changing Lives through Education What we Do: The Timetabling Department provides structured and accurate scheduling which enables our courses to be delivered efficiently across the academic year. The Role: Are you someone who enjoys managing complexity and finding practical solutions? A well planned timet...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
       "id": "5d67e3fda402d042",
       "title": "Associate Professor A - Quantum Computing",
       "organisation": "",
@@ -149,6 +285,125 @@
       "closing_date": "",
       "type": "",
       "description": "<div class=\"content-intro\"><h2><strong>About Anthropic</strong></h2> <p>Anthropic’s mission is to create reliable, interpretable, and steerable AI systems. We want AI to be safe and beneficial for our users and for society as a whole. Our team is a quickly growing group of committed researchers, engineers, policy experts, and business leaders working together to build beneficial AI systems.</p></div><h2 class=\"text-text-100 mt-3 -mb-1 text-[1.125rem] font-bold\">About the role</h2> <p class=\"font...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "d116d9e17df82653",
+      "title": "Data Engineer",
+      "organisation": "Boeing",
+      "location": "Canada",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5746680429?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-05-31",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Data Engineer Company: Boeing Vancouver Boeing Vancouver is seeking a Data Engineer , reporting to the Manager of Data Science & Analytics working out of the Richmond, BC office. This role will help Boeing transform our industry through the application and continuous improvement of advanced analytics and machine learning in the aviation domain. The position will be embedded in a multi-disciplinary data science team producing industry-leading insights, and will use their data management, softwar…",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "301e90d29b0d1661",
+      "title": "Manager of Roadmap Architect",
+      "organisation": "Saskatchewan Health Authority",
+      "location": "Beaver Creek, Saskatoon",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5746738189?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-05-31",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Description Position : 190880 Expected Start Date: June 01, 2026 Union: OOS Facility: Saskatchewan Health Authority City/Town: To Be Determined Department: Digital Health - Roadmap Architect Type: Full-time temporary Expected Up to Date: May 31, 2028 FTE: 1 Shift Information: Days, Standby Number of Hours per Rotation: 5 shifts of 7.5 hours per 1 weeks Relief: No Float: No Salary or Pay Band: As per Terms and Conditions of Employment Travel Required: Yes Job Description: The Manager, Roadmap A…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "32b12ae7a501399b",
+      "title": "Sales Manager- Programmatic",
+      "organisation": "Samsung",
+      "location": "Canada",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5746735021?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-05-31",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Position Summary Samsung Electronics is a global leader in Technology, opening new possibilities for people everywhere. Through relentless innovation and discovery, we are transforming the worlds of TVs, smartphones, wearable devices, tablets, cameras, digital appliances, network systems, medical devices, semiconductors and LED solutions. Samsung is also leading in the Internet of Things space through, among others, our Smart Home and Digital Health initiatives. Since being established in 1969,…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "74e947375144a4d6",
+      "title": "Help Desk Consultant, Information Technology (CUPE) (2) - Full Time - Markham Stouffville Hospital",
+      "organisation": "Oak Valley Health",
+      "location": "Canada",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5746718161?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-05-31",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Please Note: If you are a current Oak Valley Health employee, apply to this job via the internal Workday application. Land acknowledgement: Oak Valley Health is honoured to provide care on the traditional and treaty territory of the Anishinaabeg, and acknowledge our closest Indigenous communities, the Chippewas of Georgina Island and the Mississaugas of Scugog Island. The land is encompassed within Treaty 13, Treaty 20, and the Williams Treaty. Today, this area is home to many diverse Indigenou…",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "342b52943d30eefe",
+      "title": "Recreation Aide- Casual VCT",
+      "organisation": "Extendicare",
+      "location": "Toronto, Ontario",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5746734803?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-05-31",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "Job Description Department: Programs Position Required: Recreation Aide Status: CASUAL Date Required: ASAP Salary: According to the CUPE Local 2553 Collective Agreement Qualifications: Must have a post-secondary diploma or degree in recreation and leisure studies, therapeutic recreation, kinesiology or other related field from a community college or university. Activation experience in Long Term Care or related setting preferred. Knowledge of RAI-MDS and Point Click care an asset Current Food h…",
+      "categories": [
+        "academic_adjacent"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "bd6ca5be28c76d48",
+      "title": "Program & Support Services Manager",
+      "organisation": "AgeCare",
+      "location": "Kingsville, Essex region",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5746709694?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-05-31",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "About Us At AgeCare, our mission is to empower residents to live their lives to the fullest by prioritizing their health and well-being. We firmly believe that we are working in our residents' homes, and we dedicate ourselves to providing a comfortable and person-centered environment. Working in long-term care is more than just a job; it is a calling for many of us. The Opportunity: The Program Support Services Manager is responsible for the coordination and scheduling of programs that provide …",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "adefa3ca54a0fc7e",
+      "title": "Machine Learning and Quantum Information Systems Specialist",
+      "organisation": "TRIUMF",
+      "location": "Greater Vancouver, British Columbia",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5746734748?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-05-31",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Discover TRIUMF , Canada's particle accelerator centre. We are a publicly funded, not-for-profit research lab that is a hub for discovery and innovation. Our mission is to serve as Canada’s particle accelerator centre. We advance isotope science and technology, both fundamental and applied. We collaborate across communities and disciplines, from nuclear and particle physics to the life and material sciences. We discover and innovate, inspire and educate, creating knowledge and opportunity for a…",
       "categories": [
         "data_science"
       ],
@@ -6521,6 +6776,23 @@
       "fit_score": 20
     },
     {
+      "id": "0ebd1bf356818307",
+      "title": "Research Scientist (Visual Generative AI & World Models)",
+      "organisation": "Graphcore",
+      "location": "Cambridge, Cambridgeshire",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5738754258?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-05-23",
+      "closing_date": "",
+      "type": "",
+      "description": "About Graphcore At Graphcore, we’re building the future of AI compute. We’re a team of semiconductor, software and AI experts, with deep experience in creating the complete AI compute stack - from silicon and software to infrastructure at datacenter scale. As part of the SoftBank Group, backed by significant long-term investment, we are delivering key technology into the fast-growing SoftBank AI ecosystem. To meet the vast and exciting AI opportunity, Graphcore is expanding its teams around the…",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
       "id": "98b4bcbede250c07",
       "title": "Staff Enterprise AI Engineer",
       "organisation": "Peloton",
@@ -9450,6 +9722,25 @@
         "fe_he_teaching"
       ],
       "fit_score": 15
+    },
+    {
+      "id": "ccbcafdc4f83b459",
+      "title": "Research Associate in Bioinformatics and Genetics",
+      "organisation": ". Imperial College London",
+      "location": "UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5729947280?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-05-15",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "About the role We are looking to appoint a Postdoctoral Research Associate in Bioinformatics to lead on the analysis and interpretation of multiomic data in the context of cardiac disease. Working within a multidisciplinary team, you will define genetic risk factors for integrative risk modelling with imaging data, develop data driven approaches for population segmentation, and work with complex multi-omic datasets in diverse disease groups. You will work across multiple research workstreams en…",
+      "categories": [
+        "technician",
+        "data_science",
+        "research_postdoc"
+      ],
+      "fit_score": 57
     },
     {
       "id": "3a23c4fdf509b34a",
@@ -13516,6 +13807,23 @@
         "technician"
       ],
       "fit_score": 20
+    },
+    {
+      "id": "3e160d5a7ecc3c68",
+      "title": "Design Team Leader",
+      "organisation": "Kier Group",
+      "location": "M503XP",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/design-team-leader/56846321",
+      "date_posted": "2026-05-01",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "We're looking for two Design Team Leaders to join our Drainage and Water teams based in Salford or Exeter. Working closely with the Design Manager and wider Kier teams, you'll develop team capability, build strong relationships with clients, and help shape how we deliver value across our infrastructure projects. Location: Salford, Optimum House, M50 3XP or Exeter, Hawthorn House, EX1 3QS - travel to the office required with some remote working a...",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
     },
     {
       "id": "f77732e3ac04f4f6",
@@ -29037,6 +29345,23 @@
       "fit_score": 22
     },
     {
+      "id": "c536ee7dd84d8c52",
+      "title": "Camp Leader",
+      "organisation": "Vivo for Healthier Generations Society",
+      "location": "Panorama Hills, Calgary",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5590652555?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-01-18",
+      "closing_date": "",
+      "type": "contract",
+      "description": "←Back to all jobs at Vivo for Healthier Generations Society Camp Leader Organization Overview: At Vivo, we are a charitable enterprise on a mission to raise healthier generations in Calgary and beyond. We want Canadians of all ages to achieve their optimal health at home, school, work and play. We’re creating local, evidence-based solutions to support individuals and whole communities be more active and connected by charting a course to make 10% shifts - shifts in people’s lifestyles, shifts in…",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
       "id": "78a244b301ce015c",
       "title": "Senior Machine Learning Research Engineer (Sensor Intelligence Group)",
       "organisation": "WHOOP",
@@ -30801,5 +31126,5 @@
       "fit_score": 20
     }
   ],
-  "last_updated": "2026-05-31T19:18:03.313036Z"
+  "last_updated": "2026-06-01T07:15:06.750330Z"
 }
