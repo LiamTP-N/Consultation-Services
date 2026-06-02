@@ -1,6 +1,810 @@
 {
   "jobs": [
     {
+      "id": "2bc5fa6b2417ad27",
+      "title": "Senior Research Technician - Environmental Engineering",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT162/senior-research-technician-environmental-engineering/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "Durham University - Engineering and Technology Salary: £22,616 to £33,002",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "7c35e444c9e4ca6d",
+      "title": "Senior Research Laboratory Technician (Part Time)(Fixed Term)",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS923/senior-research-laboratory-technician-part-timefixed-term/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Cambridge - Wolfson Brain Imaging Centre Salary: £27,319 to £31,236 pro rata",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "f224ebf8dc54f26d",
+      "title": "PhD Studentship in Applied Health Research supported by the Applied Research Collaboration Kent, Surrey and Sussex (ARC KSS)",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRR331/phd-studentship-in-applied-health-research-supported-by-the-applied-research-collaboration-kent-surrey-and-sussex-arc-kss/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Kent - Centre for Health Services Studies Salary: Studentship tuition fees; standard postgraduate Home rate (£5,238 for 2026/27) plus an annual maintenance stipend of £21,805 per annum (in line with the UKRI rate for 2026).",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "962fc8e5ce69332e",
+      "title": "Research Assistant in Nutritional Sciences",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS995/research-assistant-in-nutritional-sciences/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Surrey - Nutrition, Exercise, Chronobiology & Sleep Salary: £34,610 to £36,636 per annum",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "f8e1af0a1843e415",
+      "title": "NIHR Clinical Lecturer in General Practice",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS999/nihr-clinical-lecturer-in-general-practice/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Southampton - Primary Care Research Centre Salary: £85,732 to £111,133 per annum",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "1c5706bf5acee74e",
+      "title": "Clinical Teaching Fellow in Clinical and Communication Skills",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT034/clinical-teaching-fellow-in-clinical-and-communication-skills/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "Queen Mary University of London - Institute of Health Sciences Education Salary: £52,656 to £73,992 per annum, inclusive of London Allowance. Clinical Doctor in Training Scale.",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "b00539d9a8c0fcd8",
+      "title": "Lecturer (Teaching & Research)",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT050/lecturer-teaching-and-research/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "Queen's University Belfast - China Medical University Salary: £45,349 to £49,536 per annum (under review).",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "159b535eed166f01",
+      "title": "Research Fellow in Greenspace and Health",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT063/research-fellow-in-greenspace-and-health/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Salford - School of Science, Engineering and Environment Salary: £38,784 to £46,049",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "907768fc7e2dbfc6",
+      "title": "PhD Studentship: Autism and healthcare: Public Health, Autism and cervical screening",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT085/phd-studentship-autism-and-healthcare-public-health-autism-and-cervical-screening/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "Swansea University - Health and Social Care School Salary: £21,805. Covers full tuition, £21,805 stipend (2026/27), plus up to £1,000 yearly for research costs.",
+      "categories": [
+        "academic_adjacent",
+        "research_postdoc"
+      ],
+      "fit_score": 33
+    },
+    {
+      "id": "b9b25eb0a344964b",
+      "title": "Electronics and Research Software Engineer",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT128/electronics-and-research-software-engineer/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Oxford - Department of Engineering Science, Institute of Biomedical Engineering Salary: £39,434 to £47,779. Grade 7 / Including Oxford University Weighting",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "1d02d263f2531b42",
+      "title": "Clinical Teaching Fellow",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT160/clinical-teaching-fellow/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Leicester - Leicester Medical School Salary: £38,784 per annum (pro rata if part-time) - Grade 6",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "fe7dd3696fe06695",
+      "title": "Research Fellow – Human Electrophysiologist",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT163/research-fellow-human-electrophysiologist/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "UCL - Department of Neuromuscular Diseases Salary: £41,103 inclusive of London Allowance.",
+      "categories": [
+        "academic_adjacent",
+        "research_postdoc"
+      ],
+      "fit_score": 33
+    },
+    {
+      "id": "4e8ce38a15dfc124",
+      "title": "Research Fellow – Mouse Electrophysiologist",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT164/research-fellow-mouse-electrophysiologist/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "UCL - Nascimento Research Group / Department of Neuromuscular Diseases Salary: £41,103 inclusive of London Allowance.",
+      "categories": [
+        "academic_adjacent",
+        "research_postdoc"
+      ],
+      "fit_score": 33
+    },
+    {
+      "id": "089a031bab1d39d7",
+      "title": "Research Associate/Assistant position in Regulatory T Cell Biology in Autoimmunity",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS960/research-associate-assistant-position-in-regulatory-t-cell-biology-in-autoimmunity/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "Imperial College London Salary: £43,863 to £57,472 per annum",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "421598ee8e8e513a",
+      "title": "Lecturer (Above the Bar) in Environmental Microbiology & Biotechnology",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS979/lecturer-above-the-bar-in-environmental-microbiology-and-biotechnology/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University College Cork - School of Microbiology Salary: €79,976 - €103,575 (Scale B) / €76,091 - €98,394 (Scale A)",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "54db788b00b762d5",
+      "title": "Professor (Scale 2) in Biochemistry",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS987/professor-scale-2-in-biochemistry/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University College Cork - School of Biochemistry & Cell Biology Salary: €123,150 - €144,633 (Scale B) / €116,992 - €137,402 (Scale A)",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "a734e877c4a4dfd9",
+      "title": "Research Assistant - translational impacts of targeting CDK9",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT167/research-assistant-translational-impacts-of-targeting-cdk9/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Oxford - Old Road Campus Research Building, Headington, Oxford, OX3 7DQ Salary: £35,681 to £41,636 per annuim",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "765d72479f1b7394",
+      "title": "Research Assistant (Fixed Term)",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRR642/research-assistant-fixed-term/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Cambridge - Department of Medicine Salary: £33,002 to £35,608",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "b908b149ea26d9c4",
+      "title": "PhD Studentship: A Unified Framework for Reservoir Computing: From Theory to Real-World Systems",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT190/phd-studentship-a-unified-framework-for-reservoir-computing-from-theory-to-real-world-systems/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Nottingham - Mathematical Sciences Salary: Not specified",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "0dd5b18ed0ceaa38",
+      "title": "Teaching Fellow (111652-0526)",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS959/teaching-fellow-111652-0526/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Warwick - School of Education, Learning, and Communication Sciences Salary: £35,608 to £46,049 per annum, pro rata",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "18dcea57d70cab28",
+      "title": "Research Fellow (111688-0526)",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS969/research-fellow-111688-0526/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Warwick - Physics Salary: £35,608 to £46,049 per annum",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "cf2c708c9aeb37fa",
+      "title": "Research Assistant in Agentic AI security",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT014/research-assistant-in-agentic-ai-security/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "Queen's University Belfast - School of Electronics, Electrical Engineering and Computer Science Salary: £35,136 per annum",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "1a18ba9e3f0cdaf5",
+      "title": "Adjunct Professor/Lecturer – FinTech: An Introduction",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT097/adjunct-professor-lecturer-fintech-an-introduction/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "Fordham University Salary: £4,878 per section",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "d9b11f81b61ad4e2",
+      "title": "Research Fellow (Robotics)",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT102/research-fellow-robotics/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "Queen's University Belfast - Education Studies (inc. TEFL) Salary: £41,519 to £42,756",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "cd6c81fb1c98432e",
+      "title": "Senior Research Associate, AI For Intelligence Analysis",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT106/senior-research-associate-ai-for-intelligence-analysis/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "The Alan Turing Institute - Defence & National Security Salary: £56,840 to £58,482 plus excellent benefits, including flexible working and family friendly policies",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "bf1ae83a660bcd52",
+      "title": "Assistant Professor (Research and Education) in Statistics and Data Science",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRQ185/assistant-professor-research-and-education-in-statistics-and-data-science/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Birmingham - School of Mathematics Salary: £47,389 to £56,535. Grade 8",
+      "categories": [
+        "data_science",
+        "fe_he_teaching"
+      ],
+      "fit_score": 37
+    },
+    {
+      "id": "7e6db20f661efce0",
+      "title": "Senior Developer",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS906/senior-developer/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Oxford - Nuffield Department of Primary Care Health Sciences Salary: £49,119 to £58,265 (with a discretionary range to ££63,489per annum). Grade 8. In addition, for appropriately qualified candidates, a market supplement may be payable up to a total maximum salary of £66,668",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "c0fb017d825a8f5b",
+      "title": "Staff Developer",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS910/staff-developer/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Oxford - Nuffield Department of Primary Care Health Sciences Salary: £56,623 to £65,336 (with a discretionary range to £71,218 per annum). Grade 9. In addition, for appropriately qualified candidates, a market supplement may be payable up to a total maximum salary of £86,784",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "f7a90af118303d0a",
+      "title": "Associate Lecturer - R for Reproducible Psychological Research",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS909/associate-lecturer-r-for-reproducible-psychological-research/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "Birkbeck, University of London - School of Psychological Sciences Salary: £69.68 per hour. See advert text for details.",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "0d349d563ad3fa6e",
+      "title": "PhD Studentship: CDA - The Development of a Gayborhood in Post-war London: Mapping Soho and its Archives",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS411/phd-studentship-cda-the-development-of-a-gayborhood-in-post-war-london-mapping-soho-and-its-archives/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Westminster - School of Humanities Salary: UKRI Rate, for 25/26 £22,780 (inclusive of London Weighting)",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "d57146de948b82d9",
+      "title": "PhD Studentship: Next-Generation Hair Repair Products",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS945/phd-studentship-next-generation-hair-repair-products/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "Newcastle University Salary: £21,805 minimum tax-free annual living allowance and 100% home fees covered.",
+      "categories": [
+        "health_tech",
+        "research_postdoc"
+      ],
+      "fit_score": 37
+    },
+    {
+      "id": "2544323800200ef2",
+      "title": "Research Assistant/Fellow in Industrial Energy Efficiency & Decarbonisation - 16895",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS993/research-assistant-fellow-in-industrial-energy-efficiency-and-decarbonisation-16895/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "Brunel University London - Department of Engineering / Centre for Sustainable Energy Use in Food Chains Salary: Not specified",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "69d25d36acc779c1",
+      "title": "Teaching Fellow / Lecturer: Civil Engineering",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT108/teaching-fellow-lecturer-civil-engineering/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Strathclyde - Department of Civil and Environmental Engineering (CEE) Salary: Competitive",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "cd6f1df26321102c",
+      "title": "Technical Instructor",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT130/technical-instructor/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "Oxford Brookes University - Mechanical Engineering Fabrication Workshops Salary: £36,636",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "742a95da8909daa7",
+      "title": "Lecturer in Resilient Infrastructure - Grade 8",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT132/lecturer-in-resilient-infrastructure-grade-8/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Liverpool - Faculty of Science and Engineering - School of Engineering - Department of Civil and Environmental Engineering Salary: £47,389 to £59,966 per annum",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "a72bcb5eb0b85eee",
+      "title": "Research Fellow in Surfaces for Textiles",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT173/research-fellow-in-surfaces-for-textiles/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "UCL - Mechanical Engineering Salary: £39,148 to £45,103",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "86577b3ecd60061f",
+      "title": "Lecturer (Below the Bar) in Mathematical Sciences",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRS970/lecturer-below-the-bar-in-mathematical-sciences/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University College Cork - School of Mathematical Sciences Salary: €42,602 - €73,177 (Scale B) / €44,669 - €69,631 (Scale A)",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "ab86025011de1b22",
+      "title": "Post-doctoral Research Fellow - AR3291",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT022/post-doctoral-research-fellow-ar3291/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of St Andrews - School of Mathematics and Statistics Salary: £38,784 to £42,254 per annum.",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "bb81a67ff05da950",
+      "title": "Research Associate - PHKH (Data)",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT101/research-associate-phkh-data/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "Ulster University - School of Psychology - Bamford Centre for Mental Health and Wellbeing Salary: £33,020 to £36,654. Grade 6/7",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "3230ef42bfda2dc7",
+      "title": "Departmental Lecturer in Mathematics Education (0.4 FTE)",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT123/departmental-lecturer-in-mathematics-education-04-fte/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of Oxford - Department of Education Salary: £49,119 to £58,265. Grade 8 / pro rata",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "ca5adfb4bce67b55",
+      "title": "Lecturer in Pure Mathematics",
+      "organisation": "",
+      "location": "",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT143/lecturer-in-pure-mathematics/",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "University of York - Department of Mathematics Salary: £46,049 to £56,535 per year",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "f032fb67e2a11494",
+      "title": "Weekend Group Strength & Conditioning Coach",
+      "organisation": "Third Space",
+      "location": "St Paul's, Central London",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5748442620?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "We are building an exciting new training concept in London — a space dedicated to intelligent, technical, high performance coaching delivered in a motivating small group environment. Our philosophy is simple: world class coaching, progressive programming, and an elevated training experience that helps every member move, feel, and perform at their best. Our coaches are the heartbeat of the concept. You’ll bring energy, precision, and deep technical knowledge to every session, creating an environ…",
+      "categories": [
+        "industry_applied"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "d693b1fe76e73d4e",
+      "title": "Product Manager",
+      "organisation": "IO Associates",
+      "location": "Charing Cross, Central London",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5748718251?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Salary: £50,000 - 50,000 per year Requirements: We are looking for strong product management experience, ideally 5 years, in healthtech, SaaS, enterprise software, or another regulated or complex environment. We need a strong understanding of healthcare operations, digital health platforms, and modern product management practices. We require experience owning roadmap decisions and driving delivery outcomes, not just managing backlogs. We value confidence working with cross-functional stakeholde…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "36d14cec379f668e",
+      "title": "Research Assistant in App Development",
+      "organisation": ". Newcastle University",
+      "location": "Newcastle Upon Tyne, Tyne & Wear",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5748410997?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Salary: £33,951 to £34,610 per annum Newcastle University is a great place to work, with excellent benefits. We have a generous holiday package; plus the opportunity to buy more, great pension schemes and a number of health and wellbeing initiatives to support you. Closing Date: 12 June 2026 The Role This is a full-time, 1-year fixed term Research Assistant position at the Translational and Clinical Research Institute at the Faculty of Medical Science and provides an exciting opportunity for an…",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "02e231fa938a0702",
+      "title": "STUDENT LIFE ANIMATOR - REGULAR",
+      "organisation": "Commission scolaire Riverside - Riverside School Board",
+      "location": "Saint-Hubert, Champlain",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5748805446?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "POSTING NO. 98 2026.06.01 STUDENT LIFE ANIMATOR - REGULAR (58% COORDINATOR – SPORTS EXCELLENCE PROGRAM | 42% FITNESS INSTRUCTOR) This full-time regular position is available July 1, 2026 at Heritage Regional High School, located at 7445 chemin de Chambly in Saint-Hubert. NATURE OF WORK The Student Life Animator role involves organizing, leading, and supporting student activities that align with the school’s educational goals, fostering overall student development in a welcoming and dynamic envi…",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "b274f2d38b4a460c",
+      "title": "Optical Lab Manager",
+      "organisation": "Specsavers",
+      "location": "Aldershot",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/optical-lab-manager/56969232",
+      "date_posted": "2026-06-02",
+      "closing_date": "14/07/2026",
+      "type": "",
+      "description": "Specsavers. A household name and a High Street staple — and you could be leading one of our most vital teams. We're looking for an Optical Lab Technician who's ready to take the next step in their career and grow into a more advanced role within the lab. At Specsavers Aldershot, you'll be part of a community-focused team made up of people from all walks of life and levels of experience. This is a great opportunity for someone who is eager to dev...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "94d466b5957ec819",
+      "title": "Senior Data Analyst",
+      "organisation": "Hudl",
+      "location": "Barcelona, Spain",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/hudl/jobs/7913628",
+      "date_posted": "2026-06-02",
+      "closing_date": "",
+      "type": "",
+      "description": "<div class=\"content-intro\"><p>At Hudl, we build great teams. We hire the best of the best to ensure you’re working with people you can constantly learn from. You’re trusted to get your work done your way while testing the limits of what’s possible and what’s next. We work hard to provide a culture where everyone feels supported, and our employees feel it—their votes helped us become one of <a href=\"https://www.hudl.com/blog/newsweek-top-100-global-most-loved-workplaces-2023\">Newsweek's Top 100 G...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
       "id": "b9436673efebb308",
       "title": "Data Engineer",
       "organisation": "Brio Digital",
@@ -135,6 +939,558 @@
         "technician"
       ],
       "fit_score": 20
+    },
+    {
+      "id": "b78d296c7c1254b3",
+      "title": "Trainee Occupational Health Technician",
+      "organisation": "GEL Resourcing",
+      "location": "Oxford, Oxfordshire",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5748239170?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Occupational Health Technician / Trainee A leading client of ours is looking for an Occupational Health Technician / Trainee Occupational Health Technician, to work on a full-time, permanent basis within their friendly and supportive team. They will also consider someone with transferable skills, i.e., Sports Science Graduate, Emergency Medical Technician or Health Care Assistant. Role: To carry out health screening and health surveillance for a variety of clients in the Oxford area. Driving a …",
+      "categories": [
+        "academic_sport",
+        "health_tech"
+      ],
+      "fit_score": 47
+    },
+    {
+      "id": "f7470d7d3ca8920b",
+      "title": "Trainee Occupational Health Technician",
+      "organisation": "gel Resourcing Ltd",
+      "location": "Wytham, Oxford",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5748077006?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Occupational Health Technician / Trainee A leading client of ours is looking for an Occupational Health Technician / Trainee Occupational Health Technician, to work on a full-time, permanent basis within their friendly and supportive team. They will also consider someone with transferable skills, i.e., Sports Science Graduate, Emergency Medical Technician or Health Care Assistant. Role: To carry out health screening and health surveillance for a variety of clients in the Oxford area. Driving a …",
+      "categories": [
+        "academic_sport",
+        "health_tech"
+      ],
+      "fit_score": 47
+    },
+    {
+      "id": "15c6d36da1a1bf85",
+      "title": "Occupational Health Technician",
+      "organisation": "Everson Recruitment",
+      "location": "Nine Ashes, Ingatestone",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5747957363?se=drw_5VFe8RGLwJSGqSIW5A&utm_medium=api&utm_source=8de31de0&v=5BD119FC5FB76DFB2E753FF276BB94430F9933E9",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "I am looking for a Mobile Occupational Health Technician in the Essex area to join an expanding peripatetic team. In this role, you will be required to travel across the UK, driving a Mobile Medical Unit (MMU) to client sites to deliver high-quality health surveillance services. This is a varied and rewarding role that plays a vital part in ensuring the health and wellbeing of employees across a range of industries. This is a great opportunity for an enthusiastic and reliable individual to expa…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "d040b33fbdf3c878",
+      "title": "Peripatetic Occupational Health Technician - Oxford",
+      "organisation": "Health Partners",
+      "location": "Oxfordshire, South East England",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5747717068?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "At Health Partners, we pride ourselves on being one of the UK's leading providers of occupational health and wellbeing solutions. We partner with organisations across diverse industries, helping them to support the physical and mental health of their employees. Ref:JOB6201 Role Outline We are seeking Occupational Health Technicians to join our expanding peripatetic team. In this role, you will be required to travel across the UK, driving a Mobile Medical Unit (MMU) to client sites to deliver hi…",
+      "categories": [
+        "technician",
+        "health_tech"
+      ],
+      "fit_score": 42
+    },
+    {
+      "id": "57aa0d2a9abd9b7c",
+      "title": "Area Sales Manager - Midlands",
+      "organisation": "Johnson Health Tech",
+      "location": "Warwick, Warwickshire",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5747416154?se=drw_5VFe8RGLwJSGqSIW5A&utm_medium=api&utm_source=8de31de0&v=C7F57AA9C9C6BA1BEEE120049E389889E5FE1A63",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "",
+      "description": "Area Sales Manager - Midlands Located and Covering Midlands £55,000 OTE uncapped Car or car allowance This is an opportunity to join Johnson Health Tech UK (Matrix Fitness) who are one of the fastest growing, and largest manufacturers, of fitness equipment in the world. We are looking for a self-starting, creative and personable Sales Manager to join the Regional team. Summary Your main responsibility is to develop new customer relationships and sales opportunities within the sector Ideally you…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "254c67eef85af57d",
+      "title": "Senior Product Quality Engineer",
+      "organisation": "Hologic",
+      "location": "Cambridge, Cambridgeshire",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5747975959?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "",
+      "description": "Senior Product Quality Engineer Join a team where your expertise directly improves the quality, safety, and performance of life-changing medical technology. As a Senior Product Quality Engineer, you will help ensure that devices used in healthcare settings worldwide meet the highest standards of reliability, safety, and regulatory compliance. This role offers the opportunity to solve complex technical challenges, collaborate across engineering and operational teams, and drive meaningful improve…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "aa4bacf2b3c1303f",
+      "title": "Weekend Group Strength & Conditioning Coach",
+      "organisation": "Paternoster",
+      "location": "London, UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5747764000?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "We are building an exciting new training concept in London — a space dedicated to intelligent, technical, high performance coaching delivered in a motivating small group environment. Our philosophy is simple: world class coaching, progressive programming, and an elevated training experience that helps every member move, feel, and perform at their best. Our coaches are the heartbeat of the concept. You’ll bring energy, precision, and deep technical knowledge to every session, creating an environ…",
+      "categories": [
+        "industry_applied"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "79c50153f71e785b",
+      "title": "AI Engineer",
+      "organisation": "Salt Search",
+      "location": "London, UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5748036288?se=itok51Fe8RGLwJSGqSIW5A&utm_medium=api&utm_source=8de31de0&v=BC3F01D5D04DBA1B1B46C5EF1BE14D56A8147B62",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Hiring: AI Engineer (LLMs | Product-Focused | London, Paddington) I'm partnering with a fast-growing, heavily funded startup that's redefining how care providers operate through AI. Backed by $20M in Series A funding and scaling quickly, they're building an AI-powered platform used across healthcare environments to replace fragmented systems and manual processes. This is a unique opportunity to join early, working directly with the Head of AI to take ownership of engineering and help shape the …",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "b095335642bd54f7",
+      "title": "Research Fellow in MX Raman electronics, software and hardware developer",
+      "organisation": "University of Southampton",
+      "location": "Southampton, Hampshire",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5747692430?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "The Biophotonics group at Southampton is developing a prototype system for rapid dementia diagnostics. As part of our fast-moving development phase, we are seeking a Research Software Engineer to join our interdisciplinary team on a short-term basis (3 months on full-time or part-time basis). The successful candidate will play a key role in refining and integrating sample preparation capabilities into our prototype system. This is a unique opportunity to contribute to an impactful health-tech p…",
+      "categories": [
+        "technician",
+        "research_postdoc"
+      ],
+      "fit_score": 35
+    },
+    {
+      "id": "34ea443de1c14641",
+      "title": "Senior Quant Software Developer : Elite Quant Fund : Python/C++ : £150-200k base plus huge bonus",
+      "organisation": "Hunter Bond",
+      "location": "London, UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5747315274?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "",
+      "description": "We are partnering with one of London’s most selective and highest-performing quantitative investment funds to appoint a Senior Quant Software Developer to their core systematic trading group. This is a confidential mandate for a team renowned for world-class engineering standards, scientific rigour, and a culture built around high impact and low ego. The successful candidate will work at the intersection of quantitative research, data engineering, and high-performance software development — wit…",
+      "categories": [
+        "data_science",
+        "technician"
+      ],
+      "fit_score": 42
+    },
+    {
+      "id": "31f1368ee44eda1b",
+      "title": "Machine Learning Engineer",
+      "organisation": "VIKASO® | Robotics 4.0",
+      "location": "Buckinghamshire, South East England",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5747314143?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "",
+      "description": "About Us VIKASO LTD is a UK-based robotics company redefining how industrial robots are deployed, controlled, and scaled. We are building next-generation hardware and software platforms that abstract complexity, standardise integration, and enable rapid adoption of robotics across manufacturing and logistics environments. Our approach centres on robot-agnostic technologies that transform robotics from fragmented systems into a scalable, productised platform. While enabling automation at scale, …",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "24d8a312c2681f9f",
+      "title": "MRIC ADMINISTRATOR",
+      "organisation": "The University of Liverpool",
+      "location": "Liverpool, Merseyside",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5747733226?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "THE UNIVERSITY OF LIVERPOOL FACULTY OF HEALTH AND LIFE SCIENCES INSTITUTE OF POPULATION HEALTH DEPARTMENT OF HEALTH DATA SCIENCE MRIC ADMINISTRATOR – GRADE 5 £29,588 - £33,951 pa We are looking to appoint an Administrative Assistant to work for the Mental Health Research for innovation Centre (M-RIC) which is part of the university Centre; Civic Health Innovation Labs (CHIL). M-RIC is an ambitious programme of work jointly delivered between University of Liverpool and Mersey care NHS Foundation…",
+      "categories": [
+        "academic_adjacent",
+        "technician",
+        "data_science"
+      ],
+      "fit_score": 60
+    },
+    {
+      "id": "0872c87e10b1df2a",
+      "title": "Senior Analytics Engineer | TechBio | dbt, BigQuery, Looker, GCP",
+      "organisation": "Cubiq Recruitment",
+      "location": "London, UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5747313637?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "",
+      "description": "Senior Analytics Engineer London (Hybrid) £65,000 – £80,000 equity options About the role I'm working with a scaling TechBio company that embeds directly into biopharma drug development programmes, bringing modern data engineering and analytics to scientific and clinical teams who need to make better decisions, faster. They're looking for a Senior Analytics Engineer to take real ownership of the modelling layer - the dbt project, the semantic layer, the Looker dashboards - and set the standard…",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "1b7aee30a10d9754",
+      "title": "Laboratory Technician",
+      "organisation": "AWD Online",
+      "location": "Mobberley, Knutsford",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5747977541?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Laboratory Technician An exciting opportunity for a Laboratory Technician / Lab Technician to support laboratory testing, product development, scientific research, pilot coating, quality processes and manufacturing operations within a specialist chemistry environment. If you’ve also worked in the following roles, we’d also like to hear from you: Laboratory Assistant, Research Technician, Manufacturing Technician, Quality Technician, Technical Laboratory Assistant, Science Technician, Chemistry …",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "c33c97c45f02d84a",
+      "title": "Senior Research Technician - Environmental Engineering",
+      "organisation": "Durham University",
+      "location": "Houghall, Durham",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5747719711?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "The Role and the Department The Department of Engineering consistently stands as one of the foremost engineering departments in the UK, renowned for its exceptional performance in teaching, research, and the successful career paths of its students. Its impressive achievements include a rank of 5th in the Complete University Guide 2026, 6th in the Guardian University Guide 2026, and 7th in the Times and Sunday Times Good University Guide 2026 for General Engineering in the UK. The Department als…",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "660006197dde7f4e",
+      "title": "14268 - Research Technician",
+      "organisation": "University of Edinburgh",
+      "location": "Edinburgh, Scotland",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5747692434?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "UE05: £29,588.00 - £33,951.00 Per Annum. CMVM / School of Genetics and Cancer Full time - 35 hours per week. Fixed Term Contract - 12 months. The Opportunity: Unlocking your career. Be part of something bigger. The University isn’t just any employer. We are part of a local community and a contributor to global thinking, progress and research. In Edinburgh, you are in one of the world’s most attractive cities with active arts and social sectors, while working in a University that has made signif…",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "fdadbb808aceb330",
+      "title": "Director, Interprofessional Practice & Education, FT (J0226-0782)",
+      "organisation": "North York General Hospital",
+      "location": "Toronto, Ontario",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5748186480?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "North York General is one of Canada’s leading community academic hospitals with a vision to deliver World-Class Care, 24/7. Affiliated with the University of Toronto, our multi-site campus supports our diverse community through every stage and life-defining moment by providing a wide range of acute care, ambulatory and long-term care services. What defines North York General goes beyond exceptional quality care. Our superpower is how we deliver that care – the unparalleled compassion we bring t…",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "9e3e661f4624920d",
+      "title": "AI Engineer",
+      "organisation": "Salt Search",
+      "location": "London",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/ai-engineer/56967958",
+      "date_posted": "2026-06-01",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "Hiring: AI Engineer (LLMs | Product-Focused | London, Paddington) I'm partnering with a fast-growing, heavily funded startup that's redefining how care providers operate through AI. Backed by $20M in Series A funding and scaling quickly, they're building an AI-powered platform used across healthcare environments to replace fragmented systems and manual processes. This is a unique opportunity to join early, working directly with the Head of AI to...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "bd14ad507030d040",
+      "title": "Health and Care Lecturer",
+      "organisation": "Dovetail & Slate",
+      "location": "Merthyr Tydfil",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/health-and-care-lecturer/56967957",
+      "date_posted": "2026-06-01",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "Lecturer in Health and Social Care Location: South Wales Salary: 33,596 - 51,931 (Academic Salary Scale MG1 to UP3) Contract: Full-Time (37 hours per week), Fixed-Term Maternity Cover Duration: 01/09/2026 to 25/06/2027 Are you an enthusiastic and motivated healthcare professional with a passion for teaching? Or perhaps an experienced educator looking for a rewarding contract within a highly successful department? We are seeking a dedicated Lectu...",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "7d9620136393b408",
+      "title": "Laboratory Technician",
+      "organisation": "AWD online",
+      "location": "WA167GH",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/laboratory-technician/56967712",
+      "date_posted": "2026-06-01",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "Laboratory Technician An exciting opportunity for a Laboratory Technician / Lab Technician to support laboratory testing, product development, scientific research, pilot coating, quality processes and manufacturing operations within a specialist chemistry environment. If you’ve also worked in the following roles, we’d also like to hear from you: Laboratory Assistant, Research Technician, Manufacturing Technician, Quality Technician, Technical La...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "de9048c7c175f66b",
+      "title": "Performance Analyst",
+      "organisation": "Hays Specialist Recruitment Limited",
+      "location": "London",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/performance-analyst/56965901",
+      "date_posted": "2026-06-01",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "Your new role We're looking for a skilled Performance Analyst to help shape the future of the NHS App. In this role, you'll empower product teams with data-driven insight, enabling smarter decisions that directly improve digital healthcare services used by millions.What you'll be doing As a key member of the analytics team, you'll collaborate with product managers, designers, and developers to turn data into meaningful action. You will Develop a...",
+      "categories": [
+        "health_tech",
+        "industry_applied"
+      ],
+      "fit_score": 37
+    },
+    {
+      "id": "090578910faba2dd",
+      "title": "Senior Data & Insight Analyst",
+      "organisation": "Gedu",
+      "location": "London",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/senior-data-insight-analyst/56965770",
+      "date_posted": "2026-06-01",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "Department: Data and Information Location: London (Greenford, West London OR Stratford, East London), or Manchester, or Leeds campus Type of Contract: Permanent Working Pattern: Full Time - 40hrs Per Week Salary Information: Competitive GBS is a higher education provider offering a range of sector-relevant courses across ten campuses in London, Birmingham, Leeds and Manchester. Working in partnership with several of the UK’s leading higher...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "e1db2dde4fa8a819",
+      "title": "Customer Service Advisor",
+      "organisation": "Vizion Network",
+      "location": "Wellingborough",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/customer-service-advisor/56964372",
+      "date_posted": "2026-06-01",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "Customer Service Advisor Location: Wellingborough Salary : 26,234 per annum Vacancy Type: Permanent, Full Time Vizion Network is a forward-thinking organisation dedicated to fostering a positive and inclusive workplace culture. Located in Hull and Wellingborough, we pride ourselves on our commitment to employee development, wellbeing, and innovation. Our mission is to attract, develop, and retain exceptional talent by fostering a diverse, inclus...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "8300e64b33472aa2",
+      "title": "Data Analyst",
+      "organisation": "Elevation Recruitment Group",
+      "location": "Leeds",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/data-analyst/56965079",
+      "date_posted": "2026-06-01",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "Data Analyst Location: West Yorkshire / Leeds (Hybrid Working) Salary: 45,000 - 54,000 + Bonus + Excellent Benefits Are you a Data Analyst who enjoys turning complex data into meaningful business insight? We're supporting a major Yorkshire-based organisation as they continue to invest in their data and reporting capabilities. As part of an ongoing transformation programme, they're looking to appoint a Data Analyst to help drive smarter decision-...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "c0dac46b70953da3",
+      "title": "Deputy Head of School - Construction and Motor Vehicle/Motorcycle",
+      "organisation": "Carshalton College",
+      "location": "SM52EJ",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/deputy-head-of-school-construction-and-motor-vehicle-motorcycle/56967585",
+      "date_posted": "2026-06-01",
+      "closing_date": "29/06/2026",
+      "type": "",
+      "description": "Carshalton College is seeking an ambitious and experienced Deputy Head of School to help deliver an outstanding student experience, enabling learners to achieve their qualifications, progress successfully, and develop the skills needed for employment and lifelong learning. The successful candidate will provide leadership and management across a range of curriculum areas, while contributing to the wider management and operational functions of the...",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "5342e2b3742e785b",
+      "title": "Maths Head of Department",
+      "organisation": "Reed",
+      "location": "SS00AB",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/maths-head-of-department/56967817",
+      "date_posted": "2026-06-01",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "Are you ready to take the next step in your teaching career? We are working with a GOOD secondary school in Southend to find them a Head of Department for September or October start date for the right candidate. The department currently has 9 Maths teachers and is one of the biggest departments at the school. The school are looking for a new Head of Department, to push the team on, to take those next steps to go from GOOD to OUTSTANDING. If you ...",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "0df0f4bc007dbf8a",
+      "title": "Senior AI Engineer – Health Intelligence",
+      "organisation": "Oura",
+      "location": "On-site - San Francisco, California",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/oura/jobs/4250676009",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "",
+      "description": "<div class=\"content-intro\"><p>Our mission at Oura is to empower every person to own their inner potential. Our award-winning products help our global community gain a deeper knowledge of their readiness, activity, and sleep quality by using their Oura Ring and its connected app. We've helped millions of people understand and improve their health by providing daily insights and practical steps to inspire healthy lifestyles.</p> <p>Empowering the world starts with living <a href=\"https://ouraring....",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "cfbd92a38dee1680",
+      "title": "Senior Machine Learning Engineer - Applied AI & LLMs (x/f/m)",
+      "organisation": "Doctolib",
+      "location": "Paris, Paris, France",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/doctolib/jobs/7750906003",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "",
+      "description": "<h2 class=\"s-pb-2 s-pt-4 s-heading-xl s-text-foreground dark:s-text-foreground-night\">Your Impact</h2> <div class=\"s-whitespace-pre-wrap s-break-words s-font-normal first:s-pt-0 last:s-pb-0 s-py-1 @md:s-pt-2 @md:s-pb-[10px] @md:s-leading-relaxed s-text-base s-leading-relaxed s-text-foreground dark:s-text-foreground-night\">We are looking for a <strong class=\"s-font-semibold s-text-foreground dark:s-text-foreground-night\">Senior Machine Learning Engineer</strong> to join the <strong class=\"s-font-...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "a8c970e161e66940",
+      "title": "Senior Staff Machine Learning Engineer - Clinical - Applied AI & LLMs (x/f/m)",
+      "organisation": "Doctolib",
+      "location": "Paris, Paris, France",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/doctolib/jobs/7751044003",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "",
+      "description": "<h2><strong>What you’ll do</strong></h2> <p>We are looking for a Senior Staff Machine Learning Engineer to join the Clinical team in the AI and Machine Learning Department. You'll lead the technical direction of AI systems that enhance clinical decision-making and patient care. You'll tackle the hardest problems in healthcare AI, from building voice-powered consultation assistants to establishing LLM evaluation frameworks that ensure clinical safety and efficacy. This role <strong>combines deep...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "dd0443f86b362bf7",
+      "title": "Peloton Expert (Part-Time) - John Lewis Liverpool",
+      "organisation": "Peloton",
+      "location": "Liverpool, England",
+      "country": "UK",
+      "source": "Greenhouse",
+      "url": "https://careers.onepeloton.com/en/all-jobs/?gh_jid=7957674",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "",
+      "description": "<h4><strong>ABOUT THE ROLE</strong></h4> <p>As a Peloton Expert, you aren't just selling equipment; you are a consultant for a lifestyle transformation. You are the heartbeat of our retail showrooms—engaging, goal-oriented, and deeply passionate about the intersection of fitness and technology.</p> <p>Our Experts are high-energy business drivers who thrive in a face-to-face sales environment. You are a master of \"The Consult,\" possessing the ability to identify a member's unique wellness goals a...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "d586ef93a9cb77b3",
+      "title": "Peloton Expert (Part-Time) - John Lewis Oxford Street",
+      "organisation": "Peloton",
+      "location": "London, England",
+      "country": "UK",
+      "source": "Greenhouse",
+      "url": "https://careers.onepeloton.com/en/all-jobs/?gh_jid=7957672",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "",
+      "description": "<h4><strong>ABOUT THE ROLE</strong></h4> <p>As a Peloton Expert, you aren't just selling equipment; you are a consultant for a lifestyle transformation. You are the heartbeat of our retail showrooms—engaging, goal-oriented, and deeply passionate about the intersection of fitness and technology.</p> <p>Our Experts are high-energy business drivers who thrive in a face-to-face sales environment. You are a master of \"The Consult,\" possessing the ability to identify a member's unique wellness goals a...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "33b908cd4a54a5bf",
+      "title": "Research Scientist, Material Intelligence",
+      "organisation": "DeepMind",
+      "location": "London, UK",
+      "country": "UK",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/deepmind/jobs/7353237",
+      "date_posted": "2026-06-01",
+      "closing_date": "",
+      "type": "",
+      "description": "<h2>Snapshot</h2> <p><span style=\"font-weight: 400;\">Science is at the heart of everything we do at Google DeepMind. From the beginning, we took inspiration from science to build better algorithms, and now, we want to use our toolkit to accelerate scientific discovery. By bringing together specialists with backgrounds in machine learning, computer science, physics, chemistry, biology and more, we’re optimistic that we can build new methods that will push the boundaries of what is possible and he...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
     },
     {
       "id": "5d67e3fda402d042",
@@ -406,6 +1762,58 @@
       "description": "Discover TRIUMF , Canada's particle accelerator centre. We are a publicly funded, not-for-profit research lab that is a hub for discovery and innovation. Our mission is to serve as Canada’s particle accelerator centre. We advance isotope science and technology, both fundamental and applied. We collaborate across communities and disciplines, from nuclear and particle physics to the life and material sciences. We discover and innovate, inspire and educate, creating knowledge and opportunity for a…",
       "categories": [
         "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "db66db0f3a26201b",
+      "title": "Lecturer in Computer Science",
+      "organisation": "University of Hull",
+      "location": "UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5746371689?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-05-31",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Salary Range: £39,906.00 - £46,049.00 We are committed to equality, diversity and inclusion, creating a community where colleagues feel respected and valued. We aim to reflect the diversity of our students and communities, and to strengthen our university through collaboration and diverse perspectives, across all roles at the University. The University of Hull is seeking to appoint a Lecturer in Computer Science within the School of Digital and Physical Sciences. The School brings together the …",
+      "categories": [
+        "technician",
+        "fe_he_teaching"
+      ],
+      "fit_score": 35
+    },
+    {
+      "id": "83f91910abbfc6bb",
+      "title": "Personal Support Worker (Etobicoke) - Highest Industry Starting Wage",
+      "organisation": "Bloom Care Solutions",
+      "location": "Etobicoke, Toronto",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5746378319?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-05-31",
+      "closing_date": "",
+      "type": "",
+      "description": "Job Description Job Description JOIN one of the Canada's Top Growing Companies - we can't wait to welcome you aboard! Bloom is a growing Digital Health Technology and Services company that is on a Mission to Improve Care Experiences. Benefits: Competitive wages and multiple assignments Flexible hours that fit your lifestyle Ongoing training and professional development opportunities Rewarding work that makes a positive impact in the lives of others Supportive team environment with opportunities…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "40e500b1cc61382f",
+      "title": "Bilingual Change Management Specialist (Full Time, 6 Month Contract)",
+      "organisation": "Amplify Care",
+      "location": "Canada",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5746378090?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-05-31",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Job Description Job Description Salary: The expected hiring range for this position is $71,630 to $84,270, dependent on qualifications and relevant experience. Program Overview: Clinically driven. Digitally inspired. Amplify Care is a not-for-profit organization (founded in 2014 as the eHealth Centre of Excellence) dedicated to helping clinicians and their teams thrive through the implementation of innovative digital health and AI solutions. We focus on technologies that truly meet clinical nee…",
+      "categories": [
+        "health_tech"
       ],
       "fit_score": 22
     },
@@ -3179,6 +4587,24 @@
         "fe_he_teaching"
       ],
       "fit_score": 15
+    },
+    {
+      "id": "e6b1d206ea1140e1",
+      "title": "Research Software Engineer – Real-Time GPU Systems",
+      "organisation": "AcoustoFab",
+      "location": "UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5742783241?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-05-28",
+      "closing_date": "",
+      "type": "",
+      "description": "Role Summary Acoustofab is seeking a Research Software Engineer – Real-Time GPU Systems to help develop advanced real-time computational and control systems for next-generation acoustic technologies. This role focuses on high-performance GPU computing, real-time signal processing, simulation, and hardware/software integration within an experimental R&D environment. The successful candidate will work closely with researchers and hardware engineers to build scalable compute pipelines, optimise re…",
+      "categories": [
+        "technician",
+        "health_tech"
+      ],
+      "fit_score": 42
     },
     {
       "id": "9d254606a07f081d",
@@ -8875,6 +10301,23 @@
       "fit_score": 22
     },
     {
+      "id": "442fa2f9110e15e9",
+      "title": "Data Science Team Lead",
+      "organisation": "Linklaters",
+      "location": "London, UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5734027235?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-05-19",
+      "closing_date": "",
+      "type": "",
+      "description": "Linklaters Linklaters is a global law firm, providing legal services in 20 countries and through 30 offices. Linklaters is a people business. Being best in class in the eyes of our clients means that our people must be exceptional. We look not only for brilliant minds, but for people who will thrive in our environment: people who love working collaboratively and demonstrate the innovative, efficient, agile, entrepreneurial, and responsible mind-set we aim to bring to every interaction. Ours is …",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
       "id": "e05e6065d18f491c",
       "title": "Lead Data Scientist — Global Football Metrics",
       "organisation": "Hudl",
@@ -9028,6 +10471,23 @@
         "fe_he_teaching"
       ],
       "fit_score": 15
+    },
+    {
+      "id": "62ff09f0a55e0f41",
+      "title": "Digital Media Teacher",
+      "organisation": "Outcomes First Group",
+      "location": "Wadeford",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/digital-media-teacher/56914662",
+      "date_posted": "2026-05-18",
+      "closing_date": "13/07/2026",
+      "type": "",
+      "description": "At OFG we believe in creating a better work life balance Job Title: Digital Media Teacher Location: 3 Dimensions School, Chard, Somerset, TA20 3AJ Hours: 40 per week | Monday to Friday | 8.30am – 4.30pm Salary: From 39,000.00 per annum (not pro rata) Contract: Permanent | Term Time Only Start: September 2026 UK applicants only – no sponsorship available About the Role The Digital Media Teacher is responsi...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
     },
     {
       "id": "3071760289a3dd20",
@@ -10023,6 +11483,23 @@
         "health_tech"
       ],
       "fit_score": 22
+    },
+    {
+      "id": "fd0297b3be940e87",
+      "title": "Study Director",
+      "organisation": "VRS Recruitment",
+      "location": "CB80AD",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/study-director/56902365",
+      "date_posted": "2026-05-14",
+      "closing_date": "25/06/2026",
+      "type": "",
+      "description": "Exciting new opportunity for an experienced and analytically minded Study Director seeking career progression with an internationally renowned and expanding Biopharmaceutical Laboratory! In this diverse, multifaceted position, you will call upon your expertise in regulated studies to undertake a broad range of challenging bioanalytical projects for several world-leading organisations. Acting as a scientific point of contact for both internal tea...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
     },
     {
       "id": "2b16b4268de3c70b",
@@ -12346,6 +13823,23 @@
         "fe_he_teaching"
       ],
       "fit_score": 15
+    },
+    {
+      "id": "d3914f45212a7e00",
+      "title": "Class 1 HGV Driver",
+      "organisation": "R T Keedwell Ltd",
+      "location": "TA94AG",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/class-1-hgv-driver/56873764",
+      "date_posted": "2026-05-07",
+      "closing_date": "18/06/2026",
+      "type": "",
+      "description": "Location : Commerce Way, Walrow Industrial Estate, Highbridge, Somerset, TA9 4AG We are currently looking for Class 1 Trampers to join our highly regarded team based out of our Highbridge depot. Benefits: • 15.30 per hour while driving • 14.00 per hour when loading/unloading • 15.30 flat rate after 16:00 on Fridays and weekends • 25.50 per night out + 4.50 daily meal allowance (payable with receipt, 4-5 nights per week) • Driver performance bonu...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
     },
     {
       "id": "211f505cbf6288be",
@@ -15946,6 +17440,23 @@
       "closing_date": "05/06/2026",
       "type": "",
       "description": "PE Teacher / Lecturer (QTS or FE Qualified) – Secondary & FE Settings | Denton (M34) & South Manchester | May & September Starts Are you a passionate PE Teacher or Lecturer looking for your next opportunity? We are currently recruiting for enthusiastic and reliable PE Teachers (QTS) and FE-qualified PE Lecturers to work across a range of supportive secondary schools and further education settings in Denton (M34) and the wider South M...",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "6be18735b5b3d642",
+      "title": "Media and English Lecturer Required London",
+      "organisation": "Reed",
+      "location": "UB33BB",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/media-and-english-lecturer-required-london/56823679",
+      "date_posted": "2026-04-24",
+      "closing_date": "05/06/2026",
+      "type": "",
+      "description": "We currently have a requirement for Lecturer in Hairdressing & Barbering at one of London’s most prestigious FE colleges Role Type: Perm, Full time Postcode: UB3 Required: Relevant experience and assessors award Job Overview The main purpose of the job is to ensure the retention and achievement of students through the delivery of good practice in teaching and learning. To plan, deliver and assess high-quality teaching and learning in Hairdre...",
       "categories": [
         "fe_he_teaching"
       ],
@@ -26270,9 +27781,10 @@
       "closing_date": "",
       "type": "",
       "categories": [
+        "academic_adjacent",
         "research_postdoc"
       ],
-      "fit_score": 15
+      "fit_score": 33
     },
     {
       "id": "d6ffd23e2d20e614",
@@ -31126,5 +32638,5 @@
       "fit_score": 20
     }
   ],
-  "last_updated": "2026-06-01T07:15:06.750330Z"
+  "last_updated": "2026-06-02T07:09:55.145628Z"
 }
