@@ -1,6 +1,125 @@
 {
   "jobs": [
     {
+      "id": "0ae8a01906a69b9a",
+      "title": "Lecturer - Sports",
+      "organisation": "ACS Recruitment Solutions",
+      "location": "Northampton, Northamptonshire",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5752588829?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-05",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Lecturer – Sport Location: Northamptonshire Salary: £28,056 - £34,492 per annum Permanent, Full-Time ACS Staffing Solutions are delighted to be supporting a well-established education provider with the recruitment of a Lecturer – Sport to join their growing Sport & UPS Faculty. This is an excellent opportunity for an enthusiastic and knowledgeable individual with a strong background within the sports industry to play a key role in delivering engaging, career-focused education to learners. This …",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "0f30e2722f2edf88",
+      "title": "Podiatrist",
+      "organisation": "Recruit Therapists",
+      "location": "Cheltenham, Gloucestershire",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5752876511?se=DpNhR61g8RGG7L_q_9cIHQ&utm_medium=api&utm_source=8de31de0&v=807DDB6E12412B07F4B3385F72AC541A5F885F7E",
+      "date_posted": "2026-06-05",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "PODIATRISTS | 2 OPPORTUNITIES | GLOUCESTERSHIRE Are you a Podiatrist looking for your next opportunity in private practice? We are currently supporting two very different but equally exciting podiatry opportunities with established multidisciplinary clinics in Gloucestershire. Location 1: Dursley • Self-employed associate opportunity • 1 day per week (or 2 half days) • Established patient demand and internal referrals • Strong MSK and biomechanics focus • Orthotics experience desirable • Excell…",
+      "categories": [
+        "academic_sport"
+      ],
+      "fit_score": 25
+    },
+    {
+      "id": "7b025212b2dac36e",
+      "title": "Senior Software Engineer I - Machine Learning Platform",
+      "organisation": "Wise",
+      "location": "London, UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5752736690?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-05",
+      "closing_date": "",
+      "type": "",
+      "description": "Job Description About the role For our customers, Wise should feel as simple as sending money from A to B. Behind that simplicity is a complex engine of currencies, routes, products, and features, generating terabytes of data every day. Data Products & Insights helps Wise turn that data into products, insights, and decisions at scale. Within this area, the Machine Learning Platform (MLP) team builds and maintains the infrastructure that enables data scientists across Wise to develop, deploy, se…",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "d3bb69617bf9ce2c",
+      "title": "Senior Specialist, Clinical Risk Management",
+      "organisation": "J&J Family of Companies",
+      "location": "High Wycombe, Buckinghamshire",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5752591120?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-05",
+      "closing_date": "",
+      "type": "",
+      "description": "At Johnson & Johnson,?we believe health is everything. Our strength in healthcare innovation empowers us to build a?world where complex diseases are prevented, treated, and cured,?where treatments are smarter and less invasive, and?solutions are personal.?Through our expertise in Innovative Medicine and MedTech, we are uniquely positioned to innovate across the full spectrum of healthcare solutions today to deliver the breakthroughs of tomorrow, and profoundly impact health for humanity.?Learn …",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "2e89838ae753fabc",
+      "title": "Global Quality Compliance Intern",
+      "organisation": "GE HealthCare",
+      "location": "Chalfont St. Giles, Buckinghamshire",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5752578837?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-05",
+      "closing_date": "",
+      "type": "contract",
+      "description": "Job Description Summary As a leading global medical technology and digital solutions innovator, GE HealthCare enables clinicians to make faster, more informed decisions through intelligent devices, data analytics, applications, diagnostic imaging and services, supported by its Edison intelligence platform. With over 100 years of healthcare industry experience and around 50,000 employees globally, the company operates at the centre of an ecosystem working toward precision health, digitizing heal…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "09616372fa2af29d",
+      "title": "Sales Advisor",
+      "organisation": "Stellantis &You",
+      "location": "Hatfield, Hertfordshire",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5752573482?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-05",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Sales Advisor based at our Hatfield Dealership: 1 Great North Rd., Hatfield AL9 5JA, United Kingdom A competitive and rewarding commission structure OTE £60k A full valid UK driving licence is required for this role. A minimum of 2 years automotive sales experience is required About Us Stellantis &You is an integral division of Stellantis, a premier global automotive manufacturer renowned for its array of iconic brands, including Abarth, Alfa Romeo, Citroen, DS, Fiat, Fiat Professional, Jeep, P…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "36a444c2aa0d59a5",
+      "title": "Senior Data Scientist",
+      "organisation": "Oura",
+      "location": "Hybrid - Helsinki, Uusimaa; Hybrid - Oulu, North Ostrobothnia",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/oura/jobs/4273393009",
+      "date_posted": "2026-06-05",
+      "closing_date": "",
+      "type": "",
+      "description": "<div class=\"content-intro\"><p>Our mission at Oura is to empower every person to own their inner potential. Our award-winning products help our global community gain a deeper knowledge of their readiness, activity, and sleep quality by using their Oura Ring and its connected app. We've helped millions of people understand and improve their health by providing daily insights and practical steps to inspire healthy lifestyles.</p> <p>Empowering the world starts with living <a href=\"https://ouraring....",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
       "id": "73375855a60ac7aa",
       "title": "Academy Health and Wellbeing Physiologist",
       "organisation": "Nuffield Health",
@@ -103,6 +222,867 @@
         "technician"
       ],
       "fit_score": 20
+    },
+    {
+      "id": "dce66105b9452e36",
+      "title": "Instructor of PE",
+      "organisation": "Witherslack Group",
+      "location": "Chigwell, Essex",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5752477362?se=fvpORq1g8RGTOcRI2eA-tQ&utm_medium=api&utm_source=8de31de0&v=E6CFD07139C377B9B4C4EDC9FE36372A9D878A34",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "£35,278 - £46,111 excellent benefits Those Huge Small Victories Our Instructors are fulfilled by the idea of making even the smallest positive changes in our young people, so we celebrate the little things. There’s lots of ups and downs, and to some of our young people, sitting through a lesson can be a big win. We call these huge small victories and whilst they may seem small on the surface, they add up to make a big difference Get out what you put in You’ll be working with children and young…",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "19d7b9d90e36823c",
+      "title": "Sports Coach / Youth Mentor - Training Provided",
+      "organisation": "RecruitmentRevolution.com",
+      "location": "Luton, Bedfordshire",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5752443331?se=fvpORq1g8RGTOcRI2eA-tQ&utm_medium=api&utm_source=8de31de0&v=2F047F305DF787829380E6C775ECCCBAE6B9BC93",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Help young people build confidence, resilience and brighter futures through sport and mentoring. Looking for a role where you can make a real difference? Maybe you're studying Sports Coaching, Sport & Exercise Science, Youth Work, Education or Psychology. Maybe you're a Teaching Assistant, Learning Mentor, Sports Coach, Support Worker or Youth Worker looking for your next step. Or perhaps you love working with young people but want something more stable, rewarding and meaningful than evening an…",
+      "categories": [
+        "academic_sport"
+      ],
+      "fit_score": 25
+    },
+    {
+      "id": "1db7dda8e60fc6f9",
+      "title": "U21 Academy Performance Analyst",
+      "organisation": "Brighton and Hove Albion Football Club",
+      "location": "Lancing, West Sussex",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5752292657?se=fvpORq1g8RGTOcRI2eA-tQ&utm_medium=api&utm_source=8de31de0&v=8A2AB0249D6096738D88E65DD561606176806E16",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "Role: U21 Academy Performance Analyst Hours: Full time, including evenings and weekends Location: American Express Elite Football Performance Centre, Lancing Contract Type: Permanent Deadline Day: 18th June 2026 About Brighton & Hove Albion FC We compete at the highest levels of football on a global stage while embracing our Sussex community spirit. At the heart of everything we do is our commitment to high performance, professional excellence, and making a positive impact. Elevate Performance …",
+      "categories": [
+        "industry_applied"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "621bcb765b4352cb",
+      "title": "Strength and Conditioning Coach",
+      "organisation": "Teacheroo",
+      "location": "Edinburgh City Centre, Edinburgh",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5752200822?se=fvpORq1g8RGTOcRI2eA-tQ&utm_medium=api&utm_source=8de31de0&v=6047F31242DB20AAA5888DC53630583A72B7E084",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "The Strength & Conditioning Coach will design, deliver, and develop a high-quality athletic development programme that supports student performance across all sports. The role will build upon the strong foundations established by the previous postholder, ensuring continuity while further enhancing the physical development, injury resilience, and performance potential of all athletes. A key aspect of the role is to work closely with Directors of Sport to deliver tailored physical preparation spe…",
+      "categories": [
+        "academic_sport",
+        "industry_applied"
+      ],
+      "fit_score": 40
+    },
+    {
+      "id": "4b2014e54fad41b0",
+      "title": "Physical Education (PE) Teacher - London",
+      "organisation": "Aspire People",
+      "location": "Camden, North West London",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5752198422?se=fvpORq1g8RGTOcRI2eA-tQ&utm_medium=api&utm_source=8de31de0&v=430AD8C71AC69C3492F4778EF806A844FF1CA8C5",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "contract",
+      "description": "Physical Education (PE) Teacher (KS3 & KS4) - South West London Company: Aspire People Limited Aspire People is seeking an energetic and motivating Physical Education Teacher to join a thriving secondary school in South West London. This is an exciting opportunity to inspire students to develop physical confidence, teamwork, and a lifelong commitment to health and wellbeing across Key Stages 3 and 4. Key Responsibilities: * Plan and deliver engaging PE lessons in line with the national curricul…",
+      "categories": [
+        "academic_adjacent"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "86032c165edc1696",
+      "title": "U21 Academy Performance Analyst",
+      "organisation": "Brighton & Hove Albion Football Club",
+      "location": "Shoreham-By-Sea, West Sussex",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5752149545?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Role: U21 Academy Performance Analyst Hours: Full time, including evenings and weekends Location: American Express Elite Football Performance Centre, Lancing Contract Type: Permanent Deadline Day: 18th June 2026 About Brighton & Hove Albion FC We compete at the highest levels of football on a global stage while embracing our Sussex community spirit. At the heart of everything we do is our commitment to high performance, professional excellence, and making a positive impact. Elevate Performance …",
+      "categories": [
+        "industry_applied"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "6293a6dc57eba37a",
+      "title": "Head of Physiotherapy",
+      "organisation": "EFL",
+      "location": "Old Langho, Blackburn",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5752143665?se=fvpORq1g8RGTOcRI2eA-tQ&utm_medium=api&utm_source=8de31de0&v=CDD5358FF721E818F5A98745CFF1F56FD0B8B0E4",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "permanent",
+      "description": "J Job Title: Head of Physiotherapy Department: Senior Medical Department Based at: Senior Training Centre, Brockhall Village, Old Langho, BB6 8FA. Flexibility regarding location is required. Reports to: Head of Technical Development Responsible for: Senior Medical Department Staff Hours of work: A minimum of 40 hours per week plus any additional hours necessary for the performance of duties. This will include regular evening and weekend work. Contractual status: Permanent 1. Job purpose: To lea…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "5ada36390520c47a",
+      "title": "Associate Field Technical Engineer",
+      "organisation": "Randstad Engineering",
+      "location": "Bristol, South West England",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5752101578?se=fvpORq1g8RGTOcRI2eA-tQ&utm_medium=api&utm_source=8de31de0&v=B130B9301EED1A8395D75735CD839203894027DE",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "contract",
+      "description": "Trainee / Associate Clinical Specialists - Electrophysiology (x2) Great Graduate Opportunities within Medical Devices Locations: 1x South West England | 1x Midlands Salary: £34,000 per annum 30% personal performance bonus Benefits: £580 monthly car allowance (or company car scheme) fantastic benefits package Contract: 12-Month Contract (with excellent long-term career prospects) Hours: 37.5 hours per week (Monday to Friday, 7.5 hours/day) The Opportunity We have a fantastic opportunity to joi…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "15aa089e9e3fc23f",
+      "title": "Lead Instructor Strength & Conditioning - London",
+      "organisation": "Third Space",
+      "location": "London, UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5751791603?se=DpNhR61g8RGG7L_q_9cIHQ&utm_medium=api&utm_source=8de31de0&v=3429270AFC50545B718AD152260C08C3FCD1E53C",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "",
+      "description": "Lead Instructor Strength & Conditioning - London We are building an exciting new training concept in London - a space dedicated to intelligent, technical, high performance coaching delivered in a motivating small group environment. Our philosophy is simple: worldclass coaching, progressive programming, and an elevated training experience that helps every member move, feel, and perform at their best. Our coaches are the heartbeat of the concept. You'll bring energy, precision, and deep technical…",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "5ae6cfb3fdbe6222",
+      "title": "Senior Quantitative Developer / Research & Data Eng. - LONDON - UNITED KINGDOM",
+      "organisation": "Park Lane Recruitment",
+      "location": "UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5752100914?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Senior Quantitative Developer / Research & Data Engineer - LONDON - UNITED KINGDOM Primary Skills - Python, C++, quantitative, research, market data, simulation frameworks Secondary Skills - distributed systems, cloud computing, execution systems, performance optimization, data pipelines, Linux No. Positions - 3 Remote Status - No Remote Client Willing to Sponsor - Yes Degree - Bachelor's Degree in Computer Science, Mathematics, Statistics, or Operation Research ONLY Relocation Paid - Yes Recru…",
+      "categories": [
+        "data_science",
+        "health_tech"
+      ],
+      "fit_score": 44
+    },
+    {
+      "id": "ad36aa063e87d577",
+      "title": "Senior Quantitative Developer / Research & Data Eng. - LONDON - UNITED KINGDOM",
+      "organisation": "Park Lane Recruitment Ltd",
+      "location": "London, UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5751932762?se=wt5WSK1g8RGeGZQN_-WxfA&utm_medium=api&utm_source=8de31de0&v=417222CD0B9D3A43AB75438A38BB2A1BE96E5C31",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Senior Quantitative Developer / Research & Data Engineer Research & Data Engineer UNITED KINGDOM Senior Quantitative Developer / Research & Data Engineer - LONDON - UNITED KINGDOM Primary Skills - Python, C++, quantitative, research, market data, simulation frameworks Secondary Skills - distributed systems, cloud computing, execution systems, performance optimization, data pipelines, Linux No. Positions - 3 Remote Status - No Remote Client Willing to Sponsor - Yes Degree - Bachelor's Degree in …",
+      "categories": [
+        "data_science",
+        "health_tech"
+      ],
+      "fit_score": 44
+    },
+    {
+      "id": "a55bbee09f10eca2",
+      "title": "Microbiological Research Technician",
+      "organisation": "Focus Resourcing",
+      "location": "Cardiff, Cardiff County",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5752102350?se=Ci1hTa1g8RGG7L_q_9cIHQ&utm_medium=api&utm_source=8de31de0&v=F547FC3A0117EEA025FF7F3FE8AFA11AC0868C83",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Our client in Cardiff, a specialist Microbiological Testing and Consultancy company, is working with us on an exclusive basis to recruit a motivated and enthusiastic Microbiological Research Technician to join their team on a permanent basis. This is an exciting opportunity to support their Research Scientist in the development of new products and services within their newly created, state-of-the-art Research Facility at their Head Office in Cardiff. Please note: This is a site-based role and a…",
+      "categories": [
+        "technician",
+        "data_science"
+      ],
+      "fit_score": 42
+    },
+    {
+      "id": "062beed285a796c5",
+      "title": "Senior Software Developer, Cloud Platform",
+      "organisation": "Verily",
+      "location": "Canada",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5752358656?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Who We Are Verily Health is a data platform and technology company purpose-built to power AI-enabled precision health solutions that accelerate research and improve care for individuals and communities. Uniquely positioned at the intersection of technology, data science, and healthcare, Verily transforms multimodal health data into insights, models, and actions that make healthcare more personalized, predictive, and precise. Description As a Cloud Developer at Verily you will help us develop ou…",
+      "categories": [
+        "technician",
+        "data_science"
+      ],
+      "fit_score": 42
+    },
+    {
+      "id": "ee9e284addf3cb91",
+      "title": "Software Developer, Developer Platform",
+      "organisation": "Verily",
+      "location": "Canada",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5752347564?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Who We Are Verily Health is a data platform and technology company purpose-built to power AI-enabled precision health solutions that accelerate research and improve care for individuals and communities. Uniquely positioned at the intersection of technology, data science, and healthcare, Verily transforms multimodal health data into insights, models, and actions that make healthcare more personalized, predictive, and precise. Description The Developer Platform team is responsible for building cl…",
+      "categories": [
+        "technician",
+        "data_science"
+      ],
+      "fit_score": 42
+    },
+    {
+      "id": "1d6c46871615d7a6",
+      "title": "Senior Cloud Developer",
+      "organisation": "Verily",
+      "location": "Canada",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5752301029?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Who We Are Verily Health is a data platform and technology company purpose-built to power AI-enabled precision health solutions that accelerate research and improve care for individuals and communities. Uniquely positioned at the intersection of technology, data science, and healthcare, Verily transforms multimodal health data into insights, models, and actions that make healthcare more personalized, predictive, and precise. Description As a Cloud Developer at Verily you will help us develop ou…",
+      "categories": [
+        "technician",
+        "data_science"
+      ],
+      "fit_score": 42
+    },
+    {
+      "id": "21a510ee8ab436f0",
+      "title": "Manager, Health Information Management",
+      "organisation": "William Osler Health System",
+      "location": "Brampton, Peel region",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5752737188?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "",
+      "description": "Job Description The Manager of Health Information Management is a key leadership role within the Information Services portfolio, and responsible for advancing how health information is managed across the organization. This role plays a critical part in enabling digital transformation by modernizing access and health records services to create a more seamless, and patient-centred experience. Reporting to the Director, Cybersecurity, Privacy and HIM, Digital and Information Services, the Manager …",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "c90a9055e8841a39",
+      "title": "Lab Patient Technician",
+      "organisation": "LifeLabs",
+      "location": "Dryden, Kenora region",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5752465555?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "For over 50 years, LifeLabs has been Canada’s leading provider of laboratory diagnostic information and digital health connectivity systems, enabling patients and healthcare practitioners to diagnose, treat, monitor and prevent disease. We are passionate about empowering healthier Canadians through accessible, accurate, and innovative diagnostic services. We are committed innovators, operating Canada's first commercial genetics lab, and the country's largest online patient portal, with more tha…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "12d296d5ac23d44c",
+      "title": "Studio Coach - Laval, QC (Bi-Lingual)",
+      "organisation": "Weight Watchers",
+      "location": "Canada",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5752421455?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "WeightWatchers is a global digital health company. WeightWatchers is a global digital health company and the world’s 1 doctor-recommended, clinically studied behavioral weight health program. For sixty years, we have led the industry by blending science and community to help millions of people build sustainable healthy habits. As the science of weight health rapidly evolves, so does WeightWatchers. We are redefining the category by developing new clinical pathways for GLP-1 medication access , …",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "c25a53a3bff2cf62",
+      "title": "Internal Interest Posting Clinical Informatics Analysts (WHCA) 2026-127",
+      "organisation": "Wellington Health Care Alliance",
+      "location": "Fergus, Wellington region",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5752404574?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "contract",
+      "description": "June 2, 2026 WELLINGTON HEALTH CARE ALLIANCE Groves Memorial Community Hospital · Louise Marshall Hospital · Palmerston & District Hospital POSTING 2026-127 INTERNAL INTEREST POSTING CLINICAL INFORMATICS ANALYST (MULTIPLE VACANCIES) Wellington Health Care Alliance (WHCA) is seeking 2 Clinical Informatics Analysts to support the organization’s planning and implementation of a modern Health Information System (HIS) . These temporary, project-based roles will work closely with the Clinical Informa…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "3d433739b19d4f41",
+      "title": "Support Engineer - Level 2",
+      "organisation": "Smile Digital Health",
+      "location": "Toronto, Ontario",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5752383412?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Working for a company like Smile Digital Health means supporting our mandate for BetterGlobalHealth . We strive towards this goal every day, and the results can be seen in the impact of our innovative health data platform and data management solutions, which are used in over 20 countries. We were 19 on Deloitte's Technology Fast 50 Ranking for 2024! Smile Digital Health makes it easy for healthcare stakeholders to collect and exchange data with our leading FHIR-based data liberation platform. T…",
+      "categories": [
+        "data_science",
+        "health_tech"
+      ],
+      "fit_score": 44
+    },
+    {
+      "id": "50ce705a503ef37f",
+      "title": "Senior Entrepreneurship Advisor",
+      "organisation": "McGill University",
+      "location": "Canada",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5752371058?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "Please refer to the How to Apply for a Job (for External Candidates) job aid for instructions on how to apply. If you are an active McGill employee (ie: currently in an active contract or position at McGill University), do not apply through this Career Site. Login to your McGill Workday account and apply to this posting using the Find Jobs report (type Find Jobs in the search bar). Senior Entrepreneurship Advisor - Medtech This is a one-year, part-time term position, with the possibility of ren…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "076b708497de3435",
+      "title": "Software Test Engineer",
+      "organisation": "Seamless MD Careers",
+      "location": "Toronto, Ontario",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5752368876?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Are you passionate about improving the healthcare system? Are you driven by the idea that thorough testing can directly improve patient outcomes? Are you excited to work in healthcare technology where your QA work has real, measurable impact on lives? If your answer is “Yes!” to the above, we may be the perfect fit for each other! At SeamlessMD, our mission is “to ensure every patient gets the right care at the right time” Who is SeamlessMD? We are a diverse team of healthcare providers, techno…",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "5c4c9c988058b175",
+      "title": "Marketing Manager, Digital Engagement & Data Department",
+      "organisation": "Lung Health Foundation",
+      "location": "Toronto, Ontario",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5752356551?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Position: Marketing Manager, Digital Engagement & Data Department: Marketing & Communications Reports to: Senior Manager, Digital Marketing Location: The Lung Health Foundation is based in Toronto and operates in a hybrid model, in which staff are required to work at the office a minimum of two days each week with occasional travel within Ontario and across Canada as required. Salary: $72,000 - $82,000 Vacancy: This position will fill a vacancy. _________________________________________________…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "e1a2f3a331772e10",
+      "title": "Fitness Instructor, SMART Program - Casual",
+      "organisation": "VON Canada",
+      "location": "Orillia, Simcoe region",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5752379186?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "",
+      "description": "Description Position at VON Canada (Ontario) Requisition Details: Employment Status: Casual Program Name: SMART Program Work Schedule: Days On Call: No Existing Vacancy: Yes - we're currently hiring candidates for an existing vacancy in this position. Job Summary: The Fitness Instructor is responsible for providing client-centered, evidence based, efficient care to individuals in their homes and community. The Fitness Instructor delivers exercises to clients under the direction of the Program S…",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "99069bc321f9e4b2",
+      "title": "Member Experience Liaison",
+      "organisation": "City of Edmonton",
+      "location": "Downtown, Edmonton",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5752273044?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "Completion of a High School Diploma or GED Assets \\: Valid Standard First Aid, CPR Level C, and AED certification Completion or in-process degree or diploma in Physical Education, Kinesiology, Recreation, Education, Communications, Personal Fitness, Training, or other related subject matter Previous experience working in a municipal recreation or fitness facility environment Background in sports coaching, fitness instruction, or community engagement Skills required for success: Strong verbal co…",
+      "categories": [
+        "academic_adjacent"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "c01b42d71dba0600",
+      "title": "Program & Support Services Manager Full Time Queen's Garden",
+      "organisation": "AgeCare",
+      "location": "Hamilton region, Ontario",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5752270832?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "About Us At AgeCare, our mission is to empower residents to live their lives to the fullest by prioritizing their health and well-being. We firmly believe that we are working in our residents' homes, and we dedicate ourselves to providing a comfortable and person-centered environment. Working in long-term care is more than just a job; it is a calling for many of us. The Opportunity: The Program Support Services Manager is responsible for the coordination and scheduling of programs that provide …",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "50a7795bd37d763f",
+      "title": "Research Assistant (Sanatani Lab)",
+      "organisation": "University of British Columbia",
+      "location": "Greater Vancouver, British Columbia",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5752275188?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "Staff - Non Union Job Category Non Union Technicians and Research Assistants Job Profile Non Union Salaried - Research Assistant /Technician 3 Job Title Research Assistant (Sanatani Lab) Department Sanatani Laboratory | Department of Paediatrics | Faculty of Medicine Compensation Range $4,567.04 - $5,385.67 CAD Monthly Posting End Date June 9, 2026 Note: Applications will be accepted until 11:59 PM on the Posting End Date. Job End Date December 31, 2026 This position will work 0.80FTE (30 hours…",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "9e91628c326fae69",
+      "title": "Instructor of PE",
+      "organisation": "Witherslack Group",
+      "location": "IG76QF",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/instructor-of-pe/56987352",
+      "date_posted": "2026-06-04",
+      "closing_date": "16/07/2026",
+      "type": "",
+      "description": "35,278 - 46,111 excellent benefits Those Huge Small Victories Our Instructors are fulfilled by the idea of making even the smallest positive changes in our young people, so we celebrate the little things. There’s lots of ups and downs, and to some of our young people, sitting through a lesson can be a big win. We call these huge small victories and whilst they may seem small on the surface, they add up to make a big difference Get out what you p...",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "c8dd8da2782b4c47",
+      "title": "Sports Coach / Youth Mentor - Training Provided",
+      "organisation": "RecruitmentRevolution.com",
+      "location": "Luton",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/sports-coach-youth-mentor-training-provided/56987023",
+      "date_posted": "2026-06-04",
+      "closing_date": "16/07/2026",
+      "type": "",
+      "description": "Help young people build confidence, resilience and brighter futures through sport and mentoring. Looking for a role where you can make a real difference? Maybe you're studying Sports Coaching, Sport & Exercise Science, Youth Work, Education or Psychology. Maybe you're a Teaching Assistant, Learning Mentor, Sports Coach, Support Worker or Youth Worker looking for your next step. Or perhaps you love working with young people but want something...",
+      "categories": [
+        "academic_sport"
+      ],
+      "fit_score": 25
+    },
+    {
+      "id": "96ff11b4eabaaddb",
+      "title": "Instructor of PE",
+      "organisation": "Appcastenterprise",
+      "location": "Chigwell",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/instructor-of-pe/56987520",
+      "date_posted": "2026-06-04",
+      "closing_date": "16/07/2026",
+      "type": "",
+      "description": "35,278 - 46,111 excellent benefits Those Huge Small Victories Our Instructors are fulfilled by the idea of making even the smallest positive changes in our young people, so we celebrate the little things. There’s lots of ups and downs, and to some of our young people, sitting through a lesson can be a big win. We call these huge small victories and whilst they may seem small on the surface, they add up to make a big difference Get out what you p...",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "785279248008d566",
+      "title": "Senior Quantitative Developer / Research & Data Eng. - LONDON - UNITED KINGDOM",
+      "organisation": "Park Lane Recruitment Ltd",
+      "location": "W1A1AA",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/senior-quantitative-developer-research-data-eng-london-united-kingdom/56983635",
+      "date_posted": "2026-06-04",
+      "closing_date": "05/07/2026",
+      "type": "",
+      "description": "Senior Quantitative Developer / Research & Data Engineer Research & Data Engineer UNITED KINGDOM Senior Quantitative Developer / Research & Data Engineer - LONDON - UNITED KINGDOM Primary Skills - Python, C++, quantitative, research, market data, simulation frameworks Secondary Skills - distributed systems, cloud computing, execution systems, performance optimization, data pipelines, Linux No. Positions - 3 Remote Status - No Remote ...",
+      "categories": [
+        "data_science",
+        "health_tech"
+      ],
+      "fit_score": 44
+    },
+    {
+      "id": "7c477141ee496fad",
+      "title": "AI Engineer",
+      "organisation": "MicroTECH Global Ltd",
+      "location": "London",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/ai-engineer/56984556",
+      "date_posted": "2026-06-04",
+      "closing_date": "16/07/2026",
+      "type": "",
+      "description": "Our client are an international semiconductor company. Responsibilities: Lead engineering efforts on complex research projects in machine learning and artificial intelligence Optimize algorithms and ensure the scalability and robustness of research prototypes and systems Coordinate closely with researchers to align engineering work with research objectives and project goals Requirements: MSc in Computer Science or related subject Extensive exper...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "53c7c6d320c14071",
+      "title": "Head of IT Infrastructure and Cyber Security",
+      "organisation": "University College Birmingham",
+      "location": "Birmingham",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/head-of-it-infrastructure-and-cyber-security/56986169",
+      "date_posted": "2026-06-04",
+      "closing_date": "16/07/2026",
+      "type": "",
+      "description": "Job Title: Head of IT Infrastructure and Cyber Security Location: Birmingham Salary: 48,822 - 56,535 per annum - SS9 Job type: Permanent, Full-time UCB is an equal opportunities employer. We are TEF rated Silver, with a Good Ofsted rating. The Role: University College Birmingham is a leading institution dedicated to excellence in teaching, learning and innovation. With a diverse and growing community of students and staff, we are committed to de...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "247ff6730ad68c1c",
+      "title": "Senior Technician Stage, Lighting & Sound CoSTAR",
+      "organisation": "The Guardian",
+      "location": "Iver",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/senior-technician-stage-lighting-sound-costar/56984616",
+      "date_posted": "2026-06-04",
+      "closing_date": "16/07/2026",
+      "type": "",
+      "description": "Full time (35 hours a week), salary up to 50,000 per annum, depending on experience Fixed term basis, until 31st March 2029 The National Film and Television School (NFTS) Location : Pinewood Studios, Iver and the National Film and Television School (NFTS), Beaconsfield. First established in 1971, the National Film and Television School (NFTS) has evolved to become a leading global institution, developing some of Britain and the world’s top creat...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "86f462335153e651",
+      "title": "U21 Academy Performance Analyst",
+      "organisation": "Brighton & Hove Albion Football Club",
+      "location": "Lancing",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/u21-academy-performance-analyst/56986094",
+      "date_posted": "2026-06-04",
+      "closing_date": "16/07/2026",
+      "type": "",
+      "description": "Role: U21 Academy Performance Analyst Hours: Full time, including evenings and weekends Location: American Express Elite Football Performance Centre, Lancing Contract Type: Permanent Deadline Day: 18th June 2026 About Brighton & Hove Albion FC We compete at the highest levels of football on a global stage while embracing our Sussex community spirit. At the heart of everything we do is our commitment to high performance, professional excellen...",
+      "categories": [
+        "industry_applied"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "327627202a76a113",
+      "title": "Financial Performance & Systems Analyst",
+      "organisation": "Reed in Partnership",
+      "location": "L12SA",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/financial-performance-systems-analyst/56987568",
+      "date_posted": "2026-06-04",
+      "closing_date": "16/07/2026",
+      "type": "",
+      "description": "Are you passionate about financial systems, data, and delivering meaningful insights? Do you enjoy working at the intersection of finance, technology, and business intelligence to drive better decision-making? If so, consider joining us as a Financial Performance & Systems Analyst at Reed in Partnership. This role plays a key part in supporting the finance function by maintaining and optimising financial planning systems, while delivering hi...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "aba7b1101e6b3515",
+      "title": "Inclusive Learning Tutor - Wokingham",
+      "organisation": "Quantum Scholars",
+      "location": "Wokingham",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/inclusive-learning-tutor-wokingham/56986615",
+      "date_posted": "2026-06-04",
+      "closing_date": "16/07/2026",
+      "type": "",
+      "description": "Inclusive Learning Tutor - Wokingham & Berkshire Are you passionate about creating positive learning experiences for children and young people who require additional support? Do you believe that every learner deserves access to education that recognises their individual strengths, challenges, and potential? Quantum Scholars is seeking compassionate, adaptable, and dedicated Inclusive Learning Tutors to provide personalised 1:1 educational su...",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "7f17ade8c03ee5aa",
+      "title": "Lecturer in Psychology",
+      "organisation": "University College Birmingham",
+      "location": "Birmingham",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/lecturer-in-psychology/56985332",
+      "date_posted": "2026-06-04",
+      "closing_date": "16/07/2026",
+      "type": "",
+      "description": "Job Title: Lecturer in Psychology Location: Birmingham Salary: 38,784 - 43,482 per annum - AC2 Job type: Permanent, Full-time UCB is an equal opportunities employer. We are TEF rated Silver, with a Good Ofsted rating. The Role: Due to our continued growth, an exciting opportunity has arisen within the Department of Psychology for two, innovative, and student-centred Lecturers to contribute to the continued development, and delivery of our Psycho...",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "1466f7befb109de0",
+      "title": "Head of School, Leadership, Management & Marketing",
+      "organisation": "De Montfort University Leicester",
+      "location": "Leicester",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/head-of-school-leadership-management-marketing/56986972",
+      "date_posted": "2026-06-04",
+      "closing_date": "16/07/2026",
+      "type": "",
+      "description": "Requisition Id: 481 Job Location: Full-time/Part-time: Full-time Employee Weekly Hours: 37.00 Maximum Salary: 91,463.00 GBP Minimum Salary: 87,305.00 GBP Market Supplement: Application Closing Date: 28/06/2026 Job Description: Main duties and responsibilities De Montfort University (DMU) is seeking to appoint an outstanding academic leader to the role of the Head of School for Leadership, Management and Marketing, within the Faculty of Business ...",
+      "categories": [
+        "health_tech",
+        "fe_he_teaching"
+      ],
+      "fit_score": 37
+    },
+    {
+      "id": "2444ac1b10359bee",
+      "title": "Assistant head of department - Business",
+      "organisation": "Reed",
+      "location": "PE14DZ",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/assistant-head-of-department-business/56984987",
+      "date_posted": "2026-06-04",
+      "closing_date": "04/07/2026",
+      "type": "",
+      "description": "Assistant Head of Department – Business Location: Cambridgeshire Salary: 38,627 - 44,704 per annum (Dependant on skills and experience) Contract: Full-time, permanent (37 hours per week, all year round) About the Role We are seeking an inspiring and experienced Assistant Head of Department – Business to join a high-performing Further Education provider in Cambridgeshire. This is a fantastic opportunity for a passionate educator and leader ...",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "55da02658c103b2f",
+      "title": "School Business Manager",
+      "organisation": "Reeson Education",
+      "location": "RH105AD",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/school-business-manager/56986274",
+      "date_posted": "2026-06-04",
+      "closing_date": "16/07/2026",
+      "type": "",
+      "description": "School Business Manager (Fixed-Term Contract) Location: Crawley, West Sussex Contract: Full-Time, Fixed-Term (6 Months minimum) Start Date: Immediate Start Working Hours: Monday to Friday, 8:00am - 4:00pm (Onsite) Salary: Competitive, dependent on experience About the Role Reeson Education are supporting a secondary school in Crawley who require an experienced and proactive School Business Manager to join their leadership team on a fixed-term co...",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "c5d8862d1fdd294f",
+      "title": "Plumbing Curriculum Manager",
+      "organisation": "Morgan Hunt Recruitment",
+      "location": "Surrey",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/plumbing-curriculum-manager/56985563",
+      "date_posted": "2026-06-04",
+      "closing_date": "02/07/2026",
+      "type": "",
+      "description": "Plumbing Curriculum Manager Location: Epsom, Surrey Salary: Up to 51,000 Start date: August About the Role: A well-established Further Education college in Surrey is seeking a Curriculum Manager to lead its Plumbing provision, with alignment to Gas and Green Skills. The role will oversee teaching, learning, and assessment quality, drive curriculum innovation linked to government policy, and support staff to deliver strong student outcomes. You w...",
+      "categories": [
+        "technician",
+        "fe_he_teaching"
+      ],
+      "fit_score": 35
+    },
+    {
+      "id": "ff4b0bb19db6dc71",
+      "title": "Public Services Lecturer",
+      "organisation": "Reed",
+      "location": "CR06BA",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/public-services-lecturer/56985619",
+      "date_posted": "2026-06-04",
+      "closing_date": "04/07/2026",
+      "type": "",
+      "description": "Sport and Public Service Lecturer Annual Salary: 33,762 to 44,027 Location: South East London Job Type: Full-time We are seeking an experienced and enthusiastic Sport and Public Service Lecturer to join our team. This role involves teaching students of varying abilities, from Level 1 to Level 3, and collaborating closely with the Curriculum Manager to expand and develop the department. Your industry experience will be pivotal in inspiring the ne...",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "1fc2d44cd205876e",
+      "title": "Senior Data Engineer (x/f/m)",
+      "organisation": "Doctolib",
+      "location": "Paris, Paris, France",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/doctolib/jobs/7534394003",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "",
+      "description": "<h2 class=\"s-pb-2 s-pt-4 s-heading-xl s-text-foreground dark:s-text-foreground-night\"><strong class=\"s-font-semibold s-text-foreground dark:s-text-foreground-night\">Your Impact</strong></h2> <div class=\"s-whitespace-pre-wrap s-break-words s-font-normal first:s-pt-0 last:s-pb-0 s-py-1 @md:s-pt-2 @md:s-pb-[10px] @md:s-leading-relaxed s-text-base s-leading-relaxed s-text-foreground dark:s-text-foreground-night\">We are looking for a <strong class=\"s-font-semibold s-text-foreground dark:s-text-foregr...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "e4f09b2b600fa306",
+      "title": "Customer Care Specialist - Non Voice",
+      "organisation": "HelloFresh",
+      "location": "Manila, Manila, Philippines",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://careers.hellofresh.com/global/en/job/7984215?gh_jid=7984215",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "",
+      "description": "<h2><strong>The Role</strong></h2> <p>At HelloConnect, you will be part of a dynamic team that embraces innovation and leverages advanced technology to create exceptional experiences. Our culture is built on collaboration, continuous learning, and a commitment to excellence. You’ll have the opportunity to work on impactful projects, develop your skills, and grow within a supportive environment that values diverse perspectives and experiences.</p> <p>In this role, you will play a key part in deli...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "b56a0cdcfcfd29ca",
+      "title": "[HELLOCONNECT] Team Leader - Blended Customer Care",
+      "organisation": "HelloFresh",
+      "location": "Manila, Manila, Philippines",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://careers.hellofresh.com/global/en/job/7984232?gh_jid=7984232",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "",
+      "description": "<h2><strong>The Role</strong></h2> <p>At HelloConnect, you will be part of a dynamic team in Inoza Tower, BGC that embraces innovation and leverages advanced technology to create exceptional experiences. Our culture is built on collaboration, continuous learning, and a commitment to excellence. You’ll have the opportunity to work on impactful projects, develop your skills, and grow within a supportive environment that values diverse perspectives and experiences.</p> <p>We are seeking an experien...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "e734f68acee808c2",
+      "title": "Senior Manager Circular Economy",
+      "organisation": "HelloFresh",
+      "location": "Berlin, Berlin, Germany",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://careers.hellofresh.com/global/en/job/7979676?gh_jid=7979676",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "",
+      "description": "<p><span style=\"font-size: 18pt;\"><strong>The role:</strong> </span></p> <p>The Global Sustainability team looking for a new Circular Economy Manager located at our HelloFresh headquarters in Berlin. The sustainability team oversees all strategic sustainability topics for HelloFresh Group and works in close partnership with our 16 markets to realize the company's sustainability vision.</p> <p>The successful candidate will report to the Team Lead, Sustainability, and be a core part of the Circula...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "464768d7f29ebcdd",
+      "title": "Site Director",
+      "organisation": "HelloFresh",
+      "location": "Mississauga, Ontario, Canada",
+      "country": "Canada",
+      "source": "Greenhouse",
+      "url": "https://careers.hellofresh.com/global/en/job/7974427?gh_jid=7974427",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "",
+      "description": "<p><strong>S'more about the team:</strong></p> <p>Reporting into the Senior Director of National Production, you will oversee all fulfillment processes (warehouse, portioning, and pick & pack) within a HF Distribution Centre. Your focus is to ensure that our customers receive a perfect box on time; create, develop, and manage a high-performing team; and drive continuous improvement initiatives and process rollouts to achieve cost and operational targets. </p> <p>As part of the Leadership Team, y...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "625f6094748f00cd",
+      "title": "Transport Supervisor",
+      "organisation": "HelloFresh",
+      "location": "Derby, England, United Kingdom",
+      "country": "UK",
+      "source": "Greenhouse",
+      "url": "https://careers.hellofresh.com/global/en/job/7978836?gh_jid=7978836",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "",
+      "description": "<p>This role is responsible for overseeing the day-to-day operations of our yard and ensuring the efficient movement of materials and products in and out of the facility. Responsible for maintaining the smooth flow of operations in our fast-paced food manufacturing environment.</p> <p><strong>What You Will Be Doing:</strong></p> <ul> <li>Leading a team of colleagues on the shift to ensure that the shift KPIs are met in full and on time.</li> <li>Dealing with day to day queries from colleagues –...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "c69b565c47307b01",
+      "title": "Data Scientist, Policy",
+      "organisation": "Anthropic",
+      "location": "New York City, NY; San Francisco, CA | New York City, NY; Washington, DC",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/anthropic/jobs/5232055008",
+      "date_posted": "2026-06-04",
+      "closing_date": "",
+      "type": "",
+      "description": "<div class=\"content-intro\"><h2><strong>About Anthropic</strong></h2> <p>Anthropic’s mission is to create reliable, interpretable, and steerable AI systems. We want AI to be safe and beneficial for our users and for society as a whole. Our team is a quickly growing group of committed researchers, engineers, policy experts, and business leaders working together to build beneficial AI systems.</p></div><h2 class=\"heading\"><strong>About the role</strong></h2> <p>As one of our first Data Scientists d...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
     },
     {
       "id": "3b5362012acc42db",
@@ -1366,6 +2346,40 @@
         "industry_applied"
       ],
       "fit_score": 15
+    },
+    {
+      "id": "9d4ba6f05d9d11e9",
+      "title": "Recreation Programmer, Pickleball",
+      "organisation": "Pickleball",
+      "location": "Newmarket, York region",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5751051110?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-03",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "Description Under the direction of the Supervisor, Sport, the Recreation Programmer – Pickleball is responsible for the planning, development, implementation, administration, promotion, and operation of the Town of Newmarket’s Pickleball Centre, and the recruitment, scheduling, supervision, training, and evaluation of part-time staff/volunteers in compliance with Town of Newmarket Corporate Policies and Bylaws, Public Health Act, Pickleball Canada Guidelines and Town of Newmarket Recreation and…",
+      "categories": [
+        "academic_adjacent"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "f40e6f29c8235a63",
+      "title": "Data Analyst",
+      "organisation": "JOB SWITCH LTD",
+      "location": "IG11NN",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/data-analyst/56978422",
+      "date_posted": "2026-06-03",
+      "closing_date": "15/07/2026",
+      "type": "",
+      "description": "About the Role Data Analyst The London Borough of Redbridge is delivering an ambitious Modernisation Programme in the context of Exceptional Financial Support (EFS), designed to reshape services, reduce costs and improve outcomes for residents. We are seeking a highly capable Performance & Insight Analyst to provide embedded analytical expertise across the modernisation portfolio. This is a fast-paced, programme-facing role focused on transf...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
     },
     {
       "id": "2bc5fa6b2417ad27",
@@ -9992,6 +11006,24 @@
       "closing_date": "",
       "type": "full_time",
       "description": "Who We Are Verily Health is a data platform and technology company purpose-built to power AI-enabled precision health solutions that accelerate research and improve care for individuals and communities. Uniquely positioned at the intersection of technology, data science, and healthcare, Verily transforms multimodal health data into insights, models, and actions that make healthcare more personalized, predictive, and precise. Description The Developer Platform team is responsible for building cl…",
+      "categories": [
+        "technician",
+        "data_science"
+      ],
+      "fit_score": 42
+    },
+    {
+      "id": "a67c06277b22a8b2",
+      "title": "Staff Software Engineer - Cortex Infra",
+      "organisation": "Verily",
+      "location": "Canada",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5739942031?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-05-24",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Who We Are Verily Health is a data platform and technology company purpose-built to power AI-enabled precision health solutions that accelerate research and improve care for individuals and communities. Uniquely positioned at the intersection of technology, data science, and healthcare, Verily transforms multimodal health data into insights, models, and actions that make healthcare more personalized, predictive, and precise. Description As a member of the Precision Health Platform development o…",
       "categories": [
         "technician",
         "data_science"
@@ -30241,6 +31273,23 @@
       "fit_score": 15
     },
     {
+      "id": "2120f1955736ace2",
+      "title": "Incident Response Lead",
+      "organisation": "WHOOP",
+      "location": "Boston, MA",
+      "country": "",
+      "source": "Lever",
+      "url": "https://jobs.lever.co/whoop/580737a3-10a0-475a-a2fb-54e973a8fa9a",
+      "date_posted": "2026-03-12",
+      "closing_date": "",
+      "type": "",
+      "description": "At WHOOP, we’re on a mission to unlock human performance and healthspan. Our wearable technology provides personalized insights that help millions of members better understand their bodies and make smarter decisions about training, recovery, and lifestyle. We are seeking a Incident Response Lead to drive security incident response across the enterprise. In this role, you will serve as the primary internal escalation point and hands-on responder for security incidents, partnering closely with WHO...",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
       "id": "5ce5ab517c182257",
       "title": "Senior Laboratory Technician",
       "organisation": "",
@@ -34591,5 +35640,5 @@
       "fit_score": 20
     }
   ],
-  "last_updated": "2026-06-04T07:09:48.847702Z"
+  "last_updated": "2026-06-05T07:09:04.105502Z"
 }
