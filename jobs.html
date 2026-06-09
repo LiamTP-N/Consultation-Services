@@ -122,7 +122,7 @@
                 <button class="cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-cat="research_mgmt">Research Mgmt</button>
                 <button class="cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-cat="industry_applied">Industry / Applied</button>
             </div>
-            <p class="text-xs text-slate-600 mb-4">Fit score weights multi-category roles higher. Default sort is by score then date.</p>
+            <p class="text-xs text-slate-600 mb-4">Fit score weights multi-category roles higher. Default sort is newest first; tap Fit to sort by score.</p>
         </div>
     </header>
 
@@ -132,11 +132,11 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="bg-slate-800 text-slate-500 text-xs uppercase tracking-wider">
-                            <th class="sortable px-4 py-3 text-left sorted" data-col="fit_score">Fit <span class="sort-arrow">&#8595;</span></th>
+                            <th class="sortable px-4 py-3 text-left" data-col="fit_score">Fit <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left" data-col="title">Role <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left hidden md:table-cell" data-col="organisation">Organisation <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left" data-col="source">Source <span class="sort-arrow">&#8597;</span></th>
-                            <th class="sortable px-4 py-3 text-left" data-col="date_posted">Posted <span class="sort-arrow">&#8597;</span></th>
+                            <th class="sortable px-4 py-3 text-left sorted" data-col="date_posted">Posted <span class="sort-arrow">&#8595;</span></th>
                         </tr>
                     </thead>
                     <tbody id="jobs-body">
@@ -179,11 +179,11 @@
 
     <script src="assets/js/includes.js" defer></script>
     <script>
-    const MAX_AGE_DAYS = 30;
+    const MAX_AGE_DAYS = 20;
     const PAGE_SIZE = 30;
 
     let allJobs = [];
-    let sortCol = 'fit_score';
+    let sortCol = 'date_posted';
     let sortDir = 1;
     let searchTerm = '';
     let sourceFilter = 'all';

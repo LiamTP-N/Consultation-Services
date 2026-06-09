@@ -340,7 +340,7 @@ REED_QUERIES = [
 ]
 
 OUTPUT_FILE = Path("scraper/jobs.json")
-MAX_DAYS_OLD = 30
+MAX_DAYS_OLD = 20
 MAX_FIELD_LEN = 500
 
 
@@ -450,10 +450,11 @@ def prune_old(jobs: list) -> list:
             try:
                 if datetime.datetime.fromisoformat(dp.replace("Z", "")) > cutoff:
                     kept.append(j)
-                    continue
             except Exception:
+                # Unparseable date -> treat as stale, drop it.
                 pass
-        kept.append(j)
+        # No date_posted at all -> stale/legacy, drop it. (Previously these
+        # were kept forever, which is why the board grew past 1,000 jobs.)
     return kept
 
 
