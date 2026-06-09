@@ -59,7 +59,7 @@
             <h1 class="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight mb-2">
                 <span class="bg-gradient-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text">Job Tracker</span>
             </h1>
-            <p class="text-slate-400 text-sm mb-6">UK &amp; Canada &middot; broadened across sport science, biomechanics, data science, health tech, FE/HE teaching, research management, and lab technician roles &middot; scraped daily at 07:00 UTC. Showing roles posted in the last 30 days. Roles ranked by fit score against my CV.</p>
+            <p class="text-slate-400 text-sm mb-6">UK &amp; Canada &middot; broadened across sport science, biomechanics, data science, health tech, FE/HE teaching, research management, and lab technician roles &middot; scraped twice daily at 07:00 and 13:00 UTC. Showing roles posted in the last 20 days, newest first.</p>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                 <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
@@ -429,7 +429,7 @@
             const recent = allJobs.filter(j => isRecent(j.date_posted));
             if (!recent.length) {
                 document.getElementById('jobs-body').innerHTML =
-                    `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 30 days - check back after the next 07:00 UTC scrape.</td></tr>`;
+                    `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 20 days - check back after the next scrape (07:00 / 13:00 UTC).</td></tr>`;
             } else {
                 renderTable();
             }
