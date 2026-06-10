@@ -109,6 +109,10 @@ CATEGORY_KEYWORDS = {
         "biomechanics", "biomechanist", "strength and conditioning",
         "sport psychology", "sports psychology", "sport coaching",
         "sport nutrition", "sports nutrition",
+        # Sport/leisure leadership (council/trust/charity), so senior
+        # "Head of Sport" posts score on fit, not just pass the filter.
+        "head of sport", "head of physical activity",
+        "sport and physical activity", "head of leisure",
     ],
     "academic_adjacent": [
         "kinesiology", "human kinetics", "human movement", "movement science",
@@ -306,6 +310,15 @@ ADZUNA_QUERIES = [
     "kinesiology",
     "lecturer exercise",
     "research technician",
+    # Sport/leisure/active-wellbeing leadership (the senior council/charity
+    # leisure posts that the academic-skewed sources miss, e.g. Glasgow Life
+    # "Head of Sport and Physical Activity"). These syndicate to Adzuna but
+    # were never queried for.
+    "head of sport",
+    "head of physical activity",
+    "head of leisure",
+    "physical activity manager",
+    "active wellbeing",
 ]
 
 # Reed.co.uk Jobseeker API queries (UK only). Free key from
@@ -337,6 +350,14 @@ REED_QUERIES = [
     "head of curriculum",
     "lecturer sport",
     "programme leader",
+    # Sport/leisure/active-wellbeing leadership (council, trust and charity
+    # leisure posts: the role shape that the Glasgow Life advert exposed as a
+    # gap; caught by academic_adjacent + fe_he_teaching once it arrives).
+    "head of sport",
+    "head of physical activity",
+    "head of leisure",
+    "head of sport and physical activity",
+    "active wellbeing",
 ]
 
 OUTPUT_FILE = Path("scraper/jobs.json")
