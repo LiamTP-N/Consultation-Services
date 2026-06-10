@@ -300,25 +300,32 @@ LEVER_COMPANIES = [
 ]
 
 # Adzuna API: country code, country label, query list
-# Queries chosen to span Liam's CV categories without burning quota
+# Queries chosen to span Liam's CV categories without burning quota.
+# Lean 14-query UK-relevant set (10 Jun 2026): focused on sport/leisure +
+# FE leadership, research/lab/technical, data/digital-health, and full
+# lecturing + head-of-school/department teaching coverage. Kept lean to
+# stay well inside the Adzuna free tier (14 queries x 2 countries/run).
+# NB Find a Job (DWP) is Adzuna-powered, so this set also reaches much of
+# that pool; Find a Job has no separate public feed to scrape.
 ADZUNA_QUERIES = [
-    "sport science",
-    "biomechanics",
+    # Research / lab / technical
     "research software engineer",
+    "research technician",
     "data scientist health",
     "digital health",
+    # Sport / exercise science
+    "sport science",
+    "biomechanics",
     "kinesiology",
-    "lecturer exercise",
-    "research technician",
-    # Sport/leisure/active-wellbeing leadership (the senior council/charity
-    # leisure posts that the academic-skewed sources miss, e.g. Glasgow Life
-    # "Head of Sport and Physical Activity"). These syndicate to Adzuna but
-    # were never queried for.
+    # Sport / leisure / FE leadership
     "head of sport",
     "head of physical activity",
     "head of leisure",
-    "physical activity manager",
-    "active wellbeing",
+    # Lecturing + head-of-school/department teaching
+    "lecturer sport",
+    "lecturer exercise",
+    "head of department",
+    "head of school",
 ]
 
 # Reed.co.uk Jobseeker API queries (UK only). Free key from
