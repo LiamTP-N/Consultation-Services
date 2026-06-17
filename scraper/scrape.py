@@ -99,6 +99,34 @@ HEADERS = {
 }
 
 # ---------------------------------------------------------------------------
+# KEYWORD MATCHING (Phase 4: word-boundary, 17 Jun 2026)
+# ---------------------------------------------------------------------------
+# Earlier phases used naive `kw in text` substring matching. That let short
+# tokens match inside unrelated words and flooded the board:
+#   "rse"  matched cou(rse), dive(rse), unive(rse), wo(rse)  -> 225 false hits,
+#          dragging Finance/Sales/HVAC roles into `technician`.
+#   "imu"  matched min(imu)m, opt(imu)m, st(imu)lating         -> 61 false hits
+#          in `health_tech`.
+# Fix: compile each keyword as a whole-token regex (\b...\b). Multi-word
+# phrases ("sport science") still match as a contiguous phrase. Matching is
+# cached per run.
+
+_KW_RE_CACHE: dict = {}
+
+
+def _kw_regex(kw: str):
+    rx = _KW_RE_CACHE.get(kw)
+    if rx is None:
+        rx = re.compile(r"\b" + re.escape(kw) + r"\b")
+        _KW_RE_CACHE[kw] = rx
+    return rx
+
+
+def kw_in(kw: str, text: str) -> bool:
+    return _kw_regex(kw).search(text) is not None
+
+
+# ---------------------------------------------------------------------------
 # CATEGORY-TAGGED KEYWORDS (Phase 2)
 # ---------------------------------------------------------------------------
 
@@ -127,7 +155,7 @@ CATEGORY_KEYWORDS = {
         "lab technician", "laboratory technician", "research technician",
         "senior technician", "technical specialist", "technical officer",
         "lab manager", "laboratory manager", "facility manager",
-        "research software engineer", "rse",
+        "research software engineer",
         "research assistant",
     ],
     "data_science": [
@@ -142,7 +170,7 @@ CATEGORY_KEYWORDS = {
         "digital health", "health technology", "health tech",
         "medical device", "medical technology", "medtech",
         "mhealth", "ehealth", "telehealth", "telemedicine",
-        "wearable", "wearables", "inertial sensor", "imu",
+        "wearable", "wearables", "inertial sensor", "imu sensor",
         "clinical software", "clinical informatics", "nhs digital",
         "health informatics", "digital therapeutic",
         "computer vision health", "pose estimation",
@@ -215,6 +243,22 @@ CATEGORY_WEIGHTS = {
 # Cap to keep fit_score visually clean (0-100 scale)
 FIT_SCORE_CAP = 100
 
+# Title-only excludes (Phase 4, 17 Jun 2026). Some roles match a category
+# only because the JOB DESCRIPTION mentions Liam-relevant phrases (e.g. a
+# "Junior Sales Representative" at a medical-device firm, or a "Service
+# Delivery Manager" whose blurb says "data science"). The role FUNCTION is
+# wrong regardless of the employer's domain. These terms are matched against
+# the TITLE only (word-boundary), so a genuine "Data Scientist" whose title
+# lacks them is unaffected. Keep this list tight and title-shaped.
+TITLE_EXCLUDE_KEYWORDS = [
+    "sales representative", "sales executive", "sales advisor",
+    "sales manager", "account executive", "account manager",
+    "business development", "service delivery manager",
+    "customer experience", "customer success",
+    "store manager", "store associate", "retail",
+    "recruitment", "talent acquisition",
+]
+
 EXCLUDE_KEYWORDS = [
     "clinical fellow", "junior fellow", "medical fellow", "surgical fellow",
     "haematology", "oncology", "cardiology", "anaesthetic", "radiographer",
@@ -230,9 +274,31 @@ EXCLUDE_KEYWORDS = [
     "tiktok", "anti-fraud",
 ]
 
-# Jobs.ac.uk RSS feeds (UK) - Phase 2: expanded to 12 feeds
-# NB trailing slash matters - some feeds 404 without it; others 404 with.
-# These URLs verified by browser as of 27 May 2026.
+# Jobs.ac.uk (UK).
+# Phase 5 (17 Jun 2026): the RSS service (`/jobs/{slug}/?format=rss`) began
+# returning HTTP 500 on EVERY feed - confirmed from three independent networks
+# while jobs.ac.uk's own RSS index still advertised those exact URLs, i.e. a
+# broken/abandoned endpoint on their side, not a URL change. The `/jobs/{slug}/`
+# HTML route 500s too. The working route is the search UI: `/search/{slug}`,
+# which renders server-side HTML with job cards. Switched Jobs.ac.uk to an HTML
+# scraper against that route (scrape_jobsac_html). Slugs are the academic
+# subject-area slugs from https://www.jobs.ac.uk/feeds/subject-areas plus the
+# professional-services slugs that exist under /search. If the RSS service comes
+# back, the old JOBSAC_RSS_FEEDS list + scrape_jobsac_rss are retained below and
+# can be reinstated in main().
+JOBSAC_HTML_SLUGS = [
+    "sport-and-leisure",
+    "biological-sciences",
+    "health-and-medical",
+    "computer-sciences",
+    "engineering-and-technology",
+    "mathematics-and-statistics",
+    "psychology",
+    "senior-management",
+    "project-management-and-consulting",
+]
+
+# Retained (dormant) RSS feed list - reinstate if jobs.ac.uk fixes its RSS.
 JOBSAC_RSS_FEEDS = [
     ("https://www.jobs.ac.uk/jobs/sport-and-leisure/?format=rss", "Jobs.ac.uk"),
     ("https://www.jobs.ac.uk/jobs/laboratory-clinical-and-technician/?format=rss", "Jobs.ac.uk"),
@@ -419,7 +485,7 @@ def categorise(job: dict) -> list:
     matched = []
     for cat, keywords in CATEGORY_KEYWORDS.items():
         for kw in keywords:
-            if kw in text:
+            if kw_in(kw, text):
                 matched.append(cat)
                 break
     return matched
@@ -437,6 +503,10 @@ def compute_fit_score(categories: list) -> int:
 
 
 def passes_filter(job: dict) -> bool:
+    title = job.get("title", "").lower()
+    for kw in TITLE_EXCLUDE_KEYWORDS:
+        if kw_in(kw, title):
+            return False
     text = (
         f"{job.get('title', '')} "
         f"{job.get('organisation', '')} "
@@ -444,7 +514,7 @@ def passes_filter(job: dict) -> bool:
         f"{job.get('description', '')}"
     ).lower()
     for kw in EXCLUDE_KEYWORDS:
-        if kw in text:
+        if kw_in(kw, text):
             return False
     cats = categorise(job)
     if not cats:
@@ -487,14 +557,28 @@ def prune_old(jobs: list) -> list:
 
 
 def backfill_categories(jobs: list) -> list:
-    """Backfill categories AND fit_score on legacy entries."""
+    """Re-categorise + re-score every existing entry under the CURRENT keyword
+    rules and matcher, then drop anything that no longer matches.
+
+    Phase 4 (17 Jun 2026): this used to only fill categories on entries that
+    lacked them, so when the matcher tightened (word-boundary) the ~900 jobs
+    already tagged under the old naive substring rules kept their stale, often
+    false-positive categories and never got cleaned. Now every run re-runs
+    categorise() on the whole store, so a tightened rule self-heals the board
+    on the next scrape. Entries that match nothing under the new rules are
+    returned with an empty category list and removed below."""
+    cleaned = []
     for j in jobs:
-        if "categories" not in j or not j["categories"]:
-            cats = categorise(j)
-            j["categories"] = cats if cats else ["academic_sport"]
-        if "fit_score" not in j:
-            j["fit_score"] = compute_fit_score(j["categories"])
-    return jobs
+        title = j.get("title", "").lower()
+        if any(kw_in(kw, title) for kw in TITLE_EXCLUDE_KEYWORDS):
+            continue  # wrong-function role (sales/delivery/retail etc.)
+        cats = categorise(j)
+        if not cats:
+            continue  # no longer relevant under current rules -> drop
+        j["categories"] = cats
+        j["fit_score"] = compute_fit_score(cats)
+        cleaned.append(j)
+    return cleaned
 
 
 def deduplicate(jobs: list) -> list:
@@ -553,6 +637,126 @@ def parse_reed_date(date_str: str) -> str:
         except Exception:
             continue
     return datetime.date.today().isoformat()
+
+
+# ---------------------------------------------------------------------------
+# Jobs.ac.uk - HTML scrape of /search/{slug} (UK) - Phase 5 (RSS replacement)
+# ---------------------------------------------------------------------------
+
+def _jobsac_parse_date(text: str) -> str:
+    """Jobs.ac.uk cards show 'Date Placed: 15 May' with no year. Assume the
+    current year; if that lands in the future (e.g. a December date scraped in
+    January), roll back a year. Returns ISO yyyy-mm-dd, today on failure."""
+    m = re.search(r"(\d{1,2})\s+([A-Za-z]{3,9})", text or "")
+    if not m:
+        return datetime.date.today().isoformat()
+    day = int(m.group(1))
+    mon_str = m.group(2)[:3].lower()
+    months = {
+        "jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
+        "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12,
+    }
+    mon = months.get(mon_str)
+    if not mon:
+        return datetime.date.today().isoformat()
+    today = datetime.date.today()
+    try:
+        d = datetime.date(today.year, mon, day)
+    except ValueError:
+        return today.isoformat()
+    if d > today + datetime.timedelta(days=2):  # small skew tolerance
+        try:
+            d = datetime.date(today.year - 1, mon, day)
+        except ValueError:
+            pass
+    return d.isoformat()
+
+
+def scrape_jobsac_html() -> list:
+    """Scrape jobs.ac.uk via the server-rendered /search/{slug} pages.
+
+    Card structure (verified 17 Jun 2026):
+      <a href="/job/{REF}/{title-slug}">Job Title</a>
+      <strong>Employer</strong>
+      Location: <town>
+      Salary: ...
+      Date Placed: 15 May
+    Each job link matches the path /job/<REF>/. We take the anchor text as the
+    title and walk the card's container text for employer / location / date."""
+    jobs = []
+    seen_refs = set()
+    for slug in JOBSAC_HTML_SLUGS:
+        url = f"https://www.jobs.ac.uk/search/{slug}"
+        print(f"  Jobs.ac.uk HTML: {slug}")
+        r = get(url, timeout=20)
+        if not r:
+            continue
+        try:
+            soup = BeautifulSoup(r.text, "html.parser")
+            anchors = soup.find_all("a", href=re.compile(r"^/job/[A-Za-z0-9]+/"))
+            for a in anchors:
+                try:
+                    title = clean(a.get_text())
+                    if not title or len(title) < 4:
+                        continue
+                    href_path = a.get("href", "")
+                    ref_match = re.match(r"^/job/([A-Za-z0-9]+)/", href_path)
+                    if not ref_match:
+                        continue
+                    ref = ref_match.group(1)
+                    if ref in seen_refs:
+                        continue  # same job listed under multiple slugs
+                    seen_refs.add(ref)
+                    href = clean_url("https://www.jobs.ac.uk" + href_path)
+                    # Find this job's OWN card: climb to the highest ancestor
+                    # that still contains exactly one /job/ link. Going further
+                    # would swallow sibling cards and make every job inherit the
+                    # first card's employer/location/date.
+                    container = a
+                    while container.parent is not None:
+                        parent = container.parent
+                        job_links = parent.find_all(
+                            "a", href=re.compile(r"^/job/[A-Za-z0-9]+/")
+                        )
+                        if len(job_links) > 1:
+                            break  # parent merges multiple cards; stop here
+                        container = parent
+                    card_text = container.get_text("\n", strip=True)
+                    org = ""
+                    loc = ""
+                    # Employer: first <strong>/<b> in the card that isn't a label
+                    strong = container.find(["strong", "b"])
+                    if strong:
+                        cand = clean(strong.get_text())
+                        if cand and not cand.lower().startswith(("salary", "date", "location")):
+                            org = cand
+                    loc_m = re.search(r"Location:\s*\n?\s*(.+)", card_text)
+                    if loc_m:
+                        loc = clean(loc_m.group(1).splitlines()[0])
+                    date_m = re.search(r"Date Placed:\s*\n?\s*(.+)", card_text)
+                    date_str = _jobsac_parse_date(date_m.group(1) if date_m else "")
+                    close_m = re.search(r"Closes\s+(.+)", card_text)
+                    closing = clean(close_m.group(1).splitlines()[0]) if close_m else ""
+                    jobs.append({
+                        "id": make_id(href, title),
+                        "title": title,
+                        "organisation": org,
+                        "location": loc or "UK",
+                        "country": "UK",
+                        "source": "Jobs.ac.uk",
+                        "url": href,
+                        "date_posted": date_str,
+                        "closing_date": closing,
+                        "type": "",
+                        "description": "",
+                    })
+                except Exception as e:
+                    print(f"    card parse error: {e}")
+            print(f"    {slug}: parsed (running total {len(jobs)})")
+        except Exception as e:
+            print(f"    feed parse error ({slug}): {e}")
+        time.sleep(1)
+    return jobs
 
 
 # ---------------------------------------------------------------------------
@@ -1133,18 +1337,18 @@ def main():
     existing_ids = {j["id"] for j in existing["jobs"]}
     new_jobs = []
 
-    print("  Running Jobs.ac.uk RSS scraper (12 feeds)...")
+    print("  Running Jobs.ac.uk HTML scraper (/search/{slug})...")
     try:
-        results = scrape_jobsac_rss()
+        results = scrape_jobsac_html()
         added = 0
         for j in results:
             if j["id"] not in existing_ids and passes_filter(j):
                 new_jobs.append(j)
                 existing_ids.add(j["id"])
                 added += 1
-        print(f"    +{added} new from Jobs.ac.uk RSS")
+        print(f"    +{added} new from Jobs.ac.uk HTML")
     except Exception as e:
-        print(f"  ERROR jobs.ac.uk RSS: {e}")
+        print(f"  ERROR jobs.ac.uk HTML: {e}")
 
     print("  Running Canadian RSS scrapers (THEunijobs, HigherEdJobs)...")
     try:
