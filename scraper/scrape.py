@@ -254,6 +254,9 @@ TITLE_EXCLUDE_KEYWORDS = [
     "sales representative", "sales executive", "sales advisor",
     "sales manager", "account executive", "account manager",
     "business development", "service delivery manager",
+    "sales development", "product sales",
+    "finance administrator", "finance coordinator",
+    "finance manager", "finance analyst", "financial controller",
     "customer experience", "customer success",
     "store manager", "store associate", "retail",
     "recruitment", "talent acquisition",
@@ -724,12 +727,42 @@ def scrape_jobsac_html() -> list:
                     card_text = container.get_text("\n", strip=True)
                     org = ""
                     loc = ""
-                    # Employer: first <strong>/<b> in the card that isn't a label
-                    strong = container.find(["strong", "b"])
-                    if strong:
-                        cand = clean(strong.get_text())
-                        if cand and not cand.lower().startswith(("salary", "date", "location")):
-                            org = cand
+                    # Employer extraction - the card markup varies (some cards
+                    # have the employer as bold text, some link it, some put a
+                    # department line first), so try several strategies in order
+                    # of reliability.
+                    # (1) Employer-search link: cards with a logo link to
+                    #     /search/employer/{slug}; its text/title is the employer.
+                    emp_link = container.find(
+                        "a", href=re.compile(r"/search/employer/")
+                    )
+                    if emp_link:
+                        org = clean(emp_link.get("title", "") or emp_link.get_text())
+                    # (2) First <strong>/<b> that isn't a field label.
+                    if not org:
+                        for tag in container.find_all(["strong", "b", "h2", "h3"]):
+                            cand = clean(tag.get_text())
+                            low = cand.lower()
+                            if (cand and len(cand) > 2
+                                    and not low.startswith((
+                                        "salary", "date", "placed", "location",
+                                        "closes", "hours", "contract", "job ref"))
+                                    and cand != title):
+                                org = cand
+                                break
+                    # (3) Fall back to the text line directly after the title and
+                    #     before the first "Location:"/"Salary:" label.
+                    if not org:
+                        lines = [ln.strip() for ln in card_text.splitlines() if ln.strip()]
+                        for i, ln in enumerate(lines):
+                            if ln == title and i + 1 < len(lines):
+                                nxt = lines[i + 1]
+                                if not re.match(r"(?i)(location|salary|date|placed|closes|hours|contract)\s*:", nxt):
+                                    org = clean(nxt)
+                                break
+                    # Strip a trailing " - Department" so the org is just the employer.
+                    if org and " - " in org:
+                        org = org.split(" - ")[0].strip()
                     loc_m = re.search(r"Location:\s*\n?\s*(.+)", card_text)
                     if loc_m:
                         loc = clean(loc_m.group(1).splitlines()[0])
