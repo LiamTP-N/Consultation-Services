@@ -146,6 +146,8 @@ CATEGORY_KEYWORDS = {
         "kinesiology", "human kinetics", "human movement", "movement science",
         "motor control", "motor learning", "skill acquisition",
         "rehabilitation science", "rehabilitation research", "physical therapy research",
+        "sport rehabilitation", "sports rehabilitation", "sport injury", "sports injury",
+        "sport therapy", "sports therapy", "musculoskeletal health",
         "gerontology", "ageing research", "aging research", "healthy ageing", "healthy aging",
         "public health", "population health", "epidemiology",
         "physical activity", "physical education",
@@ -301,6 +303,14 @@ JOBSAC_HTML_SLUGS = [
     "project-management-and-consulting",
 ]
 
+# Phase 6 (18 Jun 2026): pagination depth. scrape_jobsac_html originally read
+# only the first results page per slug. New postings sort to the top, but a
+# busy subject area (e.g. sport-and-leisure) can push a fresh role onto page 2
+# within a day or two, so a recent on-profile job (a Heriot-Watt Assistant Prof
+# in Sport Rehab, 17 Jun) never got parsed. We now walk a few pages per slug via
+# the `?page=N` query param, stopping early when a page yields no new job refs.
+JOBSAC_MAX_PAGES = 3
+
 # Retained (dormant) RSS feed list - reinstate if jobs.ac.uk fixes its RSS.
 JOBSAC_RSS_FEEDS = [
     ("https://www.jobs.ac.uk/jobs/sport-and-leisure/?format=rss", "Jobs.ac.uk"),
@@ -386,6 +396,8 @@ ADZUNA_QUERIES = [
     "sport science",
     "biomechanics",
     "kinesiology",
+    "sport rehabilitation",
+    "assistant professor sport",
     # Sport / leisure / FE leadership
     "head of sport",
     "head of physical activity",
@@ -409,6 +421,8 @@ REED_QUERIES = [
     "sport science",
     "biomechanics",
     "exercise physiology",
+    "sport rehabilitation",
+    "assistant professor sport",
     "research software engineer",
     "data scientist health",
     "digital health",
@@ -439,6 +453,35 @@ REED_QUERIES = [
 OUTPUT_FILE = Path("scraper/jobs.json")
 MAX_DAYS_OLD = 20
 MAX_FIELD_LEN = 500
+
+# ---------------------------------------------------------------------------
+# Indeed (UK) - best-effort, env-gated, OFF by default (Phase 6, 18 Jun 2026)
+# ---------------------------------------------------------------------------
+# Indeed was removed in Phase 1 (low signal/high noise) and the situation has
+# since worsened: the free Publisher Jobs API (the only sanctioned job-search
+# route) is deprecated, the site sits behind Cloudflare, a login wall kicks in
+# from results page 2, and Indeed's ToS prohibits scraping. There is therefore
+# NO clean free route. This scraper is a deliberate best-effort, ToS-grey
+# fallback that reads ONLY the first server-rendered results page (the data
+# Indeed still embeds in a JS blob before the Cloudflare/login wall) and never
+# touches page 2+. Realistic expectation: from GitLab CI's shared/datacentre
+# IPs it will frequently hit a Cloudflare interstitial and return 0; it is more
+# likely to yield results when run from a residential IP (a local PC). It is
+# OFF unless INDEED_ENABLE is set truthy, so a 0/blocked run never disrupts the
+# pipeline and the grey-area request isn't made unless explicitly opted in.
+#   Enable:  set CI/CD variable INDEED_ENABLE = 1   (and ideally run off-peak)
+# If/when this proves unreliable, prefer a paid compliant API (Apify/HasData).
+INDEED_ENABLE = os.environ.get("INDEED_ENABLE", "").strip().lower() in (
+    "1", "true", "yes", "on"
+)
+INDEED_QUERIES = [
+    "sport science",
+    "sport rehabilitation",
+    "exercise physiology",
+    "biomechanics",
+    "research technician",
+    "lecturer sport",
+]
 
 
 def make_id(url: str, title: str) -> str:
@@ -685,109 +728,127 @@ def scrape_jobsac_html() -> list:
       Salary: ...
       Date Placed: 15 May
     Each job link matches the path /job/<REF>/. We take the anchor text as the
-    title and walk the card's container text for employer / location / date."""
+    title and walk the card's container text for employer / location / date.
+
+    Phase 6 (18 Jun 2026): paginate. Each slug is read across up to
+    JOBSAC_MAX_PAGES pages via `?page=N`, stopping early when a page returns no
+    new job refs (end of results, or a page that only repeats refs already seen
+    this run). seen_refs is shared across slugs AND pages so a job listed under
+    several subject areas, or appearing again on a later page, is parsed once."""
     jobs = []
     seen_refs = set()
     for slug in JOBSAC_HTML_SLUGS:
-        url = f"https://www.jobs.ac.uk/search/{slug}"
-        print(f"  Jobs.ac.uk HTML: {slug}")
-        r = get(url, timeout=20)
-        if not r:
-            continue
-        try:
-            soup = BeautifulSoup(r.text, "html.parser")
-            anchors = soup.find_all("a", href=re.compile(r"^/job/[A-Za-z0-9]+/"))
-            for a in anchors:
-                try:
-                    title = clean(a.get_text())
-                    if not title or len(title) < 4:
-                        continue
-                    href_path = a.get("href", "")
-                    ref_match = re.match(r"^/job/([A-Za-z0-9]+)/", href_path)
-                    if not ref_match:
-                        continue
-                    ref = ref_match.group(1)
-                    if ref in seen_refs:
-                        continue  # same job listed under multiple slugs
-                    seen_refs.add(ref)
-                    href = clean_url("https://www.jobs.ac.uk" + href_path)
-                    # Find this job's OWN card: climb to the highest ancestor
-                    # that still contains exactly one /job/ link. Going further
-                    # would swallow sibling cards and make every job inherit the
-                    # first card's employer/location/date.
-                    container = a
-                    while container.parent is not None:
-                        parent = container.parent
-                        job_links = parent.find_all(
-                            "a", href=re.compile(r"^/job/[A-Za-z0-9]+/")
+        for page in range(1, JOBSAC_MAX_PAGES + 1):
+            if page == 1:
+                url = f"https://www.jobs.ac.uk/search/{slug}"
+            else:
+                url = f"https://www.jobs.ac.uk/search/{slug}?page={page}"
+            print(f"  Jobs.ac.uk HTML: {slug} (page {page})")
+            r = get(url, timeout=20)
+            if not r:
+                break  # network/HTTP failure: stop paging this slug
+            added_this_page = 0
+            try:
+                soup = BeautifulSoup(r.text, "html.parser")
+                anchors = soup.find_all("a", href=re.compile(r"^/job/[A-Za-z0-9]+/"))
+                for a in anchors:
+                    try:
+                        title = clean(a.get_text())
+                        if not title or len(title) < 4:
+                            continue
+                        href_path = a.get("href", "")
+                        ref_match = re.match(r"^/job/([A-Za-z0-9]+)/", href_path)
+                        if not ref_match:
+                            continue
+                        ref = ref_match.group(1)
+                        if ref in seen_refs:
+                            continue  # already parsed (other slug or earlier page)
+                        seen_refs.add(ref)
+                        added_this_page += 1
+                        href = clean_url("https://www.jobs.ac.uk" + href_path)
+                        # Find this job's OWN card: climb to the highest ancestor
+                        # that still contains exactly one /job/ link. Going further
+                        # would swallow sibling cards and make every job inherit the
+                        # first card's employer/location/date.
+                        container = a
+                        while container.parent is not None:
+                            parent = container.parent
+                            job_links = parent.find_all(
+                                "a", href=re.compile(r"^/job/[A-Za-z0-9]+/")
+                            )
+                            if len(job_links) > 1:
+                                break  # parent merges multiple cards; stop here
+                            container = parent
+                        card_text = container.get_text("\n", strip=True)
+                        org = ""
+                        loc = ""
+                        # Employer extraction - the card markup varies (some cards
+                        # have the employer as bold text, some link it, some put a
+                        # department line first), so try several strategies in order
+                        # of reliability.
+                        # (1) Employer-search link: cards with a logo link to
+                        #     /search/employer/{slug}; its text/title is the employer.
+                        emp_link = container.find(
+                            "a", href=re.compile(r"/search/employer/")
                         )
-                        if len(job_links) > 1:
-                            break  # parent merges multiple cards; stop here
-                        container = parent
-                    card_text = container.get_text("\n", strip=True)
-                    org = ""
-                    loc = ""
-                    # Employer extraction - the card markup varies (some cards
-                    # have the employer as bold text, some link it, some put a
-                    # department line first), so try several strategies in order
-                    # of reliability.
-                    # (1) Employer-search link: cards with a logo link to
-                    #     /search/employer/{slug}; its text/title is the employer.
-                    emp_link = container.find(
-                        "a", href=re.compile(r"/search/employer/")
-                    )
-                    if emp_link:
-                        org = clean(emp_link.get("title", "") or emp_link.get_text())
-                    # (2) First <strong>/<b> that isn't a field label.
-                    if not org:
-                        for tag in container.find_all(["strong", "b", "h2", "h3"]):
-                            cand = clean(tag.get_text())
-                            low = cand.lower()
-                            if (cand and len(cand) > 2
-                                    and not low.startswith((
-                                        "salary", "date", "placed", "location",
-                                        "closes", "hours", "contract", "job ref"))
-                                    and cand != title):
-                                org = cand
-                                break
-                    # (3) Fall back to the text line directly after the title and
-                    #     before the first "Location:"/"Salary:" label.
-                    if not org:
-                        lines = [ln.strip() for ln in card_text.splitlines() if ln.strip()]
-                        for i, ln in enumerate(lines):
-                            if ln == title and i + 1 < len(lines):
-                                nxt = lines[i + 1]
-                                if not re.match(r"(?i)(location|salary|date|placed|closes|hours|contract)\s*:", nxt):
-                                    org = clean(nxt)
-                                break
-                    # Strip a trailing " - Department" so the org is just the employer.
-                    if org and " - " in org:
-                        org = org.split(" - ")[0].strip()
-                    loc_m = re.search(r"Location:\s*\n?\s*(.+)", card_text)
-                    if loc_m:
-                        loc = clean(loc_m.group(1).splitlines()[0])
-                    date_m = re.search(r"Date Placed:\s*\n?\s*(.+)", card_text)
-                    date_str = _jobsac_parse_date(date_m.group(1) if date_m else "")
-                    close_m = re.search(r"Closes\s+(.+)", card_text)
-                    closing = clean(close_m.group(1).splitlines()[0]) if close_m else ""
-                    jobs.append({
-                        "id": make_id(href, title),
-                        "title": title,
-                        "organisation": org,
-                        "location": loc or "UK",
-                        "country": "UK",
-                        "source": "Jobs.ac.uk",
-                        "url": href,
-                        "date_posted": date_str,
-                        "closing_date": closing,
-                        "type": "",
-                        "description": "",
-                    })
-                except Exception as e:
-                    print(f"    card parse error: {e}")
-            print(f"    {slug}: parsed (running total {len(jobs)})")
-        except Exception as e:
-            print(f"    feed parse error ({slug}): {e}")
+                        if emp_link:
+                            org = clean(emp_link.get("title", "") or emp_link.get_text())
+                        # (2) First <strong>/<b> that isn't a field label.
+                        if not org:
+                            for tag in container.find_all(["strong", "b", "h2", "h3"]):
+                                cand = clean(tag.get_text())
+                                low = cand.lower()
+                                if (cand and len(cand) > 2
+                                        and not low.startswith((
+                                            "salary", "date", "placed", "location",
+                                            "closes", "hours", "contract", "job ref"))
+                                        and cand != title):
+                                    org = cand
+                                    break
+                        # (3) Fall back to the text line directly after the title and
+                        #     before the first "Location:"/"Salary:" label.
+                        if not org:
+                            lines = [ln.strip() for ln in card_text.splitlines() if ln.strip()]
+                            for i, ln in enumerate(lines):
+                                if ln == title and i + 1 < len(lines):
+                                    nxt = lines[i + 1]
+                                    if not re.match(r"(?i)(location|salary|date|placed|closes|hours|contract)\s*:", nxt):
+                                        org = clean(nxt)
+                                    break
+                        # Strip a trailing " - Department" so the org is just the employer.
+                        if org and " - " in org:
+                            org = org.split(" - ")[0].strip()
+                        loc_m = re.search(r"Location:\s*\n?\s*(.+)", card_text)
+                        if loc_m:
+                            loc = clean(loc_m.group(1).splitlines()[0])
+                        date_m = re.search(r"Date Placed:\s*\n?\s*(.+)", card_text)
+                        date_str = _jobsac_parse_date(date_m.group(1) if date_m else "")
+                        close_m = re.search(r"Closes\s+(.+)", card_text)
+                        closing = clean(close_m.group(1).splitlines()[0]) if close_m else ""
+                        jobs.append({
+                            "id": make_id(href, title),
+                            "title": title,
+                            "organisation": org,
+                            "location": loc or "UK",
+                            "country": "UK",
+                            "source": "Jobs.ac.uk",
+                            "url": href,
+                            "date_posted": date_str,
+                            "closing_date": closing,
+                            "type": "",
+                            "description": "",
+                        })
+                    except Exception as e:
+                        print(f"    card parse error: {e}")
+                print(f"    {slug} p{page}: +{added_this_page} new (running total {len(jobs)})")
+            except Exception as e:
+                print(f"    feed parse error ({slug} p{page}): {e}")
+                break
+            # Stop paging this slug once a page yields nothing new: either the
+            # end of results, or a page that only repeated already-seen refs.
+            if added_this_page == 0:
+                break
+            time.sleep(1)
         time.sleep(1)
     return jobs
 
@@ -1284,6 +1345,158 @@ def scrape_lever() -> list:
 
 
 # ---------------------------------------------------------------------------
+# Indeed (UK) - best-effort first-page scrape (env-gated, OFF by default)
+# ---------------------------------------------------------------------------
+
+def _indeed_extract_jobcards(html_text: str) -> list:
+    """Indeed embeds first-page results as JSON in a script blob
+    (window.mosaic.providerData['mosaic-provider-jobcards']). Pull the
+    'results' array out of it. Returns [] on any structural mismatch (the
+    markup changes often and Cloudflare may serve an interstitial instead)."""
+    # Locate the jobcards provider blob, then balance braces from the first '{'
+    # after it to capture the JSON object even though it's embedded in JS.
+    idx = html_text.find("mosaic-provider-jobcards")
+    if idx == -1:
+        return []
+    start = html_text.find("{", idx)
+    if start == -1:
+        return []
+    depth = 0
+    end = -1
+    for i in range(start, min(len(html_text), start + 2_000_000)):
+        c = html_text[i]
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                end = i + 1
+                break
+    if end == -1:
+        return []
+    blob = html_text[start:end]
+    try:
+        data = json.loads(blob)
+    except Exception:
+        return []
+    # The results array lives at metaData.mosaicProviderJobCardsModel.results
+    # in current markup; fall back to a recursive search for a 'results' list
+    # of dicts if the path differs.
+    try:
+        return (data.get("metaData", {})
+                    .get("mosaicProviderJobCardsModel", {})
+                    .get("results", [])) or _indeed_find_results(data)
+    except Exception:
+        return _indeed_find_results(data)
+
+
+def _indeed_find_results(obj) -> list:
+    """Recursively hunt for a 'results' key whose value is a list of job-like
+    dicts (have a 'title' or 'displayTitle'). Defensive fallback for markup
+    drift."""
+    if isinstance(obj, dict):
+        r = obj.get("results")
+        if isinstance(r, list) and r and isinstance(r[0], dict) and (
+            "title" in r[0] or "displayTitle" in r[0]
+        ):
+            return r
+        for v in obj.values():
+            found = _indeed_find_results(v)
+            if found:
+                return found
+    elif isinstance(obj, list):
+        for v in obj:
+            found = _indeed_find_results(v)
+            if found:
+                return found
+    return []
+
+
+def scrape_indeed() -> list:
+    """Best-effort first-page Indeed (UK) scrape. OFF unless INDEED_ENABLE is
+    set. Reads only page 1 of each query's server-rendered results; never
+    paginates (page 2+ is behind a login wall). Frequently returns 0 from
+    datacentre IPs due to Cloudflare - that's expected and harmless."""
+    if not INDEED_ENABLE:
+        print("  Indeed: INDEED_ENABLE not set, skipping (best-effort source, off by default)")
+        return []
+    jobs = []
+    seen_keys = set()
+    print(f"  Indeed UK ({len(INDEED_QUERIES)} queries, best-effort first page)")
+    ind_headers = dict(HEADERS)
+    ind_headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+    ind_headers["Referer"] = "https://uk.indeed.com/"
+    for query in INDEED_QUERIES:
+        url = (
+            "https://uk.indeed.com/jobs"
+            f"?q={urllib.parse.quote(query)}"
+            "&sort=date"
+            "&fromage=14"
+        )
+        try:
+            r = requests.get(url, headers=ind_headers, timeout=20)
+            if r.status_code != 200:
+                print(f"    q={query[:24]}: HTTP {r.status_code} (likely Cloudflare/anti-bot), skipping")
+                time.sleep(2)
+                continue
+            results = _indeed_extract_jobcards(r.text)
+            if not results:
+                print(f"    q={query[:24]}: 0 cards (blocked or markup drift)")
+                time.sleep(2)
+                continue
+            added = 0
+            for item in results:
+                try:
+                    title = clean(item.get("displayTitle") or item.get("title", ""))
+                    jk = item.get("jobkey") or item.get("jobKey") or ""
+                    if not title or not jk or jk in seen_keys:
+                        continue
+                    seen_keys.add(jk)
+                    href = clean_url(f"https://uk.indeed.com/viewjob?jk={jk}")
+                    if not href:
+                        continue
+                    org = clean(item.get("company") or item.get("companyName", ""))
+                    loc = clean(
+                        item.get("formattedLocation")
+                        or item.get("jobLocationCity", "")
+                    )
+                    # Indeed gives an age in ms since epoch (pubDate) on some
+                    # cards; fall back to today.
+                    pub = item.get("pubDate")
+                    if isinstance(pub, (int, float)):
+                        try:
+                            date_str = datetime.datetime.utcfromtimestamp(
+                                pub / 1000
+                            ).date().isoformat()
+                        except Exception:
+                            date_str = datetime.date.today().isoformat()
+                    else:
+                        date_str = datetime.date.today().isoformat()
+                    snippet = item.get("snippet") or item.get("jobDescription", "")
+                    jobs.append({
+                        "id": make_id(href, title),
+                        "title": title,
+                        "organisation": org,
+                        "location": loc or "UK",
+                        "country": "UK",
+                        "source": "Indeed",
+                        "url": href,
+                        "date_posted": date_str,
+                        "closing_date": "",
+                        "type": "",
+                        "description": clean(snippet),
+                    })
+                    added += 1
+                except Exception as e:
+                    print(f"    card parse error: {e}")
+            print(f"    q={query[:24]}: +{added} (running total {len(jobs)})")
+        except Exception as e:
+            print(f"  GET failed Indeed q={query[:24]}: {e}")
+        time.sleep(2)  # extra-polite: best-effort grey-area source
+    return jobs
+
+
+# ---------------------------------------------------------------------------
 # Bluesky - public AT Protocol API
 # ---------------------------------------------------------------------------
 
@@ -1447,6 +1660,19 @@ def main():
         print(f"    +{added} new from Reed")
     except Exception as e:
         print(f"  ERROR Reed: {e}")
+
+    print("  Running Indeed scraper (UK, best-effort, env-gated)...")
+    try:
+        results = scrape_indeed()
+        added = 0
+        for j in results:
+            if j["id"] not in existing_ids and passes_filter(j):
+                new_jobs.append(j)
+                existing_ids.add(j["id"])
+                added += 1
+        print(f"    +{added} new from Indeed")
+    except Exception as e:
+        print(f"  ERROR Indeed: {e}")
 
     print("  Running Greenhouse scraper (industry health/sport tech)...")
     try:
