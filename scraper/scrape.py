@@ -303,13 +303,20 @@ JOBSAC_HTML_SLUGS = [
     "project-management-and-consulting",
 ]
 
-# Phase 6 (18 Jun 2026): pagination depth. scrape_jobsac_html originally read
-# only the first results page per slug. New postings sort to the top, but a
-# busy subject area (e.g. sport-and-leisure) can push a fresh role onto page 2
-# within a day or two, so a recent on-profile job (a Heriot-Watt Assistant Prof
-# in Sport Rehab, 17 Jun) never got parsed. We now walk a few pages per slug via
-# the `?page=N` query param, stopping early when a page yields no new job refs.
-JOBSAC_MAX_PAGES = 3
+# Phase 6 (18 Jun 2026, corrected): result depth. scrape_jobsac_html originally
+# read only the first results page per slug (25 cards). The first Phase-6 attempt
+# appended `?page=N`, but jobs.ac.uk IGNORES that param (every page 2 returned
+# the same 25 cards), so it was a no-op. The site's real mechanism, confirmed
+# from the live "Next" link, is the canonical faceted search URL
+#   /search/?academicDisciplineFacet[0]={slug}&pageSize=N&startIndex=M&sortOrder=1
+# where pageSize sets results-per-page and startIndex is 1-based (1, 26, 51...).
+# The friendly /search/{slug} alias is just this with pageSize=25,startIndex=1.
+# We now request the canonical form with a larger pageSize so one fetch per slug
+# returns up to JOBSAC_PAGE_SIZE cards instead of 25 - enough to catch on-profile
+# roles filed under a busy discipline (e.g. a sport-rehab post indexed under
+# biological-sciences / health-and-medical, which carry 250-400 jobs). sortOrder=1
+# is Date Placed (newest first), so the freshest JOBSAC_PAGE_SIZE are covered.
+JOBSAC_PAGE_SIZE = 100
 
 # Retained (dormant) RSS feed list - reinstate if jobs.ac.uk fixes its RSS.
 JOBSAC_RSS_FEEDS = [
@@ -730,125 +737,123 @@ def scrape_jobsac_html() -> list:
     Each job link matches the path /job/<REF>/. We take the anchor text as the
     title and walk the card's container text for employer / location / date.
 
-    Phase 6 (18 Jun 2026): paginate. Each slug is read across up to
-    JOBSAC_MAX_PAGES pages via `?page=N`, stopping early when a page returns no
-    new job refs (end of results, or a page that only repeats refs already seen
-    this run). seen_refs is shared across slugs AND pages so a job listed under
-    several subject areas, or appearing again on a later page, is parsed once."""
+    Phase 6 (18 Jun 2026, corrected): result depth. We hit the canonical faceted
+    URL `/search/?academicDisciplineFacet[0]={slug}&pageSize=JOBSAC_PAGE_SIZE&
+    startIndex=1&sortOrder=1&activeFacet=academicDisciplineFacet` so one request
+    per slug returns up to JOBSAC_PAGE_SIZE newest cards instead of the alias's
+    default 25. (The earlier `?page=N` attempt was a no-op: jobs.ac.uk ignores
+    that param.) seen_refs dedupes a job that appears under multiple slugs."""
     jobs = []
     seen_refs = set()
     for slug in JOBSAC_HTML_SLUGS:
-        for page in range(1, JOBSAC_MAX_PAGES + 1):
-            if page == 1:
-                url = f"https://www.jobs.ac.uk/search/{slug}"
-            else:
-                url = f"https://www.jobs.ac.uk/search/{slug}?page={page}"
-            print(f"  Jobs.ac.uk HTML: {slug} (page {page})")
-            r = get(url, timeout=20)
-            if not r:
-                break  # network/HTTP failure: stop paging this slug
-            added_this_page = 0
-            try:
-                soup = BeautifulSoup(r.text, "html.parser")
-                anchors = soup.find_all("a", href=re.compile(r"^/job/[A-Za-z0-9]+/"))
-                for a in anchors:
-                    try:
-                        title = clean(a.get_text())
-                        if not title or len(title) < 4:
-                            continue
-                        href_path = a.get("href", "")
-                        ref_match = re.match(r"^/job/([A-Za-z0-9]+)/", href_path)
-                        if not ref_match:
-                            continue
-                        ref = ref_match.group(1)
-                        if ref in seen_refs:
-                            continue  # already parsed (other slug or earlier page)
-                        seen_refs.add(ref)
-                        added_this_page += 1
-                        href = clean_url("https://www.jobs.ac.uk" + href_path)
-                        # Find this job's OWN card: climb to the highest ancestor
-                        # that still contains exactly one /job/ link. Going further
-                        # would swallow sibling cards and make every job inherit the
-                        # first card's employer/location/date.
-                        container = a
-                        while container.parent is not None:
-                            parent = container.parent
-                            job_links = parent.find_all(
-                                "a", href=re.compile(r"^/job/[A-Za-z0-9]+/")
-                            )
-                            if len(job_links) > 1:
-                                break  # parent merges multiple cards; stop here
-                            container = parent
-                        card_text = container.get_text("\n", strip=True)
-                        org = ""
-                        loc = ""
-                        # Employer extraction - the card markup varies (some cards
-                        # have the employer as bold text, some link it, some put a
-                        # department line first), so try several strategies in order
-                        # of reliability.
-                        # (1) Employer-search link: cards with a logo link to
-                        #     /search/employer/{slug}; its text/title is the employer.
-                        emp_link = container.find(
-                            "a", href=re.compile(r"/search/employer/")
+        url = (
+            "https://www.jobs.ac.uk/search/"
+            f"?academicDisciplineFacet%5B0%5D={urllib.parse.quote(slug)}"
+            "&activeFacet=academicDisciplineFacet"
+            "&sortOrder=1"  # 1 = Date Placed, newest first
+            f"&pageSize={JOBSAC_PAGE_SIZE}"
+            "&startIndex=1"
+        )
+        print(f"  Jobs.ac.uk HTML: {slug} (pageSize={JOBSAC_PAGE_SIZE})")
+        r = get(url, timeout=25)
+        if not r:
+            continue
+        added_this_slug = 0
+        try:
+            soup = BeautifulSoup(r.text, "html.parser")
+            anchors = soup.find_all("a", href=re.compile(r"^/job/[A-Za-z0-9]+/"))
+            for a in anchors:
+                try:
+                    title = clean(a.get_text())
+                    if not title or len(title) < 4:
+                        continue
+                    href_path = a.get("href", "")
+                    ref_match = re.match(r"^/job/([A-Za-z0-9]+)/", href_path)
+                    if not ref_match:
+                        continue
+                    ref = ref_match.group(1)
+                    if ref in seen_refs:
+                        continue  # same job listed under multiple slugs
+                    seen_refs.add(ref)
+                    added_this_slug += 1
+                    href = clean_url("https://www.jobs.ac.uk" + href_path)
+                    # Find this job's OWN card: climb to the highest ancestor
+                    # that still contains exactly one /job/ link. Going further
+                    # would swallow sibling cards and make every job inherit the
+                    # first card's employer/location/date.
+                    container = a
+                    while container.parent is not None:
+                        parent = container.parent
+                        job_links = parent.find_all(
+                            "a", href=re.compile(r"^/job/[A-Za-z0-9]+/")
                         )
-                        if emp_link:
-                            org = clean(emp_link.get("title", "") or emp_link.get_text())
-                        # (2) First <strong>/<b> that isn't a field label.
-                        if not org:
-                            for tag in container.find_all(["strong", "b", "h2", "h3"]):
-                                cand = clean(tag.get_text())
-                                low = cand.lower()
-                                if (cand and len(cand) > 2
-                                        and not low.startswith((
-                                            "salary", "date", "placed", "location",
-                                            "closes", "hours", "contract", "job ref"))
-                                        and cand != title):
-                                    org = cand
-                                    break
-                        # (3) Fall back to the text line directly after the title and
-                        #     before the first "Location:"/"Salary:" label.
-                        if not org:
-                            lines = [ln.strip() for ln in card_text.splitlines() if ln.strip()]
-                            for i, ln in enumerate(lines):
-                                if ln == title and i + 1 < len(lines):
-                                    nxt = lines[i + 1]
-                                    if not re.match(r"(?i)(location|salary|date|placed|closes|hours|contract)\s*:", nxt):
-                                        org = clean(nxt)
-                                    break
-                        # Strip a trailing " - Department" so the org is just the employer.
-                        if org and " - " in org:
-                            org = org.split(" - ")[0].strip()
-                        loc_m = re.search(r"Location:\s*\n?\s*(.+)", card_text)
-                        if loc_m:
-                            loc = clean(loc_m.group(1).splitlines()[0])
-                        date_m = re.search(r"Date Placed:\s*\n?\s*(.+)", card_text)
-                        date_str = _jobsac_parse_date(date_m.group(1) if date_m else "")
-                        close_m = re.search(r"Closes\s+(.+)", card_text)
-                        closing = clean(close_m.group(1).splitlines()[0]) if close_m else ""
-                        jobs.append({
-                            "id": make_id(href, title),
-                            "title": title,
-                            "organisation": org,
-                            "location": loc or "UK",
-                            "country": "UK",
-                            "source": "Jobs.ac.uk",
-                            "url": href,
-                            "date_posted": date_str,
-                            "closing_date": closing,
-                            "type": "",
-                            "description": "",
-                        })
-                    except Exception as e:
-                        print(f"    card parse error: {e}")
-                print(f"    {slug} p{page}: +{added_this_page} new (running total {len(jobs)})")
-            except Exception as e:
-                print(f"    feed parse error ({slug} p{page}): {e}")
-                break
-            # Stop paging this slug once a page yields nothing new: either the
-            # end of results, or a page that only repeated already-seen refs.
-            if added_this_page == 0:
-                break
-            time.sleep(1)
+                        if len(job_links) > 1:
+                            break  # parent merges multiple cards; stop here
+                        container = parent
+                    card_text = container.get_text("\n", strip=True)
+                    org = ""
+                    loc = ""
+                    # Employer extraction - the card markup varies (some cards
+                    # have the employer as bold text, some link it, some put a
+                    # department line first), so try several strategies in order
+                    # of reliability.
+                    # (1) Employer-search link: cards with a logo link to
+                    #     /search/employer/{slug}; its text/title is the employer.
+                    emp_link = container.find(
+                        "a", href=re.compile(r"/search/employer/")
+                    )
+                    if emp_link:
+                        org = clean(emp_link.get("title", "") or emp_link.get_text())
+                    # (2) First <strong>/<b> that isn't a field label.
+                    if not org:
+                        for tag in container.find_all(["strong", "b", "h2", "h3"]):
+                            cand = clean(tag.get_text())
+                            low = cand.lower()
+                            if (cand and len(cand) > 2
+                                    and not low.startswith((
+                                        "salary", "date", "placed", "location",
+                                        "closes", "hours", "contract", "job ref"))
+                                    and cand != title):
+                                org = cand
+                                break
+                    # (3) Fall back to the text line directly after the title and
+                    #     before the first "Location:"/"Salary:" label.
+                    if not org:
+                        lines = [ln.strip() for ln in card_text.splitlines() if ln.strip()]
+                        for i, ln in enumerate(lines):
+                            if ln == title and i + 1 < len(lines):
+                                nxt = lines[i + 1]
+                                if not re.match(r"(?i)(location|salary|date|placed|closes|hours|contract)\s*:", nxt):
+                                    org = clean(nxt)
+                                break
+                    # Strip a trailing " - Department" so the org is just the employer.
+                    if org and " - " in org:
+                        org = org.split(" - ")[0].strip()
+                    loc_m = re.search(r"Location:\s*\n?\s*(.+)", card_text)
+                    if loc_m:
+                        loc = clean(loc_m.group(1).splitlines()[0])
+                    date_m = re.search(r"Date Placed:\s*\n?\s*(.+)", card_text)
+                    date_str = _jobsac_parse_date(date_m.group(1) if date_m else "")
+                    close_m = re.search(r"Closes\s+(.+)", card_text)
+                    closing = clean(close_m.group(1).splitlines()[0]) if close_m else ""
+                    jobs.append({
+                        "id": make_id(href, title),
+                        "title": title,
+                        "organisation": org,
+                        "location": loc or "UK",
+                        "country": "UK",
+                        "source": "Jobs.ac.uk",
+                        "url": href,
+                        "date_posted": date_str,
+                        "closing_date": closing,
+                        "type": "",
+                        "description": "",
+                    })
+                except Exception as e:
+                    print(f"    card parse error: {e}")
+            print(f"    {slug}: +{added_this_slug} new (running total {len(jobs)})")
+        except Exception as e:
+            print(f"    feed parse error ({slug}): {e}")
         time.sleep(1)
     return jobs
 
