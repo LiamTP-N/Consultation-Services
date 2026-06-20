@@ -1,6 +1,40 @@
 {
   "jobs": [
     {
+      "id": "f4a401c13289196e",
+      "title": "Maths Teacher",
+      "organisation": "Affinity Workforce",
+      "location": "Tewkesbury, Gloucestershire",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5769929392?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-20",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Affinity Partnerships are seeking an outstanding and inspirational teacher of Maths at one of our schools who drive excellence in teaching, curriculum and student outcomes across the department. This is an exciting opportunity for a passionate practitioner to ensure all students achieve and exceed their potential. This role also has flexibility for those who have more experience to share a head of department role with the deputy head of department. About you: You will be: a qualified teacher (Q…",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "c30cb9b2f6a2243a",
+      "title": "Human Factors Specialist – Medical Devices & Digital Health",
+      "organisation": "Myant Shared Service Corp.",
+      "location": "Oakville, Halton",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5770186995?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-20",
+      "closing_date": "",
+      "type": "",
+      "description": "About Myant: At Myant, our mission is to help people Live Younger, Longer by transforming healthcare from episodic, reactive care to proactive, preventive health management. Through our pioneering connected textiles and continuous monitoring technology, we bridge the gap between individuals, their families, and healthcare providers—creating a world where quality healthcare is more accessible, personalized, and preventative. Powered by extensive, multidisciplinary R&D, Myant combines expertise i…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
       "id": "7efc2e5ec3ef2c6a",
       "title": "Lecturer / Senior Lecturer / Reader in Artificial Intelligence",
       "organisation": "University of Bath",
@@ -647,6 +681,689 @@
         "data_science"
       ],
       "fit_score": 22
+    },
+    {
+      "id": "1d869cb214b8df31",
+      "title": "Postdoctoral Research Fellow",
+      "organisation": "University of Exeter",
+      "location": "Exeter, Hybrid",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRX226/postdoctoral-research-fellow",
+      "date_posted": "2026-06-19",
+      "closing_date": "22 Jun",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "9cd1265821792ee6",
+      "title": "UK DRI Research Assistant",
+      "organisation": "King's College London",
+      "location": "London",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY553/uk-dri-research-assistant",
+      "date_posted": "2026-06-19",
+      "closing_date": "30 Jun",
+      "type": "",
+      "description": "",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "20653b71bbea631e",
+      "title": "Associate Professor OR Lecturer/Assistant Professor in Proteomics - Temp 5 years",
+      "organisation": "University College Dublin",
+      "location": "Dublin",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY938/associate-professor-or-lecturer-assistant-professor-in-proteomics-temp-5-years",
+      "date_posted": "2026-06-19",
+      "closing_date": "17 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "73f8ed9a7a5e3edb",
+      "title": "Post Doctoral Researcher in Functional Genomics",
+      "organisation": "Oxford Brookes University",
+      "location": "Oxford",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY937/post-doctoral-researcher-in-functional-genomics",
+      "date_posted": "2026-06-19",
+      "closing_date": "30 Jun",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "a2e5253891a17045",
+      "title": "Lecturer/Senior Lecturer in Occupational Therapy",
+      "organisation": "University of Roehampton",
+      "location": "London, Hybrid",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY458/lecturer-senior-lecturer-in-occupational-therapy",
+      "date_posted": "2026-06-19",
+      "closing_date": "13 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "331da4cd7691fe00",
+      "title": "Lecturer/Senior Lecturer in Physiotherapy, Part Time",
+      "organisation": "University of Roehampton",
+      "location": "London",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY470/lecturer-senior-lecturer-in-physiotherapy-part-time",
+      "date_posted": "2026-06-19",
+      "closing_date": "19 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "9f7157bd65da3cd0",
+      "title": "Part Time Lecturer in Nutrition & Dietetics",
+      "organisation": "Robert Gordon University",
+      "location": "Aberdeen",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY928/part-time-lecturer-in-nutrition-and-dietetics",
+      "date_posted": "2026-06-19",
+      "closing_date": "12 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "b528fe075251e60e",
+      "title": "Research Associate in Learning to do Math with Vampires and Spiders",
+      "organisation": "The University of Manchester",
+      "location": "Manchester",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ013/research-associate-in-learning-to-do-math-with-vampires-and-spiders",
+      "date_posted": "2026-06-19",
+      "closing_date": "03 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "f43499a6ea121abc",
+      "title": "Research Associate in Tactile Robotics",
+      "organisation": "University of Bristol",
+      "location": "Bristol",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY975/research-associate-in-tactile-robotics",
+      "date_posted": "2026-06-19",
+      "closing_date": "05 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "bd588a2d755ad248",
+      "title": "Postdoctoral Research Assistant in Machine Learning",
+      "organisation": "University of Oxford",
+      "location": "Oxford",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY969/postdoctoral-research-assistant-in-machine-learning",
+      "date_posted": "2026-06-19",
+      "closing_date": "10 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "technician",
+        "data_science",
+        "research_postdoc"
+      ],
+      "fit_score": 57
+    },
+    {
+      "id": "89398b3e6e58ca2a",
+      "title": "Assistant Professor in Language Technologies and AI Governance (111754-0626)",
+      "organisation": "University of Warwick",
+      "location": "Coventry, University of Warwick, Warwick",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY964/assistant-professor-in-language-technologies-and-ai-governance-111754-0626",
+      "date_posted": "2026-06-19",
+      "closing_date": "23 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "caf07d0647ae3f43",
+      "title": "Assistant Professor in Creative Computing",
+      "organisation": "University of Southampton",
+      "location": "Delhi",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY946/assistant-professor-in-creative-computing",
+      "date_posted": "2026-06-19",
+      "closing_date": "03 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "f0ad348162b742a9",
+      "title": "Data Analyst",
+      "organisation": "University of Hertfordshire",
+      "location": "Hatfield, Hybrid",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY936/data-analyst",
+      "date_posted": "2026-06-19",
+      "closing_date": "05 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "727434fff4bc7ca1",
+      "title": "Research Associate in Silicon Photonics of Graphene and related materials",
+      "organisation": "University of Cambridge",
+      "location": "Cambridge",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ014/research-associate-in-silicon-photonics-of-graphene-and-related-materials",
+      "date_posted": "2026-06-19",
+      "closing_date": "24 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "b28bf66274ddaa4e",
+      "title": "Research Associate in Raman Spectroscopy of Graphene and Related Materials",
+      "organisation": "University of Cambridge",
+      "location": "Cambridge",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY979/research-associate-in-raman-spectroscopy-of-graphene-and-related-materials",
+      "date_posted": "2026-06-19",
+      "closing_date": "24 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "1cbd0e397f80e8b1",
+      "title": "PhD Studentship: Mechanical engineering, fusion, digital: Stochastic failure prediction – A stochastic finite element approach",
+      "organisation": "Swansea University",
+      "location": "Swansea",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY970/phd-studentship-mechanical-engineering-fusion-digital-stochastic-failure-prediction-a-stochastic-finite-element-approach",
+      "date_posted": "2026-06-19",
+      "closing_date": "06 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "4298edc3dbefef2c",
+      "title": "Postdoctoral Research Assistant in Experimental Structural Integrity",
+      "organisation": "University of Oxford",
+      "location": "Oxford",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY962/postdoctoral-research-assistant-in-experimental-structural-integrity",
+      "date_posted": "2026-06-19",
+      "closing_date": "10 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "technician",
+        "research_postdoc"
+      ],
+      "fit_score": 35
+    },
+    {
+      "id": "2a1015dcc013d389",
+      "title": "Lecturer/Senior Lecturer - Fusion Engineering",
+      "organisation": "Swansea University",
+      "location": "Swansea",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY947/lecturer-senior-lecturer-fusion-engineering",
+      "date_posted": "2026-06-19",
+      "closing_date": "12 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "8ee4816b5218e026",
+      "title": "Lecturer/Senior Lecturer/Reader in Psychology",
+      "organisation": "University of Hull",
+      "location": "Kingston upon Hull",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY512/lecturer-senior-lecturer-reader-in-psychology",
+      "date_posted": "2026-06-19",
+      "closing_date": "24 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "05f3c5b4bd3da349",
+      "title": "(Senior) Lecturer - Counselling and Psychotherapy MA/PGDip - (0.8 FTE)",
+      "organisation": "University of East London",
+      "location": "London, Stratford",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY531/senior-lecturer-counselling-and-psychotherapy-ma-pgdip-08-fte",
+      "date_posted": "2026-06-19",
+      "closing_date": "01 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "101480c24fed10ba",
+      "title": "(Senior) Lecturer in Occupational and Organisational / Business Psychology",
+      "organisation": "University of East London",
+      "location": "London, Stratford",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY527/senior-lecturer-in-occupational-and-organisational-business-psychology",
+      "date_posted": "2026-06-19",
+      "closing_date": "29 Jun",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "baff928d3f43a935",
+      "title": "Research Associate",
+      "organisation": "UWE, Bristol",
+      "location": "Bristol",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY929/research-associate",
+      "date_posted": "2026-06-19",
+      "closing_date": "02 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "cb7481b9e8fb07a4",
+      "title": "Lab Technician",
+      "organisation": "Career Makers",
+      "location": "Manchester, Greater Manchester",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5769613424?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "",
+      "description": "Lab Technician Location: Swinton, M27 Salary: £26,000 per year Hours: MondayFriday, 7:30am3:30pm (40 hours per week) Department: Research & Development We are seeking a Lab Technician to join our Research & Development team in Swinton. This role is vital to ensuring our products are released with impeccable quality and consistency. It is an excellent opportunity for a science graduate or experienced laboratory professional looking to develop within a growing R&D function. Key Responsibilities C…",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "b3cf0c5fda7d5ca9",
+      "title": "PE Teacher | Mainstream Academy | Manchester",
+      "organisation": "Marchant Recruitment",
+      "location": "Manchester, Greater Manchester",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5769726126?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "",
+      "description": "CORE PURPOSE We require an energetic, highly driven PE Teacher to deliver outstanding physical education across Key Stage 3 and Key Stage 4. Operating within a modern, sports-centric mainstream academy, the successful candidate will inspire high levels of physical literacy, physical conditioning, and tactical awareness, skillfully coordinating a comprehensive curriculum that maximizes pupil participation while steering competitive academy sports teams to success across regional tournaments. THE…",
+      "categories": [
+        "academic_adjacent"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "16a9c2c4004bc714",
+      "title": "Quantitative Analyst",
+      "organisation": "Spectrum IT",
+      "location": "The City, Central London",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5769610379?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Excellent opportunity for a Quantitative Analyst who is passionate about sports to join an excellent client's team based in central London. The successful Quantitative Analyst will join a very talented team and will be expected to interpret, filter, and analyse very large data sets whilst working closely with other analysts and developers. The successful Quantitative Analyst will be a forward-thinking individual who is more than comfortable working to both their own initiative and as a team. Yo…",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "beb1c6a67aa2708a",
+      "title": "First Team Performance Analyst",
+      "organisation": "EFL",
+      "location": "Hilsea, Portsmouth",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5769439587?se=qM_qxnZs8RGrKszqFbIEfQ&utm_medium=api&utm_source=8de31de0&v=93C739C7E4CF36AA78021C6330A5779F237996EA",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Job title First Team Performance Analyst Location Portsmouth FC’s training ground, with travel to all home and away fixtures required Hours of work Full time; 37.5 hours/week, Permanent Department First Team Analysis Reports to Head of Analysis Remuneration Competitive Role summary Portsmouth Football Club is seeking a First Team Performance Analyst to join our Analysis department. Working closely with the Head Coach, coaching staff and players, you will deliver high-quality video and data anal…",
+      "categories": [
+        "industry_applied"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "869f2001a2ad8d93",
+      "title": "Academy BTEC Education Tutor",
+      "organisation": "EFL",
+      "location": "Kembrey Park, Swindon",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5769377613?se=qM_qxnZs8RGrKszqFbIEfQ&utm_medium=api&utm_source=8de31de0&v=B30E6DD51CCA215AFC239A7374E3AAB333027C6F",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "contract",
+      "description": "Swindon Town Football Club Job Description Academy BTEC Education Tutor Location: The County Ground with the abilities to travel to other training facilities Reports to: Academy Head of Education Fixed Term Contract: 9 hours per week 1 hour planning and preparation per week Salary: Hourly Rate £30 per hour Overall purpose of the job Offer inspirational education opportunities that support high achievement in the classroom, empowering learners to pursue their aspirations, to push boundaries in …",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "2ae67186bf6b5d13",
+      "title": "Lecturer - Sport and Fitness",
+      "organisation": "UHI Perth",
+      "location": "Perth, Perth & Kinross",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5769622372?se=-hsrz3Zs8RGp9-BRSJNbpg&utm_medium=api&utm_source=8de31de0&v=8221463381052D8405B8015E944CC9F55DC00B70",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "Lecturer – Sport and Fitness Part Time, Permanent 17.5 hours per week (0.5 FTE) £41,833 - £50,359 per annum, pro rata (Pay award pending 01 September 2026) UHI Perth is one of Scotland’s leading Colleges of Further and Higher Education, and a large partner in the University of the Highlands and Islands. We are looking for a dynamic Lecturer – Sport and Fitness to join our team in delivering excellent learning and teaching to our students. Your skills should be current, and occupational experien…",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "a9a2b47c885356d7",
+      "title": "CORPORATE PARTNER  LONDON HEAD OF DEPARTMENT",
+      "organisation": "EJ Legal",
+      "location": "London, UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5769852631?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "",
+      "description": "An excellent opportunity has opened up at this highly impressive firm to head up the busy London corporate team. This is a key hire for them and the ideal candidate will be technically excellent, commercially driven and with a track record of management. There is a clear and tangible route into the equity. You will have a broad corporate background with experience of leading on mid-market transactions ideally with focus on capital markets – you will also be an accomplished business developer wi…",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "2043ff0b9285d724",
+      "title": "Psychology Teacher Opportunity - Nottingham",
+      "organisation": "Marchant Recruitment",
+      "location": "Nottingham, Nottinghamshire",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5769764006?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "",
+      "description": "Passionate Psychology Teacher – Nottingham We are seeking a passionate and dedicated Psychology Teacher to join a forward-thinking school in Nottingham. The ideal candidate will have a strong enthusiasm for Psychology and a commitment to inspiring students. Our client is looking for a Psychology Teacher to work within a highly prestigious mixed school. The successful Psychology Teacher will be expected to teach at KS4 & KS5. The department is well resourced with a supportive Head of Department.…",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "f0a37e09b13c8486",
+      "title": "Lecturer in Blacksmithing and Metal Work",
+      "organisation": "WCG",
+      "location": "Moreton Morrell, Warwick",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5769457307?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "PROTECTION OF CHILDREN Any offers of appointment will be subject to a Disclosure and Barring Service (DBS) check (formerly CRB), a certificate of good conduct if applicable, plus receipt of satisfactory references, Occupational Health clearance, an understanding of safeguarding and qualifications verification. An Enhanced DBS check is required for this position as you will be working within ‘Regulated Activity’ within a specific place (i.e. the College). This role is classed as working within R…",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "7307bafaf863763e",
+      "title": "Senior Machine Learning Software Developer (2026-025)",
+      "organisation": "Circle Cardiovascular Imaging",
+      "location": "Victoria Park, Calgary",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5769787108?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "About Circle Cardiovascular Imaging: Circle’s vision is to enable healthier Lives through better imaging by transforming cardiac magnetic resonance imaging (MR) and other advanced imaging technologies to improve Cardiovascular Care. Circle Cardiovascular’ s CVI42 is the Cardiac MR market leader imaging processing software. Circle Cardiovascular Imaging (Circle) designs, builds, and implements the best-in-class cardiovascular Magnetic Resonance Imaging solutions. At the heart of everything we do…",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "6373cd7badd3d77f",
+      "title": "Research Assistant IV",
+      "organisation": "University of British Columbia",
+      "location": "Greater Vancouver, British Columbia",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5769819295?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Staff - Non Union Job Category Non Union Technicians and Research Assistants Job Profile Non Union Salaried - Research Assistant /Technician 4 Job Title Research Assistant IV Department POPi Lab | Department of Paediatrics | Faculty of Medicine Compensation Range $5,220.98 - $6,124.46 CAD Monthly Posting End Date June 24, 2026 Note: Applications will be accepted until 11:59 PM on the Posting End Date. Job End Date June 30, 2027 This position is expected to be filled by promotion/reassignment an…",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "badca2f591c754d5",
+      "title": "Facilities Shipper/Receiver",
+      "organisation": "University of British Columbia",
+      "location": "Greater Vancouver, British Columbia",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5769699590?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Staff - Non Union Job Category Non Union Technicians and Research Assistants Job Profile Non Union Salaried - Research Assistant /Technician 2 Job Title Facilities Shipper/Receiver Department Facilities Support | BC Children's Hospital Research Institute | Faculty of Medicine Compensation Range $4,333.86 - $5,155.61 CAD Monthly Posting End Date June 24, 2026 Note: Applications will be accepted until 11:59 PM on the Posting End Date. Job End Date Ongoing This position is subject to the satisfact…",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "c74b19fe75d5f179",
+      "title": "Sr Systems Engineer",
+      "organisation": "Equest",
+      "location": "Cambridge, Waterloo region",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5769858114?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "",
+      "description": "Sr Systems Engineer Altera Digital Health US or Canada -EST time Role Overview This is a remote position with rotating shift coverage and minimal travel requirements to support client needs and occasional on-site meetings. Key Responsibilities Implement, support, and maintain enterprise-level Citrix environments Install, configure, and manage Citrix servers, ADCs, and related infrastructure Identify opportunities to standardize, optimize, and automate existing processes Investigate, troubleshoo…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "1e0f6b0608e735e3",
+      "title": "Saskatchewan MD Lead",
+      "organisation": "Rocket Doctor",
+      "location": "Saskatoon, Saskatchewan",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5769664748?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "contract",
+      "description": "INSIDE ROCKET DOCTOR: Rocket Doctor is a digital health marketplace transforming how comprehensive care is delivered, bringing the most advanced doctor’s office directly into homes across North America. Rocket Doctor is a digital health marketplace transforming the way comprehensive care is delivered bringing the most advanced doctor’s office into homes across North America. We are a passionate group of medical doctors, technical experts, and patient care professionals who believe every person …",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "f8e1a64072840ec4",
+      "title": "Fitness Technician",
+      "organisation": "Strathcona County",
+      "location": "Sherwood Park, Edmonton region",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5769852818?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "",
+      "description": "Are you passionate about sharing your fitness or kinesiology expertise with others? Do you thrive in an environment dedicated to promoting healthy lifestyles for diverse groups of people? As a Fitness Technician I, you will actively monitor Strathcona County Wellness Centres, delivering exceptional customer service to exceed guest expectations. Your primary responsibility in this role is to ensure that every guest feels welcomed, at ease, and supported while exercising in a clean and well-maint…",
+      "categories": [
+        "academic_adjacent"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "0a68cddb68f376c2",
+      "title": "Behaviour Interventionist - Calgary",
+      "organisation": "Monarch House",
+      "location": "Bridgeland, Calgary",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5769791544?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "As a Behaviour Interventionist (BI) at Monarch House your primary responsibility is implementing programs designed and supervised by a senior clinical team (of speech pathologists, by a Board-Certified Behavior Analyst® BCBAs, Occupational therapists and physical therapists) to clients receiving services from Monarch House. You will work within an interdisciplinary team to support skill acquisition and/or decrease maladaptive behaviors while providing an engaging and positive client experience …",
+      "categories": [
+        "academic_adjacent"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "91097715cd57bc5d",
+      "title": "MOVE Associate Experience Supervisor",
+      "organisation": "Jobgether",
+      "location": "Canada",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5769782313?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "This position is listed on behalf of a partner company, who manages all applications and next steps. Our partner is looking for a MOVE Associate Experience Supervisor based in Canada. In this role, you will lead and support a distributed team responsible for delivering inclusive fitness and physical activity programs for youth with autism and intellectual disabilities across Canada. You will oversee the day-to-day coordination of virtual and in-person classes, ensuring both participants and pro…",
+      "categories": [
+        "academic_adjacent"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "171e7fa3a3677253",
+      "title": "Chef(fe) du département d’animation / Head of Department - Animation",
+      "organisation": "un emploi de Chef",
+      "location": "Montréal, Québec",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5769817279?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Chef(fe) du département d’animation Les Films Sony Imageworks Québec Inc. est situé sur le territoire traditionnel non cédé des Premières Nations Kanien’keha:ka (Mohawk). Nous nous engageons à respecter les terres ancestrales et à travailler avec les communautés en vue de la réconciliation. Les Films Sony Imageworks Québec Inc. 700, rue Saint-Hubert, bureau 400, Montréal (QC) H2Y 0C1 À temps plein, pour un projet Langue dans l’environnement de travail - Excellentes compétences en communication …",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
     },
     {
       "id": "d3e09a63432912fe",
@@ -2113,6 +2830,42 @@
         "fe_he_teaching"
       ],
       "fit_score": 15
+    },
+    {
+      "id": "f7f75e0be59e41ff",
+      "title": "Level 3 Marketing Apprenticeship",
+      "organisation": "LMP Group",
+      "location": "Loughborough, Leicestershire",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5768164238?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-18",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "Marketing Assistant/ Co-ordinator at Soleventum please note this vacancy is Hybrid At Solventum, we enable better, smarter, safer healthcare to improve lives. As a new company with a long legacy of creating breakthrough solutions for our customers’ toughest challenges, we pioneer game changing innovations at the intersection of health, material and data science that change patients' lives for the better while enabling healthcare professionals to perform at their best. Because people, and their …",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "97ea0d97d836cb60",
+      "title": "Assistant Professor in Sport and Exercise Science (Sport Rehabilitation)",
+      "organisation": "Heriot-Watt University",
+      "location": "Hermiston, Currie",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5768100683?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-18",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Description Role: Assistant Professor Sport and Exercise Science (Sport Rehabilitation) Grade and Salary: Grade 7 - £37,694 - £47,389 per annum Contract Type: Full Time (1 FTE), Open Ended Holiday Entitlement: 33 days annual leave, plus 9 buildings closed days for all full-time staff. Job Summary The Institute of Earth and Life Sciences at Heriot-Watt University, Edinburgh is seeking an outstanding individual for an open-ended (tenured) Assistant Professorship (Teaching and Scholarly Activity) …",
+      "categories": [
+        "academic_sport",
+        "academic_adjacent",
+        "fe_he_teaching"
+      ],
+      "fit_score": 58
     },
     {
       "id": "2156ec190284a703",
@@ -8851,6 +9604,23 @@
       "fit_score": 22
     },
     {
+      "id": "4c047defd65bafba",
+      "title": "Data Engineer",
+      "organisation": "Boeing",
+      "location": "Canada",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5758913480?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-10",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Data Engineer Company: Boeing Vancouver Boeing Vancouver is seeking a Data Engineer (AI & Analytics) , reporting to the Senior Manager of AI & Analytics working out of the Richmond, BC office. This role will help Boeing transform our industry through the application and continuous improvement of advanced analytics and machine learning in the aviation domain. The position will be embedded in a multi-disciplinary data science team producing industry-leading insights, and will use their data manag…",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
       "id": "5b515e366835a2e9",
       "title": "Strength & Conditioning Coach",
       "organisation": "The Wallace High School",
@@ -9990,8 +10760,8 @@
       "type": "",
       "description": "Technical Program Manager, Human Research Lab Operations _corporate_fare_ Google _place_ London, UK Mid Experience driving progress, solving problems, and mentoring more junior team members; deeper expertise and applied knowledge within relevant area. Minimum qualifications: Bachelor's degree in a technical or scientific field (e.g., Engineering, Human Movement Science, Sport Science, Kinesiology, Sports Technology) or equivalent practical experience. 2 years of experience in technical progra…",
       "categories": [
-        "academic_adjacent",
         "academic_sport",
+        "academic_adjacent",
         "industry_applied"
       ],
       "fit_score": 58
@@ -14835,364 +15605,7 @@
         "data_science"
       ],
       "fit_score": 22
-    },
-    {
-      "id": "5d67e3fda402d042",
-      "title": "Associate Professor A - Quantum Computing",
-      "organisation": "",
-      "location": "",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DRS669/associate-professor-a-quantum-computing/",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "",
-      "description": "University of Limerick - Faculty of Science & Engineering - Department of Computer Science & Information Systems Salary: €91,094 to €120,069 per annum",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "a6ed8517022114ff",
-      "title": "Occupational Health Technician",
-      "organisation": "Greys Specialist Recruitment Ltd",
-      "location": "Southend-On-Sea, Essex",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5746276686?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Occupational Health Technician Full time, permanent Open to those based in Southend £25,000-£30,000 per annum (BASED ONE EXPERIENCE) Are you based in Southend and looking for an opportunity to work as an Occupational Health Technician? We are seeking an Occupational Health Technician to join our clients' expanding peripatetic team. This role is great for experienced OHTs or those looking into OH who have a Sport Science degree and a transferrable health related background. The successful applic…",
-      "categories": [
-        "academic_sport"
-      ],
-      "fit_score": 25
-    },
-    {
-      "id": "a6c862d9c925cb4f",
-      "title": "Senior Product Designer",
-      "organisation": "Client Server",
-      "location": "Chesterton, Cambridge",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5746276852?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "permanent",
-      "description": "Senior Product Designer Cambridge / WFH to £60k Opportunity to progress your career working on real-world problems within a highly successful SaaS tech company that provides AI and ML products for automotive innovators to design better cars faster and achieve greater sustainability through Machine Learning. As a Senior Product Designer you'll lead the design process end-to-end, from discovery and user research through to delivery and launch, translating insights into clear product decisions and…",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "4e99a0e444f61097",
-      "title": "Director, Clinical Risk Management Post Approval Delivery Unit",
-      "organisation": "Johnson & Johnson",
-      "location": "High Wycombe, Buckinghamshire",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5746370066?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "At Johnson & Johnson, we believe health is everything. Our strength in healthcare innovation empowers us to build a world where complex diseases are prevented, treated, and cured, where treatments are smarter and less invasive, and solutions are personal. Through our expertise in Innovative Medicine and MedTech, we are uniquely positioned to innovate across the full spectrum of healthcare solutions today to deliver the breakthroughs of tomorrow, and profoundly impact health for humanity. Learn …",
-      "categories": [
-        "health_tech"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "dda2c88df745acda",
-      "title": "Senior Analytical Monitor",
-      "organisation": "Johnson & Johnson",
-      "location": "High Wycombe, Buckinghamshire",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5746369930?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "At Johnson & Johnson, we believe health is everything. Our strength in healthcare innovation empowers us to build a world where complex diseases are prevented, treated, and cured, where treatments are smarter and less invasive, and solutions are personal. Through our expertise in Innovative Medicine and MedTech, we are uniquely positioned to innovate across the full spectrum of healthcare solutions today to deliver the breakthroughs of tomorrow, and profoundly impact health for humanity. Learn …",
-      "categories": [
-        "health_tech"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "942b0e0795ce66fe",
-      "title": "Project Manager- Digital Health",
-      "organisation": "Abbott",
-      "location": "UK",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5746367572?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "JOB DESCRIPTION: We are looking for an experienced and driven Digital Health Solutions Project Manager to join our UKI team. In this role, you will lead complex digital health projects, ensuring successful delivery while driving continuous improvements in processes, tools, and training. You will play a key role in delivering innovative solutions to customers, contributing directly to commercial success, customer satisfaction, and operational excellence. Key Responsibilities Lead and deliver com…",
-      "categories": [
-        "health_tech"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "e5df2d2d32a4af4e",
-      "title": "Personal Support Worker (PSW) - Richmond Hill",
-      "organisation": "Bloom Care Solutions",
-      "location": "Richmond Hill, York region",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5746375023?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "",
-      "description": "Job Description Job Description JOIN one of the Canada's Top Growing Companies - we can't wait to welcome you aboard! Bloom is a growing Digital Health Technology and Services company that is on a Mission to Improve Care Experiences. Benefits: Competitive wages and multiple assignments Flexible hours that fit your lifestyle Ongoing training and professional development opportunities Rewarding work that makes a positive impact in the lives of others Supportive team environment with opportunities…",
-      "categories": [
-        "health_tech"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "c1b8cf700eda7470",
-      "title": "Data Scientist, GTM",
-      "organisation": "Anthropic",
-      "location": "New York City, NY; San Francisco, CA | New York City, NY",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/anthropic/jobs/5196852008",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "",
-      "description": "<div class=\"content-intro\"><h2><strong>About Anthropic</strong></h2> <p>Anthropic’s mission is to create reliable, interpretable, and steerable AI systems. We want AI to be safe and beneficial for our users and for society as a whole. Our team is a quickly growing group of committed researchers, engineers, policy experts, and business leaders working together to build beneficial AI systems.</p></div><h2 class=\"text-text-100 mt-3 -mb-1 text-[1.125rem] font-bold\">About the role</h2> <p class=\"font...",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "d116d9e17df82653",
-      "title": "Data Engineer",
-      "organisation": "Boeing",
-      "location": "Canada",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5746680429?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Data Engineer Company: Boeing Vancouver Boeing Vancouver is seeking a Data Engineer , reporting to the Manager of Data Science & Analytics working out of the Richmond, BC office. This role will help Boeing transform our industry through the application and continuous improvement of advanced analytics and machine learning in the aviation domain. The position will be embedded in a multi-disciplinary data science team producing industry-leading insights, and will use their data management, softwar…",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "301e90d29b0d1661",
-      "title": "Manager of Roadmap Architect",
-      "organisation": "Saskatchewan Health Authority",
-      "location": "Beaver Creek, Saskatoon",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5746738189?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Description Position : 190880 Expected Start Date: June 01, 2026 Union: OOS Facility: Saskatchewan Health Authority City/Town: To Be Determined Department: Digital Health - Roadmap Architect Type: Full-time temporary Expected Up to Date: May 31, 2028 FTE: 1 Shift Information: Days, Standby Number of Hours per Rotation: 5 shifts of 7.5 hours per 1 weeks Relief: No Float: No Salary or Pay Band: As per Terms and Conditions of Employment Travel Required: Yes Job Description: The Manager, Roadmap A…",
-      "categories": [
-        "health_tech"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "342b52943d30eefe",
-      "title": "Recreation Aide- Casual VCT",
-      "organisation": "Extendicare",
-      "location": "Toronto, Ontario",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5746734803?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "part_time",
-      "description": "Job Description Department: Programs Position Required: Recreation Aide Status: CASUAL Date Required: ASAP Salary: According to the CUPE Local 2553 Collective Agreement Qualifications: Must have a post-secondary diploma or degree in recreation and leisure studies, therapeutic recreation, kinesiology or other related field from a community college or university. Activation experience in Long Term Care or related setting preferred. Knowledge of RAI-MDS and Point Click care an asset Current Food h…",
-      "categories": [
-        "academic_adjacent"
-      ],
-      "fit_score": 18
-    },
-    {
-      "id": "adefa3ca54a0fc7e",
-      "title": "Machine Learning and Quantum Information Systems Specialist",
-      "organisation": "TRIUMF",
-      "location": "Greater Vancouver, British Columbia",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5746734748?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Discover TRIUMF , Canada's particle accelerator centre. We are a publicly funded, not-for-profit research lab that is a hub for discovery and innovation. Our mission is to serve as Canada’s particle accelerator centre. We advance isotope science and technology, both fundamental and applied. We collaborate across communities and disciplines, from nuclear and particle physics to the life and material sciences. We discover and innovate, inspire and educate, creating knowledge and opportunity for a…",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "db66db0f3a26201b",
-      "title": "Lecturer in Computer Science",
-      "organisation": "University of Hull",
-      "location": "UK",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5746371689?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Salary Range: £39,906.00 - £46,049.00 We are committed to equality, diversity and inclusion, creating a community where colleagues feel respected and valued. We aim to reflect the diversity of our students and communities, and to strengthen our university through collaboration and diverse perspectives, across all roles at the University. The University of Hull is seeking to appoint a Lecturer in Computer Science within the School of Digital and Physical Sciences. The School brings together the …",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "83f91910abbfc6bb",
-      "title": "Personal Support Worker (Etobicoke) - Highest Industry Starting Wage",
-      "organisation": "Bloom Care Solutions",
-      "location": "Etobicoke, Toronto",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5746378319?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "",
-      "description": "Job Description Job Description JOIN one of the Canada's Top Growing Companies - we can't wait to welcome you aboard! Bloom is a growing Digital Health Technology and Services company that is on a Mission to Improve Care Experiences. Benefits: Competitive wages and multiple assignments Flexible hours that fit your lifestyle Ongoing training and professional development opportunities Rewarding work that makes a positive impact in the lives of others Supportive team environment with opportunities…",
-      "categories": [
-        "health_tech"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "40e500b1cc61382f",
-      "title": "Bilingual Change Management Specialist (Full Time, 6 Month Contract)",
-      "organisation": "Amplify Care",
-      "location": "Canada",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5746378090?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Job Description Job Description Salary: The expected hiring range for this position is $71,630 to $84,270, dependent on qualifications and relevant experience. Program Overview: Clinically driven. Digitally inspired. Amplify Care is a not-for-profit organization (founded in 2014 as the eHealth Centre of Excellence) dedicated to helping clinicians and their teams thrive through the implementation of innovative digital health and AI solutions. We focus on technologies that truly meet clinical nee…",
-      "categories": [
-        "health_tech"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "99b1ad4e1c253c44",
-      "title": "No10 Data Scientist - Health / Education",
-      "organisation": "Government Recruitment Service",
-      "location": "London, UK",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5746522623?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "The Prime Minister’s Office enables the Prime Minister to deliver the Government’s overall priorities and to communicate the Government’s policies to Parliament, the public and international audiences. From the Policy Unit and Press Office, Switchboard and Custodians, to the Events & Visits team and Private Office support; the diverse Downing Street team draws on varied expertise from across the Civil Service and beyond. The teams come together to deliver excellent service to the Prime Minister…",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "16668df00c61eff1",
-      "title": "Principal Computer Vision Engineer",
-      "organisation": "Catapult Sports",
-      "location": "London, UK",
-      "country": "UK",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/catapultsports/jobs/7904485",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "",
-      "description": "<h3><strong>PRINCIPAL COMPUTER VISION & TRACKING ENGINEER</strong></h3> <p>Catapult is building the future of sports performance technology, with a mission to <strong>Unleash the Potential</strong> of every athlete and team on earth. We don't just work in the sporting industry; we are actively changing it. Since 2006, our solutions have been leading the way in sports performance software, science, and data, in a world where 1% can literally mean the difference between winning and losing.</p> <p>...",
-      "categories": [
-        "industry_applied"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "a88446c960867e1a",
-      "title": "Lecturer - Sport & Public Services",
-      "organisation": "London South East Colleges",
-      "location": "Bromley, South East London",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5746150749?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "About the role:Please note we don't have a fixed closing date but instead will close the role when we have sufficient applicants to interview so apply soon to not miss out! Hours/ work pattern: 1 FTE (Fixed term maternity cover until July 2026) We are a leading educational institution committed to providing exceptional learning experiences and preparing students for successful careers in the Service industries. With a focus on Sport and Public Services, we strive to deliver industry-relevant cu…",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "76e0d0be6f8dd839",
-      "title": "Accounts Receivable Coordinator",
-      "organisation": "Catapult Sports",
-      "location": "Boston, MA",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/catapultsports/jobs/7805926",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "",
-      "description": "<p>Our mission is to improve the performance of athletes and teams, which we do by engineering the premier technology platform for sport. We've been at the forefront of sports technology and science since 2006 - we don't just work in the sporting industry, we are actively changing its future. Our solutions are designed to help athletes and coaches “play smart” in a world where 1% can literally mean the difference between winning and losing.</p> <p>We work with over 5,000 teams around the world,...",
-      "categories": [
-        "industry_applied"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "c0b6bede97d89c66",
-      "title": "Principal AI Engineer",
-      "organisation": "Catapult Sports",
-      "location": "Melbourne",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/catapultsports/jobs/7902420",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "",
-      "description": "<p>Catapult is building the future of sports performance technology, with a mission to <strong>Unleash the Potential</strong> of every athlete and team on earth. We don't just work in the sporting industry; we are actively changing it. Since 2006, our solutions have been leading the way in sports performance software, science, and data, in a world where 1% can literally mean the difference between winning and losing.</p> <p>We work with over 5,000+ teams around the world, empowering coaches, man...",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "95e0e5e777866098",
-      "title": "Data Scientist, Developer Productivity",
-      "organisation": "Anthropic",
-      "location": "San Francisco, CA | New York City, NY",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/anthropic/jobs/5197529008",
-      "date_posted": "2026-05-31",
-      "closing_date": "",
-      "type": "",
-      "description": "<div class=\"content-intro\"><h2><strong>About Anthropic</strong></h2> <p>Anthropic’s mission is to create reliable, interpretable, and steerable AI systems. We want AI to be safe and beneficial for our users and for society as a whole. Our team is a quickly growing group of committed researchers, engineers, policy experts, and business leaders working together to build beneficial AI systems.</p></div><h2>About the role</h2> <p>As part of our growing Data Science and Analytics team, you'll play an...",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
     }
   ],
-  "last_updated": "2026-06-19T13:13:49.197717Z"
+  "last_updated": "2026-06-20T07:09:40.887090Z"
 }
