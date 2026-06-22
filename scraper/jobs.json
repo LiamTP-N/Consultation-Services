@@ -1,6 +1,584 @@
 {
   "jobs": [
     {
+      "id": "c96cc1e90e1ddffe",
+      "title": "Teaching Fellow",
+      "organisation": "University of Aberdeen",
+      "location": "Aberdeen",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ476/teaching-fellow",
+      "date_posted": "2026-06-22",
+      "closing_date": "06 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "6187579e8e269846",
+      "title": "Senior Research Officer in Clinical Trials Management",
+      "organisation": "Swansea University",
+      "location": "Swansea",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ447/senior-research-officer-in-clinical-trials-management",
+      "date_posted": "2026-06-22",
+      "closing_date": "05 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_mgmt"
+      ],
+      "fit_score": 12
+    },
+    {
+      "id": "80e5987b7dd4f4fa",
+      "title": "Research Scientist – Mammalian Virology (ID4471)",
+      "organisation": "Animal and Plant Health Agency",
+      "location": "Addlestone, New Haw",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ444/research-scientist-mammalian-virology-id4471",
+      "date_posted": "2026-06-22",
+      "closing_date": "13 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "5aeee769994de61b",
+      "title": "Research Scientist – Equine Virology (ID4569)",
+      "organisation": "Animal and Plant Health Agency",
+      "location": "Addlestone, New Haw",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ434/research-scientist-equine-virology-id4569",
+      "date_posted": "2026-06-22",
+      "closing_date": "13 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "81acb24bdd75fb8a",
+      "title": "Biomedical Science Laboratory Technician",
+      "organisation": "University of Chichester",
+      "location": "Chichester",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ421/biomedical-science-laboratory-technician",
+      "date_posted": "2026-06-22",
+      "closing_date": "19 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "3e629a0ec011e4be",
+      "title": "Lecturer / Associate Professor in Primate or Human Evolutionary Anatomy",
+      "organisation": "UCL",
+      "location": "London, Hybrid",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ412/lecturer-associate-professor-in-primate-or-human-evolutionary-anatomy",
+      "date_posted": "2026-06-22",
+      "closing_date": "20 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "60a79c77d32574a0",
+      "title": "Research Technician",
+      "organisation": "Imperial College London",
+      "location": "London",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ380/research-technician",
+      "date_posted": "2026-06-22",
+      "closing_date": "05 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "2779033af7b718d4",
+      "title": "PhD Studentship: Breaching the barrier: enterovirus and parechovirus antagonism of mucosal innate immunity and near-patient diagnostics for neonatal disease",
+      "organisation": "University of Surrey",
+      "location": "Guildford",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ358/phd-studentship-breaching-the-barrier-enterovirus-and-parechovirus-antagonism-of-mucosal-innate-immunity-and-near-patient-diagnostics-for-neonatal-disease",
+      "date_posted": "2026-06-22",
+      "closing_date": "12 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "2b09fb4d21b12b36",
+      "title": "Laboratory Technical Specialist",
+      "organisation": "Newcastle University",
+      "location": "Newcastle upon Tyne",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ347/laboratory-technical-specialist",
+      "date_posted": "2026-06-22",
+      "closing_date": "22 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "77d306efe125a0e4",
+      "title": "Lecturer in Diagnostic Radiography",
+      "organisation": "York St John University",
+      "location": "York",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ489/lecturer-in-diagnostic-radiography",
+      "date_posted": "2026-06-22",
+      "closing_date": "06 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "1e29ed84c88ddf98",
+      "title": "Prostate Cancer UK/ National Prostate Cancer Audit Data Scientist",
+      "organisation": "The Royal College of Surgeons of England",
+      "location": "London",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY923/prostate-cancer-uk-national-prostate-cancer-audit-data-scientist",
+      "date_posted": "2026-06-22",
+      "closing_date": "19 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "e1e7ef7573c0188d",
+      "title": "Lecturer in Physiotherapy – Practice Based Learning (Maternity Cover)",
+      "organisation": "University of Chichester",
+      "location": "Chichester",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ416/lecturer-in-physiotherapy-practice-based-learning-maternity-cover",
+      "date_posted": "2026-06-22",
+      "closing_date": "12 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "9c2a69ee4a7cbe0a",
+      "title": "NIHR Clinical Lecturer",
+      "organisation": "University of Hull",
+      "location": "Kingston upon Hull, Hybrid",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRV844/nihr-clinical-lecturer",
+      "date_posted": "2026-06-22",
+      "closing_date": "08 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "07325ac7c04acd1f",
+      "title": "Clinical Associate Lecturer (Mental Health)",
+      "organisation": "University of Kent",
+      "location": "Canterbury",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ381/clinical-associate-lecturer-mental-health",
+      "date_posted": "2026-06-22",
+      "closing_date": "12 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "8345f4368aa69a49",
+      "title": "PhD Studentship: Evaluating the influence of vibrotactile stimulation on sensory processing and motor symptoms in people with Parkinson’s",
+      "organisation": "University of Exeter",
+      "location": "Exeter",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ350/phd-studentship-evaluating-the-influence-of-vibrotactile-stimulation-on-sensory-processing-and-motor-symptoms-in-people-with-parkinsons",
+      "date_posted": "2026-06-22",
+      "closing_date": "20 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "291f8290a102b017",
+      "title": "PhD Studentship - Process Industries: Net Zero - Designing the Net‑Zero Polymer Factory: Energy Efficiency, Recovery and Novel Process Technologies",
+      "organisation": "Newcastle University",
+      "location": "Newcastle upon Tyne",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ493/phd-studentship-process-industries-net-zero-designing-the-netzero-polymer-factory-energy-efficiency-recovery-and-novel-process-technologies",
+      "date_posted": "2026-06-22",
+      "closing_date": "01 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "eb5d04fba075e2be",
+      "title": "Research Software Engineer / Physicist",
+      "organisation": "UCL",
+      "location": "London, Hybrid",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ446/research-software-engineer-physicist",
+      "date_posted": "2026-06-22",
+      "closing_date": "19 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "0b4423bc3965a520",
+      "title": "PhD Studentship: Wind-wave-ocean Eddy Interactions: Unravelling Coupled Processes at the Air-sea Interface",
+      "organisation": "University of East Anglia",
+      "location": "Norwich",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ428/phd-studentship-wind-wave-ocean-eddy-interactions-unravelling-coupled-processes-at-the-air-sea-interface",
+      "date_posted": "2026-06-22",
+      "closing_date": "22 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "839fefc4d849e1f1",
+      "title": "MSCA Doctoral Graduate Research Assistant [DC4]",
+      "organisation": "University of Exeter",
+      "location": "Exeter",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ385/msca-doctoral-graduate-research-assistant-dc4",
+      "date_posted": "2026-06-22",
+      "closing_date": "06 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "990cda83589ddf5d",
+      "title": "Research Fellow in Algorithmic Sensing for Music",
+      "organisation": "UWE, Bristol",
+      "location": "Bristol",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ396/research-fellow-in-algorithmic-sensing-for-music",
+      "date_posted": "2026-06-22",
+      "closing_date": "06 Aug",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "7b7b0f1b20efbe82",
+      "title": "Research Assistant (Industrial Strategy)",
+      "organisation": "London School of Economics and Political Science",
+      "location": "London",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ394/research-assistant-industrial-strategy",
+      "date_posted": "2026-06-22",
+      "closing_date": "01 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "7da48123920c59fe",
+      "title": "Head of Faculty - Engineering",
+      "organisation": "Nottingham College",
+      "location": "Nottingham",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRY990/head-of-faculty-engineering",
+      "date_posted": "2026-06-22",
+      "closing_date": "05 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "50f9b24e7852f2de",
+      "title": "Senior Lecturer in Electrical and Electronic Engineering",
+      "organisation": "University of Chichester",
+      "location": "Chichester",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ413/senior-lecturer-in-electrical-and-electronic-engineering",
+      "date_posted": "2026-06-22",
+      "closing_date": "12 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "930c4430c8891524",
+      "title": "PhD Studentship: PhD in Renewable Energy (Funded)",
+      "organisation": "University of Exeter",
+      "location": "Exeter",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ362/phd-studentship-phd-in-renewable-energy-funded",
+      "date_posted": "2026-06-22",
+      "closing_date": "03 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "40618b9f102eef08",
+      "title": "Lecturer in Statistics",
+      "organisation": "The University of Edinburgh",
+      "location": "Edinburgh",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ496/lecturer-in-statistics",
+      "date_posted": "2026-06-22",
+      "closing_date": "17 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "9316bd7080264ae1",
+      "title": "Lecturer in Mathematics (x5)",
+      "organisation": "University of Leeds",
+      "location": "Leeds",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRT790/lecturer-in-mathematics-x5",
+      "date_posted": "2026-06-22",
+      "closing_date": "07 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "c490abe3c27f16f9",
+      "title": "PhD Studentship: Windstorms and Atmosphere-ocean Coupling Around Greenland in a Changing Climate",
+      "organisation": "University of East Anglia",
+      "location": "Norwich",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ422/phd-studentship-windstorms-and-atmosphere-ocean-coupling-around-greenland-in-a-changing-climate",
+      "date_posted": "2026-06-22",
+      "closing_date": "22 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "9a2081b81f199daf",
+      "title": "Research Fellow, School of Mathematics and Physics",
+      "organisation": "Queen's University Belfast",
+      "location": "Belfast",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ420/research-fellow-school-of-mathematics-and-physics",
+      "date_posted": "2026-06-22",
+      "closing_date": "06 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "7b1e1a7aecd48e5e",
+      "title": "Research Associate (NIHR Greater Manchester Patient Safety Research Collaboration)",
+      "organisation": "The University of Manchester",
+      "location": "Manchester",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ467/research-associate-nihr-greater-manchester-patient-safety-research-collaboration",
+      "date_posted": "2026-06-22",
+      "closing_date": "20 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "9eac47cd4457895d",
+      "title": "Academic Tutor - Psychology (Cognitive Psychology)",
+      "organisation": "Study Group",
+      "location": "Sheffield",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ361/academic-tutor-psychology-cognitive-psychology",
+      "date_posted": "2026-06-22",
+      "closing_date": "19 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "9f997493a6650e2e",
+      "title": "Academic Tutor - Psychology (Neuroscience)",
+      "organisation": "Study Group",
+      "location": "Sheffield",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DRZ367/academic-tutor-psychology-neuroscience",
+      "date_posted": "2026-06-22",
+      "closing_date": "19 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "90aee9a80968b893",
+      "title": "Sport Science Teacher",
+      "organisation": "Prospero Teaching",
+      "location": "BH107BJ",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/sport-science-teacher/57042014",
+      "date_posted": "2026-06-22",
+      "closing_date": "03/08/2026",
+      "type": "",
+      "description": "About the Role As a Sports Science Teacher, you will deliver engaging theory-based lessons that develop student's understanding of anatomy, physiology, bio mechanics, psychology, and training principles. You will support learners in applying scientific concepts to sport and physical performance. Key Responsibilities Plan and deliver high-quality Sports Science / PE theory lessons Teach topics such as anatomy and physiology, fitness testing, and ...",
+      "categories": [
+        "academic_sport"
+      ],
+      "fit_score": 25
+    },
+    {
+      "id": "c18b2cdb50631450",
+      "title": "Lab Administrator",
+      "organisation": "Impellam",
+      "location": "London",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/lab-administrator/57041771",
+      "date_posted": "2026-06-22",
+      "closing_date": "03/08/2026",
+      "type": "",
+      "description": "Title : Lab Administrator Location : London, UK (on-site) Contract : 3 months Working pattern : Full-time (Mon-Friday - 9am to 5:20pm - 36.5 hrs/week) Overview The Lab Administrator plays a pivotal role in supporting the efficient operation of the Fundamental AI Research Lab by providing comprehensive administrative, operational, communications, and event support. Working closely with the Lab Director, Lab Manager, Operations Manager, and wider ...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "5eda00effee5d56a",
+      "title": "Demand Analyst",
+      "organisation": "Nomad Foods",
+      "location": "Woking",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/demand-analyst/57041884",
+      "date_posted": "2026-06-22",
+      "closing_date": "03/08/2026",
+      "type": "",
+      "description": "Demand / NPD Analyst – FTC 12-months Woking – Hybrid (3 days in the office) Competitive salary, up to 12% bonus and excellent benefits package We have an excellent opportunity available for you to grow your career and make a difference at Nomad Foods! Joining us as the NPD/Data Analyst – 12-month fixed term contract. About the role… The NPD/Data Analyst will play a critical role in supporting the end-to-end New Product Development (NPD) process ...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
       "id": "961b015c00e3d664",
       "title": "Clinical Professor of Gastroenterology",
       "organisation": "University of East Anglia",
@@ -356,6 +934,23 @@
         "academic_adjacent"
       ],
       "fit_score": 18
+    },
+    {
+      "id": "f01c74f688160394",
+      "title": "Senior Change Manager (CM3)",
+      "organisation": "Upstaff",
+      "location": "Fredericton, York region",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5771654858?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-21",
+      "closing_date": "",
+      "type": "contract",
+      "description": "Job Description Job Description Job Title: Senior Change Manager (CM3) Job Type: Fixed-Term Contract Contract Duration: 24 Months Work Location: Hybrid Remote – Fredericton, New Brunswick Work Schedule: 37.5 hours per week Job Overview We are seeking an experienced Senior Change Manager (CM3) to lead change management initiatives for the Provincial Digital Referral Program , a major eHealth transformation project in New Brunswick. This program aims to implement a fax-free digital referral syste…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
     },
     {
       "id": "f4a401c13289196e",
@@ -2046,6 +2641,23 @@
       "fit_score": 25
     },
     {
+      "id": "6366e5a860c3dacf",
+      "title": "Staff Product Manager, Growth",
+      "organisation": "HelloFresh",
+      "location": "New York, NY, United States",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://careers.hellofresh.com/global/en/job/7594595?gh_jid=7594595",
+      "date_posted": "2026-06-19",
+      "closing_date": "",
+      "type": "",
+      "description": "<h2><strong>The role</strong></h2> <p>We are hiring a <strong>Staff Product Manager</strong> to define and lead the vision for HelloFresh's Benefit Optimization platform—using intelligent technology to deliver the right benefit to the right customer at the right time.</p> <p>You'll lead the Benefit Optimization squad—a team of Data Scientists and Machine Learning Engineers on a mission to develop technology that delivers the best possible benefits to our customers. Together, you'll build the AI-...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
       "id": "d3e09a63432912fe",
       "title": "PhD Studentship - Understanding the Performance of Aerospace Aluminium Alloys in Humid Air",
       "organisation": "The University of Manchester",
@@ -3576,6 +4188,40 @@
       "closing_date": "30/07/2026",
       "type": "",
       "description": "Liquidline is the fastest-growing commercial coffee solutions provider in the UK and Ireland—not that we’re bragging! Our customers are companies that take pride in offering quality refreshments to their employees and clients. Our success is built on outstanding customer service, hard work, and a strong team culture. We believe in delivering WOW experiences to both our customers and our valued employees. We are proud to be Great Place to Work ce...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "94d466b5957ec819",
+      "title": "Senior Data Analyst",
+      "organisation": "Hudl",
+      "location": "Barcelona, Spain",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/hudl/jobs/7913628",
+      "date_posted": "2026-06-18",
+      "closing_date": "",
+      "type": "",
+      "description": "<div class=\"content-intro\"><p>At Hudl, we build great teams. We hire the best of the best to ensure you’re working with people you can constantly learn from. You’re trusted to get your work done your way while testing the limits of what’s possible and what’s next. We work hard to provide a culture where everyone feels supported, and our employees feel it—their votes helped us become one of <a href=\"https://www.hudl.com/blog/newsweek-top-100-global-most-loved-workplaces-2023\">Newsweek's Top 100 G...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "cb436b27b662155b",
+      "title": "Data Scientist, Safeguards",
+      "organisation": "Anthropic",
+      "location": "New York City, NY; San Francisco, CA; Seattle, WA",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/anthropic/jobs/5209196008",
+      "date_posted": "2026-06-18",
+      "closing_date": "",
+      "type": "",
+      "description": "<div class=\"content-intro\"><h2><strong>About Anthropic</strong></h2> <p>Anthropic’s mission is to create reliable, interpretable, and steerable AI systems. We want AI to be safe and beneficial for our users and for society as a whole. Our team is a quickly growing group of committed researchers, engineers, policy experts, and business leaders working together to build beneficial AI systems.</p></div><h2><strong>About the role</strong></h2> <p>As an early member of our Safeguards Data Science and...",
       "categories": [
         "data_science"
       ],
@@ -10369,6 +11015,23 @@
       "fit_score": 22
     },
     {
+      "id": "bfaae1a1cce7240e",
+      "title": "Lecturer in Built Environment",
+      "organisation": "University College Birmingham",
+      "location": "Birmingham",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/lecturer-in-built-environment/57006164",
+      "date_posted": "2026-06-10",
+      "closing_date": "22/07/2026",
+      "type": "",
+      "description": "Job Title: Lecturer in Built Environment Location: Birmingham Salary: 38,784 - 43,482 per annum - AC2 Job type: Permanent, Full-time UCB is an equal opportunities employer. We are TEF rated Silver, with a Good Ofsted rating. The Role: University College Birmingham is seeking an enthusiastic and knowledgeable Lecturer in the Built Environment with expertise in Civil Engineering and Building Services Engineering. This role is ideal for an academic...",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
       "id": "5b515e366835a2e9",
       "title": "Strength & Conditioning Coach",
       "organisation": "The Wallace High School",
@@ -14593,5 +15256,5 @@
       "fit_score": 22
     }
   ],
-  "last_updated": "2026-06-22T07:12:12.138768Z"
+  "last_updated": "2026-06-22T13:11:55.711467Z"
 }
