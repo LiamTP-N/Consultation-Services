@@ -1,6 +1,57 @@
 {
   "jobs": [
     {
+      "id": "4c4b41c7e9008873",
+      "title": "DSE Assessor",
+      "organisation": "Posturite Limited",
+      "location": "Hayes, Bromley",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5781601834?se=dg77jlJ08RG1Ec3-_UvSsA&utm_medium=api&utm_source=8de31de0&v=2BFBF91CEB4F7CEC241D0DA9A29DFD28AD3D7883",
+      "date_posted": "2026-06-30",
+      "closing_date": "",
+      "type": "permanent",
+      "description": "Are you empathetic, people-focused, and curious about how the human body works? This could be the perfect role for you. We're growing our DSE (Display Screen Equipment) Assessor team and looking for someone who wants to help others feel better and work more comfortably. ??? What you'll do: Help individuals improve their workstation setup by completing face to face or remote DSE Assessments Prevent discomfort and injury with practical advice and by producing follow up reports to DSE Assessments …",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "af0247dcc4379496",
+      "title": "Lecturer - Sports",
+      "organisation": "HRUC",
+      "location": "Uxbridge, London",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5781789903?se=cI83llJ08RGH4oMZTyUqAQ&utm_medium=api&utm_source=8de31de0&v=1FD3D4954CA44D0A35248B1622B3B9594C821195",
+      "date_posted": "2026-06-30",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "The Sports team at Uxbridge College offers a range of Sport programmes including BTEC from Level 1 to Level 3. We are seeking to appoint a part time Lecturer in Sport on a fixed-term basis to cover maternity leave until December 2026. You will need to possess a degree in Sport or a related subject area. You will have experience of teaching vocational Sport including BTEC and should have strong communication and interpersonal skills and be able to engage young vocational learners aged 16-19. A t…",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "4a51c553828703dd",
+      "title": "[Expression of Interest] Research Engineer / Scientist, Alignment - London",
+      "organisation": "Anthropic",
+      "location": "London, UK",
+      "country": "UK",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/anthropic/jobs/4610158008",
+      "date_posted": "2026-06-30",
+      "closing_date": "",
+      "type": "",
+      "description": "<div class=\"content-intro\"><h2><strong>About Anthropic</strong></h2> <p>Anthropic’s mission is to create reliable, interpretable, and steerable AI systems. We want AI to be safe and beneficial for our users and for society as a whole. Our team is a quickly growing group of committed researchers, engineers, policy experts, and business leaders working together to build beneficial AI systems.</p></div><h2>About the role:</h2> <p>You want to build and run elegant and thorough machine learning exper...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
       "id": "aebc981fbff75eb0",
       "title": "Sports Coach - School-Based",
       "organisation": "Aspire People",
@@ -629,8 +680,8 @@
       "type": "",
       "description": "",
       "categories": [
-        "technician",
-        "research_postdoc"
+        "research_postdoc",
+        "technician"
       ],
       "fit_score": 35
     },
@@ -786,6 +837,437 @@
         "data_science"
       ],
       "fit_score": 22
+    },
+    {
+      "id": "68df7d5e8d913c67",
+      "title": "Senior Postdoctoral Research Scientist in Mass Spectrometry-based Immunopeptidomics",
+      "organisation": "University of Oxford",
+      "location": "Oxford",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DSB847/senior-postdoctoral-research-scientist-in-mass-spectrometry-based-immunopeptidomics",
+      "date_posted": "2026-06-29",
+      "closing_date": "20 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "data_science",
+        "research_postdoc"
+      ],
+      "fit_score": 37
+    },
+    {
+      "id": "a43f738a1b3497a0",
+      "title": "Postdoctoral Research Scientist (Epigenetics)",
+      "organisation": "Babraham Institute",
+      "location": "Cambridge",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DSB828/postdoctoral-research-scientist-epigenetics",
+      "date_posted": "2026-06-29",
+      "closing_date": "12 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "data_science",
+        "research_postdoc"
+      ],
+      "fit_score": 37
+    },
+    {
+      "id": "a3c55cb1a31fc6c0",
+      "title": "Research Assistant - Maori Group (Fixed Term)",
+      "organisation": "University of Cambridge",
+      "location": "Cambridge",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DSB759/research-assistant-maori-group-fixed-term",
+      "date_posted": "2026-06-29",
+      "closing_date": "06 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "cf14acace691399a",
+      "title": "Postdoctoral Researcher: Oxford-AbbVie Immunology Postdoctoral Fellowship",
+      "organisation": "University of Oxford",
+      "location": "Oxford",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DSB741/postdoctoral-researcher-oxford-abbvie-immunology-postdoctoral-fellowship",
+      "date_posted": "2026-06-29",
+      "closing_date": "20 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "1f1fae25c5a64ac0",
+      "title": "Lecturer in Quantitative Methods",
+      "organisation": "London Interdisciplinary School",
+      "location": "London",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DSB814/lecturer-in-quantitative-methods",
+      "date_posted": "2026-06-29",
+      "closing_date": "15 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "e0ed3634f752b41c",
+      "title": "PhD Studentship: Mechanically Robust and Transport-optimized Thin-film Composite Mixed-matrix Membranes",
+      "organisation": "The University of Manchester",
+      "location": "Manchester",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DSB846/phd-studentship-mechanically-robust-and-transport-optimized-thin-film-composite-mixed-matrix-membranes",
+      "date_posted": "2026-06-29",
+      "closing_date": "31 Aug",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "70853a0e903e8d87",
+      "title": "Senior Research Associate - MARS / IceDice",
+      "organisation": "Lancaster University",
+      "location": "Bailrigg, Hybrid",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DSB824/senior-research-associate-mars-icedice",
+      "date_posted": "2026-06-29",
+      "closing_date": "26 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "1a9c342ac84930ce",
+      "title": "Teaching Associate (Fixed Term)",
+      "organisation": "University of Cambridge",
+      "location": "Cambridge",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DSB805/teaching-associate-fixed-term",
+      "date_posted": "2026-06-29",
+      "closing_date": "13 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "134440ba6701f0a7",
+      "title": "Research Fellow",
+      "organisation": "Queen's University Belfast",
+      "location": "Belfast",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DSB778/research-fellow",
+      "date_posted": "2026-06-29",
+      "closing_date": "27 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "6caf1442c2e9bf17",
+      "title": "Reader or Professor (Power Electronics) (111810-0626)",
+      "organisation": "University of Warwick",
+      "location": "Coventry, University of Warwick, Warwick",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DSB827/reader-or-professor-power-electronics-111810-0626",
+      "date_posted": "2026-06-29",
+      "closing_date": "10 Aug",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "384a569e577478c6",
+      "title": "Senior Research Fellow (Statecraft and Military Sciences)",
+      "organisation": "Pembroke College",
+      "location": "Oxford",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DSB816/senior-research-fellow-statecraft-and-military-sciences",
+      "date_posted": "2026-06-29",
+      "closing_date": "12 Aug",
+      "type": "",
+      "description": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "ac75be17cd0f0edf",
+      "title": "Senior Technician: Geotechnical & Water",
+      "organisation": "University of Sheffield",
+      "location": "Sheffield",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DSB638/senior-technician-geotechnical-and-water",
+      "date_posted": "2026-06-29",
+      "closing_date": "27 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "60d0b2fd52a5195b",
+      "title": "Research Assistant/Research Associate in Statistical Modelling in Archaeology (Fixed Term)",
+      "organisation": "University of Cambridge",
+      "location": "Cambridge",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DSB754/research-assistant-research-associate-in-statistical-modelling-in-archaeology-fixed-term",
+      "date_posted": "2026-06-29",
+      "closing_date": "21 Aug",
+      "type": "",
+      "description": "",
+      "categories": [
+        "technician",
+        "research_postdoc"
+      ],
+      "fit_score": 35
+    },
+    {
+      "id": "0f5b1467de168384",
+      "title": "Senior Teaching Associate (Fixed Term)",
+      "organisation": "University of Cambridge",
+      "location": "Cambridge",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DSB725/senior-teaching-associate-fixed-term",
+      "date_posted": "2026-06-29",
+      "closing_date": "19 Jul",
+      "type": "",
+      "description": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "2d63ea2c2671b229",
+      "title": "Physical Education (PE) Teacher - Renowned Secondary School in Plymouth",
+      "organisation": "Marchant Recruitment",
+      "location": "Plymouth, South West England",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5781399621?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-29",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Start Date: September 2026 Contract: Full-time, Permanent Salary: Paid to scale The Role A renowned Secondary School in Plymouth is seeking a professional, highly motivated, and exceptionally organised Physical Education (PE) Teacher to join their successful sports faculty. This is an excellent opportunity to step into a department that treats sports science, personal conditioning, and athletic leadership as core pillars of the curriculum, boasting fantastic indoor sports halls, fitness suites,…",
+      "categories": [
+        "academic_sport",
+        "academic_adjacent"
+      ],
+      "fit_score": 43
+    },
+    {
+      "id": "0a3390f1b9877faa",
+      "title": "PE & Sports Science Teacher - Thriving Secondary School in Taunton",
+      "organisation": "Marchant Recruitment",
+      "location": "Isle Brewers, Taunton",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5781370826?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-29",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Start Date: September 2026 Contract: Full-time, Permanent Salary: Paid to scale The Role A thriving Secondary School in Taunton is seeking a professional, high-energy, and exceptionally organised Physical Education (PE) & Sports Science Teacher to join their experienced and dedicated sports faculty. This is an excellent opportunity to step into a department that values sports science, physical literacy, and leadership as core pillars of the curriculum, boasting fantastic indoor sports halls, fi…",
+      "categories": [
+        "academic_sport",
+        "academic_adjacent"
+      ],
+      "fit_score": 43
+    },
+    {
+      "id": "28f2b07a9e161831",
+      "title": "Assessor",
+      "organisation": "Posturite Ltd",
+      "location": "Hayes, Bromley",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5781360217?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-29",
+      "closing_date": "",
+      "type": "",
+      "description": "Are you empathetic, people-focused, and curious about how the human body works? This could be the perfect role for you.We’re growing our DSE (Display Screen Equipment) Assessor team and looking for someone who wants to help others feel better and work more comfortably. ??? What you’ll do: Help individuals improve their workstation setup by completing face to face or remote DSE Assessments Prevent discomfort and injury with practical advice and by producing follow up reports to DSE A…",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "c4b15ab50a258c09",
+      "title": "Lead Strength and Conditioning Coach, Men & Birmingham Phoenix",
+      "organisation": "Warwickshire County Cricket Club",
+      "location": "West Midlands, UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5781282271?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-29",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Lead Strength and Conditioning Coach, Men & Birmingham Phoenix Lead the physical performance programme for Warwickshire Men's professional squad and Birmingham Phoenix, helping athletes perform consistently at the highest level of the game. Based at Edgbaston Stadium, you'll work at the heart of an integrated high-performance environment, shaping physical development, injury prevention and return-to-play strategies while leading a small team of performance specialists. This is an opportunity to…",
+      "categories": [
+        "academic_sport",
+        "industry_applied"
+      ],
+      "fit_score": 40
+    },
+    {
+      "id": "476084f5e44cfe21",
+      "title": "Cover Lecturer - Sport, Law, Policing and Protective Services",
+      "organisation": "NCG Corporation",
+      "location": "Arthurs Hill, Newcastle Upon Tyne",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5781289117?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-29",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Cover Lecturer - Sport, Law, Policing and Protective Services Shape Futures. Change Lives. Become a Cover Lecturer at NCG. At NCG, we believe education transforms lives. As one of the UK's leading college groups, we're committed to delivering exceptional learning experiences that help every learner achieve their goals-no matter where they start. Now is a great time to join our inclusive and supportive team - and play a vital role in keeping learning moving when it matters most. The Sport, Law, …",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "4c09cab95b7d74da",
+      "title": "Mandarin speaking Risk Control Officer - Banking",
+      "organisation": "People First",
+      "location": "London, UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5781496142?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-29",
+      "closing_date": "",
+      "type": "contract",
+      "description": "To see more Chinese jobs please follow us on WeChat: teamchinapf AND pfteamchina Ref: 23162 Job Title: Mandarin speaking Risk Control Officer - Banking (1-year FTC) The Skills You'll Need: Mandarin and English fluent. Solid experience on ERM/ Operational risk management of European wide Commercial Bank Your New Salary: Competitive Depending on experience Hybrid: 4 days in the office, 1 day at home Start: ASAP Reports to: Head of Department Mandarin speaking Risk Control Officer - What You'll be…",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "cea9403ef78ebff5",
+      "title": "Lecturer in Pharmaceutics/Drug Delivery",
+      "organisation": "Newcastle University",
+      "location": "Newcastle Upon Tyne, Tyne & Wear",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5781358230?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-29",
+      "closing_date": "",
+      "type": "",
+      "description": "Salary: £41,064 - £46,049 per annum Newcastle University is a great place to work, with excellent benefits . We have a generous holiday package; plus the opportunity to buy more, great pension schemes and a number of health and wellbeing initiatives to support you. Closing Date: 20 July 2026 The Role Based in the School of Pharmacy you will participate fully in the School’s range of teaching and research activities related to the MPharm programme. You should have experience of teaching and supe…",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "f25c72287559ea48",
+      "title": "Lecturer in Clinical Pharmacy",
+      "organisation": "Newcastle University",
+      "location": "Newcastle Upon Tyne, Tyne & Wear",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5781358227?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-06-29",
+      "closing_date": "",
+      "type": "",
+      "description": "Salary: Grade F Lecturer - £41,064 - £46,049 per annum Grade G Lecturer - £47,389 - £56,535 per annum Newcastle University is a great place to work, with excellent benefits . We have a generous holiday package; plus the opportunity to buy more, great pension schemes and a number of health and wellbeing initiatives to support you. Closing Date: 20 July 2026 The Role Based in the School of Pharmacy you will participate fully in the School’s range of teaching and research activities relevant to th…",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "3f47d0847a9d423e",
+      "title": "Data Scientist",
+      "organisation": "Jobheron",
+      "location": "London",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/data-scientist/57069135",
+      "date_posted": "2026-06-29",
+      "closing_date": "10/08/2026",
+      "type": "",
+      "description": "Data Scientist | Hybrid – Herne Hill, South London | Full-Time | 54,000– 58,000 P.A. D.O.E. Want to work on the kind of data science problems most companies can’t solve? An innovative, fast-growing data science business is looking for a Data Scientist to join its highly technical team. Founded as a spin-out from a world-leading university research group, this is a rare opportunity to apply Bayesian statistics, machine learning and scientific com...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "b7bb8016dc1984ae",
+      "title": "Water Quality Support Scientist",
+      "organisation": "Pertemps Scotland Temps",
+      "location": "NE388TE",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/water-quality-support-scientist/57069359",
+      "date_posted": "2026-06-29",
+      "closing_date": "06/07/2026",
+      "type": "",
+      "description": "Water Quality Advisor/ Support Scientist Monday-Friday 37 hours per week Based out of Washington but must be able to drive to visit other sites. 18.16 per hour Pertemps are working on behalf of Northumbrian Water who are seeking a dedicated and knowledgeable Water Quality Support Scientist to join their Water Quality team. This role is central to protecting public health by ensuring the drinking water they supply con...",
+      "categories": [
+        "academic_adjacent"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "0f82bfb2c19e0583",
+      "title": "Senior UX Researcher",
+      "organisation": "HelloFresh",
+      "location": "Boulder, Colorado, United States",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://careers.hellofresh.com/global/en/job/8036177?gh_jid=8036177",
+      "date_posted": "2026-06-29",
+      "closing_date": "",
+      "type": "",
+      "description": "<p></p> <p><strong>Job Description:</strong></p> <p>HelloFresh is going AI-first. Join us in leading the shift and building the infrastructure that makes world-class research and strategy possible at scale. As a Senior UX Strategist & Researcher in Research Operations, you'll own work from operational gap to scalable program — designing the tools, processes, and systems that let researchers and product teams move faster, ask sharper questions, and act on insight with confidence. You'll use AI as...",
+      "categories": [
+        "research_mgmt"
+      ],
+      "fit_score": 12
     },
     {
       "id": "91f37cc144f224f6",
@@ -7341,6 +7823,23 @@
         "fe_he_teaching"
       ],
       "fit_score": 15
+    },
+    {
+      "id": "4c6282a61e906a48",
+      "title": "Senior Staff Machine Learning Engineer, Menu Personalisation",
+      "organisation": "HelloFresh",
+      "location": "Toronto, Ontario, Canada",
+      "country": "Canada",
+      "source": "Greenhouse",
+      "url": "https://careers.hellofresh.com/global/en/job/7988919?gh_jid=7988919",
+      "date_posted": "2026-06-23",
+      "closing_date": "",
+      "type": "",
+      "description": "<h2>About HelloFresh</h2> <p>At HelloFresh, we want to change the way people eat forever by offering our customers high-quality food and recipes for different meal occasions. Even after celebrating our 10-year anniversary, we continue to see this mission spread around the world and beyond our wildest dreams. Now, we are a global food solutions group and the world's leading meal kit company, active in 18 countries across 3 continents. So, how did we do it? Our weekly boxes full of exciting recipe...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 22
     },
     {
       "id": "c96cc1e90e1ddffe",
@@ -18185,774 +18684,7 @@
         "fe_he_teaching"
       ],
       "fit_score": 15
-    },
-    {
-      "id": "1d8dd067f6e0048a",
-      "title": "De-Fleet - Product Data Analyst (12-month FTC/Secondment)",
-      "organisation": "Motability Operations",
-      "location": "Bristol, South West England",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/land/ad/5757945568?se=LNMEIptk8RGf9dnV8R691A&utm_medium=api&utm_source=8de31de0&v=FCBE49A69DC59FF65B480689C2540C49DF745F92",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "part_time",
-      "description": "Description You will work as part of a multidisciplinary product team to help shape, deliver, and continuously improve data and insight solutions across the De-Fleet area. Working closely with business stakeholders, Product Managers, Product Owners, Engineers, Data Scientists, and analysts, you will help translate business problems into clear data requirements and effective solutions that deliver measurable value. You will provide data analysis, technical insight, and delivery support across a …",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "e2bff762ca19b6e1",
-      "title": "Curriculum Manager Maths",
-      "organisation": "The Guardian",
-      "location": "Birmingham",
-      "country": "UK",
-      "source": "Reed",
-      "url": "https://www.reed.co.uk/jobs/curriculum-manager-maths/57003117",
-      "date_posted": "2026-06-10",
-      "closing_date": "22/07/2026",
-      "type": "",
-      "description": "Job Title: Curriculum Manager Maths Location: Birmingham Salary: 51,572 per annum pro rata of 63,606 per annum (fixed) Job type: Part time, 30 hours per week, fixed term for up to 12 months. The University is unlike any other. Standing proud in the heart of the city of Birmingham, they have been delivering career-focused education and training for decades. With around 8000 students across FE and HE level provision, the University is highly respe...",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "153aabd94e946130",
-      "title": "Job Posting Title Dir, Priv & Data Protection Officer EMEA",
-      "organisation": "Johnson & Johnson",
-      "location": "London, UK",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5758422782?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "At Johnson & Johnson, we believe health is everything. Our strength in healthcare innovation empowers us to build a world where complex diseases are prevented, treated, and cured, where treatments are smarter and less invasive, and solutions are personal. Through our expertise in Innovative Medicine and MedTech, we are uniquely positioned to innovate across the full spectrum of healthcare solutions today to deliver the breakthroughs of tomorrow, and profoundly impact health for humanity. Learn …",
-      "categories": [
-        "health_tech"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "7abd5a740de251ff",
-      "title": "Academy Sports Science Intern (Voluntary)",
-      "organisation": "EFL",
-      "location": "Bristol, South West England",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/land/ad/5758430194?se=1tzbBM5k8RGAwtds9mMh8g&utm_medium=api&utm_source=8de31de0&v=D67FCEBCAE5F5C6D79A312353887943DAC720E6F",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "contract",
-      "description": "Bristol Rovers are seeking hardworking, forward-thinking undergraduate or postgraduate students to join the Academy Sports Science & Strength & Conditioning department for the 2026/27 season. This placement provides an opportunity to gain hands-on experience within an academy environment, supporting the physical development of players across the Foundation Phase (FP) and Youth Development Phase (YDP) & Professional Development Phase (PDP). The role will involve assisting in both gym-based and p…",
-      "categories": [
-        "academic_sport"
-      ],
-      "fit_score": 25
-    },
-    {
-      "id": "9f87b95ff1640829",
-      "title": "Lead Physical Performance Coach (Boys Academy)",
-      "organisation": "Aston Villa FC Limited",
-      "location": "UK",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/land/ad/5758430163?se=1tzbBM5k8RGAwtds9mMh8g&utm_medium=api&utm_source=8de31de0&v=3E2B1CD7993ED928E5C76EFB5BB69DF968971F96",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Department: Football Division – Boys Academy Medical and Sport Science Department Hours of Work: Full-time (working patterns aligned to the demands of elite football, including matchdays and travel where required) Contract Type: Permanent Salary: Attractive Remuneration Package depending on experience Location: Bodymoor Heath Training Ground Closing Date: Sunday 21 June 2026 The Department Our Boys Academy is a Premier League Category One environment, built on delivering consistent, high-perfor…",
-      "categories": [
-        "academic_sport"
-      ],
-      "fit_score": 25
-    },
-    {
-      "id": "698f8392cd61c2f5",
-      "title": "Lead Academy Strength & Conditioning Coach",
-      "organisation": "EFL",
-      "location": "Worsbrough Common, Barnsley",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/land/ad/5758424501?se=1tzbBM5k8RGAwtds9mMh8g&utm_medium=api&utm_source=8de31de0&v=58E8495D07ED9F23448655C33D5773C7C41ACCEB",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "",
-      "description": "Barnsley Football Club are seeking a passionate and driven Lead Academy Strength & Conditioning Coach to play a key role in the development of our next generation of elite players. This is an exciting opportunity to join a forward-thinking Performance, Medicine & Performance Analysis team, working closely with academy players and first-team staff to deliver a high-performance environment that prepares athletes for professional football. Key Responsibilities Deliver and support individualised st…",
-      "categories": [
-        "industry_applied"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "acabac507b96730e",
-      "title": "Litigation Solicitor, Financial Mis-selling",
-      "organisation": "Johnson Law Group",
-      "location": "Manchester, Greater Manchester",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5758430412?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "About Johnson Law Group We are actively looking for litigation solicitors with experience in claimant consumer litigation and financial mis-selling claims. JLG is looking for a senior solicitor with 5–10 years PQE who can oversee and assist the Head of Department in driving forward litigated and non-litigated financial mis-selling cases within the firm’s Motor Finance Mis-selling team. Relevant Experience The ideal candidate will have experience: Running a large caseload while supervising a tea…",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "2c5f695cccff5fbe",
-      "title": "Assistant Head of Health and Social Care (with the ability to teach Sociology)",
-      "organisation": "Winstanley College",
-      "location": "Wigan, Greater Manchester",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5758422084?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Permanent | Full Time Teaching Salary TLR (where applicable) Start Date: August 2026 Are you an ambitious and passionate Health and Social Care teacher looking to take the next step in your leadership journey? We are seeking an outstanding Assistant Head of Department for Health and Social Care to join our successful Social Sciences Faculty. This is an exciting opportunity for an experienced practitioner to play a key role in driving curriculum excellence, supporting colleagues and contributin…",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "fc684b885dd8961c",
-      "title": "Lecturer in Countryside Management & Land-based Studies",
-      "organisation": "WCG",
-      "location": "Warwick, Warwickshire",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/land/ad/5758334076?se=bu2PDM5k8RGwtLATKaaDEw&utm_medium=api&utm_source=8de31de0&v=D6693A98BD799A7677C244B23637374E3D960C67",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "permanent",
-      "description": "This role is based in the UK and will be working on site in our UK based College. In order to comply with our mandatory pre-employment checks, the successful candidate will be required to provide original identification documents in person to our UK based People Services Team. This role is pro rata so the salary you will be receiving is £16,704.60 £23,353.20 per annum. 22.2 hours//week Working days will be confirmed once timetables are confirmed for the 26/27 academic year. PROTECTION OF CHILDR…",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "a06a6def5ed7814e",
-      "title": "Senior Conveyancer - Legal 500 Firm Sheffield",
-      "organisation": "qed legal",
-      "location": "Sheffield, South Yorkshire",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5758317488?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "A Legal 500 South Yorkshire practice are looking for an experienced Senior Conveyancer to join them in Sheffield. From day one, you will be leading a small residential property team and contribute to the continued growth and development of it. On a day-to-day, you will be managing a diverse caseload of residential property transactions, providing technical support to junior members and collaborate with the Head of Department to drive growth and work autonomously. The firm itself are well regard…",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "29290b8ff93240d2",
-      "title": "Access to H.E MGL Science (Biology)",
-      "organisation": "The City of Liverpool College",
-      "location": "Liverpool, Merseyside",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/land/ad/5758426726?se=YCaRDc5k8RGwtLATKaaDEw&utm_medium=api&utm_source=8de31de0&v=E7F2875FD55F4892BAEEFDE420B2270AB29C1B5F",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Job Title: Science Lecturer (Biology) Department: Access to Higher Education Salary: 34,789 to £43,139 per annum Job Type: Permanent, 0.5 Part-time (17.5 hours a week) We are looking for a dedicated Science Lecturer with a specialism in Biology to join our Access to Higher Education department. In this role, you will create stimulating, high-quality learning opportunities that enthuse adult students, making subject content relevant, current, and strongly linked to employers and the local econom…",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "2e711fc2516a6c92",
-      "title": "Personal Trainer",
-      "organisation": "House Of Sweat Inc.",
-      "location": "Mississauga, Peel region",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5758356849?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "",
-      "description": "Job Description Job Description We are looking for an experienced in-home personal trainer to take on clients in the Waterdown, Burlington, Oakville, and Mississauga areas. Requirements: Minimum 2 years of professional experience as a personal trainer Minimum 2 years of customer service experience Valid personal training certification (PTS, FIS, CSEP, CPTN, Poliquin, C.H.E.K, or CSCS) Kinesiology background/ a relevant degree in the health and fitness field (preferred) Experience working with d…",
-      "categories": [
-        "academic_adjacent"
-      ],
-      "fit_score": 18
-    },
-    {
-      "id": "fec38aef4ddf9709",
-      "title": "Strength and Conditioning Coach/ Wellness Centre Coordinator",
-      "organisation": "Strathcona High School - Edmonton Public School Division",
-      "location": "Edmonton, Edmonton region",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5758340450?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Job Description Job Description Posting Date: June 9, 2026 Closing Date: June 16, 2026 Position Type: Full Time Starting Date: August 28, 2026 End Date : June 29, 2027 Contract Position: 1 Year Contract (10 Month - Salaried Position) This position is responsible for the day-to-day operations of the Strathcona High School Fitness Centre and Emergency First Aid in and around the school for our students, staff, and team sports. Duties Ensures the Physical Activity and Wellness Centre is operating …",
-      "categories": [
-        "academic_sport",
-        "academic_adjacent",
-        "industry_applied"
-      ],
-      "fit_score": 58
-    },
-    {
-      "id": "a0fddf4f4961c113",
-      "title": "Senior Staff Machine Learning Engineer, Menu Personalisation",
-      "organisation": "HelloFresh",
-      "location": "Warszawa, Masovian Voivodeship, Poland",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://careers.hellofresh.com/global/en/job/7988923?gh_jid=7988923",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "",
-      "description": "<h2>About HelloFresh</h2> <p>At HelloFresh, we want to change the way people eat forever by offering our customers high-quality food and recipes for different meal occasions. Even after celebrating our 10-year anniversary, we continue to see this mission spread around the world and beyond our wildest dreams. Now, we are a global food solutions group and the world's leading meal kit company, active in 18 countries across 3 continents. So, how did we do it? Our weekly boxes full of exciting recipe...",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "5db7ab6fb57c238c",
-      "title": "Staff Data Scientist, Growth Alliance (f/m/x)",
-      "organisation": "HelloFresh",
-      "location": "Warszawa, Masovian Voivodeship, Poland",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://careers.hellofresh.com/global/en/job/7618818?gh_jid=7618818",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "",
-      "description": "<p>Work with HelloFresh in Warsaw and its HelloTech organisation, HelloFresh’s global technology backbone with more than 1000 people, building the digital products that power our end-to-end food experience. From meal kits and ready-to-eat meals to specialty offerings like pet food and premium meat & seafood, HelloTech creates the platforms that bring tailored food solutions to millions of customers every month.</p> <p>Our subscription-based, direct-to-consumer model relies on technology at every...",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "fac7c5d1f2061816",
-      "title": "Teacher of Boys' PE",
-      "organisation": "Clarence Recruitment",
-      "location": "Rugby, Warwickshire",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5759152128?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Job Title: Teacher of Boys' Physical Education Location: Rugby Salary: MPS/UPS (£31,650 - £49,084 dependent on experience) Job Type: Full-time, long-term/permanent Start Date: September 2026 Job Description We are seeking an enthusiastic and dedicated Teacher of Boys' Physical Education to join a successful secondary school in Rugby from September 2026. The successful candidate will be passionate about promoting physical activity, healthy lifestyles and sporting excellence, delivering engaging …",
-      "categories": [
-        "academic_adjacent"
-      ],
-      "fit_score": 18
-    },
-    {
-      "id": "85af15c3ab37fe6c",
-      "title": "Lecturer - Medical Education Programme",
-      "organisation": "Newcastle University",
-      "location": "Newcastle Upon Tyne, Tyne & Wear",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5758735709?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Salary: £36,636 to 38,784 per annum Newcastle University is a great place to work, with excellent benefits . We have a generous holiday package; plus the opportunity to buy more, great pension schemes and a number of health and wellbeing initiatives to support you. Closing Date: 24 June 2026 The Role The person appointed to this post will contribute to the achievement of the teaching, learning and assessment goals of the Masters in Medical Education programme. The delivery of teaching, learning…",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "f8a5404f0e074dfa",
-      "title": "Lecturer - Business and Management",
-      "organisation": "Study Group",
-      "location": "Old Ford, East London",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5758724209?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "​ ​ Contract type: Full Time (37.5 hours) – Permanent Location: The University of Huddersfield - London Campus Salary: up to £54,000 per annum Study Group attracts a diverse, international student body seeking high-quality teaching, combined with an industry-focussed learning experience and strong employability opportunities within London’s dynamic, professional environment. The University of Huddersfield London Campus is an exciting new academic institution in the Stratford area of London. Dev…",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "55e4cef66311fb8f",
-      "title": "Health Educator Staff",
-      "organisation": "Saskatchewan Health Authority",
-      "location": "North Weyburn, Weyburn",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5759086068?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Description Position : 177308 Expected Start Date: July 20, 2026 Union: HSAS Facility: Tatagwa View City/Town: Weyburn Department: Digital Health - Virtual Care South Type: Full-time regular FTE: 1 Shift Information: Days Number of Hours per Rotation: 224 hours per 6 weeks Relief: No Float: No Hours of Work: Field Hours Salary or Pay Band: Pay Band Health Educator - Staff $36.518 to $44.655 Travel Required: Yes Job Description: The major objective of this position is to increase, by various me…",
-      "categories": [
-        "health_tech"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "3fdb25d2c18bda84",
-      "title": "Fitness and Sports Instructors (kinesiology / physical education profile)",
-      "organisation": "Canadian Forces Morale and Welfare Services - CFMWS",
-      "location": "Farnham, Brome-Missisquoi",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/land/ad/5759325844?se=ANNpVWVl8RG8RPXU9jbxJw&utm_medium=api&utm_source=8de31de0&v=035488FF12FD59E44FC9B0DB1D433F97B3537724",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "CFMWS - WHERE PURPOSE MEETS PASSION! At Canadian Forces Morale and Welfare Services (CFMWS), we’re more than just a workplace; we’re a proud community dedicated to supporting Canadian Armed Forces members, veterans and their families in their daily lives. We carefully curate and provide programs and services designed to meet their unique needs and enhance their mental, social, physical, financial and familial well-being. CFMWS employees deliver programs and services including recreation, sports…",
-      "categories": [
-        "academic_adjacent"
-      ],
-      "fit_score": 18
-    },
-    {
-      "id": "82620050bf290033",
-      "title": "Instructor, Summer Hockey Camps (August 17-28)",
-      "organisation": "WinSport",
-      "location": "Cougar Ridge, Calgary",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5759082530?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "contract",
-      "description": "What the role is all about: WinSport is seeking energetic, knowledgeable, and passionate individuals for the role of Summer Hockey Camp Instructor in August. If you have a genuine interest in hockey skill development, youth mentorship, and creating a positive and engaging learning environment, we invite you to apply. WinSport’s Summer Hockey Camps offer a dynamic onâice and offâice development experience for young athletes. Participants explore skating fundamentals, puck control, passing, s…",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "21f068c421930977",
-      "title": "0622 INTERNAL POSTING Sessional Instructor ENGL 100 S05 Fall 2026",
-      "organisation": "First Nations University of Canada",
-      "location": "Regina region, Saskatchewan",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5759082950?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "contract",
-      "description": "Sessional Instructor ENGL 100 S05 Fall 2026 POSITION DESCRIPTION: Teaching the course content within university academic guidelines; Monitoring and facilitating class discussion forums and assigning associated grades to assigned cohort students; Preparing course outlines and final exams; Providing academic counselling to students; Invigilate, grade and submitting mid-term and final exams and papers; Providing support to students working on homework assignments or preparing for mid-term and fina…",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "7c8941c114dfbb57",
-      "title": "0622 INTERNAL POSTING Sessional Instructor INDG 104 S10 Fall 2026",
-      "organisation": "First Nations University of Canada",
-      "location": "Prince Albert region, Saskatchewan",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5759066775?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "contract",
-      "description": "Sessional Instructor INDG 104 S10 Fall 2026 POSITION DESCRIPTION: Teaching the course content within university academic guidelines; Monitoring and facilitating class discussion forums and assigning associated grades to assigned cohort students; Preparing course outlines and final exams; Providing academic counselling to students; Invigilate, grade and submitting mid-term and final exams and papers; Providing support to students working on homework assignments or preparing for mid-term and fina…",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "88a39e056c978298",
-      "title": "Sessional Lecturer, St. Thomas More College",
-      "organisation": "University of Saskatchewan",
-      "location": "Canada",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5759063967?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "St Thomas More College (STM), the Catholic liberal arts college federated with the University of Saskatchewan, invites applications for the following sessional lecturer positions for the 2026-2027 Fall and Winter sessions: DEPARTMENT OF SOCIOLOGY Applications should be addressed and sent to: Dr. Monica Hwang, STM Department Head, Department of Sociology, mhwang@stmcollege.ca SUB NUM SEC CAP TITLE TYPE DAY START END TERM SOC 112.3 61 75 Foundations in Sociology: Social Construction of Everyday L…",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "8b3b22bd1d33af3e",
-      "title": "0622 INTERNAL POSTING Sessional Instructor CREE 100 S10 Fall 2026",
-      "organisation": "First Nations University of Canada",
-      "location": "Prince Albert region, Saskatchewan",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5759041169?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "contract",
-      "description": "Sessional Instructor CREE 100 S10 Fall 2026 POSITION DESCRIPTION: Teaching the course content within university academic guidelines; Monitoring and facilitating class discussion forums and assigning associated grades to assigned cohort students; Preparing course outlines and final exams; Providing academic counselling to students; Invigilate, grade and submitting mid-term and final exams and papers; Providing support to students working on homework assignments or preparing for mid-term and fina…",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "006cf19ed2b05bc4",
-      "title": "0622 INTERNAL POSTING Sessional Instructor RDWT 120 S04/S06 Fall 2026",
-      "organisation": "First Nations University of Canada",
-      "location": "Regina region, Saskatchewan",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5759037621?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "contract",
-      "description": "Sessional Instructor RDWT 120 S04/S06 Fall 2026 POSITION DESCRIPTION: Teaching the course content within university academic guidelines; Monitoring and facilitating class discussion forums and assigning associated grades to assigned cohort students; Preparing course outlines and final exams; Providing academic counselling to students; Invigilate, grade and submitting mid-term and final exams and papers; Providing support to students working on homework assignments or preparing for mid-term and …",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "436afd0be0888a8f",
-      "title": "0622 INTERNAL POSTING Sessional Instructor INDG 104 S11 Fall 2026",
-      "organisation": "First Nations University of Canada",
-      "location": "Prince Albert region, Saskatchewan",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5759003638?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "contract",
-      "description": "Sessional Instructor INDG 104 S11 Fall 2026 POSITION DESCRIPTION: Teaching the course content within university academic guidelines; Monitoring and facilitating class discussion forums and assigning associated grades to assigned cohort students; Preparing course outlines and final exams; Providing academic counselling to students; Invigilate, grade and submitting mid-term and final exams and papers; Providing support to students working on homework assignments or preparing for mid-term and fina…",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "37ab245091dfbea2",
-      "title": "0622 INTERNAL POSTING Sessional Instructor ENGL 110 S01/S02 Fall 2026",
-      "organisation": "First Nations University of Canada",
-      "location": "Regina region, Saskatchewan",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5758998577?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "contract",
-      "description": "Sessional Instructor ENGL 110 S01/S02 Fall 2026 POSITION DESCRIPTION: Teaching the course content within university academic guidelines; Monitoring and facilitating class discussion forums and assigning associated grades to assigned cohort students; Preparing course outlines and final exams; Providing academic counselling to students; Invigilate, grade and submitting mid-term and final exams and papers; Providing support to students working on homework assignments or preparing for mid-term and …",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "7ce0d95e0a848075",
-      "title": "Lecturer in Engineering",
-      "organisation": "University College Birmingham",
-      "location": "Birmingham",
-      "country": "UK",
-      "source": "Reed",
-      "url": "https://www.reed.co.uk/jobs/lecturer-in-engineering/57006367",
-      "date_posted": "2026-06-10",
-      "closing_date": "22/07/2026",
-      "type": "",
-      "description": "Job Title: Lecturer in Engineering Location: Birmingham Salary: 38,784 - 43,482 per annum - AC2 Job type: Permanent, Full-time UCB is an equal opportunities employer. We are TEF rated Silver, with a Good Ofsted rating. The Role: University College Birmingham is seeking an enthusiastic and knowledgeable Lecturer in Mechanical Engineering with expertise in Manufacturing and Automation . This role is ideal for an academic or industry expert who is ...",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "d9bae7eda2713c16",
-      "title": "Employability Tutor (HE) (College of Food)",
-      "organisation": "University College Birmingham",
-      "location": "Birmingham",
-      "country": "UK",
-      "source": "Reed",
-      "url": "https://www.reed.co.uk/jobs/employability-tutor-he-college-of-food/57006529",
-      "date_posted": "2026-06-10",
-      "closing_date": "22/07/2026",
-      "type": "",
-      "description": "Job Title: Employability Tutor (HE) (College of Food) Location: Birmingham Salary: 23,097 - 24,450 per annum pro rata of 35,608 - 37,694 per annum - SS5 Job type: Permanent, Part Time (24 hours per week) UCB is an equal opportunities employer. We are TEF rated Silver, with a Good Ofsted rating. The Role: Hired provides careers, employability and placement services to our students. We currently have a vacancy for an Employability Tutor supporting...",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "f21161762c3a9398",
-      "title": "Curriculum Performance Lead - Construction",
-      "organisation": "OnlyFE",
-      "location": "Rotherham",
-      "country": "UK",
-      "source": "Reed",
-      "url": "https://www.reed.co.uk/jobs/curriculum-performance-lead-construction/57005982",
-      "date_posted": "2026-06-10",
-      "closing_date": "22/07/2026",
-      "type": "",
-      "description": "Curriculum Performance Lead - Construction Hours; Full time (37 hours each week, all year-round) Duration; Permanent Salary; 43,672 a year + benefits Location; Rotherham College, Rotherham About the Role Are you an experienced, high-performing lecturer or course leader ready to take your first step into operational leadership? Do you have a passion for driving academic excellence and inspiring both staff and students to reach their full potentia...",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "a267f9c697af5d70",
-      "title": "Curriculum Performance Lead - Engineering and Electrical",
-      "organisation": "OnlyFE",
-      "location": "Rotherham",
-      "country": "UK",
-      "source": "Reed",
-      "url": "https://www.reed.co.uk/jobs/curriculum-performance-lead-engineering-and-electrical/57006017",
-      "date_posted": "2026-06-10",
-      "closing_date": "22/07/2026",
-      "type": "",
-      "description": "Curriculum Performance Lead - Engineering and Electrical Hours; Full time (37 hours each week, all year-round) Duration; Permanent Salary; 43,672 a year + benefits Location; Rotherham College, Rotherham About the Role Are you an experienced, high-performing lecturer or course leader ready to take your first step into operational leadership? Do you have a passion for driving academic excellence and inspiring both staff and students to reach their...",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "c137b2b7ad2b6ae6",
-      "title": "Research Scientist",
-      "organisation": "Oura",
-      "location": "Remote - United States",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/oura/jobs/4239300009",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "",
-      "description": "<div class=\"content-intro\"><p>Our mission at Oura is to empower every person to own their inner potential. Our award-winning products help our global community gain a deeper knowledge of their readiness, activity, and sleep quality by using their Oura Ring and its connected app. We've helped millions of people understand and improve their health by providing daily insights and practical steps to inspire healthy lifestyles.</p> <p>Empowering the world starts with living <a href=\"https://ouraring....",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "284618e805fef2dd",
-      "title": "Senior Data Analyst, Product Analytics (Fixed Term 10 Months)",
-      "organisation": "Omada Health",
-      "location": "Remote, USA",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/omadahealth/jobs/7800367",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "",
-      "description": "<p><strong>This role is offered for a 10 month, fixed-term duration. </strong></p> <p>Omada Health is on a mission to bend the curve of chronic disease.</p> <p><strong>Job overview</strong><strong><br></strong></p> <p>As a <strong>Senior Data Analyst</strong> on the Product Analytics team, you will be a strategic thought partner with substantial autonomy, shaping how we use data to build products that improve the lives of our members. You will work side-by-side with product managers, engineers,...",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "e235bae13f105d20",
-      "title": "Senior Director, Clinical and Translational Research",
-      "organisation": "Omada Health",
-      "location": "Remote, USA",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/omadahealth/jobs/7743211",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "",
-      "description": "<p>Omada Health is on a mission to bend the curve of chronic disease.</p> <p><strong>Job Overview:</strong></p> <p>The Senior Director, Clinical & Translational Research leads Omada’s efforts to demonstrate the clinical value economic and population health value of its programs across various populations.. This role collaborates closely with Clinical Strategy and Commercial teams to generate compelling clinical and health economics evidence and translate findings into the market. This role also...",
-      "categories": [
-        "academic_adjacent"
-      ],
-      "fit_score": 18
-    },
-    {
-      "id": "a6dbaeaee5787c98",
-      "title": "Senior Software Engineer, Data Engineering",
-      "organisation": "Omada Health",
-      "location": "Remote, USA",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/omadahealth/jobs/7871522",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "",
-      "description": "<p>Omada Health is on a mission to bend the curve of chronic disease.</p> <p><strong>Job overview: </strong>We are dedicated to leveraging data to drive strategic decision-making and operational efficiency. Our team is passionate about harnessing the power of data to solve complex problems and deliver impactful insights.</p> <p>We are seeking a highly skilled and motivated Data Engineer to join our team. The ideal candidate will be responsible for designing, building, and maintaining robust data...",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "27d787da59e6fd00",
-      "title": "Technical Program Manager, Agents Innovation - 12 Month FTC",
-      "organisation": "DeepMind",
-      "location": "London, UK",
-      "country": "UK",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/deepmind/jobs/7839536",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "",
-      "description": "<h2>About Us</h2> <p>Artificial Intelligence could be one of humanity’s most useful inventions. At Google DeepMind, we’re a team of scientists, engineers, machine learning experts and more, working together to advance the state of the art in artificial intelligence. We use our technologies for widespread public benefit and scientific discovery, and collaborate with others on critical challenges, ensuring safety and ethics are the highest priority.</p> <h2>The Role</h2> <p>The mission of Agents I...",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "89ad0e6072f4b0ae",
-      "title": "Deputy Head of School",
-      "organisation": "Fraser Academy",
-      "location": "Vancouver, Greater Vancouver",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5758332352?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Job Description Job Description Salary: $160,000 to $200,000 per year About Fraser Academy: Fraser Academy (FA) is a premier independent school in Kitsilano, Vancouver, BC, dedicated to serving students in Gr. 1-12 with dyslexia and language-based learning differences through day and outreach programs. We bridge the gap in the system where approximately 20% of the student population is under-served by mainstream education. The ripple impact of our programming transforms potential into 21st cent…",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "9743f689e843f8c2",
-      "title": "ESOL / TEFL Tutor Teacher",
-      "organisation": "Kingsgate Recruitment Ltd",
-      "location": "Hounslow",
-      "country": "UK",
-      "source": "Reed",
-      "url": "https://www.reed.co.uk/jobs/esol-tefl-tutor-teacher/57005322",
-      "date_posted": "2026-06-10",
-      "closing_date": "22/07/2026",
-      "type": "",
-      "description": "Job Description: ESOL Tutor ESOL Tutor (English for Speakers of Other Languages) Reports To Curriculum Manager / Programme Manager / Head of Adult Learning Salary 25,000 – 40,000 per annum (pro rata if part-time), depending on qualifications and experience Job Purpose To deliver high-quality ESOL teaching and learning programmes that enable learners whose first language is not English to develop their speaking, listening, reading, and writing sk...",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "d13e203a526ff394",
-      "title": "Senior Forward Deployed AI Engineer",
-      "organisation": "Omada Health",
-      "location": "Remote, USA",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/omadahealth/jobs/7967224",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "",
-      "description": "<p><span style=\"font-size: 10pt;\">Omada Health is on a mission to bend the curve of chronic disease. The Omada IT department builds and operates resilient, scalable services that empower everyone at Omada. Increasingly, that means putting the right AI capabilities in the right people's hands.</span></p> <h2><span style=\"font-size: 10pt;\"><strong>Job Overview:</strong></span></h2> <p><span style=\"font-size: 10pt;\">The <strong>Senior Forward Deployed AI Engineer</strong> is a senior individual con...",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "44744b61ae04e1ae",
-      "title": "Clinical Research Coordinator",
-      "organisation": "Omada Health",
-      "location": "Remote, USA",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/omadahealth/jobs/7958284",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "",
-      "description": "<p>Omada Health is on a mission to bend the curve of chronic disease.</p> <p><strong>Job overview:</strong></p> <p>Omada is hiring a Research Coordinator to support the Clinical Research Team team. This role is responsible for coordinating activities for research studies, implementing clinical research protocols and maintaining quality and timeliness in the execution of projects. This is a full time position and is remote. </p> <p><strong>Your Impact:</strong></p> <ul> <li>Support Omada’s resear...",
-      "categories": [
-        "research_mgmt"
-      ],
-      "fit_score": 12
-    },
-    {
-      "id": "bec854d1455890ac",
-      "title": "Staff Forecasting Data Scientist",
-      "organisation": "Omada Health",
-      "location": "Remote, USA",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/omadahealth/jobs/7944334",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "",
-      "description": "<p>Omada Health is on a mission to bend the curve of chronic disease.</p> <p><strong>Job overview:</strong></p> <p>Omada Health is looking for a Staff Forecast Data Scientist to lead the technical development and automation of our enrollment forecasting capability. This role will build and scale forecasting models for our existing book of business, helping transform a historically manual, assumption-heavy process into a robust, production-oriented forecasting engine that improves forecast qualit...",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "4c047defd65bafba",
-      "title": "Data Engineer",
-      "organisation": "Boeing",
-      "location": "Canada",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5758913480?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Data Engineer Company: Boeing Vancouver Boeing Vancouver is seeking a Data Engineer (AI & Analytics) , reporting to the Senior Manager of AI & Analytics working out of the Richmond, BC office. This role will help Boeing transform our industry through the application and continuous improvement of advanced analytics and machine learning in the aviation domain. The position will be embedded in a multi-disciplinary data science team producing industry-leading insights, and will use their data manag…",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 22
-    },
-    {
-      "id": "bfaae1a1cce7240e",
-      "title": "Lecturer in Built Environment",
-      "organisation": "University College Birmingham",
-      "location": "Birmingham",
-      "country": "UK",
-      "source": "Reed",
-      "url": "https://www.reed.co.uk/jobs/lecturer-in-built-environment/57006164",
-      "date_posted": "2026-06-10",
-      "closing_date": "22/07/2026",
-      "type": "",
-      "description": "Job Title: Lecturer in Built Environment Location: Birmingham Salary: 38,784 - 43,482 per annum - AC2 Job type: Permanent, Full-time UCB is an equal opportunities employer. We are TEF rated Silver, with a Good Ofsted rating. The Role: University College Birmingham is seeking an enthusiastic and knowledgeable Lecturer in the Built Environment with expertise in Civil Engineering and Building Services Engineering. This role is ideal for an academic...",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 15
-    },
-    {
-      "id": "45b63eba3aa1b553",
-      "title": "Senior Product Manager - Telehealth (x/f/m)",
-      "organisation": "Doctolib",
-      "location": "Milano, Milan, Italy",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/doctolib/jobs/7677584003",
-      "date_posted": "2026-06-10",
-      "closing_date": "",
-      "type": "",
-      "description": "<p>We are looking for a <strong>Senior Product Manager</strong> to join the <strong>Practice Efficiency</strong> team in <strong>Milan.</strong></p> <p>As a Senior Product Manager for Doctolib Telehealth, you'll shape how millions of patients and healthcare professionals connect remotely across Europe. With over 10 million patients already using Doctolib Telehealth annually, you'll define both the immediate user experience and the long-term vision for synchronous and asynchronous remote consulta...",
-      "categories": [
-        "health_tech"
-      ],
-      "fit_score": 22
     }
   ],
-  "last_updated": "2026-06-29T13:15:41.523708Z"
+  "last_updated": "2026-06-30T07:10:36.818848Z"
 }
