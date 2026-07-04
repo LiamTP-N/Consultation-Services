@@ -155,6 +155,57 @@
       "fit_score": 25
     },
     {
+      "id": "e0f8a2298200c611",
+      "title": "Hourly Paid Lecturer - Counselling",
+      "organisation": "Colchester Institute Enterprises Limited",
+      "location": "Colchester, Essex",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5788010762?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-07-04",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "Join Colchester Institute - Where Your Career Makes a Difference At Colchester Institute, we believe in the power of education to transform lives and communities. As one of the leading providers of education and training in the region, we are proud to offer a dynamic, supportive, and forward-thinking working environment. We are seeking a Lecturer in Counselling to join our team. In this role you will undertake the full spectrum of teaching, learning, assessment, and academic support activities …",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 15
+    },
+    {
+      "id": "944db310c7d5ace9",
+      "title": "QA Engineering Lead | Chef de l'ingnierie assurance qualit",
+      "organisation": "Meta",
+      "location": "Toronto, Ontario",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5787644308?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-07-04",
+      "closing_date": "",
+      "type": "",
+      "description": "Summary: Meta Reality Labs is a world leader in the design of wearables systems. We are seeking highly detail-oriented and proactive individuals with experience building great software products and improving engineering efficiency to join our team as QA Leads. As a QA Lead, you will ensure the delivery of high-quality software and platforms for wearables product lines, working alongside expert software engineers and research scientists to create technology that makes wearables pervasive and uni…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "1740f2c07dcdf55a",
+      "title": "Organic Growth Marketing Manager",
+      "organisation": "Phoenix",
+      "location": "Toronto, Ontario",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5787927356?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-07-04",
+      "closing_date": "",
+      "type": "",
+      "description": "Job Description Job Description About Phoenix Founded in 2019, Phoenix is building the most trusted telehealth platform in Canada, making specialist healthcare accessible to every Canadian, wherever they are. Our platform breaks down barriers to care, empowering patients to take control of their health with personalized treatment options and the guidance of licensed providers. If you thrive where big ideas turn into real impact, you'll fit right in here. We're a team of creative problem-solvers…",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 22
+    },
+    {
       "id": "7fb70491ee1a240a",
       "title": "Lecturer",
       "organisation": "Vision for Education - Kent",
@@ -1141,8 +1192,8 @@
       "type": "full_time",
       "description": "Our client in Cardiff, a specialist Microbiological testing and consultancy company are working with us on an exclusive basis to recruit a motivated and enthusiastic Microbiological Research Technician to join their team on a permanent basis. This is an exciting opportunity to support their Research Scientist in the development of new products and services within their newly created, state-of-the-art Research Facility at Head Office in Cardiff. You will play an important role in supporting labo…",
       "categories": [
-        "technician",
-        "data_science"
+        "data_science",
+        "technician"
       ],
       "fit_score": 42
     },
@@ -1298,6 +1349,23 @@
       "description": "<h2><strong>Join our mission, join Doctolib! </strong></h2> <p>We are looking for a <strong>Senior AI Engineer</strong> to join the <strong>Patient Health Platform </strong>team in <strong>Paris. </strong></p> <p><strong>The Patient domain </strong>is at the heart of Doctolib's mission to help everyone be in better health. Our teams build <strong>the Health Companion</strong> that millions of people rely on every day - a seamless, AI-powered experience that empowers patients to take an active ro...",
       "categories": [
         "data_science"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "3ac2121b62f09772",
+      "title": "Care Experience Coordinator",
+      "organisation": "Bloom Care Solutions",
+      "location": "Vaughan, York region",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5786697045?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-07-03",
+      "closing_date": "",
+      "type": "",
+      "description": "Job Description Job Description JOIN one of the Canada's Top Growing Companies - We can't wait to welcome you aboard! Bloom is a growing Digital Health Technology and Services company that is on a Mission to Improve Care Experiences. Job Title: Care Experience Coordinator Salary: $40,000 Per Year Reports to: Division Manager Basic Function: Support Bloom's clients QUALIFICATIONS The following are the principal qualifications for this position: Minimum post-secondary education a requirement Must…",
+      "categories": [
+        "health_tech"
       ],
       "fit_score": 22
     },
@@ -22382,5 +22450,5 @@
       "fit_score": 12
     }
   ],
-  "last_updated": "2026-07-04T07:09:35.989360Z"
+  "last_updated": "2026-07-04T13:09:22.527239Z"
 }
