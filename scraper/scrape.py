@@ -978,84 +978,141 @@ def scrape_canada_rss() -> list:
 # ---------------------------------------------------------------------------
 
 def scrape_university_affairs() -> list:
-    """Phase 2 fix: the previous URL (/career-centre/job-board/) no longer
-    exists. The live jobs page is /search-jobs/. Parse the listing markup
-    which is a flat sequence of H2 anchors followed by university + date.
-    Phase 3.1: add Referer + browser Accept header to defeat the 403."""
+    """DISABLED (8 Jul 2026). University Affairs now serves its ENTIRE job
+    search behind Cloudflare Turnstile - an interactive bot challenge. A
+    network-trace of /search-jobs/ confirmed the search submits as a POST to
+    the page itself and the results come back inside that Turnstile-gated
+    response; there is no separate clean JSON/HTML list endpoint. A headless
+    requests call from CI cannot solve Turnstile, which is exactly why every
+    run logged 401/403 ("Cloudflare again"). This is deliberate anti-bot
+    architecture, not a markup problem, so the scraper cannot be made to work.
+
+    UA remains the best Canadian academic board for a HUMAN - a browser passes
+    the challenge fine - so use it via its own email Job Alert instead of
+    scraping. Canadian academic coverage on the board is now carried by
+    AcademicWork.ca (CAUT, clean HTML, added same day), Adzuna CA and
+    HigherEdJobs. This stub is retained (returns []) so main() stays stable and
+    the git history documents why UA was dropped; delete it once settled."""
+    return []
+
+
+# ---------------------------------------------------------------------------
+# AcademicWork.ca - HTML scrape (Canada, CAUT) - added 8 Jul 2026
+# ---------------------------------------------------------------------------
+# Replacement for the Turnstile-walled University Affairs scraper. AcademicWork
+# is CAUT's (Canadian Association of University Teachers) academic job board and
+# the second-largest Canadian academic source after UA. Unlike UA it is fully
+# server-rendered plain HTML with no bot challenge and working ?page=N
+# pagination, so it scrapes cleanly.
+#
+# Listing structure (verified 8 Jul 2026), one block per job on the index:
+#   <h2><a href="/jobs/{slug}">Job Title</a></h2>
+#   <h3><a href="/institution/{slug}">Employer</a></h3>
+#   Posted: <strong>Month DD, YYYY</strong>
+#   <short description paragraph>
+# The job detail page (/jobs/{slug}) carries the full description text (used for
+# categorisation) and the employer as an <h3>. Location is in the body prose
+# (province varies), so we default country to Canada and leave location coarse.
+
+ACADEMICWORK_BASE = "https://www.academicwork.ca"
+ACADEMICWORK_MAX_PAGES = 5  # 10 jobs/page; 5 pages = 50 newest, well inside the
+                            # 20-day window (site currently lists ~126 total)
+
+
+def _academicwork_parse_date(text: str) -> str:
+    """AcademicWork shows 'Posted: July 08, 2026' (or 'Jul 8, 2026'). Parse to
+    ISO yyyy-mm-dd; fall back to today on anything unparseable so prune_old's
+    ISO parse never chokes."""
+    s = (text or "").strip()
+    for fmt in ("%B %d, %Y", "%b %d, %Y"):
+        try:
+            return datetime.datetime.strptime(s, fmt).date().isoformat()
+        except Exception:
+            continue
+    return datetime.date.today().isoformat()
+
+
+def scrape_academicwork() -> list:
+    """Scrape AcademicWork.ca (CAUT) index pages. One request per page up to
+    ACADEMICWORK_MAX_PAGES; stops early on an empty page. Each job's own detail
+    page is fetched once to pull the full description for categorisation."""
     jobs = []
-    url = "https://www.universityaffairs.ca/search-jobs/"
-    print(f"  University Affairs HTML scrape...")
-    ua_headers = dict(HEADERS)
-    ua_headers["Referer"] = "https://www.universityaffairs.ca/"
-    ua_headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-    ua_headers["Accept-Encoding"] = "gzip, deflate, br"
-    ua_headers["Sec-Fetch-Dest"] = "document"
-    ua_headers["Sec-Fetch-Mode"] = "navigate"
-    ua_headers["Sec-Fetch-Site"] = "same-origin"
-    try:
-        r = requests.get(url, headers=ua_headers, timeout=20)
-        r.raise_for_status()
-    except Exception as e:
-        print(f"  GET failed {url}: {e}")
-        return jobs
-    try:
-        soup = BeautifulSoup(r.text, "html.parser")
-        # Each job is an <h2> with <a> link inside, followed by university name
-        # and a "Posting date YYYY-MM-DD" string somewhere nearby.
-        for h2 in soup.find_all("h2")[:80]:
-            try:
-                a = h2.find("a")
-                if not a or not a.get("href"):
-                    continue
-                href = a["href"]
-                if "job_id=" not in href:
-                    continue  # not a job link
-                if href.startswith("/"):
-                    href = "https://universityaffairs.ca" + href
-                href = clean_url(href)
-                title = clean(a.get_text())
-                if not title or len(title) < 5:
-                    continue
-                # Walk forward to find org + posting date
-                org = ""
-                date_str = datetime.date.today().isoformat()
-                sibling = h2.next_sibling
-                walked = 0
-                while sibling is not None and walked < 6:
-                    text = ""
-                    if hasattr(sibling, "get_text"):
-                        text = sibling.get_text(" ", strip=True)
-                    elif isinstance(sibling, str):
-                        text = sibling.strip()
-                    if text:
-                        # University name typically the first non-empty
-                        # non-"Location"/"Posting" line
-                        if not org and "Location" not in text and "Posting" not in text:
-                            org = clean(text[:200])
-                        m = re.search(r"Posting date\s*(\d{4}-\d{2}-\d{2})", text)
-                        if m:
-                            date_str = m.group(1)
-                            break
-                    sibling = sibling.next_sibling
-                    walked += 1
-                jobs.append({
-                    "id": make_id(href or title, title),
-                    "title": title,
-                    "organisation": org,
-                    "location": "Canada",
-                    "country": "Canada",
-                    "source": "University Affairs",
-                    "url": href,
-                    "date_posted": date_str,
-                    "closing_date": "",
-                    "type": "",
-                    "description": "",
-                })
-            except Exception as e:
-                print(f"    item parse error: {e}")
-        print(f"    found {len(jobs)} listings from University Affairs")
-    except Exception as e:
-        print(f"  ERROR University Affairs: {e}")
+    seen_urls = set()
+    for page in range(1, ACADEMICWORK_MAX_PAGES + 1):
+        url = ACADEMICWORK_BASE if page == 1 else f"{ACADEMICWORK_BASE}/?page={page}"
+        print(f"  AcademicWork.ca: page {page}")
+        r = get(url, timeout=25)
+        if not r:
+            break
+        added_this_page = 0
+        try:
+            soup = BeautifulSoup(r.text, "html.parser")
+            # Each job title is an <h2> wrapping an <a href="/jobs/{slug}">.
+            for h2 in soup.find_all("h2"):
+                try:
+                    a = h2.find("a", href=re.compile(r"/jobs/"))
+                    if not a or "/jobs/create" in a.get("href", ""):
+                        continue
+                    href_raw = a.get("href", "")
+                    if href_raw.startswith("/"):
+                        href = ACADEMICWORK_BASE + href_raw
+                    elif href_raw.startswith("http"):
+                        href = href_raw
+                    else:
+                        href = ACADEMICWORK_BASE + "/" + href_raw
+                    href = clean_url(href)
+                    if not href or href in seen_urls:
+                        continue
+                    seen_urls.add(href)
+                    title = clean(a.get_text())
+                    if not title or len(title) < 5:
+                        continue
+                    # Employer: the <h3> immediately following this <h2>.
+                    org = ""
+                    h3 = h2.find_next("h3")
+                    if h3:
+                        org = clean(h3.get_text())
+                    # Posted date: scan the parent block text for "Posted: <date>".
+                    date_str = datetime.date.today().isoformat()
+                    block = h2.parent.get_text(" ", strip=True) if h2.parent else ""
+                    dm = re.search(r"Posted:\s*([A-Za-z]+\.?\s+\d{1,2},\s*\d{4})", block)
+                    if dm:
+                        date_str = _academicwork_parse_date(dm.group(1))
+                    # Fetch the detail page for the full description (better
+                    # categorisation). Best-effort; skip on failure.
+                    description = ""
+                    dr = get(href, timeout=20)
+                    if dr:
+                        try:
+                            dsoup = BeautifulSoup(dr.text, "html.parser")
+                            main = dsoup.find("main") or dsoup
+                            description = clean(main.get_text(" ", strip=True))
+                        except Exception:
+                            description = ""
+                        time.sleep(0.5)
+                    jobs.append({
+                        "id": make_id(href, title),
+                        "title": title,
+                        "organisation": org,
+                        "location": "Canada",
+                        "country": "Canada",
+                        "source": "AcademicWork",
+                        "url": href,
+                        "date_posted": date_str,
+                        "closing_date": "",
+                        "type": "",
+                        "description": description,
+                    })
+                    added_this_page += 1
+                except Exception as e:
+                    print(f"    item parse error: {e}")
+            print(f"    page {page}: +{added_this_page} (running total {len(jobs)})")
+            if added_this_page == 0:
+                break  # no jobs on this page -> past the last page
+        except Exception as e:
+            print(f"    page parse error ({page}): {e}")
+            break
+        time.sleep(1)
     return jobs
 
 
@@ -1614,18 +1671,18 @@ def main():
     except Exception as e:
         print(f"  ERROR Canadian RSS: {e}")
 
-    print("  Running University Affairs scraper...")
+    print("  Running AcademicWork.ca scraper (CAUT, Canada academic)...")
     try:
-        results = scrape_university_affairs()
+        results = scrape_academicwork()
         added = 0
         for j in results:
             if j["id"] not in existing_ids and passes_filter(j):
                 new_jobs.append(j)
                 existing_ids.add(j["id"])
                 added += 1
-        print(f"    +{added} new from University Affairs")
+        print(f"    +{added} new from AcademicWork.ca")
     except Exception as e:
-        print(f"  ERROR University Affairs: {e}")
+        print(f"  ERROR AcademicWork.ca: {e}")
 
     print("  Running Adzuna API scraper (UK)...")
     try:

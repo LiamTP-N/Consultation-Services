@@ -7,7 +7,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Job Tracker | Dr. Liam T. Pearson-Noseworthy</title>
-    <meta name="description" content="Daily-updated job board across sport science, biomechanics, data science, health tech, FE/HE teaching, research management, and lab technician roles. Scraped from Jobs.ac.uk, Adzuna, Reed, Indeed, THEunijobs, HigherEdJobs, University Affairs, and Bluesky.">
+    <meta name="description" content="Daily-updated job board across sport science, biomechanics, data science, health tech, FE/HE teaching, research management, and lab technician roles. Scraped from Jobs.ac.uk, Adzuna, Reed, Indeed, THEunijobs, HigherEdJobs, AcademicWork.ca, and Bluesky.">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Job Tracker | Dr. Liam T. Pearson-Noseworthy">
@@ -23,6 +23,7 @@
         .source-thejobs     { background: #1a1a3d; color: #a78bfa; }
         .source-highered    { background: #1a2f1a; color: #86efac; }
         .source-uaffairs    { background: #2d1a1a; color: #fca5a5; }
+        .source-academicwork { background: #1a2d2a; color: #5eead4; }
         .source-adzuna      { background: #2d2a1a; color: #fde68a; }
         .source-reed        { background: #2a1a2d; color: #f0abfc; }
         .source-greenhouse  { background: #1a3a1a; color: #86efac; }
@@ -96,7 +97,7 @@
                     <option value="Lever">Lever (industry)</option>
                     <option value="THEunijobs">THEunijobs</option>
                     <option value="HigherEdJobs">HigherEdJobs</option>
-                    <option value="University Affairs">University Affairs</option>
+                    <option value="AcademicWork">AcademicWork.ca (CAUT)</option>
                     <option value="Bluesky">Bluesky</option>
                 </select>
                 <select id="minfit-filter" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
@@ -167,7 +168,8 @@
                     <a href="https://www.jobs.ac.uk/search/?keywords=laboratory+technician&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Lab Tech</a>
                     <a href="https://www.adzuna.co.uk/search?q=sport+science" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Adzuna UK</a>
                     <a href="https://www.adzuna.ca/search?q=kinesiology" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Adzuna Canada</a>
-                    <a href="https://www.universityaffairs.ca/search-jobs/" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">University Affairs</a>
+                    <a href="https://www.universityaffairs.ca/search-jobs/" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">University Affairs (browse)</a>
+                    <a href="https://www.academicwork.ca/" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">AcademicWork.ca</a>
                     <a href="https://www.timeshighereducation.com/unijobs/listings/canada/" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">THEunijobs - Canada</a>
                     <a href="https://www.higheredjobs.com/faculty/search.cfm?JobCat=161" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">HigherEdJobs - Kinesiology</a>
                     <a href="https://bsky.app/profile/jobsinsportscience.bsky.social" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Bluesky - Jobs in Sport Science</a>
@@ -299,6 +301,7 @@
         if (l.includes('thejobs') || l.includes('unijobs') || l.includes('times higher')) return 'source-thejobs';
         if (l.includes('highered'))            return 'source-highered';
         if (l.includes('university affairs'))  return 'source-uaffairs';
+        if (l.includes('academicwork') || l.includes('academic work')) return 'source-academicwork';
         if (l.includes('adzuna'))              return 'source-adzuna';
         if (l.includes('reed'))                return 'source-reed';
         if (l.includes('greenhouse'))          return 'source-greenhouse';
