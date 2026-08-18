@@ -28,6 +28,10 @@
         .source-reed        { background: #2a1a2d; color: #f0abfc; }
         .source-greenhouse  { background: #1a3a1a; color: #86efac; }
         .source-lever       { background: #3a2a1a; color: #fdba74; }
+        .source-ashby       { background: #2a1a3a; color: #c4b5fd; }
+        .source-smartrec    { background: #1a2a3a; color: #7dd3fc; }
+        .source-recruitee   { background: #3a1a2a; color: #f9a8d4; }
+        .source-workable    { background: #1a3a2a; color: #6ee7b7; }
         .country-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
         .country-uk     { background: #1e3050; color: #93c5fd; }
         .country-ca     { background: #2d1818; color: #fca5a5; }
@@ -95,6 +99,10 @@
                     <option value="Indeed">Indeed</option>
                     <option value="Greenhouse">Greenhouse (industry)</option>
                     <option value="Lever">Lever (industry)</option>
+                    <option value="Ashby">Ashby (industry)</option>
+                    <option value="SmartRecruiters">SmartRecruiters (industry, F1)</option>
+                    <option value="Recruitee">Recruitee (industry)</option>
+                    <option value="Workable">Workable (industry)</option>
                     <option value="THEunijobs">THEunijobs</option>
                     <option value="HigherEdJobs">HigherEdJobs</option>
                     <option value="AcademicWork">AcademicWork.ca (CAUT)</option>
@@ -306,6 +314,10 @@
         if (l.includes('reed'))                return 'source-reed';
         if (l.includes('greenhouse'))          return 'source-greenhouse';
         if (l.includes('lever'))               return 'source-lever';
+        if (l.includes('ashby'))               return 'source-ashby';
+        if (l.includes('smartrecruiters'))     return 'source-smartrec';
+        if (l.includes('recruitee'))           return 'source-recruitee';
+        if (l.includes('workable'))            return 'source-workable';
         return '';
     }
 

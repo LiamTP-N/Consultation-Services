@@ -176,6 +176,13 @@ CATEGORY_KEYWORDS = {
         "clinical software", "clinical informatics", "nhs digital",
         "health informatics", "digital therapeutic",
         "computer vision health", "pose estimation",
+        # Phase 7 (18 Aug 2026): measurement-technology vendor roles, i.e. the
+        # kit Liam actually teaches and researches on. Word-boundary matching
+        # keeps the short tokens ("emg", "hd-semg") safe.
+        "motion capture", "markerless", "motion analysis",
+        "optical tracking", "gait analysis",
+        "emg", "hd-semg", "surface electromyography", "electromyography",
+        "force plate", "force platform", "isokinetic",
     ],
     "fe_he_teaching": [
         "lecturer", "senior lecturer", "principal lecturer",
@@ -217,6 +224,13 @@ CATEGORY_KEYWORDS = {
         "computer vision engineer", "ml researcher sport",
         "physiology researcher industry", "fitness research",
         "clinical exercise",
+        # Phase 7 (18 Aug 2026): elite / motorsport human-performance roles.
+        # F1 and its suppliers file these under "human performance" or
+        # "athlete performance" rather than "sport science", which is why no
+        # existing keyword reached them.
+        "human performance", "athlete performance", "driver performance",
+        "performance coach", "performance physiologist",
+        "motorsport", "human factors", "driver in the loop",
     ],
     "research_postdoc": [
         "research fellow", "postdoc", "postdoctoral",
@@ -278,6 +292,23 @@ EXCLUDE_KEYWORDS = [
     "recruitment consultant",
     "tiktok", "anti-fraud",
 ]
+
+# Title-only keywords (Phase 7, 18 Aug 2026). A dry run of the new Ashby source
+# showed WHOOP alone putting 159 of its 263 postings on the board, including
+# every iOS and Android engineer vacancy, because these particular phrases sit
+# in the COMPANY BOILERPLATE that gets repeated in every description at a
+# wearables or performance business: WHOOP describes itself as a "human
+# performance company" and the word "wearable" appears in all of its blurbs. The
+# phrases are still genuinely useful in a TITLE, which is where the F1 and
+# elite-performance roles carry them ("Human Performance Coach", "Athlete
+# Performance Scientist"), so rather than delete them they are restricted to
+# title matching. Keep this list to phrases that are boilerplate-prone AND
+# title-meaningful; anything else belongs in the ordinary keyword lists.
+TITLE_ONLY_KEYWORDS = {
+    "human performance", "athlete performance", "driver performance",
+    "wearable", "wearables", "motorsport", "human factors",
+    "sports technology", "sports tech", "fitness research",
+}
 
 # Jobs.ac.uk (UK).
 # Phase 5 (17 Jun 2026): the RSS service (`/jobs/{slug}/?format=rss`) began
@@ -376,13 +407,77 @@ GREENHOUSE_COMPANIES = [
     # AI / ML research (Liam's data-science narrative)
     ("deepmind", "DeepMind"),
     ("anthropic", "Anthropic"),
+    # Phase 7 additions (18 Aug 2026), every token probed live and returning
+    # a non-zero board on the day. Prune any that start logging HTTP 404.
+    ("kinexon", "KINEXON"),          # sensor-based athlete tracking
+    ("swordhealth", "Sword Health"),  # digital MSK rehab
+    ("zwift", "Zwift"),
+    ("iFIT", "iFIT"),                # NB token is case-sensitive
+    ("gymshark", "Gymshark"),
 ]
 
 # Lever: free public API, no auth
 # https://api.lever.co/v0/postings/{client}?mode=json
+# NB WHOOP was dropped 18 Aug 2026: its Lever board now returns 0 postings
+# because the company has moved to Ashby (see ASHBY_COMPANIES).
 LEVER_COMPANIES = [
-    ("whoop", "WHOOP"),
     ("kitmanlabs", "Kitman Labs"),
+]
+
+# ---------------------------------------------------------------------------
+# Phase 7 (18 Aug 2026): four more public ATS platforms
+# ---------------------------------------------------------------------------
+# Probing the measurement-technology, elite-performance and motorsport
+# employers that matter most to Liam's profile showed that hardly any of them
+# use Greenhouse or Lever, which is why the industry side of the board has been
+# thin. They are spread across four other platforms, all of which expose an
+# unauthenticated public endpoint in the same spirit as Greenhouse:
+#   Ashby           https://api.ashbyhq.com/posting-api/job-board/{board}
+#   SmartRecruiters https://api.smartrecruiters.com/v1/companies/{id}/postings
+#   Recruitee       https://{account}.recruitee.com/api/offers/
+#   Workable        https://apply.workable.com/api/v1/widget/accounts/{acct}
+# Every identifier below was probed live on 18 Aug 2026 and returned a
+# non-zero board. To add a company, find its identifier in the careers-page
+# URL and append a tuple; a dead identifier logs a non-200 and is skipped.
+
+ASHBY_COMPANIES = [
+    ("whoop", "WHOOP"),
+    ("teamworks", "Teamworks"),
+    ("strava", "Strava"),
+    ("tonal", "Tonal"),
+    ("polar", "Polar"),
+    ("egym", "eGym"),
+]
+
+# SmartRecruiters. Williams Racing is the one F1 team with a genuinely public
+# postings API, so it is the only automatable route into an F1 team; the rest
+# of the grid runs closed or JS-rendered portals and stays a manual watch-list.
+# Red Bull is the whole drinks group rather than the race team, so it is high
+# volume and mostly irrelevant - it is included because passes_filter is strict
+# enough to bin the noise, and because the race team and Red Bull Technology
+# postings do appear there. SMARTRECRUITERS_MAX_PAGES caps the quota cost.
+SMARTRECRUITERS_COMPANIES = [
+    ("williamsracing", "Williams Racing"),
+    ("redbull", "Red Bull"),
+    ("sportradar", "Sportradar"),
+    ("kaiahealth", "Kaia Health"),
+]
+SMARTRECRUITERS_PAGE_SIZE = 100
+SMARTRECRUITERS_MAX_PAGES = 3
+
+# Recruitee. Movella is the parent of Xsens, whose IMU suites Liam teaches on,
+# and both accounts serve the same board.
+RECRUITEE_COMPANIES = [
+    ("movella", "Movella (Xsens)"),
+    ("alpine", "Alpine"),
+    ("matrixfitness", "Matrix Fitness"),
+]
+
+# Workable. OptiTrack is optical motion capture, i.e. the direct comparator
+# technology to the markerless work in MS05 Paper B.
+WORKABLE_COMPANIES = [
+    ("optitrack", "OptiTrack"),
+    ("withings", "Withings"),
 ]
 
 # Adzuna API: country code, country label, query list
@@ -414,6 +509,35 @@ ADZUNA_QUERIES = [
     "lecturer exercise",
     "head of department",
     "head of school",
+]
+
+# Adzuna Canada queries (Phase 7, 18 Aug 2026). Canada was previously run on
+# the UK list, which searches for job titles Canadian employers do not use.
+# Canadian sport/exercise departments are titled Kinesiology or Human Kinetics,
+# the teaching ranks are assistant/associate professor and sessional/limited-term
+# lecturer, and the technical-staff equivalent is core facility or lab
+# coordinator. 16 queries, so quota use is unchanged.
+ADZUNA_CA_QUERIES = [
+    # Canadian academic naming conventions
+    "kinesiology",
+    "human kinetics",
+    "assistant professor kinesiology",
+    "assistant professor exercise",
+    "sessional lecturer kinesiology",
+    "limited term appointment kinesiology",
+    "exercise physiology",
+    "biomechanics",
+    "rehabilitation science",
+    # Research / technical / infrastructure
+    "research technician",
+    "laboratory coordinator",
+    "core facility manager",
+    "research associate exercise",
+    # Data / health tech
+    "data scientist health",
+    "digital health",
+    # Applied
+    "sport scientist",
 ]
 
 # Reed.co.uk Jobseeker API queries (UK only). Free key from
@@ -535,10 +659,13 @@ def categorise(job: dict) -> list:
         f"{job.get('type', '')} "
         f"{job.get('description', '')}"
     ).lower()
+    title = (job.get("title", "") or "").lower()
     matched = []
     for cat, keywords in CATEGORY_KEYWORDS.items():
         for kw in keywords:
-            if kw_in(kw, text):
+            # Phase 7: boilerplate-prone phrases only count in the title.
+            haystack = title if kw in TITLE_ONLY_KEYWORDS else text
+            if kw_in(kw, haystack):
                 matched.append(cat)
                 break
     return matched
@@ -1128,9 +1255,15 @@ def scrape_adzuna(country_code: str, country_label: str) -> list:
     if not app_id or not app_key:
         print(f"  Adzuna {country_label}: ADZUNA_APP_ID/KEY not set, skipping")
         return []
+    # Phase 7 (18 Aug 2026): Canada gets its own query list. The UK set is
+    # tuned to UK job-title conventions ("lecturer", "head of college") which
+    # barely exist in Canadian postings, where the equivalents are "assistant
+    # professor", "kinesiology" and "human kinetics", so the CA run was
+    # effectively searching for the wrong words.
+    queries = ADZUNA_CA_QUERIES if country_code == "ca" else ADZUNA_QUERIES
     jobs = []
-    print(f"  Adzuna {country_label} ({country_code}): {len(ADZUNA_QUERIES)} queries")
-    for query in ADZUNA_QUERIES:
+    print(f"  Adzuna {country_label} ({country_code}): {len(queries)} queries")
+    for query in queries:
         url = (
             f"https://api.adzuna.com/v1/api/jobs/{country_code}/search/1"
             f"?app_id={urllib.parse.quote(app_id)}"
@@ -1407,6 +1540,225 @@ def scrape_lever() -> list:
 
 
 # ---------------------------------------------------------------------------
+# Ashby posting API (Phase 7) - elite performance / wearables
+# ---------------------------------------------------------------------------
+
+def scrape_ashby() -> list:
+    """Public posting API, no auth. The board name is the slug in
+    jobs.ashbyhq.com/{board}. Ashby returns ISO timestamps in publishedAt."""
+    jobs = []
+    print(f"  Ashby: {len(ASHBY_COMPANIES)} companies")
+    for board, label in ASHBY_COMPANIES:
+        url = f"https://api.ashbyhq.com/posting-api/job-board/{board}"
+        try:
+            r = requests.get(url, timeout=15, headers={"Accept": "application/json"})
+            if r.status_code != 200:
+                print(f"    {board}: HTTP {r.status_code}, skipping")
+                continue
+            for item in (r.json() or {}).get("jobs", []):
+                try:
+                    title = clean(item.get("title", ""))
+                    href = clean_url(item.get("jobUrl", "") or item.get("applyUrl", ""))
+                    if not title or not href:
+                        continue
+                    loc = clean(item.get("location", ""))
+                    published = item.get("publishedAt", "") or ""
+                    date_str = published[:10] if len(published) >= 10 else datetime.date.today().isoformat()
+                    jobs.append({
+                        "id": make_id(href, title),
+                        "title": title,
+                        "organisation": label or board,
+                        "location": loc,
+                        "country": infer_country(loc),
+                        "source": "Ashby",
+                        "url": href,
+                        "date_posted": date_str,
+                        "closing_date": "",
+                        "type": clean(item.get("employmentType", "")),
+                        "description": clean(item.get("descriptionPlain", "")),
+                    })
+                except Exception as e:
+                    print(f"    {board} item parse error: {e}")
+        except Exception as e:
+            print(f"  GET failed Ashby {board}: {e}")
+        time.sleep(0.5)
+    return jobs
+
+
+# ---------------------------------------------------------------------------
+# SmartRecruiters postings API (Phase 7) - Williams Racing, Red Bull, Sportradar
+# ---------------------------------------------------------------------------
+
+def scrape_smartrecruiters() -> list:
+    """Public postings API, no auth. The company id is the slug in
+    careers.smartrecruiters.com/{id}. Paginated by offset; capped at
+    SMARTRECRUITERS_MAX_PAGES because Red Bull alone lists over a thousand
+    postings and only a handful are ever relevant."""
+    jobs = []
+    print(f"  SmartRecruiters: {len(SMARTRECRUITERS_COMPANIES)} companies")
+    for company, label in SMARTRECRUITERS_COMPANIES:
+        for page in range(SMARTRECRUITERS_MAX_PAGES):
+            offset = page * SMARTRECRUITERS_PAGE_SIZE
+            url = (
+                f"https://api.smartrecruiters.com/v1/companies/{company}/postings"
+                f"?limit={SMARTRECRUITERS_PAGE_SIZE}&offset={offset}"
+            )
+            try:
+                r = requests.get(url, timeout=20, headers={"Accept": "application/json"})
+                if r.status_code != 200:
+                    print(f"    {company}: HTTP {r.status_code}, skipping")
+                    break
+                content = (r.json() or {}).get("content", [])
+                if not content:
+                    break
+                for item in content:
+                    try:
+                        title = clean(item.get("name", ""))
+                        posting_id = clean(item.get("id", ""))
+                        if not title or not posting_id:
+                            continue
+                        href = clean_url(
+                            f"https://jobs.smartrecruiters.com/{company}/{posting_id}"
+                        )
+                        loc_obj = item.get("location", {}) or {}
+                        loc = ", ".join(
+                            p for p in (
+                                clean(loc_obj.get("city", "")),
+                                clean(loc_obj.get("region", "")),
+                                clean(loc_obj.get("country", "")).upper(),
+                            ) if p
+                        )
+                        released = item.get("releasedDate", "") or ""
+                        date_str = released[:10] if len(released) >= 10 else datetime.date.today().isoformat()
+                        dept = (item.get("department", {}) or {}).get("label", "")
+                        jobs.append({
+                            "id": make_id(href, title),
+                            "title": title,
+                            "organisation": label or company,
+                            "location": loc,
+                            "country": infer_country(loc),
+                            "source": "SmartRecruiters",
+                            "url": href,
+                            "date_posted": date_str,
+                            "closing_date": "",
+                            "type": clean((item.get("typeOfEmployment", {}) or {}).get("label", "")),
+                            "description": clean(dept),
+                        })
+                    except Exception as e:
+                        print(f"    {company} item parse error: {e}")
+                if len(content) < SMARTRECRUITERS_PAGE_SIZE:
+                    break
+            except Exception as e:
+                print(f"  GET failed SmartRecruiters {company}: {e}")
+                break
+            time.sleep(0.5)
+    return jobs
+
+
+# ---------------------------------------------------------------------------
+# Recruitee offers API (Phase 7) - Movella/Xsens, Alpine, Matrix Fitness
+# ---------------------------------------------------------------------------
+
+def scrape_recruitee() -> list:
+    """Public offers API, no auth. The account is the subdomain in
+    {account}.recruitee.com."""
+    jobs = []
+    print(f"  Recruitee: {len(RECRUITEE_COMPANIES)} companies")
+    for account, label in RECRUITEE_COMPANIES:
+        url = f"https://{account}.recruitee.com/api/offers/"
+        try:
+            r = requests.get(url, timeout=15, headers={"Accept": "application/json"})
+            if r.status_code != 200:
+                print(f"    {account}: HTTP {r.status_code}, skipping")
+                continue
+            for item in (r.json() or {}).get("offers", []):
+                try:
+                    title = clean(item.get("title", ""))
+                    href = clean_url(item.get("careers_url", "") or item.get("url", ""))
+                    if not title or not href:
+                        continue
+                    loc = ", ".join(
+                        p for p in (
+                            clean(item.get("city", "")),
+                            clean(item.get("country_code", "")).upper(),
+                        ) if p
+                    )
+                    published = item.get("published_at", "") or item.get("created_at", "") or ""
+                    date_str = published[:10] if len(published) >= 10 else datetime.date.today().isoformat()
+                    jobs.append({
+                        "id": make_id(href, title),
+                        "title": title,
+                        "organisation": label or account,
+                        "location": loc,
+                        "country": infer_country(loc),
+                        "source": "Recruitee",
+                        "url": href,
+                        "date_posted": date_str,
+                        "closing_date": "",
+                        "type": clean(item.get("employment_type_code", "")),
+                        "description": clean(item.get("description", "")),
+                    })
+                except Exception as e:
+                    print(f"    {account} item parse error: {e}")
+        except Exception as e:
+            print(f"  GET failed Recruitee {account}: {e}")
+        time.sleep(0.5)
+    return jobs
+
+
+# ---------------------------------------------------------------------------
+# Workable widget API (Phase 7) - OptiTrack, Withings
+# ---------------------------------------------------------------------------
+
+def scrape_workable() -> list:
+    """Public widget endpoint, no auth. The account is the slug in
+    apply.workable.com/{account}. Dates come back as 'YYYY-MM-DD' already."""
+    jobs = []
+    print(f"  Workable: {len(WORKABLE_COMPANIES)} companies")
+    for account, label in WORKABLE_COMPANIES:
+        url = f"https://apply.workable.com/api/v1/widget/accounts/{account}?details=true"
+        try:
+            r = requests.get(url, timeout=15, headers={"Accept": "application/json"})
+            if r.status_code != 200:
+                print(f"    {account}: HTTP {r.status_code}, skipping")
+                continue
+            for item in (r.json() or {}).get("jobs", []):
+                try:
+                    title = clean(item.get("title", ""))
+                    href = clean_url(item.get("url", "") or item.get("application_url", ""))
+                    if not title or not href:
+                        continue
+                    loc = ", ".join(
+                        p for p in (
+                            clean(item.get("city", "")),
+                            clean(item.get("country", "")),
+                        ) if p
+                    )
+                    date_str = clean(item.get("published_on", "")) or datetime.date.today().isoformat()
+                    if len(date_str) > 10:
+                        date_str = date_str[:10]
+                    jobs.append({
+                        "id": make_id(href, title),
+                        "title": title,
+                        "organisation": label or account,
+                        "location": loc,
+                        "country": infer_country(loc),
+                        "source": "Workable",
+                        "url": href,
+                        "date_posted": date_str,
+                        "closing_date": "",
+                        "type": clean(item.get("employment_type", "")),
+                        "description": clean(item.get("description", "")),
+                    })
+                except Exception as e:
+                    print(f"    {account} item parse error: {e}")
+        except Exception as e:
+            print(f"  GET failed Workable {account}: {e}")
+        time.sleep(0.5)
+    return jobs
+
+
+# ---------------------------------------------------------------------------
 # Indeed (UK) - best-effort first-page scrape (env-gated, OFF by default)
 # ---------------------------------------------------------------------------
 
@@ -1639,7 +1991,8 @@ def scrape_bluesky() -> list:
 # ---------------------------------------------------------------------------
 
 def main():
-    print("=== JobScan scraper starting (Phase 3.2: + Reed.co.uk Jobseeker API) ===")
+    print("=== JobScan scraper starting (Phase 7: + Ashby, SmartRecruiters, "
+          "Recruitee, Workable; Canada-specific Adzuna queries) ===")
     existing = load_existing()
     existing["jobs"] = backfill_categories(existing.get("jobs", []))
     existing_ids = {j["id"] for j in existing["jobs"]}
@@ -1761,6 +2114,25 @@ def main():
         print(f"    +{added} new from Lever")
     except Exception as e:
         print(f"  ERROR Lever: {e}")
+
+    for label, fn in (
+        ("Ashby", scrape_ashby),
+        ("SmartRecruiters", scrape_smartrecruiters),
+        ("Recruitee", scrape_recruitee),
+        ("Workable", scrape_workable),
+    ):
+        print(f"  Running {label} scraper (industry, Phase 7)...")
+        try:
+            results = fn()
+            added = 0
+            for j in results:
+                if j["id"] not in existing_ids and passes_filter(j):
+                    new_jobs.append(j)
+                    existing_ids.add(j["id"])
+                    added += 1
+            print(f"    +{added} new from {label}")
+        except Exception as e:
+            print(f"  ERROR {label}: {e}")
 
     print("  Running Bluesky scraper...")
     try:
