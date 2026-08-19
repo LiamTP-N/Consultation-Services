@@ -152,6 +152,18 @@ CATEGORY_KEYWORDS = {
         "public health", "population health", "epidemiology",
         "physical activity", "physical education",
         "musculoskeletal research", "neuromuscular",
+        # Phase 8 (19 Aug 2026): clinical / ageing strand. The board had no
+        # clinical vocabulary beyond "rehabilitation science", so clinical
+        # exercise physiology and BFR/ageing posts, i.e. Liam's actual research
+        # population, were scoring on generic sport terms only. "clinical
+        # exercise" and "older adults" are boilerplate-prone in university and
+        # med-device blurb, so both sit in TITLE_ONLY_KEYWORDS below.
+        "clinical exercise physiology", "clinical exercise",
+        "cardiac rehabilitation", "pulmonary rehabilitation",
+        "sarcopenia", "frailty", "falls prevention",
+        "older adults", "long-term conditions",
+        "blood flow restriction", "stroke rehabilitation",
+        "clinical populations", "exercise oncology",
     ],
     "technician": [
         "lab technician", "laboratory technician", "research technician",
@@ -223,7 +235,8 @@ CATEGORY_KEYWORDS = {
         "sensor engineer", "wearable engineer",
         "computer vision engineer", "ml researcher sport",
         "physiology researcher industry", "fitness research",
-        "clinical exercise",
+        # Phase 8: "clinical exercise" MOVED to academic_adjacent (double-scored
+        # here otherwise). Do not reinstate in this list.
         # Phase 7 (18 Aug 2026): elite / motorsport human-performance roles.
         # F1 and its suppliers file these under "human performance" or
         # "athlete performance" rather than "sport science", which is why no
@@ -246,13 +259,13 @@ CATEGORY_KEYWORDS = {
 # and pure industry weighted lower.
 CATEGORY_WEIGHTS = {
     "academic_sport":    25,
-    "academic_adjacent": 18,
-    "research_postdoc":  15,
-    "technician":        20,  # current role; transferable anywhere
-    "data_science":      22,  # 2.2M-record ML pipeline + Python/R
-    "health_tech":       22,  # RBE app, MediaPipe, NHS pathway
-    "fe_he_teaching":    15,
-    "research_mgmt":     12,
+    "academic_adjacent": 22,  # Phase 8: 18 -> 22, rehab/clinical/ageing IS the research
+    "research_postdoc":  18,  # Phase 8: 15 -> 18, research trajectory is the logged gap
+    "technician":        14,  # Phase 8: 20 -> 14, stays visible, stops topping the board
+    "data_science":      18,  # Phase 8: 22 -> 18, a method not a destination
+    "health_tech":       20,  # Phase 8: 22 -> 20, RBE app, MediaPipe, NHS pathway
+    "fe_he_teaching":    18,  # Phase 8: 15 -> 18, SFHEA + DTF + ~500 students
+    "research_mgmt":     10,  # Phase 8: 12 -> 10
     "industry_applied":  15,  # Phase 3: bumped from 10 (sport/health-tech industry weight)
 }
 
@@ -308,6 +321,13 @@ TITLE_ONLY_KEYWORDS = {
     "human performance", "athlete performance", "driver performance",
     "wearable", "wearables", "motorsport", "human factors",
     "sports technology", "sports tech", "fitness research",
+    # Phase 8 (19 Aug 2026): same failure mode from the clinical strand.
+    # "older adults" and "clinical exercise" appear in the boilerplate of
+    # almost every university health-faculty advert and every med-device
+    # blurb, so full-text matching would drag in unrelated administrative and
+    # engineering posts. Both are meaningful in a TITLE ("Lecturer in Clinical
+    # Exercise Physiology", "Research Fellow, Exercise in Older Adults").
+    "older adults", "clinical exercise",
 }
 
 # Jobs.ac.uk (UK).
@@ -1586,6 +1606,202 @@ def scrape_ashby() -> list:
 
 
 # ---------------------------------------------------------------------------
+# Oracle Recruiting Cloud (Phase 8, 19 Aug 2026) - UK universities
+#
+# The Russell Group audit found that UK HEIs are not each running a bespoke
+# system; they cluster onto about a dozen applicant-tracking platforms. Oracle
+# Recruiting Cloud is the cleanest of them: it exposes a completely
+# unauthenticated JSON API on every tenant, in the same spirit as Greenhouse
+# and Ashby, so a university is a CONFIG LINE rather than a new scraper.
+#
+# Endpoint shape (verified live 19 Aug 2026 against Edinburgh and Birmingham):
+#   https://{pod}/hcmRestApi/resources/latest/recruitingCEJobRequisitions
+#     ?onlyData=true&expand=requisitionList
+#     &finder=findReqs;siteNumber={site},limit={n},offset={m}
+#
+# TWO GOTCHAS, both cost time to find:
+#   1. `expand=requisitionList` is REQUIRED. Without it the response still
+#      returns HTTP 200 with the facets and a TotalJobsCount, but the actual
+#      postings are absent and the parse silently yields nothing.
+#   2. `limit` and `offset` must go INSIDE the finder string, after the
+#      semicolon, not as ordinary query parameters. A top-level &limit= is
+#      accepted and ignored.
+#
+# The pod and site number are both visible in the careers-site URL the
+# university links to, e.g. Edinburgh's
+# elxw.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001
+# gives pod `elxw.fa.em3.oraclecloud.com` and site `CX_1001`.
+# ---------------------------------------------------------------------------
+
+ORACLE_ORC_MAX_PAGES = 4
+ORACLE_ORC_PAGE_SIZE = 100
+
+# (pod, siteNumber, display name)
+ORACLE_ORC_TENANTS = [
+    ("elxw.fa.em3.oraclecloud.com", "CX_1001", "University of Edinburgh"),
+    ("edzz.fa.em3.oraclecloud.com", "CX_6001", "University of Birmingham"),
+]
+
+
+def scrape_oracle_orc() -> list:
+    """Public Oracle Recruiting Cloud JSON, no auth, no key. UK universities."""
+    jobs = []
+    print(f"  Oracle ORC: {len(ORACLE_ORC_TENANTS)} tenants")
+    for pod, site, label in ORACLE_ORC_TENANTS:
+        seen_ids = set()
+        for page in range(ORACLE_ORC_MAX_PAGES):
+            offset = page * ORACLE_ORC_PAGE_SIZE
+            url = (
+                f"https://{pod}/hcmRestApi/resources/latest/recruitingCEJobRequisitions"
+                f"?onlyData=true&expand=requisitionList"
+                f"&finder=findReqs;siteNumber={site},"
+                f"limit={ORACLE_ORC_PAGE_SIZE},offset={offset}"
+            )
+            try:
+                r = requests.get(url, timeout=30, headers={"Accept": "application/json"})
+                if r.status_code != 200:
+                    print(f"    {label}: HTTP {r.status_code}, skipping")
+                    break
+                items = (r.json() or {}).get("items") or []
+                if not items:
+                    break
+                reqs = items[0].get("requisitionList") or []
+                if not reqs:
+                    break
+                added = 0
+                for item in reqs:
+                    try:
+                        req_id = str(item.get("Id", "") or "")
+                        title = clean(item.get("Title", ""))
+                        if not title or req_id in seen_ids:
+                            continue
+                        seen_ids.add(req_id)
+                        href = clean_url(
+                            f"https://{pod}/hcmUI/CandidateExperience/en/sites/"
+                            f"{site}/job/{req_id}"
+                        )
+                        if not href:
+                            continue
+                        loc = clean(item.get("PrimaryLocation", ""))
+                        posted = item.get("PostedDate", "") or ""
+                        date_str = (
+                            posted[:10] if len(posted) >= 10
+                            else datetime.date.today().isoformat()
+                        )
+                        closing = item.get("PostingEndDate", "") or ""
+                        # ShortDescriptionStr is usually empty on the list
+                        # endpoint; the qualifications and responsibilities
+                        # fields carry the real text and are what categorise()
+                        # needs, so concatenate whatever is present rather than
+                        # fetching each job detail page (which would be one
+                        # request per posting).
+                        desc = " ".join(
+                            clean(item.get(k, "") or "")
+                            for k in (
+                                "ShortDescriptionStr",
+                                "ExternalQualificationsStr",
+                                "ExternalResponsibilitiesStr",
+                                "JobFamily",
+                                "JobFunction",
+                                "Department",
+                            )
+                        ).strip()
+                        jobs.append({
+                            "id": make_id(href, title),
+                            "title": title,
+                            "organisation": label,
+                            "location": loc,
+                            "country": infer_country(loc) or "UK",
+                            "source": "Oracle ORC",
+                            "url": href,
+                            "date_posted": date_str,
+                            "closing_date": closing[:10] if len(closing) >= 10 else "",
+                            "type": clean(item.get("JobType", "") or item.get("WorkerType", "")),
+                            "description": desc,
+                        })
+                        added += 1
+                    except Exception as e:
+                        print(f"    {label} item parse error: {e}")
+                print(f"    {label} p{page + 1}: +{added}")
+                if added == 0 or len(reqs) < ORACLE_ORC_PAGE_SIZE:
+                    break
+            except Exception as e:
+                print(f"  GET failed Oracle ORC {label}: {e}")
+                break
+            time.sleep(0.5)
+    return jobs
+
+
+# ---------------------------------------------------------------------------
+# University of Cambridge RSS (Phase 8, 19 Aug 2026)
+#
+# Cambridge runs a bespoke in-house system rather than a commercial ATS, but
+# unlike the other bespoke systems in the audit (Glasgow, QMUL) it publishes a
+# working RSS feed. Cheap to poll and stable, so it is worth its own tiny
+# adapter rather than relying on jobs.ac.uk syndication.
+#
+# CAUTION recorded for the next audit: the platform-detection sweep initially
+# reported Cambridge, Bristol and Warwick as Eploy tenants. They are not. The
+# regex `eploy` was matching inside the words "employ" and "employer" in the
+# page body. This is EXACTLY the Phase 4 `rse`-inside-"course" bug in a new
+# place. Bristol is in fact Lumesse/TalentLink and Warwick is tal.net. Any
+# future platform sweep must use word-boundary matching, and a platform should
+# be confirmed by a real host name in a link (e.g. cardiffuniweb.eploy.net) and
+# never by a bare substring in body text.
+# ---------------------------------------------------------------------------
+
+CAMBRIDGE_RSS = "https://www.jobs.cam.ac.uk/job/?format=rss"
+
+
+def scrape_cambridge() -> list:
+    """University of Cambridge bespoke jobs system, RSS 2.0."""
+    jobs = []
+    print("  Cambridge RSS")
+    r = get(CAMBRIDGE_RSS)
+    if not r:
+        return jobs
+    try:
+        soup = BeautifulSoup(r.text, "xml")
+        for item in soup.find_all("item"):
+            try:
+                title_el = item.find("title")
+                title = clean(title_el.get_text()) if title_el else ""
+                link_el = item.find("link")
+                href = clean_url(link_el.get_text().strip() if link_el else "")
+                if not title or not href:
+                    continue
+                desc_el = item.find("description")
+                desc = (
+                    BeautifulSoup(desc_el.get_text(), "html.parser").get_text()
+                    if desc_el else ""
+                )
+                pub = item.find("pubDate")
+                date_str = parse_rss_date(pub.get_text() if pub else "")
+                closing = ""
+                cm = re.search(r"(?:Closing date|Closes):\s*(.+?)(?:\n|$)", desc, re.I)
+                if cm:
+                    closing = clean(cm.group(1))
+                jobs.append({
+                    "id": make_id(href, title),
+                    "title": title,
+                    "organisation": "University of Cambridge",
+                    "location": "Cambridge, UK",
+                    "country": "UK",
+                    "source": "Cambridge",
+                    "url": href,
+                    "date_posted": date_str or datetime.date.today().isoformat(),
+                    "closing_date": closing,
+                    "type": "",
+                    "description": clean(desc),
+                })
+            except Exception as e:
+                print(f"    Cambridge item parse error: {e}")
+    except Exception as e:
+        print(f"  Cambridge parse failed: {e}")
+    return jobs
+
+
+# ---------------------------------------------------------------------------
 # SmartRecruiters postings API (Phase 7) - Williams Racing, Red Bull, Sportradar
 # ---------------------------------------------------------------------------
 
@@ -2120,8 +2336,12 @@ def main():
         ("SmartRecruiters", scrape_smartrecruiters),
         ("Recruitee", scrape_recruitee),
         ("Workable", scrape_workable),
+        # Phase 8 (19 Aug 2026): UK university ATS platforms. Same loop, same
+        # filter, same dedup - a university is just another employer endpoint.
+        ("Oracle ORC", scrape_oracle_orc),
+        ("Cambridge", scrape_cambridge),
     ):
-        print(f"  Running {label} scraper (industry, Phase 7)...")
+        print(f"  Running {label} scraper...")
         try:
             results = fn()
             added = 0

@@ -32,6 +32,8 @@
         .source-smartrec    { background: #1a2a3a; color: #7dd3fc; }
         .source-recruitee   { background: #3a1a2a; color: #f9a8d4; }
         .source-workable    { background: #1a3a2a; color: #6ee7b7; }
+        .source-orc         { background: #2a1f3a; color: #c4b5fd; }
+        .source-cambridge   { background: #1f2a3a; color: #93c5fd; }
         .country-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
         .country-uk     { background: #1e3050; color: #93c5fd; }
         .country-ca     { background: #2d1818; color: #fca5a5; }
@@ -103,6 +105,8 @@
                     <option value="SmartRecruiters">SmartRecruiters (industry, F1)</option>
                     <option value="Recruitee">Recruitee (industry)</option>
                     <option value="Workable">Workable (industry)</option>
+                    <option value="Oracle ORC">University ATS (Oracle)</option>
+                    <option value="Cambridge">Cambridge</option>
                     <option value="THEunijobs">THEunijobs</option>
                     <option value="HigherEdJobs">HigherEdJobs</option>
                     <option value="AcademicWork">AcademicWork.ca (CAUT)</option>
@@ -318,6 +322,8 @@
         if (l.includes('smartrecruiters'))     return 'source-smartrec';
         if (l.includes('recruitee'))           return 'source-recruitee';
         if (l.includes('workable'))            return 'source-workable';
+        if (l.includes('oracle') || l.includes('orc')) return 'source-orc';
+        if (l.includes('cambridge'))           return 'source-cambridge';
         return '';
     }
 
