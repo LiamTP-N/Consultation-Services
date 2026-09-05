@@ -119,6 +119,13 @@
                     <option value="60">Fit &ge; 60</option>
                     <option value="80">Fit &ge; 80</option>
                 </select>
+                <select id="minsalary-filter" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
+                    <option value="0">Any salary</option>
+                    <option value="39999">&pound;39,999+ (incl. unstated)</option>
+                    <option value="39999s">&pound;39,999+ (stated only)</option>
+                    <option value="49999">&pound;49,999+ (incl. unstated)</option>
+                    <option value="49999s">&pound;49,999+ (stated only)</option>
+                </select>
                 <input id="search" type="text" placeholder="Search title or organisation..." class="px-3 py-1.5 rounded-lg text-xs border border-slate-600 bg-slate-800 text-slate-300 placeholder-slate-600 focus:outline-none focus:border-blue-500 flex-1 min-w-[180px]">
             </div>
 
@@ -149,12 +156,13 @@
                             <th class="sortable px-4 py-3 text-left" data-col="fit_score">Fit <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left" data-col="title">Role <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left hidden md:table-cell" data-col="organisation">Organisation <span class="sort-arrow">&#8597;</span></th>
+                            <th class="sortable px-4 py-3 text-left hidden sm:table-cell" data-col="salary_max">Salary <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left" data-col="source">Source <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left sorted" data-col="date_posted">Posted <span class="sort-arrow">&#8595;</span></th>
                         </tr>
                     </thead>
                     <tbody id="jobs-body">
-                        <tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">Loading jobs.json...</td></tr>
+                        <tr><td colspan="6" class="px-4 py-12 text-center text-slate-500 text-sm">Loading jobs.json...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -205,6 +213,12 @@
     let countryFilter = 'all';
     let categoryFilter = 'all';
     let minFit = 0;
+    // Salary filter. `minSalary` is the threshold in GBP; `salaryStatedOnly`
+    // decides what happens to a job with no published figure. Default is to
+    // SHOW unstated jobs, because most sources publish no salary at all and
+    // hiding them would quietly remove most of the board.
+    let minSalary = 0;
+    let salaryStatedOnly = false;
     let visibleCount = PAGE_SIZE;
 
     const CATEGORY_LABELS = {
@@ -350,6 +364,32 @@
         return `<span class="fit-score ${cls}">${s}</span>`;
     }
 
+    // Salary cell. `salary_max` is the top of the advertised range, normalised
+    // to annual GBP by the scraper; null means the advert did not state one.
+    // Only Jobs.ac.uk, Adzuna (UK) and Reed publish a figure, so a blank here
+    // means "not stated", never "low paid".
+    function salaryHtml(j) {
+        const hi = j.salary_max;
+        if (hi === null || hi === undefined) {
+            return `<span class="text-slate-600 text-xs italic" title="This source does not publish a salary">not stated</span>`;
+        }
+        const lo = (j.salary_min === null || j.salary_min === undefined) ? hi : j.salary_min;
+        const fmt = n => '£' + Math.round(n / 1000) + 'k';
+        const label = lo === hi ? fmt(hi) : `${fmt(lo)}-${fmt(hi)}`;
+        const cls = hi >= 39999 ? 'text-emerald-400' : 'text-slate-400';
+        return `<span class="${cls} text-xs font-semibold" title="${escHtml(j.salary_text || '')}">${label}</span>`;
+    }
+
+    // Threshold test, using the agreed rule: a RANGE passes when its TOP clears
+    // the threshold, so a £38,249-£45,413 spine point is not filtered out on
+    // its starting salary alone.
+    function matchesSalary(j) {
+        if (!minSalary) return true;
+        const hi = j.salary_max;
+        if (hi === null || hi === undefined) return !salaryStatedOnly;
+        return hi >= minSalary;
+    }
+
     function getFilteredJobs() {
         let jobs = allJobs.filter(j => {
             if (!isRecent(j.date_posted)) return false;
@@ -357,6 +397,7 @@
             if (sourceFilter !== 'all' && j.source !== sourceFilter) return false;
             if (!matchesCategory(j, categoryFilter)) return false;
             if ((j.fit_score || 0) < minFit) return false;
+            if (!matchesSalary(j)) return false;
             const hay = `${j.title} ${j.organisation} ${j.type}`.toLowerCase();
             if (searchTerm && !hay.includes(searchTerm)) return false;
             return true;
@@ -376,6 +417,17 @@
                     const db = b.date_posted ? new Date(b.date_posted).getTime() : 0;
                     return da < db ? sortDir : da > db ? -sortDir : 0;
                 }
+            } else if (sortCol === 'salary_max') {
+                // Unstated sorts to the bottom in both directions, because a
+                // missing figure is unknown rather than zero and should not
+                // masquerade as the lowest-paid job on the board.
+                const na = a.salary_max, nb = b.salary_max;
+                const ma = (na === null || na === undefined);
+                const mb = (nb === null || nb === undefined);
+                if (ma && mb) return 0;
+                if (ma) return 1;
+                if (mb) return -1;
+                return na < nb ? sortDir : na > nb ? -sortDir : 0;
             } else {
                 va = (va || '').toString().toLowerCase();
                 vb = (vb || '').toString().toLowerCase();
@@ -392,7 +444,7 @@
         const tbody = document.getElementById('jobs-body');
 
         if (!jobs.length) {
-            tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs match this filter.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs match this filter.</td></tr>`;
             updateLoadMore(0, 0);
             updateStats();
             return;
@@ -411,6 +463,7 @@
                     </div>
                 </td>
                 <td class="px-4 py-3 text-slate-400 text-xs hidden md:table-cell align-top">${escHtml(j.organisation) || '-'}</td>
+                <td class="px-4 py-3 whitespace-nowrap hidden sm:table-cell align-top">${salaryHtml(j)}</td>
                 <td class="px-4 py-3 whitespace-nowrap align-top">
                     <span class="source-badge ${srcClass(j.source)}">${escHtml(j.source) || '-'}</span>${countryBadgeHtml(j)}
                 </td>
@@ -451,13 +504,13 @@
             const recent = allJobs.filter(j => isRecent(j.date_posted));
             if (!recent.length) {
                 document.getElementById('jobs-body').innerHTML =
-                    `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 20 days - check back after the next scrape (07:00 / 13:00 UTC).</td></tr>`;
+                    `<tr><td colspan="6" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 20 days - check back after the next scrape (07:00 / 13:00 UTC).</td></tr>`;
             } else {
                 renderTable();
             }
         } catch (e) {
             const tbody = document.getElementById('jobs-body');
-            tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load jobs.json.<br><span class="text-xs text-slate-600" id="err-msg"></span></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load jobs.json.<br><span class="text-xs text-slate-600" id="err-msg"></span></td></tr>`;
             const errEl = document.getElementById('err-msg');
             if (errEl) errEl.textContent = e.message;
         }
@@ -478,6 +531,16 @@
 
     document.getElementById('minfit-filter').addEventListener('change', e => {
         minFit = parseInt(e.target.value, 10) || 0;
+        visibleCount = PAGE_SIZE;
+        renderTable();
+    });
+
+    document.getElementById('minsalary-filter').addEventListener('change', e => {
+        // Values are either "0", "39999" or "39999s"; the trailing "s" means
+        // stated-only, so unstated salaries are excluded rather than shown.
+        const v = e.target.value;
+        salaryStatedOnly = v.endsWith('s');
+        minSalary = parseInt(v, 10) || 0;
         visibleCount = PAGE_SIZE;
         renderTable();
     });

@@ -672,6 +672,61 @@ def clean_url(url: str) -> str:
     return ""
 
 
+def parse_salary(text: str) -> tuple:
+    """Parse a free-text salary line into (min, max) annual GBP integers.
+
+    Returns (None, None) when nothing usable is found, which the front end
+    renders as "salary not stated" rather than excluding the job. Deliberately
+    conservative: a wrong number is worse than no number, because the whole
+    point of the field is a threshold filter.
+
+    Rules, and the reasoning for each:
+    - Only GBP. A bare number with no currency mark is accepted only when the
+      surrounding text has a pound sign somewhere, so Canadian and euro
+      postings do not get silently compared against a sterling threshold.
+    - "35k" style shorthand is expanded.
+    - Hourly rates are annualised at 37.5 h x 52 weeks = 1,950 h. Flagged by
+      returning the annualised figure; it is an estimate and the tooltip says so.
+    - Anything that lands below 5,000 after normalisation is discarded as not
+      an annual salary (grant totals, per-session fees, bursaries).
+    """
+    if not text:
+        return (None, None)
+    t = str(text).replace(",", " ").replace("\xa0", " ")
+    low = t.lower()
+    if "£" not in t and "gbp" not in low:
+        return (None, None)
+    hourly = bool(re.search(r"per\s*hour|/\s*hour|\bp\.?h\b|hourly", low))
+    nums = []
+    for m in re.finditer(r"£?\s*(\d{1,3}(?:\s\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)\s*(k\b)?", t, re.I):
+        raw = m.group(1).replace(" ", "")
+        try:
+            val = float(raw)
+        except ValueError:
+            continue
+        if m.group(2):
+            val *= 1000
+        if hourly and val < 500:
+            val *= 1950
+        if val >= 5000:
+            nums.append(int(round(val)))
+    if not nums:
+        return (None, None)
+    return (min(nums), max(nums))
+
+
+def attach_salary(job: dict) -> dict:
+    """Set salary_text / salary_min / salary_max on a job dict in place.
+
+    Every scraper appends its raw salary string as `salary_text` (empty where
+    the source does not publish one); this normalises it once, in one place,
+    so a source-specific parsing bug cannot spread."""
+    lo, hi = parse_salary(job.get("salary_text", ""))
+    job["salary_min"] = lo
+    job["salary_max"] = hi
+    return job
+
+
 def categorise(job: dict) -> list:
     text = (
         f"{job.get('title', '')} "
@@ -777,6 +832,13 @@ def backfill_categories(jobs: list) -> list:
             continue  # no longer relevant under current rules -> drop
         j["categories"] = cats
         j["fit_score"] = compute_fit_score(cats)
+        # Salary normalisation runs on EVERY entry each time, for the same
+        # reason categories do: when the parser is tightened, the whole store
+        # self-heals on the next scrape rather than keeping stale figures.
+        # Entries scraped before this field existed carry no salary_text and
+        # come out as None, which the board shows as "not stated".
+        j.setdefault("salary_text", "")
+        attach_salary(j)
         cleaned.append(j)
     return cleaned
 
@@ -801,6 +863,13 @@ def deduplicate(jobs: list) -> list:
             merged = sorted(existing_cats | new_cats)
             seen[key]["categories"] = merged
             seen[key]["fit_score"] = compute_fit_score(merged)
+            # Salary: a duplicate from a source that publishes a figure fills a
+            # gap left by one that does not. Never overwrite an existing figure,
+            # so the first source to state one wins and the value is stable.
+            if seen[key].get("salary_max") is None and j.get("salary_max") is not None:
+                seen[key]["salary_text"] = j.get("salary_text", "")
+                seen[key]["salary_min"] = j.get("salary_min")
+                seen[key]["salary_max"] = j.get("salary_max")
     return unique
 
 
@@ -983,6 +1052,11 @@ def scrape_jobsac_html() -> list:
                     date_str = _jobsac_parse_date(date_m.group(1) if date_m else "")
                     close_m = re.search(r"Closes\s+(.+)", card_text)
                     closing = clean(close_m.group(1).splitlines()[0]) if close_m else ""
+                    # Salary line. Jobs.ac.uk cards carry it as a "Salary:"
+                    # label; it was being read only to be excluded from the
+                    # employer guess, and was then discarded.
+                    sal_m = re.search(r"Salary:\s*\n?\s*(.+)", card_text)
+                    salary_text = clean(sal_m.group(1).splitlines()[0]) if sal_m else ""
                     jobs.append({
                         "id": make_id(href, title),
                         "title": title,
@@ -995,6 +1069,7 @@ def scrape_jobsac_html() -> list:
                         "closing_date": closing,
                         "type": "",
                         "description": "",
+                        "salary_text": salary_text,
                     })
                 except Exception as e:
                     print(f"    card parse error: {e}")
@@ -1044,6 +1119,8 @@ def scrape_jobsac_rss() -> list:
                         closing = clean(close_match.group(1))
                     pub_date = item.find("pubDate")
                     date_str = parse_rss_date(pub_date.get_text() if pub_date else "")
+                    sal_match = re.search(r"Salary:\s*(.+?)(?:\n|$)", desc, re.I)
+                    salary_text = clean(sal_match.group(1)) if sal_match else ""
                     jobs.append({
                         "id": make_id(href, title),
                         "title": title,
@@ -1056,6 +1133,7 @@ def scrape_jobsac_rss() -> list:
                         "closing_date": closing,
                         "type": "",
                         "description": clean(desc),
+                        "salary_text": salary_text,
                     })
                 except Exception as e:
                     print(f"    item parse error: {e}")
@@ -1317,6 +1395,21 @@ def scrape_adzuna(country_code: str, country_label: str) -> list:
                         loc = clean(location_obj.get("display_name", ""))
                     created = item.get("created", "")
                     date_str = created[:10] if created else datetime.date.today().isoformat()
+                    # Salary. Adzuna returns numeric salary_min/salary_max in
+                    # the country's own currency, so this is taken for the UK
+                    # feed ONLY - a Canadian posting's figure is CAD and would
+                    # otherwise be compared against a sterling threshold as if
+                    # it were pounds. `salary_is_predicted` == "1" means Adzuna
+                    # estimated it rather than the employer stating it, and an
+                    # estimate is not an advertised salary, so it is dropped.
+                    salary_text = ""
+                    if country_code == "uk" and str(item.get("salary_is_predicted", "")) != "1":
+                        s_lo = item.get("salary_min")
+                        s_hi = item.get("salary_max")
+                        if s_lo or s_hi:
+                            lo = int(round(float(s_lo or s_hi)))
+                            hi = int(round(float(s_hi or s_lo)))
+                            salary_text = f"£{lo:,} to £{hi:,}" if lo != hi else f"£{lo:,}"
                     jobs.append({
                         "id": make_id(href, title),
                         "title": title,
@@ -1329,6 +1422,7 @@ def scrape_adzuna(country_code: str, country_label: str) -> list:
                         "closing_date": "",
                         "type": clean(item.get("contract_time", "") or item.get("contract_type", "")),
                         "description": clean(item.get("description", "")),
+                        "salary_text": salary_text,
                     })
                 except Exception as e:
                     print(f"    item parse error: {e}")
@@ -1396,6 +1490,17 @@ def scrape_reed() -> list:
                     date_raw = item.get("date", "") or item.get("datePosted", "")
                     date_str = parse_reed_date(date_raw)
                     closing = item.get("expirationDate", "") or ""
+                    # Salary. Reed publishes minimumSalary/maximumSalary as
+                    # numbers, but the period is not always annual, so a rate
+                    # under £5,000 is dropped by parse_salary rather than being
+                    # treated as a very low annual wage.
+                    salary_text = ""
+                    s_lo = item.get("minimumSalary")
+                    s_hi = item.get("maximumSalary")
+                    if s_lo or s_hi:
+                        lo = int(round(float(s_lo or s_hi)))
+                        hi = int(round(float(s_hi or s_lo)))
+                        salary_text = f"£{lo:,} to £{hi:,}" if lo != hi else f"£{lo:,}"
                     jobs.append({
                         "id": make_id(href, title),
                         "title": title,
@@ -1408,6 +1513,7 @@ def scrape_reed() -> list:
                         "closing_date": clean(closing),
                         "type": "",
                         "description": clean(item.get("jobDescription", "")),
+                        "salary_text": salary_text,
                     })
                 except Exception as e:
                     print(f"    item parse error: {e}")
