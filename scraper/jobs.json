@@ -1,6 +1,385 @@
 {
   "jobs": [
     {
+      "id": "f7d19cb9b7d615bb",
+      "title": "Postdoctoral Fellow - Chandra Lab",
+      "organisation": "The Francis Crick Institute",
+      "location": "London",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC480/postdoctoral-fellow-chandra-lab",
+      "date_posted": "2026-09-30",
+      "closing_date": "13 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "From £47,080",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "d201a3071a6564e7",
+      "title": "Senior Technician (Biosciences) - 10647",
+      "organisation": "Brunel University London",
+      "location": "Uxbridge",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC349/senior-technician-biosciences-10647",
+      "date_posted": "2026-09-30",
+      "closing_date": "20 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£34,588 to £39,144",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 14
+    },
+    {
+      "id": "22cc954b6e65a07c",
+      "title": "Lecturer, Senior Lecturer, or Associate Professor in Digital Health",
+      "organisation": "University of Canterbury, New Zealand",
+      "location": "Christchurch",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTB839/lecturer-senior-lecturer-or-associate-professor-in-digital-health",
+      "date_posted": "2026-09-30",
+      "closing_date": "26 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£46,110.64 to £82,114.06",
+      "categories": [
+        "health_tech",
+        "fe_he_teaching"
+      ],
+      "fit_score": 38
+    },
+    {
+      "id": "5d8ad85a04791145",
+      "title": "Senior Research Associate (Fixed Term)",
+      "organisation": "University of Cambridge",
+      "location": "Cambridge",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC457/senior-research-associate-fixed-term",
+      "date_posted": "2026-09-30",
+      "closing_date": "15 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£42,254 to £56,535",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "585d93d59ff7bcd1",
+      "title": "Lecturer in Engineering Materials",
+      "organisation": "University of Plymouth",
+      "location": "Devon, Plymouth",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC473/lecturer-in-engineering-materials",
+      "date_posted": "2026-09-30",
+      "closing_date": "25 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£39,906 to £56,535",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "cace283eca033f8f",
+      "title": "Technical Specialist - Machine Integration (Infrastructure)",
+      "organisation": "University of Sheffield",
+      "location": "Sheffield, Hybrid",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC450/technical-specialist-machine-integration-infrastructure",
+      "date_posted": "2026-09-30",
+      "closing_date": "20 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£38,784 to £43,482",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 14
+    },
+    {
+      "id": "e7ac068ccc61ce31",
+      "title": "Research Assistant (Fixed Term)",
+      "organisation": "University of Cambridge",
+      "location": "Cambridge",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC464/research-assistant-fixed-term",
+      "date_posted": "2026-09-30",
+      "closing_date": "12 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£33,002 to £35,608",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 14
+    },
+    {
+      "id": "1ac6490106cffa9c",
+      "title": "Senior Data Scientist - Product Team",
+      "organisation": "MarketCast",
+      "location": "Farringdon, Central London",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5903630884?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-30",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Senior Data Scientist - Product Team London, UK, Reading, UK Role Impact: As our Senior Data Scientist - Product Team, you'll be a pivotal player in our Data Science as a Serviceteam. The Senior Data Scientist - Product Team plays a pivotal role in designing, developing, and iterating the core machine learning models and analytical frameworks that power MarketCast's commercial product offerings. Operating at the intersection of data science and product development, this individual contributor t…",
+      "salary_text": "",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "a46bd2c686d2baf2",
+      "title": "Lab Technician (Electronic Hardware)",
+      "organisation": "Graphcore",
+      "location": "Bristol, South West England",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5903624357?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-30",
+      "closing_date": "",
+      "type": "",
+      "description": "About the job Keep the labs running where Graphcore hardware moves from idea to evidence. As a Lab Technician, you will help keep Graphcore’s Bristol electronics laboratories operational, safe, and ready for engineering work. You will support the facilities, equipment, procedures, and practical setups that enable hardware teams to move quickly. Your work will directly shape the quality and reliability of lab operations across DC Engineering. From ESD controls to calibration, asset management, a…",
+      "salary_text": "",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 14
+    },
+    {
+      "id": "e4b6002b612d56c0",
+      "title": "Scientific Technician / Research Associate",
+      "organisation": "Wild Bioscience",
+      "location": "Elfield Park, Milton Keynes",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5903624324?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-30",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Description At Wild Bio we are radically enhancing crops to feed the world sustainably and promote a wilder planet. Wild plants have had half a billion years to evolve natural solutions for thriving in almost every environment on Earth. Our proprietary genetics platform harnesses these wild innovations to enhance the world’s most important crops. Wild-enhanced crops would simultaneously boost farm yields and promote gigaton-scale carbon mitigation strategies. If you’re looking for a start-up th…",
+      "salary_text": "",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "c2ff0a3f8bb670dc",
+      "title": "EPR Digital NMAHP",
+      "organisation": "Norfolk and Norwich University Hospitals NHS Foundation Trust",
+      "location": "Gorleston, Great Yarmouth",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5903634054?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-30",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "We have embarked on a programme to implement a single Electronic Patient Record (EPR) as part of the NHS digital health ongoing initiative across the Norfolk and Waveney Acute Hospital Collaborative (NWAHC). The collaborative is made up of three acute hospitals in Norfolk and Waveney; · James Paget University Hospitals NHS Foundation Trust (JPUH) · Norfolk and Norwich University Hospitals NHS Foundation Trust (NNUH) · The Queen Elizabeth Hospital King's Lynn NHS Foundation Trust (QEH) This is a…",
+      "salary_text": "",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "f982587856aedcf5",
+      "title": "Assessor (DSE - Display Screen Equipment - Ergonomics)",
+      "organisation": "Posturite",
+      "location": "London Colney, St. Albans",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5903638264?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-30",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "We’re growing our DSE (Display Screen Equipment) Assessor team and looking for someone who wants to help others feel better and work more comfortably. ️ What you’ll do: Help individuals improve their workstation setup by completing face to face or remote DSE Assessments, providing practical and effective ergonomic solutions. Deliver expert recommendations: Create clear and concise written reports outlining recommended ergonomic products and strategies. Build and maintain client relationships: A…",
+      "salary_text": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "cd20cae730a47ff8",
+      "title": "Assessor (DSE - Display Screen Equipment - Ergonomics)",
+      "organisation": "Posturite Ltd",
+      "location": "London, UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5903118587?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-30",
+      "closing_date": "",
+      "type": "",
+      "description": "We’re growing our DSE (Display Screen Equipment) Assessor team and looking for someone who wants to help others feel better and work more comfortably. ??? What you’ll do: Help individuals improve their workstation setup by completing face to face or remote DSE Assessments, providing practical and effective ergonomic solutions. Deliver expert recommendations: Create clear and concise written reports outlining recommended ergonomic products and strategies. Build and maintain client re…",
+      "salary_text": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "574c8dac73673b3e",
+      "title": "Data Analyst Financial Markets - Mandarin Speaking",
+      "organisation": "Placeholder Commercial Real Estate Platform",
+      "location": "London, UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5903635815?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-30",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Financial Markets Department covers both trading book and banking book activities for Bank of China London Branch and Bank of China (UK) Limited. As a Data Analyst Financial Markets - Mandarin Speaking, you will be supporting the Sales team in delivering a wide range of financial products and services to clients. You play an important role in the department’s success by managing key operational and administrative functions. This is a full time permanent position. Key responsibilities Be respons…",
+      "salary_text": "",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "9516224283e738d3",
+      "title": "One to One Maths Tutor",
+      "organisation": "Outwood",
+      "location": "Marton-In-Cleveland, Middlesbrough",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5903635521?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-30",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "Description Role: One to One Tutor (Maths) Academy: Outwood Academy Ormesby Start Date: As soon as possible. Salary (Actual Salary): £18.72 to £37.03 per hour dependent on rates: 1. M6 Higher rate for those with QTS 2. UN5 Medium rate for those with relevant degree but no QTS 3. UN1 Lower rate for those with no degree or QTS Working Pattern: Monday and Wednesday Are you passionate about raising student attainment and providing personalised support to help every pupil reach their potential? Join…",
+      "salary_text": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "62688ca5c0af3c65",
+      "title": "Primary Teacher/Head of school",
+      "organisation": "Premier Education Ltd",
+      "location": "Cowdale, Buxton",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5903646144?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-30",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Head of School - Short-Term Leadership Opportunity Location: Buxton Area, High Peak Start Date: ASAP Contract: Temporary - Approximately 8-10 Weeks Hours: Full-Time, 5 Days per Week Pay: Competitive daily rate, dependent on experience, paid weekly via our in-house PAYE payroll Premier Education is working with a welcoming school near Buxton seeking an experienced Head of School to provide leadership and teaching support for approximately 8-10 weeks during the Autumn Term. This is a full-time po…",
+      "salary_text": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "59043d9ae5f40687",
+      "title": "Head of School - Motcombe Primary School",
+      "organisation": "Dorset Council",
+      "location": "Motcombe, Shaftesbury",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5903635180?se=fKMsr6688RGNc_hKohi8Ew&utm_medium=api&utm_source=8de31de0&v=1EE91814F70CA9667967FA2E4ADF2120F135E622",
+      "date_posted": "2026-09-30",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "We are seeking an exceptional and inspirational Head of School to lead the day-to-day life of our school from January 2027 (or as soon as possible after this). Working closely with the Primary Strategic Lead, you will play a pivotal role in shaping the culture, ethos and continued development of the school. You will provide visible, values-led leadership, creating a safe, inclusive and ambitious environment where every child and member of staff is supported to achieve their full potential. We a…",
+      "salary_text": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "e24ce5ad8c9d23a5",
+      "title": "Family and Multi-Agency Co-ordinator Ref. TV15626",
+      "organisation": "Old Hall School",
+      "location": "Walsall, West Midlands",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5903420386?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-30",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Family and Multi-Agency Co-ordinator (Including safeguarding responsibilities) Location: Old Hall School, Bentley Lane, Walsall, WS2 7LU Old Hall School – The Nest, Pinfold Street, Darlaston, WS10 8SY Accountable to: Headteacher, Head of School Contract: Full time (37 hours per week) Term Time only plus 1 week including 5 training days, Permanent contract. 8.00am – 4.00pm working hours Salary: Grade 6: points 18-23 - £27,944.38-£30,511.36 (£16.35-£17.85 an hour) If you… Are child‑centred, and d…",
+      "salary_text": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "db29f084730835a2",
+      "title": "Head of School",
+      "organisation": "Swaffham Meadow Primary School",
+      "location": "Drymere, Swaffham",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5903292421?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-30",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Swaffham Meadows Primary School Address: Swaffham, Norfolk PE37 7HL Salary: Competitive Leadership Salary Hours: Full time (1.0% FTE) Contract: Permanent Reference: 5537 Lead a school. Shape its future. Are you ready for the next stage in your career? This is a rare opportunity to become Head of School at Swaffham Meadows Primary School during an exciting period of transformation and growth. Having recently joined Sapientia Education Trust, the school has embarked on a new chapter with a refres…",
+      "salary_text": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "1e10392b2270aa7f",
+      "title": "Business Analyst (Full Time, 6 Month Contract)",
+      "organisation": "Amplify Care",
+      "location": "Kitchener, Waterloo region",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5903652619?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-30",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Program Overview: Clinically driven. Digitally inspired. Amplify Care is a not-for-profit organization (founded in 2014 as the eHealth Centre of Excellence) dedicated to helping clinicians and their teams thrive through the implementation of innovative digital health and AI solutions. We focus on technologies that truly meet clinical needs: streamlining workflows to reduce administrative burden, supporting evidence-based decision-making at the point-of-care, enhancing clinical pathways, improvi…",
+      "salary_text": "",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "4fc1cc9d8587b0a1",
+      "title": "Junior NLP Data Scientist",
+      "organisation": "University of British Columbia",
+      "location": "Greater Vancouver, British Columbia",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5903649554?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-30",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Staff - Non Union Job Category M&P - AAPS Job Profile AAPS Salaried - Information Systems and Technology, Level A Job Title Junior NLP Data Scientist Department Nunez Laboratory | Department of Psychiatry | Faculty of Medicine Compensation Range $5,692.25 - $8,179.50 CAD Monthly The Compensation Range is the span between the minimum and maximum base salary for a position. The midpoint of the range is approximately halfway between the minimum and the maximum and represents an employee that posse…",
+      "salary_text": "",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 18
+    },
+    {
       "id": "9787f43f6350d4f4",
       "title": "Research Assistant - Auxin Signalling (Fixed Term)",
       "organisation": "University of Cambridge",
@@ -16,7 +395,9 @@
       "categories": [
         "technician"
       ],
-      "fit_score": 14
+      "fit_score": 14,
+      "salary_min": 33002,
+      "salary_max": 35608
     },
     {
       "id": "439569b83d990b2d",
@@ -34,7 +415,9 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "8e4f890ce8076033",
@@ -52,7 +435,9 @@
       "categories": [
         "data_science"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 41064,
+      "salary_max": 45064
     },
     {
       "id": "1e2a141920a57bde",
@@ -69,7 +454,10 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "c44f9605efbaee10",
@@ -86,7 +474,10 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "a5e6630c368cc303",
@@ -103,7 +494,10 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "c3a810f95c5a3d1f",
@@ -120,7 +514,10 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "a1b0c31a1953e2d5",
@@ -137,7 +534,10 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "b31ee4e059089355",
@@ -154,7 +554,10 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "6137e816eb7f22a0",
@@ -171,7 +574,10 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "7a744c23eb17df56",
@@ -189,7 +595,9 @@
       "categories": [
         "data_science"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "3487630741c86f48",
@@ -208,7 +616,9 @@
         "technician",
         "fe_he_teaching"
       ],
-      "fit_score": 32
+      "fit_score": 32,
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "439c527becca698a",
@@ -226,7 +636,9 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "50b24401bb418d2a",
@@ -244,7 +656,9 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "2fbe5ca3e4f45595",
@@ -262,7 +676,9 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "d2821001a8defdf3",
@@ -280,7 +696,9 @@
       "categories": [
         "data_science"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 30000,
+      "salary_max": 50000
     },
     {
       "id": "58abdbbbceb4cf14",
@@ -298,7 +716,9 @@
       "categories": [
         "technician"
       ],
-      "fit_score": 14
+      "fit_score": 14,
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "c75d3816e954956e",
@@ -316,7 +736,9 @@
       "categories": [
         "technician"
       ],
-      "fit_score": 14
+      "fit_score": 14,
+      "salary_min": 33000,
+      "salary_max": 35000
     },
     {
       "id": "40e71c6244de8fa8",
@@ -333,7 +755,901 @@
       "categories": [
         "industry_applied"
       ],
+      "fit_score": 15,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
+    },
+    {
+      "id": "d140c64122e58248",
+      "title": "Postdoctoral Research Associate in Cognitive Evolution over Deep Time",
+      "organisation": "The University of Edinburgh",
+      "location": "Edinburgh",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC355/postdoctoral-research-associate-in-cognitive-evolution-over-deep-time",
+      "date_posted": "2026-09-29",
+      "closing_date": "23 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£41,064 to £48,822",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "2e142ce5a3f064ef",
+      "title": "Research Assistant - PRECISION-CSF: A Novel Diagnostic Assay for Personalised CNS Therapy in Childhood Leukaemia",
+      "organisation": "University of Glasgow",
+      "location": "Glasgow",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC253/research-assistant-precision-csf-a-novel-diagnostic-assay-for-personalised-cns-therapy-in-childhood-leukaemia",
+      "date_posted": "2026-09-29",
+      "closing_date": "27 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£33,951 to £37,694",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 14
+    },
+    {
+      "id": "c438cf09fc5b8cfd",
+      "title": "Research Associate in Translational Bio-Nano Analysis (850895)",
+      "organisation": "University of Strathclyde",
+      "location": "Glasgow",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC231/research-associate-in-translational-bio-nano-analysis-850895",
+      "date_posted": "2026-09-29",
+      "closing_date": "19 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£37,694",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "43c57f2ec23e373d",
+      "title": "Research Assistant (850713)",
+      "organisation": "University of Strathclyde",
+      "location": "Glasgow",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC209/research-assistant-850713",
+      "date_posted": "2026-09-29",
+      "closing_date": "09 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£33,002 to £36,636",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 14
+    },
+    {
+      "id": "cf8aaeec77bf9687",
+      "title": "Research Assistant/Associate - Microfluidic Crystallisation",
+      "organisation": "Newcastle University",
+      "location": "Newcastle upon Tyne",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC158/research-assistant-associate-microfluidic-crystallisation",
+      "date_posted": "2026-09-29",
+      "closing_date": "13 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£33,951 to £38,784",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 14
+    },
+    {
+      "id": "e62b26094338cfef",
+      "title": "Postdoctoral Research Associate, Cardiocvascular Research",
+      "organisation": "City St George’s, University of London",
+      "location": "London",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC100/postdoctoral-research-associate-cardiocvascular-research",
+      "date_posted": "2026-09-29",
+      "closing_date": "25 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£43,482",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "835962d7d8286328",
+      "title": "Research Associate (Behaviour Change & Co-production)",
+      "organisation": "Cardiff University",
+      "location": "Cardiff",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC337/research-associate-behaviour-change-and-co-production",
+      "date_posted": "2026-09-29",
+      "closing_date": "16 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£41,064 to £46,049",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "18fbc65faacd630d",
+      "title": "Senior Lecturer: Year 5 Specialty Lead",
+      "organisation": "LASE (University of Kent)",
+      "location": "Canterbury",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC241/senior-lecturer-year-5-specialty-lead",
+      "date_posted": "2026-09-29",
+      "closing_date": "12 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£58,225 to £65,509",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "2b9a01dda0828e29",
+      "title": "Clinical Lecturer in Paediatric Dentistry",
+      "organisation": "Queen Mary University of London",
+      "location": "London",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC197/clinical-lecturer-in-paediatric-dentistry",
+      "date_posted": "2026-09-29",
+      "closing_date": "13 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£47,551 to £85,596",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "5f3a55e6540c4cce",
+      "title": "Research Fellow in Wearable Technology for Pregnancy Monitoring (Fixed Term)",
+      "organisation": "University of Nottingham",
+      "location": "Nottingham",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC171/research-fellow-in-wearable-technology-for-pregnancy-monitoring-fixed-term",
+      "date_posted": "2026-09-29",
+      "closing_date": "14 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£35,608 to £47,389",
+      "categories": [
+        "health_tech",
+        "research_postdoc"
+      ],
+      "fit_score": 38
+    },
+    {
+      "id": "67e35004aaf27969",
+      "title": "Research Associate in Heat and Health Modelling",
+      "organisation": "Imperial College London",
+      "location": "London, Hybrid",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC151/research-associate-in-heat-and-health-modelling",
+      "date_posted": "2026-09-29",
+      "closing_date": "28 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£50,733 to £59,484",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "4db4f99661eb1f3e",
+      "title": "Research Fellow in Computer Science",
+      "organisation": "University of Nottingham Ningbo China",
+      "location": "Ningbo",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC195/research-fellow-in-computer-science",
+      "date_posted": "2026-09-29",
+      "closing_date": "12 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£30,709.07 to £43,210.29",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "80b9e09444cf3dea",
+      "title": "Research Associate",
+      "organisation": "University of Leicester",
+      "location": "Leicester",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC208/research-associate",
+      "date_posted": "2026-09-29",
+      "closing_date": "19 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£39,906 to £41,064",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "0ed5e8d4c8cb646e",
+      "title": "Tutor",
+      "organisation": "University of Sheffield",
+      "location": "Rotherham",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC187/tutor",
+      "date_posted": "2026-09-29",
+      "closing_date": "30 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£38,784",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "70bd57013a196e3f",
+      "title": "Research Associate/Fellow in Electrical Machines",
+      "organisation": "University of Nottingham",
+      "location": "Nottingham",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC164/research-associate-fellow-in-electrical-machines",
+      "date_posted": "2026-09-29",
+      "closing_date": "14 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£32,080 to £47,389",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "3d36887cfc87bb9a",
+      "title": "Lecturer in Dynamics and Control Engineering",
+      "organisation": "University of Leicester",
+      "location": "Leicester",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC128/lecturer-in-dynamics-and-control-engineering",
+      "date_posted": "2026-09-29",
+      "closing_date": "18 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£46,049 to £56,535",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "564dfbddd1cebb76",
+      "title": "Lecturer/Assistant Professor in Mathematics",
+      "organisation": "China Agricultural University",
+      "location": "Beijing",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC204/lecturer-assistant-professor-in-mathematics",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "",
+      "salary_text": "£30,000 to £40,000",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "dcf4545535de80ef",
+      "title": "KTP Research Associate in Mathematics Learning",
+      "organisation": "University of Nottingham",
+      "location": "Nottingham",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC175/ktp-research-associate-in-mathematics-learning",
+      "date_posted": "2026-09-29",
+      "closing_date": "09 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£35,000 to £48,000",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "40b3c930290446ee",
+      "title": "Research Fellow (Fixed Term)",
+      "organisation": "University of Nottingham",
+      "location": "Nottingham",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC161/research-fellow-fixed-term",
+      "date_posted": "2026-09-29",
+      "closing_date": "05 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£35,608 to £47,389",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "8da3c401114e1bba",
+      "title": "Lecturer/Senior Lecturer in Pure Mathematics",
+      "organisation": "University of Bristol",
+      "location": "Bristol",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC132/lecturer-senior-lecturer-in-pure-mathematics",
+      "date_posted": "2026-09-29",
+      "closing_date": "01 Nov",
+      "type": "",
+      "description": "",
+      "salary_text": "£44,746 to £69,488",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "76f0c0c001c2513e",
+      "title": "Assistant Professor/Lecturer in Education (Specialism in Education Guidance Counselling)",
+      "organisation": "Maynooth University, National University of Ireland Maynooth",
+      "location": "Maynooth",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC244/assistant-professor-lecturer-in-education-specialism-in-education-guidance-counselling",
+      "date_posted": "2026-09-29",
+      "closing_date": "25 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£37,422.97 to £90,980.66",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "e8b9332e3327abd4",
+      "title": "Research Assistant",
+      "organisation": "Durham University",
+      "location": "Durham",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTC186/research-assistant",
+      "date_posted": "2026-09-29",
+      "closing_date": "13 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£31,236 to £32,080",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 14
+    },
+    {
+      "id": "e39a5a3e161f6976",
+      "title": "Research Technician",
+      "organisation": "UKRI",
+      "location": "London, UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5902860181?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Description Research Technician – Cryo-EM / Structural Biology LMS 2961 £37,476 - £39,470 per annum, inclusive of London Allowance 12-month Fixed term | Full time | Location: Hammersmith London Overall purpose: We are looking for a talented structural biologist to join the DNA Motors group headed by Professor Luis Aragon at the MRC Laboratory of Medical Sciences (LMS) and Imperial College London, working on a translational cryo-EM project. The DNA Motors group studies the Structural Maintenance…",
+      "salary_text": "",
+      "categories": [
+        "technician",
+        "fe_he_teaching"
+      ],
+      "fit_score": 32
+    },
+    {
+      "id": "2f62f05efa107b40",
+      "title": "Kickstart Your Career in Education",
+      "organisation": "Protocol Education",
+      "location": "Cotham, Bristol",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5902845146?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "Just finished university and wondering what's next? If you're a graduate looking to build valuable experience, develop transferable skills and make a real difference, education could be the perfect place to start. At Protocol Education, we're working with primary schools across Bristol that are looking for enthusiastic, motivated graduates to support their pupils and teaching teams. Whether you've studied Psychology, Sociology, Education, Sports Science, English, Maths, Criminology, Health & So…",
+      "salary_text": "",
+      "categories": [
+        "academic_sport"
+      ],
+      "fit_score": 25
+    },
+    {
+      "id": "229c794f690f688b",
+      "title": "MSK Clinician Foot and Ankle Biomechanics",
+      "organisation": "Total Assist Recruitment",
+      "location": "Norwich, Norfolk",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5903087380?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Duties: To undertake comprehensive specialist assessment, treatment, and the evaluation of outcomes of biomechanics patients, with a variety of presentations. This will include investigation and analysis of complex facts to formulate individual podiatry treatment plans. The work will be carried out in the clinic. To carry and be responsible for own case load. Qualification: Essential: Diploma / Degree in Podiatry or Physiotherapy and Current HCPC registration Desirable: Post graduate qualificat…",
+      "salary_text": "",
+      "categories": [
+        "academic_sport"
+      ],
+      "fit_score": 25
+    },
+    {
+      "id": "b7abf036a8d2d456",
+      "title": "Head of School or Headteacher",
+      "organisation": "LEEDS CITY COUNCIL",
+      "location": "UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5902953107?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Job title and organisation: Head of School or Headteacher - Beckfoot Priestthorpe Primary School & Nursery Salary: L15 - 21 (Headteacher); L11 - 14 (Head of School) progressing onto the Headteacher scale Hours: Full time Contract: Permanent Location: Beckfoot Priestthorpe Primary School & Nursery Closing Date and Time: Tuesday 13th October 2026 at 8am Beckfoot Priestthorpe is seeking an intrinsically motivated, highly ambitious and values-driven leader to continue the school's journey to remark…",
+      "salary_text": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "8973489e065a14d8",
+      "title": "Senior Lecturer/Reader/Professor in Artificial Intelligence (Teaching & Research)",
+      "organisation": "NEWCASTLE UNIVERSITY",
+      "location": "UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5902951951?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "Salary: Senior Lecturer Grade H: £58,225 to £67,468 Reader Grade IA: £69,488 to £73,090 Professor Grade IB: Band 1: £74,921 to £82,282 Band 2: £84,174 to £111,879 Band 3: £114,268 Newcastle University is a great place to work, with excellent benefits. We have a generous holiday package; plus the opportunity to buy more, great pension schemes and a number of health and wellbeing initiatives to support you. Closing Date: 27 September 2026 The role Applications are invited at Senior Lecturer, Rea…",
+      "salary_text": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "02411bcc87d0cf0a",
+      "title": "Head of School at Motcombe CofE Primary School",
+      "organisation": "Motcombe CE Primary School",
+      "location": "UK",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/details/5902951882?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "About this Role Salary: Leadership Pay Scale: L7 - L11, £60,145 - £66,368 (starting point negotiable subject to skills, experience etc. Salary is quoted prior to any pay award in 2026) Contract: Full-Time, Permanent We are seeking an exceptional and inspirational Head ofSchool to lead the day-to-day life of our school from January 2027 (or as soon as possible after this). Working closely with the Executive Headteacher, you willplay a pivotal role in shaping the culture, ethos and continued deve…",
+      "salary_text": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "ebd8660504f1fa59",
+      "title": "Yoga or Pilates Instructor",
+      "organisation": "Gold's Gym - British Columbia",
+      "location": "Milner, Greater Vancouver",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5902779587?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "Benefits: Opportunity for advancement Employee discounts Flexible schedule YOGA OR PILATES INSTRUCTOR Gold’s Gym LANGLEY is hiring Yoga and Pilates instructors with potential to grow! Are you outgoing, enthusiastic, with a passion for fitness? We would love to hear from you! About Gold’s Gym Gold’s Gym has been the authority on fitness since 1965. It was then that fitness legend Joe Gold took the knowledge and expertise he gained from training at the world famous “Muscle Beach” and opened up th…",
+      "salary_text": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "d2a9fd7d8dd891e5",
+      "title": "Group Exercise Instructor/FITNESS INSTRUCTOR",
+      "organisation": "Gold's Gym - British Columbia",
+      "location": "Milner, Greater Vancouver",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5902767765?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "GROUP EXERCISE INSTRUCTOR Gold’s Gym West Broadway is hiring Group Exercise Instructors with potential to grow! Are you outgoing, enthusiastic, with a passion for fitness? We would love to hear from you! About Gold’s Gym Gold’s Gym has been the authority on fitness since 1965. It was then that fitness legend Joe Gold took the knowledge and expertise he gained from training at the world famous “Muscle Beach” and opened up the first Gold’s Gym on Pacific Avenue in Venice, California. At Gold’s Gy…",
+      "salary_text": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "f6644364459d782b",
+      "title": "Summer Research Professional Intern-Health Care (HEOR, Epidemiology & Market Access) -Montreal/Toronto (2027 Start Date) | Stage d’été-Professionnel de recherche-Économie de la santé, biostatistique,",
+      "organisation": "Analysis Group, Inc.",
+      "location": "Montréal, Québec",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5903418316?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "Given the volume of applications we receive, we will begin rolling application review for the Summer Research Professional Intern position. Please apply as soon as possible, as the position may close earlier than the original deadline. About Groupe d’analyse (Analysis Group)’s HEOR, Epidemiology, & Market Access Practice: Make an impact at Groupe d’analyse (Analysis Group), where we collaborate with our clients to develop and implement regulatory and analytical strategies to support life scienc…",
+      "salary_text": "",
+      "categories": [
+        "academic_adjacent"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "653ce3cd58001d89",
+      "title": "Assistant Technician, Laboratory",
+      "organisation": "WSP Canada",
+      "location": "Burlington, Halton",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5903154406?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "What if you could redefine what's possible? With us, you can. You want Purpose. Growth. Opportunity. People who get it. We are the home of ambitious, passionate, and innovative world shapers. With an unmatched breadth and depth of engineering, advisory and science-based expertise, our global minds unite to power local solutions. We are pathfinders and impact makers. We are Visioneers. We are WSP. The Opportunity Your Impact Starts Here. As a Lab Technician, you will help deliver accurate, high-…",
+      "salary_text": "",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 14
+    },
+    {
+      "id": "bc1254ae51df0656",
+      "title": "Business Analyst - Junior (ONE ID Business Support) in Toronto, ON M3M 0B4 (1 days onsite)",
+      "organisation": "Amicis Global",
+      "location": "Central Bay Street, City of Toronto",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5903010880?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "Job title: Business Analyst - Junior (ONE ID Business Support) Location: Toronto, ON M3M 0B4 (1 days onsite) Duration: 8 Months Description: The ONE ID Business Support team seeks to procure 1 Business Analyst. ONE ID is foundational to a wide range of digital health solutions used by healthcare professionals across Ontario. The contingent resource will support EHR modernization and ONE ID Change Management and Adoption initiatives and are required to meet operational demands and support the gr…",
+      "salary_text": "",
+      "categories": [
+        "health_tech"
+      ],
+      "fit_score": 20
+    },
+    {
+      "id": "879391f72e13f2e2",
+      "title": "MSK Clinician Foot and Ankle Biomechanics",
+      "organisation": "Total Assist Recruitment",
+      "location": "NR23TU",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/msk-clinician-foot-and-ankle-biomechanics/57404403",
+      "date_posted": "2026-09-29",
+      "closing_date": "10/11/2026",
+      "type": "",
+      "description": "Duties: To undertake comprehensive specialist assessment, treatment, and the evaluation of outcomes of biomechanics patients, with a variety of presentations. This will include investigation and analysis of complex facts to formulate individual podiatry treatment plans. The work will be carried out in the clinic. To carry and be responsible for own case load. Qualification: Essential: Diploma / Degree in Podiatry or Physiotherapy and Current HCP...",
+      "salary_text": "£23",
+      "categories": [
+        "academic_sport"
+      ],
+      "fit_score": 25
+    },
+    {
+      "id": "3e270d1f9c377d2f",
+      "title": "Senior AI Engineer",
+      "organisation": "Harnham - Data & Analytics Recruitment",
+      "location": "London",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/senior-ai-engineer/57402657",
+      "date_posted": "2026-09-29",
+      "closing_date": "10/11/2026",
+      "type": "",
+      "description": "Senior AI Engineer London (Hybrid) | Up to 120,000 + Benefits Join a newly formed AI Lab focused on building the next generation of AI-powered products. This is a highly hands-on role where you'll work on LLMs, RAG systems, generative audio, and greenfield AI initiatives within a small, high-impact team. The Company A global information and media organisation operating across 170+ countries. Their dedicated AI team is exploring how Generative AI...",
+      "salary_text": "£110,000 to £120,000",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "edc13b74231f9b6e",
+      "title": "Head of Curriculum (Art, Fashion & Photography)",
+      "organisation": "North Kent College",
+      "location": "DA12JT",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/head-of-curriculum-art-fashion-photography/57402013",
+      "date_posted": "2026-09-29",
+      "closing_date": "11/10/2026",
+      "type": "",
+      "description": "Do you have a passion for Art, Fashion or Photography and want to inspire the next generation? We have an exciting opportunity for a Head of Curriculum (Art, Fashion & Photography) to join our Art, Fashion & Photography team. Working in collaboration with the College Deputy Principal, the successful candidate will be responsible for ensuring the delivery of a high-quality curriculum, providing the necessary support to help all learners e...",
+      "salary_text": "£53,603",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "bddfebe7a796fd52",
+      "title": "SEND CM",
+      "organisation": "Dovetail & Slate",
+      "location": "East London",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/send-cm/57404213",
+      "date_posted": "2026-09-29",
+      "closing_date": "10/11/2026",
+      "type": "",
+      "description": "Interim Curriculum Manager - Foundation Learning / SEND Location: East London Contract: Full-Time | Interim Sector: Further Education Are you an experienced FE Curriculum Manager with a background in SEND, Foundation Learning or Supported Learning? We are currently supporting an FE college in East London to appoint an experienced Interim Curriculum Manager - Foundation Learning/SEND. The Role You will lead and manage Foundation Learning and SEND...",
+      "salary_text": "£275 to £325",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "aa5acd6feda1fcd2",
+      "title": "Senior AI Engineer (x/f/m) - Phone Assistant",
+      "organisation": "Doctolib",
+      "location": "Berlin, Berlin, Germany",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/doctolib/jobs/7629374003",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "<h2 class=\"s-whitespace-pre-wrap s-break-words s-font-normal first:s-pt-0 last:s-pb-0 s-py-1 @md:s-py-2 @md:s-leading-7 s-text-base s-leading-7 s-text-foreground dark:s-text-foreground-night\"><strong class=\"s-font-semibold s-text-foreground dark:s-text-foreground-night\">What we do<br></strong></h2> <div class=\"s-whitespace-pre-wrap s-break-words s-font-normal first:s-pt-0 last:s-pb-0 s-py-1 @md:s-py-2 @md:s-leading-7 s-text-base s-leading-7 s-text-foreground dark:s-text-foreground-night\">Join a...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "2669da1eac94c9f0",
+      "title": "Senior/Staff AI Engineer - Remote Care (x/f/m)",
+      "organisation": "Doctolib",
+      "location": "Milano, Milan, Italy",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/doctolib/jobs/7811586003",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "<h2><strong>Set a new pulse for healthcare!</strong></h2> <p>We are looking for a <strong>Senior or Staff AI Engineer</strong> to join the <strong>Remote Care</strong> stream at Doctolib.</p> <p>Your mission will be to build AI-powered tools that transform how healthcare professionals deliver care beyond in-person encounters — from intelligent patient messaging to telehealth experiences. You will work in a feature team developing agentic systems across the Patient Messaging platform and Teleheal...",
+      "categories": [
+        "data_science",
+        "health_tech"
+      ],
+      "fit_score": 38
+    },
+    {
+      "id": "fd2ec2921208cf7a",
+      "title": "Software Engineer II - Athlete Performance",
+      "organisation": "Hudl",
+      "location": "London, United Kingdom",
+      "country": "UK",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/hudl/jobs/8215500",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "<div class=\"content-intro\"><p>At Hudl, we build great teams. We hire the best of the best to ensure you’re working with people you can constantly learn from. You’re trusted to get your work done your way while testing the limits of what’s possible and what’s next. We work hard to provide a culture where everyone feels supported, and our employees feel it—their votes helped us become one of <a href=\"https://www.hudl.com/blog/newsweek-top-100-global-most-loved-workplaces-2023\">Newsweek's Top 100 G...",
+      "categories": [
+        "industry_applied"
+      ],
       "fit_score": 15
+    },
+    {
+      "id": "6253a14234535512",
+      "title": "Applied AI Engineer",
+      "organisation": "Anthropic",
+      "location": "Sydney, Australia",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/anthropic/jobs/5248983008",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "<div class=\"content-intro\"><h2><strong>About Anthropic</strong></h2> <p>Anthropic’s mission is to create reliable, interpretable, and steerable AI systems. We want AI to be safe and beneficial for our users and for society as a whole. Our team is a quickly growing group of committed researchers, engineers, policy experts, and business leaders working together to build beneficial AI systems.</p></div><p>As a member of the Applied AI team at Anthropic, you will be a technical Product Engineer focu...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "f523f4431bbaf6b5",
+      "title": "Data Science, Finance & Strategy",
+      "organisation": "Anthropic",
+      "location": "San Francisco, CA",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/anthropic/jobs/5184585008",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "<div class=\"content-intro\"><h2><strong>About Anthropic</strong></h2> <p>Anthropic’s mission is to create reliable, interpretable, and steerable AI systems. We want AI to be safe and beneficial for our users and for society as a whole. Our team is a quickly growing group of committed researchers, engineers, policy experts, and business leaders working together to build beneficial AI systems.</p></div><h3>About the Role</h3> <p>Anthropic's business metrics change quickly. New models, products and...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "9506dbb78b3c46da",
+      "title": "Research Engineer / Research Scientist, RL Frontiers",
+      "organisation": "Anthropic",
+      "location": "San Francisco, CA | New York City, NY | Seattle, WA",
+      "country": "",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/anthropic/jobs/5438044008",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "<div class=\"content-intro\"><h2><strong>About Anthropic</strong></h2> <p>Anthropic’s mission is to create reliable, interpretable, and steerable AI systems. We want AI to be safe and beneficial for our users and for society as a whole. Our team is a quickly growing group of committed researchers, engineers, policy experts, and business leaders working together to build beneficial AI systems.</p></div><h2>About the role</h2> <p>Reinforcement learning is how Claude learns to reason, write code, and...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "d3a0aea36af9102e",
+      "title": "Product Manager Humanoid Robotics & Data",
+      "organisation": "Movella (Xsens)",
+      "location": "Enschede, NL",
+      "country": "",
+      "source": "Recruitee",
+      "url": "https://careers.xsens.com/o/product-manager-humanoid-robotics-data",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "fulltime_permanent",
+      "description": "Do you understand how human movement data can create value in robotics? Xsens digitizes human movement at high fidelity, and humanoid robotics is rapidly expanding the ways this data can support robot development, control, training and validation. We are looking for a product manager who can understand this evolving market and define where Xsens can create distinctive customer value. Who is Xsens Xsens is a leading full-stack provider of motion sensors, software, and analytics that enable the di...",
+      "categories": [
+        "academic_adjacent"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "2daf2148f6c2b0ee",
+      "title": "Postdoctoral Research Associate in Cognitive Evolution over Deep Time",
+      "organisation": "University of Edinburgh",
+      "location": "Edinburgh - Central Area, Midlothian, United Kingdom",
+      "country": "UK",
+      "source": "Oracle ORC",
+      "url": "https://elxw.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/14952",
+      "date_posted": "2026-09-29",
+      "closing_date": "2026-10-23",
+      "type": "",
+      "description": "We are seeking a Postdoctoral Research Associate in Cognitive Evolution over Deep Time to join the School of Geosciences on a full-time, fixed-term contract.     GeoSciences",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "5d01a33ee0d8009b",
+      "title": "Teaching Technician - School of Engineering - 108033 - Grade 4",
+      "organisation": "University of Birmingham",
+      "location": "United Kingdom",
+      "country": "UK",
+      "source": "Oracle ORC",
+      "url": "https://edzz.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_6001/job/10065",
+      "date_posted": "2026-09-29",
+      "closing_date": "2026-10-21",
+      "type": "",
+      "description": "We are seeking a skilled and enthusiastic Technical Specialist to support the delivery of our Mechanical Engineering workshop training programme. The successful candidate will provide technical expertise for undergraduate teaching, support student projects and engineering teams, and help ensure training activities meet accreditation standards. The role involves managing workshop resources, maintaining a safe working environment, and advising students and staff on the effective and safe use of en...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 14
+    },
+    {
+      "id": "a680ebec6598ff64",
+      "title": "Research Associate - School of Social Policy - 108054 - Grade 6",
+      "organisation": "University of Birmingham",
+      "location": "United Kingdom",
+      "country": "UK",
+      "source": "Oracle ORC",
+      "url": "https://edzz.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_6001/job/10071",
+      "date_posted": "2026-09-29",
+      "closing_date": "2026-10-07",
+      "type": "",
+      "description": "Do you have experience of evidence synthesis and an interest in its application and use in policy making contexts? You will be joining the College of Social Sciences to support a dynamic team of senior academics in the Centre for Evidence and Implementation Science (CEIS). You will be part of a multi-disciplinary team at the forefront of methodological innovation and policy and practice change and will be based within the Evidence Synthesis Group. CEIS also encompasses: a National Institute for...",
+      "categories": [
+        "research_postdoc"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "259c3e67c10b6d03",
+      "title": "Deputy Biofacility Manager/NACWO",
+      "organisation": "University of Cambridge",
+      "location": "Cambridge, UK",
+      "country": "UK",
+      "source": "Cambridge",
+      "url": "https://www.jobs.cam.ac.uk/job/57229/",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "We are currently looking for a Deputy Bio facility Manager within UBS. Applications are invited for a motivated and experienced Chief Animal Technician/Deputy Manager to be part of a hard working team in a busy biomedical services facility situated in South Cambridge. The successful candidate will assist the Biofacility Manager with the day to day management of the facility and deputise in their absence. As Deputy Manager, the successful candidate will co-ordinate the animal husbandry work of th...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 14
+    },
+    {
+      "id": "290d2f0a2f4b70a1",
+      "title": "Research Assistant/Associate in Theoretical Computer Science (Fixed Term)",
+      "organisation": "University of Cambridge",
+      "location": "Cambridge, UK",
+      "country": "UK",
+      "source": "Cambridge",
+      "url": "https://www.jobs.cam.ac.uk/job/57232/",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "Fixed-term: The funds for this post are available for 1 year. The Department of Computer Science and Technology is an academic department that encompasses computer science along with many aspects of engineering, technology and mathematics. We have a worldwide reputation for academic research with consistent top research ratings. The Department has an open and collaborative culture, supporting revolutionary fundamental computer science research, strong cross-cutting collaborations internally and...",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 14
+    },
+    {
+      "id": "ca7736a3bb2eafd3",
+      "title": "Senior Research Associate (Fixed Term)",
+      "organisation": "University of Cambridge",
+      "location": "Cambridge, UK",
+      "country": "UK",
+      "source": "Cambridge",
+      "url": "https://www.jobs.cam.ac.uk/job/57235/",
+      "date_posted": "2026-09-29",
+      "closing_date": "",
+      "type": "",
+      "description": "We are excited to announce an opportunity for a Senior Postdoctoral Research Associate position in the group of Professor Sam Behjati (Professor of Paediatrics) in the Department of Paediatrics. Contribution to excellence in research will be as a member of a research team carrying out research at a similar level to that undertaken by lecturing staff and will provide substantial scope for academic judgement, originality, interpretation and presentation of results. The role holder will assist with...",
+      "categories": [
+        "fe_he_teaching",
+        "research_postdoc"
+      ],
+      "fit_score": 36
     },
     {
       "id": "ec05be8489184a16",
@@ -652,7 +1968,9 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 62361,
+      "salary_max": 62361
     },
     {
       "id": "5190eb8f32ab08e8",
@@ -670,7 +1988,9 @@
       "categories": [
         "research_postdoc"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 43981,
+      "salary_max": 54019
     },
     {
       "id": "212ef967f94b1ad8",
@@ -688,7 +2008,9 @@
       "categories": [
         "technician"
       ],
-      "fit_score": 14
+      "fit_score": 14,
+      "salary_min": 31236,
+      "salary_max": 34610
     },
     {
       "id": "29134f18dc603b4e",
@@ -706,7 +2028,9 @@
       "categories": [
         "research_postdoc"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 36636,
+      "salary_max": 46049
     },
     {
       "id": "c1265583f67fac2f",
@@ -724,7 +2048,9 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 38784,
+      "salary_max": 43482
     },
     {
       "id": "ded8ae7be8f7a22a",
@@ -742,7 +2068,9 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 43482,
+      "salary_max": 53301
     },
     {
       "id": "e2f3a694384fd3bd",
@@ -760,7 +2088,9 @@
       "categories": [
         "research_postdoc"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 21805,
+      "salary_max": 21805
     },
     {
       "id": "f426b253bc6809e5",
@@ -778,7 +2108,9 @@
       "categories": [
         "research_postdoc"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 45103,
+      "salary_max": 45103
     },
     {
       "id": "fc3e59e058f21d85",
@@ -796,7 +2128,9 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 39906,
+      "salary_max": 44746
     },
     {
       "id": "71f4826cecb2b587",
@@ -814,7 +2148,9 @@
       "categories": [
         "research_postdoc"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 42972,
+      "salary_max": 56004
     },
     {
       "id": "3b80cff610bf4e88",
@@ -832,7 +2168,9 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 39906,
+      "salary_max": 46049
     },
     {
       "id": "6825946a1721f48f",
@@ -850,7 +2188,9 @@
       "categories": [
         "research_postdoc"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 36636,
+      "salary_max": 44746
     },
     {
       "id": "f5a56ebb15016622",
@@ -868,7 +2208,9 @@
       "categories": [
         "research_postdoc"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 45031,
+      "salary_max": 52514
     },
     {
       "id": "8049d35ac2a5e3c8",
@@ -886,7 +2228,9 @@
       "categories": [
         "research_postdoc"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 48607,
+      "salary_max": 48607
     },
     {
       "id": "0c373c366ae49724",
@@ -904,7 +2248,9 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "11aa1b360a6afc0a",
@@ -922,7 +2268,9 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 47389,
+      "salary_max": 47389
     },
     {
       "id": "c450ed6dcfef53ea",
@@ -940,7 +2288,9 @@
       "categories": [
         "research_postdoc"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 39959,
+      "salary_max": 48117
     },
     {
       "id": "fcfd1f3b826ba31b",
@@ -958,7 +2308,9 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "77ce90766715ecd2",
@@ -976,7 +2328,9 @@
       "categories": [
         "academic_adjacent"
       ],
-      "fit_score": 22
+      "fit_score": 22,
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "a67abdeecf0c9d9c",
@@ -994,7 +2348,9 @@
       "categories": [
         "data_science"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "256fc428ad5abb5e",
@@ -1012,7 +2368,9 @@
       "categories": [
         "data_science"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "ff43610fd0cc01ff",
@@ -1030,7 +2388,9 @@
       "categories": [
         "health_tech"
       ],
-      "fit_score": 20
+      "fit_score": 20,
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "b8659497efc3d6d4",
@@ -1048,7 +2408,9 @@
       "categories": [
         "health_tech"
       ],
-      "fit_score": 20
+      "fit_score": 20,
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "1c56f02c716ebe6a",
@@ -1066,7 +2428,9 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_min": 62361,
+      "salary_max": 62361
     },
     {
       "id": "99f3b6e8804845ef",
@@ -1083,7 +2447,10 @@
       "categories": [
         "data_science"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "b1b50593bc064533",
@@ -1100,7 +2467,10 @@
       "categories": [
         "data_science"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "cb7a2cd73d22ce16",
@@ -1117,7 +2487,10 @@
       "categories": [
         "data_science"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "28604ba7d49a0a3a",
@@ -1134,7 +2507,10 @@
       "categories": [
         "fe_he_teaching"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "d8d5bf50adfe5097",
@@ -1151,7 +2527,10 @@
       "categories": [
         "research_postdoc"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "59ec863bc1f8f827",
@@ -1168,7 +2547,10 @@
       "categories": [
         "research_postdoc"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "c7010b29f326ca9f",
@@ -1185,7 +2567,10 @@
       "categories": [
         "research_postdoc"
       ],
-      "fit_score": 18
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "79e896ed76427d24",
@@ -1202,7 +2587,10 @@
       "categories": [
         "technician"
       ],
-      "fit_score": 14
+      "fit_score": 14,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "d16619a796d1ff76",
@@ -1219,7 +2607,10 @@
       "categories": [
         "technician"
       ],
-      "fit_score": 14
+      "fit_score": 14,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "1b36153238567a2a",
@@ -1236,7 +2627,10 @@
       "categories": [
         "technician"
       ],
-      "fit_score": 14
+      "fit_score": 14,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
     },
     {
       "id": "938b8dbcc2a7c2f9",
@@ -1253,7 +2647,82 @@
       "categories": [
         "research_postdoc"
       ],
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
+    },
+    {
+      "id": "1c3dd9957a5c53c3",
+      "title": "Postdoctoral Research Associate",
+      "organisation": "The University of Edinburgh",
+      "location": "Edinburgh",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTB904/postdoctoral-research-associate",
+      "date_posted": "2026-09-28",
+      "closing_date": "19 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£41,064 to £48,822",
+      "categories": [
+        "research_postdoc"
+      ],
       "fit_score": 18
+    },
+    {
+      "id": "342d76b6512050de",
+      "title": "Physician",
+      "organisation": "Back in Motion",
+      "location": "Surrey, Greater Vancouver",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5901604023?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-28",
+      "closing_date": "",
+      "type": "part_time",
+      "description": "Job Description Job Description Job Title: Physician Program: Post Concussion Management Program (PCMP) Location: Surrey Newton Employment Status: Part Time | One Day per Week Join a collaborative interdisciplinary team within a comprehensive health services facility offering physiotherapy, occupational therapy, counselling and psychology, pharmacy, and kinesiology services—all under one roof. Minimum Qualifications: Licensed and in good standing with the College of Physicians and Surgeons of B…",
+      "salary_text": "",
+      "categories": [
+        "academic_adjacent"
+      ],
+      "fit_score": 22
+    },
+    {
+      "id": "4806dd7f9d9088bd",
+      "title": "Biospecimen Research Technician I",
+      "organisation": "OICR",
+      "location": "Toronto, Ontario",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5901587782?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-28",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Job Description Job Description About OICR OICR is Ontario’s cancer research institute. We bring together people from across the province and around the world to improve the lives of everyone affected by cancer. We take on the biggest challenges in cancer research and deliver real-world solutions to find cancer earlier and treat it more effectively. We are committed to helping people living with cancer, as well as future generations, live longer and healthier lives. Launched in December 2005, O…",
+      "salary_text": "",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 14
+    },
+    {
+      "id": "9065fc7b5f5492b8",
+      "title": "Research Technician I",
+      "organisation": "OICR",
+      "location": "Toronto, Ontario",
+      "country": "Canada",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.ca/details/5901574263?utm_medium=api&utm_source=8de31de0",
+      "date_posted": "2026-09-28",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Job Description Job Description About OICR OICR is Ontario’s cancer research institute. We bring together people from across the province and around the world to improve the lives of everyone affected by cancer. We take on the biggest challenges in cancer research and deliver real-world solutions to find cancer earlier and treat it more effectively. We are committed to helping people living with cancer, as well as future generations, live longer and healthier lives. Launched in December 2005, O…",
+      "salary_text": "",
+      "categories": [
+        "technician"
+      ],
+      "fit_score": 14
     },
     {
       "id": "1bf38da71a80abdd",
@@ -4081,6 +5550,27 @@
       "categories": [
         "data_science"
       ],
+      "fit_score": 18,
+      "salary_text": "",
+      "salary_min": null,
+      "salary_max": null
+    },
+    {
+      "id": "2a5f3b436dbfc86c",
+      "title": "Postdoctoral Research Associate in Quantum Many-Body Systems",
+      "organisation": "King's College London",
+      "location": "London",
+      "country": "UK",
+      "source": "Jobs.ac.uk",
+      "url": "https://www.jobs.ac.uk/job/DTB448/postdoctoral-research-associate-in-quantum-many-body-systems",
+      "date_posted": "2026-09-25",
+      "closing_date": "20 Oct",
+      "type": "",
+      "description": "",
+      "salary_text": "£45,031 to £48,607",
+      "categories": [
+        "research_postdoc"
+      ],
       "fit_score": 18
     },
     {
@@ -6071,6 +7561,40 @@
       "salary_max": null
     },
     {
+      "id": "6be6b8e4bbc66e34",
+      "title": "Lead Quality Assurance Engineer - Machine Learning",
+      "organisation": "Hudl",
+      "location": "London, United Kingdom",
+      "country": "UK",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/hudl/jobs/6545854",
+      "date_posted": "2026-09-24",
+      "closing_date": "",
+      "type": "",
+      "description": "<div class=\"content-intro\"><p>At Hudl, we build great teams. We hire the best of the best to ensure you’re working with people you can constantly learn from. You’re trusted to get your work done your way while testing the limits of what’s possible and what’s next. We work hard to provide a culture where everyone feels supported, and our employees feel it—their votes helped us become one of <a href=\"https://www.hudl.com/blog/newsweek-top-100-global-most-loved-workplaces-2023\">Newsweek's Top 100 G...",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 18
+    },
+    {
+      "id": "cd8e8d5c36003c81",
+      "title": "Senior Engineer - Athlete Performance",
+      "organisation": "Hudl",
+      "location": "London, United Kingdom; United Kingdom (Remote)",
+      "country": "UK",
+      "source": "Greenhouse",
+      "url": "https://job-boards.greenhouse.io/hudl/jobs/6857706",
+      "date_posted": "2026-09-24",
+      "closing_date": "",
+      "type": "",
+      "description": "<div class=\"content-intro\"><p>At Hudl, we build great teams. We hire the best of the best to ensure you’re working with people you can constantly learn from. You’re trusted to get your work done your way while testing the limits of what’s possible and what’s next. We work hard to provide a culture where everyone feels supported, and our employees feel it—their votes helped us become one of <a href=\"https://www.hudl.com/blog/newsweek-top-100-global-most-loved-workplaces-2023\">Newsweek's Top 100 G...",
+      "categories": [
+        "industry_applied"
+      ],
+      "fit_score": 15
+    },
+    {
       "id": "4700d5af07937146",
       "title": "Research Associate",
       "organisation": "King's College London",
@@ -7796,6 +9320,24 @@
       "salary_text": "",
       "salary_min": null,
       "salary_max": null
+    },
+    {
+      "id": "9351a48f82ea468e",
+      "title": "Senior Data Engineer",
+      "organisation": "hireful.",
+      "location": "Central London",
+      "country": "UK",
+      "source": "Reed",
+      "url": "https://www.reed.co.uk/jobs/senior-data-engineer/57383759",
+      "date_posted": "2026-09-23",
+      "closing_date": "04/11/2026",
+      "type": "",
+      "description": "Fast-growing UK software product business (400+ staff, globally), serving hundreds of enterprise customers worldwide, are looking for a Senior Data Engineer to help shape the future of its data platform. You'll take ownership of building scalable data solutions in Databricks primarily, establishing a single source of truth, and enabling trusted, self-service access to data across the business. Location: UK, remote with very occasional visits to ...",
+      "salary_text": "£75,000 to £85,000",
+      "categories": [
+        "data_science"
+      ],
+      "fit_score": 18
     },
     {
       "id": "81d016e62aa864c9",
@@ -10387,6 +11929,23 @@
       "salary_text": "",
       "salary_min": null,
       "salary_max": null
+    },
+    {
+      "id": "b17fcb87ca2c0507",
+      "title": "Senior Human Factors Researcher, Design Research",
+      "organisation": "WHOOP",
+      "location": "Boston, MA",
+      "country": "",
+      "source": "Ashby",
+      "url": "https://jobs.ashbyhq.com/whoop/6c86b6b4-8d65-4030-ad73-fb1a3c19bf49",
+      "date_posted": "2026-09-21",
+      "closing_date": "",
+      "type": "FullTime",
+      "description": "SENIOR HUMAN FACTORS RESEARCHER, DESIGN RESEARCH At WHOOP, we're on a mission to unlock and inspire performance for life. WHOOP empowers members to perform at a higher level through a deeper understanding of their bodies and daily lives. WHOOP Labs is the research and hardware validation arm of WHOOP, focused on conducting user research to validate next-generation features, experiences, and technology. WHOOP is hiring a Senior Human Factors Researcher, Design Research to lead end-to-end research...",
+      "categories": [
+        "industry_applied"
+      ],
+      "fit_score": 15
     },
     {
       "id": "4b69ae71ea9dc28d",
@@ -20282,6 +21841,24 @@
       "salary_max": null
     },
     {
+      "id": "f21f1a4be09e3107",
+      "title": "Sport Lecturer / Sports Assistant",
+      "organisation": "Yeovil College",
+      "location": "Brimsmore, Yeovil",
+      "country": "UK",
+      "source": "Adzuna",
+      "url": "https://www.adzuna.co.uk/jobs/land/ad/5882318295?se=lmgorK688RGNc_hKohi8Ew&utm_medium=api&utm_source=8de31de0&v=DC96AA1983B52174B1D7401C717600750D20C09C",
+      "date_posted": "2026-09-13",
+      "closing_date": "",
+      "type": "full_time",
+      "description": "Sport Lecturer / Sports Assistant When registering to this job board you will be redirected to the online application form. Please ensure that this is completed in full in order that your application can be reviewed. Love sport? Ready to take your next step into teaching? Join Yeovil College and turn your passion for sport into an exciting new career. This is a full-time, split role , whe re half your hours will be spent as a Sport and Uniformed Protective Services Lecturer , and half of your r…",
+      "salary_text": "",
+      "categories": [
+        "fe_he_teaching"
+      ],
+      "fit_score": 18
+    },
+    {
       "id": "d10981ad9a93e00e",
       "title": "Research Engineer, Astra, DeepMind",
       "organisation": "Google",
@@ -22709,2137 +24286,7 @@
       "salary_text": "",
       "salary_min": null,
       "salary_max": null
-    },
-    {
-      "id": "50fbdb2135832846",
-      "title": "Associate Head of School, Health and Care",
-      "organisation": "Bournemouth University",
-      "location": "Bournemouth",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW756/associate-head-of-school-health-and-care",
-      "date_posted": "2026-09-10",
-      "closing_date": "07 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£58,225 to £65,509",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 58225,
-      "salary_max": 65509
-    },
-    {
-      "id": "8ffcd6f5421c1b3b",
-      "title": "Research Assistant - Character Strengths and Neurodiversity, Oxford Centre for Emerging Minds Research",
-      "organisation": "University of Oxford",
-      "location": "Oxford, Hybrid",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW752/research-assistant-character-strengths-and-neurodiversity-oxford-centre-for-emerging-minds-research",
-      "date_posted": "2026-09-10",
-      "closing_date": "22 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£35,681 to £37,338",
-      "categories": [
-        "technician"
-      ],
-      "fit_score": 14,
-      "salary_min": 35681,
-      "salary_max": 37338
-    },
-    {
-      "id": "445d81d7efcdd30e",
-      "title": "Research Fellow in Cognitive Assessment Using Multimodal Physiological Measures",
-      "organisation": "University of Surrey",
-      "location": "Guildford",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW750/research-fellow-in-cognitive-assessment-using-multimodal-physiological-measures",
-      "date_posted": "2026-09-10",
-      "closing_date": "16 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£37,694 to £46,049",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": 37694,
-      "salary_max": 46049
-    },
-    {
-      "id": "d364ff3297581ebb",
-      "title": "Postdoctoral Researcher in Industrial Digital Twin and Intelligent Control Systems",
-      "organisation": "Xi'an Jiaotong",
-      "location": "Suzhou",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW634/postdoctoral-researcher-in-industrial-digital-twin-and-intelligent-control-systems",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "",
-      "salary_text": "Competitive",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "22ba5009ef6f53a5",
-      "title": "Postdoctoral Researcher in Industrial AI Algorithm and Autonomous Decision-Making Systems",
-      "organisation": "Xi'an Jiaotong",
-      "location": "Suzhou",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW632/postdoctoral-researcher-in-industrial-ai-algorithm-and-autonomous-decision-making-systems",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "",
-      "salary_text": "Competitive",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "2b71e736aca8c138",
-      "title": "Assistant Professor of Contemporary Dance",
-      "organisation": "Simon Fraser University",
-      "location": "Canada",
-      "country": "Canada",
-      "source": "AcademicWork",
-      "url": "https://www.academicwork.ca/jobs/assistant-professor-of-contemporary-dance-simon-fraser-university",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "Assistant Professor of Contemporary Dance Skip to main content Canadian Association of University Teachers Association canadienne des professeures et professeurs d'université Français CAUT’s online source for professionals looking for a job in higher education or trying to fill a position. Job Seeker Notification CAUT.ca Home Search Post a Job Post a Banner Contact Back Share: Share via Twitter (opens in new window) Share via Facebook (opens in new window) Share via LinkedIn (opens in new window...",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "683ce0ca83dfb052",
-      "title": "Associate Professor, Fungal Genomics and Biomanufacturing",
-      "organisation": "Concordia University",
-      "location": "Canada",
-      "country": "Canada",
-      "source": "AcademicWork",
-      "url": "https://www.academicwork.ca/jobs/associate-professor-fungal-genomics-and-biomanufacturing-concordia-university-2",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "Associate Professor, Fungal Genomics and Biomanufacturing Skip to main content Canadian Association of University Teachers Association canadienne des professeures et professeurs d'université Français CAUT’s online source for professionals looking for a job in higher education or trying to fill a position. Job Seeker Notification CAUT.ca Home Search Post a Job Post a Banner Contact Back Share: Share via Twitter (opens in new window) Share via Facebook (opens in new window) Share via LinkedIn (ope...",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "b50aa529c83e7937",
-      "title": "Chair and Associate Professor/Professor, Department of Occupational Therapy (OT)",
-      "organisation": "University of Alberta",
-      "location": "Canada",
-      "country": "Canada",
-      "source": "AcademicWork",
-      "url": "https://www.academicwork.ca/jobs/chair-and-associate-professor-professor-university-of-alberta",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "Chair and Associate Professor/Professor, Department of Occupational Therapy (OT) Skip to main content Canadian Association of University Teachers Association canadienne des professeures et professeurs d'université Français CAUT’s online source for professionals looking for a job in higher education or trying to fill a position. Job Seeker Notification CAUT.ca Home Search Post a Job Post a Banner Contact Back Share: Share via Twitter (opens in new window) Share via Facebook (opens in new window)...",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "f8d1cdbccc87a034",
-      "title": "Assistant or Associate Professor in the Department of Communication Sciences & Disorders (CSD).",
-      "organisation": "University of Alberta",
-      "location": "Canada",
-      "country": "Canada",
-      "source": "AcademicWork",
-      "url": "https://www.academicwork.ca/jobs/assistant-or-associate-professor-university-of-alberta-2",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "Assistant or Associate Professor in the Department of Communication Sciences & Disorders (CSD). Skip to main content Canadian Association of University Teachers Association canadienne des professeures et professeurs d'université Français CAUT’s online source for professionals looking for a job in higher education or trying to fill a position. Job Seeker Notification CAUT.ca Home Search Post a Job Post a Banner Contact Back Share: Share via Twitter (opens in new window) Share via Facebook (opens...",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "41c42b42589d13be",
-      "title": "Assistant Professor: Teaching, Geography, Two-Year Limited Term Appointment",
-      "organisation": "University of Calgary",
-      "location": "Canada",
-      "country": "Canada",
-      "source": "AcademicWork",
-      "url": "https://www.academicwork.ca/jobs/assistant-professor-teaching-geography-two-year-limited-term-appointment-university-of-calgary",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "Assistant Professor: Teaching, Geography, Two-Year Limited Term Appointment Skip to main content Canadian Association of University Teachers Association canadienne des professeures et professeurs d'université Français CAUT’s online source for professionals looking for a job in higher education or trying to fill a position. Job Seeker Notification CAUT.ca Home Search Post a Job Post a Banner Contact Back Share: Share via Twitter (opens in new window) Share via Facebook (opens in new window) Share...",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "e90f85da3cac86b8",
-      "title": "Pricing Specialist",
-      "organisation": "Aviva",
-      "location": "Eastleigh, Hampshire",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5877925081?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "part_time",
-      "description": "Pricing Specialist - Salary up to £75,000 Eastleigh This is a great job for someone who is highly numerate, naturally curious and looking to build on their experience in a commercial environment. You'll enjoy combining analytical thinking with business decision-making and will be keen to develop your expertise in insurance pricing while supporting Aviva Health's transformation towards data science pricing techniques A bit about the job: The UK private health insurance market has never been more…",
-      "salary_text": "",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "10b10e2a8381764c",
-      "title": "Data Science Manager",
-      "organisation": "Entain",
-      "location": "Bankside, South East London",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5877792379?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "Job Description We have an exciting opportunity for a talented organiser of people & projects to join our rapidly expanding Sports Analytics company based in London Bridge. As Data Science Manager, you are responsible for managing the Leads of multiple sport-specific modelling teams. You ensure consistency, alignment, and delivery across the portfolio of models while supporting the career development of Lead Data Scientists. You will work closely with the Head of Data Science on planning, staff…",
-      "salary_text": "",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "da0d21afd3afe4de",
-      "title": "Employment Solicitor (Head of Department)",
-      "organisation": "eNL",
-      "location": "Essex, Eastern England",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5877667380?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "Employment Solicitor (Head of Department), 6 PQE – Essex – Are you a well versed Employment Solicitor who is seeking new challenges and responsibilities? An exciting opportunity has arisen to lead and develop an employment department within a regional law firm in Essex. To apply or to register your interest, please contact Cassie on 0121 454 1004 or email cassie.huxtable@enllegal.co.uk with your CV. JOB TITLE: Employment Solicitor (Head of Department) PQE: 6 PQE LOCATION: Essex SALARY: £DOE THE…",
-      "salary_text": "",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "e3b22b2acca10d3f",
-      "title": "Structural Testing and Laboratory Technician",
-      "organisation": "University of British Columbia",
-      "location": "Kelowna, Central Okanagan",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5878164828?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Staff - Union Job Category BCGEU Okanagan Support Staff Job Profile BCGEU OK Hourly - Research Assistant and Technician IV Job Title Structural Testing and Laboratory Technician Department UBCO | Research Support | School of Engineering | Faculty of Applied Science Compensation Range $31.89 - $36.58 CAD Hourly Posting End Date September 28, 2026 Note: Applications will be accepted until 11:59 PM on the Posting End Date. Job End Date October 11, 2027 At UBC, we believe that attracting and sustai…",
-      "salary_text": "",
-      "categories": [
-        "technician"
-      ],
-      "fit_score": 14,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "609ce0f00e62e77d",
-      "title": "Biology Lab Technician and Core Facility Coordinator",
-      "organisation": "University of Waterloo",
-      "location": "Waterloo region, Ontario",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5878174751?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "At the University of Waterloo, we create and promote a culture where everyone can reach their full potential. As an employee, you get support & opportunities that empower you to advance your career. Explore how we can bring big ideas to life, together. The University is a welcoming workplace for those of all abilities, interests, and expertise. As part of our workforce, you can do what you do best, every day. Learn more about our recruitment process. Job Requisition ID: 2026-02722 Time Type: Fu…",
-      "salary_text": "",
-      "categories": [
-        "technician"
-      ],
-      "fit_score": 14,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "90bdc2ddd8959e6e",
-      "title": "Manager",
-      "organisation": "Saskatchewan Health Authority",
-      "location": "Beaver Creek, Saskatoon",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5878179007?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Description Position : 191939 Expected Start Date: September 30, 2026 Union: OOS Facility: TBD City/Town: TBD Department: Digital Health - HIM & Systems Flow Type: Full-time temporary Expected Up to Date: September 30, 2027 FTE: 1 Shift Information: Days, Standby Number of Hours per Rotation: 5 shifts of 7.5 hours per 1 weeks Relief: No Float: No Salary or Pay Band: As per Terms and Conditions of Employment Travel Required: Yes Job Description: The Manager, Digital Health is a key leader in Sa…",
-      "salary_text": "",
-      "categories": [
-        "health_tech"
-      ],
-      "fit_score": 20,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "9321bd294bb5876c",
-      "title": "Research Assistant 2",
-      "organisation": "McGill University",
-      "location": "Canada",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5878174198?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "part_time",
-      "description": "Please refer to the How to Apply for a Job (for External Candidates) job aid for instructions on how to apply. If you are an active McGill employee (ie: currently in an active contract or position at McGill University), do not apply through this Career Site. Login to your McGill Workday account and apply to this posting using the Find Jobs report (type Find Jobs in the search bar). Position Summary: The Research Assistant will support the establishment of the Sylvan Adams Sport Science Institut…",
-      "salary_text": "",
-      "categories": [
-        "academic_sport",
-        "technician"
-      ],
-      "fit_score": 39,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "c924f86c40d5358e",
-      "title": "Postdoctoral Scientist Myeloid Cancer Biology",
-      "organisation": "The University of Manchester",
-      "location": "Manchester",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW991/postdoctoral-scientist-myeloid-cancer-biology",
-      "date_posted": "2026-09-10",
-      "closing_date": "11 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£39,253 to £47,543",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": 39253,
-      "salary_max": 47543
-    },
-    {
-      "id": "b043d5708bb8bed8",
-      "title": "Postdoctoral Research Scientist",
-      "organisation": "University of Oxford",
-      "location": "Oxford",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW970/postdoctoral-research-scientist",
-      "date_posted": "2026-09-10",
-      "closing_date": "25 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£39,424 to £47,779",
-      "categories": [
-        "data_science",
-        "research_postdoc"
-      ],
-      "fit_score": 36,
-      "salary_min": 39424,
-      "salary_max": 47779
-    },
-    {
-      "id": "3167afd0e14a83a8",
-      "title": "Research Scientist in Theoretical Biology",
-      "organisation": "University of Oxford",
-      "location": "Oxford",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW967/research-scientist-in-theoretical-biology",
-      "date_posted": "2026-09-10",
-      "closing_date": "25 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£39,424 to £47,779",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_min": 39424,
-      "salary_max": 47779
-    },
-    {
-      "id": "fdf1fa4f61a1f872",
-      "title": "Research Assistant in Proteomics",
-      "organisation": "University of Oxford",
-      "location": "Oxford",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW933/research-assistant-in-proteomics",
-      "date_posted": "2026-09-10",
-      "closing_date": "01 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£35,681 to £41,636",
-      "categories": [
-        "technician"
-      ],
-      "fit_score": 14,
-      "salary_min": 35681,
-      "salary_max": 41636
-    },
-    {
-      "id": "92d1094af96875ea",
-      "title": "Postdoctoral Research Associate in Biometrics & Quantitative Genetics for Public Breeding",
-      "organisation": "The University of Edinburgh",
-      "location": "Edinburgh",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW926/postdoctoral-research-associate-in-biometrics-and-quantitative-genetics-for-public-breeding",
-      "date_posted": "2026-09-10",
-      "closing_date": "01 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£41,064 to £48,822",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": 41064,
-      "salary_max": 48822
-    },
-    {
-      "id": "e6c547d2a4ab6ea2",
-      "title": "Postdoctoral Research Associate in Applied Artificial Intelligence for Public Breeding",
-      "organisation": "The University of Edinburgh",
-      "location": "Edinburgh",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW920/postdoctoral-research-associate-in-applied-artificial-intelligence-for-public-breeding",
-      "date_posted": "2026-09-10",
-      "closing_date": "01 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£41,064 to £48,822",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": 41064,
-      "salary_max": 48822
-    },
-    {
-      "id": "db8df08371b8e8c0",
-      "title": "Research Associate (Laurenti Lab) (Fixed Term)",
-      "organisation": "University of Cambridge",
-      "location": "Cambridge",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW912/research-associate-laurenti-lab-fixed-term",
-      "date_posted": "2026-09-10",
-      "closing_date": "24 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£37,694 to £46,049",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": 37694,
-      "salary_max": 46049
-    },
-    {
-      "id": "59baeb219c55ab02",
-      "title": "Senior Research Associate",
-      "organisation": "University of East Anglia",
-      "location": "Norwich",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW902/senior-research-associate",
-      "date_posted": "2026-09-10",
-      "closing_date": "02 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£38,784",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": 38784,
-      "salary_max": 38784
-    },
-    {
-      "id": "be2ad5954dce85ce",
-      "title": "Postdoctoral Research Associate",
-      "organisation": "The University of Edinburgh",
-      "location": "Edinburgh",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW899/postdoctoral-research-associate",
-      "date_posted": "2026-09-10",
-      "closing_date": "30 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£41,064 to £48,822",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": 41064,
-      "salary_max": 48822
-    },
-    {
-      "id": "b6d1b650522b2fe3",
-      "title": "Research Associate - Miska Group (Fixed Term)",
-      "organisation": "University of Cambridge",
-      "location": "Cambridge",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW885/research-associate-miska-group-fixed-term",
-      "date_posted": "2026-09-10",
-      "closing_date": "08 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£37,694 to £46,049",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": 37694,
-      "salary_max": 46049
-    },
-    {
-      "id": "3cec4dd44c6c7282",
-      "title": "Senior Lecturer Tissue Viability",
-      "organisation": "University of Cumbria",
-      "location": "Barrow, Lancaster",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW848/senior-lecturer-tissue-viability",
-      "date_posted": "2026-09-10",
-      "closing_date": "23 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£44,746",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 44746,
-      "salary_max": 44746
-    },
-    {
-      "id": "0df5843d07f3d07e",
-      "title": "Research Technician",
-      "organisation": "Imperial College London",
-      "location": "London, Hybrid",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSV275/research-technician",
-      "date_posted": "2026-09-10",
-      "closing_date": "24 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£38,608 to £41,666",
-      "categories": [
-        "technician"
-      ],
-      "fit_score": 14,
-      "salary_min": 38608,
-      "salary_max": 41666
-    },
-    {
-      "id": "453175112883d0f4",
-      "title": "Research Assistant",
-      "organisation": "University of Bath",
-      "location": "Bath",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW766/research-assistant",
-      "date_posted": "2026-09-10",
-      "closing_date": "23 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£31,236 to £37,694",
-      "categories": [
-        "technician"
-      ],
-      "fit_score": 14,
-      "salary_min": 31236,
-      "salary_max": 37694
-    },
-    {
-      "id": "c42c5b9ea2df5d57",
-      "title": "Postdoctoral Research Scientist - Brain Tumour Research",
-      "organisation": "University of Oxford",
-      "location": "Oxford",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW757/postdoctoral-research-scientist-brain-tumour-research",
-      "date_posted": "2026-09-10",
-      "closing_date": "09 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£39,424 to £47,779",
-      "categories": [
-        "data_science",
-        "research_postdoc"
-      ],
-      "fit_score": 36,
-      "salary_min": 39424,
-      "salary_max": 47779
-    },
-    {
-      "id": "b4bb3e274255469a",
-      "title": "Established Professor of Tumour Immunology",
-      "organisation": "University of Galway",
-      "location": "Galway, Hybrid",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW234/established-professor-of-tumour-immunology",
-      "date_posted": "2026-09-10",
-      "closing_date": "22 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£128,032.23 to £161,863.82",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 128032,
-      "salary_max": 161864
-    },
-    {
-      "id": "24b566606e189d7d",
-      "title": "Lecturer in Pharmacy Practice",
-      "organisation": "University of Hertfordshire",
-      "location": "Hatfield",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW805/lecturer-in-pharmacy-practice",
-      "date_posted": "2026-09-10",
-      "closing_date": "30 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£38,784 to £46,049",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 38784,
-      "salary_max": 46049
-    },
-    {
-      "id": "99204e06a768c244",
-      "title": "MRI Facility Manager",
-      "organisation": "University of Leeds",
-      "location": "Leeds",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW945/mri-facility-manager",
-      "date_posted": "2026-09-10",
-      "closing_date": "01 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£41,064 to £48,822",
-      "categories": [
-        "technician"
-      ],
-      "fit_score": 14,
-      "salary_min": 41064,
-      "salary_max": 48822
-    },
-    {
-      "id": "4c8acf260e84cc27",
-      "title": "Lecturer in Paramedic Science",
-      "organisation": "University of Gloucestershire",
-      "location": "Gloucester",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW932/lecturer-in-paramedic-science",
-      "date_posted": "2026-09-10",
-      "closing_date": "30 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£38,784 to £43,482",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 38784,
-      "salary_max": 43482
-    },
-    {
-      "id": "8a8b9308e41db477",
-      "title": "Post Doctoral Research Associate (Health Workforce Research)",
-      "organisation": "University of Lincoln",
-      "location": "Lincoln, Hybrid",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW898/post-doctoral-research-associate-health-workforce-research",
-      "date_posted": "2026-09-10",
-      "closing_date": "04 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "From £38,784",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": 38784,
-      "salary_max": 38784
-    },
-    {
-      "id": "73e2689d62588a6a",
-      "title": "Assistant Professor in Physiotherapy",
-      "organisation": "Trinity College Dublin, The University of Dublin",
-      "location": "Dublin",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW889/assistant-professor-in-physiotherapy",
-      "date_posted": "2026-09-10",
-      "closing_date": "12 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£38,148.37 to £90,996.32",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 38148,
-      "salary_max": 90996
-    },
-    {
-      "id": "3b3421fa0f8ec575",
-      "title": "Lecturer In Physiotherapy (2 Posts Full And Part-Time 0.6 Fte)",
-      "organisation": "University of Liverpool",
-      "location": "Liverpool",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW869/lecturer-in-physiotherapy-2-posts-full-and-part-time-06-fte",
-      "date_posted": "2026-09-10",
-      "closing_date": "07 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£47,389 to £59,966",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 47389,
-      "salary_max": 59966
-    },
-    {
-      "id": "0e2ee89545a00bbe",
-      "title": "Senior Lecturer in Lived Experience Involvement in Research",
-      "organisation": "King's College London",
-      "location": "London",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW482/senior-lecturer-in-lived-experience-involvement-in-research",
-      "date_posted": "2026-09-10",
-      "closing_date": "06 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£65,091 to £74,613",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 65091,
-      "salary_max": 74613
-    },
-    {
-      "id": "936d154362d86726",
-      "title": "Senior Lecturer in Advanced Clinical Practice",
-      "organisation": "Teesside University",
-      "location": "Middlesbrough",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW807/senior-lecturer-in-advanced-clinical-practice",
-      "date_posted": "2026-09-10",
-      "closing_date": "08 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£43,482 to £56,535",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 43482,
-      "salary_max": 56535
-    },
-    {
-      "id": "803faf8178104e59",
-      "title": "Teaching Fellow or Senior Teaching Fellow in Pharmacy Practice",
-      "organisation": "University of Portsmouth",
-      "location": "Portsmouth",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW759/teaching-fellow-or-senior-teaching-fellow-in-pharmacy-practice",
-      "date_posted": "2026-09-10",
-      "closing_date": "02 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£41,064 to £56,535",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 41064,
-      "salary_max": 56535
-    },
-    {
-      "id": "dda09a2e6f793599",
-      "title": "Research Associate in Surgical AI for Tumour Resection",
-      "organisation": "Imperial College London",
-      "location": "London, Hybrid",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW795/research-associate-in-surgical-ai-for-tumour-resection",
-      "date_posted": "2026-09-10",
-      "closing_date": "21 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£50,733 to £52,675",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": 50733,
-      "salary_max": 52675
-    },
-    {
-      "id": "01136c2249d3427e",
-      "title": "Postdoctoral Research Associate in Catalysis and Machine Learning",
-      "organisation": "The University of Manchester",
-      "location": "Manchester",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW960/postdoctoral-research-associate-in-catalysis-and-machine-learning",
-      "date_posted": "2026-09-10",
-      "closing_date": "08 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£37,694 to £46,049",
-      "categories": [
-        "data_science",
-        "research_postdoc"
-      ],
-      "fit_score": 36,
-      "salary_min": 37694,
-      "salary_max": 46049
-    },
-    {
-      "id": "bb0cc5c6cd4ce5d8",
-      "title": "Tenure Track Assistant Professor in Data-driven Thermodynamics for Industrial Decarbonization",
-      "organisation": "Technical University of Denmark",
-      "location": "Lyngby",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW915/tenure-track-assistant-professor-in-data-driven-thermodynamics-for-industrial-decarbonization",
-      "date_posted": "2026-09-10",
-      "closing_date": "01 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "Not Specified",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "a43e7b9f1dd25dfc",
-      "title": "Postdoctoral Researcher",
-      "organisation": "Atlantic Technological University",
-      "location": "Letterkenny",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW306/postdoctoral-researcher",
-      "date_posted": "2026-09-10",
-      "closing_date": "01 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£41,117.87 to £46,903.75",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": 41118,
-      "salary_max": 46904
-    },
-    {
-      "id": "26ec025120d99898",
-      "title": "Research Fellow in Atmospheric Science",
-      "organisation": "University of Birmingham",
-      "location": "Birmingham",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW881/research-fellow-in-atmospheric-science",
-      "date_posted": "2026-09-10",
-      "closing_date": "01 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£36,636 to £42,254",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": 36636,
-      "salary_max": 42254
-    },
-    {
-      "id": "f46fb3e3fcf68ad0",
-      "title": "Technical Tutor - Animation & Character Design",
-      "organisation": "Ravensbourne University London",
-      "location": "London, Hybrid",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW870/technical-tutor-animation-and-character-design",
-      "date_posted": "2026-09-10",
-      "closing_date": "25 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£36,571 to £40,485",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 36571,
-      "salary_max": 40485
-    },
-    {
-      "id": "bec4d5a1595f20a0",
-      "title": "Principal Data Scientist - National Security (TIRE)",
-      "organisation": "The Alan Turing Institute",
-      "location": "Cheltenham",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW843/principal-data-scientist-national-security-tire",
-      "date_posted": "2026-09-10",
-      "closing_date": "04 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£82,500",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_min": 82500,
-      "salary_max": 82500
-    },
-    {
-      "id": "a9fcc3d8d3f55c75",
-      "title": "Senior Machine Learning Engineer - National Security (TIRE)",
-      "organisation": "The Alan Turing Institute",
-      "location": "Cheltenham",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW838/senior-machine-learning-engineer-national-security-tire",
-      "date_posted": "2026-09-10",
-      "closing_date": "04 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£57,000 to £62,000",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_min": 57000,
-      "salary_max": 62000
-    },
-    {
-      "id": "d482b963ab570e6e",
-      "title": "Lecturer Business Analytics & AI",
-      "organisation": "Keele University",
-      "location": "Keele",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW836/lecturer-business-analytics-and-ai",
-      "date_posted": "2026-09-10",
-      "closing_date": "11 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£48,822 to £58,225",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 48822,
-      "salary_max": 58225
-    },
-    {
-      "id": "71f9662932e42ca2",
-      "title": "Postdoctoral Research Associate in Deep Learning",
-      "organisation": "University of Oxford",
-      "location": "Oxford",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW827/postdoctoral-research-associate-in-deep-learning",
-      "date_posted": "2026-09-10",
-      "closing_date": "30 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£41,636 to £47,779",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": 41636,
-      "salary_max": 47779
-    },
-    {
-      "id": "3d0fc91dec648b11",
-      "title": "Assistant Lecturer in Civil Engineering",
-      "organisation": "Atlantic Technological University",
-      "location": "Sligo",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW910/assistant-lecturer-in-civil-engineering",
-      "date_posted": "2026-09-10",
-      "closing_date": "24 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£41,377.94 to £55,990.51",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 41378,
-      "salary_max": 55991
-    },
-    {
-      "id": "a45ee6dd3c52eff4",
-      "title": "Head of Department of Construction",
-      "organisation": "Atlantic Technological University",
-      "location": "Sligo",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW906/head-of-department-of-construction",
-      "date_posted": "2026-09-10",
-      "closing_date": "24 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£85,167.81 to £109,498.62",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 85168,
-      "salary_max": 109499
-    },
-    {
-      "id": "8377cd0b2c2bc6f1",
-      "title": "Research Associate in Dual Mode MEMS Sensing For Propulsion Applications",
-      "organisation": "Loughborough University",
-      "location": "Loughborough University, Loughborough",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW877/research-associate-in-dual-mode-mems-sensing-for-propulsion-applications",
-      "date_posted": "2026-09-10",
-      "closing_date": "20 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£44,296",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": 44296,
-      "salary_max": 44296
-    },
-    {
-      "id": "ff20671c343d6f28",
-      "title": "Assistant Professor - Research Fellow in Hydrogen Innovation",
-      "organisation": "Durham University",
-      "location": "Durham",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW826/assistant-professor-research-fellow-in-hydrogen-innovation",
-      "date_posted": "2026-09-10",
-      "closing_date": "17 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£41,064",
-      "categories": [
-        "fe_he_teaching",
-        "research_postdoc"
-      ],
-      "fit_score": 36,
-      "salary_min": 41064,
-      "salary_max": 41064
-    },
-    {
-      "id": "61c7780de991da7f",
-      "title": "Lecturer in Structural Engineering",
-      "organisation": "University of Sheffield",
-      "location": "Sheffield",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW763/lecturer-in-structural-engineering",
-      "date_posted": "2026-09-10",
-      "closing_date": "10 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "Not Specified",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "f144f68ba2d1e10c",
-      "title": "Instructor in Statistics at Florida State University London",
-      "organisation": "Florida State University London Study Centre",
-      "location": "London",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW859/instructor-in-statistics-at-florida-state-university-london",
-      "date_posted": "2026-09-10",
-      "closing_date": "06 Oct",
-      "type": "",
-      "description": "",
-      "salary_text": "£3,900",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "4710b5890abaeabe",
-      "title": "Associate Lecturer - Calculus 3: Transforms & Models",
-      "organisation": "Birkbeck, University of London",
-      "location": "London",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW924/associate-lecturer-calculus-3-transforms-and-models",
-      "date_posted": "2026-09-10",
-      "closing_date": "20 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£69.68 per hour",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 135876,
-      "salary_max": 135876
-    },
-    {
-      "id": "89e1066c930f8789",
-      "title": "Research Officer in Health Economics",
-      "organisation": "Bangor University",
-      "location": "Bangor",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW860/research-officer-in-health-economics",
-      "date_posted": "2026-09-10",
-      "closing_date": "30 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£38,784 to £47,049",
-      "categories": [
-        "research_mgmt"
-      ],
-      "fit_score": 10,
-      "salary_min": 38784,
-      "salary_max": 47049
-    },
-    {
-      "id": "51dc4805a431bf22",
-      "title": "Assistant Professor",
-      "organisation": "London School of Economics and Political Science",
-      "location": "London",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW776/assistant-professor",
-      "date_posted": "2026-09-10",
-      "closing_date": "13 Dec",
-      "type": "",
-      "description": "",
-      "salary_text": "From £68,087",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 68087,
-      "salary_max": 68087
-    },
-    {
-      "id": "429a7a16fc8ca24e",
-      "title": "Research Fellow - Postdoctoral Researcher",
-      "organisation": "UCL",
-      "location": "London, Hybrid",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW981/research-fellow-postdoctoral-researcher",
-      "date_posted": "2026-09-10",
-      "closing_date": "22 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£43,981 to £54,019",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_min": 43981,
-      "salary_max": 54019
-    },
-    {
-      "id": "316a6a8b4f54922c",
-      "title": "Lecturer in Careers Guidance, Part time, Permanent",
-      "organisation": "Edinburgh Napier University",
-      "location": "Sighthill",
-      "country": "UK",
-      "source": "Jobs.ac.uk",
-      "url": "https://www.jobs.ac.uk/job/DSW772/lecturer-in-careers-guidance-part-time-permanent",
-      "date_posted": "2026-09-10",
-      "closing_date": "28 Sep",
-      "type": "",
-      "description": "",
-      "salary_text": "£46,049 to £58,255",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 46049,
-      "salary_max": 58255
-    },
-    {
-      "id": "0d1d20f3db063028",
-      "title": "Why Colleges Need More Than Career Readiness",
-      "organisation": "",
-      "location": "Canada",
-      "country": "Canada",
-      "source": "HigherEdJobs",
-      "url": "https://www.higheredjobs.com/articles/articleDisplay.cfm?ID=4831",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "\"Douglas Haynes, a HigherEdJobs Author in Residence and professor of English at the University of Wisconsin-Oshkosh, shares why career readiness alone isn't enough for college students, from designing place-based courses that build belonging to challenging competency frameworks that ignore human values to finding personal meaning through connection.\" .",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "20cb6b9b5e248d6a",
-      "title": "Research Engineer, Machine Learning",
-      "organisation": "Diffractive Labs",
-      "location": "London, UK",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5878694155?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "What We're Looking For We are seeking Research Engineers, with strong machine learning experience, to help build the infrastructure, tools, and prototypes that power our AI-driven material discovery engine. You will work across research and engineering, turning new ideas in modelling, reasoning, and experiment automation into robust, scalable systems. You will be joining a small, highly ambitious team of world-renowned engineers, AI researchers, and materials scientists. We move fast and value …",
-      "salary_text": "",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "654acd151de7363d",
-      "title": "Data Engineer",
-      "organisation": "Diffractive Labs",
-      "location": "London, UK",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5878628200?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "What We're Looking For We are seeking a Data Engineer to build and own the infrastructure that underpins our AI-driven materials discovery platform. You'll work directly with world-renowned ML researchers and software engineers to accelerate real scientific breakthroughs by making model training, experimentation, and deployment fast, reliable, and reproducible. As a Data Engineer, you will own the data architecture that powers this research. This role requires a builder who understands both lar…",
-      "salary_text": "",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "b692f79b48e32e18",
-      "title": "Research Assistant /Associate in Parkinson's Clinical Data Science",
-      "organisation": "Newcastle University",
-      "location": "Newcastle Upon Tyne, Tyne & Wear",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5878896420?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "contract",
-      "description": "Salary: Research Assistant: £33,951 to £35,608 per annum Research Associate: £37,694 to £39,906 per annum Newcastle University is a great place to work, with excellent benefits . We have a generous holiday package; plus the opportunity to buy more, great pension schemes and a number of health and wellbeing initiatives to support you. Closing Date: 1 October 2026 The Role We are excited to launch this opportunity for a Research Assistant or Associate in Parkinson’s Clinical Data Science to join …",
-      "salary_text": "",
-      "categories": [
-        "technician",
-        "data_science",
-        "research_postdoc"
-      ],
-      "fit_score": 50,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "a42c02a0205e80a0",
-      "title": "Sports Coach - Secondary School (PE & Behaviour Mentor)",
-      "organisation": "Tradewind Recruitment",
-      "location": "Blackpool, Lancashire",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5878872535?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "A welcoming secondary school in Blackpool is seeking an energetic, proactive Sports Coach to join their physical education and pastoral support team. This role is ideal for a passionate sports graduate, community coach, or youth mentor who wants to inspire secondary school pupils through physical activity, structured sport, and positive behaviour role modelling. You will work closely with the PE department, supporting practical lessons, running extra-curricular clubs, and delivering targeted 1:…",
-      "salary_text": "",
-      "categories": [
-        "academic_adjacent"
-      ],
-      "fit_score": 22,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "4541fcd8d969f959",
-      "title": "Sport Lecturer / Sports Assistant",
-      "organisation": "Yeovil College",
-      "location": "Yeovil, Somerset",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5878869335?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Sport Lecturer / Sports Assistant When registering to this job board you will be redirected to the online application form. Please ensure that this is completed in full in order that your application can be reviewed. Love sport? Ready to take your next step into teaching? Join Yeovil College and turn your passion for sport into an exciting new career. This is a full-time, split role , whe re half your hours will be spent as a Sport and Uniformed Protective Services Lecturer , and half of your r…",
-      "salary_text": "",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "3a7b2a57dd0ebfb3",
-      "title": "Lifeguard",
-      "organisation": "NOTTINGHAM TRENT UNIVERSITY",
-      "location": "UK",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5878748151?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "Be part of something bigger. Doing things differently. NTU Sport are committed to having 70% of students engaged in sport and physical activity by 2025. Join us on our mission. Casual Lifeguard £13.25 per hour This is a 0hrs contract with working many in the evening Monday to Friday at either Nottingham High School or Harvey Hadden Sport Complex Want to play an important role in supporting student sport at NTU? NTU Sport is looking for qualified Lifeguards to support our Swimming and Water Polo…",
-      "salary_text": "",
-      "categories": [
-        "academic_sport",
-        "academic_adjacent"
-      ],
-      "fit_score": 47,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "b615625a31ff7c76",
-      "title": "Sports Scientist/Strength and Conditioning Coach - Part time",
-      "organisation": "Ecotricity Jobs",
-      "location": "Forest Green, Nailsworth",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/land/ad/5878639652?se=YiupjsGt8RGWn_T67fT_Ug&utm_medium=api&utm_source=8de31de0&v=967B7ED60FA37C90364B78A2D25470CCE76759FC",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "part_time",
-      "description": "You will be working with the Forest Green Rovers academy and work as part of a multidisciplinary team, delivering evidence based individualised athletic development for the academy professional and youth development players. Main objectives: Design, lead & manage activities aimed at maximising the health, fitness and athletic performance of scholarship and academy players. Develop and implement a strength & conditioning programme that will aid the athletic development of all scholarship and aca…",
-      "salary_text": "",
-      "categories": [
-        "academic_sport",
-        "industry_applied"
-      ],
-      "fit_score": 40,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "27722814f29b6f58",
-      "title": "Academic Mentor / Core Subject Intervention Tutor",
-      "organisation": "Tradewind Recruitment",
-      "location": "Penwortham, Preston",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/land/ad/5878835280?se=bNj3l8Gt8RGWn_T67fT_Ug&utm_medium=api&utm_source=8de31de0&v=F70BC36DAABC3BF72A6F4DA628813E8AB75FB8E4",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "contract",
-      "description": "Role Overview Are you a knowledgeable graduate, experienced tutor, or aspiring teacher looking to make an immediate academic impact? We are recruiting high-calibre Academic Mentors and Intervention Tutors across English, Maths, and Science to support secondary schools across Lancashire. In this structured, pupil-facing role, you will deliver targeted 1:1 and small-group booster sessions designed to close attainment gaps, rebuild subject confidence, and prepare Key Stage 3 and Key Stage 4 (GCSE)…",
-      "salary_text": "",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "c58118252693dcf1",
-      "title": "Unqualified Teacher | Vocational Instructor",
-      "organisation": "Tradewind Recruitment",
-      "location": "Blackpool, Lancashire",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/land/ad/5878832087?se=bNj3l8Gt8RGWn_T67fT_Ug&utm_medium=api&utm_source=8de31de0&v=353B4E82A8D88CB93C7DFC716CAE5789015AF35E",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Are you an industry specialist, passionate graduate, or skilled practitioner looking to transition your practical expertise into the classroom? We are currently recruiting an Unqualified Teacher / Vocational Instructor to join an established and inclusive secondary school in Blackpool . This is an exciting, hands-on opportunity to deliver timetabled, engaging practical lessons to Key Stage 3 and Key Stage 4 (GCSE / BTEC) students without needing formal Qualified Teacher Status (QTS). Whether yo…",
-      "salary_text": "",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "49ca8365b04e3110",
-      "title": "Lecturer in Digital Marketing - Manchester",
-      "organisation": "Arden University",
-      "location": "Hulme, Manchester",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5878801741?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Salary: £42,663 - £49,399 per annum Employment type: Permanent Hours per week: 37 Reporting into: Head of Department Department: Department of Marketing Click here to read the full job description and view our excellent benefits here This role will be based full time from our Manchester campus. About Arden University : We are an aspirational and multi-award-winning university, delivering rapid growth with ambitious plans to disrupt the HE sector through our passion for innovation and digital ed…",
-      "salary_text": "",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "4025650d75e3e5db",
-      "title": "Assistant Principal",
-      "organisation": "Doncaster Metropolitan Borough Council",
-      "location": "UK",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5878744789?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "Willow Primary School Alston Road Doncaster DN4 7EZ Contract Type: 1 st January 2027 (or earlier if possible) Contracted hours: 32.5 hours per week Responsible to: Executive Headteacher and Head of School The Directors of Exceed Learning Partnership and Governors of Willow Primary School are looking to appoint an inspirational Assistant Principal with proven experience in Early Years Education to join our Leadership Team. As Assistant Principal, you will play a pivotal role in the strategic lea…",
-      "salary_text": "",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "520356ca11acfbf9",
-      "title": "Head of Faculty - Mathematics at Colmers School and Sixth Form College",
-      "organisation": "Moseley School & Sixth Form",
-      "location": "UK",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5878743529?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "part_time",
-      "description": "About this Role Head of Faculty - Mathematics Full-Time - part time may be consideredfor the right candidate MPS /UPS £34,069 - £52,835 plus TLR 1D Required for: 1st January 2027 The Governors of this dynamic 11-19school are seeking to appoint a well-qualified, enthusiastic and energetic Headof Faculty to lead our Mathematics department. This post is suitable for anexperienced teacher. The successful candidate will join a collaborative team ofhighly committed teachers, on a mission to develop c…",
-      "salary_text": "",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "f9c3aa87e7c08dcb",
-      "title": "Senior Lecturer in Games (Teaching & Research)",
-      "organisation": "London South Bank University",
-      "location": "UK",
-      "country": "UK",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.co.uk/jobs/details/5878743255?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "About us It's an important time to join London South Bank University (LSBU) Group. With the launch of our new LSBU Group Strategy, Connecting, we're shaping the future of tertiary education for a global, technology-driven economy - rooted in London. Professional and technical education has been central to LSBU Group's mission since our founding in 1892. Today, as London's first integrated tertiary education group, we continue to lead the way on learner-centred, skills-focused education. Compris…",
-      "salary_text": "",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "fc9ae150f7c66780",
-      "title": "Faculty Coordinator - Bachelor of Physical Education & Coaching Coordinator",
-      "organisation": "Douglas College",
-      "location": "New Westminster, Greater Vancouver",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5878951953?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "JOB OPPORTUNITY Position Information Location New Westminster/Coquitlam Campus Salary Range Two-section annual release in accordance with the Collective Agreement. The Opportunity The Sport Science department at Douglas College provides Diplomas in Sport Science with specializations in Kinesiology and Health and Recreation, a Bachelor of Physical Education and Coaching with available kinesiology or health promotion concentrations, and a Graduate Diploma in Physical and Health Education. The BPE…",
-      "salary_text": "",
-      "categories": [
-        "academic_sport",
-        "academic_adjacent"
-      ],
-      "fit_score": 47,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "be80187b2f8957b5",
-      "title": "Zooarchaeology Research Assistant",
-      "organisation": "University of British Columbia",
-      "location": "Greater Vancouver, British Columbia",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5878164950?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "part_time",
-      "description": "Staff - Union Job Category CUPE 116 Job Profile CUPE 116 Hourly - Research Assistant /Technician 1 Job Title Zooarchaeology Research Assistant Department Research | Alaica | Department of Anthropology Compensation Range $27.07 - $28.40 CAD Hourly Posting End Date September 29, 2026 Note: Applications will be accepted until 11:59 PM on the Posting End Date. Job End Date April 30, 2027 There are 3 vacancies for this position. At UBC, we believe that attracting and sustaining a diverse workforce i…",
-      "salary_text": "",
-      "categories": [
-        "technician"
-      ],
-      "fit_score": 14,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "ff710ffd6cc3d6d3",
-      "title": "Clinical Research Coordinator - CIM (Phase 1)",
-      "organisation": "CUSM",
-      "location": "Montréal, Québec",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5878178566?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Do you want to work for a world-renowned research institute that pushes the boundaries of biomedical science and health research? Right here in Montreal! At the Research Institute of the McGill University Health Centre (RI-MUHC), you can be part of an organization focused on scientific discovery and innovation in patient-centered medicine. Join us today and make a difference! Job Description RESEARCH INSTITUTE OF THE MUHC The Research Institute of the McGill University Health Centre (RI-MUHC) i…",
-      "salary_text": "",
-      "categories": [
-        "research_mgmt"
-      ],
-      "fit_score": 10,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "faba882d3c212d65",
-      "title": "Project Manager",
-      "organisation": "Altera Canada Corporation",
-      "location": "Camrose, Camrose region",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5879141598?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "full_time",
-      "description": "Job Title: Project Manager Location: CA (Canada) Employment Type: Full-time About Altera Altera, a member of the N. Harris Computer Corporation family, delivers health IT solutions that support caregivers around the world. These include the Sunrise™, Paragon Daneli, TouchWorks EHR, Altera Opal, Ventus, HealthQuest™ and dbMotion™ solutions. At the intersection of technology and the human experience, Altera Digital Health is driving a new era of healthcare, in which innovation and expertise can e…",
-      "salary_text": "",
-      "categories": [
-        "health_tech"
-      ],
-      "fit_score": 20,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "d4fc6d1c7734aab5",
-      "title": "RQ00783 - Project Manager/Leader - Senior",
-      "organisation": "Maarut",
-      "location": "East York, Toronto",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5879140435?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "contract",
-      "description": "This role sits at the intersection of project management, clinical operations, digital health transformation, and change management. Working closely with product teams, clinical leaders, physicians, health system partners, policy teams, regional delivery teams, and vendor partners, the Senior Project Manager will ensure clinical workflow and documentation solutions are effectively designed, implemented, adopted, and continuously improved across the province. The Senior Project Manager will enga…",
-      "salary_text": "",
-      "categories": [
-        "health_tech"
-      ],
-      "fit_score": 20,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "16650ad3f4428276",
-      "title": "Senior Project Manager, Clinical Workflow",
-      "organisation": "vTech Solution",
-      "location": "Regent Park, City of Toronto",
-      "country": "Canada",
-      "source": "Adzuna",
-      "url": "https://www.adzuna.ca/details/5878820053?utm_medium=api&utm_source=8de31de0",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "Job Summary: The Senior Project Manager/Leader will oversee large-scale clinical workflow and documentation initiatives supporting the Patients Before Paperwork (Pb4P) Program. This role combines project management, clinical operations, digital health transformation, and change management to deliver and continuously improve clinical solutions across healthcare settings. The position requires collaboration with clinical leaders, product teams, health system partners, and vendors to drive workflo…",
-      "salary_text": "",
-      "categories": [
-        "health_tech"
-      ],
-      "fit_score": 20,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "01ff490ceed71e07",
-      "title": "Senior Data Engineer",
-      "organisation": "hireful.",
-      "location": "Manchester",
-      "country": "UK",
-      "source": "Reed",
-      "url": "https://www.reed.co.uk/jobs/senior-data-engineer/57331353",
-      "date_posted": "2026-09-10",
-      "closing_date": "22/10/2026",
-      "type": "",
-      "description": "UK HQ based & fast-growing software business (400+ staff, globally), serving hundreds of enterprise customers worldwide, are looking for a Senior Data Engineer to help shape the future of its data platform. You'll take ownership of building scalable data solutions in Databricks primarily, establishing a single source of truth, and enabling trusted, self-service access to data across the business. Location: UK, remote with very occasional vis...",
-      "salary_text": "£75,000 to £85,000",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_min": 75000,
-      "salary_max": 85000
-    },
-    {
-      "id": "35ddf45e5f489fcb",
-      "title": "Portfolio Analyst",
-      "organisation": "Greencore",
-      "location": "Leeds",
-      "country": "UK",
-      "source": "Reed",
-      "url": "https://www.reed.co.uk/jobs/portfolio-analyst/57333924",
-      "date_posted": "2026-09-10",
-      "closing_date": "01/10/2026",
-      "type": "",
-      "description": "Role: Data Analyst Location: Leeds Broadgate Why Greencore? Following the combination with Bakkavor in January 2026, we're one of the UK's leading creators of convenience food, driven by a simple purpose: to make everyday taste better. As a vibrant and fast-moving business, we're proud to employ over 28,000 talented colleagues across 36 manufacturing sites and 21 distribution depots in the UK and the US. Together, we bring delicious food to life...",
-      "salary_text": "",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "40f81c22dd37f473",
-      "title": "Engineering CM",
-      "organisation": "Dovetail & Slate",
-      "location": "London",
-      "country": "UK",
-      "source": "Reed",
-      "url": "https://www.reed.co.uk/jobs/engineering-cm/57333946",
-      "date_posted": "2026-09-10",
-      "closing_date": "22/10/2026",
-      "type": "",
-      "description": "Interim Curriculum Manager - Engineering Location: North London Contract: Interim Hours: Full Time We are currently supporting an FE college in North London in the appointment of an experienced Interim Curriculum Manager - Engineering . This is an excellent opportunity for an experienced Engineering curriculum professional to take on a leadership role, overseeing curriculum delivery and supporting high standards across the Engineering provision....",
-      "salary_text": "£325 to £375",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "3bfe552300326a6f",
-      "title": "Academic Mentor / Core Subject Intervention Tutor",
-      "organisation": "Tradewind Recruitment",
-      "location": "Preston",
-      "country": "UK",
-      "source": "Reed",
-      "url": "https://www.reed.co.uk/jobs/academic-mentor-core-subject-intervention-tutor/57333304",
-      "date_posted": "2026-09-10",
-      "closing_date": "22/10/2026",
-      "type": "",
-      "description": "Role Overview Are you a knowledgeable graduate, experienced tutor, or aspiring teacher looking to make an immediate academic impact? We are recruiting high-calibre Academic Mentors and Intervention Tutors across English, Maths, and Science to support secondary schools across Lancashire. In this structured, pupil-facing role, you will deliver targeted 1:1 and small-group booster sessions designed to close attainment gaps, rebuild subject confiden...",
-      "salary_text": "£30 to £40",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "8db19ead320e3f77",
-      "title": "Curriculum Manager - Construction",
-      "organisation": "Rise Technical Recruitment Limited",
-      "location": "High Wycombe",
-      "country": "UK",
-      "source": "Reed",
-      "url": "https://www.reed.co.uk/jobs/curriculum-manager-construction/57332719",
-      "date_posted": "2026-09-10",
-      "closing_date": "22/10/2026",
-      "type": "",
-      "description": "Curriculum Manager - Construction High Wycombe Up to 47,867 + Teachers' Pension + 38 Days Holiday + Professional Development + Excellent Progression + Free Parking Are you a Trainer or Lecturer with a construction background, looking to take the next step in your career and move into a role where you can shape the future of education? Do you want to join a forward-thinking company with outstanding facilities, excellent career progression and the...",
-      "salary_text": "£47,000",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 47000,
-      "salary_max": 47000
-    },
-    {
-      "id": "c8085bcba8f9d8df",
-      "title": "Unqualified Teacher | Vocational Instructor",
-      "organisation": "Tradewind Recruitment",
-      "location": "Blackpool",
-      "country": "UK",
-      "source": "Reed",
-      "url": "https://www.reed.co.uk/jobs/unqualified-teacher--vocational-instructor/57332986",
-      "date_posted": "2026-09-10",
-      "closing_date": "22/10/2026",
-      "type": "",
-      "description": "Are you an industry specialist, passionate graduate, or skilled practitioner looking to transition your practical expertise into the classroom? We are currently recruiting an Unqualified Teacher / Vocational Instructor to join an established and inclusive secondary school in Blackpool . This is an exciting, hands-on opportunity to deliver timetabled, engaging practical lessons to Key Stage 3 and Key Stage 4 (GCSE / BTEC) students without needing...",
-      "salary_text": "£103 to £104",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "76c751f4228a3ad6",
-      "title": "Staff Data Engineer",
-      "organisation": "MyFitnessPal",
-      "location": "Remote - US",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/myfitnesspal/jobs/8191556",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "<p>At MyFitnessPal, we believe good health starts with what you eat. We provide tools, resources and support to enable users to reach their health goals.</p> <p>We are looking for a Staff Data Engineer to join the MyFitnessPal Data Engineering team. Our users rely on MyFitnessPal to power their health and fitness journeys every day. As a member of our MyFitnessPal Engineering team, you’ll have the opportunity to positively impact those users with your expertise in the backend systems that drive...",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "a9e211720bafd3e9",
-      "title": "Staff AI Data Engineer (x/f/m)",
-      "organisation": "Doctolib",
-      "location": "Paris, Paris, France",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/doctolib/jobs/7562692003",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "<p>We are looking for a <strong>Staff Data Engineer - AI </strong>to join the <strong>AI</strong> team at Doctolib.</p> <p>As a <strong>Staff Data Engineer AI</strong>, your mission will be to build robust data pipelines - from data capture to monitoring - to power our AI systems and support our ambition to transform healthcare delivery. You will be embedded in the AI teams delivering AI-powered features to healthcare professionals and patients.</p> <p>Working in the tech team at Doctolib involv...",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "7c732a0ff5519616",
-      "title": "Staff AI Engineer, GTM Claudification",
-      "organisation": "Anthropic",
-      "location": "Remote-Friendly (Travel-Required) | San Francisco, CA | Seattle, WA",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://job-boards.greenhouse.io/anthropic/jobs/5390966008",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "<div class=\"content-intro\"><h2><strong>About Anthropic</strong></h2> <p>Anthropic’s mission is to create reliable, interpretable, and steerable AI systems. We want AI to be safe and beneficial for our users and for society as a whole. Our team is a quickly growing group of committed researchers, engineers, policy experts, and business leaders working together to build beneficial AI systems.</p></div><h2>About the role</h2> <p>As a Staff AI Engineer on the GTM Claudification team, you will build...",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "40560f9d98f01d37",
-      "title": "Data Engineer – Data & AI",
-      "organisation": "Red Bull",
-      "location": "Elsbethen, Salzburg, AT",
-      "country": "",
-      "source": "SmartRecruiters",
-      "url": "https://jobs.smartrecruiters.com/redbull/744000148787297",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "Full-time",
-      "description": "IT",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "e4a040351241966b",
-      "title": "Internship Data Science",
-      "organisation": "Red Bull",
-      "location": "Elsbethen, Salzburg, AT",
-      "country": "",
-      "source": "SmartRecruiters",
-      "url": "https://jobs.smartrecruiters.com/redbull/744000148756269",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "Intern",
-      "description": "Student Jobs",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "7b9d26e12a55cbf2",
-      "title": "Lecturer in Corporate and Commercial Law",
-      "organisation": "University of Edinburgh",
-      "location": "United Kingdom",
-      "country": "UK",
-      "source": "Oracle ORC",
-      "url": "https://elxw.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/14804",
-      "date_posted": "2026-09-10",
-      "closing_date": "2026-10-01",
-      "type": "",
-      "description": "We are looking for a committed and enthusiastic academic to join Edinburgh Law School as a Lecturer in Commercial Law. This is an open-ended post available from the 1st January 2027.     Law",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "697da3f2129fcf9c",
-      "title": "SSS Events Coordinator",
-      "organisation": "University of Edinburgh",
-      "location": "United Kingdom",
-      "country": "UK",
-      "source": "Oracle ORC",
-      "url": "https://elxw.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/14887",
-      "date_posted": "2026-09-10",
-      "closing_date": "2026-09-24",
-      "type": "",
-      "description": "SSS Events Coordinator Grade UoE 5 - £29,588-£33,951 per annum Full time 35 hrs per week Open-ended role     University Sport and Exercise",
-      "categories": [
-        "academic_sport"
-      ],
-      "fit_score": 25,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "2ca7e070547afb27",
-      "title": "Postdoctoral Research Associate in Biometrics & Quantitative Genetics for Public Breeding",
-      "organisation": "University of Edinburgh",
-      "location": "Edinburgh - Easter Bush Campus, Midlothian, United Kingdom",
-      "country": "UK",
-      "source": "Oracle ORC",
-      "url": "https://elxw.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/14890",
-      "date_posted": "2026-09-10",
-      "closing_date": "2026-10-01",
-      "type": "",
-      "description": "We are seeking a Postdoctoral Research Fellow in Biometrics and Quantitative Genetics for the recently established TEAM-AI project: Tools for Evaluating and Advancing Meaningful AI Adoption in Public Breeding Programmes, a global partnership between the Roslin Institute and CGIAR, including CIMMYT and National Agricultural Research Systems (NARES).     The Roslin Institute",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "a688d11f10008815",
-      "title": "Postdoctoral Research Associate in Applied Artificial Intelligence for Public Breeding",
-      "organisation": "University of Edinburgh",
-      "location": "Edinburgh - Easter Bush Campus, Midlothian, United Kingdom",
-      "country": "UK",
-      "source": "Oracle ORC",
-      "url": "https://elxw.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/14891",
-      "date_posted": "2026-09-10",
-      "closing_date": "2026-10-01",
-      "type": "",
-      "description": "We are seeking a Postdoctoral Research Fellow in Applied Artificial Intelligence for the recently established TEAM-AI project: Tools for Evaluating and Advancing Meaningful AI Adoption in Public Breeding Programmes, a global partnership between the Roslin Institute and CGIAR, including CIMMYT and National Agricultural Research Systems (NARES).     The Roslin Institute",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "f5336e3b0b331370",
-      "title": "Data Analyst - Strategic Planning and Performance Insight - 107906 - Grade 6",
-      "organisation": "University of Birmingham",
-      "location": "United Kingdom",
-      "country": "UK",
-      "source": "Oracle ORC",
-      "url": "https://edzz.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_6001/job/9964",
-      "date_posted": "2026-09-10",
-      "closing_date": "2026-09-27",
-      "type": "",
-      "description": "We have an exciting opportunity for a Data Analyst to join our team. In this role you will analyse and process data, maintain reports using modern visualisation tools and play a key role in supporting impactful change across the University.",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "e75632db087a82b9",
-      "title": "Data Analyst Developer - Strategic Planning and Performance Insight - 106157 - Grade 7",
-      "organisation": "University of Birmingham",
-      "location": "United Kingdom",
-      "country": "UK",
-      "source": "Oracle ORC",
-      "url": "https://edzz.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_6001/job/9963",
-      "date_posted": "2026-09-10",
-      "closing_date": "2026-09-27",
-      "type": "",
-      "description": "We have an exciting opportunity for a Data Analyst/Developer to join our team. In this role you will create and maintain cloud-based analytics solutions using tools such as Snowflake and Power BI, that enables users to make quicker, more autonomous, and better-informed decisions. Through this work you will support impactful change across the University and play a key role in delivering our data strategy.",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "d88a5c2ba0dc446c",
-      "title": "Research Fellow (Electron Microscopy) - School of Biosciences - 95800 - Grade 7",
-      "organisation": "University of Birmingham",
-      "location": "United Kingdom",
-      "country": "UK",
-      "source": "Oracle ORC",
-      "url": "https://edzz.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_6001/job/9965",
-      "date_posted": "2026-09-10",
-      "closing_date": "2026-10-18",
-      "type": "",
-      "description": "There is a Research Fellow (Post-doc) position available in the field of integrative structural biology, based in the group of Prof. Teresa Carlomagno at the University of Birmingham. The research group studies the functional mechanisms of proteins, including intrinsically disordered proteins, nucleic acids and their complexes by integrative structural biology. The laboratory uses and develops state-of-the-art Nuclear Magnetic Resonance Spectroscopy (NMR) methods as a major structural biology to...",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "aeda8271304d7228",
-      "title": "Assistant or Associate Professor (Research and Education) in Digital Manufacturing - School of Engineering - 107924 - Grade 8 or 9",
-      "organisation": "University of Birmingham",
-      "location": "United Kingdom",
-      "country": "UK",
-      "source": "Oracle ORC",
-      "url": "https://edzz.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_6001/job/9977",
-      "date_posted": "2026-09-10",
-      "closing_date": "2026-10-08",
-      "type": "",
-      "description": "Digitalisation and artificial intelligence are reshaping how products are designed, made, maintained and given a second life. The School of Engineering hosts strong activity in digital, advanced and sustainable manufacturing and robotics, with close links to the Manufacturing Technology Centre and the University's Institute for Robotics. The successful candidate will also have the opportunity to engage with and contribute to our national research hubs – the Co-AIMS Hub (Collaborative AI for Manu...",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "c95ebe5422afcf66",
-      "title": "Research Associate (Laurenti Lab) (Fixed Term)",
-      "organisation": "University of Cambridge",
-      "location": "Cambridge, UK",
-      "country": "UK",
-      "source": "Cambridge",
-      "url": "https://www.jobs.cam.ac.uk/job/57013/",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "Applications are invited for a research associate to join Prof Laurenti's research group. The team combine state-of-the-art experimental and computational methods to study the unique biological and molecular properties of human Haematopoietic Stem Cells (HSCs) across the lifespan. A specific area of interest aims to investigate how somatic mutations acquired by HSC in the first decades of life alter HSC function and predispose to blood cancers and other age-related diseases. The post holder will...",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "85fbd2d8bfec8e06",
-      "title": "Research Associate - Connectomics Research Group (Fixed Term)",
-      "organisation": "University of Cambridge",
-      "location": "Cambridge, UK",
-      "country": "UK",
-      "source": "Cambridge",
-      "url": "https://www.jobs.cam.ac.uk/job/56473/",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "A Post-Doctoral Research Associate post is available in the Connectomics Group directed by Greg Jefferis in the Department of Zoology at the University of Cambridge. Elizabeth Marin and Greg Jefferis have obtained a Wellcome Discovery Award to proofread, annotate, and analyse the first mosquito brain connectome, with an initial focus on the chemosensory circuits involved in human host-seeking. We seek to recruit a postdoc to join a small, highly collaborative project team engaged in circuit reco...",
-      "categories": [
-        "research_postdoc"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "3f95498987ab28cb",
-      "title": "Machine Learning Engineer - Quantitative Trading- Leading Market-Maker / Hedge Fund",
-      "organisation": "eFinancialCareers",
-      "location": "London",
-      "country": "UK",
-      "source": "Reed",
-      "url": "https://www.reed.co.uk/jobs/machine-learning-engineer-quantitative-trading-leading-market-maker-hedge-fund/57331872",
-      "date_posted": "2026-09-10",
-      "closing_date": "22/10/2026",
-      "type": "",
-      "description": "Salary: 200-250k base 200-400k bonus // All experience levels Client: One of the world's top quantitative market makers is expanding its Machine Learning and AI capabilities. Already a market leader, the firm has invested extensively in its data, compute and research infrastructure and is continuing to grow the technology underpinning ML across the business. Operating across multiple asset classes, the firm processes enormous datasets every day,...",
-      "salary_text": "",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_min": null,
-      "salary_max": null
-    },
-    {
-      "id": "d898a5e3ba165ca2",
-      "title": "Tutor",
-      "organisation": "Polaris",
-      "location": "Queen Victoria School",
-      "country": "UK",
-      "source": "Reed",
-      "url": "https://www.reed.co.uk/jobs/tutor/57330667",
-      "date_posted": "2026-09-10",
-      "closing_date": "22/10/2026",
-      "type": "",
-      "description": "Polaris Education – Holdsworth School Tutor Contract: Full-Time, Term Time Only Basic Salary: 24,000 FTE Benefits: Company Pension, Life Assurance, Employee Discount Scheme Location: Burnley, Lancashire About Our School Located in Burnley, Lancashire, our school has the capacity for up to 48 pupils and offers a safe and supportive environment for pupils from 5 to 18 years old with a range of complex needs. We believe in fostering a positive and ...",
-      "salary_text": "£24,000",
-      "categories": [
-        "fe_he_teaching"
-      ],
-      "fit_score": 18,
-      "salary_min": 24000,
-      "salary_max": 24000
-    },
-    {
-      "id": "bc628b311ddd631b",
-      "title": "Data Engineer, Operations Technology (all genders)",
-      "organisation": "HelloFresh",
-      "location": "Warszawa, Masovian Voivodeship, Poland",
-      "country": "",
-      "source": "Greenhouse",
-      "url": "https://careers.hellofresh.com/global/en/job/8170849?gh_jid=8170849",
-      "date_posted": "2026-09-10",
-      "closing_date": "",
-      "type": "",
-      "description": "<p>Work with HelloFresh in Warsaw and its HelloTech organisation, HelloFresh’s global technology backbone with more than 1000 people, building the digital products that power our end-to-end food experience. From meal kits and ready-to-eat meals to specialty offerings like pet food and premium meat & seafood, HelloTech creates the platforms that bring tailored food solutions to millions of customers every month.</p> <p>Our subscription-based, direct-to-consumer model relies on technology at every...",
-      "categories": [
-        "data_science"
-      ],
-      "fit_score": 18,
-      "salary_text": "",
-      "salary_min": null,
-      "salary_max": null
     }
   ],
-  "last_updated": "2026-09-29T09:11:58.405226Z"
+  "last_updated": "2026-09-30T09:11:29.302221Z"
 }
