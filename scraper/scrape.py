@@ -135,7 +135,7 @@ CATEGORY_KEYWORDS = {
         "sport science", "sports science", "exercise science",
         "exercise physiology", "sport and exercise", "sports and exercise",
         "biomechanics", "biomechanist", "strength and conditioning",
-        "sport psychology", "sports psychology", "sport coaching",
+        "sport psychology", "sports psychology", "sport psychologist", "sports psychologist", "sport coaching",
         "sport nutrition", "sports nutrition",
         # Sport/leisure leadership (council/trust/charity), so senior
         # "Head of Sport" posts score on fit, not just pass the filter.
@@ -2236,6 +2236,108 @@ def scrape_indeed() -> list:
 # Bluesky - public AT Protocol API
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# UK Sport jobs board (Phase 9, 1 Oct 2026) - UK sport sector vacancies
+#
+# uksport.gov.uk/jobs is a server-rendered list (no JS, no bot challenge,
+# robots.txt has no Disallow rules). One card per vacancy:
+#   div.job-search__job > p.job-search__job__info__header > a   (title + URL)
+#                         p.job-search__job__info__organization
+#                         p.job-search__job__info__location
+#                         p.job-search__job__info__closing       ("12 October 2026")
+#                         p.job-search__job__info__salary
+# Paging is `&pg=N`, 10 cards a page; `&sort=n` is Newly Listed. The card has
+# no posted date and the URL date is the closing date, so date_posted is the
+# first-seen date. The `q` keyword only loosely filters (it is not a strict match), so every card
+# still goes through passes_filter like any other source. Cards hold no
+# description, so each detail page is fetched once for categorisation.
+# ---------------------------------------------------------------------------
+
+UKSPORT_BASE = "https://www.uksport.gov.uk/jobs"
+UKSPORT_QUERIES = ["sport science"]
+UKSPORT_MAX_PAGES = 8
+
+
+def scrape_uksport() -> list:
+    """Scrape the UK Sport jobs board (newest first, up to UKSPORT_MAX_PAGES)."""
+    jobs = []
+    seen_urls = set()
+    for query in UKSPORT_QUERIES:
+        for page in range(1, UKSPORT_MAX_PAGES + 1):
+            url = f"{UKSPORT_BASE}?q={urllib.parse.quote_plus(query)}&sort=n"
+            if page > 1:
+                url += f"&pg={page}"
+            print(f"  UK Sport: q={query} page {page}")
+            r = get(url, timeout=25)
+            if not r:
+                break
+            try:
+                soup = BeautifulSoup(r.text, "html.parser")
+                cards = soup.select("div.job-search__job")
+                if not cards:
+                    break  # past the last page
+                added = 0
+                for card in cards:
+                    try:
+                        a = card.select_one("p.job-search__job__info__header a")
+                        if not a:
+                            continue
+                        href = clean_url(a.get("href", ""))
+                        title = clean(a.get_text())
+                        if not href or not title or href in seen_urls:
+                            continue
+                        seen_urls.add(href)
+
+                        def field(cls):
+                            el = card.select_one(f"p.job-search__job__info__{cls}")
+                            return clean(el.get_text()) if el else ""
+
+                        org = field("organization")
+                        loc = field("location")
+                        closing = field("closing")
+                        salary_text = field("salary")
+                        # The URL date is the CLOSING date (checked 1 Oct 2026), not the
+                        # posting date, so it must not feed date_posted: it would sort
+                        # jobs into the future and defeat prune_old. Use first-seen
+                        # (today); existing entries keep their stored date.
+                        date_str = datetime.date.today().isoformat()
+                        description = ""
+                        dr = get(href, timeout=20)
+                        if dr:
+                            try:
+                                dsoup = BeautifulSoup(dr.text, "html.parser")
+                                main = dsoup.find("main") or dsoup
+                                description = clean(main.get_text(" ", strip=True))
+                            except Exception:
+                                description = ""
+                            time.sleep(0.5)
+                        jobs.append({
+                            "id": make_id(href, title),
+                            "title": title,
+                            "organisation": org,
+                            "location": loc or "UK",
+                            "country": "UK",
+                            "source": "UK Sport",
+                            "url": href,
+                            "date_posted": date_str,
+                            "closing_date": closing,
+                            "type": "",
+                            "description": description,
+                            "salary_text": salary_text,
+                        })
+                        added += 1
+                    except Exception as e:
+                        print(f"    card parse error: {e}")
+                print(f"    page {page}: +{added} (running total {len(jobs)})")
+                if len(cards) < 10:
+                    break  # short page = last page
+            except Exception as e:
+                print(f"    page parse error ({page}): {e}")
+                break
+            time.sleep(1)
+    return jobs
+
+
 def scrape_bluesky() -> list:
     jobs = []
     for handle in BLUESKY_ACCOUNTS:
@@ -2446,6 +2548,8 @@ def main():
         # filter, same dedup - a university is just another employer endpoint.
         ("Oracle ORC", scrape_oracle_orc),
         ("Cambridge", scrape_cambridge),
+        # Phase 9 (1 Oct 2026): UK Sport jobs board.
+        ("UK Sport", scrape_uksport),
     ):
         print(f"  Running {label} scraper...")
         try:
