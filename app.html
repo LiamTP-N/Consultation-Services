@@ -2,7 +2,7 @@
 <html lang="en-GB">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ROM-Based Exercise App | Dr. Pearson-Noseworthy</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <meta property="og:type" content="website">
@@ -34,7 +34,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
         
-        .nav-tab { transition: all 0.2s ease; border-bottom: 3px solid transparent; opacity: 0.5; }
+        .nav-tab { transition: all 0.2s ease; border-bottom: 3px solid transparent; opacity: 0.7; }
         .nav-tab.active { border-bottom-color: #60A5FA; opacity: 1; background-color: rgba(30, 41, 59, 0.5); }
         .nav-tab:disabled { pointer-events: none; opacity: 0.25; }
 
@@ -42,8 +42,16 @@
         .canvas-wrapper {
             position: relative; width: 100%; border-radius: 1rem; overflow: hidden;
             background-color: #0f172a; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            /* v0.10: the box now takes the camera's own shape. A landscape camera on a narrow
+               phone made it too short for the overlays (Try again was clipped at 360px), so it
+               never goes below this; the frame then letterboxes, still shown in full. */
+            min-height: 22rem;
         }
-        .canvas-wrapper canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
+        /* v0.10: contain, not cover, so the preview shows the whole frame the tracker sees.
+           Cover cropped the sides, so people could be cut off on screen while still being
+           tracked, or think they were in frame when they were not. The wrapper's aspect ratio
+           is matched to the real camera stream in JS once it starts. */
+        .canvas-wrapper canvas { width: 100%; height: 100%; object-fit: contain; display: block; }
         .canvas-aspect-mobile  { aspect-ratio: 9 / 16; }
         .canvas-aspect-desktop { aspect-ratio: 16 / 9; }
 
@@ -172,34 +180,50 @@
         }
 
         
+        /* v0.10: the 11 Borg buttons sit in a two-row grid (see #borg-buttons). In one flex
+           row with a 2.2rem minimum they needed 427px, so on a 360px phone the buttons above
+           7 were off-screen (tested). Unselected text was #64748b on #0f172a, about 3.7:1,
+           below the 4.5:1 that text this size needs. */
         .borg-btn {
-            flex: 1; min-width: 2.2rem; padding: 0.55rem 0.1rem;
-            border-radius: 0.5rem; font-weight: 700; font-size: 0.9rem;
-            border: 2px solid transparent; transition: all 0.15s; cursor: pointer;
-            background: #0f172a; color: #64748b;
+            min-height: 2.75rem; padding: 0.5rem 0.1rem;
+            border-radius: 0.5rem; font-weight: 700; font-size: 1.05rem;
+            border: 2px solid #334155; transition: all 0.15s; cursor: pointer;
+            background: #0f172a; color: #cbd5e1;
         }
         .borg-btn.selected { border-color: #3b82f6; background: #1d4ed8; color: white; }
         .confidence-btn {
-            flex: 1; padding: 0.65rem 0.1rem; border-radius: 0.5rem;
-            font-weight: 700; font-size: 0.7rem; text-align: center; line-height: 1.3;
-            border: 2px solid transparent; transition: all 0.15s; cursor: pointer;
-            background: #0f172a; color: #64748b;
+            flex: 1; min-height: 3.5rem; padding: 0.6rem 0.05rem; border-radius: 0.5rem;
+            font-weight: 700; font-size: 0.75rem; text-align: center; line-height: 1.3;
+            border: 2px solid #334155; transition: all 0.15s; cursor: pointer;
+            background: #0f172a; color: #cbd5e1;
         }
         .confidence-btn.selected { border-color: #22c55e; background: #15803d; color: white; }
 
         
         .feedback-type-btn.selected { border-color: #a855f7; background: #7e22ce; color: white; }
         .feedback-step-btn.selected { border-color: #94a3b8; background: #334155; color: white; }
+
+        /* v0.10 accessibility: a visible keyboard focus ring, and no decorative motion for
+           anyone who has asked their device to reduce it. */
+        button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible {
+            outline: 3px solid #fbbf24; outline-offset: 2px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important; scroll-behavior: auto !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
 
     
-    <div id="onboarding-modal" class="modal-overlay hidden">
+    <div id="onboarding-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
         <div class="modal-box">
             <div class="text-center mb-6">
                 <div class="text-4xl mb-3">&#128075;</div>
-                <h2 class="text-xl font-bold text-white mb-1">Welcome to your programme</h2>
+                <h2 id="onboarding-title" class="text-xl font-bold text-white mb-1">Welcome to your programme</h2>
                 <p class="text-sm text-slate-400">Here is how each daily session works.</p>
             </div>
 
@@ -215,7 +239,7 @@
                     <span class="flex-shrink-0 w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-black flex items-center justify-center">2</span>
                     <div>
                         <p class="text-sm font-bold text-white">Baseline</p>
-                        <p class="text-xs text-slate-400">The camera measures your squat depth. Do 3 squats to your comfortable maximum - this sets your personal target.</p>
+                        <p class="text-xs text-slate-400">The camera measures your squat depth. Stand with your right side to the camera and do 3 squats to your comfortable maximum. This sets your personal target.</p>
                     </div>
                 </li>
                 <li class="flex items-start gap-3">
@@ -241,7 +265,7 @@
                 </li>
             </ol>
 
-            <p class="text-xs text-slate-500 text-center mb-5">Work through steps 1 to 3 in order each day. Steps 4 and 5 can be done at any time.</p>
+            <p class="text-xs text-slate-400 text-center mb-5">Work through steps 1 to 3 in order each day. Steps 4 and 5 can be done at any time.</p>
 
             <button onclick="closeOnboarding()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-all">
                 Got it - let's start &#8594;
@@ -250,11 +274,11 @@
     </div>
 
     
-    <div id="feedback-modal" class="modal-overlay hidden">
+    <div id="feedback-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
         <div class="modal-box">
             <div class="flex justify-between items-start mb-1">
-                <h2 class="text-xl font-bold text-white">Report a Problem</h2>
-                <button onclick="closeFeedbackModal()" class="text-slate-500 hover:text-white text-2xl leading-none transition-colors">&times;</button>
+                <h2 id="feedback-title" class="text-xl font-bold text-white">Report a Problem</h2>
+                <button onclick="closeFeedbackModal()" aria-label="Close" class="text-slate-300 hover:text-white text-2xl leading-none transition-colors px-2">&times;</button>
             </div>
             <p class="text-xs text-purple-400 font-bold uppercase tracking-widest mb-5">or leave general feedback</p>
 
@@ -311,7 +335,7 @@
             
             <div class="mb-6">
                 <p class="text-sm font-bold text-white mb-2">Describe the issue or feedback</p>
-                <textarea id="feedback-text" rows="4" class="auth-input text-sm resize-none"
+                <textarea id="feedback-text" rows="4" aria-label="Describe the issue or feedback" class="auth-input text-sm resize-none"
                     placeholder="e.g. The camera wouldn't find me on step 2. I was standing sideways but it kept searching..."></textarea>
             </div>
 
@@ -321,24 +345,21 @@
                 Send Report
             </button>
             <p id="feedback-success" class="hidden text-center text-green-400 text-sm font-bold mt-3">
-                &#10003; Sent - thank you. Your feedback has been logged.
+                &#10003; Thank you. Your feedback has been saved.
             </p>
         </div>
     </div>
 
     
-    <div id="questionnaire-modal" class="modal-overlay hidden">
+    <div id="questionnaire-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="questionnaire-title">
         <div class="modal-box">
-            <h2 class="text-xl font-bold text-white mb-1">Session Complete</h2>
+            <h2 id="questionnaire-title" class="text-xl font-bold text-white mb-1">Session Complete</h2>
             <p class="text-xs text-green-400 font-bold uppercase tracking-widest mb-5">4 Quick Questions</p>
 
             <div class="mb-6">
                 <p class="text-sm font-bold text-white mb-1">How hard did that feel?</p>
                 <p class="text-xs text-slate-400 mb-3">Borg CR-10: 0 = nothing at all, 10 = maximal effort</p>
-                <div class="flex gap-1" id="borg-buttons"></div>
-                <div class="flex justify-between text-[10px] text-slate-500 mt-1 px-0.5">
-                    <span>Nothing</span><span>Maximal</span>
-                </div>
+                <div class="grid grid-cols-6 gap-1.5" id="borg-buttons" role="group" aria-label="Effort from 0, nothing at all, to 10, maximal"></div>
             </div>
 
             <div class="mb-6">
@@ -350,22 +371,25 @@
                         class="flex-1 py-3 rounded-xl border-2 border-slate-700 bg-slate-900/60 text-slate-300 font-bold transition-all">No</button>
                 </div>
                 <div id="discomfort-detail-wrap" class="hidden mt-3">
-                    <input type="text" id="discomfort-detail" class="auth-input text-sm"
+                    <input type="text" id="discomfort-detail" class="auth-input text-sm" aria-label="Where was the pain or discomfort, and what type? Optional"
                         placeholder="Where and what type? (optional)">
+                    <div class="text-sm text-amber-100 mt-3 leading-relaxed space-y-2" role="note">
+                        <p>Some muscle ache or stiffness for a day or two after exercise is normal.</p>
+                        <p>Pause the programme and get advice if the pain is sharp, is in a joint, is getting worse, or hasn't settled after 2 days. Speak to your GP or physiotherapist, or call NHS 111.</p>
+                        <p><strong>Call 999</strong> if you have chest pain or tightness, severe breathlessness, or feel faint.</p>
+                        <p>Your answer goes to the research team, but it isn't checked straight away, so don't wait to hear from us if you need help.</p>
+                    </div>
                 </div>
             </div>
 
             <div class="mb-6">
                 <p class="text-sm font-bold text-white mb-3">How confident do you feel about doing this again tomorrow?</p>
-                <div class="flex gap-1.5" id="confidence-buttons"></div>
-                <div class="flex justify-between text-[10px] text-slate-500 mt-1 px-0.5">
-                    <span>Not at all</span><span>Very confident</span>
-                </div>
+                <div class="flex gap-1.5" id="confidence-buttons" role="group" aria-label="Confidence from 1, not at all, to 5, very confident"></div>
             </div>
 
             <div class="mb-6">
                 <p class="text-sm font-bold text-white mb-2">Any other comments? <span class="font-normal text-slate-500">(optional)</span></p>
-                <textarea id="q-comments" rows="2" class="auth-input text-sm resize-none"
+                <textarea id="q-comments" rows="2" aria-label="Any other comments, optional" class="auth-input text-sm resize-none"
                     placeholder="e.g. felt unsteady on rep 3, audio coaching too fast..."></textarea>
             </div>
 
@@ -374,7 +398,7 @@
                 Submit and Continue &#8594;
             </button>
             <button onclick="skipQuestionnaire()"
-                class="w-full mt-3 text-xs text-slate-600 hover:text-slate-400 transition-colors py-1">
+                class="w-full mt-3 text-sm text-slate-400 hover:text-slate-200 transition-colors py-2">
                 Skip feedback
             </button>
         </div>
@@ -389,12 +413,13 @@
             </div>
 
             <div id="auth-login-form" class="space-y-4">
-                <input id="auth-email" type="email" class="auth-input" placeholder="Email address" autocomplete="email">
-                <input id="auth-password" type="password" class="auth-input" placeholder="Password" autocomplete="current-password">
+                <input id="auth-email" type="email" class="auth-input" placeholder="Email address" aria-label="Email address" autocomplete="email">
+                <input id="auth-password" type="password" class="auth-input" placeholder="Password" aria-label="Password" autocomplete="current-password">
                 <button id="auth-login-btn" onclick="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold py-4 rounded-xl text-lg transition-all shadow-lg">
                     Sign In
                 </button>
-                <p id="auth-error" class="text-red-400 text-sm text-center hidden"></p>
+                <p id="auth-error" class="text-red-400 text-sm text-center hidden" role="alert"></p>
+                <button id="auth-retry-btn" onclick="retryLoad()" class="hidden w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition-all">Try again</button>
                 <div class="text-center pt-2">
                     <button onclick="toggleAuthMode()" id="auth-toggle-btn" class="text-blue-400 hover:text-blue-300 text-sm transition-colors">
                         Don't have an account? <span class="font-bold">Sign Up</span>
@@ -403,7 +428,7 @@
             </div>
 
             <div id="auth-reset-form" class="hidden space-y-4">
-                <input id="auth-reset-email" type="email" class="auth-input" placeholder="Email address" autocomplete="email">
+                <input id="auth-reset-email" type="email" class="auth-input" placeholder="Email address" aria-label="Email address for the reset link" autocomplete="email">
                 <button onclick="handlePasswordReset()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 rounded-xl text-lg transition-all">
                     Send Reset Link
                 </button>
@@ -414,7 +439,7 @@
             </div>
 
             <div class="text-center mt-4">
-                <button onclick="showResetForm()" id="forgot-link" class="text-slate-500 hover:text-slate-400 text-xs transition-colors">Forgot password?</button>
+                <button onclick="showResetForm()" id="forgot-link" class="text-slate-400 hover:text-slate-200 text-sm transition-colors">Forgot password?</button>
             </div>
         </div>
     </section>
@@ -435,32 +460,36 @@
                 </button>
             </div>
         </div>
-        <div class="grid grid-cols-5 w-full bg-slate-900 text-[10px] md:text-sm font-bold text-slate-300">
+        <div class="grid grid-cols-5 w-full bg-slate-900 text-[13px] md:text-sm font-bold text-slate-200">
             <button onclick="switchView('warmup')" id="nav-warmup" class="nav-tab active py-2 flex flex-col items-center justify-center gap-0.5">
-                <span class="text-[8px] md:text-[10px] text-slate-500 font-normal">STEP 1</span>
-                <span>WARM UP</span>
+                <span class="text-xs text-slate-300 font-normal">Step 1</span>
+                <span>Warm up</span>
             </button>
             <button onclick="switchView('assess')" id="nav-assess" class="nav-tab py-2 flex flex-col items-center justify-center gap-0.5">
-                <span class="text-[8px] md:text-[10px] text-slate-500 font-normal">STEP 2</span>
-                <span>BASELINE</span>
+                <span class="text-xs text-slate-300 font-normal">Step 2</span>
+                <span>Baseline</span>
             </button>
             <button onclick="switchView('workout')" id="nav-workout" class="nav-tab py-2 flex flex-col items-center justify-center gap-0.5">
-                <span class="text-[8px] md:text-[10px] text-slate-500 font-normal">STEP 3</span>
-                <span>TRAINING</span>
+                <span class="text-xs text-slate-300 font-normal">Step 3</span>
+                <span>Training</span>
             </button>
             <button onclick="switchView('food')" id="nav-food" class="nav-tab py-2 flex flex-col items-center justify-center gap-0.5">
-                <span class="text-[8px] md:text-[10px] text-slate-500 font-normal">STEP 4</span>
-                <span>FOOD</span>
+                <span class="text-xs text-slate-300 font-normal">Step 4</span>
+                <span>Food</span>
             </button>
             <button onclick="switchView('home')" id="nav-home" class="nav-tab py-2 flex flex-col items-center justify-center gap-0.5">
-                <span class="text-[8px] md:text-[10px] text-slate-500 font-normal">STEP 5</span>
-                <span>PROGRESS</span>
+                <span class="text-xs text-slate-300 font-normal">Step 5</span>
+                <span>Progress</span>
             </button>
         </div>
     </header>
 
     
     <div id="app-container" class="hidden w-full max-w-4xl mx-auto p-4 pb-24 flex-grow">
+
+        <div id="save-banner" class="hidden mb-4 bg-amber-950/60 border border-amber-600/50 text-amber-100 text-sm rounded-xl px-4 py-3" role="status">
+            Some of your data has not saved. Keep the app open while you are online. If this keeps happening, send a report with the Feedback button.
+        </div>
 
         
         <section id="view-warmup" class="view-section active flex-col gap-5">
@@ -477,7 +506,7 @@
             <div id="warmup-1" class="glass-panel p-5 rounded-xl border border-slate-700 warmup-card">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="text-lg font-bold text-white">1. Marching in Place</h3>
-                    <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2.5 py-1 rounded font-mono-display">2 MINS</span>
+                    <span class="bg-slate-800 text-slate-300 text-xs font-bold px-2.5 py-1 rounded font-mono-display">2 mins</span>
                 </div>
                 <p class="text-sm text-slate-400 mb-3">March gently on the spot, lifting knees to a comfortable height. Swing arms naturally.</p>
                 <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-3">
@@ -492,7 +521,7 @@
             <div id="warmup-2" class="glass-panel p-5 rounded-xl border border-slate-700 warmup-card">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="text-lg font-bold text-white">2. Heel & Toe Raises</h3>
-                    <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2.5 py-1 rounded font-mono-display">15 REPS</span>
+                    <span class="bg-slate-800 text-slate-300 text-xs font-bold px-2.5 py-1 rounded font-mono-display">15 reps</span>
                 </div>
                 <p class="text-sm text-slate-400 mb-3">Rise onto toes, hold briefly, then rock back onto heels. Use a wall for balance if needed.</p>
                 <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-3">
@@ -515,12 +544,12 @@
 
             <div class="flex items-center gap-3 bg-blue-950/40 border border-blue-700/40 rounded-xl px-4 py-3 w-full">
                 <span class="flex-shrink-0 w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-black flex items-center justify-center">2</span>
-                <p class="text-sm text-blue-200">Stand sideways to your camera and tap <strong>Start Calibration</strong>. Perform 3 squats to your comfortable maximum depth - this sets your personal target.</p>
+                <p class="text-sm text-blue-200">Stand with your <strong>right side</strong> to the camera and tap <strong>Start Calibration</strong>. Do 3 squats to your comfortable maximum depth. This sets your personal target.</p>
             </div>
 
             <div class="glass-panel p-4 rounded-xl w-full text-center border-l-4 border-l-blue-500">
                 <h2 class="text-xl font-bold text-white mb-1">Calibration</h2>
-                <p class="text-slate-400 text-sm">Perform <strong class="text-white">3 squats</strong> to your comfortable maximum depth. I will save your best range.</p>
+                <p class="text-slate-300 text-sm">Do <strong class="text-white">3 squats</strong> to your comfortable maximum depth. Your baseline is the middle of the three, so one odd squat won't skew it.</p>
             </div>
 
             <div class="canvas-wrapper canvas-aspect-mobile relative w-full border border-slate-700" id="assess-canvas-wrapper">
@@ -528,22 +557,24 @@
                 <canvas id="assess-canvas"></canvas>
 
                 
-                <div class="absolute inset-0 flex items-center justify-center z-20" id="assess-overlay-start">
+                <div class="absolute inset-0 flex flex-col items-center justify-center z-20 px-6 text-center" id="assess-overlay-start">
                     <button onclick="beginCameraSequence('assess')" class="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
                         Start Calibration
                     </button>
+                    <p id="assess-start-msg" class="hidden mt-4 text-sm text-amber-200 max-w-xs" role="alert"></p>
                 </div>
 
                 
                 <div id="assess-overlay-waiting" class="hidden absolute inset-0 flex items-center justify-center z-20 bg-black/60">
                     <div class="text-center px-6">
                         <div class="text-5xl mb-4" id="assess-device-icon">&#128241;</div>
-                        <p class="text-lg font-bold text-white mb-2" id="assess-device-title">Place your phone down</p>
-                        <p class="text-sm text-slate-300" id="assess-device-instructions">Prop it against a wall, step back, and stand <strong>sideways</strong> to the camera.</p>
+                        <p class="text-lg font-bold text-white mb-2" id="assess-device-title">Set up your phone</p>
+                        <p class="text-sm text-slate-300" id="assess-device-instructions">Stand it upright at about knee height, step back 1.5 to 2 metres, and turn so your <strong>right side</strong> faces it.</p>
                         <div class="mt-4 flex items-center justify-center gap-2">
-                            <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse"></div>
-                            <span class="text-xs text-blue-300 font-mono-display">SEARCHING FOR YOU...</span>
+                            <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse flex-shrink-0"></div>
+                            <span class="text-sm text-blue-200" id="assess-wait-status" role="status" aria-live="polite">Looking for you</span>
                         </div>
+                        <button onclick="stopAllCameras()" class="mt-5 text-sm text-slate-300 underline underline-offset-4 hover:text-white py-2 px-4">Stop camera</button>
                     </div>
                 </div>
 
@@ -583,11 +614,15 @@
                 
                 <div id="assess-overlay-complete" class="hidden absolute inset-0 flex items-center justify-center z-20 bg-black/70">
                     <div class="text-center px-6">
-                        <div class="text-5xl mb-3">&#9989;</div>
-                        <p class="text-xl font-bold text-white mb-1">Calibration Complete</p>
-                        <p class="text-slate-300 text-sm">Your best depth: <span id="assess-final-angle" class="text-blue-400 font-bold font-mono-display">--&#176;</span></p>
-                        <button onclick="switchView('workout')" class="mt-6 bg-green-600 hover:bg-green-500 text-white font-bold px-8 py-3 rounded-full transition-all active:scale-95">
+                        <div class="text-5xl mb-3" id="assess-complete-icon">&#9989;</div>
+                        <p class="text-xl font-bold text-white mb-1" id="assess-complete-title">Calibration Complete</p>
+                        <p class="text-slate-200 text-base" id="assess-complete-line">Your baseline: <span id="assess-final-angle" class="text-blue-300 font-bold font-mono-display">--&#176;</span></p>
+                        <p class="text-slate-300 text-sm mt-2" id="assess-complete-detail"></p>
+                        <button id="assess-continue-btn" onclick="switchView('workout')" class="mt-6 bg-green-600 hover:bg-green-500 text-white font-bold px-8 py-3 rounded-full transition-all active:scale-95">
                             Continue to Training &#8594;
+                        </button>
+                        <button id="assess-retry-btn" onclick="retryCalibration()" class="hidden mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3 rounded-full transition-all active:scale-95">
+                            Try again
                         </button>
                     </div>
                 </div>
@@ -597,18 +632,18 @@
             <div class="camera-controls-panel w-full">
                 <div class="grid grid-cols-2 gap-4" id="assess-stats-row">
                     <div class="glass-panel p-3 rounded-xl text-center">
-                        <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Current Knee</p>
+                        <p class="text-xs text-slate-400 mb-1">Knee angle now</p>
                         <div class="text-3xl font-bold text-white font-mono-display" id="assess-knee-display">--&#176;</div>
                     </div>
                     <div class="glass-panel p-3 rounded-xl text-center">
-                        <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Best Depth</p>
+                        <p class="text-xs text-slate-400 mb-1">Last squat</p>
                         <div class="text-3xl font-bold text-blue-400 font-mono-display" id="assess-best-display">--&#176;</div>
                     </div>
                 </div>
                 
                 <div id="assess-desktop-tip" class="hidden glass-panel p-4 rounded-xl border border-blue-500/20 text-sm text-slate-300 leading-relaxed">
                     <strong class="text-blue-400 block mb-1">&#128187; Laptop / Tablet Setup</strong>
-                    Position your device at roughly knee height pointing sideways toward you - propped on a chair or low shelf works well. Stand 1-2 metres away so your full body from head to foot is visible. You need a clear side-on view for the angle measurement to work accurately.
+                    Position your device at roughly knee height, propped on a chair or low shelf. Stand 1.5 to 2 metres away with your right side towards it, so your whole body from head to foot is visible. The app measures your right knee, so it needs a clear view of your right side.
                 </div>
             </div>
         </section>
@@ -618,7 +653,7 @@
 
             <div class="flex items-center gap-3 bg-green-950/40 border border-green-700/40 rounded-xl px-4 py-3 w-full">
                 <span class="flex-shrink-0 w-7 h-7 rounded-full bg-green-600 text-white text-xs font-black flex items-center justify-center">3</span>
-                <p class="text-sm text-green-200">Stand sideways to your camera and tap <strong>Start 5 Reps</strong>. Squat until the bar turns green on each rep. Complete all 5 to finish your session.</p>
+                <p class="text-sm text-green-200">Stand with your <strong>right side</strong> to the camera and tap <strong>Start 5 Reps</strong>. Squat until the bar turns green, 5 times. Stop straight away if you feel chest pain, dizziness, severe breathlessness, or sharp or worsening pain.</p>
             </div>
 
             <div class="canvas-wrapper canvas-aspect-mobile relative w-full border border-slate-700" id="train-canvas-wrapper">
@@ -626,22 +661,31 @@
                 <canvas id="train-canvas"></canvas>
 
                 
-                <div class="absolute inset-0 flex items-center justify-center z-20" id="train-overlay-start">
-                    <button onclick="beginCameraSequence('train')" class="bg-green-600 hover:bg-green-500 active:scale-95 text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
+                <div class="absolute inset-0 flex flex-col items-center justify-center z-20 px-6 text-center" id="train-overlay-start">
+                    <button id="train-start-btn" onclick="beginCameraSequence('train')" class="bg-green-600 hover:bg-green-500 active:scale-95 text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
                         Start 5 Reps
                     </button>
+                    <div id="train-needs-baseline" class="hidden max-w-xs">
+                        <p class="text-white font-bold text-lg mb-2">Baseline needed first</p>
+                        <p class="text-sm text-slate-300 mb-5">Your target depth comes from your baseline, so do step 2 before training.</p>
+                        <button onclick="switchView('assess')" class="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold px-6 py-3 rounded-full transition-all">
+                            Go to baseline
+                        </button>
+                    </div>
+                    <p id="train-start-msg" class="hidden mt-4 text-sm text-amber-200 max-w-xs" role="alert"></p>
                 </div>
 
                 
                 <div id="train-overlay-waiting" class="hidden absolute inset-0 flex items-center justify-center z-20 bg-black/60">
                     <div class="text-center px-6">
                         <div class="text-5xl mb-4" id="train-device-icon">&#128241;</div>
-                        <p class="text-lg font-bold text-white mb-2" id="train-device-title">Place your phone down</p>
-                        <p class="text-sm text-slate-300" id="train-device-instructions">Stand <strong>sideways</strong> to the camera.</p>
+                        <p class="text-lg font-bold text-white mb-2" id="train-device-title">Set up your phone</p>
+                        <p class="text-sm text-slate-300" id="train-device-instructions">Stand it upright at about knee height, step back 1.5 to 2 metres, and turn so your <strong>right side</strong> faces it.</p>
                         <div class="mt-4 flex items-center justify-center gap-2">
-                            <div class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
-                            <span class="text-xs text-green-300 font-mono-display">SEARCHING...</span>
+                            <div class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse flex-shrink-0"></div>
+                            <span class="text-sm text-green-200" id="train-wait-status" role="status" aria-live="polite">Looking for you</span>
                         </div>
+                        <button onclick="stopAllCameras()" class="mt-5 text-sm text-slate-300 underline underline-offset-4 hover:text-white py-2 px-4">Stop camera</button>
                     </div>
                 </div>
 
@@ -687,7 +731,7 @@
                     <div class="depth-meter">
                         <div class="depth-fill" id="depth-bar"></div>
                     </div>
-                    <div class="flex justify-between text-[10px] text-slate-500 uppercase font-bold mt-1.5 px-1 font-mono-display">
+                    <div class="flex justify-between text-xs text-slate-300 font-bold mt-1.5 px-1">
                         <span>Standing</span>
                         <span>Target Depth</span>
                     </div>
@@ -710,19 +754,19 @@
             <div class="camera-controls-panel w-full">
                 <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center" id="train-stats-row">
                     <div>
-                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Goal</p>
+                        <p class="text-xs text-slate-400">Goal</p>
                         <p class="text-2xl font-bold text-green-400 font-mono-display">5 Reps</p>
                     </div>
                     <div class="text-right">
-                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Target Depth</p>
+                        <p class="text-xs text-slate-400">Target depth</p>
                         <p class="text-lg font-bold text-white font-mono-display" id="daily-target-display">--&#176;</p>
-                        <p class="text-[10px] text-slate-500" id="daily-allowance-display"></p>
+                        <p class="text-xs text-slate-400" id="daily-allowance-display"></p>
                     </div>
                 </div>
                 
                 <div id="train-desktop-tip" class="hidden glass-panel p-4 rounded-xl border border-green-500/20 text-sm text-slate-300 leading-relaxed">
                     <strong class="text-green-400 block mb-1">&#128187; Laptop / Tablet Setup</strong>
-                    Position your device at roughly knee height pointing sideways toward you. Stand 1-2 metres away so your full body is in frame. You need a clear side-on view for the depth measurement to work.
+                    Position your device at roughly knee height. Stand 1.5 to 2 metres away with your right side towards it, so your whole body is in frame. The app measures your right knee, so it needs a clear view of your right side.
                 </div>
             </div>
         </section>
@@ -735,7 +779,7 @@
             </div>
             <div>
                 <h2 class="text-2xl font-bold text-white">Protein Check</h2>
-                <p class="text-slate-400 text-sm mt-1">Anabolic resistance requires higher protein intake. Aim for 25-30g per meal.</p>
+                <p class="text-slate-300 text-sm mt-1">As we get older, muscles need more protein to respond to exercise. Aim for about 25 to 30 g at each meal. If you have kidney disease or have been told to limit protein, follow your doctor's advice instead.</p>
             </div>
 
             <div class="glass-panel p-5 rounded-xl space-y-3" id="food-checklist">
@@ -781,22 +825,28 @@
             <div class="grid grid-cols-3 gap-3">
                 <div class="glass-panel p-4 rounded-2xl text-center border-t-2 border-green-500">
                     <div class="text-3xl font-bold text-white font-mono-display" id="stat-total-reps">0</div>
-                    <div class="text-[10px] font-bold text-slate-500 uppercase mt-1">Total Reps</div>
+                    <div class="text-xs font-bold text-slate-400 mt-1">Total reps</div>
                 </div>
                 <div class="glass-panel p-4 rounded-2xl text-center border-t-2 border-blue-500">
                     <div class="text-3xl font-bold text-white font-mono-display" id="stat-baseline">--</div>
-                    <div class="text-[10px] font-bold text-slate-500 uppercase mt-1">Baseline</div>
+                    <div class="text-xs font-bold text-slate-400 mt-1">Baseline</div>
                 </div>
                 <div class="glass-panel p-4 rounded-2xl text-center border-t-2 border-purple-500">
                     <div class="text-3xl font-bold text-white font-mono-display" id="stat-sessions">0</div>
-                    <div class="text-[10px] font-bold text-slate-500 uppercase mt-1">Sessions</div>
+                    <div class="text-xs font-bold text-slate-400 mt-1">Sessions</div>
                 </div>
+            </div>
+
+            <div class="glass-panel p-5 rounded-2xl hidden" id="depth-chart-card">
+                <h3 class="text-sm font-bold text-white mb-1">Squat depth over time</h3>
+                <p class="text-xs text-slate-400 mb-3">Your average knee angle each session. Higher on the chart means a deeper squat. Green dots: all 5 reps reached target. Dashes: that day's target.</p>
+                <div id="depth-chart"></div>
             </div>
 
             <div class="glass-panel p-5 rounded-2xl">
                 <h3 class="text-sm font-bold text-white mb-3">Recent Sessions</h3>
                 <div id="session-history" class="space-y-2 text-sm text-slate-400">
-                    <p class="text-slate-600 text-xs italic">No sessions recorded yet.</p>
+                    <p class="text-slate-400 text-sm">No sessions recorded yet.</p>
                 </div>
             </div>
         </section>
@@ -854,7 +904,8 @@
             signOut, onAuthStateChanged, sendPasswordResetEmail
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
-            getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp
+            getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+            doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         
@@ -869,7 +920,20 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+        // v0.10: offline cache. Without it a save on a flaky connection waited in memory and
+        // was lost if the app closed, and every save held the screen until the server answered
+        // (tested: the app sat on the training screen after Skip). With it, writes are kept on
+        // the device and sent when the connection returns. If the browser cannot provide
+        // IndexedDB, the SDK falls back to memory by itself.
+        let db;
+        try {
+            db = initializeFirestore(app, {
+                localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+            });
+        } catch (e) {
+            console.warn('Firestore offline cache unavailable, using the default:', e);
+            db = getFirestore(app);
+        }
 
         
         window.firebaseAuth = auth;
@@ -880,8 +944,7 @@
             if (user) {
                 window.currentUserId = user.uid;
                 document.getElementById('user-email-display').innerText = user.email;
-                await loadUserData(user.uid);
-                enterApp();
+                await loadAndEnter(user.uid);
             } else {
                 window.currentUserId = null;
                 showAuthScreen();
@@ -908,36 +971,96 @@
                     sessions: [],
                     foodLog: {}
                 };
-                await setDoc(ref, initial);
+                // v0.10: not awaited. The local copy is enough to start, and waiting on the
+                // server here left a new participant on a blank screen when offline.
                 window.userData = initial;
+                setDoc(ref, initial).catch(e => reportSaveProblem(e, 'New account record'));
+            }
+        }
+
+        // v0.10: a failed load used to be silent, leaving the person on the sign-in screen
+        // with no explanation. Now they get a message and a Try again button.
+        async function loadAndEnter(uid) {
+            try {
+                await loadUserData(uid);
+            } catch (e) {
+                console.error('Could not load user data:', e);
+                showAuthScreen();
+                showAuthError('We could not load your programme. Check your internet connection, then tap Try again.');
+                document.getElementById('auth-retry-btn')?.classList.remove('hidden');
+                return;
+            }
+            document.getElementById('auth-retry-btn')?.classList.add('hidden');
+            enterApp();
+        }
+        window.retryLoad = () => { if (auth.currentUser) loadAndEnter(auth.currentUser.uid); };
+
+        // v0.10 save path. Two changes, both found by test:
+        // 1. Optimistic. The local record updates at once and the screen moves on; the write
+        //    finishes in the background (with the offline cache, after a reconnect if need be).
+        //    Previously every save was awaited, so a slow or absent connection froze the app.
+        // 2. Fallback. v0.10 writes some new fields. The Firestore rules have not been reviewed
+        //    (repo CLAUDE.md), so if they refuse the new fields the save is retried with exactly
+        //    the fields the live app already writes, rather than losing the baseline or session.
+        function reportSaveProblem(e, what) {
+            console.warn(`${what} did not save:`, e);
+            document.getElementById('save-banner')?.classList.remove('hidden');
+        }
+
+        async function writeWithFallback(ref, full, core, what) {
+            try {
+                await updateDoc(ref, full);
+            } catch (e) {
+                if (core && e && e.code === 'permission-denied') {
+                    try {
+                        await updateDoc(ref, core);
+                        console.warn(`${what}: the Firestore rules refused the v0.10 fields, so only the original fields were saved.`);
+                        return;
+                    } catch (e2) {
+                        reportSaveProblem(e2, what);
+                        return;
+                    }
+                }
+                reportSaveProblem(e, what);
             }
         }
 
         
-        window.saveBaseline = async (angle, standingAngle) => {
+        window.saveBaseline = (angle, standingAngle, calibration) => {
             if (!window.currentUserId) return;
             const ref = doc(db, "users", window.currentUserId);
             const now = new Date().toISOString();
-            const updateData = {
-                baselineRom: angle,
-                baselineDate: now
-            };
-            if (standingAngle != null) {
-                updateData.standingRom = standingAngle;
+            const core = { baselineRom: angle, baselineDate: now };
+            if (standingAngle != null) core.standingRom = standingAngle;
+            const full = { ...core };
+            // v0.10: the programme clock. baselineDate is overwritten by every calibration and the
+            // week count used to run from it, so anyone recalibrating daily, as the onboarding
+            // asks, stayed in week 1 for good (tested: week 4 went back to week 1).
+            // programmeStartDate is written once, here, and the week count now runs from it.
+            if (!window.userData.programmeStartDate) {
+                full.programmeStartDate = programmeStartOf(window.userData) || now;
             }
-            await updateDoc(ref, updateData);
-            window.userData.baselineRom = angle;
-            window.userData.baselineDate = now;
-            if (standingAngle != null) {
-                window.userData.standingRom = standingAngle;
-            }
+            // S8b: each calibration's three rep depths are kept for the research record.
+            if (calibration) full.calibrations = arrayUnion(calibration);
+            Object.assign(window.userData, core);
+            if (full.programmeStartDate) window.userData.programmeStartDate = full.programmeStartDate;
+            if (calibration) window.userData.calibrations = [...(window.userData.calibrations || []), calibration];
             refreshStats();
+            return writeWithFallback(ref, full, core, 'Baseline');
         };
 
-        window.saveSession = async (reps, avgAngle, hitTarget, repAngles, questionnaireSubmitted) => {
+        // A calibration that was not accepted is kept for the research record, nothing else.
+        window.logCalibration = (calibration) => {
             if (!window.currentUserId) return;
             const ref = doc(db, "users", window.currentUserId);
-            const sessionEntry = {
+            updateDoc(ref, { calibrations: arrayUnion(calibration) })
+                .catch(e => console.warn('Calibration record not saved:', e));
+        };
+
+        window.saveSession = (reps, avgAngle, hitTarget, repAngles, questionnaireSubmitted, extra) => {
+            if (!window.currentUserId) return;
+            const ref = doc(db, "users", window.currentUserId);
+            const legacyEntry = {
                 date: new Date().toISOString(),
                 reps: reps,
                 avgAngle: Math.round(avgAngle),
@@ -945,18 +1068,21 @@
                 repAngles: repAngles || [],
                 questionnaireSubmitted: questionnaireSubmitted === true
             };
+            // v0.10: dailyTarget and provenance now travel with every session. Before, the target
+            // was only in the questionnaire payload, so a skipped questionnaire lost it (tested)
+            // and there was no way to tell afterwards whether a rep had reached target.
+            const sessionEntry = { ...legacyEntry, ...(extra || {}) };
             const newTotal = (window.userData.totalReps || 0) + reps;
             const newSessions = (window.userData.sessionsCompleted || 0) + 1;
-            await updateDoc(ref, {
-                totalReps: newTotal,
-                sessionsCompleted: newSessions,
-                sessions: arrayUnion(sessionEntry)
-            });
             window.userData.totalReps = newTotal;
             window.userData.sessionsCompleted = newSessions;
             if (!window.userData.sessions) window.userData.sessions = [];
             window.userData.sessions.push(sessionEntry);
             refreshStats();
+            return writeWithFallback(ref,
+                { totalReps: newTotal, sessionsCompleted: newSessions, sessions: arrayUnion(sessionEntry) },
+                { totalReps: newTotal, sessionsCompleted: newSessions, sessions: arrayUnion(legacyEntry) },
+                'Session');
         };
 
         window.saveFoodLog = async (meals) => {
@@ -964,7 +1090,9 @@
             const ref = doc(db, "users", window.currentUserId);
             const today = new Date().toLocaleDateString('en-CA'); 
             const key = `foodLog.${today}`;
-            await updateDoc(ref, { [key]: meals });
+            // v0.10: not awaited, so the ticks below update at once on a slow connection; the
+            // offline cache sends the write when it can.
+            updateDoc(ref, { [key]: meals }).catch(e => reportSaveProblem(e, 'Food log'));
             
             if (!window.userData.foodLog) window.userData.foodLog = {};
             window.userData.foodLog[today] = meals;
@@ -1099,7 +1227,9 @@
         
         
         
-        const APP_VERSION = 'v0.9-alpha';
+        // v0.10-alpha (15 Oct 2026). Covers the uncommitted 27 Aug S8a and S4 part 1 changes as
+        // well as the 15 Oct review, so no session recorded by changed code carries the old tag.
+        const APP_VERSION = 'v0.10-alpha';
 
         
         
@@ -1130,7 +1260,7 @@
                 if (assessIcon)  assessIcon.textContent  = '💻';
                 if (assessTitle) assessTitle.textContent = 'Position your device sideways';
                 if (assessInstr) assessInstr.innerHTML   =
-                    'Place your laptop or tablet at <strong>knee height</strong>, pointing sideways toward you. Stand 1-2 metres away so your full body is visible.';
+                    'Place your laptop or tablet at <strong>knee height</strong>. Stand 1.5 to 2 metres away with your <strong>right side</strong> facing it, so your whole body is visible.';
 
                 const trainIcon  = document.getElementById('train-device-icon');
                 const trainTitle = document.getElementById('train-device-title');
@@ -1138,7 +1268,7 @@
                 if (trainIcon)  trainIcon.textContent  = '💻';
                 if (trainTitle) trainTitle.textContent = 'Position your device sideways';
                 if (trainInstr) trainInstr.innerHTML   =
-                    'Place your laptop or tablet at <strong>knee height</strong> and stand sideways to it. Use a chair or low shelf to prop it up.';
+                    'Place your laptop or tablet at <strong>knee height</strong> (a chair or low shelf works) and stand with your <strong>right side</strong> to it.';
 
             } else {
                 
@@ -1185,6 +1315,29 @@
         let SQUAT_EXIT_ANGLE = 155;
         let currentRepDeepest = 180;
 
+        // v0.10 state. repFrames holds every knee angle inside the current rep, so its depth can
+        // be taken robustly (persistentPeak) rather than from one frame. quietBuf holds the
+        // angles from the "hold still" window, for the standing angle (S8c).
+        let repFrames = [];
+        let assessRepPeaks = [];
+        let assessRepRawMins = [];
+        let trainPeaks = [];
+        let calibrationAttempt = 0;
+        let quietBuf = [];
+        let sessionStanding = null;
+        let sessionStandingSd = null;
+        let sessionStandingN = 0;
+        let sessionStandingSource = 'none';
+        const CAL_MAX_RANGE_DEG = 10;   // plan S8b: "if the range exceeds about 10 degrees, prompt a repeat"
+        const PEAK_RUN_FRAMES = 3;      // plan S8b: a qualifying frame must sit in a run of 3
+        // Camera session guard. Every start and stop bumps it, so a frame loop or a late camera
+        // permission belonging to an older session sees the mismatch and shuts itself down.
+        let cameraGen = 0;
+        let waitReason = '';
+        let waitReasonSince = 0;
+        let lastHintSpokenAt = 0;
+        let firstResultSeen = false;
+
         
         let stabiliseStartTime = 0;
         let lastLandmarkPositions = null;
@@ -1223,6 +1376,18 @@
         }
 
         
+        // v0.10: start downloading the tracker while the person reads the instructions, so the
+        // model (several MB) is usually ready by the time they press Start. initialize() is part
+        // of the legacy Pose API and changes no option or result.
+        let posePreload = null;
+        function preloadPose() {
+            if (posePreload || !ensurePoseReady() || typeof pose.initialize !== 'function') return;
+            posePreload = pose.initialize().catch(e => {
+                console.warn('Pose preload failed; it will retry on Start:', e);
+                posePreload = null;
+            });
+        }
+
         let warmupsComplete = { 'warmup-1': false, 'warmup-2': false };
 
         
@@ -1244,8 +1409,26 @@
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.rate = 0.85;
             utterance.pitch = 1;
-            utterance.onend = () => { isSpeaking = false; processQueue(); };
-            utterance.onerror = () => { isSpeaking = false; processQueue(); };
+            // v0.10: a British voice where the device has one.
+            utterance.lang = 'en-GB';
+            try {
+                const gb = window.speechSynthesis.getVoices().find(v => /^en[-_]GB/i.test(v.lang));
+                if (gb) utterance.voice = gb;
+            } catch (e) { /* keep the default voice */ }
+            // v0.10: watchdog. Some browsers never fire onend, which stalled this queue for the
+            // rest of the session, so every later cue (rep counts, completion) was lost.
+            let finished = false;
+            let watchdog = null;
+            const finish = () => {
+                if (finished) return;
+                finished = true;
+                if (watchdog) clearTimeout(watchdog);
+                isSpeaking = false;
+                processQueue();
+            };
+            watchdog = setTimeout(finish, 4000 + text.length * 110);
+            utterance.onend = finish;
+            utterance.onerror = finish;
             window.speechSynthesis.speak(utterance);
         }
 
@@ -1267,7 +1450,14 @@
 
             if (view === 'workout') {
                 calculateDailyTarget();
+                updateTrainGate();
             }
+            // v0.10: load the tracker while the instructions are read, and clear any old
+            // camera message.
+            if (view === 'assess' || view === 'workout') preloadPose();
+            showStartMessage('assess', '');
+            showStartMessage('train', '');
+            calibrationAttempt = 0;
             if (view === 'food') {
                 loadFood();
             }
@@ -1305,7 +1495,7 @@
 
         function calculateDailyTarget() {
             const baseline = window.userData?.baselineRom || 90;
-            const baselineDate = window.userData?.baselineDate;
+            const baselineDate = programmeStartOf(window.userData);   // v0.10: the programme clock, not the latest calibration
             const standingAngle = window.userData?.standingRom || 170;
 
             const { weeks: weeksElapsed, allowancePercent } = weeksAndAllowance(baselineDate);
@@ -1317,9 +1507,82 @@
             const buffer = range * (allowancePercent / 100);
             dailyTarget = Math.round(baseline + buffer);
 
-            document.getElementById('daily-target-display').innerText = dailyTarget + '\u00B0';
-            document.getElementById('daily-allowance-display').innerText =
-                allowancePercent > 0 ? `${allowancePercent}% allowance (week ${weeksElapsed + 1})` : 'Full depth required';
+            document.getElementById('daily-target-display').innerText = hasBaseline() ? dailyTarget + '\u00B0' : '--\u00B0';
+            document.getElementById('daily-allowance-display').innerText = !hasBaseline() ? 'Do your baseline first'
+                : allowancePercent > 0 ? `${allowancePercent}% allowance (week ${weeksElapsed + 1})` : 'Full depth required';
+        }
+
+        // v0.10 helpers -------------------------------------------------------------------
+        function hasBaseline() {
+            const b = window.userData?.baselineRom;
+            return typeof b === 'number' && isFinite(b) && b > 0;
+        }
+
+        // Training without a baseline used to start anyway, against a target built from a
+        // default 90 degree baseline (tested: target 106, and "your baseline is 0 degrees").
+        function updateTrainGate() {
+            const ok = hasBaseline();
+            document.getElementById('train-start-btn')?.classList.toggle('hidden', !ok);
+            document.getElementById('train-needs-baseline')?.classList.toggle('hidden', ok);
+        }
+
+        // The date the programme clock runs from. New records carry programmeStartDate, written
+        // once at the first calibration. Older records only have baselineDate, which every
+        // calibration overwrote, so the earliest of it and the first session date is the best
+        // surviving estimate of when the programme began.
+        function programmeStartOf(d) {
+            if (!d) return null;
+            if (d.programmeStartDate) return d.programmeStartDate;
+            const times = [d.baselineDate, ...(d.sessions || []).map(s => s && s.date)]
+                .filter(Boolean).map(x => new Date(x).getTime()).filter(t => isFinite(t));
+            return times.length ? new Date(Math.min(...times)).toISOString() : null;
+        }
+
+        // v0.10: squat depth over time on the Progress tab, drawn as plain SVG (no library).
+        // Same convention as the rest of the app (knee angle, lower = deeper), with the axis
+        // turned so a deeper squat sits higher. Values are coerced to numbers and dates are
+        // formatted from Date objects, so nothing stored in the record is written as markup.
+        function renderDepthChart(sessions) {
+            const card = document.getElementById('depth-chart-card');
+            const box = document.getElementById('depth-chart');
+            if (!card || !box) return;
+            const pts = (sessions || []).slice(-20).map(s => ({
+                v: Number(s && s.avgAngle),
+                t: Number(s && s.dailyTarget),
+                hit: !!(s && s.allHitTarget),
+                d: new Date(s && s.date)
+            })).filter(p => isFinite(p.v) && p.v > 0);
+            if (pts.length < 2) {
+                card.classList.add('hidden');
+                box.innerHTML = '';
+                return;
+            }
+            card.classList.remove('hidden');
+            const hasT = p => isFinite(p.t) && p.t > 0;
+            const vals = pts.flatMap(p => hasT(p) ? [p.v, p.t] : [p.v]);
+            const lo = Math.floor((Math.min(...vals) - 3) / 5) * 5;
+            const hi = Math.ceil((Math.max(...vals) + 3) / 5) * 5;
+            const W = Math.max(240, Math.min(720, box.clientWidth || 320));
+            const H = 180, L = 44, R = 12, T = 12, B = 28;
+            const x = i => L + i * (W - L - R) / (pts.length - 1);
+            const y = v => T + (v - lo) / (hi - lo) * (H - T - B);
+            const day = d => isNaN(d) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+            const first = Math.round(pts[0].v), last = Math.round(pts[pts.length - 1].v);
+            let svg = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="max-width:100%;height:auto" role="img" aria-label="Average squat depth over your last ${pts.length} sessions, from ${first} degrees to ${last} degrees. Lower angles are deeper.">`;
+            [lo, (lo + hi) / 2, hi].forEach(v => {
+                svg += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#334155" stroke-width="1"/>`;
+                svg += `<text x="${L - 8}" y="${y(v) + 4}" text-anchor="end" font-size="12" fill="#94a3b8">${Math.round(v)}\u00B0</text>`;
+            });
+            pts.forEach((p, i) => {
+                if (hasT(p)) svg += `<line x1="${x(i) - 7}" x2="${x(i) + 7}" y1="${y(p.t)}" y2="${y(p.t)}" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="3 2"/>`;
+            });
+            svg += `<polyline fill="none" stroke="#60A5FA" stroke-width="2.5" points="${pts.map((p, i) => x(i) + ',' + y(p.v)).join(' ')}"/>`;
+            pts.forEach((p, i) => {
+                svg += `<circle cx="${x(i)}" cy="${y(p.v)}" r="4.5" fill="${p.hit ? '#22c55e' : '#f59e0b'}" stroke="#0f172a" stroke-width="1.5"/>`;
+            });
+            svg += `<text x="${L}" y="${H - 8}" font-size="12" fill="#94a3b8">${day(pts[0].d)}</text>`;
+            svg += `<text x="${W - R}" y="${H - 8}" text-anchor="end" font-size="12" fill="#94a3b8">${day(pts[pts.length - 1].d)}</text>`;
+            box.innerHTML = svg + '</svg>';
         }
 
         
@@ -1330,10 +1593,10 @@
             const d = window.userData;
 
             document.getElementById('stat-total-reps').innerText = d.totalReps || 0;
-            document.getElementById('stat-baseline').innerText = d.baselineRom ? d.baselineRom + '\u00B0' : '--';
+            document.getElementById('stat-baseline').innerText = d.baselineRom ? degStr(d.baselineRom) : '--';
             document.getElementById('stat-sessions').innerText = d.sessionsCompleted || 0;
 
-            const { weeks: weeksElapsed, allowancePercent: allowance } = weeksAndAllowance(d.baselineDate);
+            const { weeks: weeksElapsed, allowancePercent: allowance } = weeksAndAllowance(programmeStartOf(d));
             document.getElementById('stat-allowance').innerText = allowance + '%';
             document.getElementById('stat-week').innerText = weeksElapsed + 1;
 
@@ -1341,18 +1604,30 @@
             const histEl = document.getElementById('session-history');
             const sessions = d.sessions || [];
             if (sessions.length === 0) {
-                histEl.innerHTML = '<p class="text-slate-600 text-xs italic">No sessions recorded yet.</p>';
+                histEl.innerHTML = '<p class="text-slate-400 text-sm">No sessions recorded yet.</p>';
             } else {
+                // v0.10: built with textContent rather than innerHTML, so nothing stored in the
+                // record can be read as markup.
                 const recent = sessions.slice(-5).reverse();
-                histEl.innerHTML = recent.map(s => {
-                    const date = new Date(s.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-                    return `<div class="flex justify-between items-center py-1.5 border-b border-slate-800">
-                        <span class="text-slate-400">${date}</span>
-                        <span class="font-mono-display text-white">${s.reps} reps @ ${s.avgAngle}\u00B0</span>
-                        <span class="${s.allHitTarget ? 'text-green-400' : 'text-yellow-400'}">${s.allHitTarget ? '\u2713' : '\u25CB'}</span>
-                    </div>`;
-                }).join('');
+                histEl.replaceChildren(...recent.map(s => {
+                    const row = document.createElement('div');
+                    row.className = 'flex justify-between items-center py-1.5 border-b border-slate-800';
+                    const date = document.createElement('span');
+                    date.className = 'text-slate-400';
+                    date.textContent = new Date(s.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                    const detail = document.createElement('span');
+                    detail.className = 'font-mono-display text-white';
+                    detail.textContent = `${s.reps} reps @ ${s.avgAngle}\u00B0`;
+                    const hit = document.createElement('span');
+                    hit.className = s.allHitTarget ? 'text-green-400' : 'text-yellow-400';
+                    hit.textContent = s.allHitTarget ? '\u2713' : '\u25CB';
+                    hit.setAttribute('aria-label', s.allHitTarget ? 'All reps reached target' : 'Not every rep reached target');
+                    row.append(date, detail, hit);
+                    return row;
+                }));
             }
+            renderDepthChart(sessions);
+            updateTrainGate();
         };
 
         
@@ -1389,23 +1664,56 @@
 
         window.beginCameraSequence = async (mode) => {
             
-            if (!ensurePoseReady()) {
-                speak('The pose detection system could not load. Please check your internet connection and refresh the page.');
-                alert('Pose detection failed to load. Please check your connection and refresh.');
+            // v0.10: no training without a baseline (see updateTrainGate).
+            if (mode === 'train' && !hasBaseline()) {
+                updateTrainGate();
+                speak('Please do your baseline first. It sets your target.');
                 return;
             }
+            if (!ensurePoseReady()) {
+                speak('The movement tracker could not load. Please check your internet connection and refresh the page.');
+                showStartMessage(mode, 'The movement tracker could not load. Check your internet connection, then refresh the page.');
+                return;
+            }
+            showStartMessage(mode, '');
+            const myGen = ++cameraGen;
 
             currentMode = mode;
             cameraState = 'waiting';
             resetRepState();
             lastLandmarkPositions = null;
             stabiliseStartTime = 0;
+            repFrames = [];
+            quietBuf = [];
+            sessionStanding = null;
+            sessionStandingSd = null;
+            sessionStandingN = 0;
+            sessionStandingSource = 'none';
+            waitReason = '';
+            waitReasonSince = Date.now();
+            lastHintSpokenAt = 0;
+            firstResultSeen = false;
+            setWaitStatus(mode, 'Starting the movement tracker. The first time can take up to a minute.');
 
             
             
             
             
             
+            // KNOWN LIMITATION, recorded 27 Aug 2026 during the S8a fix. SQUAT_ENTRY_ANGLE
+            // requires at least 15 degrees of knee excursion below standing before a rep is
+            // detected. A participant whose comfortable squat range is narrower than that
+            // CANNOT trigger a rep - and because processAssessment uses the same threshold,
+            // they cannot complete calibration either, so they never obtain a baselineRom
+            // and never reach training at all. Verified: standing 170 / baseline 160
+            // (10 deg range) and standing 160 / baseline 150 both fail; standing 170 /
+            // baseline 155 (15 deg) is the boundary and passes.
+            // This is NOT new and was not introduced by the S8a change; it has always been
+            // enforced by calibration. But it is now the SINGLE governing constraint on
+            // whether anyone can use the app, so it is an eligibility criterion in all but
+            // name and belongs in the protocol rather than buried in a magic number.
+            // Do not "fix" it by lowering 15 without deciding what the floor should be:
+            // too low and landmark noise alone will trigger phantom reps.
             const userStanding = window.userData?.standingRom || 170;
             SQUAT_ENTRY_ANGLE = Math.min(158, userStanding - 15);
             SQUAT_EXIT_ANGLE = Math.min(165, userStanding - 8);
@@ -1414,19 +1722,43 @@
                 assessRepCount = 0;
                 assessBestKnee = 180;
                 assessStandingKnee = null;
+                assessRepPeaks = [];
+                assessRepRawMins = [];
+                document.getElementById('assess-reps-display').innerText = 0;
+                document.getElementById('assess-best-display').innerText = degStr(null);
                 showOverlay('assess', 'waiting');
-                speak('Camera is starting. Place your phone against a wall or a stable surface. Step back and stand sideways to the camera. I will find you automatically.');
+                speak('Camera is starting. Set your device at about knee height. Step back and turn so your right side faces the camera. I will find you automatically.');
             } else {
                 trainRepCount = 0;
                 trainAngles = [];
+                trainPeaks = [];
+                document.getElementById('train-reps-display').innerText = 0;
                 showOverlay('train', 'waiting');
                 calculateDailyTarget();
                 
                 
                 
-                SQUAT_EXIT_ANGLE = Math.max(SQUAT_EXIT_ANGLE, dailyTarget + 8);
-                const baseline = window.userData?.baselineRom || 'unknown';
-                speak(`Camera is starting. Place your phone down and stand sideways. Your baseline is ${baseline} degrees. Today's target is ${dailyTarget} degrees. I will find you when you are ready.`);
+                // S8a (27 Aug 2026): the old line here was
+                //   SQUAT_EXIT_ANGLE = Math.max(SQUAT_EXIT_ANGLE, dailyTarget + 8);
+                // It existed only because rep ENTRY used to be gated on dailyTarget, so
+                // exit had to be forced above target or a rep could never close. Entry is
+                // now gated on SQUAT_ENTRY_ANGLE instead (see processTraining), which makes
+                // the clamp unnecessary AND actively harmful. Verified numerically: for a
+                // NARROW-RANGE participant in the EARLY weeks, when the allowance is still
+                // large and so target sits close to standing, the clamp pushed exit to at
+                // or above the participant's own standing angle, so no rep could ever
+                // close. Confirmed cases (week 0): standing 170 / baseline 160 gave exit
+                // 170; standing 165 / baseline 155 gave exit 165; standing 155 /
+                // baseline 148 gave exit 157 against standing 155. By week 10 the
+                // allowance reaches 0 and the clamp stops biting, so this was a second
+                // lockout that AFFECTED NEW PARTICIPANTS ONLY, which is the worst group to
+                // lose. Wide-range participants (baseline 90 to 120) were never affected,
+                // which is why it survived testing.
+                // The base formulas already guarantee exactly 7 degrees of hysteresis at
+                // every standing angle from 140 to 180, checked exhaustively:
+                // entry = min(158, standing - 15), exit = min(165, standing - 8).
+                const baseline = window.userData?.baselineRom;
+                speak(`Camera is starting. Turn so your right side faces the camera. Your baseline is ${degSay(baseline)} degrees. Today's target is ${dailyTarget} degrees. I will find you when you are ready.`);
             }
 
             const videoEl = document.getElementById(mode === 'assess' ? 'assess-video' : 'train-video');
@@ -1445,9 +1777,26 @@
                     audio: false
                 });
 
+                // v0.10: if the person left this screen while the permission prompt was up, the
+                // stream belongs to a session already stopped. Close it at once (tested: the
+                // camera used to stay on after leaving).
+                if (myGen !== cameraGen) {
+                    stream.getTracks().forEach(t => t.stop());
+                    return;
+                }
                 videoEl.srcObject = stream;
                 videoEl.style.display = 'none';
                 await videoEl.play();
+                if (myGen !== cameraGen) {
+                    stream.getTracks().forEach(t => t.stop());
+                    return;
+                }
+                // v0.10: match the preview box to the real camera shape, so the whole frame the
+                // tracker analyses is on screen, with no crop.
+                const wrap = document.getElementById(mode === 'assess' ? 'assess-canvas-wrapper' : 'train-canvas-wrapper');
+                if (wrap && videoEl.videoWidth && videoEl.videoHeight) {
+                    wrap.style.aspectRatio = `${videoEl.videoWidth} / ${videoEl.videoHeight}`;
+                }
 
                 
                 window._activeStream = stream;
@@ -1455,20 +1804,47 @@
                 
                 let lastFrameTime = 0;
                 const FRAME_INTERVAL_MS = 100;
+                let sendFailures = 0;
                 async function sendFrame() {
-                    if (currentMode === 'none' || cameraState === 'off') return;
+                    // v0.10: stop if this loop belongs to an older camera session.
+                    if (myGen !== cameraGen || currentMode === 'none' || cameraState === 'off') return;
                     const now = performance.now();
                     if (now - lastFrameTime >= FRAME_INTERVAL_MS && videoEl.readyState >= 2) {
                         lastFrameTime = now;
-                        await pose.send({ image: videoEl });
+                        // The throttle, the options and the image sent are unchanged, so the
+                        // measurement pipeline still matches the S0 rig. What is new is failure
+                        // handling: an error used to end this loop silently on the first frame
+                        // (tested), leaving "searching" on screen with nothing running.
+                        try {
+                            if (posePreload) await posePreload;
+                            await pose.send({ image: videoEl });
+                            sendFailures = 0;
+                        } catch (e) {
+                            sendFailures++;
+                            console.error('Pose inference failed:', e);
+                            if (sendFailures >= 3) {
+                                stopAllCameras();
+                                showStartMessage(mode, 'The movement tracker stopped working. Check your internet connection, then press Start to try again.');
+                                speak('The movement tracker stopped working. Please check your internet connection and try again.');
+                                return;
+                            }
+                        }
                     }
                     requestAnimationFrame(sendFrame);
                 }
                 sendFrame();
 
             } catch (err) {
-                speak('Camera access was denied. Please allow camera permissions in your browser settings, then try again.');
+                if (myGen !== cameraGen) return;
+                console.error('Camera start failed:', err);
+                // v0.10: say which problem it is, on screen as well as aloud.
+                const blocked = err && (err.name === 'NotAllowedError' || err.name === 'SecurityError');
+                const msg = blocked
+                    ? 'Camera access is blocked. Allow the camera for this site in your browser settings, then press Start again.'
+                    : 'The camera could not start. Close any other app that is using it, then press Start again.';
+                speak(msg);
                 showOverlay(mode, 'start');
+                showStartMessage(mode, msg);
                 cameraState = 'off';
                 currentMode = 'none';
             }
@@ -1482,10 +1858,15 @@
                 clearInterval(countdownIntervalId);
                 countdownIntervalId = null;
             }
+            cameraGen++;
             if (window._activeStream) {
                 window._activeStream.getTracks().forEach(t => t.stop());
                 window._activeStream = null;
             }
+            ['assess-video', 'train-video'].forEach(id => {
+                const v = document.getElementById(id);
+                if (v) v.srcObject = null;
+            });
             cameraState = 'off';
             currentMode = 'none';
             isSquatting = false;
@@ -1495,6 +1876,182 @@
             showOverlay('assess', 'start');
             showOverlay('train', 'start');
         };
+
+        // v0.10 helpers for the camera screens ------------------------------------------
+        function showStartMessage(mode, text) {
+            const el = document.getElementById(mode === 'assess' ? 'assess-start-msg' : 'train-start-msg');
+            if (!el) return;
+            el.textContent = text || '';
+            el.classList.toggle('hidden', !text);
+        }
+
+        function setWaitStatus(mode, text) {
+            const el = document.getElementById(mode === 'assess' ? 'assess-wait-status' : 'train-wait-status');
+            if (el && el.textContent !== text) el.textContent = text;
+        }
+
+        // "Searching" used to give no reason (tested). Each frame that fails one of the existing
+        // gates now records which, and after a few seconds the screen (and, sparingly, the
+        // voice) says what to change. Messages only: the gates themselves are unchanged.
+        const WAIT_HINTS = {
+            noPerson: 'I cannot see you yet. Step back until your whole body, head to feet, is on the screen.',
+            legs: 'I cannot see your legs clearly. Make sure your feet are in view and the room is well lit.',
+            side: 'Turn so your right side faces the camera.'
+        };
+        function noteWaitReason(mode, reason) {
+            const now = Date.now();
+            if (reason !== waitReason) {
+                waitReason = reason;
+                waitReasonSince = now;
+            }
+            const elapsed = now - waitReasonSince;
+            setWaitStatus(mode, elapsed >= 3000 ? WAIT_HINTS[reason] : 'Looking for you');
+            if (elapsed >= 6000 && now - lastHintSpokenAt >= 12000) {
+                lastHintSpokenAt = now;
+                speak(WAIT_HINTS[reason]);
+            }
+        }
+
+        function median(values) {
+            const v = values.filter(x => isFinite(x)).sort((a, b) => a - b);
+            if (!v.length) return null;
+            const m = Math.floor(v.length / 2);
+            return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
+        }
+
+        // S8c. The standing angle used to be the MAXIMUM of any frame over 155 degrees, i.e. the
+        // noisiest frame, and anyone standing below 155 (a fixed flexion contracture, or just
+        // the camera angle) got no standing angle at all and the default of 170 instead. At a
+        // standing angle of 158 that put the exit threshold at 162, which they could never
+        // reach, so calibration sat at 0 reps (tested). Now: the median of the "hold still"
+        // window, which is quiet by construction, plus its SD, the per-session noise floor the
+        // plan asks for. The 120 to 180 range only rejects values that cannot be a standing knee.
+        function finalizeQuietStance() {
+            const vals = quietBuf.filter(x => isFinite(x));
+            const med = vals.length >= 5 ? median(vals) : null;
+            if (med != null && med >= 120 && med <= 180) {
+                const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+                sessionStanding = med;
+                sessionStandingSd = Math.sqrt(vals.reduce((a, b) => a + (b - mean) ** 2, 0) / (vals.length - 1));
+                sessionStandingN = vals.length;
+                sessionStandingSource = 'measured';
+            } else {
+                sessionStanding = window.userData?.standingRom || 170;
+                sessionStandingSd = null;
+                sessionStandingN = vals.length;
+                sessionStandingSource = window.userData?.standingRom ? 'stored' : 'default';
+            }
+            // Same formulas as before (entry 15 and exit 8 degrees below standing, capped at 158
+            // and 165). Only the standing value they start from has changed, so anyone standing
+            // at 173 degrees or more gets exactly the thresholds they had before.
+            SQUAT_ENTRY_ANGLE = Math.min(158, sessionStanding - 15);
+            SQUAT_EXIT_ANGLE = Math.min(165, sessionStanding - 8);
+        }
+
+        // S8b. Depth of one rep = the deepest angle held for PEAK_RUN_FRAMES consecutive frames,
+        // so a single spurious frame cannot set it (tested: one stray frame used to set the
+        // whole baseline to 70 against a true 110). Frames of 40 degrees or less, which the old
+        // code also refused, break a run rather than count towards one.
+        function persistentPeak(frames, k = PEAK_RUN_FRAMES) {
+            const v = frames.map(a => (isFinite(a) && a > 40) ? a : NaN);
+            let best = Infinity;
+            for (let i = 0; i + k <= v.length; i++) {
+                let worst = -Infinity;
+                let ok = true;
+                for (let j = i; j < i + k; j++) {
+                    if (isNaN(v[j])) { ok = false; break; }
+                    if (v[j] > worst) worst = v[j];
+                }
+                if (ok && worst < best) best = worst;
+            }
+            if (best !== Infinity) return best;
+            const usable = v.filter(x => !isNaN(x));
+            return usable.length ? Math.min(...usable) : null;
+        }
+
+        // S8b. Baseline = the median of the three rep depths, not the single deepest frame. If
+        // the three are more than CAL_MAX_RANGE_DEG apart, ask for one repeat. A second
+        // inconsistent attempt is accepted but flagged, so nobody can be locked out by it.
+        function finishCalibration() {
+            const peaks = assessRepPeaks.slice();
+            const sorted = peaks.filter(x => isFinite(x)).sort((a, b) => a - b);
+            cameraState = 'complete';
+            stopCamera();
+            calibrationAttempt++;
+            const baseline = sorted.length ? median(sorted) : null;
+            const range = sorted.length ? sorted[sorted.length - 1] - sorted[0] : null;
+            const consistent = range != null && range <= CAL_MAX_RANGE_DEG;
+            const accepted = baseline != null && (consistent || calibrationAttempt >= 2);
+            const record = {
+                date: new Date().toISOString(),
+                appVersion: APP_VERSION,
+                attempt: calibrationAttempt,
+                accepted: accepted,
+                flagged: !consistent,
+                baseline: degStore(baseline),
+                peaks: peaks.map(degStore),
+                rawMins: assessRepRawMins.map(degStore),
+                range: degStore(range),
+                standing: degStore(sessionStanding),
+                standingSd: degStore(sessionStandingSd),
+                standingN: sessionStandingN,
+                standingSource: sessionStandingSource,
+                entryAngle: degStore(SQUAT_ENTRY_ANGLE),
+                exitAngle: degStore(SQUAT_EXIT_ANGLE)
+            };
+            document.getElementById('assess-complete-detail').innerText =
+                'Your three squats: ' + peaks.map(p => degStr(p)).join(', ');
+            showOverlay('assess', 'complete');
+            if (!accepted) {
+                document.getElementById('assess-complete-icon').innerHTML = '&#8635;';
+                document.getElementById('assess-complete-title').innerText = "Let's do that once more";
+                document.getElementById('assess-complete-line').innerText =
+                    `Your three squats were ${degSay(range)} degrees apart. Try to go to the same comfortable depth each time.`;
+                document.getElementById('assess-continue-btn').classList.add('hidden');
+                document.getElementById('assess-retry-btn').classList.remove('hidden');
+                speak('Your three squats were quite different, so let us do them once more. Try to go to the same comfortable depth each time.');
+                if (window.logCalibration) window.logCalibration(record);
+                return;
+            }
+            document.getElementById('assess-complete-icon').innerHTML = '&#9989;';
+            document.getElementById('assess-complete-title').innerText = 'Calibration Complete';
+            document.getElementById('assess-complete-line').innerHTML =
+                'Your baseline: <span id="assess-final-angle" class="text-blue-300 font-bold font-mono-display"></span>';
+            document.getElementById('assess-final-angle').innerText = degStr(baseline);
+            document.getElementById('assess-continue-btn').classList.remove('hidden');
+            document.getElementById('assess-retry-btn').classList.add('hidden');
+            speak(`Calibration complete. Your baseline depth is ${degSay(baseline)} degrees. Well done.`);
+            calibrationAttempt = 0;
+            // S4: persisted at 1 dp. The standing angle is only saved when it was measured, so a
+            // fallback value is never stored as if it were a measurement.
+            if (window.saveBaseline) {
+                window.saveBaseline(degStore(baseline),
+                    sessionStandingSource === 'measured' ? degStore(sessionStanding) : null, record);
+            }
+        }
+
+        window.retryCalibration = () => beginCameraSequence('assess');
+
+        // v0.10: provenance saved with each session (see saveSession). repAngles keeps its old
+        // meaning, the single deepest frame of each rep, so old and new records stay comparable;
+        // repPeaks3 is the S8b-style robust depth of the same reps, alongside it.
+        function sessionProvenance() {
+            const { weeks, allowancePercent } = weeksAndAllowance(programmeStartOf(window.userData));
+            const b = window.userData?.baselineRom;
+            return {
+                dailyTarget: dailyTarget,
+                appVersion: APP_VERSION,
+                programmeWeek: weeks + 1,
+                allowancePercent: allowancePercent,
+                baselineRom: (typeof b === 'number' && isFinite(b)) ? b : null,
+                standing: degStore(sessionStanding),
+                standingSd: degStore(sessionStandingSd),
+                standingSource: sessionStandingSource,
+                entryAngle: degStore(SQUAT_ENTRY_ANGLE),
+                exitAngle: degStore(SQUAT_EXIT_ANGLE),
+                repPeaks3: trainPeaks.map(degStore)
+            };
+        }
 
         function showOverlay(mode, state) {
             const prefix = mode === 'assess' ? 'assess' : 'train';
@@ -1573,6 +2130,8 @@
         
         function startCountdown(mode) {
             cameraState = 'countdown';
+            // S8c: this session's thresholds come from the quiet stance just measured.
+            finalizeQuietStance();
             showOverlay(mode, 'countdown');
 
             let count = 3;
@@ -1611,11 +2170,36 @@
         
         
         
+        // S4 (27 Aug 2026): returns a FLOAT. It used to `return Math.round(angle)`.
+        // Why that mattered: the measurand is the MINIMUM angle over the frames of a rep,
+        // and the minimum of quantised samples is biased towards the quantisation floor,
+        // so rounding every sample before taking the minimum systematically overstated
+        // depth. It also destroyed the local curvature that sub-frame peak interpolation
+        // (S5) needs, so S5 was impossible while this rounded.
+        // Rounding now happens ONLY at the display and speech layer, via degStr() below.
+        // Comparisons against SQUAT_ENTRY_ANGLE / SQUAT_EXIT_ANGLE / dailyTarget are all
+        // inequalities and are unaffected by the change.
         function calcAngle(a, b, c) {
             let radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
             let angle = Math.abs(radians * 180.0 / Math.PI);
             if (angle > 180.0) angle = 360 - angle;
-            return Math.round(angle);
+            return angle;
+        }
+
+        // Display and speech formatting. Every place an angle is shown to or spoken at a
+        // participant must go through one of these, never a bare float.
+        function degStr(v) {
+            return (v == null || !isFinite(v)) ? '--\u00B0' : Math.round(v) + '\u00B0';
+        }
+        function degSay(v) {
+            return (v == null || !isFinite(v)) ? 'unknown' : String(Math.round(v));
+        }
+
+        // Stored precision. Angles are persisted to 1 decimal place: finer than the
+        // measurement noise floor by a wide margin, but without writing 15 digits of
+        // float noise into Firestore. Integers from pre-S4 records remain valid.
+        function degStore(v) {
+            return (v == null || !isFinite(v)) ? null : Math.round(v * 10) / 10;
         }
 
         
@@ -1629,14 +2213,25 @@
             const videoEl = document.getElementById(currentMode === 'assess' ? 'assess-video' : 'train-video');
 
             
-            canvasEl.width = videoEl.videoWidth || 640;
-            canvasEl.height = videoEl.videoHeight || 480;
+            // v0.10: resize only when the size changes. Assigning the width every frame
+            // reallocated the canvas each time; drawing and results are unaffected.
+            const vw = videoEl.videoWidth || 640;
+            const vh = videoEl.videoHeight || 480;
+            if (canvasEl.width !== vw || canvasEl.height !== vh) {
+                canvasEl.width = vw;
+                canvasEl.height = vh;
+            }
 
             ctx.save();
             ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
             ctx.drawImage(results.image, 0, 0, canvasEl.width, canvasEl.height);
 
+            if (!firstResultSeen) {
+                firstResultSeen = true;
+                setWaitStatus(currentMode, 'Looking for you');
+            }
             if (!results.poseLandmarks) {
+                if (cameraState === 'waiting') noteWaitReason(currentMode, 'noPerson');
                 ctx.restore();
                 return;
             }
@@ -1654,18 +2249,17 @@
                 if (isVisible && isSideOn(lm)) {
                     
                     if (currentMode === 'assess') {
-                        const kneeAngleWait = calcAngle(hip, knee, ankle);
-                        if (kneeAngleWait > 155) {
-                            assessStandingKnee = assessStandingKnee === null
-                                ? kneeAngleWait
-                                : Math.max(assessStandingKnee, kneeAngleWait);
-                        }
+                        // v0.10 (S8c): the standing angle now comes from the median of the
+                        // "hold still" window (finalizeQuietStance), not the max of any frame.
                     }
                     cameraState = 'stabilising';
                     lastLandmarkPositions = null;
                     stabiliseStartTime = Date.now();
+                    quietBuf = [];
                     showOverlay(currentMode, 'stabilise');
                     speak('I can see you. Please hold still.');
+                } else {
+                    noteWaitReason(currentMode, !isVisible ? 'legs' : 'side');
                 }
                 ctx.restore();
                 return;
@@ -1681,15 +2275,15 @@
                     return;
                 }
                 
-                if (currentMode === 'assess') {
-                    const kneeAngleStab = calcAngle(hip, knee, ankle);
-                    if (kneeAngleStab > 155) {
-                        assessStandingKnee = assessStandingKnee === null
-                            ? kneeAngleStab
-                            : Math.max(assessStandingKnee, kneeAngleStab);
-                    }
-                }
-                if (checkStability(lm)) {
+                // S8c: collect the quiet-stance angles, in both modes. checkStability restarts its
+                // 3 s window whenever the person moves, and this buffer restarts with it, so what
+                // is left at the end is only the still part.
+                const kneeAngleStab = calcAngle(hip, knee, ankle);
+                const windowStart = stabiliseStartTime;
+                const stable = checkStability(lm);
+                if (stabiliseStartTime !== windowStart) quietBuf = [];
+                quietBuf.push(kneeAngleStab);
+                if (stable) {
                     speak('Perfect. Hold on.');
                     startCountdown(currentMode);
                 }
@@ -1761,12 +2355,11 @@
         
         
         function processAssessment(kneeAngle) {
-            document.getElementById('assess-knee-display').innerText = kneeAngle + '\u00B0';
+            document.getElementById('assess-knee-display').innerText = degStr(kneeAngle);
 
-            if (kneeAngle < assessBestKnee && kneeAngle > 40) {
-                assessBestKnee = kneeAngle;
-                document.getElementById('assess-best-display').innerText = assessBestKnee + '\u00B0';
-            }
+            // v0.10 (S8b): the baseline no longer comes from the single deepest frame (the old
+            // assessBestKnee). Each rep's depth is taken from all of its frames (persistentPeak)
+            // and "Last squat" shows that figure after each rep.
 
             const now = Date.now();
 
@@ -1776,34 +2369,41 @@
                 } else if (now - squatEntryTime >= MIN_SQUAT_HOLD_MS) {
                     isSquatting = true;
                     currentRepDeepest = kneeAngle;
+                    repFrames = [];
                 }
             } else if (!isSquatting && kneeAngle >= SQUAT_ENTRY_ANGLE) {
                 squatEntryTime = 0;
             }
 
-            if (isSquatting && kneeAngle < currentRepDeepest) {
-                currentRepDeepest = kneeAngle;
+            // v0.10: keep every frame of the rep for persistentPeak (S8b). The single-frame
+            // minimum (currentRepDeepest) is still tracked exactly as before.
+            if (isSquatting) {
+                repFrames.push(kneeAngle);
+                if (kneeAngle < currentRepDeepest) currentRepDeepest = kneeAngle;
             }
 
             if (isSquatting && kneeAngle > SQUAT_EXIT_ANGLE) {
                 if (standReturnTime === 0) {
                     standReturnTime = now;
                 } else if (now - standReturnTime >= MIN_STAND_HOLD_MS) {
+                    const peak = persistentPeak(repFrames);
+                    assessRepPeaks.push(peak);
+                    assessRepRawMins.push(currentRepDeepest);
                     assessRepCount++;
                     document.getElementById('assess-reps-display').innerText = assessRepCount;
+                    document.getElementById('assess-best-display').innerText = degStr(peak);
                     isSquatting = false;
                     squatEntryTime = 0;
                     standReturnTime = 0;
+                    currentRepDeepest = 180;
+                    repFrames = [];
 
                     if (assessRepCount < 3) {
                         speak(`${assessRepCount}. ${3 - assessRepCount} to go.`);
                     } else {
-                        cameraState = 'complete';
-                        showOverlay('assess', 'complete');
-                        document.getElementById('assess-final-angle').innerText = assessBestKnee + '\u00B0';
-                        speak(`Calibration complete. Your best depth is ${assessBestKnee} degrees. Well done.`);
-                        if (window.saveBaseline) window.saveBaseline(assessBestKnee, assessStandingKnee);
-                        stopCamera();
+                        // v0.10 (S8b): median of the three rep depths with a consistency check,
+                        // still persisted at 1 dp (S4). See finishCalibration.
+                        finishCalibration();
                     }
                 }
             } else if (isSquatting && kneeAngle <= SQUAT_EXIT_ANGLE) {
@@ -1815,11 +2415,21 @@
         
         
         function processTraining(kneeAngle) {
+            // SEPARATE EDIT, 27 Aug 2026, revert this block alone if unwanted. The bar and
+            // the READY/GO DEEPER label were anchored to a hardcoded 170 degrees rather than
+            // the participant's own standing angle. A participant whose standing angle is
+            // 155 therefore saw a non-zero bar while standing still and never saw READY at
+            // all. Display only - it does not touch rep counting. Falls back to 170 so a
+            // user record without standingRom behaves exactly as before.
+            // v0.10: the bar starts from this session's measured standing angle (S8c) when there
+            // is one, and falls back exactly as before when there is not.
+            const standing = sessionStanding || window.userData?.standingRom || 170;
+
             let percentage = 0;
-            if (kneeAngle < 170) {
-                const totalDist = 170 - dailyTarget;
-                const currentDist = 170 - kneeAngle;
-                // Guard bad baseline data: if dailyTarget >= 170 then totalDist <= 0
+            if (kneeAngle < standing) {
+                const totalDist = standing - dailyTarget;
+                const currentDist = standing - kneeAngle;
+                // Guard bad baseline data: if dailyTarget >= standing then totalDist <= 0
                 // and the division yields NaN/Infinity, making the bar width "NaN%"
                 // (audit A2). Normal targets (~90-120) are unaffected.
                 percentage = totalDist > 0
@@ -1835,7 +2445,7 @@
                 bar.style.backgroundColor = '#22c55e';
                 label.innerText = 'GOOD DEPTH';
                 label.className = 'text-3xl font-black text-green-400';
-            } else if (kneeAngle < 170) {
+            } else if (kneeAngle < standing) {
                 bar.style.backgroundColor = '#f59e0b';
                 label.innerText = 'GO DEEPER';
                 label.className = 'text-3xl font-black text-yellow-400';
@@ -1847,19 +2457,34 @@
 
             const now = Date.now();
 
-            if (!isSquatting && kneeAngle <= dailyTarget) {
+            // S8a (27 Aug 2026): rep ENTRY is now gated on SQUAT_ENTRY_ANGLE, not on
+            // dailyTarget. Previously this read `kneeAngle <= dailyTarget`, which meant a
+            // participant who squatted but stayed shallower than target never set
+            // isSquatting, so no rep was ever counted, trainRepCount never reached 5, the
+            // session never completed and the questionnaire never fired. They were stuck on
+            // the screen with no way forward. This is the real form of audit item A1; the
+            // logged "allHitTarget is always true" was only its side effect.
+            // SQUAT_ENTRY_ANGLE is a within-participant excursion threshold
+            // (min(158, standing - 15)) and is exactly what processAssessment already uses,
+            // so the two functions now detect a rep identically. Whether the rep reached
+            // target is recorded separately below rather than deciding whether it counts.
+            if (!isSquatting && kneeAngle < SQUAT_ENTRY_ANGLE) {
                 if (squatEntryTime === 0) {
                     squatEntryTime = now;
                 } else if (now - squatEntryTime >= MIN_SQUAT_HOLD_MS) {
                     isSquatting = true;
                     currentRepDeepest = kneeAngle;
+                    repFrames = [];
                 }
-            } else if (!isSquatting && kneeAngle > dailyTarget) {
+            } else if (!isSquatting && kneeAngle >= SQUAT_ENTRY_ANGLE) {
                 squatEntryTime = 0;
             }
 
-            if (isSquatting && kneeAngle < currentRepDeepest) {
-                currentRepDeepest = kneeAngle;
+            // v0.10: keep every frame of the rep for persistentPeak (S8b). The single-frame
+            // minimum (currentRepDeepest) is still tracked exactly as before.
+            if (isSquatting) {
+                repFrames.push(kneeAngle);
+                if (kneeAngle < currentRepDeepest) currentRepDeepest = kneeAngle;
             }
 
             if (isSquatting && kneeAngle > SQUAT_EXIT_ANGLE) {
@@ -1868,6 +2493,13 @@
                 } else if (now - standReturnTime >= MIN_STAND_HOLD_MS) {
                     trainRepCount++;
                     trainAngles.push(currentRepDeepest);
+                    trainPeaks.push(persistentPeak(repFrames));
+                    repFrames = [];
+                    // S8a: capture whether THIS rep reached target before currentRepDeepest
+                    // is reset, so the spoken cue can differentiate. Now that shallow reps
+                    // are counted, `allHit` below is finally capable of being false and the
+                    // "keep working" branch is reachable.
+                    const repHitTarget = currentRepDeepest <= dailyTarget;
                     document.getElementById('train-reps-display').innerText = trainRepCount;
                     isSquatting = false;
                     squatEntryTime = 0;
@@ -1875,7 +2507,10 @@
                     currentRepDeepest = 180;
 
                     if (trainRepCount < 5) {
-                        speak(`${trainRepCount}. ${5 - trainRepCount} to go.`);
+                        const remaining = 5 - trainRepCount;
+                        speak(repHitTarget
+                            ? `${trainRepCount}. ${remaining} to go.`
+                            : `${trainRepCount}. That one was above your target. ${remaining} to go.`);
                     } else {
                         cameraState = 'complete';
                         const avgAngle = Math.round(trainAngles.reduce((a, b) => a + b, 0) / trainAngles.length);
@@ -1892,8 +2527,12 @@
                             reps: 5,
                             avgAngle: avgAngle,
                             allHitTarget: allHit,
-                            repAngles: trainAngles.slice(),
-                            dailyTarget: dailyTarget
+                            // S4: trainAngles are now floats. Store at 1 dp - precise well
+                            // beyond the noise floor, without 15 digits of float noise in
+                            // Firestore. avgAngle above is already Math.round-ed.
+                            repAngles: trainAngles.map(degStore),
+                            dailyTarget: dailyTarget,
+                            extra: sessionProvenance()
                         };
 
                         stopCamera();
@@ -1906,6 +2545,7 @@
         }
 
         function stopCamera() {
+            cameraGen++;
             if (window._activeStream) {
                 window._activeStream.getTracks().forEach(t => t.stop());
                 window._activeStream = null;
@@ -1987,14 +2627,12 @@
             if (btn) btn.disabled = true;
 
             
-            try {
-                const { collection, addDoc } = await import(
-                    "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
-                );
-                await addDoc(collection(window.firebaseDb, 'feedback'), payload);
-            } catch (e) {
-                console.warn('Firestore feedback write failed:', e);
-            }
+            // v0.10: wait at most 4 s for the server, so this screen cannot hang offline; the
+            // offline cache still sends the report when the connection returns.
+            const write = import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js")
+                .then(({ collection, addDoc }) => addDoc(collection(window.firebaseDb, 'feedback'), payload))
+                .catch(e => console.warn('Firestore feedback write failed:', e));
+            await Promise.race([write, new Promise(r => setTimeout(r, 4000))]);
 
             
             if (APPS_SCRIPT_URL) {
@@ -2104,8 +2742,9 @@
             // Null immediately so a rapid re-trigger cannot save the same session
             // twice and double-count totalReps/sessionsCompleted (audit A4).
             window._pendingSessionData = null;
+            // v0.10: not awaited, so a slow connection no longer holds this screen (tested).
             if (d && window.saveSession) {
-                await window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, false);
+                window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, false, d.extra);
             }
             switchView('food');
         };
@@ -2115,10 +2754,8 @@
             // Null immediately so a double-tap / re-entry cannot save the same
             // session twice and double-count totals (audit A4).
             window._pendingSessionData = null;
-            const weeksElapsed = (() => {
-                if (!window.userData?.baselineDate) return 0;
-                return Math.floor((Date.now() - new Date(window.userData.baselineDate).getTime()) / (7 * 24 * 60 * 60 * 1000));
-            })();
+            // v0.10: the programme clock, the same one the Progress tab uses.
+            const weeksElapsed = weeksAndAllowance(programmeStartOf(window.userData)).weeks;
 
             const payload = {
                 type: 'session_response',
@@ -2148,14 +2785,11 @@
 
             document.getElementById('questionnaire-modal').classList.add('hidden');
 
-            try {
-                const { collection, addDoc } = await import(
-                    "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
-                );
-                await addDoc(collection(window.firebaseDb, 'session_responses'), payload);
-            } catch (e) {
-                console.warn('Firestore session_responses write failed:', e);
-            }
+            // v0.10: not awaited, like the session save below; the offline cache keeps the write
+            // until it can be sent, and the screen no longer waits for the server.
+            import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js")
+                .then(({ collection, addDoc }) => addDoc(collection(window.firebaseDb, 'session_responses'), payload))
+                .catch(e => console.warn('Firestore session_responses write failed:', e));
 
             if (APPS_SCRIPT_URL) {
                 try {
@@ -2171,7 +2805,7 @@
             }
 
             if (d.reps != null && window.saveSession) {
-                await window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, true);
+                window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, true, d.extra);
             }
             switchView('food');
         };
