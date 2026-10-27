@@ -203,6 +203,10 @@
         .feedback-type-btn.selected { border-color: #a855f7; background: #7e22ce; color: white; }
         .feedback-step-btn.selected { border-color: #94a3b8; background: #334155; color: white; }
 
+        /* v0.11: phone numbers (999, NHS 111) are tap-to-call links. Underlined and bold so
+           they look like links on any background; the padding makes the tap area bigger. */
+        a.tel-link { color: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; display: inline-block; padding: 0.25rem 0.15rem; }
+
         /* v0.10 accessibility: a visible keyboard focus ring, and no decorative motion for
            anyone who has asked their device to reduce it. */
         button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible {
@@ -274,6 +278,32 @@
     </div>
 
     
+    <div id="readiness-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="readiness-title">
+        <div class="modal-box">
+            <h2 id="readiness-title" tabindex="-1" class="text-2xl font-bold text-white mb-3">Before you start</h2>
+            <p class="text-base text-amber-100 bg-amber-950/60 border border-amber-600/50 rounded-xl px-4 py-3 mb-4"><strong>This app is not medical advice.</strong> It cannot tell you whether exercise is safe for you.</p>
+            <p class="text-base text-slate-200 mb-4">Please answer these four questions. It takes about a minute.</p>
+            <div id="readiness-questions" class="space-y-4 mb-5"></div>
+            <div id="readiness-stop" class="hidden mb-5 rounded-xl border-2 border-amber-400 bg-amber-950/60 px-4 py-3 text-base text-amber-50 leading-relaxed space-y-2" role="alert">
+                <p><strong>Please speak to your GP or physiotherapist before you start.</strong></p>
+                <p>Do not use the exercises in this app until they say it is safe for you.</p>
+                <p>If you need advice now, call <a href="tel:111" class="tel-link">NHS 111</a>. If you have chest pain right now, call <a href="tel:999" class="tel-link">999</a>.</p>
+                <p>If your doctor or physiotherapist says it is fine to exercise, tell the research team. Contact: [TO CONFIRM: research team contact].</p>
+            </div>
+            <label class="flex items-start gap-3 p-3 mb-5 rounded-xl border-2 border-slate-600 bg-slate-900/60 cursor-pointer">
+                <input type="checkbox" id="readiness-tick" class="w-6 h-6 mt-0.5 flex-shrink-0 accent-blue-500" onchange="updateReadiness()">
+                <span class="text-base text-white">I understand that this app is not medical advice. I will stop and sit down if I feel unwell.</span>
+            </label>
+            <button id="readiness-continue" onclick="completeReadiness()" disabled
+                class="w-full min-h-[48px] bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-lg font-bold py-3 rounded-xl transition-all">
+                Continue &#8594;
+            </button>
+            <button onclick="declineReadiness()" class="w-full min-h-[48px] mt-3 text-base text-slate-300 hover:text-white underline underline-offset-4 py-2">
+                Not now (sign out)
+            </button>
+        </div>
+    </div>
+
     <div id="feedback-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
         <div class="modal-box">
             <div class="flex justify-between items-start mb-1">
@@ -1211,14 +1241,40 @@
             refreshStats();
             switchView('warmup');
             
+            // v0.11: the pre-exercise questions come first, for everyone who has not answered
+            // them in the last six months, including people who started on an earlier version.
+            if (window.needsReadiness && window.needsReadiness()) {
+                window.showReadiness();
+            } else if (window.showOnboardingIfFirst) {
+                window.showOnboardingIfFirst();
+            }
+        };
+
+        window.closeOnboarding = () => {
+            document.getElementById('onboarding-modal').classList.add('hidden');
+        };
+
+        // v0.11: the welcome screen is shown to a first-time user, after the pre-exercise
+        // questions (see completeReadiness in the second script).
+        window.showOnboardingIfFirst = () => {
             const sessions = (window.userData && window.userData.sessionsCompleted) || 0;
             if (sessions === 0) {
                 document.getElementById('onboarding-modal').classList.remove('hidden');
             }
         };
 
-        window.closeOnboarding = () => {
-            document.getElementById('onboarding-modal').classList.add('hidden');
+        // v0.11: the pre-exercise screen. The completion date is kept in the user's record like
+        // the rest of their state. The browser copy is a fallback for when the Firestore rules
+        // (unreviewed, see repo CLAUDE.md) refuse the new field, so the screen is not shown on
+        // every visit. Only the date and version are stored, never the individual answers,
+        // because anyone who answers "yes" to a question is not let through.
+        window.saveReadiness = (record) => {
+            if (!window.currentUserId) return;
+            if (window.userData) window.userData.readiness = record;
+            try { localStorage.setItem('rbe_readiness_' + window.currentUserId, record.completedAt); } catch (e) { /* storage blocked */ }
+            const ref = doc(db, "users", window.currentUserId);
+            updateDoc(ref, { readiness: record })
+                .catch(e => console.warn('Pre-exercise record not saved to the account (kept on this device):', e));
         };
     </script>
 
@@ -1395,6 +1451,154 @@
         }
 
         let warmupsComplete = { 'warmup-1': false, 'warmup-2': false };
+
+        // v0.11 dialog helper, for the dialogs added in this version. Focus moves into the
+        // dialog, Tab stays inside it, Escape closes it, and focus goes back to what opened it.
+        const _dialogReturn = {};
+        const _dialogEscape = {};
+        const _dialogOrder = [];
+        function showDialog(id, onEscape, focusId) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            _dialogReturn[id] = document.activeElement;
+            _dialogEscape[id] = onEscape;
+            if (!_dialogOrder.includes(id)) _dialogOrder.push(id);
+            el.classList.remove('hidden');
+            const target = (focusId && document.getElementById(focusId)) || el.querySelector('button, [href], input');
+            if (target) target.focus();
+            const box = el.querySelector('.modal-box');
+            if (box) box.scrollTop = 0;
+        }
+        function hideDialog(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+            delete _dialogEscape[id];
+            const i = _dialogOrder.indexOf(id);
+            if (i >= 0) _dialogOrder.splice(i, 1);
+            const back = _dialogReturn[id];
+            delete _dialogReturn[id];
+            if (back && document.body.contains(back) && typeof back.focus === 'function') {
+                try { back.focus(); } catch (e) { /* the opener has gone */ }
+            }
+        }
+        document.addEventListener('keydown', (e) => {
+            const id = _dialogOrder[_dialogOrder.length - 1];
+            if (!id) return;
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                if (_dialogEscape[id]) _dialogEscape[id]();
+                return;
+            }
+            if (e.key !== 'Tab') return;
+            const el = document.getElementById(id);
+            const items = Array.from(el.querySelectorAll('button, [href], input, textarea, [tabindex]:not([tabindex="-1"])'))
+                .filter(x => !x.disabled && x.offsetParent !== null);
+            if (!items.length) return;
+            const first = items[0], last = items[items.length - 1];
+            if (!el.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+            else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        });
+
+        // v0.11 pre-exercise questions. Any "yes" stops the person here: the simpler and safer
+        // of the two options (the other being "carry on once they say a doctor has cleared
+        // them"), because the app cannot check that clearance. It is repeated after about six
+        // months (183 days) because health, medicines and fall risk change, and a screen answered
+        // once would otherwise stand for as long as the account does. The questions and the
+        // six months need a clinician's sign-off before wider use.
+        const READINESS_QUESTIONS = [
+            'Do you get chest pain when you are active or exercising?',
+            'Do you ever faint, or feel dizzy or light-headed, when you are active or when you stand up?',
+            'Have you had a fall, or an operation, in the last 6 months?',
+            'Has a doctor told you to avoid exercise?'
+        ];
+        const READINESS_MAX_AGE_DAYS = 183;
+        const READINESS_VERSION = 1;
+
+        function readinessCompletedAt() {
+            const found = [];
+            const fromRecord = window.userData && window.userData.readiness && window.userData.readiness.completedAt;
+            if (fromRecord) found.push(fromRecord);
+            try {
+                const local = localStorage.getItem('rbe_readiness_' + window.currentUserId);
+                if (local) found.push(local);
+            } catch (e) { /* storage blocked */ }
+            const times = found.map(x => new Date(x).getTime()).filter(t => isFinite(t));
+            return times.length ? Math.max(...times) : null;
+        }
+
+        window.needsReadiness = () => {
+            const t = readinessCompletedAt();
+            if (t === null) return true;
+            const ageDays = (Date.now() - t) / 86400000;
+            return ageDays > READINESS_MAX_AGE_DAYS || ageDays < -1;
+        };
+
+        function buildReadinessQuestions() {
+            const box = document.getElementById('readiness-questions');
+            if (!box || box.children.length) return;
+            READINESS_QUESTIONS.forEach((q, i) => {
+                const fs = document.createElement('fieldset');
+                const lg = document.createElement('legend');
+                lg.className = 'text-base font-bold text-white mb-2';
+                lg.textContent = `${i + 1}. ${q}`;
+                const row = document.createElement('div');
+                row.className = 'flex gap-3';
+                ['yes', 'no'].forEach(v => {
+                    const lab = document.createElement('label');
+                    lab.className = 'flex flex-1 items-center gap-3 px-4 min-h-[48px] rounded-xl border-2 border-slate-600 bg-slate-900/60 cursor-pointer text-base font-bold text-white';
+                    const inp = document.createElement('input');
+                    inp.type = 'radio';
+                    inp.name = 'readiness-q' + i;
+                    inp.value = v;
+                    inp.className = 'w-6 h-6 accent-blue-500';
+                    inp.addEventListener('change', updateReadiness);
+                    lab.append(inp, document.createTextNode(v === 'yes' ? 'Yes' : 'No'));
+                    row.appendChild(lab);
+                });
+                fs.append(lg, row);
+                box.appendChild(fs);
+            });
+        }
+
+        function readinessAnswers() {
+            return READINESS_QUESTIONS.map((_, i) => {
+                const c = document.querySelector(`input[name="readiness-q${i}"]:checked`);
+                return c ? c.value : null;
+            });
+        }
+
+        window.updateReadiness = () => {
+            const a = readinessAnswers();
+            const anyYes = a.includes('yes');
+            const allAnswered = a.every(x => x !== null);
+            const ticked = document.getElementById('readiness-tick').checked;
+            document.getElementById('readiness-stop').classList.toggle('hidden', !anyYes);
+            document.getElementById('readiness-continue').disabled = !(allAnswered && !anyYes && ticked);
+        };
+
+        window.showReadiness = () => {
+            buildReadinessQuestions();
+            document.querySelectorAll('#readiness-questions input').forEach(i => { i.checked = false; });
+            document.getElementById('readiness-tick').checked = false;
+            window.updateReadiness();
+            showDialog('readiness-modal', window.declineReadiness, 'readiness-title');
+        };
+
+        window.completeReadiness = () => {
+            window.updateReadiness();
+            if (document.getElementById('readiness-continue').disabled) return;
+            hideDialog('readiness-modal');
+            const record = { completedAt: new Date().toISOString(), version: READINESS_VERSION };
+            if (window.saveReadiness) window.saveReadiness(record);
+            if (window.showOnboardingIfFirst) window.showOnboardingIfFirst();
+        };
+
+        // The questions cannot be skipped, so Escape and "Not now" both leave the app.
+        window.declineReadiness = () => {
+            hideDialog('readiness-modal');
+            if (window.handleLogout) window.handleLogout();
+        };
 
         
         
