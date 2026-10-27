@@ -831,6 +831,7 @@
                         <p class="text-xs text-slate-400" id="daily-allowance-display"></p>
                     </div>
                 </div>
+                <p class="text-base text-slate-200">Your target is a goal, not a requirement. Go only as deep as feels safe and comfortable.</p>
                 
                 <div id="train-desktop-tip" class="hidden glass-panel p-4 rounded-xl border border-green-500/20 text-sm text-slate-300 leading-relaxed">
                     <strong class="text-green-400 block mb-1">&#128187; Laptop / Tablet Setup</strong>
@@ -874,7 +875,7 @@
         <section id="view-home" class="view-section flex-col gap-5">
             <div class="flex items-center gap-3 bg-slate-800/60 border border-slate-600/40 rounded-xl px-4 py-3">
                 <span class="flex-shrink-0 w-7 h-7 rounded-full bg-slate-500 text-white text-xs font-black flex items-center justify-center">5</span>
-                <p class="text-sm text-slate-300">Your session history and progression are shown below. Your target depth gets stricter by 2% each week.</p>
+                <p class="text-base text-slate-300">Your session history and progress are shown below. Your target depth moves gradually closer to your own comfortable depth. It is a goal, not a requirement.</p>
             </div>
             <div>
                 <h2 class="text-2xl font-bold text-white">Your Progress</h2>
@@ -883,11 +884,13 @@
 
             <div class="bg-gradient-to-br from-blue-900/30 to-slate-900/30 border border-blue-500/20 p-5 rounded-2xl">
                 <h3 class="text-blue-400 font-bold uppercase tracking-widest text-xs mb-2">Smart Progression</h3>
-                <p class="text-slate-300 text-sm leading-relaxed">
-                    Your target depth becomes stricter each week. You started with a <strong class="text-white">20% allowance</strong> in week 1, which reduces by 2% per week.
+                <p class="text-slate-300 text-base leading-relaxed">
+                    Your target depth moves gradually closer to your own comfortable depth. You started with a <strong class="text-white">20% allowance</strong> in week 1. This usually goes down by 2 percentage points each week.
                     Current allowance: <span id="stat-allowance" class="text-blue-400 font-bold font-mono-display">20%</span>.
                     Week <span id="stat-week" class="text-white font-bold font-mono-display">1</span> of training.
                 </p>
+                <p class="text-slate-300 text-base leading-relaxed mt-3">If a session felt very hard, you felt unsure, or you had pain, your target stays the same or eases a little. Your target is a goal, not a requirement. Never push through pain.</p>
+                <p id="stat-progress-note" class="hidden mt-3 text-base font-bold text-amber-200" role="status"></p>
             </div>
 
             <div class="grid grid-cols-3 gap-3">
@@ -1328,7 +1331,11 @@
         
         // v0.10-alpha (15 Oct 2026). Covers the uncommitted 27 Aug S8a and S4 part 1 changes as
         // well as the 15 Oct review, so no session recorded by changed code carries the old tag.
-        const APP_VERSION = 'v0.10.1-alpha';   // 15 Oct 2026, later the same day: adds device and frame-rate logging
+        // v0.11.0-alpha (27 Oct 2026): safety and accuracy fixes. Adds the pre-exercise screen, the
+        // set-up checklist and Stop button, progression that responds to pain, effort and confidence
+        // (sessions now store borgCr10, pain and confidence1to5), the privacy notice and data export.
+        // The pose pipeline is untouched. The weekly target rule changed, so record the version change.
+        const APP_VERSION = 'v0.11.0-alpha';
 
         
         
@@ -1765,15 +1772,77 @@
         
         
         
-        function weeksAndAllowance(baselineDate) {
+        // v0.11 PROGRESSION RULES. Change the numbers here and nowhere else.
+        // PROVISIONAL: the rate of 2 percentage points a week (and the 20% start) has no
+        // published rationale and no trial behind it. It is the rate the app has always used,
+        // kept so that nobody's target jumps, and it needs a clinical review before anyone
+        // relies on it. The new rule only ever makes the target easier or the same, never harder.
+        const PROGRESSION = {
+            startAllowance: 20,   // % of the baseline-to-standing range allowed in week 1
+            weeklyStep: 2,        // points the allowance falls in a normal week
+            easeStep: 2,          // points it rises after a session with pain
+            borgHold: 7,          // Borg CR-10 of 7 ("very strong") or more: hold
+            confidenceHold: 2     // confidence of 2 ("unlikely") or less out of 5: hold
+        };
+        const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+        // What one session says about the next step. 'ease' after pain, 'hold' after a very hard
+        // session or low confidence, otherwise 'advance'. A session without the new fields (an
+        // older record, or the questionnaire skipped) advances, exactly as before.
+        function progressionStepFor(session) {
+            if (!session) return 'advance';
+            if (session.pain === true) return 'ease';
+            const borg = session.borgCr10;
+            if (typeof borg === 'number' && isFinite(borg) && borg >= PROGRESSION.borgHold) return 'hold';
+            const conf = session.confidence1to5;
+            if (typeof conf === 'number' && isFinite(conf) && conf <= PROGRESSION.confidenceHold) return 'hold';
+            return 'advance';
+        }
+
+        function weeksAndAllowance(baselineDate, sessions) {
             // Single source of truth for the week count and allowance %, shared by
-            // calculateDailyTarget and refreshStats so the two cannot drift (audit A7).
-            let weeks = 0;
-            if (baselineDate) {
-                weeks = Math.floor((Date.now() - new Date(baselineDate).getTime()) / (7 * 24 * 60 * 60 * 1000));
+            // calculateDailyTarget, refreshStats and sessionProvenance so they cannot drift
+            // (audit A7).
+            // v0.11: with no sessions passed this is the old fixed schedule. With sessions, the
+            // allowance is replayed week by week: each finished week takes one step decided by
+            // the LATEST session in that week (weeks with no session advance, as before).
+            // Pain in the latest session of the current week also eases today's target at once.
+            // `status` says why the target is not on the normal schedule: 'hold', 'ease' or 'advance'.
+            const start = baselineDate ? new Date(baselineDate).getTime() : NaN;
+            const weeks = isFinite(start) ? Math.max(0, Math.floor((Date.now() - start) / WEEK_MS)) : 0;
+            const latest = {};
+            if (Array.isArray(sessions) && isFinite(start)) {
+                sessions.forEach(s => {
+                    const t = s && s.date ? new Date(s.date).getTime() : NaN;
+                    if (!isFinite(t)) return;
+                    const k = Math.max(0, Math.floor((t - start) / WEEK_MS));
+                    if (!latest[k] || t >= latest[k].t) latest[k] = { t, s };
+                });
             }
-            const allowancePercent = Math.max(0, 20 - (weeks * 2));
-            return { weeks, allowancePercent };
+            const stepOf = k => latest[k] ? progressionStepFor(latest[k].s) : 'advance';
+            const clamp = a => Math.min(PROGRESSION.startAllowance, Math.max(0, a));
+            let allowance = PROGRESSION.startAllowance;
+            for (let k = 0; k < weeks; k++) {
+                const step = stepOf(k);
+                if (step === 'advance') allowance = clamp(allowance - PROGRESSION.weeklyStep);
+                else if (step === 'ease') allowance = clamp(allowance + PROGRESSION.easeStep);
+            }
+            let status = 'advance';
+            if (stepOf(weeks) === 'ease') {
+                allowance = clamp(allowance + PROGRESSION.easeStep);
+                status = 'ease';
+            } else if (stepOf(weeks) === 'hold') {
+                status = 'hold';
+            } else if (weeks > 0 && stepOf(weeks - 1) !== 'advance') {
+                status = stepOf(weeks - 1);
+            }
+            return { weeks, allowancePercent: allowance, status };
+        }
+
+        function progressionNote(status) {
+            if (status === 'ease') return 'You told us about pain or discomfort, so we have eased your target a little. If it carries on, please speak to your GP or physiotherapist.';
+            if (status === 'hold') return 'Your last session felt very hard, or you felt less sure, so your target is staying the same for now.';
+            return '';
         }
 
         function calculateDailyTarget() {
@@ -1781,7 +1850,7 @@
             const baselineDate = programmeStartOf(window.userData);   // v0.10: the programme clock, not the latest calibration
             const standingAngle = window.userData?.standingRom || 170;
 
-            const { weeks: weeksElapsed, allowancePercent } = weeksAndAllowance(baselineDate);
+            const { weeks: weeksElapsed, allowancePercent, status } = weeksAndAllowance(baselineDate, window.userData?.sessions);
 
             
             // allowancePercent now comes from weeksAndAllowance() above (audit A7);
@@ -1792,7 +1861,7 @@
 
             document.getElementById('daily-target-display').innerText = hasBaseline() ? dailyTarget + '\u00B0' : '--\u00B0';
             document.getElementById('daily-allowance-display').innerText = !hasBaseline() ? 'Do your baseline first'
-                : allowancePercent > 0 ? `${allowancePercent}% allowance (week ${weeksElapsed + 1})` : 'Full depth required';
+                : allowancePercent > 0 ? `${allowancePercent}% allowance (week ${weeksElapsed + 1}${status === 'hold' ? ', held for now' : status === 'ease' ? ', eased for now' : ''})` : 'Your own comfortable depth (week ' + (weeksElapsed + 1) + ')';
         }
 
         // v0.10 helpers -------------------------------------------------------------------
@@ -1879,9 +1948,15 @@
             document.getElementById('stat-baseline').innerText = d.baselineRom ? degStr(d.baselineRom) : '--';
             document.getElementById('stat-sessions').innerText = d.sessionsCompleted || 0;
 
-            const { weeks: weeksElapsed, allowancePercent: allowance } = weeksAndAllowance(programmeStartOf(d));
+            const { weeks: weeksElapsed, allowancePercent: allowance, status: progStatus } = weeksAndAllowance(programmeStartOf(d), d.sessions);
             document.getElementById('stat-allowance').innerText = allowance + '%';
             document.getElementById('stat-week').innerText = weeksElapsed + 1;
+            const noteEl = document.getElementById('stat-progress-note');
+            if (noteEl) {
+                const note = progressionNote(progStatus);
+                noteEl.textContent = note;
+                noteEl.classList.toggle('hidden', !note);
+            }
 
             
             const histEl = document.getElementById('session-history');
@@ -2395,13 +2470,14 @@
         // meaning, the single deepest frame of each rep, so old and new records stay comparable;
         // repPeaks3 is the S8b-style robust depth of the same reps, alongside it.
         function sessionProvenance() {
-            const { weeks, allowancePercent } = weeksAndAllowance(programmeStartOf(window.userData));
+            const { weeks, allowancePercent, status } = weeksAndAllowance(programmeStartOf(window.userData), window.userData?.sessions);
             const b = window.userData?.baselineRom;
             return {
                 dailyTarget: dailyTarget,
                 appVersion: APP_VERSION,
                 programmeWeek: weeks + 1,
                 allowancePercent: allowancePercent,
+                progressionStatus: status,
                 baselineRom: (typeof b === 'number' && isFinite(b)) ? b : null,
                 standing: degStore(sessionStanding),
                 standingSd: degStore(sessionStandingSd),
@@ -2878,7 +2954,7 @@
                         const allHit = trainAngles.every(a => a <= dailyTarget);
                         const summaryText = allHit
                             ? `All 5 reps hit target. Average depth: ${avgAngle} degrees. Excellent.`
-                            : `5 reps complete. Average depth: ${avgAngle} degrees. Keep working on hitting your target consistently.`;
+                            : `5 reps complete. Average depth: ${avgAngle} degrees. Your target is a goal, not a requirement.`;
 
                         document.getElementById('train-summary-text').innerText = summaryText;
                         showOverlay('train', 'complete');
@@ -3166,7 +3242,11 @@
             }
 
             if (d.reps != null && window.saveSession) {
-                window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, true, d.extra);
+                // v0.11: the effort, pain and confidence answers are saved in the session record
+                // itself (they used to go only to session_responses), because the weekly
+                // progression rule reads them from here. The pain free text is not copied.
+                const answers = { borgCr10: _qRpe, pain: _qDiscomfort === 'yes', confidence1to5: _qConfidence };
+                window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, true, { ...(d.extra || {}), ...answers });
             }
             switchView('food');
         };
