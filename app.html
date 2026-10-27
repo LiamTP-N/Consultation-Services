@@ -405,8 +405,8 @@
                         placeholder="Where and what type? (optional)">
                     <div class="text-sm text-amber-100 mt-3 leading-relaxed space-y-2" role="note">
                         <p>Some muscle ache or stiffness for a day or two after exercise is normal.</p>
-                        <p>Pause the programme and get advice if the pain is sharp, is in a joint, is getting worse, or hasn't settled after 2 days. Speak to your GP or physiotherapist, or call NHS 111.</p>
-                        <p><strong>Call 999</strong> if you have chest pain or tightness, severe breathlessness, or feel faint.</p>
+                        <p>Pause the programme and get advice if the pain is sharp, is in a joint, is getting worse, or hasn't settled after 2 days. Speak to your GP or physiotherapist, or call <a href="tel:111" class="tel-link">NHS 111</a>.</p>
+                        <p><strong>Call <a href="tel:999" class="tel-link">999</a></strong> if you have chest pain or tightness, severe breathlessness, or feel faint.</p>
                         <p>Your answer goes to the research team, but it isn't checked straight away, so don't wait to hear from us if you need help.</p>
                     </div>
                 </div>
@@ -582,13 +582,28 @@
                 <p class="text-slate-300 text-sm">Do <strong class="text-white">3 squats</strong> to your comfortable maximum depth. Your baseline is the middle of the three, so one odd squat won't skew it.</p>
             </div>
 
+            <div class="setup-card w-full rounded-xl border-2 border-blue-400/60 bg-slate-800/80 p-4">
+                <h3 class="text-lg font-bold text-white mb-2">Set up safely</h3>
+                <ul class="list-disc pl-5 space-y-1.5 text-base text-slate-100 mb-4">
+                    <li>Stand next to a sturdy worktop or chair back that you can hold. Keep it within easy reach, on the side away from the camera.</li>
+                    <li>Wear supportive, flat shoes.</li>
+                    <li>Make sure the floor is clear, dry and not slippery. Move any loose rugs.</li>
+                    <li>Have someone nearby for the first few times.</li>
+                    <li>If you feel unsteady, hold on or stop.</li>
+                </ul>
+                <label class="flex items-start gap-3 p-3 rounded-xl border-2 border-slate-500 bg-slate-900/60 cursor-pointer">
+                    <input type="checkbox" class="setup-confirm w-6 h-6 mt-0.5 flex-shrink-0 accent-blue-500" onchange="onSetupConfirm(this.checked)">
+                    <span class="text-base font-bold text-white">I have set up safely. Unlock the Start button.</span>
+                </label>
+            </div>
+
             <div class="canvas-wrapper canvas-aspect-mobile relative w-full border border-slate-700" id="assess-canvas-wrapper">
                 <video id="assess-video" style="display:none!important" playsinline></video>
                 <canvas id="assess-canvas"></canvas>
 
                 
                 <div class="absolute inset-0 flex flex-col items-center justify-center z-20 px-6 text-center" id="assess-overlay-start">
-                    <button onclick="beginCameraSequence('assess')" class="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
+                    <button id="assess-start-btn" disabled onclick="beginCameraSequence('assess')" class="bg-blue-600 hover:bg-blue-500 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
                         Start Calibration
                     </button>
                     <p id="assess-start-msg" class="hidden mt-4 text-sm text-amber-200 max-w-xs" role="alert"></p>
@@ -604,7 +619,7 @@
                             <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse flex-shrink-0"></div>
                             <span class="text-sm text-blue-200" id="assess-wait-status" role="status" aria-live="polite">Looking for you</span>
                         </div>
-                        <button onclick="stopAllCameras()" class="mt-5 text-sm text-slate-300 underline underline-offset-4 hover:text-white py-2 px-4">Stop camera</button>
+                        <button onclick="stopAllCameras()" class="mt-5 min-h-[48px] text-base font-bold text-white underline underline-offset-4 hover:text-slate-200 py-2 px-5 rounded-lg">Stop camera</button>
                     </div>
                 </div>
 
@@ -659,6 +674,10 @@
             </div>
 
             
+            <div class="stop-strip w-full rounded-xl bg-amber-300 text-slate-950 border-4 border-red-700 px-4 py-3 text-base font-bold leading-snug" role="note">
+                <strong>Stop and sit down</strong> if you feel chest pain, severe breathlessness, dizziness or faintness, or sharp pain. Chest pain or symptoms that don't ease quickly: call <a href="tel:999" class="tel-link">999</a>.
+            </div>
+
             <div class="camera-controls-panel w-full">
                 <div class="grid grid-cols-2 gap-4" id="assess-stats-row">
                     <div class="glass-panel p-3 rounded-xl text-center">
@@ -681,9 +700,25 @@
         
         <section id="view-workout" class="view-section flex-col items-center gap-4">
 
+            <div class="w-full flex flex-col gap-4">
             <div class="flex items-center gap-3 bg-green-950/40 border border-green-700/40 rounded-xl px-4 py-3 w-full">
                 <span class="flex-shrink-0 w-7 h-7 rounded-full bg-green-600 text-white text-xs font-black flex items-center justify-center">3</span>
                 <p class="text-sm text-green-200">Stand with your <strong>right side</strong> to the camera and tap <strong>Start 5 Reps</strong>. Squat until the bar turns green, 5 times. Stop straight away if you feel chest pain, dizziness, severe breathlessness, or sharp or worsening pain.</p>
+            </div>
+            <div class="setup-card w-full rounded-xl border-2 border-blue-400/60 bg-slate-800/80 p-4">
+                <h3 class="text-lg font-bold text-white mb-2">Set up safely</h3>
+                <ul class="list-disc pl-5 space-y-1.5 text-base text-slate-100 mb-4">
+                    <li>Stand next to a sturdy worktop or chair back that you can hold. Keep it within easy reach, on the side away from the camera.</li>
+                    <li>Wear supportive, flat shoes.</li>
+                    <li>Make sure the floor is clear, dry and not slippery. Move any loose rugs.</li>
+                    <li>Have someone nearby for the first few times.</li>
+                    <li>If you feel unsteady, hold on or stop.</li>
+                </ul>
+                <label class="flex items-start gap-3 p-3 rounded-xl border-2 border-slate-500 bg-slate-900/60 cursor-pointer">
+                    <input type="checkbox" class="setup-confirm w-6 h-6 mt-0.5 flex-shrink-0 accent-blue-500" onchange="onSetupConfirm(this.checked)">
+                    <span class="text-base font-bold text-white">I have set up safely. Unlock the Start button.</span>
+                </label>
+            </div>
             </div>
 
             <div class="canvas-wrapper canvas-aspect-mobile relative w-full border border-slate-700" id="train-canvas-wrapper">
@@ -692,7 +727,7 @@
 
                 
                 <div class="absolute inset-0 flex flex-col items-center justify-center z-20 px-6 text-center" id="train-overlay-start">
-                    <button id="train-start-btn" onclick="beginCameraSequence('train')" class="bg-green-600 hover:bg-green-500 active:scale-95 text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
+                    <button id="train-start-btn" disabled onclick="beginCameraSequence('train')" class="bg-green-600 hover:bg-green-500 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
                         Start 5 Reps
                     </button>
                     <div id="train-needs-baseline" class="hidden max-w-xs">
@@ -715,7 +750,7 @@
                             <div class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse flex-shrink-0"></div>
                             <span class="text-sm text-green-200" id="train-wait-status" role="status" aria-live="polite">Looking for you</span>
                         </div>
-                        <button onclick="stopAllCameras()" class="mt-5 text-sm text-slate-300 underline underline-offset-4 hover:text-white py-2 px-4">Stop camera</button>
+                        <button onclick="stopAllCameras()" class="mt-5 min-h-[48px] text-base font-bold text-white underline underline-offset-4 hover:text-slate-200 py-2 px-5 rounded-lg">Stop camera</button>
                     </div>
                 </div>
 
@@ -782,6 +817,9 @@
 
             
             <div class="camera-controls-panel w-full">
+                <div class="stop-strip w-full rounded-xl bg-amber-300 text-slate-950 border-4 border-red-700 px-4 py-3 text-base font-bold leading-snug" role="note">
+                    <strong>Stop and sit down</strong> if you feel chest pain, severe breathlessness, dizziness or faintness, or sharp pain. Chest pain or symptoms that don't ease quickly: call <a href="tel:999" class="tel-link">999</a>.
+                </div>
                 <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center" id="train-stats-row">
                     <div>
                         <p class="text-xs text-slate-400">Goal</p>
@@ -880,6 +918,10 @@
                 </div>
             </div>
         </section>
+
+        <div id="safety-bar" class="hidden sticky bottom-0 z-40 -mx-4 px-4 pt-2 pb-3 bg-slate-950/95 border-t-2 border-slate-600">
+            <button type="button" id="stop-btn" onclick="stopSetSafely()" class="w-full min-h-[60px] rounded-xl bg-red-700 hover:bg-red-600 active:scale-[0.98] text-white text-2xl font-black tracking-wide border-2 border-white shadow-lg transition-all">&#9632; STOP</button>
+        </div>
     </div>
 
     
@@ -1237,6 +1279,7 @@
             document.querySelectorAll('.warmup-card').forEach(c => c.classList.remove('done'));
             const nextBtn = document.getElementById('warmup-next-btn');
             if (nextBtn) nextBtn.disabled = true;
+            if (window.resetSetupConfirm) window.resetSetupConfirm();
 
             refreshStats();
             switchView('warmup');
@@ -1452,6 +1495,34 @@
 
         let warmupsComplete = { 'warmup-1': false, 'warmup-2': false };
 
+        // v0.11: the "Set up safely" tick. It is asked once per visit and not stored, because
+        // the room and the day change. The Start buttons stay locked until it is ticked.
+        let setupConfirmed = false;
+        function syncSetupGate() {
+            document.querySelectorAll('.setup-confirm').forEach(c => { c.checked = setupConfirmed; });
+            ['assess-start-btn', 'train-start-btn'].forEach(id => {
+                const b = document.getElementById(id);
+                if (b) b.disabled = !setupConfirmed;
+            });
+        }
+        window.onSetupConfirm = (checked) => {
+            setupConfirmed = !!checked;
+            syncSetupGate();
+            if (setupConfirmed) { showStartMessage('assess', ''); showStartMessage('train', ''); }
+        };
+        window.resetSetupConfirm = () => { setupConfirmed = false; syncSetupGate(); };
+        syncSetupGate();
+
+        // v0.11: the big Stop button. It reuses stopAllCameras (speech off, camera off, timers
+        // cleared, overlays back to Start), so a half-finished set is simply abandoned and
+        // nothing from it is saved. It is safe to press at any time.
+        window.stopSetSafely = () => {
+            const mode = document.getElementById('view-workout').classList.contains('active') ? 'train' : 'assess';
+            stopAllCameras();
+            showStartMessage(mode, 'Stopped. Please sit down and rest. Press Start when you feel ready.');
+            speak('Stopped. Please sit down and rest.');
+        };
+
         // v0.11 dialog helper, for the dialogs added in this version. Focus moves into the
         // dialog, Tab stays inside it, Escape closes it, and focus goes back to what opened it.
         const _dialogReturn = {};
@@ -1657,6 +1728,8 @@
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${view}`).classList.add('active');
             document.getElementById(`nav-${view}`).classList.add('active');
+            // v0.11: the Stop button is shown on the two camera screens only.
+            document.getElementById('safety-bar')?.classList.toggle('hidden', !(view === 'assess' || view === 'workout'));
 
             if (view === 'workout') {
                 calculateDailyTarget();
@@ -1874,6 +1947,11 @@
 
         window.beginCameraSequence = async (mode) => {
             
+            // v0.11: the set-up checklist must be ticked first (see syncSetupGate).
+            if (!setupConfirmed) {
+                showStartMessage(mode, 'Please tick the "I have set up safely" box above first.');
+                return;
+            }
             // v0.10: no training without a baseline (see updateTrainGate).
             if (mode === 'train' && !hasBaseline()) {
                 updateTrainGate();
