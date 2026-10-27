@@ -8,7 +8,7 @@
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Job Tracker | Dr. Liam T. Pearson-Noseworthy</title>
     <meta name="description" content="Daily-updated job board across sport science, biomechanics, data science, health tech, FE/HE teaching, research management, and lab technician roles. Scraped from Jobs.ac.uk, Adzuna, Reed, Indeed, THEunijobs, HigherEdJobs, AcademicWork.ca, and Bluesky.">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Job Tracker | Dr. Liam T. Pearson-Noseworthy">
     <meta property="og:description" content="Daily-updated job board across sport science, biomechanics, data science, health tech, FE/HE teaching, research management, and lab technician roles.">
@@ -16,7 +16,7 @@
     <link rel="canonical" href="https://liamtp-n.gitlab.io/jobs.html">
     <script src="assets/tailwind.cdn.js"></script>
     <style>
-        .source-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; }
+        .source-badge { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; }
         .source-indeed      { background: #1e3a5f; color: #60a5fa; }
         .source-linkedin    { background: #0d3330; color: #34d399; }
         .source-jobsac      { background: #1e3350; color: #67e8f9; }
@@ -35,10 +35,10 @@
         .source-workable    { background: #1a3a2a; color: #6ee7b7; }
         .source-orc         { background: #2a1f3a; color: #c4b5fd; }
         .source-cambridge   { background: #1f2a3a; color: #93c5fd; }
-        .country-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
+        .country-badge { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
         .country-uk     { background: #1e3050; color: #93c5fd; }
         .country-ca     { background: #2d1818; color: #fca5a5; }
-        .cat-badge { font-size: 0.55rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 1px 5px; border-radius: 3px; margin-right: 3px; margin-top: 3px; display: inline-block; }
+        .cat-badge { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 1px 5px; border-radius: 3px; margin-right: 3px; margin-top: 3px; display: inline-block; }
         .cat-academic_sport     { background: #1e3050; color: #93c5fd; }
         .cat-academic_adjacent  { background: #1a2f4a; color: #a5b4fc; }
         .cat-technician         { background: #2d2418; color: #fcd34d; }
@@ -72,21 +72,22 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                 <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
                     <div class="text-2xl font-extrabold text-blue-400" id="stat-total">-</div>
-                    <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Total Jobs</div>
+                    <div class="text-xs text-slate-400 uppercase tracking-wider mt-1">Total Jobs</div>
                 </div>
                 <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
                     <div class="text-2xl font-extrabold text-blue-400" id="stat-today">-</div>
-                    <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Added Today</div>
+                    <div class="text-xs text-slate-400 uppercase tracking-wider mt-1">Added Today</div>
                 </div>
                 <div class="bg-slate-800 border border-slate-700 rounded-lg p-4">
                     <div class="text-2xl font-extrabold text-slate-400 text-xs pt-1" id="stat-updated">-</div>
-                    <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Last Scraped</div>
+                    <div class="text-xs text-slate-400 uppercase tracking-wider mt-1">Last Scraped</div>
                 </div>
             </div>
+            <p id="stale-warning" role="status" class="hidden text-xs text-amber-400 mb-6 -mt-3"></p>
 
             
             <div class="flex flex-wrap gap-2 items-center mb-3">
-                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Country:</span>
+                <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold mr-1">Country:</span>
                 <button class="country-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition filter-active" data-country="all">All</button>
                 <button class="country-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-country="uk">UK</button>
                 <button class="country-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-country="canada">Canada</button>
@@ -94,7 +95,7 @@
 
             
             <div class="flex flex-wrap gap-2 items-center mb-3">
-                <select id="source-filter" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
+                <select id="source-filter" aria-label="Filter by source" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
                     <option value="all">All sources</option>
                     <option value="Jobs.ac.uk">Jobs.ac.uk</option>
                     <option value="Adzuna">Adzuna</option>
@@ -113,26 +114,26 @@
                     <option value="AcademicWork">AcademicWork.ca (CAUT)</option>
                     <option value="Bluesky">Bluesky</option>
                 </select>
-                <select id="minfit-filter" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
+                <select id="minfit-filter" aria-label="Minimum fit score" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
                     <option value="0">Any fit score</option>
                     <option value="20">Fit &ge; 20</option>
                     <option value="40">Fit &ge; 40</option>
                     <option value="60">Fit &ge; 60</option>
                     <option value="80">Fit &ge; 80</option>
                 </select>
-                <select id="minsalary-filter" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
+                <select id="minsalary-filter" aria-label="Minimum salary" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 bg-slate-800 text-slate-300 focus:outline-none focus:border-blue-500">
                     <option value="0">Any salary</option>
                     <option value="39999">&pound;39,999+ (incl. unstated)</option>
                     <option value="39999s">&pound;39,999+ (stated only)</option>
                     <option value="49999">&pound;49,999+ (incl. unstated)</option>
                     <option value="49999s">&pound;49,999+ (stated only)</option>
                 </select>
-                <input id="search" type="text" placeholder="Search title or organisation..." class="px-3 py-1.5 rounded-lg text-xs border border-slate-600 bg-slate-800 text-slate-300 placeholder-slate-600 focus:outline-none focus:border-blue-500 flex-1 min-w-[180px]">
+                <input id="search" type="text" aria-label="Search jobs by title or organisation" placeholder="Search title or organisation..." class="px-3 py-1.5 rounded-lg text-xs border border-slate-600 bg-slate-800 text-slate-300 placeholder-slate-400 focus:outline-none focus:border-blue-500 flex-1 min-w-[180px]">
             </div>
 
             
             <div class="flex flex-wrap gap-2 items-center mb-2">
-                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Category:</span>
+                <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold mr-1">Category:</span>
                 <button class="cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition filter-active" data-cat="all">All</button>
                 <button class="cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-cat="academic_sport">Academic - Sport/Biomech</button>
                 <button class="cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-cat="academic_adjacent">Academic - Adjacent</button>
@@ -144,7 +145,7 @@
                 <button class="cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-cat="research_mgmt">Research Mgmt</button>
                 <button class="cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition" data-cat="industry_applied">Industry / Applied</button>
             </div>
-            <p class="text-xs text-slate-600 mb-4">Fit score weights multi-category roles higher. Default sort is newest first; tap Fit to sort by score.</p>
+            <p class="text-xs text-slate-400 mb-4">Fit score weights multi-category roles higher. Default sort is newest first; tap Fit to sort by score.</p>
         </div>
     </header>
 
@@ -153,7 +154,7 @@
             <div class="overflow-x-auto rounded-lg border border-slate-700">
                 <table class="w-full text-sm">
                     <thead>
-                        <tr class="bg-slate-800 text-slate-500 text-xs uppercase tracking-wider">
+                        <tr class="bg-slate-800 text-slate-400 text-xs uppercase tracking-wider">
                             <th class="sortable px-4 py-3 text-left" data-col="fit_score">Fit <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left" data-col="title">Role <span class="sort-arrow">&#8597;</span></th>
                             <th class="sortable px-4 py-3 text-left hidden md:table-cell" data-col="organisation">Organisation <span class="sort-arrow">&#8597;</span></th>
@@ -163,7 +164,7 @@
                         </tr>
                     </thead>
                     <tbody id="jobs-body">
-                        <tr><td colspan="6" class="px-4 py-12 text-center text-slate-500 text-sm">Loading jobs.json...</td></tr>
+                        <tr><td colspan="6" class="px-4 py-12 text-center text-slate-400 text-sm">Loading jobs.json...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -173,11 +174,11 @@
                 <button id="load-more-btn" class="px-6 py-2.5 rounded-lg text-sm font-semibold border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 hover:bg-slate-800 transition">
                     Show more jobs
                 </button>
-                <p id="load-more-count" class="text-xs text-slate-500 mt-2"></p>
+                <p id="load-more-count" class="text-xs text-slate-400 mt-2"></p>
             </div>
 
             <div class="mt-8 p-5 bg-slate-800 border border-slate-700 rounded-lg">
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Live Search Links (always current)</p>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Live Search Links (always current)</p>
                 <div class="flex flex-wrap gap-2">
                     <a href="https://www.jobs.ac.uk/search/?keywords=sport+science&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Sport Science</a>
                     <a href="https://www.jobs.ac.uk/search/?keywords=biomechanics&sort=date" target="_blank" rel="noopener" class="text-xs px-3 py-1.5 rounded border border-slate-600 text-slate-400 hover:border-blue-500 hover:text-blue-400 transition">Jobs.ac.uk - Biomechanics</a>
@@ -372,7 +373,7 @@
     function salaryHtml(j) {
         const hi = j.salary_max;
         if (hi === null || hi === undefined) {
-            return `<span class="text-slate-600 text-xs italic" title="This source does not publish a salary">not stated</span>`;
+            return `<span class="text-slate-400 text-xs italic" title="This source does not publish a salary">not stated</span>`;
         }
         const lo = (j.salary_min === null || j.salary_min === undefined) ? hi : j.salary_min;
         const fmt = n => '£' + Math.round(n / 1000) + 'k';
@@ -445,7 +446,7 @@
         const tbody = document.getElementById('jobs-body');
 
         if (!jobs.length) {
-            tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs match this filter.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-12 text-center text-slate-400 text-sm">No jobs match this filter.</td></tr>`;
             updateLoadMore(0, 0);
             updateStats();
             return;
@@ -459,7 +460,7 @@
                         <a href="${escHtml(safeUrl(j.url))}" target="_blank" rel="noopener"
                            class="font-semibold text-slate-200 hover:text-blue-400 transition-colors text-sm">${escHtml(j.title)}</a>
                         ${isToday(j.date_posted) ? `<span class="ml-2 text-xs bg-blue-600/30 text-blue-400 px-2 py-0.5 rounded font-semibold">New</span>` : ''}
-                        ${j.type ? `<div class="text-xs text-slate-500 mt-0.5">${escHtml(j.type)}</div>` : ''}
+                        ${j.type ? `<div class="text-xs text-slate-400 mt-0.5">${escHtml(j.type)}</div>` : ''}
                         <div class="mt-1">${categoryBadgesHtml(j)}</div>
                     </div>
                 </td>
@@ -468,7 +469,7 @@
                 <td class="px-4 py-3 whitespace-nowrap align-top">
                     <span class="source-badge ${srcClass(j.source)}">${escHtml(j.source) || '-'}</span>${countryBadgeHtml(j)}
                 </td>
-                <td class="px-4 py-3 text-slate-500 text-xs whitespace-nowrap align-top">${fmtDate(j.date_posted)}</td>
+                <td class="px-4 py-3 text-slate-400 text-xs whitespace-nowrap align-top">${fmtDate(j.date_posted)}</td>
             </tr>`;
         }).join('');
 
@@ -495,25 +496,38 @@
 
     async function loadJobs() {
         try {
-            const res = await fetch('scraper/jobs.json?v=' + Date.now());
+            const res = await fetch('scraper/jobs.json', { cache: 'no-cache' });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
             const data = await res.json();
             allJobs = deduplicateJobs(data.jobs || []);
-            const upd = data.last_updated
-                ? new Date(data.last_updated).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
-                : 'Never';
+            let upd = 'Never';
+            const updDate = data.last_updated ? new Date(data.last_updated) : null;
+            if (updDate && !isNaN(updDate)) {
+                const hrs = Math.max(0, Math.floor((Date.now() - updDate.getTime()) / 3600000));
+                const age = hrs < 1 ? 'just now' : hrs < 48 ? hrs + 'h ago' : Math.floor(hrs / 24) + 'd ago';
+                upd = updDate.toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' · ' + age;
+                if (hrs > 36) {
+                    const warn = document.getElementById('stale-warning');
+                    warn.textContent = "Heads up: the listings haven't refreshed since " +
+                        updDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) +
+                        " — the scraper may have stalled.";
+                    warn.classList.remove('hidden');
+                }
+            }
             document.getElementById('stat-updated').textContent = upd;
             const recent = allJobs.filter(j => isRecent(j.date_posted));
             if (!recent.length) {
                 document.getElementById('jobs-body').innerHTML =
-                    `<tr><td colspan="6" class="px-4 py-12 text-center text-slate-500 text-sm">No jobs in the last 20 days - check back after the next scrape (07:00 / 13:00 UTC).</td></tr>`;
+                    `<tr><td colspan="6" class="px-4 py-12 text-center text-slate-400 text-sm">No jobs in the last ${MAX_AGE_DAYS} days - check back after the next scrape (07:00 / 13:00 UTC).</td></tr>`;
             } else {
                 renderTable();
             }
         } catch (e) {
             const tbody = document.getElementById('jobs-body');
-            tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-12 text-center text-slate-500 text-sm">Could not load jobs.json.<br><span class="text-xs text-slate-600" id="err-msg"></span></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-12 text-center text-slate-400 text-sm">Couldn't load the job list right now — try again shortly.<br><span class="text-xs text-slate-400" id="err-msg"></span></td></tr>`;
             const errEl = document.getElementById('err-msg');
-            if (errEl) errEl.textContent = e.message;
+            if (errEl) errEl.textContent = /^HTTP \d+$/.test(e.message) ? 'Server responded: ' + e.message : '';
+            console.error('loadJobs failed:', e);
         }
         updateStats();
     }
