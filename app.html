@@ -336,8 +336,9 @@
                 <section>
                     <h3 class="text-lg font-bold text-white mb-2">Where your data goes</h3>
                     <ul class="list-disc pl-5 space-y-1.5">
-                        <li>Your account and session data are stored in Google Firebase, a Google cloud database. [TO CONFIRM: where in the world the data is stored.]</li>
-                        <li>When you send your answers after a session, or send feedback, a second copy goes to a Google Apps Script web address set up for this app. <strong>This includes anything you typed about pain or discomfort, your other comments, your email address and your user ID.</strong> [TO CONFIRM: where that copy is kept, for example in a Google Sheet, and who can open it.]</li>
+                        <li>You sign in with your email address and a password. Your account, baseline, training sessions, food log and the date of your "Before you start" answers are stored in Google Firebase, a Google cloud database, in London (UK).</li>
+                        <!-- Until the Firestore rules allow session_responses and feedback, those writes are refused, so the full answers and feedback go only to Apps Script. Update this item when the rules are published. -->
+                        <li>When you send your answers after a session, or send feedback, the full answers go to a Google Apps Script web address set up for this app. <strong>This includes anything you typed about pain or discomfort, your other comments, your email address and your user ID.</strong> Your effort, pain (yes or no) and confidence answers are also saved with that session in Firebase. [TO CONFIRM: where the Apps Script copy is kept, for example in a Google Sheet, and who can open it.]</li>
                         <li>To load, the app fetches code and fonts from Google, jsDelivr and Tailwind CSS. These companies can see your device's internet address when that happens. They do not receive your answers.</li>
                         <li>So that the app can work with a poor connection, a copy of your data is kept on this device. It can stay there after you sign out. Please do not use this app on a shared or public device.</li>
                     </ul>
@@ -352,7 +353,7 @@
                     <h3 class="text-lg font-bold text-white mb-2">How long we keep it, and deleting it</h3>
                     <ul class="list-disc pl-5 space-y-1.5">
                         <li>[TO CONFIRM: how long we keep your data.]</li>
-                        <li>You can download a copy of your data with the button below.</li>
+                        <li>You can download a copy of the data stored in Firebase with the button below. It does not include the Apps Script copy.</li>
                         <li>To ask us to delete your data, contact: [TO CONFIRM: contact email or phone number]. There is no delete button in the app yet, so we do this by hand.</li>
                         <li>[TO CONFIRM: who is responsible for your data, and how to make a complaint.]</li>
                         <li>[TO CONFIRM: a link to the participant information, if there is one.]</li>
