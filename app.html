@@ -304,6 +304,75 @@
         </div>
     </div>
 
+    <div id="privacy-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
+        <div class="modal-box">
+            <div class="flex justify-between items-start gap-3 mb-3">
+                <h2 id="privacy-title" tabindex="-1" class="text-2xl font-bold text-white">Privacy and your data</h2>
+                <button onclick="closePrivacy()" aria-label="Close" class="flex-shrink-0 min-w-[48px] min-h-[48px] text-slate-200 hover:text-white text-3xl leading-none rounded-lg">&times;</button>
+            </div>
+
+            <p class="text-base text-amber-100 bg-amber-950/60 border border-amber-600/50 rounded-xl px-4 py-3 mb-5"><strong>Draft notice.</strong> Anything marked [TO CONFIRM] still has to be filled in by the research team before this app is used more widely.</p>
+
+            <div class="space-y-5 text-base text-slate-200 leading-relaxed">
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-2">What we keep about you</h3>
+                    <ul class="list-disc pl-5 space-y-1.5">
+                        <li>Your email address, and a user ID that the sign-in service gives you.</li>
+                        <li>Your baseline: how far your knee bends in your three calibration squats, your standing knee angle, and the date.</li>
+                        <li>Each training session: the date, the number of reps, the knee angle of each rep, your target for the day, and whether you reached it.</li>
+                        <li>Details about your device, so we can check the app works well on different phones and tablets: the type of device and browser, screen size, camera size and speed, and how fast the app ran.</li>
+                        <li>Your answers after each session: how hard it felt (0 to 10), whether you had pain or discomfort, and how confident you felt. If you say you had pain, you can type where it was and what type. You can also type other comments. We keep whatever you type.</li>
+                        <li>Your food log: which meals you ticked as having protein, for each day.</li>
+                        <li>Anything you send with the Feedback button, including what you type.</li>
+                        <li>The date you last answered the "Before you start" questions. We keep the date only, not your answers.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-2">Your camera</h3>
+                    <p>The camera is used on your device to measure your knee angle. <strong>Your video is not recorded and never leaves your device.</strong> Only the knee angles the app measures are kept.</p>
+                </section>
+
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-2">Where your data goes</h3>
+                    <ul class="list-disc pl-5 space-y-1.5">
+                        <li>Your account and session data are stored in Google Firebase, a Google cloud database. [TO CONFIRM: where in the world the data is stored.]</li>
+                        <li>When you send your answers after a session, or send feedback, a second copy goes to a Google Apps Script web address set up for this app. <strong>This includes anything you typed about pain or discomfort, your other comments, your email address and your user ID.</strong> [TO CONFIRM: where that copy is kept, for example in a Google Sheet, and who can open it.]</li>
+                        <li>To load, the app fetches code and fonts from Google, jsDelivr and Tailwind CSS. These companies can see your device's internet address when that happens. They do not receive your answers.</li>
+                        <li>So that the app can work with a poor connection, a copy of your data is kept on this device. It can stay there after you sign out. Please do not use this app on a shared or public device.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-2">Who can see it</h3>
+                    <p>The research team can see your data. [TO CONFIRM: who is in the team, and whether anyone else, such as a university or funder, can see it.] The team does not check your answers straight away. If you need help, please do not wait to hear from us. Call <a href="tel:111" class="tel-link">NHS 111</a>, or <a href="tel:999" class="tel-link">999</a> in an emergency.</p>
+                </section>
+
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-2">How long we keep it, and deleting it</h3>
+                    <ul class="list-disc pl-5 space-y-1.5">
+                        <li>[TO CONFIRM: how long we keep your data.]</li>
+                        <li>You can download a copy of your data with the button below.</li>
+                        <li>To ask us to delete your data, contact: [TO CONFIRM: contact email or phone number]. There is no delete button in the app yet, so we do this by hand.</li>
+                        <li>[TO CONFIRM: who is responsible for your data, and how to make a complaint.]</li>
+                        <li>[TO CONFIRM: a link to the participant information, if there is one.]</li>
+                    </ul>
+                </section>
+            </div>
+
+            <div id="privacy-export-wrap" class="hidden mt-6">
+                <button id="privacy-export-btn" onclick="downloadMyData()" class="w-full min-h-[48px] bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white text-lg font-bold py-3 rounded-xl transition-all">
+                    Download my data
+                </button>
+                <p id="privacy-export-msg" class="hidden mt-3 text-base text-slate-100" role="status"></p>
+            </div>
+
+            <button onclick="closePrivacy()" class="w-full min-h-[48px] mt-5 bg-slate-700 hover:bg-slate-600 text-white text-lg font-bold py-3 rounded-xl transition-all">
+                Close
+            </button>
+        </div>
+    </div>
+
     <div id="feedback-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
         <div class="modal-box">
             <div class="flex justify-between items-start mb-1">
@@ -470,6 +539,10 @@
 
             <div class="text-center mt-4">
                 <button onclick="showResetForm()" id="forgot-link" class="text-slate-400 hover:text-slate-200 text-sm transition-colors">Forgot password?</button>
+            </div>
+
+            <div class="text-center mt-2">
+                <button onclick="openPrivacy()" class="min-h-[48px] px-4 text-base text-slate-200 hover:text-white underline underline-offset-4">Privacy and your data</button>
             </div>
         </div>
     </section>
@@ -922,6 +995,10 @@
             </div>
         </section>
 
+        <div class="mt-8 text-center">
+            <button onclick="openPrivacy()" class="min-h-[48px] px-4 text-base text-slate-300 hover:text-white underline underline-offset-4">Privacy and your data</button>
+        </div>
+
         <div id="safety-bar" class="hidden sticky bottom-0 z-40 -mx-4 px-4 pt-2 pb-3 bg-slate-950/95 border-t-2 border-slate-600">
             <button type="button" id="stop-btn" onclick="stopSetSafely()" class="w-full min-h-[60px] rounded-xl bg-red-700 hover:bg-red-600 active:scale-[0.98] text-white text-2xl font-black tracking-wide border-2 border-white shadow-lg transition-all">&#9632; STOP</button>
         </div>
@@ -980,7 +1057,8 @@
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
             getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-            doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp
+            doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp,
+            collection, query, where, getDocs
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         
@@ -1302,6 +1380,75 @@
 
         // v0.11: the welcome screen is shown to a first-time user, after the pre-exercise
         // questions (see completeReadiness in the second script).
+        // v0.11: "Download my data". Reads the person's own documents with the same SDK calls the
+        // app already uses: their users/{uid} record, and any entries they made in
+        // session_responses and feedback (found by userId). If the Firestore rules do not allow
+        // a read, that part is left out and the file says so, rather than failing.
+        function toPlain(v) {
+            if (v && typeof v.toDate === 'function') return v.toDate().toISOString();
+            if (Array.isArray(v)) return v.map(toPlain);
+            if (v && typeof v === 'object') {
+                const o = {};
+                Object.keys(v).forEach(k => { o[k] = toPlain(v[k]); });
+                return o;
+            }
+            return v;
+        }
+
+        window.downloadMyData = async () => {
+            const uid = window.currentUserId;
+            const msg = document.getElementById('privacy-export-msg');
+            const btn = document.getElementById('privacy-export-btn');
+            const say = (t) => { if (msg) { msg.textContent = t; msg.classList.toggle('hidden', !t); } };
+            if (!uid) { say('Please sign in first.'); return; }
+            if (btn) btn.disabled = true;
+            say('Getting your data...');
+            const notes = [];
+            const out = {
+                exportedAt: new Date().toISOString(),
+                appVersion: typeof APP_VERSION !== 'undefined' ? APP_VERSION : null,
+                account: { uid: uid, email: auth.currentUser ? auth.currentUser.email : null },
+                userRecord: null,
+                sessionResponses: [],
+                feedback: [],
+                notes: notes
+            };
+            try {
+                const snap = await getDoc(doc(db, "users", uid));
+                out.userRecord = snap.exists() ? snap.data() : null;
+            } catch (e) {
+                console.warn('Export: could not read the account record:', e);
+                out.userRecord = window.userData || null;
+                notes.push('The server could not be reached for your account record, so this is the copy held on this device.');
+            }
+            for (const [name, key] of [['session_responses', 'sessionResponses'], ['feedback', 'feedback']]) {
+                try {
+                    const qs = await getDocs(query(collection(db, name), where('userId', '==', uid)));
+                    out[key] = qs.docs.map(d => ({ id: d.id, ...d.data() }));
+                } catch (e) {
+                    console.warn(`Export: could not read ${name}:`, e);
+                    notes.push(`Your entries in "${name}" could not be read, so they are not in this file. Ask the research team for them.`);
+                }
+            }
+            try {
+                const blob = new Blob([JSON.stringify(toPlain(out), null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'my-rbe-data-' + new Date().toISOString().slice(0, 10) + '.json';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+                say('Your file has been downloaded. It holds health information, so keep it somewhere private.' +
+                    (notes.length ? ' Some parts could not be included. See "notes" in the file.' : ''));
+            } catch (e) {
+                console.error('Export failed:', e);
+                say('Sorry, the file could not be made. Please try again, or ask the research team.');
+            }
+            if (btn) btn.disabled = false;
+        };
+
         window.showOnboardingIfFirst = () => {
             const sessions = (window.userData && window.userData.sessionsCompleted) || 0;
             if (sessions === 0) {
@@ -1577,6 +1724,16 @@
             else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
             else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
         });
+
+        // v0.11 privacy notice, reachable from the sign-in screen and the signed-in screens.
+        // "Download my data" only shows once someone is signed in.
+        window.openPrivacy = () => {
+            document.getElementById('privacy-export-wrap').classList.toggle('hidden', !window.currentUserId);
+            const m = document.getElementById('privacy-export-msg');
+            if (m) { m.textContent = ''; m.classList.add('hidden'); }
+            showDialog('privacy-modal', window.closePrivacy, 'privacy-title');
+        };
+        window.closePrivacy = () => hideDialog('privacy-modal');
 
         // v0.11 pre-exercise questions. Any "yes" stops the person here: the simpler and safer
         // of the two options (the other being "carry on once they say a doctor has cleared
