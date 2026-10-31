@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ROM-Based Exercise App | Dr. Pearson-Noseworthy</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <meta property="og:type" content="website">
     <meta property="og:title" content="ROM-Based Exercise App | Dr. Pearson-Noseworthy">
     <meta property="og:description" content="A free home exercise tool that adapts to your mobility in real time. Built on doctoral research.">
@@ -203,6 +203,10 @@
         .feedback-type-btn.selected { border-color: #a855f7; background: #7e22ce; color: white; }
         .feedback-step-btn.selected { border-color: #94a3b8; background: #334155; color: white; }
 
+        /* v0.11: phone numbers (999, NHS 111) are tap-to-call links. Underlined and bold so
+           they look like links on any background; the padding makes the tap area bigger. */
+        a.tel-link { color: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; display: inline-block; padding: 0.25rem 0.15rem; }
+
         /* v0.10 accessibility: a visible keyboard focus ring, and no decorative motion for
            anyone who has asked their device to reduce it. */
         button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible {
@@ -274,6 +278,102 @@
     </div>
 
     
+    <div id="readiness-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="readiness-title">
+        <div class="modal-box">
+            <h2 id="readiness-title" tabindex="-1" class="text-2xl font-bold text-white mb-3">Before you start</h2>
+            <p class="text-base text-amber-100 bg-amber-950/60 border border-amber-600/50 rounded-xl px-4 py-3 mb-4"><strong>This app is not medical advice.</strong> It cannot tell you whether exercise is safe for you.</p>
+            <p class="text-base text-slate-200 mb-4">Please answer these four questions. It takes about a minute.</p>
+            <div id="readiness-questions" class="space-y-4 mb-5"></div>
+            <div id="readiness-stop" class="hidden mb-5 rounded-xl border-2 border-amber-400 bg-amber-950/60 px-4 py-3 text-base text-amber-50 leading-relaxed space-y-2" role="alert">
+                <p><strong>Please speak to your GP or physiotherapist before you start.</strong></p>
+                <p>Do not use the exercises in this app until they say it is safe for you.</p>
+                <p>If you need advice now, call <a href="tel:111" class="tel-link">NHS 111</a>. If you have chest pain right now, call <a href="tel:999" class="tel-link">999</a>.</p>
+                <p>If your doctor or physiotherapist says it is fine to exercise, tell the research team. Contact: [TO CONFIRM: research team contact].</p>
+            </div>
+            <label class="flex items-start gap-3 p-3 mb-5 rounded-xl border-2 border-slate-600 bg-slate-900/60 cursor-pointer">
+                <input type="checkbox" id="readiness-tick" class="w-6 h-6 mt-0.5 flex-shrink-0 accent-blue-500" onchange="updateReadiness()">
+                <span class="text-base text-white">I understand that this app is not medical advice. I will stop and sit down if I feel unwell.</span>
+            </label>
+            <button id="readiness-continue" onclick="completeReadiness()" disabled
+                class="w-full min-h-[48px] bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-lg font-bold py-3 rounded-xl transition-all">
+                Continue &#8594;
+            </button>
+            <button onclick="declineReadiness()" class="w-full min-h-[48px] mt-3 text-base text-slate-300 hover:text-white underline underline-offset-4 py-2">
+                Not now (sign out)
+            </button>
+        </div>
+    </div>
+
+    <div id="privacy-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
+        <div class="modal-box">
+            <div class="flex justify-between items-start gap-3 mb-3">
+                <h2 id="privacy-title" tabindex="-1" class="text-2xl font-bold text-white">Privacy and your data</h2>
+                <button onclick="closePrivacy()" aria-label="Close" class="flex-shrink-0 min-w-[48px] min-h-[48px] text-slate-200 hover:text-white text-3xl leading-none rounded-lg">&times;</button>
+            </div>
+
+            <p class="text-base text-amber-100 bg-amber-950/60 border border-amber-600/50 rounded-xl px-4 py-3 mb-5"><strong>Draft notice.</strong> Anything marked [TO CONFIRM] still has to be filled in by the research team before this app is used more widely.</p>
+
+            <div class="space-y-5 text-base text-slate-200 leading-relaxed">
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-2">What we keep about you</h3>
+                    <ul class="list-disc pl-5 space-y-1.5">
+                        <li>Your email address, and a user ID that the sign-in service gives you.</li>
+                        <li>Your baseline: how far your knee bends in your three calibration squats, your standing knee angle, and the date.</li>
+                        <li>Each training session: the date, the number of reps, the knee angle of each rep, your target for the day, and whether you reached it.</li>
+                        <li>Details about your device, so we can check the app works well on different phones and tablets: the type of device and browser, screen size, camera size and speed, and how fast the app ran.</li>
+                        <li>Your answers after each session: how hard it felt (0 to 10), whether you had pain or discomfort, and how confident you felt. If you say you had pain, you can type where it was and what type. You can also type other comments. We keep whatever you type.</li>
+                        <li>Your food log: which meals you ticked as having protein, for each day.</li>
+                        <li>Anything you send with the Feedback button, including what you type.</li>
+                        <li>The date you last answered the "Before you start" questions. We keep the date only, not your answers.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-2">Your camera</h3>
+                    <p>The camera is used on your device to measure your knee angle. <strong>Your video is not recorded and never leaves your device.</strong> Only the knee angles the app measures are kept.</p>
+                </section>
+
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-2">Where your data goes</h3>
+                    <ul class="list-disc pl-5 space-y-1.5">
+                        <li>You sign in with your email address and a password. Your account, baseline, training sessions, food log and the date of your "Before you start" answers are stored in Google Firebase, a Google cloud database, in London (UK).</li>
+                        <!-- Until the Firestore rules allow session_responses and feedback, those writes are refused, so the full answers and feedback go only to Apps Script. Update this item when the rules are published. -->
+                        <li>When you send your answers after a session, or send feedback, the full answers go to a Google Apps Script web address set up for this app. <strong>This includes anything you typed about pain or discomfort, your other comments, your email address and your user ID.</strong> Your effort, pain (yes or no) and confidence answers are also saved with that session in Firebase. [TO CONFIRM: where the Apps Script copy is kept, for example in a Google Sheet, and who can open it.]</li>
+                        <li>To load, the app fetches code and fonts from Google, jsDelivr and Tailwind CSS. These companies can see your device's internet address when that happens. They do not receive your answers.</li>
+                        <li>So that the app can work with a poor connection, a copy of your data is kept on this device. It can stay there after you sign out. Please do not use this app on a shared or public device.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-2">Who can see it</h3>
+                    <p>The research team can see your data. [TO CONFIRM: who is in the team, and whether anyone else, such as a university or funder, can see it.] The team does not check your answers straight away. If you need help, please do not wait to hear from us. Call <a href="tel:111" class="tel-link">NHS 111</a>, or <a href="tel:999" class="tel-link">999</a> in an emergency.</p>
+                </section>
+
+                <section>
+                    <h3 class="text-lg font-bold text-white mb-2">How long we keep it, and deleting it</h3>
+                    <ul class="list-disc pl-5 space-y-1.5">
+                        <li>[TO CONFIRM: how long we keep your data.]</li>
+                        <li>You can download a copy of the data stored in Firebase with the button below. It does not include the Apps Script copy.</li>
+                        <li>To ask us to delete your data, contact: [TO CONFIRM: contact email or phone number]. There is no delete button in the app yet, so we do this by hand.</li>
+                        <li>[TO CONFIRM: who is responsible for your data, and how to make a complaint.]</li>
+                        <li>[TO CONFIRM: a link to the participant information, if there is one.]</li>
+                    </ul>
+                </section>
+            </div>
+
+            <div id="privacy-export-wrap" class="hidden mt-6">
+                <button id="privacy-export-btn" onclick="downloadMyData()" class="w-full min-h-[48px] bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white text-lg font-bold py-3 rounded-xl transition-all">
+                    Download my data
+                </button>
+                <p id="privacy-export-msg" class="hidden mt-3 text-base text-slate-100" role="status"></p>
+            </div>
+
+            <button onclick="closePrivacy()" class="w-full min-h-[48px] mt-5 bg-slate-700 hover:bg-slate-600 text-white text-lg font-bold py-3 rounded-xl transition-all">
+                Close
+            </button>
+        </div>
+    </div>
+
     <div id="feedback-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
         <div class="modal-box">
             <div class="flex justify-between items-start mb-1">
@@ -375,8 +475,8 @@
                         placeholder="Where and what type? (optional)">
                     <div class="text-sm text-amber-100 mt-3 leading-relaxed space-y-2" role="note">
                         <p>Some muscle ache or stiffness for a day or two after exercise is normal.</p>
-                        <p>Pause the programme and get advice if the pain is sharp, is in a joint, is getting worse, or hasn't settled after 2 days. Speak to your GP or physiotherapist, or call NHS 111.</p>
-                        <p><strong>Call 999</strong> if you have chest pain or tightness, severe breathlessness, or feel faint.</p>
+                        <p>Pause the programme and get advice if the pain is sharp, is in a joint, is getting worse, or hasn't settled after 2 days. Speak to your GP or physiotherapist, or call <a href="tel:111" class="tel-link">NHS 111</a>.</p>
+                        <p><strong>Call <a href="tel:999" class="tel-link">999</a></strong> if you have chest pain or tightness, severe breathlessness, or feel faint.</p>
                         <p>Your answer goes to the research team, but it isn't checked straight away, so don't wait to hear from us if you need help.</p>
                     </div>
                 </div>
@@ -440,6 +540,10 @@
 
             <div class="text-center mt-4">
                 <button onclick="showResetForm()" id="forgot-link" class="text-slate-400 hover:text-slate-200 text-sm transition-colors">Forgot password?</button>
+            </div>
+
+            <div class="text-center mt-2">
+                <button onclick="openPrivacy()" class="min-h-[48px] px-4 text-base text-slate-200 hover:text-white underline underline-offset-4">Privacy and your data</button>
             </div>
         </div>
     </section>
@@ -509,9 +613,9 @@
                     <span class="bg-slate-800 text-slate-300 text-xs font-bold px-2.5 py-1 rounded font-mono-display">2 mins</span>
                 </div>
                 <p class="text-sm text-slate-400 mb-3">March gently on the spot, lifting knees to a comfortable height. Swing arms naturally.</p>
-                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-3">
-                    <strong class="text-orange-400 block mb-1">Evidence:</strong>
-                    Low-intensity aerobic activation is foundational for joint preparation (Espejo-Antunez et al., 2020).
+                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-base text-slate-300 mb-3">
+                    <strong class="text-orange-300 block mb-1">Why we do this</strong>
+                    A gentle warm-up raises your heart rate and loosens your joints before you squat. It is standard practice; direct trial evidence in older adults is limited.
                 </div>
                 <button onclick="completeWarmup('warmup-1')" class="warmup-btn w-full bg-slate-700 hover:bg-orange-600 text-white py-2.5 rounded-lg text-sm font-bold transition-colors">
                     Mark Complete &#10003;
@@ -524,9 +628,9 @@
                     <span class="bg-slate-800 text-slate-300 text-xs font-bold px-2.5 py-1 rounded font-mono-display">15 reps</span>
                 </div>
                 <p class="text-sm text-slate-400 mb-3">Rise onto toes, hold briefly, then rock back onto heels. Use a wall for balance if needed.</p>
-                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 mb-3">
-                    <strong class="text-orange-400 block mb-1">Evidence:</strong>
-                    Ankle dorsiflexor activation is critical for gait stability (review consensus).
+                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 text-base text-slate-300 mb-3">
+                    <strong class="text-orange-300 block mb-1">Why we do this</strong>
+                    Rising onto your toes and rocking back onto your heels gently warms up your ankles and calves before you squat. It is standard practice; direct trial evidence in older adults is limited.
                 </div>
                 <button onclick="completeWarmup('warmup-2')" class="warmup-btn w-full bg-slate-700 hover:bg-orange-600 text-white py-2.5 rounded-lg text-sm font-bold transition-colors">
                     Mark Complete &#10003;
@@ -552,13 +656,28 @@
                 <p class="text-slate-300 text-sm">Do <strong class="text-white">3 squats</strong> to your comfortable maximum depth. Your baseline is the middle of the three, so one odd squat won't skew it.</p>
             </div>
 
+            <div class="setup-card w-full rounded-xl border-2 border-blue-400/60 bg-slate-800/80 p-4">
+                <h3 class="text-lg font-bold text-white mb-2">Set up safely</h3>
+                <ul class="list-disc pl-5 space-y-1.5 text-base text-slate-100 mb-4">
+                    <li>Stand next to a sturdy worktop or chair back that you can hold. Keep it within easy reach, on the side away from the camera.</li>
+                    <li>Wear supportive, flat shoes.</li>
+                    <li>Make sure the floor is clear, dry and not slippery. Move any loose rugs.</li>
+                    <li>Have someone nearby for the first few times.</li>
+                    <li>If you feel unsteady, hold on or stop.</li>
+                </ul>
+                <label class="flex items-start gap-3 p-3 rounded-xl border-2 border-slate-500 bg-slate-900/60 cursor-pointer">
+                    <input type="checkbox" class="setup-confirm w-6 h-6 mt-0.5 flex-shrink-0 accent-blue-500" onchange="onSetupConfirm(this.checked)">
+                    <span class="text-base font-bold text-white">I have set up safely. Unlock the Start button.</span>
+                </label>
+            </div>
+
             <div class="canvas-wrapper canvas-aspect-mobile relative w-full border border-slate-700" id="assess-canvas-wrapper">
                 <video id="assess-video" style="display:none!important" playsinline></video>
                 <canvas id="assess-canvas"></canvas>
 
                 
                 <div class="absolute inset-0 flex flex-col items-center justify-center z-20 px-6 text-center" id="assess-overlay-start">
-                    <button onclick="beginCameraSequence('assess')" class="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
+                    <button id="assess-start-btn" disabled onclick="beginCameraSequence('assess')" class="bg-blue-600 hover:bg-blue-500 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
                         Start Calibration
                     </button>
                     <p id="assess-start-msg" class="hidden mt-4 text-sm text-amber-200 max-w-xs" role="alert"></p>
@@ -574,7 +693,7 @@
                             <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse flex-shrink-0"></div>
                             <span class="text-sm text-blue-200" id="assess-wait-status" role="status" aria-live="polite">Looking for you</span>
                         </div>
-                        <button onclick="stopAllCameras()" class="mt-5 text-sm text-slate-300 underline underline-offset-4 hover:text-white py-2 px-4">Stop camera</button>
+                        <button onclick="stopAllCameras()" class="mt-5 min-h-[48px] text-base font-bold text-white underline underline-offset-4 hover:text-slate-200 py-2 px-5 rounded-lg">Stop camera</button>
                     </div>
                 </div>
 
@@ -598,10 +717,10 @@
 
                 
                 <div id="assess-hud" class="hidden">
-                    <div class="absolute top-4 left-4 bg-black/60 backdrop-blur px-3 py-1.5 rounded-full border border-white/10">
-                        <div class="flex items-center gap-2">
-                            <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                            <span class="text-xs font-mono-display text-white/80">RECORDING</span>
+                    <div class="absolute top-4 left-4 max-w-[62%] bg-black/70 backdrop-blur px-3 py-1.5 rounded-2xl border border-white/20">
+                        <div class="flex items-start gap-2">
+                            <div class="w-2.5 h-2.5 mt-1.5 flex-shrink-0 bg-green-400 rounded-full" aria-hidden="true"></div>
+                            <span class="text-sm font-bold text-white leading-snug">Camera on &#8211; your video never leaves your device</span>
                         </div>
                     </div>
                     <div class="absolute top-4 right-4">
@@ -629,6 +748,10 @@
             </div>
 
             
+            <div class="stop-strip w-full rounded-xl bg-amber-300 text-slate-950 border-4 border-red-700 px-4 py-3 text-base font-bold leading-snug" role="note">
+                <strong>Stop and sit down</strong> if you feel chest pain, severe breathlessness, dizziness or faintness, or sharp pain. Chest pain or symptoms that don't ease quickly: call <a href="tel:999" class="tel-link">999</a>.
+            </div>
+
             <div class="camera-controls-panel w-full">
                 <div class="grid grid-cols-2 gap-4" id="assess-stats-row">
                     <div class="glass-panel p-3 rounded-xl text-center">
@@ -651,9 +774,25 @@
         
         <section id="view-workout" class="view-section flex-col items-center gap-4">
 
+            <div class="w-full flex flex-col gap-4">
             <div class="flex items-center gap-3 bg-green-950/40 border border-green-700/40 rounded-xl px-4 py-3 w-full">
                 <span class="flex-shrink-0 w-7 h-7 rounded-full bg-green-600 text-white text-xs font-black flex items-center justify-center">3</span>
                 <p class="text-sm text-green-200">Stand with your <strong>right side</strong> to the camera and tap <strong>Start 5 Reps</strong>. Squat until the bar turns green, 5 times. Stop straight away if you feel chest pain, dizziness, severe breathlessness, or sharp or worsening pain.</p>
+            </div>
+            <div class="setup-card w-full rounded-xl border-2 border-blue-400/60 bg-slate-800/80 p-4">
+                <h3 class="text-lg font-bold text-white mb-2">Set up safely</h3>
+                <ul class="list-disc pl-5 space-y-1.5 text-base text-slate-100 mb-4">
+                    <li>Stand next to a sturdy worktop or chair back that you can hold. Keep it within easy reach, on the side away from the camera.</li>
+                    <li>Wear supportive, flat shoes.</li>
+                    <li>Make sure the floor is clear, dry and not slippery. Move any loose rugs.</li>
+                    <li>Have someone nearby for the first few times.</li>
+                    <li>If you feel unsteady, hold on or stop.</li>
+                </ul>
+                <label class="flex items-start gap-3 p-3 rounded-xl border-2 border-slate-500 bg-slate-900/60 cursor-pointer">
+                    <input type="checkbox" class="setup-confirm w-6 h-6 mt-0.5 flex-shrink-0 accent-blue-500" onchange="onSetupConfirm(this.checked)">
+                    <span class="text-base font-bold text-white">I have set up safely. Unlock the Start button.</span>
+                </label>
+            </div>
             </div>
 
             <div class="canvas-wrapper canvas-aspect-mobile relative w-full border border-slate-700" id="train-canvas-wrapper">
@@ -662,7 +801,7 @@
 
                 
                 <div class="absolute inset-0 flex flex-col items-center justify-center z-20 px-6 text-center" id="train-overlay-start">
-                    <button id="train-start-btn" onclick="beginCameraSequence('train')" class="bg-green-600 hover:bg-green-500 active:scale-95 text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
+                    <button id="train-start-btn" disabled onclick="beginCameraSequence('train')" class="bg-green-600 hover:bg-green-500 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all text-lg">
                         Start 5 Reps
                     </button>
                     <div id="train-needs-baseline" class="hidden max-w-xs">
@@ -685,7 +824,7 @@
                             <div class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse flex-shrink-0"></div>
                             <span class="text-sm text-green-200" id="train-wait-status" role="status" aria-live="polite">Looking for you</span>
                         </div>
-                        <button onclick="stopAllCameras()" class="mt-5 text-sm text-slate-300 underline underline-offset-4 hover:text-white py-2 px-4">Stop camera</button>
+                        <button onclick="stopAllCameras()" class="mt-5 min-h-[48px] text-base font-bold text-white underline underline-offset-4 hover:text-slate-200 py-2 px-5 rounded-lg">Stop camera</button>
                     </div>
                 </div>
 
@@ -709,10 +848,10 @@
 
                 
                 <div id="train-hud" class="hidden">
-                    <div class="absolute top-4 left-4 bg-black/60 backdrop-blur px-3 py-1.5 rounded-full border border-white/10">
-                        <div class="flex items-center gap-2">
-                            <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                            <span class="text-xs font-mono-display text-white/80">TRACKING</span>
+                    <div class="absolute top-4 left-4 max-w-[80%] bg-black/70 backdrop-blur px-3 py-1.5 rounded-2xl border border-white/20">
+                        <div class="flex items-start gap-2">
+                            <div class="w-2.5 h-2.5 mt-1.5 flex-shrink-0 bg-green-400 rounded-full" aria-hidden="true"></div>
+                            <span class="text-sm font-bold text-white leading-snug">Camera on &#8211; your video never leaves your device</span>
                         </div>
                     </div>
                 </div>
@@ -752,6 +891,9 @@
 
             
             <div class="camera-controls-panel w-full">
+                <div class="stop-strip w-full rounded-xl bg-amber-300 text-slate-950 border-4 border-red-700 px-4 py-3 text-base font-bold leading-snug" role="note">
+                    <strong>Stop and sit down</strong> if you feel chest pain, severe breathlessness, dizziness or faintness, or sharp pain. Chest pain or symptoms that don't ease quickly: call <a href="tel:999" class="tel-link">999</a>.
+                </div>
                 <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center" id="train-stats-row">
                     <div>
                         <p class="text-xs text-slate-400">Goal</p>
@@ -763,6 +905,7 @@
                         <p class="text-xs text-slate-400" id="daily-allowance-display"></p>
                     </div>
                 </div>
+                <p class="text-base text-slate-200">Your target is a goal, not a requirement. Go only as deep as feels safe and comfortable.</p>
                 
                 <div id="train-desktop-tip" class="hidden glass-panel p-4 rounded-xl border border-green-500/20 text-sm text-slate-300 leading-relaxed">
                     <strong class="text-green-400 block mb-1">&#128187; Laptop / Tablet Setup</strong>
@@ -806,7 +949,7 @@
         <section id="view-home" class="view-section flex-col gap-5">
             <div class="flex items-center gap-3 bg-slate-800/60 border border-slate-600/40 rounded-xl px-4 py-3">
                 <span class="flex-shrink-0 w-7 h-7 rounded-full bg-slate-500 text-white text-xs font-black flex items-center justify-center">5</span>
-                <p class="text-sm text-slate-300">Your session history and progression are shown below. Your target depth gets stricter by 2% each week.</p>
+                <p class="text-base text-slate-300">Your session history and progress are shown below. Your target depth moves gradually closer to your own comfortable depth. It is a goal, not a requirement.</p>
             </div>
             <div>
                 <h2 class="text-2xl font-bold text-white">Your Progress</h2>
@@ -815,11 +958,13 @@
 
             <div class="bg-gradient-to-br from-blue-900/30 to-slate-900/30 border border-blue-500/20 p-5 rounded-2xl">
                 <h3 class="text-blue-400 font-bold uppercase tracking-widest text-xs mb-2">Smart Progression</h3>
-                <p class="text-slate-300 text-sm leading-relaxed">
-                    Your target depth becomes stricter each week. You started with a <strong class="text-white">20% allowance</strong> in week 1, which reduces by 2% per week.
+                <p class="text-slate-300 text-base leading-relaxed">
+                    Your target depth moves gradually closer to your own comfortable depth. You started with a <strong class="text-white">20% allowance</strong> in week 1. This usually goes down by 2 percentage points each week.
                     Current allowance: <span id="stat-allowance" class="text-blue-400 font-bold font-mono-display">20%</span>.
                     Week <span id="stat-week" class="text-white font-bold font-mono-display">1</span> of training.
                 </p>
+                <p class="text-slate-300 text-base leading-relaxed mt-3">If a session felt very hard, you felt unsure, or you had pain, your target stays the same or eases a little. Your target is a goal, not a requirement. Never push through pain.</p>
+                <p id="stat-progress-note" class="hidden mt-3 text-base font-bold text-amber-200" role="status"></p>
             </div>
 
             <div class="grid grid-cols-3 gap-3">
@@ -850,6 +995,14 @@
                 </div>
             </div>
         </section>
+
+        <div class="mt-8 text-center">
+            <button onclick="openPrivacy()" class="min-h-[48px] px-4 text-base text-slate-300 hover:text-white underline underline-offset-4">Privacy and your data</button>
+        </div>
+
+        <div id="safety-bar" class="hidden sticky bottom-0 z-40 -mx-4 px-4 pt-2 pb-3 bg-slate-950/95 border-t-2 border-slate-600">
+            <button type="button" id="stop-btn" onclick="stopSetSafely()" class="w-full min-h-[60px] rounded-xl bg-red-700 hover:bg-red-600 active:scale-[0.98] text-white text-2xl font-black tracking-wide border-2 border-white shadow-lg transition-all">&#9632; STOP</button>
+        </div>
     </div>
 
     
@@ -905,7 +1058,8 @@
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
             getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-            doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp
+            doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp,
+            collection, query, where, getDocs
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         
@@ -1207,18 +1361,114 @@
             document.querySelectorAll('.warmup-card').forEach(c => c.classList.remove('done'));
             const nextBtn = document.getElementById('warmup-next-btn');
             if (nextBtn) nextBtn.disabled = true;
+            if (window.resetSetupConfirm) window.resetSetupConfirm();
 
             refreshStats();
             switchView('warmup');
             
+            // v0.11: the pre-exercise questions come first, for everyone who has not answered
+            // them in the last six months, including people who started on an earlier version.
+            if (window.needsReadiness && window.needsReadiness()) {
+                window.showReadiness();
+            } else if (window.showOnboardingIfFirst) {
+                window.showOnboardingIfFirst();
+            }
+        };
+
+        window.closeOnboarding = () => {
+            document.getElementById('onboarding-modal').classList.add('hidden');
+        };
+
+        // v0.11: the welcome screen is shown to a first-time user, after the pre-exercise
+        // questions (see completeReadiness in the second script).
+        // v0.11: "Download my data". Reads the person's own documents with the same SDK calls the
+        // app already uses: their users/{uid} record, and any entries they made in
+        // session_responses and feedback (found by userId). If the Firestore rules do not allow
+        // a read, that part is left out and the file says so, rather than failing.
+        function toPlain(v) {
+            if (v && typeof v.toDate === 'function') return v.toDate().toISOString();
+            if (Array.isArray(v)) return v.map(toPlain);
+            if (v && typeof v === 'object') {
+                const o = {};
+                Object.keys(v).forEach(k => { o[k] = toPlain(v[k]); });
+                return o;
+            }
+            return v;
+        }
+
+        window.downloadMyData = async () => {
+            const uid = window.currentUserId;
+            const msg = document.getElementById('privacy-export-msg');
+            const btn = document.getElementById('privacy-export-btn');
+            const say = (t) => { if (msg) { msg.textContent = t; msg.classList.toggle('hidden', !t); } };
+            if (!uid) { say('Please sign in first.'); return; }
+            if (btn) btn.disabled = true;
+            say('Getting your data...');
+            const notes = [];
+            const out = {
+                exportedAt: new Date().toISOString(),
+                appVersion: typeof APP_VERSION !== 'undefined' ? APP_VERSION : null,
+                account: { uid: uid, email: auth.currentUser ? auth.currentUser.email : null },
+                userRecord: null,
+                sessionResponses: [],
+                feedback: [],
+                notes: notes
+            };
+            try {
+                const snap = await getDoc(doc(db, "users", uid));
+                out.userRecord = snap.exists() ? snap.data() : null;
+            } catch (e) {
+                console.warn('Export: could not read the account record:', e);
+                out.userRecord = window.userData || null;
+                notes.push('The server could not be reached for your account record, so this is the copy held on this device.');
+            }
+            for (const [name, key] of [['session_responses', 'sessionResponses'], ['feedback', 'feedback']]) {
+                try {
+                    const qs = await getDocs(query(collection(db, name), where('userId', '==', uid)));
+                    out[key] = qs.docs.map(d => ({ id: d.id, ...d.data() }));
+                } catch (e) {
+                    console.warn(`Export: could not read ${name}:`, e);
+                    notes.push(`Your entries in "${name}" could not be read, so they are not in this file. Ask the research team for them.`);
+                }
+            }
+            try {
+                const blob = new Blob([JSON.stringify(toPlain(out), null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'my-rbe-data-' + new Date().toISOString().slice(0, 10) + '.json';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+                say('Your file has been downloaded. It holds health information, so keep it somewhere private.' +
+                    (notes.length ? ' Some parts could not be included. See "notes" in the file.' : ''));
+            } catch (e) {
+                console.error('Export failed:', e);
+                say('Sorry, the file could not be made. Please try again, or ask the research team.');
+            }
+            if (btn) btn.disabled = false;
+        };
+
+        window.showOnboardingIfFirst = () => {
             const sessions = (window.userData && window.userData.sessionsCompleted) || 0;
             if (sessions === 0) {
                 document.getElementById('onboarding-modal').classList.remove('hidden');
             }
         };
 
-        window.closeOnboarding = () => {
-            document.getElementById('onboarding-modal').classList.add('hidden');
+        // v0.11: the pre-exercise screen. The completion date is kept in the user's record like
+        // the rest of their state. The browser copy is a fallback for when the Firestore rules
+        // (unreviewed, see repo CLAUDE.md) refuse the new field, so the screen is not shown on
+        // every visit. Only the date and version are stored, never the individual answers,
+        // because anyone who answers "yes" to a question is not let through.
+        window.saveReadiness = (record) => {
+            if (!window.currentUserId) return;
+            if (window.userData) window.userData.readiness = record;
+            try { localStorage.setItem('rbe_readiness_' + window.currentUserId, record.completedAt); } catch (e) { /* storage blocked */ }
+            const ref = doc(db, "users", window.currentUserId);
+            updateDoc(ref, { readiness: record })
+                .catch(e => console.warn('Pre-exercise record not saved to the account (kept on this device):', e));
         };
     </script>
 
@@ -1229,7 +1479,11 @@
         
         // v0.10-alpha (15 Oct 2026). Covers the uncommitted 27 Aug S8a and S4 part 1 changes as
         // well as the 15 Oct review, so no session recorded by changed code carries the old tag.
-        const APP_VERSION = 'v0.10.1-alpha';   // 15 Oct 2026, later the same day: adds device and frame-rate logging
+        // v0.11.0-alpha (27 Oct 2026): safety and accuracy fixes. Adds the pre-exercise screen, the
+        // set-up checklist and Stop button, progression that responds to pain, effort and confidence
+        // (sessions now store borgCr10, pain and confidence1to5), the privacy notice and data export.
+        // The pose pipeline is untouched. The weekly target rule changed, so record the version change.
+        const APP_VERSION = 'v0.11.0-alpha';
 
         
         
@@ -1396,6 +1650,192 @@
 
         let warmupsComplete = { 'warmup-1': false, 'warmup-2': false };
 
+        // v0.11: the "Set up safely" tick. It is asked once per visit and not stored, because
+        // the room and the day change. The Start buttons stay locked until it is ticked.
+        let setupConfirmed = false;
+        function syncSetupGate() {
+            document.querySelectorAll('.setup-confirm').forEach(c => { c.checked = setupConfirmed; });
+            ['assess-start-btn', 'train-start-btn'].forEach(id => {
+                const b = document.getElementById(id);
+                if (b) b.disabled = !setupConfirmed;
+            });
+        }
+        window.onSetupConfirm = (checked) => {
+            setupConfirmed = !!checked;
+            syncSetupGate();
+            if (setupConfirmed) { showStartMessage('assess', ''); showStartMessage('train', ''); }
+        };
+        window.resetSetupConfirm = () => { setupConfirmed = false; syncSetupGate(); };
+        syncSetupGate();
+
+        // v0.11: the big Stop button. It reuses stopAllCameras (speech off, camera off, timers
+        // cleared, overlays back to Start), so a half-finished set is simply abandoned and
+        // nothing from it is saved. It is safe to press at any time.
+        window.stopSetSafely = () => {
+            const mode = document.getElementById('view-workout').classList.contains('active') ? 'train' : 'assess';
+            stopAllCameras();
+            showStartMessage(mode, 'Stopped. Please sit down and rest. Press Start when you feel ready.');
+            speak('Stopped. Please sit down and rest.');
+        };
+
+        // v0.11 dialog helper, for the dialogs added in this version. Focus moves into the
+        // dialog, Tab stays inside it, Escape closes it, and focus goes back to what opened it.
+        const _dialogReturn = {};
+        const _dialogEscape = {};
+        const _dialogOrder = [];
+        function showDialog(id, onEscape, focusId) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            _dialogReturn[id] = document.activeElement;
+            _dialogEscape[id] = onEscape;
+            if (!_dialogOrder.includes(id)) _dialogOrder.push(id);
+            el.classList.remove('hidden');
+            const target = (focusId && document.getElementById(focusId)) || el.querySelector('button, [href], input');
+            if (target) target.focus();
+            const box = el.querySelector('.modal-box');
+            if (box) box.scrollTop = 0;
+        }
+        function hideDialog(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+            delete _dialogEscape[id];
+            const i = _dialogOrder.indexOf(id);
+            if (i >= 0) _dialogOrder.splice(i, 1);
+            const back = _dialogReturn[id];
+            delete _dialogReturn[id];
+            if (back && document.body.contains(back) && typeof back.focus === 'function') {
+                try { back.focus(); } catch (e) { /* the opener has gone */ }
+            }
+        }
+        document.addEventListener('keydown', (e) => {
+            const id = _dialogOrder[_dialogOrder.length - 1];
+            if (!id) return;
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                if (_dialogEscape[id]) _dialogEscape[id]();
+                return;
+            }
+            if (e.key !== 'Tab') return;
+            const el = document.getElementById(id);
+            const items = Array.from(el.querySelectorAll('button, [href], input, textarea, [tabindex]:not([tabindex="-1"])'))
+                .filter(x => !x.disabled && x.offsetParent !== null);
+            if (!items.length) return;
+            const first = items[0], last = items[items.length - 1];
+            if (!el.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+            else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        });
+
+        // v0.11 privacy notice, reachable from the sign-in screen and the signed-in screens.
+        // "Download my data" only shows once someone is signed in.
+        window.openPrivacy = () => {
+            document.getElementById('privacy-export-wrap').classList.toggle('hidden', !window.currentUserId);
+            const m = document.getElementById('privacy-export-msg');
+            if (m) { m.textContent = ''; m.classList.add('hidden'); }
+            showDialog('privacy-modal', window.closePrivacy, 'privacy-title');
+        };
+        window.closePrivacy = () => hideDialog('privacy-modal');
+
+        // v0.11 pre-exercise questions. Any "yes" stops the person here: the simpler and safer
+        // of the two options (the other being "carry on once they say a doctor has cleared
+        // them"), because the app cannot check that clearance. It is repeated after about six
+        // months (183 days) because health, medicines and fall risk change, and a screen answered
+        // once would otherwise stand for as long as the account does. The questions and the
+        // six months need a clinician's sign-off before wider use.
+        const READINESS_QUESTIONS = [
+            'Do you get chest pain when you are active or exercising?',
+            'Do you ever faint, or feel dizzy or light-headed, when you are active or when you stand up?',
+            'Have you had a fall, or an operation, in the last 6 months?',
+            'Has a doctor told you to avoid exercise?'
+        ];
+        const READINESS_MAX_AGE_DAYS = 183;
+        const READINESS_VERSION = 1;
+
+        function readinessCompletedAt() {
+            const found = [];
+            const fromRecord = window.userData && window.userData.readiness && window.userData.readiness.completedAt;
+            if (fromRecord) found.push(fromRecord);
+            try {
+                const local = localStorage.getItem('rbe_readiness_' + window.currentUserId);
+                if (local) found.push(local);
+            } catch (e) { /* storage blocked */ }
+            const times = found.map(x => new Date(x).getTime()).filter(t => isFinite(t));
+            return times.length ? Math.max(...times) : null;
+        }
+
+        window.needsReadiness = () => {
+            const t = readinessCompletedAt();
+            if (t === null) return true;
+            const ageDays = (Date.now() - t) / 86400000;
+            return ageDays > READINESS_MAX_AGE_DAYS || ageDays < -1;
+        };
+
+        function buildReadinessQuestions() {
+            const box = document.getElementById('readiness-questions');
+            if (!box || box.children.length) return;
+            READINESS_QUESTIONS.forEach((q, i) => {
+                const fs = document.createElement('fieldset');
+                const lg = document.createElement('legend');
+                lg.className = 'text-base font-bold text-white mb-2';
+                lg.textContent = `${i + 1}. ${q}`;
+                const row = document.createElement('div');
+                row.className = 'flex gap-3';
+                ['yes', 'no'].forEach(v => {
+                    const lab = document.createElement('label');
+                    lab.className = 'flex flex-1 items-center gap-3 px-4 min-h-[48px] rounded-xl border-2 border-slate-600 bg-slate-900/60 cursor-pointer text-base font-bold text-white';
+                    const inp = document.createElement('input');
+                    inp.type = 'radio';
+                    inp.name = 'readiness-q' + i;
+                    inp.value = v;
+                    inp.className = 'w-6 h-6 accent-blue-500';
+                    inp.addEventListener('change', updateReadiness);
+                    lab.append(inp, document.createTextNode(v === 'yes' ? 'Yes' : 'No'));
+                    row.appendChild(lab);
+                });
+                fs.append(lg, row);
+                box.appendChild(fs);
+            });
+        }
+
+        function readinessAnswers() {
+            return READINESS_QUESTIONS.map((_, i) => {
+                const c = document.querySelector(`input[name="readiness-q${i}"]:checked`);
+                return c ? c.value : null;
+            });
+        }
+
+        window.updateReadiness = () => {
+            const a = readinessAnswers();
+            const anyYes = a.includes('yes');
+            const allAnswered = a.every(x => x !== null);
+            const ticked = document.getElementById('readiness-tick').checked;
+            document.getElementById('readiness-stop').classList.toggle('hidden', !anyYes);
+            document.getElementById('readiness-continue').disabled = !(allAnswered && !anyYes && ticked);
+        };
+
+        window.showReadiness = () => {
+            buildReadinessQuestions();
+            document.querySelectorAll('#readiness-questions input').forEach(i => { i.checked = false; });
+            document.getElementById('readiness-tick').checked = false;
+            window.updateReadiness();
+            showDialog('readiness-modal', window.declineReadiness, 'readiness-title');
+        };
+
+        window.completeReadiness = () => {
+            window.updateReadiness();
+            if (document.getElementById('readiness-continue').disabled) return;
+            hideDialog('readiness-modal');
+            const record = { completedAt: new Date().toISOString(), version: READINESS_VERSION };
+            if (window.saveReadiness) window.saveReadiness(record);
+            if (window.showOnboardingIfFirst) window.showOnboardingIfFirst();
+        };
+
+        // The questions cannot be skipped, so Escape and "Not now" both leave the app.
+        window.declineReadiness = () => {
+            hideDialog('readiness-modal');
+            if (window.handleLogout) window.handleLogout();
+        };
+
         
         
         
@@ -1453,6 +1893,8 @@
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${view}`).classList.add('active');
             document.getElementById(`nav-${view}`).classList.add('active');
+            // v0.11: the Stop button is shown on the two camera screens only.
+            document.getElementById('safety-bar')?.classList.toggle('hidden', !(view === 'assess' || view === 'workout'));
 
             if (view === 'workout') {
                 calculateDailyTarget();
@@ -1488,15 +1930,77 @@
         
         
         
-        function weeksAndAllowance(baselineDate) {
+        // v0.11 PROGRESSION RULES. Change the numbers here and nowhere else.
+        // PROVISIONAL: the rate of 2 percentage points a week (and the 20% start) has no
+        // published rationale and no trial behind it. It is the rate the app has always used,
+        // kept so that nobody's target jumps, and it needs a clinical review before anyone
+        // relies on it. The new rule only ever makes the target easier or the same, never harder.
+        const PROGRESSION = {
+            startAllowance: 20,   // % of the baseline-to-standing range allowed in week 1
+            weeklyStep: 2,        // points the allowance falls in a normal week
+            easeStep: 2,          // points it rises after a session with pain
+            borgHold: 7,          // Borg CR-10 of 7 ("very strong") or more: hold
+            confidenceHold: 2     // confidence of 2 ("unlikely") or less out of 5: hold
+        };
+        const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+        // What one session says about the next step. 'ease' after pain, 'hold' after a very hard
+        // session or low confidence, otherwise 'advance'. A session without the new fields (an
+        // older record, or the questionnaire skipped) advances, exactly as before.
+        function progressionStepFor(session) {
+            if (!session) return 'advance';
+            if (session.pain === true) return 'ease';
+            const borg = session.borgCr10;
+            if (typeof borg === 'number' && isFinite(borg) && borg >= PROGRESSION.borgHold) return 'hold';
+            const conf = session.confidence1to5;
+            if (typeof conf === 'number' && isFinite(conf) && conf <= PROGRESSION.confidenceHold) return 'hold';
+            return 'advance';
+        }
+
+        function weeksAndAllowance(baselineDate, sessions) {
             // Single source of truth for the week count and allowance %, shared by
-            // calculateDailyTarget and refreshStats so the two cannot drift (audit A7).
-            let weeks = 0;
-            if (baselineDate) {
-                weeks = Math.floor((Date.now() - new Date(baselineDate).getTime()) / (7 * 24 * 60 * 60 * 1000));
+            // calculateDailyTarget, refreshStats and sessionProvenance so they cannot drift
+            // (audit A7).
+            // v0.11: with no sessions passed this is the old fixed schedule. With sessions, the
+            // allowance is replayed week by week: each finished week takes one step decided by
+            // the LATEST session in that week (weeks with no session advance, as before).
+            // Pain in the latest session of the current week also eases today's target at once.
+            // `status` says why the target is not on the normal schedule: 'hold', 'ease' or 'advance'.
+            const start = baselineDate ? new Date(baselineDate).getTime() : NaN;
+            const weeks = isFinite(start) ? Math.max(0, Math.floor((Date.now() - start) / WEEK_MS)) : 0;
+            const latest = {};
+            if (Array.isArray(sessions) && isFinite(start)) {
+                sessions.forEach(s => {
+                    const t = s && s.date ? new Date(s.date).getTime() : NaN;
+                    if (!isFinite(t)) return;
+                    const k = Math.max(0, Math.floor((t - start) / WEEK_MS));
+                    if (!latest[k] || t >= latest[k].t) latest[k] = { t, s };
+                });
             }
-            const allowancePercent = Math.max(0, 20 - (weeks * 2));
-            return { weeks, allowancePercent };
+            const stepOf = k => latest[k] ? progressionStepFor(latest[k].s) : 'advance';
+            const clamp = a => Math.min(PROGRESSION.startAllowance, Math.max(0, a));
+            let allowance = PROGRESSION.startAllowance;
+            for (let k = 0; k < weeks; k++) {
+                const step = stepOf(k);
+                if (step === 'advance') allowance = clamp(allowance - PROGRESSION.weeklyStep);
+                else if (step === 'ease') allowance = clamp(allowance + PROGRESSION.easeStep);
+            }
+            let status = 'advance';
+            if (stepOf(weeks) === 'ease') {
+                allowance = clamp(allowance + PROGRESSION.easeStep);
+                status = 'ease';
+            } else if (stepOf(weeks) === 'hold') {
+                status = 'hold';
+            } else if (weeks > 0 && stepOf(weeks - 1) !== 'advance') {
+                status = stepOf(weeks - 1);
+            }
+            return { weeks, allowancePercent: allowance, status };
+        }
+
+        function progressionNote(status) {
+            if (status === 'ease') return 'You told us about pain or discomfort, so we have eased your target a little. If it carries on, please speak to your GP or physiotherapist.';
+            if (status === 'hold') return 'Your last session felt very hard, or you felt less sure, so your target is staying the same for now.';
+            return '';
         }
 
         function calculateDailyTarget() {
@@ -1504,7 +2008,7 @@
             const baselineDate = programmeStartOf(window.userData);   // v0.10: the programme clock, not the latest calibration
             const standingAngle = window.userData?.standingRom || 170;
 
-            const { weeks: weeksElapsed, allowancePercent } = weeksAndAllowance(baselineDate);
+            const { weeks: weeksElapsed, allowancePercent, status } = weeksAndAllowance(baselineDate, window.userData?.sessions);
 
             
             // allowancePercent now comes from weeksAndAllowance() above (audit A7);
@@ -1515,7 +2019,7 @@
 
             document.getElementById('daily-target-display').innerText = hasBaseline() ? dailyTarget + '\u00B0' : '--\u00B0';
             document.getElementById('daily-allowance-display').innerText = !hasBaseline() ? 'Do your baseline first'
-                : allowancePercent > 0 ? `${allowancePercent}% allowance (week ${weeksElapsed + 1})` : 'Full depth required';
+                : allowancePercent > 0 ? `${allowancePercent}% allowance (week ${weeksElapsed + 1}${status === 'hold' ? ', held for now' : status === 'ease' ? ', eased for now' : ''})` : 'Your own comfortable depth (week ' + (weeksElapsed + 1) + ')';
         }
 
         // v0.10 helpers -------------------------------------------------------------------
@@ -1602,9 +2106,15 @@
             document.getElementById('stat-baseline').innerText = d.baselineRom ? degStr(d.baselineRom) : '--';
             document.getElementById('stat-sessions').innerText = d.sessionsCompleted || 0;
 
-            const { weeks: weeksElapsed, allowancePercent: allowance } = weeksAndAllowance(programmeStartOf(d));
+            const { weeks: weeksElapsed, allowancePercent: allowance, status: progStatus } = weeksAndAllowance(programmeStartOf(d), d.sessions);
             document.getElementById('stat-allowance').innerText = allowance + '%';
             document.getElementById('stat-week').innerText = weeksElapsed + 1;
+            const noteEl = document.getElementById('stat-progress-note');
+            if (noteEl) {
+                const note = progressionNote(progStatus);
+                noteEl.textContent = note;
+                noteEl.classList.toggle('hidden', !note);
+            }
 
             
             const histEl = document.getElementById('session-history');
@@ -1670,6 +2180,11 @@
 
         window.beginCameraSequence = async (mode) => {
             
+            // v0.11: the set-up checklist must be ticked first (see syncSetupGate).
+            if (!setupConfirmed) {
+                showStartMessage(mode, 'Please tick the "I have set up safely" box above first.');
+                return;
+            }
             // v0.10: no training without a baseline (see updateTrainGate).
             if (mode === 'train' && !hasBaseline()) {
                 updateTrainGate();
@@ -2113,13 +2628,14 @@
         // meaning, the single deepest frame of each rep, so old and new records stay comparable;
         // repPeaks3 is the S8b-style robust depth of the same reps, alongside it.
         function sessionProvenance() {
-            const { weeks, allowancePercent } = weeksAndAllowance(programmeStartOf(window.userData));
+            const { weeks, allowancePercent, status } = weeksAndAllowance(programmeStartOf(window.userData), window.userData?.sessions);
             const b = window.userData?.baselineRom;
             return {
                 dailyTarget: dailyTarget,
                 appVersion: APP_VERSION,
                 programmeWeek: weeks + 1,
                 allowancePercent: allowancePercent,
+                progressionStatus: status,
                 baselineRom: (typeof b === 'number' && isFinite(b)) ? b : null,
                 standing: degStore(sessionStanding),
                 standingSd: degStore(sessionStandingSd),
@@ -2596,7 +3112,7 @@
                         const allHit = trainAngles.every(a => a <= dailyTarget);
                         const summaryText = allHit
                             ? `All 5 reps hit target. Average depth: ${avgAngle} degrees. Excellent.`
-                            : `5 reps complete. Average depth: ${avgAngle} degrees. Keep working on hitting your target consistently.`;
+                            : `5 reps complete. Average depth: ${avgAngle} degrees. Your target is a goal, not a requirement.`;
 
                         document.getElementById('train-summary-text').innerText = summaryText;
                         showOverlay('train', 'complete');
@@ -2884,7 +3400,11 @@
             }
 
             if (d.reps != null && window.saveSession) {
-                window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, true, d.extra);
+                // v0.11: the effort, pain and confidence answers are saved in the session record
+                // itself (they used to go only to session_responses), because the weekly
+                // progression rule reads them from here. The pain free text is not copied.
+                const answers = { borgCr10: _qRpe, pain: _qDiscomfort === 'yes', confidence1to5: _qConfidence };
+                window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, true, { ...(d.extra || {}), ...answers });
             }
             switchView('food');
         };
