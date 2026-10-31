@@ -69,7 +69,7 @@ pages:
   script:
     - rm -rf public
     - mkdir public
-    - find . -maxdepth 1 -mindepth 1 ! -name public ! -name '.git' ! -name '.gitlab-ci.yml' -exec cp -r {} public/ \;
+    - find . -maxdepth 1 -mindepth 1 ! -name public ! -name '.git' ! -name '.gitlab-ci.yml' ! -name 'README.md' -exec cp -r {} public/ \;
   pages: true
   publish: public
   artifacts:
