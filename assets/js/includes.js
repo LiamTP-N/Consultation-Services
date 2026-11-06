@@ -178,6 +178,7 @@
     const links = [
         { id: 'index', label: 'Home', href: '/index.html' },
         { id: 'portfolio', label: 'Portfolio', href: '/portfolio.html' },
+        { id: 'media', label: 'Media', href: '/media.html' },
         { id: 'cv', label: 'CV', href: '/cv.html' },
         { id: 'live-research', label: 'LIVE Research', href: '/live-research.html' },
         { id: 'jobs', label: 'Jobs', href: '/jobs.html' },
@@ -199,7 +200,6 @@
                 </a>
                 <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
                     ${links.map(l => `<a href="${l.href}" class="${linkClass(l.id)}">${l.label}</a>`).join('\n                    ')}
-                    <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Get in Touch</a>
                 </div>
                 <div class="md:hidden flex items-center gap-3">
                     <button id="mobile-menu-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu" class="text-slate-300 hover:text-white focus:outline-none">
@@ -212,7 +212,6 @@
             <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 bg-slate-900/95 backdrop-blur-xl border-t border-slate-700 rounded-b-xl">
                 <div class="flex flex-col space-y-4 pt-4 px-2 text-center">
                     ${links.map(l => `<a href="${l.href}" class="${mobileLinkClass(l.id)}">${l.label}</a>`).join('\n                    ')}
-                    <a href="#contact" class="bg-blue-600 text-white py-3 rounded-lg font-bold mx-4 shadow-lg">Get in Touch</a>
                 </div>
             </div>
         </div>`;
