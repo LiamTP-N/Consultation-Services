@@ -180,8 +180,8 @@
         { id: 'portfolio', label: 'Portfolio', href: '/portfolio.html' },
         { id: 'media', label: 'Media', href: '/media.html' },
         { id: 'cv', label: 'CV', href: '/cv.html' },
-        { id: 'live-research', label: 'LIVE Research', href: '/live-research.html' },
         { id: 'jobs', label: 'Jobs', href: '/jobs.html' },
+        { id: 'live-research', label: 'LIVE Research', href: '/live-research.html' },
         // The Older Adult Strength Resource is its own GitLab project, served at this path on the same domain.
         { id: 'strength', label: '<em>"Just Enough"</em>', href: '/older-adult-strength-resource/' },
     ];
