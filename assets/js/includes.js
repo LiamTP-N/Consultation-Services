@@ -169,11 +169,13 @@
     }
 
     const links = [
-        { id: 'index', label: 'Home', href: 'index.html' },
-        { id: 'portfolio', label: 'Portfolio', href: 'portfolio.html' },
-        { id: 'cv', label: 'CV', href: 'cv.html' },
-        { id: 'live-research', label: 'LIVE Research', href: 'live-research.html' },
-        { id: 'jobs', label: 'Jobs', href: 'jobs.html' },
+        { id: 'index', label: 'Home', href: '/index.html' },
+        { id: 'portfolio', label: 'Portfolio', href: '/portfolio.html' },
+        { id: 'cv', label: 'CV', href: '/cv.html' },
+        { id: 'live-research', label: 'LIVE Research', href: '/live-research.html' },
+        { id: 'jobs', label: 'Jobs', href: '/jobs.html' },
+        // The Older Adult Strength Resource is its own GitLab project, served at this path on the same domain.
+        { id: 'strength', label: 'Strength', href: '/older-adult-strength-resource/' },
     ];
 
     
@@ -185,7 +187,7 @@
         nav.innerHTML = `
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center">
-                <a href="index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
+                <a href="/index.html" class="font-bold text-xl tracking-tight text-slate-100 hover:text-blue-400 transition">
                     ${page === 'index' ? '' : 'Dr. Liam T. Pearson-Noseworthy'}
                 </a>
                 <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
@@ -193,7 +195,7 @@
                     <a href="#contact" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Get in Touch</a>
                 </div>
                 <div class="md:hidden flex items-center gap-3">
-                    <button id="mobile-menu-btn" class="text-slate-300 hover:text-white focus:outline-none">
+                    <button id="mobile-menu-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu" class="text-slate-300 hover:text-white focus:outline-none">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
@@ -234,7 +236,10 @@
         const btn = document.getElementById('mobile-menu-btn');
         const menu = document.getElementById('mobile-menu');
         if (btn && menu) {
-            btn.addEventListener('click', () => menu.classList.toggle('hidden'));
+            btn.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+                btn.setAttribute('aria-expanded', menu.classList.contains('hidden') ? 'false' : 'true');
+            });
         }
     }
 
@@ -366,7 +371,7 @@
         
         function ensureIndex(cb) {
             if (searchIndex) return cb();
-            fetch('scraper/search-index.json')
+            fetch('/scraper/search-index.json')
                 .then(function (r) { return r.json(); })
                 .then(function (data) { searchIndex = data; cb(); })
                 .catch(function () {
