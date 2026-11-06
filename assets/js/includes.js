@@ -38,6 +38,11 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .glow-text { text-shadow: 0 0 8px rgba(34, 197, 94, 0.4); }
+        @keyframes justEnoughGlow {
+            0%, 100% { text-shadow: 0 0 6px rgba(74, 222, 128, 0.5), 0 0 12px rgba(74, 222, 128, 0.3); opacity: 1; }
+            50% { text-shadow: 0 0 14px rgba(74, 222, 128, 0.9), 0 0 28px rgba(74, 222, 128, 0.5), 0 0 40px rgba(74, 222, 128, 0.2); opacity: 0.88; }
+        }
+        .just-enough-glow { color: #4ade80; font-weight: 700; animation: justEnoughGlow 2.8s ease-in-out infinite; }
 
         
         #back-to-top {
@@ -161,10 +166,12 @@
     
     function linkClass(id) {
         if (id === 'live-research') return 'text-green-500 font-bold animate-pulse glow-text';
+        if (id === 'strength') return 'just-enough-glow';
         return page === id ? 'text-white' : 'hover:text-blue-400 transition-colors';
     }
     function mobileLinkClass(id) {
         if (id === 'live-research') return 'text-green-500 font-bold hover:bg-slate-800 py-2 rounded-lg transition-colors';
+        if (id === 'strength') return 'just-enough-glow hover:bg-slate-800 py-2 rounded-lg transition-colors';
         return (page === id ? 'text-white' : 'text-slate-300 hover:text-white') + ' hover:bg-slate-800 py-2 rounded-lg transition-colors';
     }
 
