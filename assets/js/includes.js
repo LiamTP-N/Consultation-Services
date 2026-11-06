@@ -39,10 +39,10 @@
         }
         .glow-text { text-shadow: 0 0 8px rgba(34, 197, 94, 0.4); }
         @keyframes justEnoughGlow {
-            0%, 100% { text-shadow: 0 0 6px rgba(74, 222, 128, 0.5), 0 0 12px rgba(74, 222, 128, 0.3); opacity: 1; }
-            50% { text-shadow: 0 0 14px rgba(74, 222, 128, 0.9), 0 0 28px rgba(74, 222, 128, 0.5), 0 0 40px rgba(74, 222, 128, 0.2); opacity: 0.88; }
+            0%, 100% { text-shadow: 0 0 6px rgba(250, 204, 21, 0.5), 0 0 12px rgba(250, 204, 21, 0.3); opacity: 1; }
+            50% { text-shadow: 0 0 14px rgba(250, 204, 21, 0.9), 0 0 28px rgba(250, 204, 21, 0.5), 0 0 40px rgba(250, 204, 21, 0.2); opacity: 0.88; }
         }
-        .just-enough-glow { color: #4ade80; font-weight: 700; animation: justEnoughGlow 2.8s ease-in-out infinite; }
+        .just-enough-glow { color: #fde68a; font-weight: 700; animation: justEnoughGlow 2.8s ease-in-out infinite; }
 
         
         #back-to-top {
