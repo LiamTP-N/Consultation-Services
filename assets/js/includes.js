@@ -175,7 +175,7 @@
         { id: 'live-research', label: 'LIVE Research', href: '/live-research.html' },
         { id: 'jobs', label: 'Jobs', href: '/jobs.html' },
         // The Older Adult Strength Resource is its own GitLab project, served at this path on the same domain.
-        { id: 'strength', label: 'Strength', href: '/older-adult-strength-resource/' },
+        { id: 'strength', label: '<em>"Just Enough"</em>', href: '/older-adult-strength-resource/' },
     ];
 
     
