@@ -165,12 +165,10 @@
     
     
     function linkClass(id) {
-        if (id === 'live-research') return 'text-green-500 font-bold animate-pulse glow-text';
         if (id === 'strength') return 'just-enough-glow';
         return page === id ? 'text-white' : 'hover:text-blue-400 transition-colors';
     }
     function mobileLinkClass(id) {
-        if (id === 'live-research') return 'text-green-500 font-bold hover:bg-slate-800 py-2 rounded-lg transition-colors';
         if (id === 'strength') return 'just-enough-glow hover:bg-slate-800 py-2 rounded-lg transition-colors';
         return (page === id ? 'text-white' : 'text-slate-300 hover:text-white') + ' hover:bg-slate-800 py-2 rounded-lg transition-colors';
     }
@@ -181,7 +179,7 @@
         { id: 'media', label: 'Media', href: '/media.html' },
         { id: 'cv', label: 'CV', href: '/cv.html' },
         { id: 'jobs', label: 'Jobs', href: '/jobs.html' },
-        { id: 'live-research', label: 'LIVE Research', href: '/live-research.html' },
+        { id: 'live-research', label: 'Research', href: '/live-research.html' },
         // The Older Adult Strength Resource is its own GitLab project, served at this path on the same domain.
         { id: 'strength', label: '<em>"Just Enough"</em>', href: '/older-adult-strength-resource/' },
     ];
@@ -199,7 +197,7 @@
                     ${page === 'index' ? '' : 'Dr. Liam T. Pearson-Noseworthy'}
                 </a>
                 <div class="hidden md:flex gap-6 text-sm font-medium text-slate-400 items-center">
-                    ${links.map(l => `<a href="${l.href}" class="${linkClass(l.id)}">${l.label}</a>`).join('\n                    ')}
+                    ${links.map(l => `<a href="${l.href}" class="${linkClass(l.id)}"${l.id === 'live-research' ? ' data-live-nav' : ''}>${l.label}</a>`).join('\n                    ')}
                 </div>
                 <div class="md:hidden flex items-center gap-3">
                     <button id="mobile-menu-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu" class="text-slate-300 hover:text-white focus:outline-none">
@@ -211,7 +209,7 @@
             </div>
             <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 bg-slate-900/95 backdrop-blur-xl border-t border-slate-700 rounded-b-xl">
                 <div class="flex flex-col space-y-4 pt-4 px-2 text-center">
-                    ${links.map(l => `<a href="${l.href}" class="${mobileLinkClass(l.id)}">${l.label}</a>`).join('\n                    ')}
+                    ${links.map(l => `<a href="${l.href}" class="${mobileLinkClass(l.id)}"${l.id === 'live-research' ? ' data-live-nav' : ''}>${l.label}</a>`).join('\n                    ')}
                 </div>
             </div>
         </div>`;
@@ -252,6 +250,77 @@
     
     
     
+    // Research menu item: plain "Research" by default. It turns green and pulses (as "LIVE Research")
+    // only while the Research page itself reports at least one open study. The page is loaded invisibly
+    // (same site, so no extra permissions) and its own "Active Studies" figure is read once it has
+    // loaded its feed, so the 90-day and closing-date rules stay in one place. The answer is cached
+    // for 10 minutes per tab.
+    (function initLiveNav() {
+        if (window.top !== window.self) return; // inside the hidden copy: do nothing
+        var CACHE_KEY = 'liveResearchNav';
+        var CACHE_MS = 10 * 60 * 1000;
+
+        function setLive(live) {
+            document.querySelectorAll('[data-live-nav]').forEach(function (a) {
+                var mobile = !!a.closest('#mobile-menu');
+                if (live) {
+                    a.textContent = 'LIVE Research';
+                    a.className = mobile
+                        ? 'text-green-500 font-bold hover:bg-slate-800 py-2 rounded-lg transition-colors'
+                        : 'text-green-500 font-bold animate-pulse glow-text';
+                } else {
+                    a.textContent = 'Research';
+                    a.className = mobile ? mobileLinkClass('live-research') : linkClass('live-research');
+                }
+            });
+        }
+
+        function finish(live) {
+            try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), live: live })); } catch (e) { }
+            setLive(live);
+        }
+
+        // Read the Research page's "Active Studies" figure; it shows "-" until its feed has loaded.
+        function readCount(doc) {
+            try {
+                var el = doc && doc.getElementById('stat-total');
+                var txt = el ? el.textContent.trim() : '';
+                return /^\d+$/.test(txt) ? parseInt(txt, 10) : null;
+            } catch (e) { return null; }
+        }
+
+        function watch(getDoc, cleanup) {
+            var tries = 0;
+            var timer = setInterval(function () {
+                tries++;
+                var n = readCount(getDoc());
+                if (n !== null) { clearInterval(timer); cleanup(); finish(n > 0); }
+                else if (tries > 40) { clearInterval(timer); cleanup(); } // about 10 seconds: give up, leave as is
+            }, 250);
+        }
+
+        var cached = null;
+        try { cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) || 'null'); } catch (e) { cached = null; }
+        if (cached && typeof cached.live === 'boolean') {
+            setLive(cached.live);
+            if (Date.now() - cached.t < CACHE_MS) return;
+        }
+
+        if (page === 'live-research') {
+            watch(function () { return document; }, function () { });
+            return;
+        }
+
+        var frame = document.createElement('iframe');
+        frame.src = '/live-research.html';
+        frame.setAttribute('aria-hidden', 'true');
+        frame.setAttribute('tabindex', '-1');
+        frame.title = '';
+        frame.style.cssText = 'position:absolute;width:0;height:0;border:0;visibility:hidden;';
+        document.body.appendChild(frame);
+        watch(function () { return frame.contentDocument; }, function () { frame.remove(); });
+    })();
+
     const footer = document.getElementById('main-footer');
     if (footer) {
         const year = new Date().getFullYear();
