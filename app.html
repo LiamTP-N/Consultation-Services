@@ -9,7 +9,7 @@
     <meta property="og:title" content="ROM-Based Exercise App | Dr. Pearson-Noseworthy">
     <meta property="og:description" content="A free home exercise tool that adapts to your mobility in real time. Built on doctoral research.">
     <meta property="og:url" content="https://liamtp-n.gitlab.io/app.html">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="assets/tailwind.cdn.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" crossorigin="anonymous"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -282,15 +282,16 @@
         <div class="modal-box">
             <h2 id="readiness-title" tabindex="-1" class="text-2xl font-bold text-white mb-3">Before you start</h2>
             <p class="text-base text-amber-100 bg-amber-950/60 border border-amber-600/50 rounded-xl px-4 py-3 mb-4"><strong>This app is not medical advice.</strong> It cannot tell you whether exercise is safe for you.</p>
-            <p class="text-base text-slate-200 mb-4">Please answer these four questions. It takes about a minute.</p>
+            <p id="readiness-intro" class="text-base text-slate-200 mb-4">Please answer these four questions. It takes about a minute.</p>
             <div id="readiness-questions" class="space-y-4 mb-5"></div>
             <div id="readiness-stop" class="hidden mb-5 rounded-xl border-2 border-amber-400 bg-amber-950/60 px-4 py-3 text-base text-amber-50 leading-relaxed space-y-2" role="alert">
                 <p><strong>Please speak to your GP or physiotherapist before you start.</strong></p>
-                <p>Do not use the exercises in this app until they say it is safe for you.</p>
+                <p id="readiness-retry-line"></p>
+<p>Do not use the exercises in this app until they say it is safe for you.</p>
                 <p>If you need advice now, call <a href="tel:111" class="tel-link">NHS 111</a>. If you have chest pain right now, call <a href="tel:999" class="tel-link">999</a>.</p>
                 <p>If your doctor or physiotherapist says it is fine to exercise, tell the research team. Contact: [TO CONFIRM: research team contact].</p>
             </div>
-            <label class="flex items-start gap-3 p-3 mb-5 rounded-xl border-2 border-slate-600 bg-slate-900/60 cursor-pointer">
+            <label id="readiness-tick-label" class="flex items-start gap-3 p-3 mb-5 rounded-xl border-2 border-slate-600 bg-slate-900/60 cursor-pointer">
                 <input type="checkbox" id="readiness-tick" class="w-6 h-6 mt-0.5 flex-shrink-0 accent-blue-500" onchange="updateReadiness()">
                 <span class="text-base text-white">I understand that this app is not medical advice. I will stop and sit down if I feel unwell.</span>
             </label>
@@ -324,7 +325,7 @@
                         <li>Your answers after each session: how hard it felt (0 to 10), whether you had pain or discomfort, and how confident you felt. If you say you had pain, you can type where it was and what type. You can also type other comments. We keep whatever you type.</li>
                         <li>Your food log: which meals you ticked as having protein, for each day.</li>
                         <li>Anything you send with the Feedback button, including what you type.</li>
-                        <li>The date you last answered the "Before you start" questions. We keep the date only, not your answers.</li>
+                        <li>The date you last answered the "Before you start" questions. If any answer was yes, we keep that fact and the date, but not which question it was.</li>
                     </ul>
                 </section>
 
@@ -805,8 +806,8 @@
                         Start 5 Reps
                     </button>
                     <div id="train-needs-baseline" class="hidden max-w-xs">
-                        <p class="text-white font-bold text-lg mb-2">Baseline needed first</p>
-                        <p class="text-sm text-slate-300 mb-5">Your target depth comes from your baseline, so do step 2 before training.</p>
+                        <p class="text-white font-bold text-lg mb-2">Today's baseline needed first</p>
+                        <p class="text-sm text-slate-300 mb-5">Your target depth comes from today's baseline, so do step 2 before training each day.</p>
                         <button onclick="switchView('assess')" class="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-bold px-6 py-3 rounded-full transition-all">
                             Go to baseline
                         </button>
@@ -1211,11 +1212,13 @@
                 .catch(e => console.warn('Calibration record not saved:', e));
         };
 
-        window.saveSession = (reps, avgAngle, hitTarget, repAngles, questionnaireSubmitted, extra) => {
+        // v0.12: `when` is the time the set finished. It is passed in so that a session saved
+        // later (after the questions, or on the next visit if the app was closed) keeps its own date.
+        window.saveSession = (reps, avgAngle, hitTarget, repAngles, questionnaireSubmitted, extra, when) => {
             if (!window.currentUserId) return;
             const ref = doc(db, "users", window.currentUserId);
             const legacyEntry = {
-                date: new Date().toISOString(),
+                date: (typeof when === 'string' && isFinite(new Date(when).getTime())) ? when : new Date().toISOString(),
                 reps: reps,
                 avgAngle: Math.round(avgAngle),
                 allHitTarget: hitTarget,
@@ -1363,12 +1366,20 @@
             if (nextBtn) nextBtn.disabled = true;
             if (window.resetSetupConfirm) window.resetSetupConfirm();
 
+            // v0.12: a set that was finished but never saved (the app was closed on the
+            // questions screen) is saved now, as a session with no answers.
+            if (window.flushPendingSession) window.flushPendingSession();
+
             refreshStats();
             switchView('warmup');
-            
+
             // v0.11: the pre-exercise questions come first, for everyone who has not answered
             // them in the last six months, including people who started on an earlier version.
-            if (window.needsReadiness && window.needsReadiness()) {
+            // v0.12: a "yes" answer locks the app for 7 days (see readinessState).
+            const rs = window.readinessState ? window.readinessState() : 'ok';
+            if (rs === 'blocked') {
+                window.showReadinessBlocked();
+            } else if (rs === 'ask') {
                 window.showReadiness();
             } else if (window.showOnboardingIfFirst) {
                 window.showOnboardingIfFirst();
@@ -1457,18 +1468,18 @@
             }
         };
 
-        // v0.11: the pre-exercise screen. The completion date is kept in the user's record like
-        // the rest of their state. The browser copy is a fallback for when the Firestore rules
-        // (unreviewed, see repo CLAUDE.md) refuse the new field, so the screen is not shown on
-        // every visit. Only the date and version are stored, never the individual answers,
-        // because anyone who answers "yes" to a question is not let through.
+        // v0.11: the pre-exercise screen. The date is kept in the user's record like the rest of
+        // their state. Only a date and version are stored, never the individual answers.
+        // v0.12: the record is either { completedAt, version } (every answer was "no") or
+        // { blockedAt, version } (at least one "yes"). The browser copy that v0.11 also accepted
+        // has gone: a value in the browser could be set by hand to skip the questions. If the
+        // Firestore rules refuse this field, the questions are simply asked again next visit.
         window.saveReadiness = (record) => {
             if (!window.currentUserId) return;
             if (window.userData) window.userData.readiness = record;
-            try { localStorage.setItem('rbe_readiness_' + window.currentUserId, record.completedAt); } catch (e) { /* storage blocked */ }
             const ref = doc(db, "users", window.currentUserId);
             updateDoc(ref, { readiness: record })
-                .catch(e => console.warn('Pre-exercise record not saved to the account (kept on this device):', e));
+                .catch(e => reportSaveProblem(e, 'Pre-exercise answers'));
         };
     </script>
 
@@ -1483,7 +1494,13 @@
         // set-up checklist and Stop button, progression that responds to pain, effort and confidence
         // (sessions now store borgCr10, pain and confidence1to5), the privacy notice and data export.
         // The pose pipeline is untouched. The weekly target rule changed, so record the version change.
-        const APP_VERSION = 'v0.11.0-alpha';
+        // v0.12.0-alpha (10 Nov 2026): fixes from the security and logic audit. Pain eases the target
+        // by 5 points per painful session up to 40%; the worst answer in a week decides the step, so a
+        // skipped questionnaire cannot erase a pain report; a missed week holds and a second missed
+        // week in a row steps back; training needs a baseline from the same day; a "yes" on the
+        // pre-exercise questions locks the app for 7 days; a finished set is no longer lost if the app
+        // is closed on the questions screen. The pose pipeline is untouched. The target rule changed.
+        const APP_VERSION = 'v0.12.0-alpha';
 
         
         
@@ -1751,23 +1768,57 @@
         const READINESS_MAX_AGE_DAYS = 183;
         const READINESS_VERSION = 1;
 
-        function readinessCompletedAt() {
-            const found = [];
-            const fromRecord = window.userData && window.userData.readiness && window.userData.readiness.completedAt;
-            if (fromRecord) found.push(fromRecord);
-            try {
-                const local = localStorage.getItem('rbe_readiness_' + window.currentUserId);
-                if (local) found.push(local);
-            } catch (e) { /* storage blocked */ }
-            const times = found.map(x => new Date(x).getTime()).filter(t => isFinite(t));
-            return times.length ? Math.max(...times) : null;
+        // v0.12: a "yes" to any question locks the app for this many days, then the questions
+        // are asked again. PROVISIONAL, like the questions themselves: needs a clinician's sign-off.
+        const READINESS_BLOCK_DAYS = 7;
+        const DAY_MS = 86400000;
+
+        function readinessTime(key) {
+            const v = window.userData && window.userData.readiness && window.userData.readiness[key];
+            const t = v ? new Date(v).getTime() : NaN;
+            return isFinite(t) ? t : null;
         }
 
-        window.needsReadiness = () => {
-            const t = readinessCompletedAt();
-            if (t === null) return true;
-            const ageDays = (Date.now() - t) / 86400000;
-            return ageDays > READINESS_MAX_AGE_DAYS || ageDays < -1;
+        // 'ok'      every answer was "no", within the last six months
+        // 'blocked' a "yes" was given less than READINESS_BLOCK_DAYS ago
+        // 'ask'     never answered, out of date, the lock has run out, or the date is in the future
+        // Read from the account record only (see saveReadiness).
+        window.readinessState = () => {
+            const now = Date.now();
+            const blocked = readinessTime('blockedAt');
+            const done = readinessTime('completedAt');
+            if (blocked !== null && (done === null || blocked >= done)) {
+                const age = (now - blocked) / DAY_MS;
+                return (age >= READINESS_BLOCK_DAYS || age < -1) ? 'ask' : 'blocked';
+            }
+            if (done === null) return 'ask';
+            const ageDays = (now - done) / DAY_MS;
+            return (ageDays > READINESS_MAX_AGE_DAYS || ageDays < -1) ? 'ask' : 'ok';
+        };
+        window.needsReadiness = () => window.readinessState() !== 'ok';
+
+        // The same dialog shows either the questions or, after a "yes", the advice and the date
+        // the questions can be answered again.
+        function setReadinessMode(blocked) {
+            const hide = (id, on) => document.getElementById(id)?.classList.toggle('hidden', on);
+            hide('readiness-questions', blocked);
+            hide('readiness-intro', blocked);
+            hide('readiness-tick-label', blocked);
+            hide('readiness-continue', blocked);
+            hide('readiness-stop', !blocked);
+            const line = document.getElementById('readiness-retry-line');
+            if (line) {
+                const t = readinessTime('blockedAt');
+                line.textContent = (blocked && t !== null)
+                    ? 'Because you answered yes to one of the questions, the exercises are locked for now. You can answer the questions again on '
+                        + new Date(t + READINESS_BLOCK_DAYS * DAY_MS).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) + '.'
+                    : '';
+            }
+        }
+
+        window.showReadinessBlocked = () => {
+            setReadinessMode(true);
+            showDialog('readiness-modal', window.declineReadiness, 'readiness-title');
         };
 
         function buildReadinessQuestions() {
@@ -1804,17 +1855,20 @@
             });
         }
 
+        // v0.12: the advice no longer appears the moment "yes" is picked, and Continue no longer
+        // waits for every answer to be "no". Before, someone who truthfully answered "yes" saw
+        // the warning, changed the answer to "no" and carried on (audit). Now an answer can be
+        // corrected freely until Continue is pressed, and a "yes" at that point is recorded.
         window.updateReadiness = () => {
             const a = readinessAnswers();
-            const anyYes = a.includes('yes');
             const allAnswered = a.every(x => x !== null);
             const ticked = document.getElementById('readiness-tick').checked;
-            document.getElementById('readiness-stop').classList.toggle('hidden', !anyYes);
-            document.getElementById('readiness-continue').disabled = !(allAnswered && !anyYes && ticked);
+            document.getElementById('readiness-continue').disabled = !(allAnswered && ticked);
         };
 
         window.showReadiness = () => {
             buildReadinessQuestions();
+            setReadinessMode(false);
             document.querySelectorAll('#readiness-questions input').forEach(i => { i.checked = false; });
             document.getElementById('readiness-tick').checked = false;
             window.updateReadiness();
@@ -1824,8 +1878,18 @@
         window.completeReadiness = () => {
             window.updateReadiness();
             if (document.getElementById('readiness-continue').disabled) return;
+            const now = new Date().toISOString();
+            if (readinessAnswers().includes('yes')) {
+                if (window.saveReadiness) window.saveReadiness({ blockedAt: now, version: READINESS_VERSION });
+                else if (window.userData) window.userData.readiness = { blockedAt: now, version: READINESS_VERSION };
+                setReadinessMode(true);
+                document.getElementById('readiness-title')?.focus();
+                const box = document.querySelector('#readiness-modal .modal-box');
+                if (box) box.scrollTop = 0;
+                return;
+            }
             hideDialog('readiness-modal');
-            const record = { completedAt: new Date().toISOString(), version: READINESS_VERSION };
+            const record = { completedAt: now, version: READINESS_VERSION };
             if (window.saveReadiness) window.saveReadiness(record);
             if (window.showOnboardingIfFirst) window.showOnboardingIfFirst();
         };
@@ -1935,10 +1999,15 @@
         // published rationale and no trial behind it. It is the rate the app has always used,
         // kept so that nobody's target jumps, and it needs a clinical review before anyone
         // relies on it. The new rule only ever makes the target easier or the same, never harder.
+        // v0.12 (decided by Liam, 10 Nov 2026, still PROVISIONAL): pain eases by 5 points per
+        // painful session and the allowance may rise to 40%; a week with no session holds, and
+        // from the second missed week in a row the allowance steps back by missedStep a week.
         const PROGRESSION = {
             startAllowance: 20,   // % of the baseline-to-standing range allowed in week 1
+            maxAllowance: 40,     // the most the allowance can rise to after pain or a break
             weeklyStep: 2,        // points the allowance falls in a normal week
-            easeStep: 2,          // points it rises after a session with pain
+            easeStep: 5,          // points it rises for each session with pain
+            missedStep: 2,        // points it rises per missed week, from the second in a row
             borgHold: 7,          // Borg CR-10 of 7 ("very strong") or more: hold
             confidenceHold: 2     // confidence of 2 ("unlikely") or less out of 5: hold
         };
@@ -1961,46 +2030,78 @@
             // Single source of truth for the week count and allowance %, shared by
             // calculateDailyTarget, refreshStats and sessionProvenance so they cannot drift
             // (audit A7).
-            // v0.11: with no sessions passed this is the old fixed schedule. With sessions, the
-            // allowance is replayed week by week: each finished week takes one step decided by
-            // the LATEST session in that week (weeks with no session advance, as before).
-            // Pain in the latest session of the current week also eases today's target at once.
-            // `status` says why the target is not on the normal schedule: 'hold', 'ease' or 'advance'.
+            // With no sessions list passed this is the old fixed schedule (used only for the
+            // week number). With a list, the allowance is replayed week by week:
+            //   - a week with pain eases by easeStep for EACH painful session, and does not advance;
+            //   - otherwise a week with a very hard or low-confidence session holds;
+            //   - otherwise a week with at least one session advances by weeklyStep;
+            //   - a week with no session holds, and from the second missed week in a row the
+            //     allowance also steps back by missedStep.
+            // v0.12: the WORST answer in a week decides it. v0.11 used the latest session only, so
+            // a later session with the questions skipped wiped out a pain report (audit).
+            // Pain in the current week eases today's target at once.
+            // `status` says why the target is not on the normal schedule:
+            // 'ease', 'hold', 'break' (missed weeks) or 'advance'.
             const start = baselineDate ? new Date(baselineDate).getTime() : NaN;
             const weeks = isFinite(start) ? Math.max(0, Math.floor((Date.now() - start) / WEEK_MS)) : 0;
-            const latest = {};
-            if (Array.isArray(sessions) && isFinite(start)) {
+            const useSessions = Array.isArray(sessions) && isFinite(start);
+            const byWeek = {};
+            if (useSessions) {
                 sessions.forEach(s => {
                     const t = s && s.date ? new Date(s.date).getTime() : NaN;
                     if (!isFinite(t)) return;
                     const k = Math.max(0, Math.floor((t - start) / WEEK_MS));
-                    if (!latest[k] || t >= latest[k].t) latest[k] = { t, s };
+                    const w = byWeek[k] || (byWeek[k] = { pain: 0, hold: false });
+                    const step = progressionStepFor(s);
+                    if (step === 'ease') w.pain++;
+                    else if (step === 'hold') w.hold = true;
                 });
             }
-            const stepOf = k => latest[k] ? progressionStepFor(latest[k].s) : 'advance';
-            const clamp = a => Math.min(PROGRESSION.startAllowance, Math.max(0, a));
+            const clamp = a => Math.min(PROGRESSION.maxAllowance, Math.max(0, a));
             let allowance = PROGRESSION.startAllowance;
+            let missedRun = 0;
+            let lastStep = 'advance';
             for (let k = 0; k < weeks; k++) {
-                const step = stepOf(k);
-                if (step === 'advance') allowance = clamp(allowance - PROGRESSION.weeklyStep);
-                else if (step === 'ease') allowance = clamp(allowance + PROGRESSION.easeStep);
+                if (!useSessions) {
+                    allowance = clamp(allowance - PROGRESSION.weeklyStep);
+                    continue;
+                }
+                const w = byWeek[k];
+                if (!w) {
+                    missedRun++;
+                    if (missedRun >= 2) allowance = clamp(allowance + PROGRESSION.missedStep);
+                    lastStep = 'break';
+                } else {
+                    missedRun = 0;
+                    if (w.pain > 0) {
+                        allowance = clamp(allowance + PROGRESSION.easeStep * w.pain);
+                        lastStep = 'ease';
+                    } else if (w.hold) {
+                        lastStep = 'hold';
+                    } else {
+                        allowance = clamp(allowance - PROGRESSION.weeklyStep);
+                        lastStep = 'advance';
+                    }
+                }
             }
             let status = 'advance';
-            if (stepOf(weeks) === 'ease') {
-                allowance = clamp(allowance + PROGRESSION.easeStep);
+            const cur = useSessions ? byWeek[weeks] : null;
+            if (cur && cur.pain > 0) {
+                allowance = clamp(allowance + PROGRESSION.easeStep * cur.pain);
                 status = 'ease';
-            } else if (stepOf(weeks) === 'hold') {
+            } else if (cur && cur.hold) {
                 status = 'hold';
-            } else if (weeks > 0 && stepOf(weeks - 1) !== 'advance') {
-                status = stepOf(weeks - 1);
+            } else if (weeks > 0 && lastStep !== 'advance') {
+                status = lastStep;
             }
             return { weeks, allowancePercent: allowance, status };
         }
 
         function progressionNote(status) {
             if (status === 'ease') return 'You told us about pain or discomfort, so we have eased your target a little. If it carries on, please speak to your GP or physiotherapist.';
-            if (status === 'hold') return 'Your last session felt very hard, or you felt less sure, so your target is staying the same for now.';
-            return '';
+            if (status === 'hold') return 'A recent session felt very hard, or you felt less sure, so your target is staying the same for now.';
+            if (status === 'break') return 'You have had a week or more away, so your target has stayed the same or been eased a little.';
+return '';
         }
 
         function calculateDailyTarget() {
@@ -2017,9 +2118,9 @@
             const buffer = range * (allowancePercent / 100);
             dailyTarget = Math.round(baseline + buffer);
 
-            document.getElementById('daily-target-display').innerText = hasBaseline() ? dailyTarget + '\u00B0' : '--\u00B0';
-            document.getElementById('daily-allowance-display').innerText = !hasBaseline() ? 'Do your baseline first'
-                : allowancePercent > 0 ? `${allowancePercent}% allowance (week ${weeksElapsed + 1}${status === 'hold' ? ', held for now' : status === 'ease' ? ', eased for now' : ''})` : 'Your own comfortable depth (week ' + (weeksElapsed + 1) + ')';
+            document.getElementById('daily-target-display').innerText = trainReady() ? dailyTarget + '\u00B0' : '--\u00B0';
+            document.getElementById('daily-allowance-display').innerText = !trainReady() ? "Do today's baseline first"
+                : allowancePercent > 0 ? `${allowancePercent}% allowance (week ${weeksElapsed + 1}${status === 'hold' ? ', held for now' : status === 'ease' ? ', eased for now' : status === 'break' ? ', adjusted after a break' : ''})` : 'Your own comfortable depth (week ' + (weeksElapsed + 1) + ')';
         }
 
         // v0.10 helpers -------------------------------------------------------------------
@@ -2030,8 +2131,21 @@
 
         // Training without a baseline used to start anyway, against a target built from a
         // default 90 degree baseline (tested: target 106, and "your baseline is 0 degrees").
+        // v0.12: the baseline must be from today (the device's own calendar day). Before, any
+        // baseline ever recorded unlocked training, so a target could rest on a measurement
+        // that was months old (audit). The onboarding already asks for a baseline each day.
+        function baselineIsToday() {
+            const d = window.userData?.baselineDate;
+            if (!d) return false;
+            const t = new Date(d);
+            return isFinite(t.getTime()) && t.toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
+        }
+        function trainReady() {
+            return hasBaseline() && baselineIsToday();
+        }
+
         function updateTrainGate() {
-            const ok = hasBaseline();
+            const ok = trainReady();
             document.getElementById('train-start-btn')?.classList.toggle('hidden', !ok);
             document.getElementById('train-needs-baseline')?.classList.toggle('hidden', ok);
         }
@@ -2185,10 +2299,18 @@
                 showStartMessage(mode, 'Please tick the "I have set up safely" box above first.');
                 return;
             }
-            // v0.10: no training without a baseline (see updateTrainGate).
-            if (mode === 'train' && !hasBaseline()) {
+            // v0.12: the pre-exercise questions are checked here as well as at sign-in, so they
+            // cannot be passed by leaving the page open or by hiding the dialog.
+            const rs = window.readinessState();
+            if (rs !== 'ok') {
+                if (rs === 'blocked') window.showReadinessBlocked(); else window.showReadiness();
+                return;
+            }
+            // v0.10: no training without a baseline (see updateTrainGate). v0.12: from today.
+            if (mode === 'train' && !trainReady()) {
                 updateTrainGate();
-                speak('Please do your baseline first. It sets your target.');
+                calculateDailyTarget();
+                speak("Please do today's baseline first. It sets your target.");
                 return;
             }
             if (!ensurePoseReady()) {
@@ -3127,8 +3249,12 @@
                             // Firestore. avgAngle above is already Math.round-ed.
                             repAngles: trainAngles.map(degStore),
                             dailyTarget: dailyTarget,
-                            extra: sessionProvenance()
+                            extra: sessionProvenance(),
+                            completedAt: new Date().toISOString()
                         };
+                        // v0.12: kept on the device at once, so the set is not lost if the app is
+                        // closed before the questions are answered or skipped (see flushPendingSession).
+                        storePendingSession(window._pendingSessionData);
 
                         stopCamera();
                         setTimeout(() => showQuestionnaire(window._pendingSessionData), 1800);
@@ -3138,6 +3264,28 @@
                 standReturnTime = 0;
             }
         }
+
+        // v0.12: a finished set used to exist only in memory until the questions were answered
+        // or skipped, so closing the app on that screen lost it (audit). It is now also written
+        // to this device's storage the moment the set ends, removed when it is saved, and, if it
+        // is still there at the next sign-in, saved then as a session with no answers.
+        function pendingSessionKey() {
+            return 'rbe_pending_session_' + window.currentUserId;
+        }
+        function storePendingSession(d) {
+            try { localStorage.setItem(pendingSessionKey(), JSON.stringify(d)); } catch (e) { /* storage blocked */ }
+        }
+        function clearPendingSession() {
+            try { localStorage.removeItem(pendingSessionKey()); } catch (e) { /* storage blocked */ }
+        }
+        window.flushPendingSession = () => {
+            if (!window.currentUserId || window._pendingSessionData) return;
+            let d = null;
+            try { d = JSON.parse(localStorage.getItem(pendingSessionKey()) || 'null'); } catch (e) { d = null; }
+            clearPendingSession();
+            if (!d || typeof d.reps !== 'number' || !isFinite(d.reps) || !window.saveSession) return;
+            window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, false, d.extra, d.completedAt);
+        };
 
         function stopCamera() {
             cameraGen++;
@@ -3337,9 +3485,10 @@
             // Null immediately so a rapid re-trigger cannot save the same session
             // twice and double-count totalReps/sessionsCompleted (audit A4).
             window._pendingSessionData = null;
+            clearPendingSession();
             // v0.10: not awaited, so a slow connection no longer holds this screen (tested).
             if (d && window.saveSession) {
-                window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, false, d.extra);
+                window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, false, d.extra, d.completedAt);
             }
             switchView('food');
         };
@@ -3349,6 +3498,7 @@
             // Null immediately so a double-tap / re-entry cannot save the same
             // session twice and double-count totals (audit A4).
             window._pendingSessionData = null;
+            clearPendingSession();
             // v0.10: the programme clock, the same one the Progress tab uses.
             const weeksElapsed = weeksAndAllowance(programmeStartOf(window.userData)).weeks;
 
@@ -3404,7 +3554,7 @@
                 // itself (they used to go only to session_responses), because the weekly
                 // progression rule reads them from here. The pain free text is not copied.
                 const answers = { borgCr10: _qRpe, pain: _qDiscomfort === 'yes', confidence1to5: _qConfidence };
-                window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, true, { ...(d.extra || {}), ...answers });
+                window.saveSession(d.reps, d.avgAngle, d.allHitTarget, d.repAngles, true, { ...(d.extra || {}), ...answers }, d.completedAt);
             }
             switchView('food');
         };
