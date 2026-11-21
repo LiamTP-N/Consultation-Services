@@ -25,7 +25,7 @@ In scope:
 
 * Pages hosted under `liamtp-n.gitlab.io/`.
 * Client-side code in this repository (HTML, CSS, JavaScript).
-* The ROM-Based Exercise web app (`app.html`) and its Firebase integration.
+* The ROM-Based Exercise web app (served at `/rbe-app/` from its own private repo, LiamTP-N/rbe-app; `app.html` here only redirects to it) and its Firebase integration.
 
 Out of scope:
 

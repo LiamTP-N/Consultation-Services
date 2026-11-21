@@ -18,8 +18,8 @@ A personal professional website covering consultancy services, academic CV/portf
 ├── services.html           Consultancy services
 ├── live-research.html      Active research studies feed
 ├── jobs.html               Automated job board
-├── app.html                ROM-based Exercise (RBE) web app
-├── waitlist.html           Redirects to app.html
+├── app.html                Redirect to the RBE app at /rbe-app/
+├── waitlist.html           Redirects to the RBE app (/rbe-app/)
 ├── 404.html                Custom 404 page
 ├── includes.js             Shared nav & footer (injected into all public pages)
 ├── search-index.json       Client-side site search index (Ctrl+K)
@@ -67,11 +67,11 @@ An automatically updated board of academic and industry roles relevant to exerci
 
 **Deduplication:** client-side on title + organisation + source; server-side LinkedIn URL normalisation stripping tracking parameters before ID hashing. Maximum age: 30 days. UK/Canada country badges shown on table rows.
 
-### `app.html` - ROM-based Exercise (RBE) app
-A pose-estimation fitness web app using MediaPipe (loaded from CDN) for real-time joint angle detection via the device camera. Exercise data persists to Firebase Firestore. Has its own self-contained nav - does not use `includes.js`.
+### `app.html` - redirect to the ROM-based Exercise (RBE) app
+Since 21 Nov 2026 the RBE app lives in its own private GitLab project (LiamTP-N/rbe-app) and is served at https://liamtp-n.gitlab.io/rbe-app/ on this same domain, so sign-in and saved data carry on. `app.html` only redirects there, keeping any query string or link fragment, so old links and bookmarks still work.
 
 ### `waitlist.html` - Waitlist
-Redirects visitors to `app.html`. Previously hosted a waitlist form; now serves as a forwarding page.
+Redirects visitors to the RBE app (`/rbe-app/`). Previously hosted a waitlist form; now serves as a forwarding page.
 
 ### `404.html` - 404 page
 Custom not-found page. Uses the shared `includes.js` nav/footer pattern.

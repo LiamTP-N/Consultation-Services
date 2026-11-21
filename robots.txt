@@ -9,6 +9,7 @@ Disallow: /Crypto/
 Disallow: /Personal/
 Disallow: /Emily-Gym/
 Disallow: /app.html
+Disallow: /rbe-app/
 Disallow: /waitlist.html
 
 # --- AI / LLM training and retrieval crawlers: block the whole domain ---
